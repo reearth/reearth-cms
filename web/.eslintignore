@@ -1,0 +1,5 @@
+/dist
+/coverage
+/storybook-static
+!/.storybook
+/.storybook/public

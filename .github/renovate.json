@@ -1,0 +1,42 @@
+{
+  "extends": [
+    "config:base",
+    ":semanticCommits",
+    ":semanticCommitScopeDisabled",
+    ":maintainLockFilesWeekly",
+    ":enableVulnerabilityAlertsWithLabel(security)",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
+  "packageRules": [
+    {
+      "matchPaths": [
+        "server/**"
+      ],
+      "packagePatterns": [
+        "*"
+      ],
+      "groupName": "all dependencies of server",
+      "groupSlug": "server",
+      "extends": [
+        "schedule:earlyMondays"
+      ]
+    },
+    {
+      "matchPaths": [
+        "web/**"
+      ],
+      "packagePatterns": [
+        "*"
+      ],
+      "groupName": "all dependencies of web",
+      "groupSlug": "web",
+      "extends": [
+        "schedule:earlyMondays"
+      ]
+    }
+  ]
+}
