@@ -1,0 +1,4 @@
+node_modules
+web/dist
+web/storybook-static
+*.log

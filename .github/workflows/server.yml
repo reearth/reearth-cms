@@ -1,0 +1,51 @@
+name: server
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - server/**
+      - .github/workflows/server.yml
+  pull_request:
+    paths:
+      - server/**
+      - .github/workflows/server.yml
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.43
+          working-directory: server
+      - name: test
+        run: go test ./... -v -race
+  slack-notification:
+    name: Slack Notification
+    needs:
+      - ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Notification
+        uses: Gamesight/slack-workflow-status@master
+        if: always()
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
