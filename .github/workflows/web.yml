@@ -1,4 +1,4 @@
-name: web
+name: ci-web
 on:
   push:
     branches:
@@ -37,7 +37,12 @@ jobs:
       - name: Lint
         run: yarn run lint
       - name: Test
-        run: yarn test
+        run: yarn coverage
+      - name: Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          directory: web
+          flags: web
       - name: Build
         run: yarn build
   slack-notification:

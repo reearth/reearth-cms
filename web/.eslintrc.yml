@@ -69,16 +69,23 @@ overrides:
       react:
         version: detect
   - files:
-      - '**/__tests__/**/*.+(ts|tsx|js)'
-      - '**/?(*.)+(spec|test).+(ts|tsx|js)'
+      - "**/__tests__/**/*.+(ts|tsx|js)"
+      - "**/?(*.)+(spec|test).+(ts|tsx|js)"
     plugins:
-      - jest
-      - jest-dom
       - testing-library
     extends:
-      - plugin:jest/recommended
-      - plugin:jest-dom/recommended
       - plugin:testing-library/dom
+    rules:
+      no-restricted-globals:
+        - error
+        - name: expect
+          message: 'Use `import { expect } from "vitest";` instead.'
+        - name: describe
+          message: 'Use `import { describe } from "vitest";` instead.'
+        - name: it
+          message: 'Use `import { it } from "vitest";` instead.'
+        - name: test
+          message: 'Use `import { test } from "vitest";` instead.'
   - files:
       - "*.test.tsx"
     plugins:
