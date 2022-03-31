@@ -14,6 +14,7 @@ type Config struct {
 	Port    string `default:"8080" envconfig:"PORT"`
 	Dev     bool
 	Origins []string
+	DB      string `default:"mongodb://localhost"`
 }
 
 func ReadConfig(debug bool) (*Config, error) {
