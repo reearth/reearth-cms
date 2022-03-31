@@ -50,6 +50,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 
 	return e
 }
+
 func allowedOrigins(cfg *ServerConfig) []string {
 	if cfg == nil {
 		return nil
