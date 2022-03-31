@@ -89,6 +89,7 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 
 	return code, msg
 }
+
 func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
 	return func(err error, c echo.Context) {
 		if c.Response().Committed {
