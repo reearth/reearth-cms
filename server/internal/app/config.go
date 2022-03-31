@@ -17,6 +17,7 @@ type Config struct {
 	Port          string `default:"8080" envconfig:"PORT"`
 	Dev           bool
 	Origins       []string
+	DB            string `default:"mongodb://localhost"`
 	Auth          AuthConfigs
 	Auth0         Auth0Config
 	Auth_ISS      string
@@ -25,6 +26,16 @@ type Config struct {
 	Auth_TTL      *int
 	Auth_ClientID *string
 }
+
+type AuthConfig struct {
+	ISS      string
+	AUD      []string
+	ALG      *string
+	TTL      *int
+	ClientID *string
+}
+
+type AuthConfigs []AuthConfig
 
 type Auth0Config struct {
 	Domain       string
@@ -75,16 +86,6 @@ func (c Auth0Config) AuthConfig() *AuthConfig {
 		AUD: aud,
 	}
 }
-
-type AuthConfig struct {
-	ISS      string
-	AUD      []string
-	ALG      *string
-	TTL      *int
-	ClientID *string
-}
-
-type AuthConfigs []AuthConfig
 
 // Decode is a custom decoder for AuthConfigs
 func (ipd *AuthConfigs) Decode(value string) error {
