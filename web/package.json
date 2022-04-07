@@ -65,6 +65,7 @@
   "dependencies": {
     "@apollo/client": "^3.5.10",
     "graphiql": "^1.8.3",
-    "graphql": "^16.3.0"
+    "graphql": "^16.3.0",
+    "jotai": "^1.6.2"
   }
 }
