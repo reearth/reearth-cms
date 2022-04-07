@@ -47,6 +47,7 @@ overrides:
       - plugin:react/recommended
       - plugin:@typescript-eslint/recommended
     rules:
+      "react/react-in-jsx-scope": "off"
       "@typescript-eslint/explicit-module-boundary-types": "off"
       "@typescript-eslint/interface-name-prefix": "off"
       "@typescript-eslint/no-empty-function": "off"
