@@ -1,0 +1,193 @@
+"use strict";
+
+const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+// const CopyWebpackPlugin = require("copy-webpack-plugin");
+const dotenv = require("dotenv");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+// const HtmlTagsPlugin = require("html-webpack-tags-plugin");
+const { readEnv } = require("read-env");
+const webpack = require("webpack");
+
+const pkg = require("./package.json");
+
+let reearthConfig = {};
+try {
+  // eslint-disable-next-line node/no-missing-require
+  reearthConfig = require("./reearth-config.json");
+} catch {
+  // ignore
+}
+
+module.exports = (env, args = {}) => {
+  const isProd = args.mode === "production";
+  const envfile = loadEnv(
+    Object.keys(env || {}).find((k) => !k.startsWith("WEBPACK_"))
+  );
+  const config = {
+    api: "http://localhost:8080/api",
+    ...readEnv("REEARTH_CMS", {
+      source: {
+        // When --env local is specified, .env.local will be loaded
+        ...(envfile ? dotenv.parse(envfile) : {}),
+        ...process.env,
+      },
+    }),
+    ...reearthConfig,
+  };
+
+  return {
+    devServer: {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "X-Requested-With, content-type, Authorization",
+      },
+      historyApiFallback: true,
+      hot: true,
+      open: true,
+      // host: "local-ip",
+      port: 3000,
+      proxy: {
+        "/api": {
+          target: "http://localhost:8080",
+        },
+        "/plugins": {
+          target: "http://localhost:8080",
+        },
+      },
+      onBeforeSetupMiddleware(devServer) {
+        if (!devServer) return;
+        devServer.app.get("/reearth_config.json", (_req, res) => {
+          res.json(config);
+        });
+      },
+    },
+    devtool: isProd ? undefined : "eval-source-map",
+    entry: {
+      app: "./src/index.tsx",
+    },
+    mode: isProd ? "production" : "development",
+    cache: {
+      type: "filesystem",
+    },
+    snapshot: {
+      managedPaths: [
+        path.resolve(
+          __dirname,
+          "package-lock.json",
+          "yarn.lock",
+          "tsconfig.json"
+        ),
+      ],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: "babel-loader",
+              options: {
+                cacheDirectory: true,
+                plugins: isProd ? [] : ["react-refresh/babel"],
+              },
+            },
+          ],
+        },
+        {
+          test: /\.css$/,
+          use: ["style-loader", "css-loader"],
+        },
+        {
+          test: /\.ya?ml$/,
+          use: [{ loader: "json-loader" }, { loader: "yaml-flat-loader" }],
+        },
+        {
+          exclude: [/\.(jsx?|m?js|html?|json|tsx?|css|ya?ml)$/],
+          loader: "file-loader",
+          options: {
+            name: "assets/[name].[contenthash:8].[ext]",
+          },
+        },
+      ],
+    },
+    optimization: {
+      runtimeChunk: "single",
+      splitChunks: {
+        chunks: "all",
+        minSize: 30000,
+        maxInitialRequests: Infinity,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name(module) {
+              const packageName = module.context.match(
+                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+              )[1];
+              const hash = crypto
+                .createHash("md5")
+                .update(packageName, "binary")
+                .digest("hex")
+                .slice(0, 8);
+              return `vendor-${hash}`;
+            },
+          },
+        },
+      },
+    },
+    output: {
+      filename: isProd ? "[name].[chunkhash:8].js" : "[name].js",
+      path: path.join(__dirname, "build"),
+      publicPath: "/",
+    },
+    performance: {
+      hints: isProd ? "warning" : false,
+    },
+    plugins: [
+      ...(isProd
+        ? [
+            new CleanWebpackPlugin({
+              cleanAfterEveryBuildPatterns: ["build"],
+            }),
+          ]
+        : [
+            new webpack.HotModuleReplacementPlugin(),
+            new ReactRefreshWebpackPlugin(),
+          ]),
+      new webpack.DefinePlugin({
+        REEARTH_CMS_VERSION: pkg.version,
+      }),
+      new HtmlWebpackPlugin({
+        excludeChunks: ["published"],
+        template: "src/index.html",
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@reearth": path.resolve(__dirname, "src/"),
+      },
+      extensions: [".ts", ".tsx", ".js", ".jsx", ".json", ".mjs"],
+      // For quickjs-emscripten
+      fallback: {
+        fs: false,
+        path: false,
+      },
+    },
+  };
+};
+
+function loadEnv(env) {
+  try {
+    return fs.readFileSync(`.env${env ? `.${env}` : ""}`);
+  } catch {
+    // ignore
+  }
+}

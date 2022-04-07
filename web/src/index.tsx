@@ -5,10 +5,5 @@ import App from "./app";
 import loadConfig from "./config";
 
 loadConfig().finally(() => {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
+  ReactDOM.render(<App />, document.getElementById("root"));
 });
