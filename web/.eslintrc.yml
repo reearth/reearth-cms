@@ -45,7 +45,6 @@ overrides:
       - "@typescript-eslint"
     extends:
       - plugin:react/recommended
-      - plugin:react/jsx-runtime
       - plugin:@typescript-eslint/recommended
     rules:
       "@typescript-eslint/explicit-module-boundary-types": "off"
