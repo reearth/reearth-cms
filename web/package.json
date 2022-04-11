@@ -56,6 +56,7 @@
     "vite": "^2.8.4"
   },
   "dependencies": {
-    "jotai": "^1.6.3"
+    "jotai": "^1.6.3",
+    "react-intl": "^5.24.8"
   }
 }
