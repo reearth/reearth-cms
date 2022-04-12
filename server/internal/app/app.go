@@ -39,6 +39,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	e.Use(
 		jwtEchoMiddleware(cfg),
 		parseJwtMiddleware(),
+		authMiddleware(cfg),
 	)
 
 	// GraphQL Playground without auth

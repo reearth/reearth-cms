@@ -16,7 +16,9 @@ import (
 type contextKey string
 
 const (
+	debugUserHeader            = "X-Reearth-Debug-User"
 	contextAuth0Sub contextKey = "auth0Sub"
+	contextUser     contextKey = "reearth_user"
 	defaultJWTTTL              = 5 * time.Minute
 )
 
