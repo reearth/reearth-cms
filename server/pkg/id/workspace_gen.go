@@ -4,60 +4,60 @@ package id
 
 import "encoding/json"
 
-// TeamID is an ID for Team.
-type TeamID ID
+// WorkspaceID is an ID for Workspace.
+type WorkspaceID ID
 
-// NewTeamID generates a new TeamId.
-func NewTeamID() TeamID {
-	return TeamID(New())
+// NewWorkspaceID generates a new WorkspaceId.
+func NewWorkspaceID() WorkspaceID {
+	return WorkspaceID(New())
 }
 
-// TeamIDFrom generates a new TeamID from a string.
-func TeamIDFrom(i string) (nid TeamID, err error) {
+// WorkspaceIDFrom generates a new WorkspaceID from a string.
+func WorkspaceIDFrom(i string) (nid WorkspaceID, err error) {
 	var did ID
 	did, err = FromID(i)
 	if err != nil {
 		return
 	}
-	nid = TeamID(did)
+	nid = WorkspaceID(did)
 	return
 }
 
-// MustTeamID generates a new TeamID from a string, but panics if the string cannot be parsed.
-func MustTeamID(i string) TeamID {
+// MustWorkspaceID generates a new WorkspaceID from a string, but panics if the string cannot be parsed.
+func MustWorkspaceID(i string) WorkspaceID {
 	did, err := FromID(i)
 	if err != nil {
 		panic(err)
 	}
-	return TeamID(did)
+	return WorkspaceID(did)
 }
 
-// TeamIDFromRef generates a new TeamID from a string ref.
-func TeamIDFromRef(i *string) *TeamID {
+// WorkspaceIDFromRef generates a new WorkspaceID from a string ref.
+func WorkspaceIDFromRef(i *string) *WorkspaceID {
 	did := FromIDRef(i)
 	if did == nil {
 		return nil
 	}
-	nid := TeamID(*did)
+	nid := WorkspaceID(*did)
 	return &nid
 }
 
-// TeamIDFromRefID generates a new TeamID from a ref of a generic ID.
-func TeamIDFromRefID(i *ID) *TeamID {
+// WorkspaceIDFromRefID generates a new WorkspaceID from a ref of a generic ID.
+func WorkspaceIDFromRefID(i *ID) *WorkspaceID {
 	if i == nil || i.IsNil() {
 		return nil
 	}
-	nid := TeamID(*i)
+	nid := WorkspaceID(*i)
 	return &nid
 }
 
 // ID returns a domain ID.
-func (d TeamID) ID() ID {
+func (d WorkspaceID) ID() ID {
 	return ID(d)
 }
 
 // String returns a string representation.
-func (d TeamID) String() string {
+func (d WorkspaceID) String() string {
 	if d.IsNil() {
 		return ""
 	}
@@ -65,7 +65,7 @@ func (d TeamID) String() string {
 }
 
 // StringRef returns a reference of the string representation.
-func (d TeamID) RefString() *string {
+func (d WorkspaceID) RefString() *string {
 	if d.IsNil() {
 		return nil
 	}
@@ -74,12 +74,12 @@ func (d TeamID) RefString() *string {
 }
 
 // GoString implements fmt.GoStringer interface.
-func (d TeamID) GoString() string {
-	return "TeamID(" + d.String() + ")"
+func (d WorkspaceID) GoString() string {
+	return "WorkspaceID(" + d.String() + ")"
 }
 
 // Ref returns a reference.
-func (d TeamID) Ref() *TeamID {
+func (d WorkspaceID) Ref() *WorkspaceID {
 	if d.IsNil() {
 		return nil
 	}
@@ -88,7 +88,7 @@ func (d TeamID) Ref() *TeamID {
 }
 
 // Contains returns whether the id is contained in the slice.
-func (d TeamID) Contains(ids []TeamID) bool {
+func (d WorkspaceID) Contains(ids []WorkspaceID) bool {
 	if d.IsNil() {
 		return false
 	}
@@ -101,7 +101,7 @@ func (d TeamID) Contains(ids []TeamID) bool {
 }
 
 // CopyRef returns a copy of a reference.
-func (d *TeamID) CopyRef() *TeamID {
+func (d *WorkspaceID) CopyRef() *WorkspaceID {
 	if d.IsNilRef() {
 		return nil
 	}
@@ -110,7 +110,7 @@ func (d *TeamID) CopyRef() *TeamID {
 }
 
 // IDRef returns a reference of a domain id.
-func (d *TeamID) IDRef() *ID {
+func (d *WorkspaceID) IDRef() *ID {
 	if d.IsNilRef() {
 		return nil
 	}
@@ -119,7 +119,7 @@ func (d *TeamID) IDRef() *ID {
 }
 
 // StringRef returns a reference of a string representation.
-func (d *TeamID) StringRef() *string {
+func (d *WorkspaceID) StringRef() *string {
 	if d.IsNilRef() {
 		return nil
 	}
@@ -128,7 +128,7 @@ func (d *TeamID) StringRef() *string {
 }
 
 // MarhsalJSON implements json.Marhsaler interface
-func (d *TeamID) MarhsalJSON() ([]byte, error) {
+func (d *WorkspaceID) MarhsalJSON() ([]byte, error) {
 	if d.IsNilRef() {
 		return nil, nil
 	}
@@ -136,17 +136,17 @@ func (d *TeamID) MarhsalJSON() ([]byte, error) {
 }
 
 // UnmarhsalJSON implements json.Unmarshaler interface
-func (d *TeamID) UnmarhsalJSON(bs []byte) (err error) {
+func (d *WorkspaceID) UnmarhsalJSON(bs []byte) (err error) {
 	var idstr string
 	if err = json.Unmarshal(bs, &idstr); err != nil {
 		return
 	}
-	*d, err = TeamIDFrom(idstr)
+	*d, err = WorkspaceIDFrom(idstr)
 	return
 }
 
 // MarshalText implements encoding.TextMarshaler interface
-func (d *TeamID) MarshalText() ([]byte, error) {
+func (d *WorkspaceID) MarshalText() ([]byte, error) {
 	if d.IsNilRef() {
 		return nil, nil
 	}
@@ -154,23 +154,23 @@ func (d *TeamID) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler interface
-func (d *TeamID) UnmarshalText(text []byte) (err error) {
-	*d, err = TeamIDFrom(string(text))
+func (d *WorkspaceID) UnmarshalText(text []byte) (err error) {
+	*d, err = WorkspaceIDFrom(string(text))
 	return
 }
 
 // IsNil returns true if a ID is zero-value
-func (d TeamID) IsNil() bool {
+func (d WorkspaceID) IsNil() bool {
 	return ID(d).IsNil()
 }
 
 // IsNilRef returns true if a ID is nil or zero-value
-func (d *TeamID) IsNilRef() bool {
+func (d *WorkspaceID) IsNilRef() bool {
 	return d == nil || ID(*d).IsNil()
 }
 
-// TeamIDsToStrings converts IDs into a string slice.
-func TeamIDsToStrings(ids []TeamID) []string {
+// WorkspaceIDsToStrings converts IDs into a string slice.
+func WorkspaceIDsToStrings(ids []WorkspaceID) []string {
 	strs := make([]string, 0, len(ids))
 	for _, i := range ids {
 		strs = append(strs, i.String())
@@ -178,11 +178,11 @@ func TeamIDsToStrings(ids []TeamID) []string {
 	return strs
 }
 
-// TeamIDsFrom converts a string slice into a ID slice.
-func TeamIDsFrom(ids []string) ([]TeamID, error) {
-	dids := make([]TeamID, 0, len(ids))
+// WorkspaceIDsFrom converts a string slice into a ID slice.
+func WorkspaceIDsFrom(ids []string) ([]WorkspaceID, error) {
+	dids := make([]WorkspaceID, 0, len(ids))
 	for _, i := range ids {
-		did, err := TeamIDFrom(i)
+		did, err := WorkspaceIDFrom(i)
 		if err != nil {
 			return nil, err
 		}
@@ -191,28 +191,28 @@ func TeamIDsFrom(ids []string) ([]TeamID, error) {
 	return dids, nil
 }
 
-// TeamIDsFromID converts a generic ID slice into a ID slice.
-func TeamIDsFromID(ids []ID) []TeamID {
-	dids := make([]TeamID, 0, len(ids))
+// WorkspaceIDsFromID converts a generic ID slice into a ID slice.
+func WorkspaceIDsFromID(ids []ID) []WorkspaceID {
+	dids := make([]WorkspaceID, 0, len(ids))
 	for _, i := range ids {
-		dids = append(dids, TeamID(i))
+		dids = append(dids, WorkspaceID(i))
 	}
 	return dids
 }
 
-// TeamIDsFromIDRef converts a ref of a generic ID slice into a ID slice.
-func TeamIDsFromIDRef(ids []*ID) []TeamID {
-	dids := make([]TeamID, 0, len(ids))
+// WorkspaceIDsFromIDRef converts a ref of a generic ID slice into a ID slice.
+func WorkspaceIDsFromIDRef(ids []*ID) []WorkspaceID {
+	dids := make([]WorkspaceID, 0, len(ids))
 	for _, i := range ids {
 		if i != nil {
-			dids = append(dids, TeamID(*i))
+			dids = append(dids, WorkspaceID(*i))
 		}
 	}
 	return dids
 }
 
-// TeamIDsToID converts a ID slice into a generic ID slice.
-func TeamIDsToID(ids []TeamID) []ID {
+// WorkspaceIDsToID converts a ID slice into a generic ID slice.
+func WorkspaceIDsToID(ids []WorkspaceID) []ID {
 	dids := make([]ID, 0, len(ids))
 	for _, i := range ids {
 		dids = append(dids, i.ID())
@@ -220,8 +220,8 @@ func TeamIDsToID(ids []TeamID) []ID {
 	return dids
 }
 
-// TeamIDsToIDRef converts a ID ref slice into a generic ID ref slice.
-func TeamIDsToIDRef(ids []*TeamID) []*ID {
+// WorkspaceIDsToIDRef converts a ID ref slice into a generic ID ref slice.
+func WorkspaceIDsToIDRef(ids []*WorkspaceID) []*ID {
 	dids := make([]*ID, 0, len(ids))
 	for _, i := range ids {
 		dids = append(dids, i.IDRef())
@@ -229,29 +229,29 @@ func TeamIDsToIDRef(ids []*TeamID) []*ID {
 	return dids
 }
 
-// TeamIDSet represents a set of TeamIDs
-type TeamIDSet struct {
-	m map[TeamID]struct{}
-	s []TeamID
+// WorkspaceIDSet represents a set of WorkspaceIDs
+type WorkspaceIDSet struct {
+	m map[WorkspaceID]struct{}
+	s []WorkspaceID
 }
 
-// NewTeamIDSet creates a new TeamIDSet
-func NewTeamIDSet() *TeamIDSet {
-	return &TeamIDSet{}
+// NewWorkspaceIDSet creates a new WorkspaceIDSet
+func NewWorkspaceIDSet() *WorkspaceIDSet {
+	return &WorkspaceIDSet{}
 }
 
 // Add adds a new ID if it does not exists in the set
-func (s *TeamIDSet) Add(p ...TeamID) {
+func (s *WorkspaceIDSet) Add(p ...WorkspaceID) {
 	if s == nil || p == nil {
 		return
 	}
 	if s.m == nil {
-		s.m = map[TeamID]struct{}{}
+		s.m = map[WorkspaceID]struct{}{}
 	}
 	for _, i := range p {
 		if _, ok := s.m[i]; !ok {
 			if s.s == nil {
-				s.s = []TeamID{}
+				s.s = []WorkspaceID{}
 			}
 			s.m[i] = struct{}{}
 			s.s = append(s.s, i)
@@ -260,7 +260,7 @@ func (s *TeamIDSet) Add(p ...TeamID) {
 }
 
 // AddRef adds a new ID ref if it does not exists in the set
-func (s *TeamIDSet) AddRef(p *TeamID) {
+func (s *WorkspaceIDSet) AddRef(p *WorkspaceID) {
 	if s == nil || p == nil {
 		return
 	}
@@ -268,7 +268,7 @@ func (s *TeamIDSet) AddRef(p *TeamID) {
 }
 
 // Has checks if the ID exists in the set
-func (s *TeamIDSet) Has(p TeamID) bool {
+func (s *WorkspaceIDSet) Has(p WorkspaceID) bool {
 	if s == nil || s.m == nil {
 		return false
 	}
@@ -277,7 +277,7 @@ func (s *TeamIDSet) Has(p TeamID) bool {
 }
 
 // Clear clears all stored IDs
-func (s *TeamIDSet) Clear() {
+func (s *WorkspaceIDSet) Clear() {
 	if s == nil {
 		return
 	}
@@ -286,25 +286,25 @@ func (s *TeamIDSet) Clear() {
 }
 
 // All returns stored all IDs as a slice
-func (s *TeamIDSet) All() []TeamID {
+func (s *WorkspaceIDSet) All() []WorkspaceID {
 	if s == nil {
 		return nil
 	}
-	return append([]TeamID{}, s.s...)
+	return append([]WorkspaceID{}, s.s...)
 }
 
 // Clone returns a cloned set
-func (s *TeamIDSet) Clone() *TeamIDSet {
+func (s *WorkspaceIDSet) Clone() *WorkspaceIDSet {
 	if s == nil {
-		return NewTeamIDSet()
+		return NewWorkspaceIDSet()
 	}
-	s2 := NewTeamIDSet()
+	s2 := NewWorkspaceIDSet()
 	s2.Add(s.s...)
 	return s2
 }
 
 // Merge returns a merged set
-func (s *TeamIDSet) Merge(s2 *TeamIDSet) *TeamIDSet {
+func (s *WorkspaceIDSet) Merge(s2 *WorkspaceIDSet) *WorkspaceIDSet {
 	s3 := s.Clone()
 	if s2 == nil {
 		return s3

@@ -3,40 +3,40 @@ package user
 import "github.com/reearth/reearth-cms/server/pkg/id"
 
 type ID = id.UserID
-type TeamID = id.TeamID
+type WorkspaceID = id.WorkspaceID
 
 var NewID = id.NewUserID
-var NewTeamID = id.NewTeamID
+var NewWorkspaceID = id.NewWorkspaceID
 
 var MustID = id.MustUserID
-var MustTeamID = id.MustTeamID
+var MustWorkspaceID = id.MustWorkspaceID
 
 var IDFrom = id.UserIDFrom
-var TeamIDFrom = id.TeamIDFrom
+var WorkspaceIDFrom = id.WorkspaceIDFrom
 
 var IDFromRef = id.UserIDFromRef
-var TeamIDFromRef = id.TeamIDFromRef
+var WorkspaceIDFromRef = id.WorkspaceIDFromRef
 
 var IDFromRefID = id.UserIDFromRefID
-var TeamIDFromRefID = id.TeamIDFromRefID
+var WorkspaceIDFromRefID = id.WorkspaceIDFromRefID
 
 var ErrInvalidID = id.ErrInvalidID
 
-type TeamIDList []TeamID
+type WorkspaceIDList []WorkspaceID
 
-func (l TeamIDList) Clone() TeamIDList {
+func (l WorkspaceIDList) Clone() WorkspaceIDList {
 	if l == nil {
 		return nil
 	}
-	return append(TeamIDList{}, l...)
+	return append(WorkspaceIDList{}, l...)
 }
 
-func (l TeamIDList) Filter(ids ...TeamID) TeamIDList {
+func (l WorkspaceIDList) Filter(ids ...WorkspaceID) WorkspaceIDList {
 	if l == nil {
 		return nil
 	}
 
-	res := make(TeamIDList, 0, len(l))
+	res := make(WorkspaceIDList, 0, len(l))
 	for _, t := range l {
 		for _, t2 := range ids {
 			if t == t2 {
@@ -47,7 +47,7 @@ func (l TeamIDList) Filter(ids ...TeamID) TeamIDList {
 	return res
 }
 
-func (l TeamIDList) Includes(ids ...TeamID) bool {
+func (l WorkspaceIDList) Includes(ids ...WorkspaceID) bool {
 	for _, t := range l {
 		for _, t2 := range ids {
 			if t == t2 {
@@ -58,10 +58,10 @@ func (l TeamIDList) Includes(ids ...TeamID) bool {
 	return false
 }
 
-func (k TeamIDList) Len() int {
+func (k WorkspaceIDList) Len() int {
 	return len(k)
 }
 
-func (k TeamIDList) Strings() []string {
-	return id.TeamIDsToStrings(k)
+func (k WorkspaceIDList) Strings() []string {
+	return id.WorkspaceIDsToStrings(k)
 }

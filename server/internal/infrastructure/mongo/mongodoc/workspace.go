@@ -6,27 +6,27 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type TeamMemberDocument struct {
+type WorkspaceMemberDocument struct {
 	Role string
 }
 
-type TeamDocument struct {
+type WorkspaceDocument struct {
 	ID       string
 	Name     string
-	Members  map[string]TeamMemberDocument
+	Members  map[string]WorkspaceMemberDocument
 	Personal bool
 }
 
-type TeamConsumer struct {
-	Rows user.TeamList
+type WorkspaceConsumer struct {
+	Rows user.WorkspaceList
 }
 
-func (c *TeamConsumer) Consume(raw bson.Raw) error {
+func (c *WorkspaceConsumer) Consume(raw bson.Raw) error {
 	if raw == nil {
 		return nil
 	}
 
-	var doc TeamDocument
+	var doc WorkspaceDocument
 	if err := bson.Unmarshal(raw, &doc); err != nil {
 		return err
 	}
@@ -38,24 +38,24 @@ func (c *TeamConsumer) Consume(raw bson.Raw) error {
 	return nil
 }
 
-func NewTeam(team *user.Team) (*TeamDocument, string) {
-	membersDoc := map[string]TeamMemberDocument{}
-	for user, r := range team.Members().Members() {
-		membersDoc[user.String()] = TeamMemberDocument{
+func NewWorkspace(ws *user.Workspace) (*WorkspaceDocument, string) {
+	membersDoc := map[string]WorkspaceMemberDocument{}
+	for user, r := range ws.Members().Members() {
+		membersDoc[user.String()] = WorkspaceMemberDocument{
 			Role: string(r),
 		}
 	}
-	id := team.ID().String()
-	return &TeamDocument{
+	id := ws.ID().String()
+	return &WorkspaceDocument{
 		ID:       id,
-		Name:     team.Name(),
+		Name:     ws.Name(),
 		Members:  membersDoc,
-		Personal: team.IsPersonal(),
+		Personal: ws.IsPersonal(),
 	}, id
 }
 
-func (d *TeamDocument) Model() (*user.Team, error) {
-	tid, err := id.TeamIDFrom(d.ID)
+func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
+	tid, err := id.WorkspaceIDFrom(d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (d *TeamDocument) Model() (*user.Team, error) {
 			members[uid] = user.Role(member.Role)
 		}
 	}
-	return user.NewTeam().
+	return user.NewWorkspace().
 		ID(tid).
 		Name(d.Name).
 		Members(members).
@@ -78,14 +78,14 @@ func (d *TeamDocument) Model() (*user.Team, error) {
 		Build()
 }
 
-func NewTeams(teams []*user.Team) ([]*TeamDocument, []string) {
-	res := make([]*TeamDocument, 0, len(teams))
-	ids := make([]string, 0, len(teams))
-	for _, d := range teams {
+func NewWorkspaces(workspaces []*user.Workspace) ([]*WorkspaceDocument, []string) {
+	res := make([]*WorkspaceDocument, 0, len(workspaces))
+	ids := make([]string, 0, len(workspaces))
+	for _, d := range workspaces {
 		if d == nil {
 			continue
 		}
-		r, id := NewTeam(d)
+		r, id := NewWorkspace(d)
 		res = append(res, r)
 		ids = append(ids, id)
 	}

@@ -25,10 +25,10 @@ func TestBuilder_NewID(t *testing.T) {
 	assert.NotNil(t, b.ID())
 }
 
-func TestBuilder_Team(t *testing.T) {
-	tid := NewTeamID()
-	b := New().NewID().Team(tid).MustBuild()
-	assert.Equal(t, tid, b.Team())
+func TestBuilder_Workspace(t *testing.T) {
+	tid := NewWorkspaceID()
+	b := New().NewID().Workspace(tid).MustBuild()
+	assert.Equal(t, tid, b.Workspace())
 }
 
 func TestBuilder_Auths(t *testing.T) {
@@ -97,14 +97,14 @@ func TestNew(t *testing.T) {
 
 func TestBuilder_Build(t *testing.T) {
 	uid := NewID()
-	tid := NewTeamID()
+	tid := NewWorkspaceID()
 	en, _ := language.Parse("en")
 	pass, _ := encodePassword("pass")
 
 	type args struct {
 		Name, Lang, Email string
 		ID                ID
-		Team              TeamID
+		Workspace         WorkspaceID
 		Auths             []Auth
 		PasswordBin       []byte
 	}
@@ -122,7 +122,7 @@ func TestBuilder_Build(t *testing.T) {
 				Email:       "xx@yy.zz",
 				Lang:        "en",
 				ID:          uid,
-				Team:        tid,
+				Workspace:   tid,
 				PasswordBin: pass,
 				Auths: []Auth{
 					{
@@ -132,13 +132,13 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			Expected: &User{
-				id:       uid,
-				team:     tid,
-				email:    "xx@yy.zz",
-				name:     "xxx",
-				password: pass,
-				auths:    []Auth{{Provider: "ppp", Sub: "sss"}},
-				lang:     en,
+				id:        uid,
+				workspace: tid,
+				email:     "xx@yy.zz",
+				name:      "xxx",
+				password:  pass,
+				auths:     []Auth{{Provider: "ppp", Sub: "sss"}},
+				lang:      en,
 			},
 		}, {
 			Name:     "failed invalid id",
@@ -158,7 +158,7 @@ func TestBuilder_Build(t *testing.T) {
 				Auths(tt.Args.Auths).
 				LangFrom(tt.Args.Lang).
 				Email(tt.Args.Email).
-				Team(tt.Args.Team).
+				Workspace(tt.Args.Workspace).
 				Build()
 			if tt.Err == nil {
 				assert.Equal(t, tt.Expected, res)
@@ -171,14 +171,14 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	uid := NewID()
-	tid := NewTeamID()
+	tid := NewWorkspaceID()
 	en, _ := language.Parse("en")
 	pass, _ := encodePassword("pass")
 
 	type args struct {
 		Name, Lang, Email string
 		ID                ID
-		Team              TeamID
+		Workspace         WorkspaceID
 		PasswordBin       []byte
 		Auths             []Auth
 	}
@@ -196,7 +196,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				Email:       "xx@yy.zz",
 				Lang:        "en",
 				ID:          uid,
-				Team:        tid,
+				Workspace:   tid,
 				PasswordBin: pass,
 				Auths: []Auth{
 					{
@@ -206,13 +206,13 @@ func TestBuilder_MustBuild(t *testing.T) {
 				},
 			},
 			Expected: &User{
-				id:       uid,
-				team:     tid,
-				email:    "xx@yy.zz",
-				name:     "xxx",
-				password: pass,
-				auths:    []Auth{{Provider: "ppp", Sub: "sss"}},
-				lang:     en,
+				id:        uid,
+				workspace: tid,
+				email:     "xx@yy.zz",
+				name:      "xxx",
+				password:  pass,
+				auths:     []Auth{{Provider: "ppp", Sub: "sss"}},
+				lang:      en,
 			},
 		}, {
 			Name: "failed invalid id",
@@ -234,7 +234,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					Auths(tt.Args.Auths).
 					LangFrom(tt.Args.Lang).
 					Email(tt.Args.Email).
-					Team(tt.Args.Team).
+					Workspace(tt.Args.Workspace).
 					MustBuild()
 			}
 
