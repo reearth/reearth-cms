@@ -64,6 +64,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.10",
+    "@emotion/react": "^11.9.0",
     "graphiql": "^1.8.4",
     "graphql": "^16.3.0",
     "jotai": "^1.6.3",
