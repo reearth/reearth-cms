@@ -1,9 +1,7 @@
 import React from "react";
-import { useIntl } from "react-intl";
 
 const NotFound: React.FC = () => {
-  const intl = useIntl();
-  return <div>{intl.formatMessage({ defaultMessage: "Notfound" })}</div>;
+  return <div>Not found</div>;
 };
 
 export default NotFound;
