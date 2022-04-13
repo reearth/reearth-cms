@@ -9,7 +9,11 @@ import React from "react";
 
 import { useError } from "../state";
 
-const Provider: React.FC = ({ children }) => {
+type Props = {
+  children?: React.ReactNode;
+};
+
+const Provider: React.FC<Props> = ({ children }) => {
   const endpoint = window.REEARTH_CONFIG?.api
     ? `${window.REEARTH_CONFIG.api}/graphql`
     : "/api/graphql";
