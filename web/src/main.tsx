@@ -1,12 +1,17 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom/client";
 
 import "./index.css";
 import App from "./App";
+import loadConfig from "./config";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+loadConfig().finally(() => {
+  const element = document.getElementById("root");
+  if (!element) throw new Error("root element is not found");
+  const root = ReactDOM.createRoot(element);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+});
