@@ -6,8 +6,9 @@ import App from "./App";
 import loadConfig from "./config";
 
 loadConfig().finally(() => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const root = ReactDOM.createRoot(document.getElementById("root")!);
+  const element = document.getElementById("root");
+  if (!element) throw new Error("root element is not found");
+  const root = ReactDOM.createRoot(element);
   root.render(
     <React.StrictMode>
       <App />
