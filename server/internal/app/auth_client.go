@@ -60,7 +60,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 			// save a new sub
 			if u != nil && au != nil {
-				if err := addAuth0SubToUser(ctx, u, user.AuthFromAuth0Sub(au.Sub), cfg); err != nil {
+				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(au.Sub), cfg); err != nil {
 					return err
 				}
 			}
@@ -104,7 +104,7 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	}, nil
 }
 
-func addAuth0SubToUser(ctx context.Context, u *user.User, a user.Auth, cfg *ServerConfig) error {
+func addSubToUser(ctx context.Context, u *user.User, a user.Auth, cfg *ServerConfig) error {
 	if u.AddAuth(a) {
 		err := cfg.Repos.User.Save(ctx, u)
 		if err != nil {
