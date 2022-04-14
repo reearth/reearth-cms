@@ -18,11 +18,11 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          go-version: 1.18
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: cache
         uses: actions/cache@v2
         with:
@@ -31,7 +31,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
           version: v1.45
           working-directory: server
