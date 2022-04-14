@@ -2,3 +2,9 @@ node_modules
 web/dist
 web/storybook-static
 *.log
+
+/.idea/
+
+/server/.env
+/server/.env.local
+/server/.env.*.local
