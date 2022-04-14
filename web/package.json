@@ -68,6 +68,8 @@
     "@emotion/react": "^11.9.0",
     "graphiql": "^1.8.4",
     "graphql": "^16.3.0",
-    "jotai": "^1.6.3"
+    "i18next": "^21.6.16",
+    "jotai": "^1.6.3",
+    "react-i18next": "^11.16.6"
   }
 }
