@@ -21,7 +21,7 @@
       ],
       "groupName": "all dependencies of server",
       "groupSlug": "server",
-      "schedule": ["before 3am on the fourth day of the month"]
+      "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
       "matchPaths": [
@@ -32,7 +32,7 @@
       ],
       "groupName": "all dependencies of web",
       "groupSlug": "web",
-      "schedule": ["before 3am on the fourth day of the month"]
+      "schedule": ["before 3:00 am on the 4th day of the month"]
     }
   ]
 }
