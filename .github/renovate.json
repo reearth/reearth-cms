@@ -16,27 +16,23 @@
       "matchPaths": [
         "server/**"
       ],
-      "packagePatterns": [
+      "matchPackagePatterns": [
         "*"
       ],
       "groupName": "all dependencies of server",
       "groupSlug": "server",
-      "extends": [
-        "schedule:earlyMondays"
-      ]
+      "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
       "matchPaths": [
         "web/**"
       ],
-      "packagePatterns": [
+      "matchPackagePatterns": [
         "*"
       ],
       "groupName": "all dependencies of web",
       "groupSlug": "web",
-      "extends": [
-        "schedule:earlyMondays"
-      ]
+      "schedule": ["before 3:00 am on the 4th day of the month"]
     }
   ]
 }

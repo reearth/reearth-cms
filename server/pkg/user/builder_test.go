@@ -10,18 +10,18 @@ import (
 
 func TestBuilder_ID(t *testing.T) {
 	uid := NewID()
-	b := New().ID(uid).MustBuild()
+	b := New().ID(uid).Email("aaa@bbb.com").MustBuild()
 	assert.Equal(t, uid, b.ID())
 	assert.Nil(t, b.passwordReset)
 }
 
 func TestBuilder_Name(t *testing.T) {
-	b := New().NewID().Name("xxx").MustBuild()
+	b := New().NewID().Name("xxx").Email("aaa@bbb.com").MustBuild()
 	assert.Equal(t, "xxx", b.Name())
 }
 
 func TestBuilder_NewID(t *testing.T) {
-	b := New().NewID().MustBuild()
+	b := New().NewID().Email("aaa@bbb.com").MustBuild()
 	assert.NotNil(t, b.ID())
 }
 
@@ -32,7 +32,7 @@ func TestBuilder_Workspace(t *testing.T) {
 }
 
 func TestBuilder_Auths(t *testing.T) {
-	b := New().NewID().Auths([]Auth{
+	b := New().NewID().Email("aaa@bbb.com").Auths([]Auth{
 		{
 			Provider: "xxx",
 			Sub:      "aaa",
@@ -53,7 +53,7 @@ func TestBuilder_Email(t *testing.T) {
 
 func TestBuilder_Lang(t *testing.T) {
 	l := language.Make("en")
-	b := New().NewID().Lang(l).MustBuild()
+	b := New().NewID().Email("aaa@bbb.com").Lang(l).MustBuild()
 	assert.Equal(t, l, b.Lang())
 }
 
@@ -83,7 +83,7 @@ func TestBuilder_LangFrom(t *testing.T) {
 		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			b := New().NewID().LangFrom(tc.Lang).MustBuild()
+			b := New().NewID().Email("aaa@bbb.com").LangFrom(tc.Lang).MustBuild()
 			assert.Equal(t, tc.Expected, b.Lang())
 		})
 	}
@@ -96,10 +96,12 @@ func TestNew(t *testing.T) {
 }
 
 func TestBuilder_Build(t *testing.T) {
+	// bcrypt is not suitable for unit tests as it requires heavy computation
+	DefaultPasswordEncoder = &NoopPasswordEncoder{}
+
 	uid := NewID()
-	tid := NewWorkspaceID()
-	en, _ := language.Parse("en")
-	pass, _ := encodePassword("pass")
+	wid := NewWorkspaceID()
+	pass := MustEncodedPassword("abcDEF0!")
 
 	type args struct {
 		Name, Lang, Email string
@@ -122,7 +124,7 @@ func TestBuilder_Build(t *testing.T) {
 				Email:       "xx@yy.zz",
 				Lang:        "en",
 				ID:          uid,
-				Workspace:   tid,
+				Workspace:   wid,
 				PasswordBin: pass,
 				Auths: []Auth{
 					{
@@ -133,12 +135,13 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			Expected: &User{
 				id:        uid,
-				workspace: tid,
+				workspace: wid,
 				email:     "xx@yy.zz",
 				name:      "xxx",
 				password:  pass,
 				auths:     []Auth{{Provider: "ppp", Sub: "sss"}},
-				lang:      en,
+				lang:      language.English,
+				theme:     ThemeDefault,
 			},
 		}, {
 			Name:     "failed invalid id",
@@ -153,7 +156,7 @@ func TestBuilder_Build(t *testing.T) {
 			t.Parallel()
 			res, err := New().
 				ID(tt.Args.ID).
-				Password(pass).
+				EncodedPassword(pass).
 				Name(tt.Args.Name).
 				Auths(tt.Args.Auths).
 				LangFrom(tt.Args.Lang).
@@ -170,10 +173,12 @@ func TestBuilder_Build(t *testing.T) {
 }
 
 func TestBuilder_MustBuild(t *testing.T) {
+	// bcrypt is not suitable for unit tests as it requires heavy computation
+	DefaultPasswordEncoder = &NoopPasswordEncoder{}
+
 	uid := NewID()
-	tid := NewWorkspaceID()
-	en, _ := language.Parse("en")
-	pass, _ := encodePassword("pass")
+	wid := NewWorkspaceID()
+	pass := MustEncodedPassword("abcDEF0!")
 
 	type args struct {
 		Name, Lang, Email string
@@ -196,7 +201,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				Email:       "xx@yy.zz",
 				Lang:        "en",
 				ID:          uid,
-				Workspace:   tid,
+				Workspace:   wid,
 				PasswordBin: pass,
 				Auths: []Auth{
 					{
@@ -207,12 +212,13 @@ func TestBuilder_MustBuild(t *testing.T) {
 			},
 			Expected: &User{
 				id:        uid,
-				workspace: tid,
+				workspace: wid,
 				email:     "xx@yy.zz",
 				name:      "xxx",
 				password:  pass,
 				auths:     []Auth{{Provider: "ppp", Sub: "sss"}},
-				lang:      en,
+				lang:      language.English,
+				theme:     ThemeDefault,
 			},
 		}, {
 			Name: "failed invalid id",
@@ -229,7 +235,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				t.Helper()
 				return New().
 					ID(tt.Args.ID).
-					Password(pass).
+					EncodedPassword(pass).
 					Name(tt.Args.Name).
 					Auths(tt.Args.Auths).
 					LangFrom(tt.Args.Lang).

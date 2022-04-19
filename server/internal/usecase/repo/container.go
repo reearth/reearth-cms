@@ -1,5 +1,7 @@
 package repo
 
 type Container struct {
-	Lock Lock
+	Lock      Lock
+	User      User
+	Workspace Workspace
 }
