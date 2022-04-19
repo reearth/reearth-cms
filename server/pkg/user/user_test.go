@@ -312,7 +312,7 @@ func TestUser_UpdateLang(t *testing.T) {
 
 func TestUser_UpdateWorkspace(t *testing.T) {
 	tid := NewWorkspaceID()
-	u := New().NewID().MustBuild()
+	u := New().NewID().Email("aaa@bbb.com").MustBuild()
 	u.UpdateWorkspace(tid)
 	assert.Equal(t, tid, u.Workspace())
 }

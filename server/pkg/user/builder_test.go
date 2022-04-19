@@ -27,7 +27,7 @@ func TestBuilder_NewID(t *testing.T) {
 
 func TestBuilder_Workspace(t *testing.T) {
 	tid := NewWorkspaceID()
-	b := New().NewID().Workspace(tid).MustBuild()
+	b := New().NewID().Email("aaa@bbb.com").Workspace(tid).MustBuild()
 	assert.Equal(t, tid, b.Workspace())
 }
 
