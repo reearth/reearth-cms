@@ -12,9 +12,9 @@ declare global {
 
 export const defaultConfig: Config = {
   api: "/api",
-  auth0Audience: "http://localhost:8080",
-  auth0Domain: "http://localhost:8080",
-  auth0ClientId: "reearth-authsrv-client-default",
+  auth0Audience: "https://api.test.reearth.dev",
+  auth0Domain: "reearth-oss-test.eu.auth0.com",
+  auth0ClientId: "9hSxMF0gI1tvexP7xItUdTH0g6AjgHEV",
 };
 
 export default async function loadConfig() {
