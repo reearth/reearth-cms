@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
+import { Provider as Auth0Provider } from "./auth";
 import NotFound from "./components/atoms/NotFound";
 import RootPage from "./components/pages/Authentication/RootPage";
 import { Provider as GqlProvider } from "./gql";
@@ -16,11 +17,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <GqlProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </GqlProvider>
+    <Auth0Provider>
+      <GqlProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </GqlProvider>
+    </Auth0Provider>
   );
 }
 

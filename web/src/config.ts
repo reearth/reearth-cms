@@ -1,5 +1,8 @@
 export type Config = {
   api: string;
+  auth0ClientId?: string;
+  auth0Domain?: string;
+  auth0Audience?: string;
 };
 declare global {
   interface Window {
@@ -9,6 +12,9 @@ declare global {
 
 export const defaultConfig: Config = {
   api: "/api",
+  auth0Audience: "http://localhost:8080",
+  auth0Domain: "http://localhost:8080",
+  auth0ClientId: "reearth-authsrv-client-default",
 };
 
 export default async function loadConfig() {
