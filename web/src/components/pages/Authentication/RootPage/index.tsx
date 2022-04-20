@@ -1,18 +1,17 @@
 import React from "react";
 
-import { useAuth } from "../../../../auth";
+import { AuthenticationRequiredPage } from "../../../../auth";
 
 export type Props = {
   path?: string;
 };
 
 const RootPage: React.FC<Props> = () => {
-  const { isLoading, isAuthenticated } = useAuth();
-  return isLoading ? (
-    <h1>Loading</h1>
-  ) : !isAuthenticated ? (
-    <h1>CMS root page</h1>
-  ) : null;
+  return (
+    <AuthenticationRequiredPage>
+      <h1>Root page</h1>
+    </AuthenticationRequiredPage>
+  );
 };
 
 export default RootPage;
