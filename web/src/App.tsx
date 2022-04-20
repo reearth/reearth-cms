@@ -2,8 +2,8 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "./auth";
 import NotFound from "./components/atoms/NotFound";
-import LoginPage from "./components/pages/Authentication/LoginPage";
-import RootPage from "./components/pages/Authentication/RootPage";
+import DashboardPage from "./components/pages/Dashboard";
+import RootPage from "./components/pages/RootPage";
 import { Provider as GqlProvider } from "./gql";
 
 import "./App.css";
@@ -11,7 +11,7 @@ import "./App.css";
 function AppRoutes() {
   const routes = useRoutes([
     { path: "/", element: <RootPage /> },
-    { path: "/login", element: <LoginPage /> },
+    { path: "/dashboard", element: <DashboardPage /> },
     { path: "*", element: <NotFound /> },
   ]);
   return routes;
