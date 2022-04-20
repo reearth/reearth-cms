@@ -39,6 +39,7 @@
     "@types/node": "^17.0.18",
     "@types/react": "^18.0.3",
     "@types/react-dom": "^18.0.0",
+    "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "@vitejs/plugin-react": "^1.2.0",
@@ -70,6 +71,7 @@
     "graphql": "^16.3.0",
     "i18next": "^21.6.16",
     "jotai": "^1.6.3",
-    "react-i18next": "^11.16.6"
+    "react-i18next": "^11.16.6",
+    "react-router-dom": "^6.3.0"
   }
 }
