@@ -6,13 +6,14 @@ export type Props = {
   path?: string;
 };
 
-const RootPage: React.FC<Props> = () => {
-  const { isLoading, isAuthenticated } = useAuth();
+const LoginPage: React.FC<Props> = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
   return isLoading ? (
     <h1>Loading</h1>
   ) : !isAuthenticated ? (
-    <h1>CMS root page</h1>
+    <h1>Login</h1>
   ) : null;
 };
 
-export default RootPage;
+export default LoginPage;
