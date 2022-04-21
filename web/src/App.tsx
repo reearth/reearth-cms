@@ -5,6 +5,7 @@ import RootPage from "./components/pages/Authentication/RootPage";
 import { Provider as GqlProvider } from "./gql";
 
 import "./App.css";
+import "antd/dist/antd.css";
 
 function AppRoutes() {
   const routes = useRoutes([
