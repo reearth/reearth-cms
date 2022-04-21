@@ -74,7 +74,7 @@ overrides:
     plugins:
       - testing-library
     extends:
-      - plugin:testing-library/dom
+      - plugin:testing-library/react
     rules:
       no-restricted-globals:
         - error
@@ -86,12 +86,6 @@ overrides:
           message: 'Use `import { it } from "vitest";` instead.'
         - name: test
           message: 'Use `import { test } from "vitest";` instead.'
-  - files:
-      - "*.test.tsx"
-    plugins:
-      - testing-library
-    extends:
-      - plugin:testing-library/react
   - files:
       - "*.js"
     extends:

@@ -1,9 +1,7 @@
-import { screen, render } from "@testing-library/react";
+import { screen, render } from "@reearth-cms/test/utils";
 import { expect, test } from "vitest";
 
-import App from "./App";
-
 test("hello, world", () => {
-  render(<App />);
-  expect(screen.getByText(/Hello Vite \+ React!/i)).toBeInTheDocument();
+  render(<h1>Vite</h1>);
+  expect(screen.getByText(/Vite/i)).toBeInTheDocument();
 });
