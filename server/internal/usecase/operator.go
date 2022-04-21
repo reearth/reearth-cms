@@ -41,15 +41,15 @@ func (o *Operator) AllOwningTeams() user.TeamIDList {
 }
 
 func (o *Operator) IsReadableTeam(team ...id.TeamID) bool {
-	return o.AllReadableTeams().Filter(team...).Len() > 0
+	return o.AllReadableTeams().Intersect(team).Len() > 0
 }
 
 func (o *Operator) IsWritableTeam(team ...id.TeamID) bool {
-	return o.AllWritableTeams().Filter(team...).Len() > 0
+	return o.AllWritableTeams().Intersect(team).Len() > 0
 }
 
 func (o *Operator) IsOwningTeam(team ...id.TeamID) bool {
-	return o.AllOwningTeams().Filter(team...).Len() > 0
+	return o.AllOwningTeams().Intersect(team).Len() > 0
 }
 
 func (o *Operator) AddNewTeam(team id.TeamID) {
