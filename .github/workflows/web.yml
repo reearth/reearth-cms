@@ -41,6 +41,7 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v2
         with:
+          directory: web/coverage
           flags: web
       - name: Build
         run: yarn build
