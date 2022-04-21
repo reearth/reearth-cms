@@ -41,19 +41,6 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v2
         with:
-          directory: web
           flags: web
       - name: Build
         run: yarn build
-  slack-notification:
-    name: Slack Notification
-    needs:
-      - ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Slack Notification
-        uses: Gamesight/slack-workflow-status@master
-        if: always()
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
