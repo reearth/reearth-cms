@@ -5,7 +5,6 @@ import {
   InMemoryCache,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
-import React from "react";
 
 import { useError } from "../state";
 
