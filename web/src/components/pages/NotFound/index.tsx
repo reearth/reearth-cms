@@ -1,5 +1,3 @@
-import React from "react";
-
 import NotFound from "../../atoms/NotFound";
 
 const NotFoundPage: React.FC<{ default?: boolean }> = () => {
