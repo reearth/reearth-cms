@@ -36,8 +36,9 @@ jobs:
           version: v1.45
           working-directory: server
       - name: test
-        run: go test ./... -v -race -cover
+        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
       - name: codecov
         uses: codecov/codecov-action@v2
         with:
           flags: server
+          file: coverage.txt
