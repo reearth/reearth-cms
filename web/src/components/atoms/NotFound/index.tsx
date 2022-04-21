@@ -1,7 +1,14 @@
-import React from "react";
+import Typography from "@reearth-cms/components/atoms/Typography";
 
 const NotFound: React.FC = () => {
-  return <div>Not found</div>;
+  const { Title } = Typography;
+  return (
+    <div>
+      <Typography>
+        <Title>Not found</Title>
+      </Typography>
+    </div>
+  );
 };
 
 export default NotFound;

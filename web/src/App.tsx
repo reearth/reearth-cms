@@ -1,10 +1,11 @@
+import NotFound from "@reearth-cms/components/atoms/NotFound";
+import RootPage from "@reearth-cms/components/pages/Authentication/RootPage";
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
-import NotFound from "./components/atoms/NotFound";
-import RootPage from "./components/pages/Authentication/RootPage";
 import { Provider as GqlProvider } from "./gql";
 
 import "./App.css";
+import "antd/dist/antd.css";
 
 function AppRoutes() {
   const routes = useRoutes([
