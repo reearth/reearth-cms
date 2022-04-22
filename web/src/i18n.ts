@@ -20,6 +20,7 @@ i18n.use(initReactI18next).init({
   resources,
   fallbackLng: "en",
   keySeparator: false,
+  returnEmptyString: false,
 });
 
 export default i18n;

@@ -38,6 +38,8 @@ jobs:
         run: yarn run lint
       - name: Test
         run: yarn test
+      - name: Check translations
+        run: yarn i18n --fail-on-update
       - name: Build
         run: yarn build
   slack-notification:
