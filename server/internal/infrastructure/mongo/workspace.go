@@ -37,10 +37,10 @@ func (r *workspaceRepo) FindByUser(ctx context.Context, id id.UserID) (user.Work
 	})
 }
 
-func (r *workspaceRepo) FindByIDs(ctx context.Context, ids []id.WorkspaceID) (user.WorkspaceList, error) {
+func (r *workspaceRepo) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
 	dst := make([]*user.Workspace, 0, len(ids))
 	res, err := r.find(ctx, dst, bson.M{
-		"id": bson.M{"$in": id.WorkspaceIDsToStrings(ids)},
+		"id": bson.M{"$in": ids.Strings()},
 	})
 	if err != nil {
 		return nil, err
@@ -73,12 +73,12 @@ func (r *workspaceRepo) Remove(ctx context.Context, id id.WorkspaceID) error {
 	return r.client.RemoveOne(ctx, bson.M{"id": id.String()})
 }
 
-func (r *workspaceRepo) RemoveAll(ctx context.Context, ids []id.WorkspaceID) error {
+func (r *workspaceRepo) RemoveAll(ctx context.Context, ids id.WorkspaceIDList) error {
 	if len(ids) == 0 {
 		return nil
 	}
 	return r.client.RemoveAll(ctx, bson.M{
-		"id": bson.M{"$in": id.WorkspaceIDsToStrings(ids)},
+		"id": bson.M{"$in": ids.Strings()},
 	})
 }
 
