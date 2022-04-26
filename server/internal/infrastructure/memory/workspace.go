@@ -34,7 +34,7 @@ func (r *Workspace) FindByUser(ctx context.Context, i id.UserID) (user.Workspace
 	return result, nil
 }
 
-func (r *Workspace) FindByIDs(ctx context.Context, ids []id.WorkspaceID) (user.WorkspaceList, error) {
+func (r *Workspace) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -86,7 +86,7 @@ func (r *Workspace) Remove(ctx context.Context, id id.WorkspaceID) error {
 	return nil
 }
 
-func (r *Workspace) RemoveAll(ctx context.Context, ids []id.WorkspaceID) error {
+func (r *Workspace) RemoveAll(ctx context.Context, ids id.WorkspaceIDList) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 

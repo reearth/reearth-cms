@@ -41,15 +41,15 @@ func (o *Operator) AllOwningWorkspaces() user.WorkspaceIDList {
 }
 
 func (o *Operator) IsReadableWorkspace(workspace ...id.WorkspaceID) bool {
-	return o.AllReadableWorkspaces().Filter(workspace...).Len() > 0
+	return o.AllReadableWorkspaces().Intersect(workspace).Len() > 0
 }
 
 func (o *Operator) IsWritableWorkspace(workspace ...id.WorkspaceID) bool {
-	return o.AllWritableWorkspaces().Filter(workspace...).Len() > 0
+	return o.AllWritableWorkspaces().Intersect(workspace).Len() > 0
 }
 
 func (o *Operator) IsOwningWorkspace(workspace ...id.WorkspaceID) bool {
-	return o.AllOwningWorkspaces().Filter(workspace...).Len() > 0
+	return o.AllOwningWorkspaces().Intersect(workspace).Len() > 0
 }
 
 func (o *Operator) AddNewWorkspace(workspace id.WorkspaceID) {
