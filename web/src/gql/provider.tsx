@@ -6,9 +6,8 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-
-import { useAuth } from "../auth";
-import { useError } from "../state";
+import { useAuth } from "@reearth-cms/auth";
+import { useError } from "@reearth-cms/state";
 
 type Props = {
   children?: React.ReactNode;

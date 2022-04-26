@@ -1,9 +1,7 @@
+import { AuthenticationRequiredPage } from "@reearth-cms/auth";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import React from "react";
 
-import { AuthenticationRequiredPage } from "../../../auth";
-
-const DashboardPage: React.FC<{ default?: boolean }> = () => {
+const DashboardPage: React.FC = () => {
   const { Title } = Typography;
   return (
     <AuthenticationRequiredPage>

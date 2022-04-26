@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import { useAuth } from "@reearth-cms/auth";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../../../auth";
-
-const RootPage: React.FC<{ default?: boolean }> = () => {
+const RootPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
 
@@ -16,11 +15,9 @@ const RootPage: React.FC<{ default?: boolean }> = () => {
   return isLoading ? (
     <h1>Loading</h1>
   ) : !isAuthenticated ? (
-    <>
-      <div style={{ margin: "40px" }}>
-        <button onClick={() => login()}>Log In</button>
-      </div>
-    </>
+    <div style={{ margin: "40px" }}>
+      <button onClick={() => login()}>Log In</button>
+    </div>
   ) : null;
 };
 

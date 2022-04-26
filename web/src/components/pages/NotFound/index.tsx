@@ -1,6 +1,6 @@
-import NotFound from "../../atoms/NotFound";
+import NotFound from "@reearth-cms/components/atoms/NotFound";
 
-const NotFoundPage: React.FC<{ default?: boolean }> = () => {
+const NotFoundPage: React.FC = () => {
   return <NotFound />;
 };
 
