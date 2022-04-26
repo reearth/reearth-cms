@@ -19,8 +19,7 @@ type UserDocument struct {
 	ID            string
 	Name          string
 	Email         string
-	Auth0Sub      string
-	Auth0SubList  []string
+	Subs          []string
 	Workspace     string
 	Lang          string
 	Theme         string
@@ -85,7 +84,7 @@ func NewUser(user *user1.User) (*UserDocument, string) {
 		ID:            id,
 		Name:          user.Name(),
 		Email:         user.Email(),
-		Auth0SubList:  authsdoc,
+		Subs:          authsdoc,
 		Workspace:     user.Workspace().String(),
 		Lang:          user.Lang().String(),
 		Theme:         string(user.Theme()),
@@ -104,13 +103,11 @@ func (d *UserDocument) Model() (*user1.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	auths := make([]user.Auth, 0, len(d.Auth0SubList))
-	for _, s := range d.Auth0SubList {
+	auths := make([]user.Auth, 0, len(d.Subs))
+	for _, s := range d.Subs {
 		auths = append(auths, user.AuthFromAuth0Sub(s))
 	}
-	if d.Auth0Sub != "" {
-		auths = append(auths, user.AuthFromAuth0Sub(d.Auth0Sub))
-	}
+
 	var v *user.Verification
 	if d.Verification != nil {
 		v = user.VerificationFrom(d.Verification.Code, d.Verification.Expiration, d.Verification.Verified)

@@ -13,14 +13,13 @@ func TestInitRepos(t *testing.T) {
 	expected := &repo.Container{
 		Lock: &Lock{},
 		User: &User{
-			data: map[id.UserID]*user.User{},
+			//data: map[id.UserID]*user.User{},
 		},
 		Transaction: &Transaction{},
 		Workspace: &Workspace{
 			data: map[id.WorkspaceID]*user.Workspace{},
 		},
 	}
-	var got *repo.Container
-	got = InitRepos(got)
+	got := InitRepos()
 	assert.Equal(t, expected, got)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewTransaction(t *testing.T) {
+func TestTransaction(t *testing.T) {
 	ctx := context.Background()
 
 	expected := &Transaction{}
