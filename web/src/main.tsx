@@ -1,4 +1,4 @@
-import React from "react";
+import { StrictMode } from "react";
 import * as ReactDOM from "react-dom/client";
 
 import "./index.css";
@@ -10,8 +10,8 @@ loadConfig().finally(() => {
   if (!element) throw new Error("root element is not found");
   const root = ReactDOM.createRoot(element);
   root.render(
-    <React.StrictMode>
+    <StrictMode>
       <App />
-    </React.StrictMode>
+    </StrictMode>
   );
 });

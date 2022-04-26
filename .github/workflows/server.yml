@@ -1,4 +1,4 @@
-name: server
+name: ci-server
 on:
   push:
     branches:
@@ -36,16 +36,9 @@ jobs:
           version: v1.45
           working-directory: server
       - name: test
-        run: go test ./... -v -race
-  slack-notification:
-    name: Slack Notification
-    needs:
-      - ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Slack Notification
-        uses: Gamesight/slack-workflow-status@master
-        if: always()
+        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+      - name: codecov
+        uses: codecov/codecov-action@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          flags: server
+          file: coverage.txt

@@ -1,11 +1,13 @@
+import Typography from "@reearth-cms/components/atoms/Typography";
 import React from "react";
 
 import { AuthenticationRequiredPage } from "../../../auth";
 
 const DashboardPage: React.FC<{ default?: boolean }> = () => {
+  const { Title } = Typography;
   return (
     <AuthenticationRequiredPage>
-      <h1>CMS dashboard root</h1>
+      <Title>CMS dashboard root</Title>
     </AuthenticationRequiredPage>
   );
 };

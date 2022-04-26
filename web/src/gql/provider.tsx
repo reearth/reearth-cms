@@ -6,7 +6,6 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import React from "react";
 
 import { useAuth } from "../auth";
 import { useError } from "../state";
