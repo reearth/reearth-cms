@@ -37,10 +37,8 @@ jobs:
       - name: Lint
         run: yarn run lint
       - name: Test
-        run: yarn coverage
-      - name: Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          flags: web
+        run: yarn test
+      - name: Check translations
+        run: yarn i18n --fail-on-update
       - name: Build
         run: yarn build
