@@ -20,7 +20,8 @@
     "type": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "gen:gql": "graphql-codegen --config codegen.yml"
+    "gql": "graphql-codegen --config codegen.yml",
+    "i18n": "i18next"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -54,6 +55,7 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-testing-library": "^5.0.5",
+    "i18next-parser": "^6.3.0",
     "jsdom": "^19.0.0",
     "msw": "^0.38.1",
     "prettier": "^2.5.1",
