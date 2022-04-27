@@ -1,9 +1,14 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import Typography from "@reearth-cms/components/atoms/Typography";
 
 const NotFound: React.FC = () => {
-  const { t } = useTranslation();
-  return <div> {t("notFound")}</div>;
+  const { Title } = Typography;
+  return (
+    <div>
+      <Typography>
+        <Title>Not found</Title>
+      </Typography>
+    </div>
+  );
 };
 
 export default NotFound;

@@ -1,4 +1,4 @@
-import React from "react";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import { useTranslation } from "react-i18next";
 
 export type Props = {
@@ -7,7 +7,8 @@ export type Props = {
 
 const RootPage: React.FC<Props> = () => {
   const { t } = useTranslation();
-  return <h1>{t("CMS root page")}</h1>;
+  const { Title } = Typography;
+  return <Title>{t("test")}</Title>;
 };
 
 export default RootPage;
