@@ -31,6 +31,7 @@
     "@graphql-codegen/typescript": "2.4.8",
     "@graphql-codegen/typescript-operations": "2.3.5",
     "@graphql-codegen/typescript-react-apollo": "3.2.11",
+    "@rollup/plugin-yaml": "^3.1.0",
     "@storybook/addon-actions": "^6.4.19",
     "@storybook/addon-essentials": "^6.4.19",
     "@storybook/addon-links": "^6.4.19",
