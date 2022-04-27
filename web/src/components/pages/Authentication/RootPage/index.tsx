@@ -8,7 +8,7 @@ export type Props = {
 const RootPage: React.FC<Props> = () => {
   const { t } = useTranslation();
   const { Title } = Typography;
-  return <Title>{t("test")}</Title>;
+  return <Title>{t("CMS root page")}</Title>;
 };
 
 export default RootPage;
