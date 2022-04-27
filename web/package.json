@@ -20,7 +20,8 @@
     "type": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "gen:gql": "graphql-codegen --config codegen.yml"
+    "gql": "graphql-codegen --config codegen.yml",
+    "i18n": "i18next"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
@@ -30,6 +31,7 @@
     "@graphql-codegen/typescript": "2.4.8",
     "@graphql-codegen/typescript-operations": "2.3.5",
     "@graphql-codegen/typescript-react-apollo": "3.2.11",
+    "@rollup/plugin-yaml": "^3.1.0",
     "@storybook/addon-actions": "^6.4.19",
     "@storybook/addon-essentials": "^6.4.19",
     "@storybook/addon-links": "^6.4.19",
@@ -54,7 +56,8 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-testing-library": "^5.0.5",
-    "jsdom": "^19.0.0",
+    "i18next-parser": "^6.3.0",
+    "jest": "^27.5.1",
     "msw": "^0.38.1",
     "prettier": "^2.5.1",
     "react": "^18.0.0",
@@ -62,6 +65,7 @@
     "storybook-builder-vite": "^0.1.16",
     "typescript": "^4.5.5",
     "vite": "^2.8.6",
+    "vite-plugin-yaml": "^1.0.5",
     "vitest": "^0.7.10"
   },
   "dependencies": {
@@ -72,7 +76,10 @@
     "antd": "^4.19.5",
     "graphiql": "^1.8.4",
     "graphql": "^16.3.0",
+    "i18next": "^21.6.16",
+    "i18next-browser-languagedetector": "^6.1.4",
     "jotai": "^1.6.3",
+    "react-i18next": "^11.16.7",
     "react-router-dom": "^6.3.0"
   }
 }

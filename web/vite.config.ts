@@ -3,12 +3,13 @@
 
 import { resolve } from "path";
 
+import yaml from "@rollup/plugin-yaml";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), yaml()],
   resolve: {
     alias: [{ find: "@reearth-cms", replacement: resolve(__dirname, "src") }],
   },
