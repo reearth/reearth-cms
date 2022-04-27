@@ -151,7 +151,6 @@ func TestUser_FindByName(t *testing.T) {
 	}
 }
 
-//
 func TestUser_FindByNameOrEmail(t *testing.T) {
 	ctx := context.Background()
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
@@ -172,7 +171,6 @@ func TestUser_FindByNameOrEmail(t *testing.T) {
 	assert.Same(t, rerror.ErrNotFound, err)
 }
 
-//
 func TestUser_FindByPasswordResetRequest(t *testing.T) {
 	ctx := context.Background()
 	pr := user.PasswordReset{
