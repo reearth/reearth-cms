@@ -19,6 +19,9 @@
     "paths":{
       "@reearth-cms/*": [
         "src/*"
+      ],
+      "*": [
+        "src/@types/*"
       ]
     }
   },
