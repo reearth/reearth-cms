@@ -229,7 +229,6 @@ func TestUser_FindByVerification(t *testing.T) {
 		data: util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
-
 	tests := []struct {
 		name    string
 		repo    *User
