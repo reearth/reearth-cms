@@ -28,6 +28,7 @@ func (r *User) FindByIDs(ctx context.Context, ids id.UserIDList) ([]*user.User, 
 		}
 		return res
 	})
+
 	return res, nil
 }
 
