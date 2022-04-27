@@ -1,5 +1,8 @@
 export type Config = {
   api: string;
+  auth0ClientId?: string;
+  auth0Domain?: string;
+  auth0Audience?: string;
 };
 declare global {
   interface Window {
@@ -9,6 +12,9 @@ declare global {
 
 export const defaultConfig: Config = {
   api: "/api",
+  auth0Audience: "https://api.test.reearth.dev",
+  auth0Domain: "reearth-oss-test.eu.auth0.com",
+  auth0ClientId: "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
 };
 
 export default async function loadConfig() {
