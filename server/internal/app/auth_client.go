@@ -52,7 +52,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			if u == nil && au != nil {
 				var err error
 				// find user
-				u, err = cfg.Repos.User.FindByAuth0Sub(ctx, au.Sub)
+				u, err = cfg.Repos.User.FindBySub(ctx, au.Sub)
 				if err != nil && err != rerror.ErrNotFound {
 					return err
 				}

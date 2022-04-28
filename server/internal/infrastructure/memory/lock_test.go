@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLock_Lock(t *testing.T) {
+func TestLock(t *testing.T) {
 	ctx := context.Background()
 	expected := &Lock{}
 	got := NewLock()

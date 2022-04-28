@@ -2,165 +2,135 @@ package memory
 
 import (
 	"context"
-	"sync"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/util"
 )
 
 type User struct {
-	lock sync.Mutex
-	data map[id.UserID]*user.User
+	data util.SyncMap[id.UserID, *user.User]
 }
 
 func NewUser() repo.User {
 	return &User{
-		data: map[id.UserID]*user.User{},
+		data: util.SyncMap[id.UserID, *user.User]{},
 	}
 }
 
 func (r *User) FindByIDs(ctx context.Context, ids id.UserIDList) ([]*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	result := []*user.User{}
-	for _, id := range ids {
-		if d, ok := r.data[id]; ok {
-			result = append(result, d)
-		} else {
-			result = append(result, nil)
+	res := r.data.FindAll(func(key id.UserID, value *user.User) bool {
+		var res bool
+		for _, uid := range ids {
+			res = res || key == uid
 		}
-	}
-	return result, nil
+		return res
+	})
+
+	return res, nil
 }
 
-func (r *User) FindByID(ctx context.Context, id id.UserID) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	d, ok := r.data[id]
-	if ok {
-		return d, nil
+func (r *User) FindByID(ctx context.Context, v id.UserID) (*user.User, error) {
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return key == v
+	}); res != nil {
+		return res, nil
 	}
+
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) Save(ctx context.Context, u *user.User) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	r.data[u.ID()] = u
+	r.data.Store(u.ID(), u)
 	return nil
 }
 
-func (r *User) FindByAuth0Sub(ctx context.Context, auth0sub string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
+func (r *User) FindBySub(ctx context.Context, auth0sub string) (*user.User, error) {
 	if auth0sub == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		if u.ContainAuth(user.AuthFromAuth0Sub(auth0sub)) {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.ContainAuth(user.AuthFromAuth0Sub(auth0sub))
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) FindByPasswordResetRequest(ctx context.Context, token string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if token == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		pwdReq := u.PasswordReset()
-		if pwdReq != nil && pwdReq.Token == token {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.PasswordReset() != nil && value.PasswordReset().Token == token
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) FindByEmail(ctx context.Context, email string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if email == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		if u.Email() == email {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.Email() == email
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) FindByName(ctx context.Context, name string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if name == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		if u.Name() == name {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.Name() == name
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) FindByNameOrEmail(ctx context.Context, nameOrEmail string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if nameOrEmail == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		if u.Email() == nameOrEmail || u.Name() == nameOrEmail {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.Email() == nameOrEmail || value.Name() == nameOrEmail
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
 }
 
 func (r *User) Remove(ctx context.Context, user id.UserID) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	delete(r.data, user)
+	r.data.Delete(user)
 	return nil
 }
 
 func (r *User) FindByVerification(ctx context.Context, code string) (*user.User, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if code == "" {
 		return nil, rerror.ErrInvalidParams
 	}
 
-	for _, u := range r.data {
-		if u.Verification() != nil && u.Verification().Code() == code {
-			return u, nil
-		}
+	if res := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.Verification() != nil && value.Verification().Code() == code
+	}); res != nil {
+		return res, nil
 	}
 
 	return nil, rerror.ErrNotFound
