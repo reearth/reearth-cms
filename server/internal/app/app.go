@@ -44,14 +44,16 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 
 	// GraphQL Playground without auth
 	if cfg.Debug || cfg.Config.Dev {
-		e.GET("/graphql", echo.WrapHandler(
-			playground.Handler("reearth-cms", "/api/graphql"),
+		e.GET("/gql", echo.WrapHandler(
+			playground.Handler("reearth-cms", "/api/gql"),
 		))
+		log.Printf("gql: GraphQL Playground is available")
 	}
 
 	// apis
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
+	api.POST("/gql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
 	return e
 }

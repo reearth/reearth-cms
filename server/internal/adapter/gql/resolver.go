@@ -10,6 +10,10 @@ import (
 
 type Resolver struct{}
 
+func NewResolver() ResolverRoot {
+	return &Resolver{}
+}
+
 func (r *mutationResolver) Test(ctx context.Context) (string, error) {
 	panic("not implemented")
 }
