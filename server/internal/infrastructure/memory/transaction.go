@@ -14,14 +14,12 @@ func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
-func (t *Transaction) Begin() (repo.Tx, error) {
+func (*Transaction) Begin() (repo.Tx, error) {
 	return &Tx{}, nil
 }
-
-func (t *Tx) Commit() {
+func (*Tx) Commit() {
 	// do nothing
 }
-
-func (t *Tx) End(_ context.Context) error {
+func (*Tx) End(_ context.Context) error {
 	return nil
 }
