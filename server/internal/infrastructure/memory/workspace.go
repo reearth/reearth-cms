@@ -11,44 +11,33 @@ import (
 )
 
 type Workspace struct {
-	data util.SyncMap[id.WorkspaceID, *user.Workspace]
+	data *util.SyncMap[id.WorkspaceID, *user.Workspace]
 }
 
 func NewWorkspace() repo.Workspace {
 	return &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 }
 
 func (r *Workspace) FindByUser(ctx context.Context, i id.UserID) (user.WorkspaceList, error) {
-	if res := r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
+	return rerror.ErrIfNil(r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
 		return value.Members().ContainsUser(i)
-	}); res != nil {
-		return res, nil
-	}
-	return nil, rerror.ErrNotFound
+	}), rerror.ErrNotFound)
 }
 
 func (r *Workspace) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
 	res := r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
-		var res bool
-		for _, wid := range ids {
-			res = res || key == wid
-		}
-		return res
+		return ids.Has(key)
 	})
 
 	return res, nil
 }
 
 func (r *Workspace) FindByID(ctx context.Context, v id.WorkspaceID) (*user.Workspace, error) {
-	if res := r.data.Find(func(key id.WorkspaceID, value *user.Workspace) bool {
+	return rerror.ErrIfNil(r.data.Find(func(key id.WorkspaceID, value *user.Workspace) bool {
 		return key == v
-	}); res != nil {
-		return res, nil
-	}
-
-	return nil, rerror.ErrNotFound
+	}), rerror.ErrNotFound)
 }
 
 func (r *Workspace) Save(ctx context.Context, t *user.Workspace) error {
