@@ -2,6 +2,8 @@
 
 package gql
 
+// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
+
 import (
 	"context"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
