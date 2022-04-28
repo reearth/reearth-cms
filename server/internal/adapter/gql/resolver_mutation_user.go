@@ -3,10 +3,10 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-backend/internal/adapter"
-	"github.com/reearth/reearth-backend/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-backend/internal/usecase/interfaces"
-	"github.com/reearth/reearth-backend/pkg/id"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 func (r *mutationResolver) Signup(ctx context.Context, input gqlmodel.SignupInput) (*gqlmodel.SignupPayload, error) {
@@ -23,17 +23,17 @@ func (r *mutationResolver) Signup(ctx context.Context, input gqlmodel.SignupInpu
 		Name:        au.Name,
 		Secret:      input.Secret,
 		User: interfaces.SignupUserParam{
-			Lang:   input.Lang,
-			Theme:  gqlmodel.ToTheme(input.Theme),
-			UserID: gqlmodel.ToIDRef[id.User](input.UserID),
-			TeamID: gqlmodel.ToIDRef[id.Team](input.TeamID),
+			Lang:        input.Lang,
+			Theme:       gqlmodel.ToTheme(input.Theme),
+			UserID:      gqlmodel.ToIDRef[id.User](input.UserID),
+			WorkspaceID: gqlmodel.ToIDRef[id.Workspace](input.WorkspaceID),
 		},
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &gqlmodel.SignupPayload{User: gqlmodel.ToUser(u), Team: gqlmodel.ToTeam(t)}, nil
+	return &gqlmodel.SignupPayload{User: gqlmodel.ToUser(u), Workspace: gqlmodel.ToWorkspace(t)}, nil
 }
 
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"time"
 
-	"github.com/99designs/gqlgen/graphql"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"golang.org/x/text/language"
 )
 
 type Node interface {
@@ -16,47 +16,13 @@ type Node interface {
 }
 
 type AddMemberToWorkspaceInput struct {
-	WorkspaceID string `json:"workspaceId"`
-	UserID      string `json:"userId"`
-	Role        Role   `json:"role"`
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
 }
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
-}
-
-type Asset struct {
-	ID          string     `json:"id"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	WorkspaceID string     `json:"workspaceId"`
-	Name        string     `json:"name"`
-	Size        int64      `json:"size"`
-	URL         string     `json:"url"`
-	ContentType string     `json:"contentType"`
-	Workspace   *Workspace `json:"workspace"`
-}
-
-func (Asset) IsNode() {}
-
-type AssetConnection struct {
-	Edges      []*AssetEdge `json:"edges"`
-	Nodes      []*Asset     `json:"nodes"`
-	PageInfo   *PageInfo    `json:"pageInfo"`
-	TotalCount int          `json:"totalCount"`
-}
-
-type AssetEdge struct {
-	Cursor string `json:"cursor"`
-	Node   *Asset `json:"node"`
-}
-
-type CreateAssetInput struct {
-	WorkspaceID string         `json:"workspaceId"`
-	File        graphql.Upload `json:"file"`
-}
-
-type CreateAssetPayload struct {
-	Asset *Asset `json:"asset"`
 }
 
 type CreateWorkspaceInput struct {
@@ -68,51 +34,43 @@ type CreateWorkspacePayload struct {
 }
 
 type DeleteMeInput struct {
-	UserID string `json:"userId"`
+	UserID ID `json:"userId"`
 }
 
 type DeleteMePayload struct {
-	UserID string `json:"userId"`
+	UserID ID `json:"userId"`
 }
 
 type DeleteWorkspaceInput struct {
-	WorkspaceID string `json:"workspaceId"`
+	WorkspaceID ID `json:"workspaceId"`
 }
 
 type DeleteWorkspacePayload struct {
-	WorkspaceID string `json:"workspaceId"`
+	WorkspaceID ID `json:"workspaceId"`
 }
 
 type Me struct {
-	ID            string       `json:"id"`
+	ID            ID           `json:"id"`
 	Name          string       `json:"name"`
 	Email         string       `json:"email"`
-	Lang          string       `json:"lang"`
+	Lang          language.Tag `json:"lang"`
 	Theme         Theme        `json:"theme"`
-	MyWorkspaceID string       `json:"myWorkspaceId"`
+	MyWorkspaceID ID           `json:"myWorkspaceId"`
 	Auths         []string     `json:"auths"`
 	Workspaces    []*Workspace `json:"workspaces"`
 	MyWorkspace   *Workspace   `json:"myWorkspace"`
 }
 
 type PageInfo struct {
-	StartCursor     *string `json:"startCursor"`
-	EndCursor       *string `json:"endCursor"`
-	HasNextPage     bool    `json:"hasNextPage"`
-	HasPreviousPage bool    `json:"hasPreviousPage"`
-}
-
-type RemoveAssetInput struct {
-	AssetID string `json:"assetId"`
-}
-
-type RemoveAssetPayload struct {
-	AssetID string `json:"assetId"`
+	StartCursor     *usecase.Cursor `json:"startCursor"`
+	EndCursor       *usecase.Cursor `json:"endCursor"`
+	HasNextPage     bool            `json:"hasNextPage"`
+	HasPreviousPage bool            `json:"hasPreviousPage"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
-	WorkspaceID string `json:"workspaceId"`
-	UserID      string `json:"userId"`
+	WorkspaceID ID `json:"workspaceId"`
+	UserID      ID `json:"userId"`
 }
 
 type RemoveMemberFromWorkspacePayload struct {
@@ -124,11 +82,11 @@ type RemoveMyAuthInput struct {
 }
 
 type SignupInput struct {
-	Lang        *string `json:"lang"`
-	Theme       *Theme  `json:"theme"`
-	UserID      *string `json:"userId"`
-	WorkspaceID *string `json:"workspaceId"`
-	Secret      *string `json:"secret"`
+	Lang        *language.Tag `json:"lang"`
+	Theme       *Theme        `json:"theme"`
+	UserID      *ID           `json:"userId"`
+	WorkspaceID *ID           `json:"workspaceId"`
+	Secret      *string       `json:"secret"`
 }
 
 type SignupPayload struct {
@@ -137,12 +95,12 @@ type SignupPayload struct {
 }
 
 type UpdateMeInput struct {
-	Name                 *string `json:"name"`
-	Email                *string `json:"email"`
-	Lang                 *string `json:"lang"`
-	Theme                *Theme  `json:"theme"`
-	Password             *string `json:"password"`
-	PasswordConfirmation *string `json:"passwordConfirmation"`
+	Name                 *string       `json:"name"`
+	Email                *string       `json:"email"`
+	Lang                 *language.Tag `json:"lang"`
+	Theme                *Theme        `json:"theme"`
+	Password             *string       `json:"password"`
+	PasswordConfirmation *string       `json:"passwordConfirmation"`
 }
 
 type UpdateMePayload struct {
@@ -150,9 +108,9 @@ type UpdateMePayload struct {
 }
 
 type UpdateMemberOfWorkspaceInput struct {
-	WorkspaceID string `json:"workspaceId"`
-	UserID      string `json:"userId"`
-	Role        Role   `json:"role"`
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
 }
 
 type UpdateMemberOfWorkspacePayload struct {
@@ -160,7 +118,7 @@ type UpdateMemberOfWorkspacePayload struct {
 }
 
 type UpdateWorkspaceInput struct {
-	WorkspaceID string `json:"workspaceId"`
+	WorkspaceID ID     `json:"workspaceId"`
 	Name        string `json:"name"`
 }
 
@@ -169,7 +127,7 @@ type UpdateWorkspacePayload struct {
 }
 
 type User struct {
-	ID    string `json:"id"`
+	ID    ID     `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
@@ -177,62 +135,18 @@ type User struct {
 func (User) IsNode() {}
 
 type Workspace struct {
-	ID       string             `json:"id"`
+	ID       ID                 `json:"id"`
 	Name     string             `json:"name"`
 	Members  []*WorkspaceMember `json:"members"`
 	Personal bool               `json:"personal"`
-	Assets   *AssetConnection   `json:"assets"`
 }
 
 func (Workspace) IsNode() {}
 
 type WorkspaceMember struct {
-	UserID string `json:"userId"`
-	Role   Role   `json:"role"`
-	User   *User  `json:"user"`
-}
-
-type AssetSortType string
-
-const (
-	AssetSortTypeDate AssetSortType = "DATE"
-	AssetSortTypeSize AssetSortType = "SIZE"
-	AssetSortTypeName AssetSortType = "NAME"
-)
-
-var AllAssetSortType = []AssetSortType{
-	AssetSortTypeDate,
-	AssetSortTypeSize,
-	AssetSortTypeName,
-}
-
-func (e AssetSortType) IsValid() bool {
-	switch e {
-	case AssetSortTypeDate, AssetSortTypeSize, AssetSortTypeName:
-		return true
-	}
-	return false
-}
-
-func (e AssetSortType) String() string {
-	return string(e)
-}
-
-func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = AssetSortType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid AssetSortType", str)
-	}
-	return nil
-}
-
-func (e AssetSortType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	UserID ID    `json:"userId"`
+	Role   Role  `json:"role"`
+	User   *User `json:"user"`
 }
 
 type NodeType string

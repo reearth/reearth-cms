@@ -14,7 +14,7 @@ import (
 func TestCreateWorkspace(t *testing.T) {
 	ctx := context.Background()
 
-	db := memory.InitRepos(nil)
+	db := memory.InitRepos()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
 	workspaceUC := NewWorkspace(db)

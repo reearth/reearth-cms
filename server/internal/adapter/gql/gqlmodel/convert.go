@@ -1,10 +1,5 @@
 package gqlmodel
 
-import (
-	"github.com/reearth/reearth-cms/server/internal/usecase"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-)
-
 func RefToIndex(i *int) int {
 	if i == nil {
 		return -1
@@ -19,28 +14,28 @@ func RefToString(s *string) string {
 	return *s
 }
 
-func stringToRef(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
+//func stringToRef(s string) *string {
+//	if s == "" {
+//		return nil
+//	}
+//	return &s
+//}
 
 func BoolToRef(b bool) *bool {
 	return &b
 }
 
-func ToPageInfo(p *usecase.PageInfo) *PageInfo {
-	if p == nil {
-		return &PageInfo{}
-	}
-	return &PageInfo{
-		StartCursor:     p.StartCursor(),
-		EndCursor:       p.EndCursor(),
-		HasNextPage:     p.HasNextPage(),
-		HasPreviousPage: p.HasPreviousPage(),
-	}
-}
+//func ToPageInfo(p *usecase.PageInfo) *PageInfo {
+//	if p == nil {
+//		return &PageInfo{}
+//	}
+//	return &PageInfo{
+//		StartCursor:     p.StartCursor(),
+//		EndCursor:       p.EndCursor(),
+//		HasNextPage:     p.HasNextPage(),
+//		HasPreviousPage: p.HasPreviousPage(),
+//	}
+//}
 
 //
 //func ToPagination(pagination *Pagination) *usecase.Pagination {

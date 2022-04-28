@@ -71,12 +71,6 @@ type Workspace implements Node {
   name: String!
   members: [WorkspaceMember!]!
   personal: Boolean!
-  assets(
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): AssetConnection! @goField(forceResolver: true)
 }
 
 type WorkspaceMember {
@@ -92,51 +86,6 @@ enum Role {
   WRITER
   # a eole who can have full controll of project
   OWNER
-}
-
-
-# Asset
-
-type Asset implements Node {
-  id: ID!
-  createdAt: DateTime!
-  workspaceId: ID!
-  name: String!
-  size: FileSize!
-  url: String!
-  contentType: String!
-  workspace: Workspace @goField(forceResolver: true)
-}
-
-enum AssetSortType {
-  DATE
-  SIZE
-  NAME
-}
-
-# Connection
-
-type AssetConnection {
-  edges: [AssetEdge!]!
-  nodes: [Asset]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type AssetEdge {
-  cursor: Cursor!
-  node: Asset
-}
-
-# InputType
-
-input CreateAssetInput {
-  workspaceId: ID!
-  file: Upload!
-}
-
-input RemoveAssetInput {
-  assetId: ID!
 }
 
 input SignupInput {
@@ -201,14 +150,6 @@ type Query {
 }
 
 # Payload
-
-type CreateAssetPayload {
-  asset: Asset!
-}
-
-type RemoveAssetPayload {
-  assetId: ID!
-}
 
 type UpdateMePayload {
   me: Me!

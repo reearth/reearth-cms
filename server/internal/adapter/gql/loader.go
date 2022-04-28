@@ -2,8 +2,9 @@ package gql
 
 import (
 	"context"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 )
 
 const (

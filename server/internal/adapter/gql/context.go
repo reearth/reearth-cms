@@ -3,11 +3,10 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-backend/internal/adapter"
-	"github.com/reearth/reearth-backend/internal/usecase"
-	"github.com/reearth/reearth-backend/internal/usecase/interfaces"
-	"github.com/reearth/reearth-backend/pkg/user"
-	"golang.org/x/text/language"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type ContextKey string
@@ -32,9 +31,10 @@ func getUser(ctx context.Context) *user.User {
 	return adapter.User(ctx)
 }
 
-func getLang(ctx context.Context, lang *language.Tag) string {
-	return adapter.Lang(ctx, lang)
-}
+//
+//func getLang(ctx context.Context, lang *language.Tag) string {
+//	return adapter.Lang(ctx, lang)
+//}
 
 func getOperator(ctx context.Context) *usecase.Operator {
 	return adapter.Operator(ctx)

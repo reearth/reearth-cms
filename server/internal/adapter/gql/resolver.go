@@ -2,22 +2,18 @@
 
 package gql
 
-// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
-
 import (
-	"context"
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"errors"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
-type Resolver struct{}
+var ErrNotImplemented = errors.New("not impleneted yet")
+var ErrUnauthorized = errors.New("unauthorized")
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+type Resolver struct {
+}
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+func NewResolver() ResolverRoot {
+	return &Resolver{}
+}

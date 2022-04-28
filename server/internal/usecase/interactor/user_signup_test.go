@@ -8,6 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/samber/lo"
+	"golang.org/x/text/language"
+
 	"github.com/jarcoal/httpmock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mailer"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -19,275 +22,275 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//func TestUser_Signup(t *testing.T) {
-//	user.DefaultPasswordEncoder = &user.NoopPasswordEncoder{}
-//	uid := id.NewUserID()
-//	tid := id.NewWorkspaceID()
-//	mocktime := time.Time{}
-//	mockcode := "CODECODE"
-//
-//	defer user.MockNow(mocktime)()
-//	defer user.MockGenerateVerificationCode(mockcode)()
-//
-//	tests := []struct {
-//		name             string
-//		signupSecret     string
-//		authSrvUIDomain  string
-//		createUserBefore *user.User
-//		args             interfaces.SignupParam
-//		wantUser         *user.User
-//		wantWorkspace         *user.Workspace
-//		wantMailTo       []gateway.Contact
-//		wantMailSubject  string
-//		wantMailContent  string
-//		wantError        error
-//	}{
-//		{
-//			name:            "without secret",
-//			signupSecret:    "",
-//			authSrvUIDomain: "https://reearth.io",
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				User: interfaces.SignupUserParam{
-//					UserID: &uid,
-//					WorkspaceID: &tid,
-//				},
-//			},
-//			wantUser: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Name("NAME").
-//				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-//				Email("aaa@bbb.com").
-//				PasswordPlainText("PAss00!!").
-//				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-//				MustBuild(),
-//			wantWorkspace: user.NewWorkspace().
-//				ID(tid).
-//				Name("NAME").
-//				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
-//				Personal(true).
-//				MustBuild(),
-//			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
-//			wantMailSubject: "email verification",
-//			wantMailContent: "https://reearth.io/?user-verification-token=CODECODE",
-//			wantError:       nil,
-//		},
-//		{
-//			name:            "existing but not valdiated user",
-//			signupSecret:    "",
-//			authSrvUIDomain: "",
-//			createUserBefore: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Email("aaa@bbb.com").
-//				MustBuild(),
-//			args: interfaces.SignupParam{
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				User: interfaces.SignupUserParam{
-//					UserID: &uid,
-//					WorkspaceID: &tid,
-//				},
-//			},
-//			wantUser: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Email("aaa@bbb.com").
-//				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-//				MustBuild(),
-//			wantWorkspace:        nil,
-//			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: ""}},
-//			wantMailSubject: "email verification",
-//			wantMailContent: "/?user-verification-token=CODECODE",
-//			wantError:       nil,
-//		},
-//		{
-//			name:            "existing and valdiated user",
-//			signupSecret:    "",
-//			authSrvUIDomain: "",
-//			createUserBefore: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Email("aaa@bbb.com").
-//				Verification(user.VerificationFrom(mockcode, mocktime, true)).
-//				MustBuild(),
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				User: interfaces.SignupUserParam{
-//					UserID: &uid,
-//					WorkspaceID: &tid,
-//				},
-//			},
-//			wantUser:  nil,
-//			wantWorkspace:  nil,
-//			wantError: interfaces.ErrUserAlreadyExists,
-//		},
-//		{
-//			name:            "without secret 2",
-//			signupSecret:    "",
-//			authSrvUIDomain: "",
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				Secret:   sr("hogehoge"),
-//				User: interfaces.SignupUserParam{
-//					UserID: &uid,
-//					WorkspaceID: &tid,
-//				},
-//			},
-//			wantUser: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Name("NAME").
-//				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-//				Email("aaa@bbb.com").
-//				PasswordPlainText("PAss00!!").
-//				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-//				MustBuild(),
-//			wantWorkspace: user.NewWorkspace().
-//				ID(tid).
-//				Name("NAME").
-//				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
-//				Personal(true).
-//				MustBuild(),
-//			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
-//			wantMailSubject: "email verification",
-//			wantMailContent: "/?user-verification-token=CODECODE",
-//			wantError:       nil,
-//		},
-//		{
-//			name:            "with secret",
-//			signupSecret:    "SECRET",
-//			authSrvUIDomain: "",
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				Secret:   sr("SECRET"),
-//				User: interfaces.SignupUserParam{
-//					UserID: &uid,
-//					WorkspaceID: &tid,
-//					Lang:   &language.Japanese,
-//					Theme:  user.ThemeDark.Ref(),
-//				},
-//			},
-//			wantUser: user.New().
-//				ID(uid).
-//				Workspace(tid).
-//				Name("NAME").
-//				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-//				Email("aaa@bbb.com").
-//				PasswordPlainText("PAss00!!").
-//				Lang(language.Japanese).
-//				Theme(user.ThemeDark).
-//				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-//				MustBuild(),
-//			wantWorkspace: user.NewWorkspace().
-//				ID(tid).
-//				Name("NAME").
-//				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
-//				Personal(true).
-//				MustBuild(),
-//			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
-//			wantMailSubject: "email verification",
-//			wantMailContent: "/?user-verification-token=CODECODE",
-//			wantError:       nil,
-//		},
-//		{
-//			name:            "invalid secret",
-//			signupSecret:    "SECRET",
-//			authSrvUIDomain: "",
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//				Secret:   sr("SECRET!"),
-//			},
-//			wantError: interfaces.ErrSignupInvalidSecret,
-//		},
-//		{
-//			name:            "invalid secret 2",
-//			signupSecret:    "SECRET",
-//			authSrvUIDomain: "",
-//			args: interfaces.SignupParam{
-//				Sub:      sr("SUB"),
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//			},
-//			wantError: interfaces.ErrSignupInvalidSecret,
-//		},
-//		{
-//			name: "invalid email",
-//			args: interfaces.SignupParam{
-//				Email:    "aaa",
-//				Name:     "NAME",
-//				Password: "PAss00!!",
-//			},
-//			wantError: user.ErrInvalidEmail,
-//		},
-//		{
-//			name: "invalid password",
-//			args: interfaces.SignupParam{
-//				Email:    "aaa@bbb.com",
-//				Name:     "NAME",
-//				Password: "PAss00",
-//			},
-//			wantError: user.ErrPasswordLength,
-//		},
-//		{
-//			name: "invalid name",
-//			args: interfaces.SignupParam{
-//				Email:    "aaa@bbb.com",
-//				Name:     "",
-//				Password: "PAss00!!",
-//			},
-//			wantError: interfaces.ErrSignupInvalidName,
-//		},
-//	}
-//
-//	for _, tt := range tests {
-//		tt := tt
-//		t.Run(tt.name, func(t *testing.T) {
-//			// t.Parallel() cannot be used
-//			r := memory.InitRepos(nil)
-//			if tt.createUserBefore != nil {
-//				assert.NoError(t, r.User.Save(
-//					context.Background(),
-//					tt.createUserBefore),
-//				)
-//			}
-//			m := mailer.NewMock()
-//			g := &gateway.Container{Mailer: m}
-//			uc := NewUser(r, g, tt.signupSecret, tt.authSrvUIDomain)
-//			user, workspace, err := uc.Signup(context.Background(), tt.args)
-//			assert.Equal(t, tt.wantUser, user)
-//			assert.Equal(t, tt.wantWorkspace, workspace)
-//			assert.Equal(t, tt.wantError, err)
-//			mails := m.Mails()
-//			if tt.wantMailSubject == "" {
-//				assert.Empty(t, mails)
-//			} else {
-//				assert.Equal(t, 1, len(mails))
-//				assert.Equal(t, tt.wantMailSubject, mails[0].Subject)
-//				assert.Equal(t, tt.wantMailTo, mails[0].To)
-//				assert.Contains(t, mails[0].PlainContent, tt.wantMailContent)
-//			}
-//		})
-//	}
-//}
+func TestUser_Signup(t *testing.T) {
+	user.DefaultPasswordEncoder = &user.NoopPasswordEncoder{}
+	uid := id.NewUserID()
+	tid := id.NewWorkspaceID()
+	mocktime := time.Time{}
+	mockcode := "CODECODE"
+
+	defer user.MockNow(mocktime)()
+	defer user.MockGenerateVerificationCode(mockcode)()
+
+	tests := []struct {
+		name             string
+		signupSecret     string
+		authSrvUIDomain  string
+		createUserBefore *user.User
+		args             interfaces.SignupParam
+		wantUser         *user.User
+		wantWorkspace    *user.Workspace
+		wantMailTo       []gateway.Contact
+		wantMailSubject  string
+		wantMailContent  string
+		wantError        error
+	}{
+		{
+			name:            "without secret",
+			signupSecret:    "",
+			authSrvUIDomain: "https://reearth.io",
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				User: interfaces.SignupUserParam{
+					UserID:      &uid,
+					WorkspaceID: &tid,
+				},
+			},
+			wantUser: user.New().
+				ID(uid).
+				Workspace(tid).
+				Name("NAME").
+				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
+				Email("aaa@bbb.com").
+				PasswordPlainText("PAss00!!").
+				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+				MustBuild(),
+			wantWorkspace: user.NewWorkspace().
+				ID(tid).
+				Name("NAME").
+				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Personal(true).
+				MustBuild(),
+			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
+			wantMailSubject: "email verification",
+			wantMailContent: "https://reearth.io/?user-verification-token=CODECODE",
+			wantError:       nil,
+		},
+		{
+			name:            "existing but not valdiated user",
+			signupSecret:    "",
+			authSrvUIDomain: "",
+			createUserBefore: user.New().
+				ID(uid).
+				Workspace(tid).
+				Email("aaa@bbb.com").
+				MustBuild(),
+			args: interfaces.SignupParam{
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				User: interfaces.SignupUserParam{
+					UserID:      &uid,
+					WorkspaceID: &tid,
+				},
+			},
+			wantUser: user.New().
+				ID(uid).
+				Workspace(tid).
+				Email("aaa@bbb.com").
+				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+				MustBuild(),
+			wantWorkspace:   nil,
+			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: ""}},
+			wantMailSubject: "email verification",
+			wantMailContent: "/?user-verification-token=CODECODE",
+			wantError:       nil,
+		},
+		{
+			name:            "existing and valdiated user",
+			signupSecret:    "",
+			authSrvUIDomain: "",
+			createUserBefore: user.New().
+				ID(uid).
+				Workspace(tid).
+				Email("aaa@bbb.com").
+				Verification(user.VerificationFrom(mockcode, mocktime, true)).
+				MustBuild(),
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				User: interfaces.SignupUserParam{
+					UserID:      &uid,
+					WorkspaceID: &tid,
+				},
+			},
+			wantUser:      nil,
+			wantWorkspace: nil,
+			wantError:     interfaces.ErrUserAlreadyExists,
+		},
+		{
+			name:            "without secret 2",
+			signupSecret:    "",
+			authSrvUIDomain: "",
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				Secret:   lo.ToPtr("hogehoge"),
+				User: interfaces.SignupUserParam{
+					UserID:      &uid,
+					WorkspaceID: &tid,
+				},
+			},
+			wantUser: user.New().
+				ID(uid).
+				Workspace(tid).
+				Name("NAME").
+				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
+				Email("aaa@bbb.com").
+				PasswordPlainText("PAss00!!").
+				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+				MustBuild(),
+			wantWorkspace: user.NewWorkspace().
+				ID(tid).
+				Name("NAME").
+				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Personal(true).
+				MustBuild(),
+			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
+			wantMailSubject: "email verification",
+			wantMailContent: "/?user-verification-token=CODECODE",
+			wantError:       nil,
+		},
+		{
+			name:            "with secret",
+			signupSecret:    "SECRET",
+			authSrvUIDomain: "",
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				Secret:   lo.ToPtr("SECRET"),
+				User: interfaces.SignupUserParam{
+					UserID:      &uid,
+					WorkspaceID: &tid,
+					Lang:        &language.Japanese,
+					Theme:       user.ThemeDark.Ref(),
+				},
+			},
+			wantUser: user.New().
+				ID(uid).
+				Workspace(tid).
+				Name("NAME").
+				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
+				Email("aaa@bbb.com").
+				PasswordPlainText("PAss00!!").
+				Lang(language.Japanese).
+				Theme(user.ThemeDark).
+				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+				MustBuild(),
+			wantWorkspace: user.NewWorkspace().
+				ID(tid).
+				Name("NAME").
+				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Personal(true).
+				MustBuild(),
+			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
+			wantMailSubject: "email verification",
+			wantMailContent: "/?user-verification-token=CODECODE",
+			wantError:       nil,
+		},
+		{
+			name:            "invalid secret",
+			signupSecret:    "SECRET",
+			authSrvUIDomain: "",
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+				Secret:   lo.ToPtr("SECRET!"),
+			},
+			wantError: interfaces.ErrSignupInvalidSecret,
+		},
+		{
+			name:            "invalid secret 2",
+			signupSecret:    "SECRET",
+			authSrvUIDomain: "",
+			args: interfaces.SignupParam{
+				Sub:      lo.ToPtr("SUB"),
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+			},
+			wantError: interfaces.ErrSignupInvalidSecret,
+		},
+		{
+			name: "invalid email",
+			args: interfaces.SignupParam{
+				Email:    "aaa",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00!!"),
+			},
+			wantError: user.ErrInvalidEmail,
+		},
+		{
+			name: "invalid password",
+			args: interfaces.SignupParam{
+				Email:    "aaa@bbb.com",
+				Name:     "NAME",
+				Password: lo.ToPtr("PAss00"),
+			},
+			wantError: user.ErrPasswordLength,
+		},
+		{
+			name: "invalid name",
+			args: interfaces.SignupParam{
+				Email:    "aaa@bbb.com",
+				Name:     "",
+				Password: lo.ToPtr("PAss00!!"),
+			},
+			wantError: interfaces.ErrSignupInvalidName,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			// t.Parallel() cannot be used
+			r := memory.InitRepos()
+			if tt.createUserBefore != nil {
+				assert.NoError(t, r.User.Save(
+					context.Background(),
+					tt.createUserBefore),
+				)
+			}
+			m := mailer.NewMock()
+			g := &gateway.Container{Mailer: m}
+			uc := NewUser(r, g, tt.signupSecret, tt.authSrvUIDomain)
+			user, workspace, err := uc.Signup(context.Background(), tt.args)
+			assert.Equal(t, tt.wantUser, user)
+			assert.Equal(t, tt.wantWorkspace, workspace)
+			assert.Equal(t, tt.wantError, err)
+			mails := m.Mails()
+			if tt.wantMailSubject == "" {
+				assert.Empty(t, mails)
+			} else {
+				assert.Equal(t, 1, len(mails))
+				assert.Equal(t, tt.wantMailSubject, mails[0].Subject)
+				assert.Equal(t, tt.wantMailTo, mails[0].To)
+				assert.Contains(t, mails[0].PlainContent, tt.wantMailContent)
+			}
+		})
+	}
+}
 
 func TestUser_SignupOIDC(t *testing.T) {
 	httpmock.Activate()
@@ -400,7 +403,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 				AccessToken: "accesstoken",
 				Issuer:      "https://issuer",
 				Sub:         "sub",
-				Secret:      sr("SECRET"),
+				Secret:      lo.ToPtr("SECRET"),
 				User: interfaces.SignupUserParam{
 					UserID:      &uid,
 					WorkspaceID: &tid,
@@ -468,7 +471,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 				AccessToken: "accesstoken",
 				Issuer:      "https://issuer",
 				Sub:         "sub",
-				Secret:      sr("SECRET!"),
+				Secret:      lo.ToPtr("SECRET!"),
 				User: interfaces.SignupUserParam{
 					UserID:      &uid,
 					WorkspaceID: &tid,
@@ -515,7 +518,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			// t.Parallel() cannot be used
-			r := memory.InitRepos(nil)
+			r := memory.InitRepos()
 			if tt.createUserBefore != nil {
 				assert.NoError(t, r.User.Save(
 					context.Background(),
@@ -542,8 +545,4 @@ func TestIssToURL(t *testing.T) {
 	assert.Equal(t, &url.URL{Scheme: "https", Host: "iss.com", Path: ""}, issToURL("https://iss.com/", ""))
 	assert.Equal(t, &url.URL{Scheme: "https", Host: "iss.com", Path: "/hoge"}, issToURL("https://iss.com/hoge", ""))
 	assert.Equal(t, &url.URL{Scheme: "https", Host: "iss.com", Path: "/hoge/foobar"}, issToURL("https://iss.com/hoge", "foobar"))
-}
-
-func sr(s string) *string {
-	return &s
 }

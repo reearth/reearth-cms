@@ -3,7 +3,7 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-backend/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 )
 
 func (r *Resolver) Me() MeResolver {
@@ -12,10 +12,10 @@ func (r *Resolver) Me() MeResolver {
 
 type meResolver struct{ *Resolver }
 
-func (r *meResolver) MyTeam(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Team, error) {
-	return dataloaders(ctx).Team.Load(obj.MyTeamID)
+func (r *meResolver) MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Workspace, error) {
+	return dataloaders(ctx).Workspace.Load(obj.MyWorkspaceID)
 }
 
-func (r *meResolver) Teams(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Team, error) {
+func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error) {
 	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
 }

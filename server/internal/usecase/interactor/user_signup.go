@@ -20,9 +20,6 @@ import (
 )
 
 func (i *User) Signup(ctx context.Context, inp interfaces.SignupParam) (*user.User, *user.Workspace, error) {
-	if inp.Password == "" {
-		return nil, nil, interfaces.ErrSignupInvalidPassword
-	}
 	if inp.Name == "" {
 		return nil, nil, interfaces.ErrSignupInvalidName
 	}
@@ -66,7 +63,7 @@ func (i *User) Signup(ctx context.Context, inp interfaces.SignupParam) (*user.Us
 		Email:       inp.Email,
 		Name:        inp.Name,
 		Sub:         auth,
-		Password:    &inp.Password,
+		Password:    inp.Password,
 		Lang:        inp.User.Lang,
 		Theme:       inp.User.Theme,
 		UserID:      inp.User.UserID,
@@ -178,7 +175,7 @@ func (i *User) userAlreadyExists(ctx context.Context, userID *id.UserID, sub *st
 		}
 	} else if sub != nil {
 		// Check if user already exists
-		existedUser, err = i.userRepo.FindByAuth0Sub(ctx, *sub)
+		existedUser, err = i.userRepo.FindBySub(ctx, *sub)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
