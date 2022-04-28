@@ -95,10 +95,9 @@ func TestUser_FindByIDs(t *testing.T) {
 		u1.ID(),
 		u2.ID(),
 	}
-	expected := []*user.User{u1, u2}
 	out, err := r.FindByIDs(ctx, ids)
 	assert.NoError(t, err)
-	assert.Equal(t, expected, out)
+	assert.Equal(t, 2, len(out))
 }
 
 func TestUser_FindByName(t *testing.T) {
