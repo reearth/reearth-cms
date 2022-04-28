@@ -13,7 +13,7 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-const enableDataLoaders = true
+// const enableDataLoaders = true
 
 func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	schema := gql.NewExecutableSchema(gql.Config{
