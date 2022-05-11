@@ -14,6 +14,9 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.4-focal
     defaults:
       run:
         working-directory: server
@@ -37,6 +40,8 @@ jobs:
           working-directory: server
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+        env:
+          CMS_DB: mongodb://localhost
       - name: codecov
         uses: codecov/codecov-action@v2
         with:
