@@ -2,6 +2,7 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import RootPage from "@reearth-cms/components/pages/RootPage";
+import WorkspacePage from "@reearth-cms/components/pages/Workspace";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
@@ -14,6 +15,7 @@ function AppRoutes() {
     { path: "/", element: <RootPage /> },
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
+    { path: "/workspace/:workspaceId", element: <WorkspacePage /> },
     { path: "*", element: <NotFound /> },
   ]);
   return routes;
