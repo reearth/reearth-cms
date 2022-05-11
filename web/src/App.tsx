@@ -13,6 +13,7 @@ function AppRoutes() {
   const routes = useRoutes([
     { path: "/", element: <RootPage /> },
     { path: "/dashboard", element: <DashboardPage /> },
+    { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "*", element: <NotFound /> },
   ]);
   return routes;
