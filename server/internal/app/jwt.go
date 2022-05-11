@@ -122,14 +122,6 @@ func parseJwtMiddleware() echo.MiddlewareFunc {
 				if name == "" {
 					name = customClaims.Name
 				}
-				fmt.Println(adapter.AuthInfo{
-					Token:         strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer "),
-					Sub:           claims.RegisteredClaims.Subject,
-					Iss:           claims.RegisteredClaims.Issuer,
-					Name:          name,
-					Email:         customClaims.Email,
-					EmailVerified: customClaims.EmailVerified,
-				})
 				ctx = adapter.AttachAuthInfo(ctx, adapter.AuthInfo{
 					Token:         strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer "),
 					Sub:           claims.RegisteredClaims.Subject,
