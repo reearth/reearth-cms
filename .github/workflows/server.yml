@@ -14,12 +14,14 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
-    services:
-      mongo:
-        image: mongo:4.4-focal
     defaults:
       run:
         working-directory: server
+    services:
+      mongo:
+        image: mongo:4.4-focal
+        ports:
+          - 27017:27017
     steps:
       - uses: actions/setup-go@v3
         with:
