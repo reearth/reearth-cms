@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"testing"
 	"time"
 
@@ -57,7 +58,7 @@ func TestUserRepo_FindByID(t *testing.T) {
 
 			got, err := repo.FindByID(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -188,7 +189,7 @@ func TestUserRepo_FindByName(t *testing.T) {
 
 			got, err := repo.FindByName(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -245,7 +246,7 @@ func TestUserRepo_FindByEmail(t *testing.T) {
 
 			got, err := repo.FindByEmail(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -308,7 +309,7 @@ func TestUserRepo_FindByNameOrEmail(t *testing.T) {
 
 			got, err := repo.FindByNameOrEmail(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -370,7 +371,7 @@ func TestUserRepo_FindByPasswordResetRequest(t *testing.T) {
 
 			got, err := repo.FindByPasswordResetRequest(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -431,7 +432,7 @@ func TestUserRepo_FindByVerification(t *testing.T) {
 
 			got, err := repo.FindByVerification(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
@@ -492,7 +493,7 @@ func TestUserRepo_FindBySub(t *testing.T) {
 
 			got, err := repo.FindBySub(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Email(), got.Email())
