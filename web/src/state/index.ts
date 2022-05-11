@@ -13,4 +13,4 @@ export type Wrokspace = {
   personal?: boolean;
 };
 const workspace = atom<Wrokspace | undefined>(undefined);
-export const useWrokspace = () => useAtom(workspace);
+export const useWorkspace = () => useAtom(workspace);

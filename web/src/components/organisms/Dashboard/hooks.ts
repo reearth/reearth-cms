@@ -2,7 +2,7 @@ import {
   useCreateWorkspaceMutation,
   useMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
-import { useWrokspace } from "@reearth-cms/state";
+import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +24,7 @@ export type Workspace = {
 };
 
 export default (workspaceId?: string) => {
-  const [currentWorkspace, setCurrentWorkspace] = useWrokspace();
+  const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   console.log("here");
 
   const { data, refetch } = useMeQuery();
