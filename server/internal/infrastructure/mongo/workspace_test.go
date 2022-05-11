@@ -2,10 +2,11 @@ package mongo
 
 import (
 	"context"
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestWorkspace_FindByID(t *testing.T) {
@@ -147,6 +148,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			assert.NoError(tt, err)
 
 			got, err := repo.FindByUser(ctx, tc.Input)
+			assert.NoError(tt, err)
 			for k, ws := range got {
 				if ws != nil {
 					assert.Equal(tt, tc.Expected[k].ID(), ws.ID())
