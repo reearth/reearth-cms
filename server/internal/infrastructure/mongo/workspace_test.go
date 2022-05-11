@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +32,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -39,8 +40,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -49,7 +49,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 
 			got, err := repo.FindByID(ctx, tc.Input)
 			if tc.WantErr {
-				assert.Error(tt, err)
+				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
 				assert.Equal(tt, tc.Expected.ID(), got.ID())
 				assert.Equal(tt, tc.Expected.Name(), got.Name())
@@ -81,7 +81,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -89,8 +89,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -131,7 +130,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -139,8 +138,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -162,10 +160,8 @@ func TestWorkspace_FindByUser(t *testing.T) {
 func TestWorkspace_Remove(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 
-	initDB := connect(t)
-
-	client, dropDB := initDB()
-	defer dropDB()
+	init := connect(t)
+	client := init(t)
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()
@@ -180,10 +176,8 @@ func TestWorkspace_RemoveAll(t *testing.T) {
 	ws1 := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 
-	initDB := connect(t)
-
-	client, dropDB := initDB()
-	defer dropDB()
+	init := connect(t)
+	client := init(t)
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()

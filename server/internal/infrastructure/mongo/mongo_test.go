@@ -13,11 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 )
 
-func connect(t *testing.T) func() (*mongodoc.Client, func()) {
+func connect(t *testing.T) func(*testing.T) *mongodoc.Client {
 	t.Helper()
 
 	// Skip unit testing if "REEARTH_CMS_DB" is not configured
-	// See details: https://github.com/reearth/reearth/issues/273
 	db := os.Getenv("REEARTH_CMS_DB")
 	if db == "" {
 		t.SkipNow()
@@ -31,13 +30,17 @@ func connect(t *testing.T) func() (*mongodoc.Client, func()) {
 			SetConnectTimeout(time.Second*10),
 	)
 
-	return func() (*mongodoc.Client, func()) {
+	return func(t *testing.T) *mongodoc.Client {
+		t.Helper()
+
 		database, _ := uuid.New()
-		databaseName := "cms-test-" + hex.EncodeToString(database[:])
+		databaseName := "reearth-cms-test-" + hex.EncodeToString(database[:])
 		client := mongodoc.NewClient(databaseName, c)
 
-		return client, func() {
+		t.Cleanup(func() {
 			_ = c.Database(databaseName).Drop(context.Background())
-		}
+		})
+
+		return client
 	}
 }
