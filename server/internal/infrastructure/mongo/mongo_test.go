@@ -16,9 +16,9 @@ import (
 func connect(t *testing.T) func() (*mongodoc.Client, func()) {
 	t.Helper()
 
-	// Skip unit testing if "CMS_DB" is not configured
+	// Skip unit testing if "REEARTH_CMS_DB" is not configured
 	// See details: https://github.com/reearth/reearth/issues/273
-	db := os.Getenv("CMS_DB")
+	db := os.Getenv("REEARTH_CMS_DB")
 	if db == "" {
 		t.SkipNow()
 		return nil
