@@ -125,7 +125,7 @@ func (c *Client) SaveAll(ctx context.Context, col string, ids []string, updates 
 		return nil
 	}
 	if len(ids) != len(updates) {
-		return errors.New("invalid save args")
+		return rerror.ErrInternalBy(errors.New("invalid save args"))
 	}
 
 	writeModels := make([]mongo.WriteModel, 0, len(updates))

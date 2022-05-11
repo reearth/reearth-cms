@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +41,7 @@ func TestUserRepo_FindByID(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -48,8 +49,7 @@ func TestUserRepo_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -111,7 +111,7 @@ func TestUserRepo_FindByIDs(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -119,8 +119,7 @@ func TestUserRepo_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -171,7 +170,7 @@ func TestUserRepo_FindByName(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -179,8 +178,7 @@ func TestUserRepo_FindByName(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -228,7 +226,7 @@ func TestUserRepo_FindByEmail(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -236,8 +234,7 @@ func TestUserRepo_FindByEmail(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -291,7 +288,7 @@ func TestUserRepo_FindByNameOrEmail(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -299,8 +296,7 @@ func TestUserRepo_FindByNameOrEmail(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -353,7 +349,7 @@ func TestUserRepo_FindByPasswordResetRequest(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -361,8 +357,7 @@ func TestUserRepo_FindByPasswordResetRequest(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -414,7 +409,7 @@ func TestUserRepo_FindByVerification(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -422,8 +417,7 @@ func TestUserRepo_FindByVerification(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -475,7 +469,7 @@ func TestUserRepo_FindBySub(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	init := connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -483,8 +477,7 @@ func TestUserRepo_FindBySub(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client, dropDB := initDB()
-			defer dropDB()
+			client := init(t)
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -513,10 +506,9 @@ func TestUserRepo_Remove(t *testing.T) {
 		Name("foo").
 		MustBuild()
 
-	initDB := connect(t)
+	init := connect(t)
 
-	client, dropDB := initDB()
-	defer dropDB()
+	client := init(t)
 
 	repo := NewUser(client)
 	ctx := context.Background()
