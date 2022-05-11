@@ -147,6 +147,7 @@ type Query {
   me: Me
   node(id: ID!, type: NodeType!): Node
   nodes(id: [ID!]!, type: NodeType!): [Node]!
+  searchUser(nameOrEmail: String!): User
 }
 
 # Payload
