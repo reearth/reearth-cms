@@ -41,7 +41,7 @@ func (c *Client) Collection(col string) *mongo.Collection {
 func (c *Client) Find(ctx context.Context, col string, filter interface{}, consumer Consumer) error {
 	cursor, err := c.Collection(col).Find(ctx, filter)
 	if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
-		return errors.New("not found")
+		return rerror.ErrNotFound
 	}
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (c *Client) Find(ctx context.Context, col string, filter interface{}, consu
 func (c *Client) FindOne(ctx context.Context, col string, filter interface{}, consumer Consumer) error {
 	raw, err := c.Collection(col).FindOne(ctx, filter).DecodeBytes()
 	if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
-		return errors.New("not found")
+		return rerror.ErrNotFound
 	}
 	if err := consumer.Consume(raw); err != nil {
 		return err
