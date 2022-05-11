@@ -15,7 +15,7 @@ type Props = {
 };
 
 const Provider: React.FC<Props> = ({ children }) => {
-  const endpoint = "http://localhost:3000/api/graphql";
+  const endpoint = "http://localhost:8080/api/graphql";
   const [, setError] = useError();
   const { getAccessToken } = useAuth();
 
