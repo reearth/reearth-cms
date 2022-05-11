@@ -2,7 +2,6 @@ package adapter
 
 import (
 	"context"
-
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"

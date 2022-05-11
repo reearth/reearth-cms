@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
