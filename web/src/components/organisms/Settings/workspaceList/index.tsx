@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Button, Form, Input, InputNumber, Layout, List } from "antd";
+import { Button, Form, Input, Layout, List } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
