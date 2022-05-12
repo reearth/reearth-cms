@@ -8,6 +8,7 @@ import {
   Role,
   useRemoveMemberFromWorkspaceMutation,
   Workspace,
+  useSearchUserLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect, useState } from "react";
@@ -34,6 +35,7 @@ export default (params: Params) => {
   const workspaces = data?.me?.workspaces as Workspace[];
 
   useEffect(() => {
+    if (!workspaceId) return;
     if (!currentWorkspace) {
       setWorkspace(
         workspaceId
@@ -55,6 +57,18 @@ export default (params: Params) => {
   }, [params, currentWorkspace, navigate]);
 
   const workspaceId = currentWorkspace?.id;
+
+  const [searchUserQuery, { data: searchUserData }] = useSearchUserLazyQuery();
+
+  useEffect(() => {
+    changeSearchedUser(searchUserData?.searchUser ?? undefined);
+  }, [searchUserData?.searchUser]);
+
+  const searchUser = useCallback(
+    (nameOrEmail: string) =>
+      nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
+    [searchUserQuery]
+  );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const createWorkspace = useCallback(
@@ -200,6 +214,7 @@ export default (params: Params) => {
     createWorkspace,
     updateName,
     deleteWorkspace,
+    searchUser,
     addMembersToWorkspace,
     updateMemberOfWorkspace,
     removeMemberFromWorkspace,
