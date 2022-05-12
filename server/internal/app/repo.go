@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
+
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mailer"
 	"github.com/reearth/reearth-cms/server/pkg/log"
 
@@ -33,7 +35,8 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if err := mongorepo.InitRepos(ctx, repos, client, ""); err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
-
+	// Auth0
+	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 	// mailer
 	gateways.Mailer = initMailer(conf)
 

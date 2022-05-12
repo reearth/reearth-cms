@@ -70,10 +70,10 @@ func init() {
 
 func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDomain string) interfaces.User {
 	return &User{
-		userRepo:      r.User,
-		workspaceRepo: r.Workspace,
-		transaction:   r.Transaction,
-		//authenticator:     g.Authenticator,
+		userRepo:        r.User,
+		workspaceRepo:   r.Workspace,
+		transaction:     r.Transaction,
+		authenticator:   g.Authenticator,
 		signupSecret:    signupSecret,
 		authSrvUIDomain: authSrcUIDomain,
 		mailer:          g.Mailer,
