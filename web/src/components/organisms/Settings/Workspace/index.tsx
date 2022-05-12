@@ -4,7 +4,7 @@ import { Content, Header } from "antd/lib/layout/layout";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import useHooks from "./hooks";
+import useHooks, { RoleUnion } from "./hooks";
 
 const WorkspaceSettings: React.FC<Props> = () => {
   const { workspaceId } = useParams();
@@ -50,6 +50,13 @@ const WorkspaceSettings: React.FC<Props> = () => {
       await removeMemberFromWorkspace(userId);
     },
     [removeMemberFromWorkspace]
+  );
+
+  const handleUpdateMember = useCallback(
+    async (userId: string, role: RoleUnion) => {
+      await updateMemberOfWorkspace(userId, role);
+    },
+    [updateMemberOfWorkspace]
   );
 
   const checkOwner = useCallback(() => {
@@ -112,12 +119,29 @@ const WorkspaceSettings: React.FC<Props> = () => {
                   description={item.role}
                 />
                 {item.userId != me.id && (
-                  <Button
-                    onClick={() => handleDeleteMember(item.userId)}
-                    danger
-                  >
-                    Delete Member
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => handleUpdateMember(item.userId, "READER")}
+                    >
+                      READER
+                    </Button>
+                    <Button
+                      onClick={() => handleUpdateMember(item.userId, "WRITER")}
+                    >
+                      WRITER
+                    </Button>
+                    <Button
+                      onClick={() => handleUpdateMember(item.userId, "OWNER")}
+                    >
+                      OWNER
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteMember(item.userId)}
+                      danger
+                    >
+                      Delete Member
+                    </Button>
+                  </>
                 )}
               </List.Item>
             )}
