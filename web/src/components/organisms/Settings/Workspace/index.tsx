@@ -173,12 +173,14 @@ const WorkspaceSettings: React.FC<Props> = () => {
                     >
                       OWNER
                     </Button>
-                    <Button
-                      onClick={() => handleDeleteMember(item.userId)}
-                      danger
-                    >
-                      Delete Member
-                    </Button>
+                    {item.role !== "OWNER" && (
+                      <Button
+                        onClick={() => handleDeleteMember(item.userId)}
+                        danger
+                      >
+                        Delete Member
+                      </Button>
+                    )}
                   </>
                 )}
               </List.Item>
