@@ -98,7 +98,7 @@ func (c *Client) RemoveAll(ctx context.Context, col string, f interface{}) error
 }
 
 func (c *Client) RemoveOne(ctx context.Context, col string, f interface{}) error {
-	_, err := c.Collection(col).DeleteOne(ctx, bson.D{{Key: "id", Value: f}})
+	_, err := c.Collection(col).DeleteOne(ctx, f)
 	if err != nil {
 		return err
 	}

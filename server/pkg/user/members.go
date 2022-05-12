@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	ErrInvalidName                   = errors.New("invalid workspace name")
 	ErrUserAlreadyJoined             = errors.New("user already joined")
 	ErrCannotModifyPersonalWorkspace = errors.New("personal workspace cannot be modified")
 	ErrWorkspaceWithProjects         = errors.New("target workspace still has some project")

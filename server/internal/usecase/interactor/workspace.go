@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -54,6 +55,10 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 		}
 	}()
 
+	if len(strings.TrimSpace(name)) == 0 {
+		return nil, user.ErrInvalidName
+	}
+
 	workspace, err := user.NewWorkspace().
 		NewID().
 		Name(name).
@@ -99,6 +104,10 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 	}
 	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
 		return nil, interfaces.ErrOperationDenied
+	}
+
+	if len(strings.TrimSpace(name)) == 0 {
+		return nil, user.ErrInvalidName
 	}
 
 	workspace.Rename(name)
