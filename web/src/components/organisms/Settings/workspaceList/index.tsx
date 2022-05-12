@@ -2,6 +2,8 @@ import styled from "@emotion/styled";
 import { Button, Form, Input, Layout, List } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback, useState } from "react";
+import { Navigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 import useHooks from "../Workspace/hooks";
 
@@ -19,6 +21,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
     // loading,
     selectWorkspace,
   } = useHooks({ workspaceId });
+  const navigate = useNavigate();
   const [workspaceName, setWorkspaceName] = useState<string>("");
 
   const handleNameChange = useCallback(
@@ -53,7 +56,6 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
             <Button
               type="primary"
               htmlType="submit"
-              className="login-form-button"
               onClick={handleAddWorkspace}
             >
               Add new workspace
@@ -78,11 +80,10 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
             </List.Item>
           )}
         />
-        {/* <h1>
-        {workspaces?.map((workspace) => {
-          return <h2 key={workspace.id}> {workspace.name}</h2>;
-        })}
-      </h1> */}
+
+        <Button type="primary" onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </Button>
       </PaddedContent>
     </Layout>
   );

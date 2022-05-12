@@ -22,6 +22,7 @@ const WorkspaceSettings: React.FC<Props> = () => {
   } = useHooks({ workspaceId });
   const [owner, setOwner] = useState(false);
   const [memberName, setMemberName] = useState<string>("");
+  const [workspaceName, setWorkspaceName] = useState<string>("");
   const navigate = useNavigate();
   const members = currentWorkspace?.members;
 
@@ -30,7 +31,7 @@ const WorkspaceSettings: React.FC<Props> = () => {
       setMemberName?.(e.currentTarget.value);
       searchUser(e.currentTarget.value);
     },
-    [setMemberName, searchUser, memberName]
+    [setMemberName, searchUser]
   );
 
   const handleAddMember = useCallback(() => {
@@ -59,6 +60,19 @@ const WorkspaceSettings: React.FC<Props> = () => {
     [updateMemberOfWorkspace]
   );
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setWorkspaceName?.(e.currentTarget.value);
+    },
+    [setWorkspaceName]
+  );
+
+  const handleWorkspaceNameChange = useCallback(() => {
+    if (!workspaceName) return;
+    updateName(workspaceName);
+    setWorkspaceName("");
+  }, [setWorkspaceName, workspaceName, updateName]);
+
   const checkOwner = useCallback(() => {
     if (members) {
       console.log(members);
@@ -82,12 +96,34 @@ const WorkspaceSettings: React.FC<Props> = () => {
       <LightHeader>{currentWorkspace?.name}</LightHeader>
       <PaddedContent>
         <PaddedDiv>
+          <Button onClick={() => navigate("/workspace")}>Workspace List</Button>
           {owner && !currentWorkspace?.personal && (
             <Button onClick={() => handleDeleteWorkspace()} danger>
               Delete Workspace
             </Button>
           )}
         </PaddedDiv>
+
+        {!currentWorkspace?.personal && (
+          <PaddedDiv>
+            <h2>Add User</h2>
+            <Form style={{ maxWidth: "300px" }}>
+              <Form.Item label="Workspace name">
+                <Input
+                  min={8}
+                  max={12}
+                  value={workspaceName}
+                  onChange={handleNameChange}
+                />
+                {workspaceName && (
+                  <Button onClick={() => handleWorkspaceNameChange()}>
+                    Change name
+                  </Button>
+                )}
+              </Form.Item>
+            </Form>
+          </PaddedDiv>
+        )}
 
         {!currentWorkspace?.personal && (
           <PaddedDiv>

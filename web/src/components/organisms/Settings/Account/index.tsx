@@ -1,4 +1,9 @@
+import styled from "@emotion/styled";
+import Button from "@reearth-cms/components/atoms/Button";
+import { Input, Layout } from "antd";
+import { Content, Header } from "antd/lib/layout/layout";
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -6,6 +11,7 @@ export type Props = {};
 
 const Account: React.FC<Props> = () => {
   const { me, updateName } = useHooks();
+  const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState("");
   const handleInputChange = useCallback(
@@ -20,12 +26,42 @@ const Account: React.FC<Props> = () => {
   }, [filterText, updateName]);
 
   return (
-    <>
-      <h2>Name: {me?.name}</h2>
-      <input value={filterText} onChange={handleInputChange} type="text" />
-      <button onClick={handleClick}>Update name</button>
-    </>
+    <Layout>
+      <LightHeader>Hello {me?.name}</LightHeader>
+      <Layout>
+        <PaddedContent>
+          <PaddedDiv>
+            <Button type="primary" onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </Button>
+          </PaddedDiv>
+          <Input
+            style={{ maxWidth: "300px" }}
+            value={filterText}
+            onChange={handleInputChange}
+            type="text"
+          />
+          <Button onClick={handleClick}>Update name</Button>
+        </PaddedContent>
+      </Layout>
+    </Layout>
   );
 };
+
+const PaddedDiv = styled.div`
+  padding: 24px 0;
+`;
+
+const LightHeader = styled(Header)`
+  background-color: #add8e6;
+  font-weight: 800;
+  font-size: 26px;
+`;
+
+const PaddedContent = styled(Content)`
+  min-height: 280px;
+  padding: 24px 50px;
+  background: #fff;
+`;
 
 export default Account;
