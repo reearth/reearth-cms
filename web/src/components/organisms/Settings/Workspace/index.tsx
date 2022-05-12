@@ -106,7 +106,7 @@ const WorkspaceSettings: React.FC<Props> = () => {
 
         {!currentWorkspace?.personal && (
           <PaddedDiv>
-            <h2>Add User</h2>
+            <h2>Workspace name</h2>
             <Form style={{ maxWidth: "300px" }}>
               <Form.Item label="Workspace name">
                 <Input
