@@ -18,7 +18,7 @@ function AppRoutes() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspace/:workspaceId", element: <WorkspacePage /> },
-    { path: "/workspacelist", element: <WorkspaceListPage /> },
+    { path: "/workspace", element: <WorkspaceListPage /> },
     { path: "/account", element: <Account /> },
     { path: "*", element: <NotFound /> },
   ]);

@@ -26,12 +26,12 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
           <PaddedDiv>
             <Button onClick={() => logout()}>logout</Button>
           </PaddedDiv>
-          <div>
+          <PaddedDiv>
             <Button onClick={() => navigate("/account")}>Account</Button>
-            <Button onClick={() => logout()}>logout</Button>
-            <Button onClick={() => logout()}>logout</Button>
-            <Button onClick={() => logout()}>logout</Button>
-          </div>
+            <Button onClick={() => navigate("/workspace")}>
+              Workspace list
+            </Button>
+          </PaddedDiv>
         </PaddedContent>
       </Layout>
     </Layout>

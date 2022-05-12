@@ -18,8 +18,8 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
     // currentWorkspace,
     createWorkspace,
     // loading,
+    selectWorkspace,
   } = useHooks({ workspaceId });
-  const navigate = useNavigate();
   const [workspaceName, setWorkspaceName] = useState<string>("");
 
   const handleNameChange = useCallback(
@@ -70,11 +70,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
-                title={
-                  <a onClick={() => navigate(`/workspace/${item.id}`)}>
-                    {item.name}
-                  </a>
-                }
+                title={<a onClick={() => selectWorkspace(item)}>{item.name}</a>}
                 description={
                   "Members: " +
                   item.members.map((member) => member.user?.name).join(",")

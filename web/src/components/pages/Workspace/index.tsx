@@ -3,13 +3,14 @@ import Workspace from "@reearth-cms/components/organisms/Settings/Workspace";
 
 export type Props = {
   path?: string;
-  workspaceId?: string;
 };
 
-const WorkspacePage: React.FC<Props> = ({ workspaceId = "" }) => (
-  <AuthenticationRequiredPage>
-    <Workspace workspaceId={workspaceId} />
-  </AuthenticationRequiredPage>
-);
+const WorkspacePage: React.FC<Props> = () => {
+  return (
+    <AuthenticationRequiredPage>
+      <Workspace />
+    </AuthenticationRequiredPage>
+  );
+};
 
 export default WorkspacePage;

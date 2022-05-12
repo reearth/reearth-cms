@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
 type Params = {
-  workspaceId: string;
+  workspaceId: string | undefined;
 };
 
 export default (params: Params) => {
@@ -34,12 +34,23 @@ export default (params: Params) => {
   const workspaces = data?.me?.workspaces as Workspace[];
 
   useEffect(() => {
+    if (!currentWorkspace) {
+      setWorkspace(
+        workspaceId
+          ? workspaces?.find((t) => t.id === workspaceId)
+          : data?.me?.myWorkspace ?? undefined
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWorkspace, setWorkspace, workspaces, data?.me]);
+
+  useEffect(() => {
     if (
       params.workspaceId &&
       currentWorkspace?.id &&
       params.workspaceId !== currentWorkspace.id
     ) {
-      navigate(`/settings/workspace/${currentWorkspace?.id}`);
+      navigate(`/workspace/${currentWorkspace?.id}`);
     }
   }, [params, currentWorkspace, navigate]);
 
@@ -174,7 +185,7 @@ export default (params: Params) => {
     (workspace: Workspace) => {
       if (workspace.id) {
         setWorkspace(workspace);
-        navigate(`/settings/workspace/${workspace.id}`);
+        navigate(`/workspace/${workspace.id}`);
       }
     },
     [navigate, setWorkspace]

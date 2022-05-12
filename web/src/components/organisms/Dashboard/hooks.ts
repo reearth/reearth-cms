@@ -25,10 +25,7 @@ export type Workspace = {
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  console.log("here");
-
   const { data, refetch } = useMeQuery();
-  console.log(data);
 
   const navigate = useNavigate();
 
