@@ -1,5 +1,10 @@
+import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
+import Button from "@reearth-cms/components/atoms/Button";
+import { Layout } from "antd";
+import { Content, Header } from "antd/lib/layout/layout";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -9,22 +14,44 @@ export type Props = {
 
 const Dashboard: React.FC<Props> = ({ workspaceId }) => {
   const { logout } = useAuth();
-  console.log("here");
+  const navigate = useNavigate();
 
-  const {
-    user,
-    // workspaces = [],
-    // currentWorkspace,
-    // createWorkspace,
-    // changeWorkspace,
-  } = useHooks(workspaceId);
+  const { user } = useHooks(workspaceId);
 
   return (
-    <>
-      <h1>{user.name}</h1>
-      <button onClick={() => logout()}>logout</button>
-    </>
+    <Layout>
+      <LightHeader>Hello {user.name}</LightHeader>
+      <Layout>
+        <PaddedContent>
+          <PaddedDiv>
+            <Button onClick={() => logout()}>logout</Button>
+          </PaddedDiv>
+          <div>
+            <Button onClick={() => navigate("/account")}>Account</Button>
+            <Button onClick={() => logout()}>logout</Button>
+            <Button onClick={() => logout()}>logout</Button>
+            <Button onClick={() => logout()}>logout</Button>
+          </div>
+        </PaddedContent>
+      </Layout>
+    </Layout>
   );
 };
+
+const PaddedDiv = styled.div`
+  padding: 24px 0;
+`;
+
+const LightHeader = styled(Header)`
+  background-color: #add8e6;
+  font-weight: 800;
+  font-size: 26px;
+`;
+
+const PaddedContent = styled(Content)`
+  min-height: 280px;
+  padding: 24px 50px;
+  background: #fff;
+`;
 
 export default Dashboard;

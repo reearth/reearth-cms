@@ -39,6 +39,7 @@ const WorkspaceSettings: React.FC<Props> = ({ workspaceId }) => {
 
   return (
     <>
+      <h1>Hello</h1>
       <h1>{currentWorkspace?.name}</h1>
     </>
   );

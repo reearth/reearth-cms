@@ -10,6 +10,7 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import "./App.css";
 import "antd/dist/antd.css";
+import WorkspaceListPage from "./components/pages/WorkspaceList";
 
 function AppRoutes() {
   const routes = useRoutes([
@@ -17,6 +18,7 @@ function AppRoutes() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspace/:workspaceId", element: <WorkspacePage /> },
+    { path: "/workspacelist", element: <WorkspaceListPage /> },
     { path: "/account", element: <Account /> },
     { path: "*", element: <NotFound /> },
   ]);
