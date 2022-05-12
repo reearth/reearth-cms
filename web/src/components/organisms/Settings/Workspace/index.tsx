@@ -81,8 +81,17 @@ const WorkspaceSettings: React.FC<Props> = () => {
     <Layout>
       <LightHeader>{currentWorkspace?.name}</LightHeader>
       <PaddedContent>
+        <PaddedDiv>
+          {owner && !currentWorkspace?.personal && (
+            <Button onClick={() => handleDeleteWorkspace()} danger>
+              Delete Workspace
+            </Button>
+          )}
+        </PaddedDiv>
+
         {!currentWorkspace?.personal && (
           <PaddedDiv>
+            <h2>Add User</h2>
             <Form style={{ maxWidth: "300px" }}>
               <Form.Item label="User name">
                 <Input
@@ -100,13 +109,6 @@ const WorkspaceSettings: React.FC<Props> = () => {
             </Form>
           </PaddedDiv>
         )}
-        <PaddedDiv>
-          {owner && !currentWorkspace?.personal && (
-            <Button onClick={() => handleDeleteWorkspace()} danger>
-              Delete Workspace
-            </Button>
-          )}
-        </PaddedDiv>
         <PaddedDiv>
           <h1>Members</h1>
           <List
