@@ -23,8 +23,8 @@ const WorkspaceSettings: React.FC<Props> = () => {
   const navigate = useNavigate();
   const members = currentWorkspace?.members;
 
-  const handleDeleteWorkspace = useCallback(() => {
-    deleteWorkspace();
+  const handleDeleteWorkspace = useCallback(async () => {
+    await deleteWorkspace();
     navigate("/workspace");
   }, [deleteWorkspace, navigate]);
 
