@@ -30,6 +30,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
   );
 
   const handleAddWorkspace = useCallback(() => {
+    if (!workspaceName) return;
     createWorkspace({ name: workspaceName });
     setWorkspaceName("");
   }, [setWorkspaceName, workspaceName, createWorkspace]);
@@ -38,7 +39,10 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
     <Layout>
       <PaddedContent>
         <Form style={{ maxWidth: "300px" }}>
-          <Form.Item label="Workspace name">
+          <Form.Item
+            label="Workspace name"
+            rules={[{ required: true, message: "Please input Workspace name" }]}
+          >
             <Input
               min={8}
               max={12}
