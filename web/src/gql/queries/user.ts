@@ -1,5 +1,15 @@
 import { gql } from "@apollo/client";
 
+export const SEARCH_USER = gql`
+  query searchUser($nameOrEmail: String!) {
+    searchUser(nameOrEmail: $nameOrEmail) {
+      id
+      name
+      email
+    }
+  }
+`;
+
 export const ME = gql`
   query Me {
     me {
