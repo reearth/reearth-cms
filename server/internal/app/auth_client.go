@@ -52,7 +52,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			if u == nil && au != nil {
 				var err error
 				// find user
-				u, err = cfg.Repos.User.FindByAuth0Sub(ctx, au.Sub)
+				u, err = cfg.Repos.User.FindBySub(ctx, au.Sub)
 				if err != nil && err != rerror.ErrNotFound {
 					return err
 				}
@@ -87,20 +87,20 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	}
 
 	uid := u.ID()
-	teams, err := cfg.Repos.Team.FindByUser(ctx, uid)
+	workspaces, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	readableTeams := teams.FilterByUserRole(uid, user.RoleReader).IDs()
-	writableTeams := teams.FilterByUserRole(uid, user.RoleWriter).IDs()
-	owningTeams := teams.FilterByUserRole(uid, user.RoleOwner).IDs()
+	readableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleReader).IDs()
+	writableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleWriter).IDs()
+	owningWorkspaces := workspaces.FilterByUserRole(uid, user.RoleOwner).IDs()
 
 	return &usecase.Operator{
-		User:          uid,
-		ReadableTeams: readableTeams,
-		WritableTeams: writableTeams,
-		OwningTeams:   owningTeams,
+		User:               uid,
+		ReadableWorkspaces: readableWorkspaces,
+		WritableWorkspaces: writableWorkspaces,
+		OwningWorkspaces:   owningWorkspaces,
 	}, nil
 }
 

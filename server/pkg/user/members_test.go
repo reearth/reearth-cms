@@ -17,6 +17,15 @@ func TestNewMembersWith(t *testing.T) {
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
 	assert.NotNil(t, m)
 	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, false, m.Fixed())
+}
+
+func TestNewFixedMembersWith(t *testing.T) {
+	uid := NewID()
+	m := NewFixedMembersWith(map[ID]Role{uid: RoleOwner})
+	assert.NotNil(t, m)
+	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, true, m.Fixed())
 }
 
 func TestMembers_ContainsUser(t *testing.T) {
@@ -93,16 +102,16 @@ func TestMembers_Leave(t *testing.T) {
 			err:  nil,
 		},
 		{
-			Name: "fail personal team",
+			Name: "fail personal workspace",
 			M:    NewFixedMembers(uid),
 			UID:  uid,
-			err:  ErrCannotModifyPersonalTeam,
+			err:  ErrCannotModifyPersonalWorkspace,
 		},
 		{
-			Name: "fail user not in the team",
+			Name: "fail user not in the workspace",
 			M:    NewMembersWith(map[ID]Role{uid: RoleWriter, NewID(): RoleOwner}),
 			UID:  NewID(),
-			err:  ErrTargetUserNotInTheTeam,
+			err:  ErrTargetUserNotInTheWorkspace,
 		},
 	}
 
@@ -153,18 +162,18 @@ func TestMembers_UpdateRole(t *testing.T) {
 			err:      nil,
 		},
 		{
-			Name:    "fail personal team",
+			Name:    "fail personal workspace",
 			M:       NewFixedMembers(uid),
 			UID:     uid,
 			NewRole: RoleOwner,
-			err:     ErrCannotModifyPersonalTeam,
+			err:     ErrCannotModifyPersonalWorkspace,
 		},
 		{
-			Name:    "fail user not in the team",
+			Name:    "fail user not in the workspace",
 			M:       NewMembersWith(map[ID]Role{uid: RoleOwner}),
 			UID:     NewID(),
 			NewRole: RoleOwner,
-			err:     ErrTargetUserNotInTheTeam,
+			err:     ErrTargetUserNotInTheWorkspace,
 		},
 	}
 
@@ -210,11 +219,11 @@ func TestMembers_Join(t *testing.T) {
 			err:          nil,
 		},
 		{
-			Name:     "fail personal team",
+			Name:     "fail personal workspace",
 			M:        NewFixedMembers(uid),
 			UID:      uid2,
 			JoinRole: "xxx",
-			err:      ErrCannotModifyPersonalTeam,
+			err:      ErrCannotModifyPersonalWorkspace,
 		},
 		{
 			Name:     "fail user already joined",

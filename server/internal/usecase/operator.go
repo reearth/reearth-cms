@@ -6,52 +6,52 @@ import (
 )
 
 type Operator struct {
-	User          user.ID
-	ReadableTeams user.TeamIDList
-	WritableTeams user.TeamIDList
-	OwningTeams   user.TeamIDList
+	User               user.ID
+	ReadableWorkspaces user.WorkspaceIDList
+	WritableWorkspaces user.WorkspaceIDList
+	OwningWorkspaces   user.WorkspaceIDList
 }
 
-func (o *Operator) Teams(r user.Role) []id.TeamID {
+func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
 	if o == nil {
 		return nil
 	}
 	if r == user.RoleReader {
-		return o.ReadableTeams
+		return o.ReadableWorkspaces
 	}
 	if r == user.RoleWriter {
-		return o.WritableTeams
+		return o.WritableWorkspaces
 	}
 	if r == user.RoleOwner {
-		return o.OwningTeams
+		return o.OwningWorkspaces
 	}
 	return nil
 }
 
-func (o *Operator) AllReadableTeams() user.TeamIDList {
-	return append(o.ReadableTeams, o.AllWritableTeams()...)
+func (o *Operator) AllReadableWorkspaces() user.WorkspaceIDList {
+	return append(o.ReadableWorkspaces, o.AllWritableWorkspaces()...)
 }
 
-func (o *Operator) AllWritableTeams() user.TeamIDList {
-	return append(o.WritableTeams, o.AllOwningTeams()...)
+func (o *Operator) AllWritableWorkspaces() user.WorkspaceIDList {
+	return append(o.WritableWorkspaces, o.AllOwningWorkspaces()...)
 }
 
-func (o *Operator) AllOwningTeams() user.TeamIDList {
-	return o.OwningTeams
+func (o *Operator) AllOwningWorkspaces() user.WorkspaceIDList {
+	return o.OwningWorkspaces
 }
 
-func (o *Operator) IsReadableTeam(team ...id.TeamID) bool {
-	return o.AllReadableTeams().Intersect(team).Len() > 0
+func (o *Operator) IsReadableWorkspace(workspace ...id.WorkspaceID) bool {
+	return o.AllReadableWorkspaces().Intersect(workspace).Len() > 0
 }
 
-func (o *Operator) IsWritableTeam(team ...id.TeamID) bool {
-	return o.AllWritableTeams().Intersect(team).Len() > 0
+func (o *Operator) IsWritableWorkspace(workspace ...id.WorkspaceID) bool {
+	return o.AllWritableWorkspaces().Intersect(workspace).Len() > 0
 }
 
-func (o *Operator) IsOwningTeam(team ...id.TeamID) bool {
-	return o.AllOwningTeams().Intersect(team).Len() > 0
+func (o *Operator) IsOwningWorkspace(workspace ...id.WorkspaceID) bool {
+	return o.AllOwningWorkspaces().Intersect(workspace).Len() > 0
 }
 
-func (o *Operator) AddNewTeam(team id.TeamID) {
-	o.OwningTeams = append(o.OwningTeams, team)
+func (o *Operator) AddNewWorkspace(workspace id.WorkspaceID) {
+	o.OwningWorkspaces = append(o.OwningWorkspaces, workspace)
 }

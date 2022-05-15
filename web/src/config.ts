@@ -10,11 +10,15 @@ declare global {
   }
 }
 
+const env = import.meta.env;
+
 export const defaultConfig: Config = {
-  api: "/api",
-  auth0Audience: "https://api.test.reearth.dev",
-  auth0Domain: "reearth-oss-test.eu.auth0.com",
-  auth0ClientId: "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
+  api: env.REEARTH_CMS_API || "/api",
+  auth0Audience:
+    env.REEARTH_CMS_AUTH0_AUDIENCE || "https://api.test.reearth.dev",
+  auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN || "reearth-oss-test.eu.auth0.com",
+  auth0ClientId:
+    env.REEARTH_CMS_AUTH0_CLIENT_ID || "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
 };
 
 export default async function loadConfig() {

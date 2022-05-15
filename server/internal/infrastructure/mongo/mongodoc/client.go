@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -39,7 +41,7 @@ func (c *Client) Collection(col string) *mongo.Collection {
 func (c *Client) Find(ctx context.Context, col string, filter interface{}, consumer Consumer) error {
 	cursor, err := c.Collection(col).Find(ctx, filter)
 	if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
-		return errors.New("not found")
+		return rerror.ErrNotFound
 	}
 	if err != nil {
 		return err
@@ -71,7 +73,7 @@ func (c *Client) Find(ctx context.Context, col string, filter interface{}, consu
 func (c *Client) FindOne(ctx context.Context, col string, filter interface{}, consumer Consumer) error {
 	raw, err := c.Collection(col).FindOne(ctx, filter).DecodeBytes()
 	if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
-		return errors.New("not found")
+		return rerror.ErrNotFound
 	}
 	if err := consumer.Consume(raw); err != nil {
 		return err
@@ -87,24 +89,16 @@ func (c *Client) Count(ctx context.Context, col string, filter interface{}) (int
 	return count, nil
 }
 
-func (c *Client) RemoveAll(ctx context.Context, col string, ids []string) error {
-	if len(ids) == 0 {
-		return nil
-	}
-	filter := bson.D{
-		{Key: "id", Value: bson.D{
-			{Key: "$in", Value: ids},
-		}},
-	}
-	_, err := c.Collection(col).DeleteMany(ctx, filter)
+func (c *Client) RemoveAll(ctx context.Context, col string, f interface{}) error {
+	_, err := c.Collection(col).DeleteMany(ctx, f)
 	if err != nil {
-		return err
+		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
 
-func (c *Client) RemoveOne(ctx context.Context, col string, id string) error {
-	_, err := c.Collection(col).DeleteOne(ctx, bson.D{{Key: "id", Value: id}})
+func (c *Client) RemoveOne(ctx context.Context, col string, f interface{}) error {
+	_, err := c.Collection(col).DeleteOne(ctx, bson.D{{Key: "id", Value: f}})
 	if err != nil {
 		return err
 	}
@@ -131,7 +125,7 @@ func (c *Client) SaveAll(ctx context.Context, col string, ids []string, updates 
 		return nil
 	}
 	if len(ids) != len(updates) {
-		return errors.New("invalid save args")
+		return rerror.ErrInternalBy(errors.New("invalid save args"))
 	}
 
 	writeModels := make([]mongo.WriteModel, 0, len(updates))
@@ -401,4 +395,46 @@ func (t *Tx) End(ctx context.Context) error {
 
 	t.session.EndSession(ctx)
 	return nil
+}
+
+func (c *Client) CreateUniqueIndex(ctx context.Context, col string, keys, uniqueKeys []string) []string {
+	coll := c.Collection(col)
+	indexedKeys := indexes(ctx, coll)
+
+	// store unique keys as map to check them in an efficient way
+	ukm := map[string]struct{}{}
+	for _, k := range append([]string{"id"}, uniqueKeys...) {
+		ukm[k] = struct{}{}
+	}
+
+	var newIndexes []mongo.IndexModel
+	for _, k := range append([]string{"id"}, keys...) {
+		if _, ok := indexedKeys[k]; ok {
+			continue
+		}
+		indexBg := true
+		_, isUnique := ukm[k]
+		newIndexes = append(newIndexes, mongo.IndexModel{
+			Keys: map[string]int{
+				k: 1,
+			},
+			Options: &options.IndexOptions{
+				Background: &indexBg,
+				Unique:     &isUnique,
+			},
+		})
+	}
+
+	if len(newIndexes) > 0 {
+		index, err := coll.Indexes().CreateMany(ctx, newIndexes)
+		if err != nil {
+			panic(err)
+		}
+		return index
+	}
+	return nil
+}
+
+func (t *Tx) IsCommitted() bool {
+	return t.commit
 }

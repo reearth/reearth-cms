@@ -43,10 +43,10 @@ type SignupOIDCParam struct {
 }
 
 type SignupUserParam struct {
-	UserID *id.UserID
-	Lang   *language.Tag
-	Theme  *user.Theme
-	TeamID *id.TeamID
+	UserID      *id.UserID
+	Lang        *language.Tag
+	Theme       *user.Theme
+	WorkspaceID *id.WorkspaceID
 }
 
 type GetUserByCredentials struct {
@@ -65,14 +65,8 @@ type UpdateMeParam struct {
 
 type User interface {
 	Fetch(context.Context, []id.UserID, *usecase.Operator) ([]*user.User, error)
-	Signup(context.Context, SignupParam) (*user.User, *user.Team, error)
-	SignupOIDC(context.Context, SignupOIDCParam) (*user.User, *user.Team, error)
-	CreateVerification(context.Context, string) error
-	VerifyUser(context.Context, string) (*user.User, error)
 	GetUserByCredentials(context.Context, GetUserByCredentials) (*user.User, error)
 	GetUserBySubject(context.Context, string) (*user.User, error)
-	StartPasswordReset(context.Context, string) error
-	PasswordReset(context.Context, string, string) error
 	UpdateMe(context.Context, UpdateMeParam, *usecase.Operator) (*user.User, error)
 	RemoveMyAuth(context.Context, string, *usecase.Operator) (*user.User, error)
 	SearchUser(context.Context, string, *usecase.Operator) (*user.User, error)
