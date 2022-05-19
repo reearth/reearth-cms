@@ -2,13 +2,11 @@ package mongo
 
 import (
 	"context"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"testing"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
-
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
