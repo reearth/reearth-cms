@@ -38,6 +38,9 @@ func (r *workspaceRepo) FindByUser(ctx context.Context, id id.UserID) (user.Work
 }
 
 func (r *workspaceRepo) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	dst := make([]*user.Workspace, 0, len(ids))
 	res, err := r.find(ctx, dst, bson.M{
 		"id": bson.M{"$in": ids.Strings()},
