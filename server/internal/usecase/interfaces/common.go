@@ -15,6 +15,6 @@ var (
 )
 
 type Container struct {
-	Team Team
-	User User
+	Workspace Workspace
+	User      User
 }

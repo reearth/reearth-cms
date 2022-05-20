@@ -93,16 +93,16 @@ func TestMembers_Leave(t *testing.T) {
 			err:  nil,
 		},
 		{
-			Name: "fail personal team",
+			Name: "fail personal workspace",
 			M:    NewFixedMembers(uid),
 			UID:  uid,
-			err:  ErrCannotModifyPersonalTeam,
+			err:  ErrCannotModifyPersonalWorkspace,
 		},
 		{
-			Name: "fail user not in the team",
+			Name: "fail user not in the workspace",
 			M:    NewMembersWith(map[ID]Role{uid: RoleWriter, NewID(): RoleOwner}),
 			UID:  NewID(),
-			err:  ErrTargetUserNotInTheTeam,
+			err:  ErrTargetUserNotInTheWorkspace,
 		},
 	}
 
@@ -153,18 +153,18 @@ func TestMembers_UpdateRole(t *testing.T) {
 			err:      nil,
 		},
 		{
-			Name:    "fail personal team",
+			Name:    "fail personal workspace",
 			M:       NewFixedMembers(uid),
 			UID:     uid,
 			NewRole: RoleOwner,
-			err:     ErrCannotModifyPersonalTeam,
+			err:     ErrCannotModifyPersonalWorkspace,
 		},
 		{
-			Name:    "fail user not in the team",
+			Name:    "fail user not in the workspace",
 			M:       NewMembersWith(map[ID]Role{uid: RoleOwner}),
 			UID:     NewID(),
 			NewRole: RoleOwner,
-			err:     ErrTargetUserNotInTheTeam,
+			err:     ErrTargetUserNotInTheWorkspace,
 		},
 	}
 
@@ -210,11 +210,11 @@ func TestMembers_Join(t *testing.T) {
 			err:          nil,
 		},
 		{
-			Name:     "fail personal team",
+			Name:     "fail personal workspace",
 			M:        NewFixedMembers(uid),
 			UID:      uid2,
 			JoinRole: "xxx",
-			err:      ErrCannotModifyPersonalTeam,
+			err:      ErrCannotModifyPersonalWorkspace,
 		},
 		{
 			Name:     "fail user already joined",

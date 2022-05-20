@@ -2,35 +2,35 @@ package id
 
 import "github.com/reearth/reearth-cms/server/pkg/id/idx"
 
-type Team struct{}
+type Workspace struct{}
 type User struct{}
 
-func (Team) Type() string { return "team" }
-func (User) Type() string { return "user" }
+func (Workspace) Type() string { return "workspace" }
+func (User) Type() string      { return "user" }
 
-type TeamID = idx.ID[Team]
+type WorkspaceID = idx.ID[Workspace]
 type UserID = idx.ID[User]
 
-var NewTeamID = idx.New[Team]
+var NewWorkspaceID = idx.New[Workspace]
 var NewUserID = idx.New[User]
 
-var MustTeamID = idx.Must[Team]
+var MustWorkspaceID = idx.Must[Workspace]
 var MustUserID = idx.Must[User]
 
-var TeamIDFrom = idx.From[Team]
+var WorkspaceIDFrom = idx.From[Workspace]
 var UserIDFrom = idx.From[User]
 
-var TeamIDFromRef = idx.FromRef[Team]
+var WorkspaceIDFromRef = idx.FromRef[Workspace]
 var UserIDFromRef = idx.FromRef[User]
 
-type TeamIDList = idx.List[Team]
+type WorkspaceIDList = idx.List[Workspace]
 type UserIDList = idx.List[User]
 
-var TeamIDListFrom = idx.ListFrom[Team]
+var WorkspaceIDListFrom = idx.ListFrom[Workspace]
 var UserIDListFrom = idx.ListFrom[User]
 
-type TeamIDSet = idx.Set[Team]
+type WorkspaceIDSet = idx.Set[Workspace]
 type UserIDSet = idx.Set[User]
 
-var NewTeamIDSet = idx.NewSet[Team]
+var NewWorkspaceIDSet = idx.NewSet[Workspace]
 var NewUserIDSet = idx.NewSet[User]

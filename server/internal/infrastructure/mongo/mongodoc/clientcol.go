@@ -48,14 +48,18 @@ func (c *ClientCollection) UpdateManyMany(ctx context.Context, updates []Update)
 	return c.Client.UpdateManyMany(ctx, c.CollectionName, updates)
 }
 
-func (c *ClientCollection) RemoveOne(ctx context.Context, id string) error {
-	return c.Client.RemoveOne(ctx, c.CollectionName, id)
+func (c *ClientCollection) RemoveOne(ctx context.Context, f interface{}) error {
+	return c.Client.RemoveOne(ctx, c.CollectionName, f)
 }
 
-func (c *ClientCollection) RemoveAll(ctx context.Context, ids []string) error {
-	return c.Client.RemoveAll(ctx, c.CollectionName, ids)
+func (c *ClientCollection) RemoveAll(ctx context.Context, f interface{}) error {
+	return c.Client.RemoveAll(ctx, c.CollectionName, f)
 }
 
 func (c *ClientCollection) CreateIndex(ctx context.Context, keys []string) []string {
 	return c.Client.CreateIndex(ctx, c.CollectionName, keys)
+}
+
+func (c *ClientCollection) CreateUniqueIndex(ctx context.Context, keys, uniqueKeys []string) []string {
+	return c.Client.CreateUniqueIndex(ctx, c.CollectionName, keys, uniqueKeys)
 }
