@@ -14,7 +14,7 @@ import (
 
 func TestNewUser(t *testing.T) {
 	expected := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 
 	got := NewUser()
@@ -27,7 +27,7 @@ func TestUser_FindBySub(t *testing.T) {
 		Sub: "xxx",
 	}}).MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 
@@ -69,7 +69,7 @@ func TestUser_FindByEmail(t *testing.T) {
 	ctx := context.Background()
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 	out, err := r.FindByEmail(ctx, "aa@bb.cc")
@@ -86,7 +86,7 @@ func TestUser_FindByIDs(t *testing.T) {
 	u1 := user.New().NewID().Name("hoge").Email("abc@bb.cc").MustBuild()
 	u2 := user.New().NewID().Name("foo").Email("cba@bb.cc").MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u1.ID(), u1)
 	r.data.Store(u2.ID(), u2)
@@ -107,7 +107,7 @@ func TestUser_FindByName(t *testing.T) {
 	}
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").PasswordReset(pr.Clone()).MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 
@@ -126,13 +126,17 @@ func TestUser_FindByName(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "must return ErrInvalidParams",
-			repo:    &User{},
+			name: "must return ErrInvalidParams",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			wantErr: true,
 		},
 		{
-			name:    "must return ErrNotFound",
-			repo:    &User{},
+			name: "must return ErrNotFound",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			uName:   "xxx",
 			wantErr: true,
 		},
@@ -154,7 +158,7 @@ func TestUser_FindByNameOrEmail(t *testing.T) {
 	ctx := context.Background()
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 
@@ -162,11 +166,12 @@ func TestUser_FindByNameOrEmail(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, u, out)
 
-	_, err = r.FindByNameOrEmail(ctx, "aa@bb.cc")
+	out2, err := r.FindByNameOrEmail(ctx, "aa@bb.cc")
 	assert.NoError(t, err)
-	assert.Equal(t, u, out)
+	assert.Equal(t, u, out2)
 
-	_, err = r.FindByNameOrEmail(ctx, "xxx")
+	out3, err := r.FindByNameOrEmail(ctx, "xxx")
+	assert.Nil(t, out3)
 	assert.Same(t, rerror.ErrNotFound, err)
 }
 
@@ -177,7 +182,7 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 	}
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").PasswordReset(pr.Clone()).MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 
@@ -196,13 +201,17 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "must return ErrInvalidParams",
-			repo:    &User{},
+			name: "must return ErrInvalidParams",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			wantErr: true,
 		},
 		{
-			name:    "must return ErrNotFound",
-			repo:    &User{},
+			name: "must return ErrNotFound",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			token:   "xxx",
 			wantErr: true,
 		},
@@ -225,7 +234,7 @@ func TestUser_FindByVerification(t *testing.T) {
 	vr := user.VerificationFrom("123abc", time.Now(), false)
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Verification(vr).MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 	tests := []struct {
@@ -243,13 +252,17 @@ func TestUser_FindByVerification(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "must return ErrInvalidParams",
-			repo:    &User{},
+			name: "must return ErrInvalidParams",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			wantErr: true,
 		},
 		{
-			name:    "must return ErrNotFound",
-			repo:    &User{},
+			name: "must return ErrNotFound",
+			repo: &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			},
 			code:    "xxx",
 			wantErr: true,
 		},
@@ -272,7 +285,7 @@ func TestUser_Remove(t *testing.T) {
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
 	u2 := user.New().NewID().Name("xxx").Email("abc@bb.cc").MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 	r.data.Store(u2.ID(), u2)
@@ -286,7 +299,7 @@ func TestUser_Save(t *testing.T) {
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
 
 	got := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	_ = got.Save(ctx, u)
 
@@ -297,7 +310,7 @@ func TestUser_FindByID(t *testing.T) {
 	ctx := context.Background()
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").MustBuild()
 	r := &User{
-		data: util.SyncMap[id.UserID, *user.User]{},
+		data: &util.SyncMap[id.UserID, *user.User]{},
 	}
 	r.data.Store(u.ID(), u)
 
@@ -305,6 +318,7 @@ func TestUser_FindByID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, u, out)
 
-	_, err = r.FindByID(ctx, id.UserID{})
+	out2, err := r.FindByID(ctx, id.UserID{})
+	assert.Nil(t, out2)
 	assert.Same(t, rerror.ErrNotFound, err)
 }

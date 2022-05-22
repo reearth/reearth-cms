@@ -16,6 +16,7 @@ const configPrefix = "reearth"
 type Config struct {
 	Port          string `default:"8080" envconfig:"PORT"`
 	Dev           bool
+	GraphQL       GraphQLConfig
 	Origins       []string
 	DB            string `default:"mongodb://localhost"`
 	Auth          AuthConfigs
@@ -33,6 +34,10 @@ type AuthConfig struct {
 	ALG      *string
 	TTL      *int
 	ClientID *string
+}
+
+type GraphQLConfig struct {
+	ComplexityLimit int `default:"6000"`
 }
 
 type AuthConfigs []AuthConfig
