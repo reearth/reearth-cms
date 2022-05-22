@@ -178,7 +178,7 @@ func (i *User) userAlreadyExists(ctx context.Context, userID *id.UserID, sub *st
 		}
 	} else if sub != nil {
 		// Check if user already exists
-		existedUser, err = i.userRepo.FindByAuth0Sub(ctx, *sub)
+		existedUser, err = i.userRepo.FindBySub(ctx, *sub)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
