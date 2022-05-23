@@ -1,9 +1,24 @@
+scalar Upload
+
+type Asset {
+  id: ID!
+}
+
+input CreateAssetInput {
+  file: Upload!
+}
+
+type CreateAssetPyload {
+  asset: Asset!
+}
+
 type Query {
   test: String!
 }
 
 type Mutation {
   test: String!
+  createAsset(input: CreateAssetInput): CreateAssetPyload!
 }
 
 schema {
