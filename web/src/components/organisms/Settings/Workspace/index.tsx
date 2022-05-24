@@ -10,6 +10,7 @@ import useHooks from "./hooks";
 
 const Workspace: React.FC = () => {
   const { workspaceId } = useParams();
+
   const {
     me,
     currentWorkspace,
@@ -22,9 +23,11 @@ const Workspace: React.FC = () => {
     updateMemberOfWorkspace,
     removeMemberFromWorkspace,
   } = useHooks({ workspaceId });
+
   const [owner, setOwner] = useState(false);
   const [memberName, setMemberName] = useState("");
   const [workspaceName, setWorkspaceName] = useState("");
+
   const navigate = useNavigate();
   const members = currentWorkspace?.members;
 
