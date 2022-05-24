@@ -4,7 +4,7 @@ import { atom, useAtom } from "jotai";
 const error = atom<string | undefined>(undefined);
 export const useError = () => useAtom(error);
 
-export type Wrokspace = {
+export type Workspace = {
   id: string;
   name: string;
   members?: Array<any>;
@@ -12,5 +12,5 @@ export type Wrokspace = {
   projects?: any;
   personal?: boolean;
 };
-const workspace = atom<Wrokspace | undefined>(undefined);
+const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
