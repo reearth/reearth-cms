@@ -80,7 +80,7 @@ export default (workspaceId?: string) => {
   return {
     user,
     workspaces,
-    currentWorkspace: workspace as Workspace,
+    currentWorkspace,
     createWorkspace,
     changeWorkspace,
   };

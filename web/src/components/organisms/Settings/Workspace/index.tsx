@@ -23,8 +23,8 @@ const Workspace: React.FC = () => {
     removeMemberFromWorkspace,
   } = useHooks({ workspaceId });
   const [owner, setOwner] = useState(false);
-  const [memberName, setMemberName] = useState<string>("");
-  const [workspaceName, setWorkspaceName] = useState<string>("");
+  const [memberName, setMemberName] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
   const navigate = useNavigate();
   const members = currentWorkspace?.members;
 

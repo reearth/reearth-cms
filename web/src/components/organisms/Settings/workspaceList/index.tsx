@@ -18,7 +18,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
     workspaceId,
   });
   const navigate = useNavigate();
-  const [workspaceName, setWorkspaceName] = useState<string>("");
+  const [workspaceName, setWorkspaceName] = useState("");
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
