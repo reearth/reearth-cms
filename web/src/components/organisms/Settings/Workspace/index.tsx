@@ -1,12 +1,14 @@
 import styled from "@emotion/styled";
-import { Button, Form, Input, Layout, List } from "antd";
-import { Content, Header } from "antd/lib/layout/layout";
+import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import List from "@reearth-cms/components/atoms/List";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useHooks, { RoleUnion } from "./hooks";
 
-const WorkspaceSettings: React.FC<Props> = () => {
+const Workspace: React.FC = () => {
   const { workspaceId } = useParams();
   const {
     me,
@@ -92,120 +94,105 @@ const WorkspaceSettings: React.FC<Props> = () => {
   }, [checkOwner]);
 
   return currentWorkspace ? (
-    <Layout>
-      <LightHeader>{currentWorkspace?.name}</LightHeader>
-      <PaddedContent>
+    <>
+      <PaddedDiv>
+        <h1>{currentWorkspace?.name}</h1>
+      </PaddedDiv>
+      <PaddedDiv>
+        <Button onClick={() => navigate("/workspace")}>Workspace List</Button>
+        {owner && !currentWorkspace?.personal && (
+          <Button onClick={() => handleDeleteWorkspace()} danger>
+            Delete Workspace
+          </Button>
+        )}
+      </PaddedDiv>
+
+      {!currentWorkspace?.personal && (
         <PaddedDiv>
-          <Button onClick={() => navigate("/workspace")}>Workspace List</Button>
-          {owner && !currentWorkspace?.personal && (
-            <Button onClick={() => handleDeleteWorkspace()} danger>
-              Delete Workspace
-            </Button>
+          <h2>Workspace name</h2>
+          <Form style={{ maxWidth: "300px" }}>
+            <Form.Item label="Workspace name">
+              <Input
+                min={8}
+                max={12}
+                value={workspaceName}
+                onChange={handleNameChange}
+              />
+              {workspaceName && (
+                <Button onClick={() => handleWorkspaceNameChange()}>
+                  Change name
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+        </PaddedDiv>
+      )}
+
+      {!currentWorkspace?.personal && (
+        <PaddedDiv>
+          <h2>Add User</h2>
+          <Form style={{ maxWidth: "300px" }}>
+            <Form.Item label="User name">
+              <Input
+                min={8}
+                max={12}
+                value={memberName}
+                onChange={handleMemberNameChange}
+              />
+              {searchedUser && (
+                <Button onClick={() => handleAddMember()}>
+                  {searchedUser.name}
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+        </PaddedDiv>
+      )}
+      <PaddedDiv>
+        <h1>Members</h1>
+        <List
+          itemLayout="horizontal"
+          dataSource={members}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta title={item.user.name} description={item.role} />
+              {item.userId != me.id && (
+                <>
+                  <Button
+                    onClick={() => handleUpdateMember(item.userId, "READER")}
+                  >
+                    READER
+                  </Button>
+                  <Button
+                    onClick={() => handleUpdateMember(item.userId, "WRITER")}
+                  >
+                    WRITER
+                  </Button>
+                  <Button
+                    onClick={() => handleUpdateMember(item.userId, "OWNER")}
+                  >
+                    OWNER
+                  </Button>
+                  {item.role !== "OWNER" && (
+                    <Button
+                      onClick={() => handleDeleteMember(item.userId)}
+                      danger
+                    >
+                      Delete Member
+                    </Button>
+                  )}
+                </>
+              )}
+            </List.Item>
           )}
-        </PaddedDiv>
-
-        {!currentWorkspace?.personal && (
-          <PaddedDiv>
-            <h2>Workspace name</h2>
-            <Form style={{ maxWidth: "300px" }}>
-              <Form.Item label="Workspace name">
-                <Input
-                  min={8}
-                  max={12}
-                  value={workspaceName}
-                  onChange={handleNameChange}
-                />
-                {workspaceName && (
-                  <Button onClick={() => handleWorkspaceNameChange()}>
-                    Change name
-                  </Button>
-                )}
-              </Form.Item>
-            </Form>
-          </PaddedDiv>
-        )}
-
-        {!currentWorkspace?.personal && (
-          <PaddedDiv>
-            <h2>Add User</h2>
-            <Form style={{ maxWidth: "300px" }}>
-              <Form.Item label="User name">
-                <Input
-                  min={8}
-                  max={12}
-                  value={memberName}
-                  onChange={handleMemberNameChange}
-                />
-                {searchedUser && (
-                  <Button onClick={() => handleAddMember()}>
-                    {searchedUser.name}
-                  </Button>
-                )}
-              </Form.Item>
-            </Form>
-          </PaddedDiv>
-        )}
-        <PaddedDiv>
-          <h1>Members</h1>
-          <List
-            itemLayout="horizontal"
-            dataSource={members}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={item.user.name}
-                  description={item.role}
-                />
-                {item.userId != me.id && (
-                  <>
-                    <Button
-                      onClick={() => handleUpdateMember(item.userId, "READER")}
-                    >
-                      READER
-                    </Button>
-                    <Button
-                      onClick={() => handleUpdateMember(item.userId, "WRITER")}
-                    >
-                      WRITER
-                    </Button>
-                    <Button
-                      onClick={() => handleUpdateMember(item.userId, "OWNER")}
-                    >
-                      OWNER
-                    </Button>
-                    {item.role !== "OWNER" && (
-                      <Button
-                        onClick={() => handleDeleteMember(item.userId)}
-                        danger
-                      >
-                        Delete Member
-                      </Button>
-                    )}
-                  </>
-                )}
-              </List.Item>
-            )}
-          />
-        </PaddedDiv>
-      </PaddedContent>
-    </Layout>
+        />
+      </PaddedDiv>
+    </>
   ) : null;
 };
 
-const LightHeader = styled(Header)`
-  background-color: #add8e6;
-  font-weight: 800;
-  font-size: 26px;
-`;
-
-const PaddedContent = styled(Content)`
-  min-height: 280px;
-  padding: 24px 50px;
-  background: #fff;
-`;
-
 const PaddedDiv = styled.div`
-  padding: 24px 0;
+  padding: 24px 50px;
 `;
 
-export default WorkspaceSettings;
+export default Workspace;

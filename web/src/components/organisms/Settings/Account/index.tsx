@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import { Input, Layout } from "antd";
-import { Content, Header } from "antd/lib/layout/layout";
+import Input from "@reearth-cms/components/atoms/Input";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,42 +25,30 @@ const Account: React.FC<Props> = () => {
   }, [filterText, updateName]);
 
   return (
-    <Layout>
-      <LightHeader>Hello {me?.name}</LightHeader>
-      <Layout>
-        <PaddedContent>
-          <PaddedDiv>
-            <Button type="primary" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
-            </Button>
-          </PaddedDiv>
-          <Input
-            style={{ maxWidth: "300px" }}
-            value={filterText}
-            onChange={handleInputChange}
-            type="text"
-          />
-          <Button onClick={handleClick}>Update name</Button>
-        </PaddedContent>
-      </Layout>
-    </Layout>
+    <>
+      <PaddedDiv>
+        <h1>Hello {me?.name}</h1>
+      </PaddedDiv>
+      <PaddedDiv>
+        <Button type="primary" onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </Button>
+      </PaddedDiv>
+      <PaddedDiv>
+        <Input
+          style={{ maxWidth: "300px" }}
+          value={filterText}
+          onChange={handleInputChange}
+          type="text"
+        />
+        <Button onClick={handleClick}>Update name</Button>
+      </PaddedDiv>
+    </>
   );
 };
 
 const PaddedDiv = styled.div`
-  padding: 24px 0;
-`;
-
-const LightHeader = styled(Header)`
-  background-color: #add8e6;
-  font-weight: 800;
-  font-size: 26px;
-`;
-
-const PaddedContent = styled(Content)`
-  min-height: 280px;
   padding: 24px 50px;
-  background: #fff;
 `;
 
 export default Account;

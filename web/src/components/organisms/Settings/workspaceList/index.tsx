@@ -1,26 +1,22 @@
 import styled from "@emotion/styled";
-import { Button, Form, Input, Layout, List } from "antd";
+import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import List from "@reearth-cms/components/atoms/List";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback, useState } from "react";
-import { Navigate } from "react-router";
 import { useNavigate } from "react-router-dom";
 
 import useHooks from "../Workspace/hooks";
-
-// Components
 
 type Props = {
   workspaceId: string;
 };
 
 const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
-  const {
-    workspaces,
-    // currentWorkspace,
-    createWorkspace,
-    // loading,
-    selectWorkspace,
-  } = useHooks({ workspaceId });
+  const { workspaces, createWorkspace, selectWorkspace } = useHooks({
+    workspaceId,
+  });
   const navigate = useNavigate();
   const [workspaceName, setWorkspaceName] = useState<string>("");
 
@@ -38,7 +34,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
   }, [setWorkspaceName, workspaceName, createWorkspace]);
 
   return (
-    <Layout>
+    <>
       <PaddedContent>
         <Form style={{ maxWidth: "300px" }}>
           <Form.Item
@@ -85,7 +81,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
           Back to Dashboard
         </Button>
       </PaddedContent>
-    </Layout>
+    </>
   );
 };
 
