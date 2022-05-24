@@ -6,7 +6,7 @@ import List from "@reearth-cms/components/atoms/List";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import useHooks, { RoleUnion } from "./hooks";
+import useHooks from "./hooks";
 
 const Workspace: React.FC = () => {
   const { workspaceId } = useParams();
