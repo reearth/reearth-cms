@@ -1,8 +1,5 @@
-import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
-import { Layout } from "antd";
-import { Content, Header } from "antd/lib/layout/layout";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,39 +16,13 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
   const { user } = useHooks(workspaceId);
 
   return (
-    <Layout>
-      <LightHeader>Hello {user.name}</LightHeader>
-      <Layout>
-        <PaddedContent>
-          <PaddedDiv>
-            <Button onClick={() => logout()}>logout</Button>
-          </PaddedDiv>
-          <PaddedDiv>
-            <Button onClick={() => navigate("/account")}>Account</Button>
-            <Button onClick={() => navigate("/workspace")}>
-              Workspace list
-            </Button>
-          </PaddedDiv>
-        </PaddedContent>
-      </Layout>
-    </Layout>
+    <>
+      <h1>Hello {user.name}</h1>
+      <Button onClick={() => logout()}>logout</Button>
+      <Button onClick={() => navigate("/account")}>Account</Button>
+      <Button onClick={() => navigate("/workspace")}>Workspace list</Button>
+    </>
   );
 };
-
-const PaddedDiv = styled.div`
-  padding: 24px 0;
-`;
-
-const LightHeader = styled(Header)`
-  background-color: #add8e6;
-  font-weight: 800;
-  font-size: 26px;
-`;
-
-const PaddedContent = styled(Content)`
-  min-height: 280px;
-  padding: 24px 50px;
-  background: #fff;
-`;
 
 export default Dashboard;
