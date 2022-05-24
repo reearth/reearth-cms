@@ -2,7 +2,6 @@ import { AuthenticationRequiredPage } from "@reearth-cms/auth";
 import WorkspaceList from "@reearth-cms/components/organisms/Settings/workspaceList";
 
 export type Props = {
-  path?: string;
   workspaceId?: string;
 };
 

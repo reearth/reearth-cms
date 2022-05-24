@@ -48,20 +48,6 @@ const Workspace: React.FC = () => {
     navigate("/workspace");
   }, [deleteWorkspace, navigate]);
 
-  const handleDeleteMember = useCallback(
-    async (userId: string) => {
-      await removeMemberFromWorkspace(userId);
-    },
-    [removeMemberFromWorkspace]
-  );
-
-  const handleUpdateMember = useCallback(
-    async (userId: string, role: RoleUnion) => {
-      await updateMemberOfWorkspace(userId, role);
-    },
-    [updateMemberOfWorkspace]
-  );
-
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setWorkspaceName?.(e.currentTarget.value);
@@ -159,23 +145,29 @@ const Workspace: React.FC = () => {
               {item.userId != me.id && (
                 <>
                   <Button
-                    onClick={() => handleUpdateMember(item.userId, "READER")}
+                    onClick={() =>
+                      updateMemberOfWorkspace(item.userId, "READER")
+                    }
                   >
                     READER
                   </Button>
                   <Button
-                    onClick={() => handleUpdateMember(item.userId, "WRITER")}
+                    onClick={() =>
+                      updateMemberOfWorkspace(item.userId, "WRITER")
+                    }
                   >
                     WRITER
                   </Button>
                   <Button
-                    onClick={() => handleUpdateMember(item.userId, "OWNER")}
+                    onClick={() =>
+                      updateMemberOfWorkspace(item.userId, "OWNER")
+                    }
                   >
                     OWNER
                   </Button>
                   {item.role !== "OWNER" && (
                     <Button
-                      onClick={() => handleDeleteMember(item.userId)}
+                      onClick={() => removeMemberFromWorkspace(item.userId)}
                       danger
                     >
                       Delete Member
