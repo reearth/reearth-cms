@@ -6,13 +6,12 @@ import { useNavigate } from "react-router-dom";
 
 import useHooks from "./hooks";
 
-export type Props = {};
-
-const Account: React.FC<Props> = () => {
+const Account: React.FC = () => {
   const { me, updateName } = useHooks();
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState("");
+
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setFilterText?.(e.currentTarget.value);
