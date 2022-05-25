@@ -1,6 +1,6 @@
 import {
   useCreateWorkspaceMutation,
-  useMeQuery,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect } from "react";
@@ -25,7 +25,7 @@ export type Workspace = {
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const { data, refetch } = useMeQuery();
+  const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
 
@@ -66,7 +66,7 @@ export default (workspaceId?: string) => {
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
-        refetchQueries: ["workspaces"],
+        refetchQueries: ["GetWorkspaces"],
       });
       if (results.data?.createWorkspace) {
         setCurrentWorkspace(results.data.createWorkspace.workspace);

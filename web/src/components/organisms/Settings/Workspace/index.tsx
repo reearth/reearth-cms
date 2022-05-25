@@ -16,12 +16,12 @@ const Workspace: React.FC = () => {
     currentWorkspace,
     searchedUser,
     changeSearchedUser,
-    deleteWorkspace,
-    searchUser,
-    updateName,
-    addMembersToWorkspace,
-    updateMemberOfWorkspace,
-    removeMemberFromWorkspace,
+    handleWorkspaceDelete,
+    handleUserSearch,
+    handleNameUpdate,
+    handleMemberAddToWorkspace,
+    handleMemberOfWorkspaceUpdate,
+    handleMemberRemoveFromWorkspace,
   } = useHooks({ workspaceId });
 
   const [owner, setOwner] = useState(false);
@@ -34,22 +34,22 @@ const Workspace: React.FC = () => {
   const handleMemberNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setMemberName?.(e.currentTarget.value);
-      searchUser(e.currentTarget.value);
+      handleUserSearch(e.currentTarget.value);
     },
-    [setMemberName, searchUser]
+    [setMemberName, handleUserSearch]
   );
 
-  const handleAddMember = useCallback(() => {
+  const handleMemberAdd = useCallback(() => {
     if (!searchedUser) return;
-    addMembersToWorkspace([searchedUser.id]);
+    handleMemberAddToWorkspace([searchedUser.id]);
     setMemberName("");
     changeSearchedUser(undefined);
-  }, [searchedUser, addMembersToWorkspace, changeSearchedUser]);
+  }, [searchedUser, handleMemberAddToWorkspace, changeSearchedUser]);
 
-  const handleDeleteWorkspace = useCallback(async () => {
-    await deleteWorkspace();
-    navigate("/workspace");
-  }, [deleteWorkspace, navigate]);
+  const handleWorkspaceDeleteAction = useCallback(async () => {
+    await handleWorkspaceDelete();
+    navigate("/workspaces");
+  }, [handleWorkspaceDelete, navigate]);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,9 +60,9 @@ const Workspace: React.FC = () => {
 
   const handleWorkspaceNameChange = useCallback(() => {
     if (!workspaceName) return;
-    updateName(workspaceName);
+    handleNameUpdate(workspaceName);
     setWorkspaceName("");
-  }, [setWorkspaceName, workspaceName, updateName]);
+  }, [setWorkspaceName, workspaceName, handleNameUpdate]);
 
   const checkOwner = useCallback(() => {
     if (members) {
@@ -88,9 +88,9 @@ const Workspace: React.FC = () => {
         <h1>{currentWorkspace?.name}</h1>
       </PaddedDiv>
       <PaddedDiv>
-        <Button onClick={() => navigate("/workspace")}>Workspace List</Button>
+        <Button onClick={() => navigate("/workspaces")}>Workspace List</Button>
         {owner && !currentWorkspace?.personal && (
-          <Button onClick={() => handleDeleteWorkspace()} danger>
+          <Button onClick={() => handleWorkspaceDeleteAction()} danger>
             Delete Workspace
           </Button>
         )}
@@ -129,7 +129,7 @@ const Workspace: React.FC = () => {
                 onChange={handleMemberNameChange}
               />
               {searchedUser && (
-                <Button onClick={() => handleAddMember()}>
+                <Button onClick={() => handleMemberAdd()}>
                   {searchedUser.name}
                 </Button>
               )}
@@ -149,28 +149,30 @@ const Workspace: React.FC = () => {
                 <>
                   <Button
                     onClick={() =>
-                      updateMemberOfWorkspace(item.userId, "READER")
+                      handleMemberOfWorkspaceUpdate(item.userId, "READER")
                     }
                   >
                     READER
                   </Button>
                   <Button
                     onClick={() =>
-                      updateMemberOfWorkspace(item.userId, "WRITER")
+                      handleMemberOfWorkspaceUpdate(item.userId, "WRITER")
                     }
                   >
                     WRITER
                   </Button>
                   <Button
                     onClick={() =>
-                      updateMemberOfWorkspace(item.userId, "OWNER")
+                      handleMemberOfWorkspaceUpdate(item.userId, "OWNER")
                     }
                   >
                     OWNER
                   </Button>
                   {item.role !== "OWNER" && (
                     <Button
-                      onClick={() => removeMemberFromWorkspace(item.userId)}
+                      onClick={() =>
+                        handleMemberRemoveFromWorkspace(item.userId)
+                      }
                       danger
                     >
                       Delete Member

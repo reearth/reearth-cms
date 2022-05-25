@@ -1,7 +1,7 @@
 import { useApolloClient } from "@apollo/client";
 import {
   useUpdateMeMutation,
-  useProfileQuery,
+  useGetProfileQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback } from "react";
@@ -10,7 +10,7 @@ export default () => {
   const client = useApolloClient();
   const [currentWorkspace] = useWorkspace();
 
-  const { data: profileData } = useProfileQuery();
+  const { data: profileData } = useGetProfileQuery();
   const me = profileData?.me;
   const auths = profileData?.me?.auths;
   const hasPassword = auths?.includes("auth0") ?? false;

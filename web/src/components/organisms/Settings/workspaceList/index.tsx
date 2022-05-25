@@ -14,7 +14,7 @@ type Props = {
 };
 
 const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
-  const { workspaces, createWorkspace, selectWorkspace } = useHooks({
+  const { workspaces, handleWorkspaceCreate, onWorkspaceSelect } = useHooks({
     workspaceId,
   });
   const navigate = useNavigate();
@@ -27,11 +27,11 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
     [setWorkspaceName]
   );
 
-  const handleAddWorkspace = useCallback(() => {
+  const handleWorkspaceAdd = useCallback(() => {
     if (!workspaceName) return;
-    createWorkspace({ name: workspaceName });
+    handleWorkspaceCreate({ name: workspaceName });
     setWorkspaceName("");
-  }, [setWorkspaceName, workspaceName, createWorkspace]);
+  }, [setWorkspaceName, workspaceName, handleWorkspaceCreate]);
 
   return (
     <>
@@ -52,7 +52,7 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
             <Button
               type="primary"
               htmlType="submit"
-              onClick={handleAddWorkspace}
+              onClick={handleWorkspaceAdd}
             >
               Add new workspace
             </Button>
@@ -67,7 +67,9 @@ const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
-                title={<a onClick={() => selectWorkspace(item)}>{item.name}</a>}
+                title={
+                  <a onClick={() => onWorkspaceSelect(item)}>{item.name}</a>
+                }
                 description={
                   "Members: " +
                   item.members.map((member) => member.user?.name).join(",")

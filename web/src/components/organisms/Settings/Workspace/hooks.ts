@@ -1,5 +1,5 @@
 import {
-  useWorkspacesQuery,
+  useGetWorkspacesQuery,
   useCreateWorkspaceMutation,
   useUpdateWorkspaceMutation,
   useDeleteWorkspaceMutation,
@@ -8,7 +8,7 @@ import {
   Role,
   useRemoveMemberFromWorkspaceMutation,
   Workspace,
-  useSearchUserLazyQuery,
+  useGetUserBySearchLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect, useState } from "react";
@@ -30,7 +30,7 @@ export default (params: Params) => {
     email: string;
   }>();
 
-  const { data, loading } = useWorkspacesQuery();
+  const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
 
@@ -52,30 +52,31 @@ export default (params: Params) => {
       currentWorkspace?.id &&
       params.workspaceId !== currentWorkspace.id
     ) {
-      navigate(`/workspace/${currentWorkspace?.id}`);
+      navigate(`/workspaces/${currentWorkspace?.id}`);
     }
   }, [params, currentWorkspace, navigate]);
 
   const workspaceId = currentWorkspace?.id;
 
-  const [searchUserQuery, { data: searchUserData }] = useSearchUserLazyQuery();
+  const [searchUserQuery, { data: searchUserData }] =
+    useGetUserBySearchLazyQuery();
 
   useEffect(() => {
     changeSearchedUser(searchUserData?.searchUser ?? undefined);
   }, [searchUserData?.searchUser]);
 
-  const searchUser = useCallback(
+  const handleUserSearch = useCallback(
     (nameOrEmail: string) =>
       nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
     [searchUserQuery]
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
-  const createWorkspace = useCallback(
+  const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
-        refetchQueries: ["workspaces"],
+        refetchQueries: ["GetWorkspaces"],
       });
       const workspace = results.data?.createWorkspace?.workspace;
       if (results.errors || !results.data?.createWorkspace) {
@@ -90,7 +91,7 @@ export default (params: Params) => {
 
   const [updateWorkspaceMutation] = useUpdateWorkspaceMutation();
 
-  const updateName = useCallback(
+  const handleNameUpdate = useCallback(
     async (name?: string) => {
       if (!workspaceId || !name) return;
       const results = await updateWorkspaceMutation({
@@ -107,9 +108,9 @@ export default (params: Params) => {
   );
 
   const [deleteWorkspaceMutation] = useDeleteWorkspaceMutation({
-    refetchQueries: ["workspaces"],
+    refetchQueries: ["GetWorkspaces"],
   });
-  const deleteWorkspace = useCallback(async () => {
+  const handleWorkspaceDelete = useCallback(async () => {
     if (!workspaceId) return;
     const result = await deleteWorkspaceMutation({
       variables: { workspaceId },
@@ -124,14 +125,14 @@ export default (params: Params) => {
 
   const [addMemberToWorkspaceMutation] = useAddMemberToWorkspaceMutation();
 
-  const addMembersToWorkspace = useCallback(
+  const handleMemberAddToWorkspace = useCallback(
     async (userIds: string[]) => {
       const results = await Promise.all(
         userIds.map(async (userId) => {
           if (!workspaceId) return;
           const result = await addMemberToWorkspaceMutation({
             variables: { userId, workspaceId, role: Role.Reader },
-            refetchQueries: ["workspaces"],
+            refetchQueries: ["GetWorkspaces"],
           });
           const workspace = result.data?.addMemberToWorkspace?.workspace;
           if (result.errors || !workspace) {
@@ -151,7 +152,7 @@ export default (params: Params) => {
   const [updateMemberOfWorkspaceMutation] =
     useUpdateMemberOfWorkspaceMutation();
 
-  const updateMemberOfWorkspace = useCallback(
+  const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
       if (workspaceId) {
         const results = await updateMemberOfWorkspaceMutation({
@@ -177,12 +178,12 @@ export default (params: Params) => {
   const [removeMemberFromWorkspaceMutation] =
     useRemoveMemberFromWorkspaceMutation();
 
-  const removeMemberFromWorkspace = useCallback(
+  const handleMemberRemoveFromWorkspace = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
       const result = await removeMemberFromWorkspaceMutation({
         variables: { workspaceId, userId },
-        refetchQueries: ["workspaces"],
+        refetchQueries: ["GetWorkspaces"],
       });
       const workspace = result.data?.removeMemberFromWorkspace?.workspace;
       if (result.errors || !workspace) {
@@ -195,11 +196,11 @@ export default (params: Params) => {
     [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace]
   );
 
-  const selectWorkspace = useCallback(
+  const onWorkspaceSelect = useCallback(
     (workspace: Workspace) => {
       if (workspace.id) {
         setWorkspace(workspace);
-        navigate(`/workspace/${workspace.id}`);
+        navigate(`/workspaces/${workspace.id}`);
       }
     },
     [navigate, setWorkspace]
@@ -211,14 +212,14 @@ export default (params: Params) => {
     currentWorkspace,
     searchedUser,
     changeSearchedUser,
-    createWorkspace,
-    updateName,
-    deleteWorkspace,
-    searchUser,
-    addMembersToWorkspace,
-    updateMemberOfWorkspace,
-    removeMemberFromWorkspace,
-    selectWorkspace,
+    handleWorkspaceCreate,
+    handleNameUpdate,
+    handleWorkspaceDelete,
+    handleUserSearch,
+    handleMemberAddToWorkspace,
+    handleMemberOfWorkspaceUpdate,
+    handleMemberRemoveFromWorkspace,
+    onWorkspaceSelect,
     loading,
   };
 };
