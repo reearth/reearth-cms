@@ -34,3 +34,14 @@ type UserIDSet = idx.Set[User]
 
 var NewWorkspaceIDSet = idx.NewSet[Workspace]
 var NewUserIDSet = idx.NewSet[User]
+
+type Project struct{}
+
+func (Project) Type() string { return "project" }
+
+type ProjectId = idx.ID[Project]
+
+var MustProjectID = idx.Must[Project]
+var NewProjectID = idx.New[Project]
+var ProjectIDFrom = idx.From[Project]
+var ProjectIDFromRef = idx.FromRef[Project]
