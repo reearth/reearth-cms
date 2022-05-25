@@ -10,9 +10,7 @@ import (
 
 //MEMO: controller的なやつで、gql -> usecaseの入力の変換と呼び出しをする
 func (r *mutationResolver) CreateAsset(ctx context.Context, input *gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPyload, error) {
-	// TODO: 入力からチームのIDなどを取得する
 
-	//TODO: usecase層(interactor/asset.go)のcreateを呼び出す
 	res, err := interfaces.Asset.Create(ctx, interfaces.CreateAssetParam{
 		TeamID: id.TeamID(input.TeamID),
 		File:   gqlmodel.FromFile(&input.File)
