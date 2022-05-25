@@ -16,11 +16,11 @@ import { useNavigate } from "react-router-dom";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
-type Params = {
+type Props = {
   workspaceId: string | undefined;
 };
 
-export default (params: Params) => {
+export default ({ workspaceId }: Props) => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
 
   const navigate = useNavigate();
@@ -45,18 +45,6 @@ export default (params: Params) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWorkspace, setWorkspace, workspaces, data?.me]);
-
-  useEffect(() => {
-    if (
-      params.workspaceId &&
-      currentWorkspace?.id &&
-      params.workspaceId !== currentWorkspace.id
-    ) {
-      navigate(`/workspaces/${currentWorkspace?.id}`);
-    }
-  }, [params, currentWorkspace, navigate]);
-
-  const workspaceId = currentWorkspace?.id;
 
   const [searchUserQuery, { data: searchUserData }] =
     useGetUserBySearchLazyQuery();

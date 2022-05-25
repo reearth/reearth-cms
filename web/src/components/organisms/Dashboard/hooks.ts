@@ -48,7 +48,7 @@ export default (workspaceId?: string) => {
     }
   }, [currentWorkspace, workspace, setCurrentWorkspace, personal]);
 
-  const changeWorkspace = useCallback(
+  const handleWorkspaceChange = useCallback(
     (workspaceId: string) => {
       const workspace = workspaces?.find(
         (workspace) => workspace.id === workspaceId
@@ -62,7 +62,7 @@ export default (workspaceId?: string) => {
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
-  const createWorkspace = useCallback(
+  const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
@@ -81,7 +81,7 @@ export default (workspaceId?: string) => {
     user,
     workspaces,
     currentWorkspace,
-    createWorkspace,
-    changeWorkspace,
+    handleWorkspaceCreate,
+    handleWorkspaceChange,
   };
 };
