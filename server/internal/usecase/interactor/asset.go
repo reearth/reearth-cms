@@ -2,11 +2,12 @@ package interactor
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"google.golang.org/genproto/googleapis/cloud/asset/v1"
 )
 
 type Asset struct {
@@ -23,21 +24,30 @@ func NewAsset(r *repo.Asset, g *gateway.File) interfaces.Asset {
 	}
 }
 
-func (i *Asset) Create(ctx context.Context, input interfaces.CreateAssetParam, op *usecase.Operator) (*asset.Asset, error) {
-	//TODO: ユーザーが書込み権限があるかチェック
+func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (*asset.Asset, error) {
+	if err := i.CanWriteTeam(inp.TeamID, operator); err != nil {
+		return nil, err
+	}
 
-	//TODO: 入力内容の不正をチェック
+	if inp.File == nil {
+		return nil, interfaces.ErrFileNotIncluded
+	}
 
-	//TODO: トランザくションを開始
+	tx, err := i.repos.Transaction.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if err2 := tx.End(ctx); err == nil && err2 != nil {
+			err = err2
+		}
+	}()
 
-	//TODO: ファイルをアップロード
 	url, err := i.gateways.File.UploadAsset(ctx, inp.File)
 	if err != nil {
 		return nil, err
 	}
 
-	//TODO: domain層（Entity、pkg/asset)をインスタンス化
-	// asset, err := new Asset()てきな
 	result, err = asset.New().
 		NewID().
 		Team(inp.TeamID).
@@ -45,7 +55,12 @@ func (i *Asset) Create(ctx context.Context, input interfaces.CreateAssetParam, o
 		Size(inp.File.Size).
 		URL(url.String()).
 		Build()
-	// TODO: インスタンス化したAssetを永続化・DBに保存
 
-	return nil, nil
+	if err = i.repos.Asset.Save(ctx, result); err != nil {
+		return
+	}
+
+	tx.Commit()
+
+	return
 }
