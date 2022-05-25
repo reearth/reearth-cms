@@ -5,9 +5,9 @@ export type Props = {
   workspaceId?: string;
 };
 
-const WorkspaceListPage: React.FC<Props> = ({ workspaceId = "" }) => (
+const WorkspaceListPage: React.FC<Props> = () => (
   <AuthenticationRequiredPage>
-    <WorkspaceList workspaceId={workspaceId} />
+    <WorkspaceList />
   </AuthenticationRequiredPage>
 );
 

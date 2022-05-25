@@ -46,7 +46,7 @@ const Workspace: React.FC = () => {
     changeSearchedUser(undefined);
   }, [searchedUser, handleMemberAddToWorkspace, changeSearchedUser]);
 
-  const handleWorkspaceDeleteAction = useCallback(async () => {
+  const handleWorkspaceDeletion = useCallback(async () => {
     await handleWorkspaceDelete();
     navigate("/workspaces");
   }, [handleWorkspaceDelete, navigate]);
@@ -90,7 +90,7 @@ const Workspace: React.FC = () => {
       <PaddedDiv>
         <Button onClick={() => navigate("/workspaces")}>Workspace List</Button>
         {owner && !currentWorkspace?.personal && (
-          <Button onClick={() => handleWorkspaceDeleteAction()} danger>
+          <Button onClick={() => handleWorkspaceDeletion()} danger>
             Delete Workspace
           </Button>
         )}

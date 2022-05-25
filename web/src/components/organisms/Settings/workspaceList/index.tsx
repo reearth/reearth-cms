@@ -5,15 +5,13 @@ import Input from "@reearth-cms/components/atoms/Input";
 import List from "@reearth-cms/components/atoms/List";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import useHooks from "../Workspace/hooks";
 
-type Props = {
-  workspaceId: string;
-};
+const WorkspaceList: React.FC = () => {
+  const { workspaceId } = useParams();
 
-const WorkspaceList: React.FC<Props> = ({ workspaceId }) => {
   const { workspaces, handleWorkspaceCreate, onWorkspaceSelect } = useHooks({
     workspaceId,
   });
