@@ -1,0 +1,5 @@
+{
+  "go.testEnvVars": {
+    // "REEARTH_CMS_DB": "mongodb://localhost"
+  }
+}
