@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,13 +13,12 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input *gqlmodel.Crea
 	// TODO: 入力からチームのIDなどを取得する
 
 	//TODO: usecase層(interactor/asset.go)のcreateを呼び出す
-	a, err := interfaces.Asset.Create(ctx, hoge, hoge)
+	res, err := interfaces.Asset.Create(ctx, interfaces.CreateAssetParam{
+		TeamID: id.TeamID(input.TeamID),
+		File:   gqlmodel.FromFile(&input.File)
+	})
 	if err != nil {
 		return nil, err //エラーハンドリングする
 	}
-	return &gqlmodel.CreateAssetPyload{
-		Asset: &gqlmodel.Asset{
-			ID: "hogehoge",
-		},
-	}, nil
+	return &gqlmodel.CreateAssetPyload{Asset: gqlmodel.ToAsset(res)}, nil
 }
