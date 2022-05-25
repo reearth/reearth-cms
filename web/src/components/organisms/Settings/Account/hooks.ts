@@ -17,7 +17,7 @@ export default () => {
 
   const [updateMeMutation] = useUpdateMeMutation();
 
-  const updateName = useCallback(
+  const handleNameUpdate = useCallback(
     async (name?: string) => {
       if (!name) return;
       const username = await updateMeMutation({ variables: { name } });
@@ -59,7 +59,7 @@ export default () => {
     currentWorkspace,
     me,
     hasPassword,
-    updateName,
+    handleNameUpdate,
     updatePassword,
     updateLanguage,
   };

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import useHooks from "./hooks";
 
 const Account: React.FC = () => {
-  const { me, updateName } = useHooks();
+  const { me, handleNameUpdate } = useHooks();
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState("");
@@ -20,8 +20,8 @@ const Account: React.FC = () => {
   );
 
   const handleClick = useCallback(() => {
-    updateName(filterText);
-  }, [filterText, updateName]);
+    handleNameUpdate(filterText);
+  }, [filterText, handleNameUpdate]);
 
   return (
     <>
