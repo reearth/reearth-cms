@@ -1,60 +1,38 @@
 import { gql } from "@apollo/client";
+import { workspaceFragment } from "@reearth-cms/gql/fragments";
 
-export const WORKSPACES = gql`
-  fragment Workspace on Workspace {
-    id
-    name
-    members {
-      user {
-        id
-        name
-        email
-      }
-      userId
-      role
-    }
-    personal
-  }
-
-  query workspaces {
+export const GET_WORKSPACES = gql`
+  query GetWorkspaces {
     me {
       id
       name
       myWorkspace {
         id
-        ...Workspace
+        ...WorkspaceFragment
       }
       workspaces {
         id
-        ...Workspace
+        ...WorkspaceFragment
       }
     }
   }
+
+  ${workspaceFragment}
 `;
 
 export const UPDATE_WORKSPACE = gql`
-  mutation updateWorkspace($workspaceId: ID!, $name: String!) {
+  mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
     updateWorkspace(input: { workspaceId: $workspaceId, name: $name }) {
       workspace {
         id
-        name
-        members {
-          user {
-            id
-            name
-            email
-          }
-          userId
-          role
-        }
-        personal
+        ...WorkspaceFragment
       }
     }
   }
 `;
 
 export const DELETE_WORKSPACE = gql`
-  mutation deleteWorkspace($workspaceId: ID!) {
+  mutation DeleteWorkspace($workspaceId: ID!) {
     deleteWorkspace(input: { workspaceId: $workspaceId }) {
       workspaceId
     }
@@ -62,30 +40,20 @@ export const DELETE_WORKSPACE = gql`
 `;
 
 export const ADD_MEMBER_TO_WORKSPACE = gql`
-  mutation addMemberToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
+  mutation AddMemberToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
     addMemberToWorkspace(
       input: { workspaceId: $workspaceId, userId: $userId, role: $role }
     ) {
       workspace {
         id
-        name
-        members {
-          user {
-            id
-            name
-            email
-          }
-          userId
-          role
-        }
-        personal
+        ...WorkspaceFragment
       }
     }
   }
 `;
 
 export const UPDATE_MEMBER_OF_WORKSPACE = gql`
-  mutation updateMemberOfWorkspace(
+  mutation UpdateMemberOfWorkspace(
     $workspaceId: ID!
     $userId: ID!
     $role: Role!
@@ -95,61 +63,31 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
     ) {
       workspace {
         id
-        name
-        members {
-          user {
-            id
-            name
-            email
-          }
-          userId
-          role
-        }
-        personal
+        ...WorkspaceFragment
       }
     }
   }
 `;
 
 export const REMOVE_MEMBER_FROM_WORKSPACE = gql`
-  mutation removeMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
+  mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
     removeMemberFromWorkspace(
       input: { workspaceId: $workspaceId, userId: $userId }
     ) {
       workspace {
         id
-        name
-        members {
-          user {
-            id
-            name
-            email
-          }
-          userId
-          role
-        }
-        personal
+        ...WorkspaceFragment
       }
     }
   }
 `;
 
 export const CREATE_WORKSPACE = gql`
-  mutation createWorkspace($name: String!) {
+  mutation CreateWorkspace($name: String!) {
     createWorkspace(input: { name: $name }) {
       workspace {
         id
-        name
-        members {
-          user {
-            id
-            name
-            email
-          }
-          userId
-          role
-        }
-        personal
+        ...WorkspaceFragment
       }
     }
   }

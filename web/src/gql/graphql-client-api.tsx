@@ -276,32 +276,34 @@ export type WorkspaceMember = {
   userId: Scalars['ID'];
 };
 
-export type SearchUserQueryVariables = Exact<{
+export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
+
+export type GetUserBySearchQueryVariables = Exact<{
   nameOrEmail: Scalars['String'];
 }>;
 
 
-export type SearchUserQuery = { __typename?: 'Query', searchUser?: { __typename?: 'User', id: string, name: string, email: string } | null };
+export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __typename?: 'User', id: string, name: string, email: string } | null };
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
-
-export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfileQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } | null };
+export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
 
-export type LanguageQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type LanguageQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, lang: string } | null };
-
-export type ThemeQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ThemeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, theme: Theme } | null };
+export type GetProfileQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } | null };
+
+export type GetLanguageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetLanguageQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, lang: string } | null };
+
+export type GetThemeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetThemeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, theme: Theme } | null };
 
 export type UpdateMeMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']>;
@@ -322,12 +324,10 @@ export type DeleteMeMutationVariables = Exact<{
 
 export type DeleteMeMutation = { __typename?: 'Mutation', deleteMe?: { __typename?: 'DeleteMePayload', userId: string } | null };
 
-export type WorkspaceFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
-
-export type WorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type WorkspacesQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, myWorkspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
+export type GetWorkspacesQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, myWorkspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
 
 export type UpdateWorkspaceMutationVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -377,8 +377,8 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = { __typename?: 'Mutation', createWorkspace?: { __typename?: 'CreateWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
-export const WorkspaceFragmentDoc = gql`
-    fragment Workspace on Workspace {
+export const WorkspaceFragmentFragmentDoc = gql`
+    fragment WorkspaceFragment on Workspace {
   id
   name
   members {
@@ -393,8 +393,8 @@ export const WorkspaceFragmentDoc = gql`
   personal
 }
     `;
-export const SearchUserDocument = gql`
-    query searchUser($nameOrEmail: String!) {
+export const GetUserBySearchDocument = gql`
+    query GetUserBySearch($nameOrEmail: String!) {
   searchUser(nameOrEmail: $nameOrEmail) {
     id
     name
@@ -404,34 +404,34 @@ export const SearchUserDocument = gql`
     `;
 
 /**
- * __useSearchUserQuery__
+ * __useGetUserBySearchQuery__
  *
- * To run a query within a React component, call `useSearchUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useSearchUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetUserBySearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserBySearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useSearchUserQuery({
+ * const { data, loading, error } = useGetUserBySearchQuery({
  *   variables: {
  *      nameOrEmail: // value for 'nameOrEmail'
  *   },
  * });
  */
-export function useSearchUserQuery(baseOptions: Apollo.QueryHookOptions<SearchUserQuery, SearchUserQueryVariables>) {
+export function useGetUserBySearchQuery(baseOptions: Apollo.QueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SearchUserQuery, SearchUserQueryVariables>(SearchUserDocument, options);
+        return Apollo.useQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
       }
-export function useSearchUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchUserQuery, SearchUserQueryVariables>) {
+export function useGetUserBySearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SearchUserQuery, SearchUserQueryVariables>(SearchUserDocument, options);
+          return Apollo.useLazyQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
         }
-export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>;
-export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>;
-export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>;
-export const MeDocument = gql`
-    query Me {
+export type GetUserBySearchQueryHookResult = ReturnType<typeof useGetUserBySearchQuery>;
+export type GetUserBySearchLazyQueryHookResult = ReturnType<typeof useGetUserBySearchLazyQuery>;
+export type GetUserBySearchQueryResult = Apollo.QueryResult<GetUserBySearchQuery, GetUserBySearchQueryVariables>;
+export const GetMeDocument = gql`
+    query GetMe {
   me {
     id
     name
@@ -459,33 +459,33 @@ export const MeDocument = gql`
     `;
 
 /**
- * __useMeQuery__
+ * __useGetMeQuery__
  *
- * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
- * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useMeQuery({
+ * const { data, loading, error } = useGetMeQuery({
  *   variables: {
  *   },
  * });
  */
-export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+export function useGetMeQuery(baseOptions?: Apollo.QueryHookOptions<GetMeQuery, GetMeQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        return Apollo.useQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
       }
-export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+export function useGetMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMeQuery, GetMeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+          return Apollo.useLazyQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
         }
-export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
-export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
-export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
-export const ProfileDocument = gql`
-    query Profile {
+export type GetMeQueryHookResult = ReturnType<typeof useGetMeQuery>;
+export type GetMeLazyQueryHookResult = ReturnType<typeof useGetMeLazyQuery>;
+export type GetMeQueryResult = Apollo.QueryResult<GetMeQuery, GetMeQueryVariables>;
+export const GetProfileDocument = gql`
+    query GetProfile {
   me {
     id
     name
@@ -502,33 +502,33 @@ export const ProfileDocument = gql`
     `;
 
 /**
- * __useProfileQuery__
+ * __useGetProfileQuery__
  *
- * To run a query within a React component, call `useProfileQuery` and pass it any options that fit your needs.
- * When your component renders, `useProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useProfileQuery({
+ * const { data, loading, error } = useGetProfileQuery({
  *   variables: {
  *   },
  * });
  */
-export function useProfileQuery(baseOptions?: Apollo.QueryHookOptions<ProfileQuery, ProfileQueryVariables>) {
+export function useGetProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProfileQuery, ProfileQueryVariables>(ProfileDocument, options);
+        return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
       }
-export function useProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProfileQuery, ProfileQueryVariables>) {
+export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProfileQuery, ProfileQueryVariables>(ProfileDocument, options);
+          return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
         }
-export type ProfileQueryHookResult = ReturnType<typeof useProfileQuery>;
-export type ProfileLazyQueryHookResult = ReturnType<typeof useProfileLazyQuery>;
-export type ProfileQueryResult = Apollo.QueryResult<ProfileQuery, ProfileQueryVariables>;
-export const LanguageDocument = gql`
-    query Language {
+export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
+export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
+export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;
+export const GetLanguageDocument = gql`
+    query GetLanguage {
   me {
     id
     lang
@@ -537,33 +537,33 @@ export const LanguageDocument = gql`
     `;
 
 /**
- * __useLanguageQuery__
+ * __useGetLanguageQuery__
  *
- * To run a query within a React component, call `useLanguageQuery` and pass it any options that fit your needs.
- * When your component renders, `useLanguageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetLanguageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLanguageQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useLanguageQuery({
+ * const { data, loading, error } = useGetLanguageQuery({
  *   variables: {
  *   },
  * });
  */
-export function useLanguageQuery(baseOptions?: Apollo.QueryHookOptions<LanguageQuery, LanguageQueryVariables>) {
+export function useGetLanguageQuery(baseOptions?: Apollo.QueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<LanguageQuery, LanguageQueryVariables>(LanguageDocument, options);
+        return Apollo.useQuery<GetLanguageQuery, GetLanguageQueryVariables>(GetLanguageDocument, options);
       }
-export function useLanguageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LanguageQuery, LanguageQueryVariables>) {
+export function useGetLanguageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<LanguageQuery, LanguageQueryVariables>(LanguageDocument, options);
+          return Apollo.useLazyQuery<GetLanguageQuery, GetLanguageQueryVariables>(GetLanguageDocument, options);
         }
-export type LanguageQueryHookResult = ReturnType<typeof useLanguageQuery>;
-export type LanguageLazyQueryHookResult = ReturnType<typeof useLanguageLazyQuery>;
-export type LanguageQueryResult = Apollo.QueryResult<LanguageQuery, LanguageQueryVariables>;
-export const ThemeDocument = gql`
-    query Theme {
+export type GetLanguageQueryHookResult = ReturnType<typeof useGetLanguageQuery>;
+export type GetLanguageLazyQueryHookResult = ReturnType<typeof useGetLanguageLazyQuery>;
+export type GetLanguageQueryResult = Apollo.QueryResult<GetLanguageQuery, GetLanguageQueryVariables>;
+export const GetThemeDocument = gql`
+    query GetTheme {
   me {
     id
     theme
@@ -572,33 +572,33 @@ export const ThemeDocument = gql`
     `;
 
 /**
- * __useThemeQuery__
+ * __useGetThemeQuery__
  *
- * To run a query within a React component, call `useThemeQuery` and pass it any options that fit your needs.
- * When your component renders, `useThemeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetThemeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetThemeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useThemeQuery({
+ * const { data, loading, error } = useGetThemeQuery({
  *   variables: {
  *   },
  * });
  */
-export function useThemeQuery(baseOptions?: Apollo.QueryHookOptions<ThemeQuery, ThemeQueryVariables>) {
+export function useGetThemeQuery(baseOptions?: Apollo.QueryHookOptions<GetThemeQuery, GetThemeQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ThemeQuery, ThemeQueryVariables>(ThemeDocument, options);
+        return Apollo.useQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
       }
-export function useThemeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ThemeQuery, ThemeQueryVariables>) {
+export function useGetThemeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetThemeQuery, GetThemeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ThemeQuery, ThemeQueryVariables>(ThemeDocument, options);
+          return Apollo.useLazyQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
         }
-export type ThemeQueryHookResult = ReturnType<typeof useThemeQuery>;
-export type ThemeLazyQueryHookResult = ReturnType<typeof useThemeLazyQuery>;
-export type ThemeQueryResult = Apollo.QueryResult<ThemeQuery, ThemeQueryVariables>;
+export type GetThemeQueryHookResult = ReturnType<typeof useGetThemeQuery>;
+export type GetThemeLazyQueryHookResult = ReturnType<typeof useGetThemeLazyQuery>;
+export type GetThemeQueryResult = Apollo.QueryResult<GetThemeQuery, GetThemeQueryVariables>;
 export const UpdateMeDocument = gql`
-    mutation updateMe($name: String, $email: String, $lang: Lang, $theme: Theme, $password: String, $passwordConfirmation: String) {
+    mutation UpdateMe($name: String, $email: String, $lang: Lang, $theme: Theme, $password: String, $passwordConfirmation: String) {
   updateMe(
     input: {name: $name, email: $email, lang: $lang, theme: $theme, password: $password, passwordConfirmation: $passwordConfirmation}
   ) {
@@ -648,7 +648,7 @@ export type UpdateMeMutationHookResult = ReturnType<typeof useUpdateMeMutation>;
 export type UpdateMeMutationResult = Apollo.MutationResult<UpdateMeMutation>;
 export type UpdateMeMutationOptions = Apollo.BaseMutationOptions<UpdateMeMutation, UpdateMeMutationVariables>;
 export const DeleteMeDocument = gql`
-    mutation deleteMe($userId: ID!) {
+    mutation DeleteMe($userId: ID!) {
   deleteMe(input: {userId: $userId}) {
     userId
   }
@@ -680,69 +680,59 @@ export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<Del
 export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
 export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
 export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
-export const WorkspacesDocument = gql`
-    query workspaces {
+export const GetWorkspacesDocument = gql`
+    query GetWorkspaces {
   me {
     id
     name
     myWorkspace {
       id
-      ...Workspace
+      ...WorkspaceFragment
     }
     workspaces {
       id
-      ...Workspace
+      ...WorkspaceFragment
     }
   }
 }
-    ${WorkspaceFragmentDoc}`;
+    ${WorkspaceFragmentFragmentDoc}`;
 
 /**
- * __useWorkspacesQuery__
+ * __useGetWorkspacesQuery__
  *
- * To run a query within a React component, call `useWorkspacesQuery` and pass it any options that fit your needs.
- * When your component renders, `useWorkspacesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetWorkspacesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWorkspacesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useWorkspacesQuery({
+ * const { data, loading, error } = useGetWorkspacesQuery({
  *   variables: {
  *   },
  * });
  */
-export function useWorkspacesQuery(baseOptions?: Apollo.QueryHookOptions<WorkspacesQuery, WorkspacesQueryVariables>) {
+export function useGetWorkspacesQuery(baseOptions?: Apollo.QueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<WorkspacesQuery, WorkspacesQueryVariables>(WorkspacesDocument, options);
+        return Apollo.useQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(GetWorkspacesDocument, options);
       }
-export function useWorkspacesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<WorkspacesQuery, WorkspacesQueryVariables>) {
+export function useGetWorkspacesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<WorkspacesQuery, WorkspacesQueryVariables>(WorkspacesDocument, options);
+          return Apollo.useLazyQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(GetWorkspacesDocument, options);
         }
-export type WorkspacesQueryHookResult = ReturnType<typeof useWorkspacesQuery>;
-export type WorkspacesLazyQueryHookResult = ReturnType<typeof useWorkspacesLazyQuery>;
-export type WorkspacesQueryResult = Apollo.QueryResult<WorkspacesQuery, WorkspacesQueryVariables>;
+export type GetWorkspacesQueryHookResult = ReturnType<typeof useGetWorkspacesQuery>;
+export type GetWorkspacesLazyQueryHookResult = ReturnType<typeof useGetWorkspacesLazyQuery>;
+export type GetWorkspacesQueryResult = Apollo.QueryResult<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
 export const UpdateWorkspaceDocument = gql`
-    mutation updateWorkspace($workspaceId: ID!, $name: String!) {
+    mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
   updateWorkspace(input: {workspaceId: $workspaceId, name: $name}) {
     workspace {
       id
-      name
-      members {
-        user {
-          id
-          name
-          email
-        }
-        userId
-        role
-      }
-      personal
+      ...WorkspaceFragment
     }
   }
 }
-    `;
+    ${WorkspaceFragmentFragmentDoc}`;
 export type UpdateWorkspaceMutationFn = Apollo.MutationFunction<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
 
 /**
@@ -771,7 +761,7 @@ export type UpdateWorkspaceMutationHookResult = ReturnType<typeof useUpdateWorks
 export type UpdateWorkspaceMutationResult = Apollo.MutationResult<UpdateWorkspaceMutation>;
 export type UpdateWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
 export const DeleteWorkspaceDocument = gql`
-    mutation deleteWorkspace($workspaceId: ID!) {
+    mutation DeleteWorkspace($workspaceId: ID!) {
   deleteWorkspace(input: {workspaceId: $workspaceId}) {
     workspaceId
   }
@@ -804,27 +794,17 @@ export type DeleteWorkspaceMutationHookResult = ReturnType<typeof useDeleteWorks
 export type DeleteWorkspaceMutationResult = Apollo.MutationResult<DeleteWorkspaceMutation>;
 export type DeleteWorkspaceMutationOptions = Apollo.BaseMutationOptions<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>;
 export const AddMemberToWorkspaceDocument = gql`
-    mutation addMemberToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
+    mutation AddMemberToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
   addMemberToWorkspace(
     input: {workspaceId: $workspaceId, userId: $userId, role: $role}
   ) {
     workspace {
       id
-      name
-      members {
-        user {
-          id
-          name
-          email
-        }
-        userId
-        role
-      }
-      personal
+      ...WorkspaceFragment
     }
   }
 }
-    `;
+    ${WorkspaceFragmentFragmentDoc}`;
 export type AddMemberToWorkspaceMutationFn = Apollo.MutationFunction<AddMemberToWorkspaceMutation, AddMemberToWorkspaceMutationVariables>;
 
 /**
@@ -854,27 +834,17 @@ export type AddMemberToWorkspaceMutationHookResult = ReturnType<typeof useAddMem
 export type AddMemberToWorkspaceMutationResult = Apollo.MutationResult<AddMemberToWorkspaceMutation>;
 export type AddMemberToWorkspaceMutationOptions = Apollo.BaseMutationOptions<AddMemberToWorkspaceMutation, AddMemberToWorkspaceMutationVariables>;
 export const UpdateMemberOfWorkspaceDocument = gql`
-    mutation updateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
+    mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
   updateMemberOfWorkspace(
     input: {workspaceId: $workspaceId, userId: $userId, role: $role}
   ) {
     workspace {
       id
-      name
-      members {
-        user {
-          id
-          name
-          email
-        }
-        userId
-        role
-      }
-      personal
+      ...WorkspaceFragment
     }
   }
 }
-    `;
+    ${WorkspaceFragmentFragmentDoc}`;
 export type UpdateMemberOfWorkspaceMutationFn = Apollo.MutationFunction<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
 
 /**
@@ -904,25 +874,15 @@ export type UpdateMemberOfWorkspaceMutationHookResult = ReturnType<typeof useUpd
 export type UpdateMemberOfWorkspaceMutationResult = Apollo.MutationResult<UpdateMemberOfWorkspaceMutation>;
 export type UpdateMemberOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
 export const RemoveMemberFromWorkspaceDocument = gql`
-    mutation removeMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
+    mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
   removeMemberFromWorkspace(input: {workspaceId: $workspaceId, userId: $userId}) {
     workspace {
       id
-      name
-      members {
-        user {
-          id
-          name
-          email
-        }
-        userId
-        role
-      }
-      personal
+      ...WorkspaceFragment
     }
   }
 }
-    `;
+    ${WorkspaceFragmentFragmentDoc}`;
 export type RemoveMemberFromWorkspaceMutationFn = Apollo.MutationFunction<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>;
 
 /**
@@ -951,25 +911,15 @@ export type RemoveMemberFromWorkspaceMutationHookResult = ReturnType<typeof useR
 export type RemoveMemberFromWorkspaceMutationResult = Apollo.MutationResult<RemoveMemberFromWorkspaceMutation>;
 export type RemoveMemberFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>;
 export const CreateWorkspaceDocument = gql`
-    mutation createWorkspace($name: String!) {
+    mutation CreateWorkspace($name: String!) {
   createWorkspace(input: {name: $name}) {
     workspace {
       id
-      name
-      members {
-        user {
-          id
-          name
-          email
-        }
-        userId
-        role
-      }
-      personal
+      ...WorkspaceFragment
     }
   }
 }
-    `;
+    ${WorkspaceFragmentFragmentDoc}`;
 export type CreateWorkspaceMutationFn = Apollo.MutationFunction<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>;
 
 /**

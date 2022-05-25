@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
-export const SEARCH_USER = gql`
-  query searchUser($nameOrEmail: String!) {
+export const GET_USER_BY_SEARCH = gql`
+  query GetUserBySearch($nameOrEmail: String!) {
     searchUser(nameOrEmail: $nameOrEmail) {
       id
       name
@@ -10,8 +10,8 @@ export const SEARCH_USER = gql`
   }
 `;
 
-export const ME = gql`
-  query Me {
+export const GET_ME = gql`
+  query GetMe {
     me {
       id
       name
@@ -38,8 +38,8 @@ export const ME = gql`
   }
 `;
 
-export const PROFILE = gql`
-  query Profile {
+export const GET_PROFILE = gql`
+  query GetProfile {
     me {
       id
       name
@@ -55,8 +55,8 @@ export const PROFILE = gql`
   }
 `;
 
-export const LANGUAGE = gql`
-  query Language {
+export const GET_LANGUAGE = gql`
+  query GetLanguage {
     me {
       id
       lang
@@ -64,8 +64,8 @@ export const LANGUAGE = gql`
   }
 `;
 
-export const THEME = gql`
-  query Theme {
+export const GET_THEME = gql`
+  query GetTheme {
     me {
       id
       theme
@@ -74,7 +74,7 @@ export const THEME = gql`
 `;
 
 export const UPDATE_ME = gql`
-  mutation updateMe(
+  mutation UpdateMe(
     $name: String
     $email: String
     $lang: Lang
@@ -108,7 +108,7 @@ export const UPDATE_ME = gql`
 `;
 
 export const DELETE_ME = gql`
-  mutation deleteMe($userId: ID!) {
+  mutation DeleteMe($userId: ID!) {
     deleteMe(input: { userId: $userId }) {
       userId
     }
