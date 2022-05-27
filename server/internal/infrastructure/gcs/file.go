@@ -1,11 +1,14 @@
 package gcs
 
 import (
+	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
 	"github.com/go-playground/locales/id"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"io"
 	"net/url"
 	"path"
 )
@@ -72,6 +75,39 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, 
 	}
 	return u, nil
 
+}
+
+func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: upload bucket err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+
+	object := bucket.Object(filename)
+	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
+		log.Errorf("gcs: upload delete err: %+v\n", err)
+		return gateway.ErrFailedToUploadFile
+	}
+
+	writer := object.NewWriter(ctx)
+	writer.ObjectAttrs.CacheControl = f.cacheControl
+
+	if _, err := io.Copy(writer, content); err != nil {
+		log.Errorf("gcs: upload err: %+v\n", err)
+		return gateway.ErrFailedToUploadFile
+	}
+
+	if err := writer.Close(); err != nil {
+		log.Errorf("gcs: upload close err: %+v\n", err)
+		return gateway.ErrFailedToUploadFile
+	}
+
+	return nil
 }
 
 func getGCSObjectURL(base *url.URL, objectName string) *url.URL {
