@@ -2,12 +2,16 @@ package gcs
 
 import (
 	"context"
-	"net/url"
-	"path"
-
 	"github.com/go-playground/locales/id"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"net/url"
+	"path"
+)
+
+const (
+	gcsAssetBasePath string = "assets"
+	fileSizeLimit    int64  = 1024 * 1024 * 100 // about 100MB
 )
 
 type file struct {
@@ -18,6 +22,12 @@ func NewFile(bucket string) gateway.File {
 	return &file{
 		bucket: bucket,
 	}
+}
+
+type fileRepo struct {
+	bucketName   string
+	base         *url.URL
+	cacheControl string
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, error) {
