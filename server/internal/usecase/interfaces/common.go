@@ -12,6 +12,7 @@ const (
 
 var (
 	ErrOperationDenied error = errors.New("operation denied")
+	ErrFileNotIncluded error = errors.New("file not included")
 )
 
 type Container struct {

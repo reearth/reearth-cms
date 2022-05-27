@@ -2,6 +2,7 @@ package gcs
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-playground/locales/id"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -18,10 +19,27 @@ type file struct {
 	bucket string
 }
 
-func NewFile(bucket string) gateway.File {
-	return &file{
-		bucket: bucket,
+func NewFile(bucketName string, base string, cacheControl string) (gateway.File, error) {
+	if bucketName == "" {
+		return nil, errors.New("bucket name is empty")
 	}
+
+	var u *url.URL
+	if base == "" {
+		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
+	}
+
+	var err error
+	u, _ = url.Parse(base)
+	if err != nil {
+		return nil, errors.New("invalid base URL")
+	}
+
+	return &fileRepo{
+		bucketName:   bucketName,
+		base:         u,
+		cacheControl: cacheControl,
+	}, nil
 }
 
 type fileRepo struct {
@@ -54,4 +72,14 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, 
 	}
 	return u, nil
 
+}
+
+func getGCSObjectURL(base *url.URL, objectName string) *url.URL {
+	if base == nil {
+		return nil
+	}
+
+	b := *base
+	b.Path = path.Join(b.Path, objectName)
+	return &b
 }
