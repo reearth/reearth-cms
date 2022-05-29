@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
@@ -23,7 +24,7 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header>
-        <MoleculeHeader></MoleculeHeader>
+        <MoleculeHeader user={user}></MoleculeHeader>
       </Header>
       <Layout>
         <Sider
@@ -34,7 +35,9 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
         >
           <WorkspaceMenu inlineCollapsed={collapsed}></WorkspaceMenu>
         </Sider>
-        <Content>main content</Content>
+        <PaddedContent>
+          <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
+        </PaddedContent>
       </Layout>
       {/* <h1>Hello {user.name}</h1>
       <Button onClick={() => logout()}>logout</Button>
@@ -43,5 +46,33 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
     </Layout>
   );
 };
+
+const PaddedContent = styled(Content)`
+  margin: 16px;
+  background-color: #fff;
+`;
+
+const DashboardCard = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+
+  height: 121px;
+
+  background: linear-gradient(
+    79.71deg,
+    #1e2086 0%,
+    #df3013 66.79%,
+    #df3013 93.02%
+  );
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  color: #fff;
+`;
 
 export default Dashboard;
