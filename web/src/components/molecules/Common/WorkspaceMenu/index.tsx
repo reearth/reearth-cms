@@ -6,7 +6,6 @@ import {
   UsergroupAddOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
-import { isVisible } from "@testing-library/user-event/dist/types/utils";
 import { Menu } from "antd";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
