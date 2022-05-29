@@ -20,3 +20,9 @@ code {
     height: 48px!important;
     line-height: 48px!important;
 }
+
+.ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

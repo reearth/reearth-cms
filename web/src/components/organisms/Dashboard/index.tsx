@@ -1,9 +1,10 @@
 import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import useHooks from "./hooks";
@@ -13,6 +14,7 @@ export type Props = {
 };
 
 const Dashboard: React.FC<Props> = ({ workspaceId }) => {
+  const [collapsed, setCollapsed] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -24,8 +26,13 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
         <MoleculeHeader></MoleculeHeader>
       </Header>
       <Layout>
-        <Sider collapsible style={{ backgroundColor: "#fff" }}>
-          left sidebar
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          style={{ backgroundColor: "#fff" }}
+        >
+          <WorkspaceMenu inlineCollapsed={collapsed}></WorkspaceMenu>
         </Sider>
         <Content>main content</Content>
       </Layout>
