@@ -1,8 +1,10 @@
+import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import Search from "antd/lib/input/Search";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
@@ -16,10 +18,11 @@ export type Props = {
 
 const Dashboard: React.FC<Props> = ({ workspaceId }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const { user } = useHooks(workspaceId);
+  const { user, workspaces, currentWorkspace } = useHooks(workspaceId);
+  console.log(workspaces);
+  console.log(currentWorkspace);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -37,12 +40,21 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
         </Sider>
         <PaddedContent>
           <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
+          <ActionHeader>
+            <Search
+              placeholder="input search text"
+              allowClear
+              style={{ width: 264 }}
+            />
+            <ButtonWrapper>
+              <Button>Create a Workspace</Button>
+              <Button type="primary" icon={<PlusOutlined />}>
+                Search
+              </Button>
+            </ButtonWrapper>
+          </ActionHeader>
         </PaddedContent>
       </Layout>
-      {/* <h1>Hello {user.name}</h1>
-      <Button onClick={() => logout()}>logout</Button>
-      <Button onClick={() => navigate("/account")}>Account</Button>
-      <Button onClick={() => navigate("/workspaces")}>Workspace list</Button> */}
     </Layout>
   );
 };
@@ -50,6 +62,12 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
+`;
+
+const ActionHeader = styled(Content)`
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const DashboardCard = styled.div`
@@ -73,6 +91,12 @@ const DashboardCard = styled.div`
   font-size: 20px;
   line-height: 28px;
   color: #fff;
+`;
+
+const ButtonWrapper = styled.div`
+  Button + Button {
+    margin-left: 8px;
+  }
 `;
 
 export default Dashboard;
