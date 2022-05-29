@@ -21,6 +21,7 @@ const Dashboard: React.FC<Props> = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     user,
+    personalWorkspace,
     workspaces,
     currentWorkspace,
     handleWorkspaceCreate,
@@ -34,6 +35,8 @@ const Dashboard: React.FC<Props> = () => {
       <Layout style={{ minHeight: "100vh" }}>
         <Header>
           <MoleculeHeader
+            handleModalOpen={handleModalOpen}
+            personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}

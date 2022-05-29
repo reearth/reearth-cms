@@ -38,6 +38,9 @@ export default (workspaceId?: string) => {
   const workspace = workspaces?.find(
     (workspace) => workspace.id === workspaceId
   );
+  const personalWorkspace = workspaces?.find(
+    (workspace) => workspace.id === data?.me?.myWorkspace.id
+  );
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
   useEffect(() => {
@@ -98,6 +101,7 @@ export default (workspaceId?: string) => {
 
   return {
     user,
+    personalWorkspace,
     workspaces,
     currentWorkspace,
     modalShown,

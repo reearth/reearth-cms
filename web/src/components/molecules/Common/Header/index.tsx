@@ -1,6 +1,7 @@
 import {
   CaretDownOutlined,
   LogoutOutlined,
+  UsergroupAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
@@ -19,10 +20,18 @@ export type { User } from "./types";
 export interface Props {
   user: User;
   currentWorkspace?: Workspace;
+  personalWorkspace?: Workspace;
   workspaces?: any[];
+  handleModalOpen: () => void;
 }
 
-const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
+const Header: React.FC<Props> = ({
+  user,
+  currentWorkspace,
+  workspaces,
+  personalWorkspace,
+  handleModalOpen,
+}) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -39,16 +48,48 @@ const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
 
   const WorkspacesMenu = (
     <HeaderMenu
-      items={workspaces?.map((workspace) => ({
-        label: workspace.name,
-        key: workspace.id,
-        icon: (
-          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-            {workspace.name.charAt(0)}
-          </Avatar>
-        ),
-        onClick: () => handleWorkspaceChange(workspace.id),
-      }))}
+      items={[
+        {
+          label: "Presonal Account",
+          key: "personal-account",
+          type: "group",
+          children: workspaces
+            ?.filter((workspace) => workspace.id === personalWorkspace?.id)
+            ?.map((workspace) => ({
+              label: workspace.name,
+              key: workspace.id,
+              icon: (
+                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+                  {workspace.name.charAt(0)}
+                </Avatar>
+              ),
+              onClick: () => handleWorkspaceChange(workspace.id),
+            })),
+        },
+        {
+          label: "Teams",
+          key: "teams",
+          type: "group",
+          children: workspaces
+            ?.filter((workspace) => workspace.id !== personalWorkspace?.id)
+            ?.map((workspace) => ({
+              label: workspace.name,
+              key: workspace.id,
+              icon: (
+                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+                  {workspace.name.charAt(0)}
+                </Avatar>
+              ),
+              onClick: () => handleWorkspaceChange(workspace.id),
+            })),
+        },
+        {
+          label: "new workspace",
+          key: "new-workspace",
+          icon: <UsergroupAddOutlined />,
+          onClick: handleModalOpen,
+        },
+      ]}
     />
   );
 

@@ -29,3 +29,7 @@ code {
     flex-direction: column;
     justify-content: space-between;
 }
+
+.ant-dropdown-menu-item-group-title {
+    color: #8C8C8C!important;
+}
