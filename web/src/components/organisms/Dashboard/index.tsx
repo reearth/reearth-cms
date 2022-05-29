@@ -1,6 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
@@ -8,7 +7,7 @@ import Search from "antd/lib/input/Search";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -16,10 +15,9 @@ export type Props = {
   workspaceId?: string;
 };
 
-const Dashboard: React.FC<Props> = ({ workspaceId }) => {
+const Dashboard: React.FC<Props> = () => {
+  const { workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate();
-
   const { user, workspaces, currentWorkspace } = useHooks(workspaceId);
 
   return (

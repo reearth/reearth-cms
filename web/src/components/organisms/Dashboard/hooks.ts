@@ -40,10 +40,10 @@ export default (workspaceId?: string) => {
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
   useEffect(() => {
-    if (currentWorkspace || !data) return;
+    if (currentWorkspace || workspaceId || !data) return;
     setCurrentWorkspace(data.me?.myWorkspace);
     navigate(`/dashboard/${data.me?.myWorkspace?.id}`);
-  }, [data, navigate, setCurrentWorkspace, currentWorkspace]);
+  }, [data, navigate, setCurrentWorkspace, currentWorkspace, workspaceId]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {

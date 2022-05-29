@@ -19,7 +19,7 @@ export type { User } from "./types";
 export interface Props {
   user: User;
   currentWorkspace?: Workspace;
-  workspaces: any[];
+  workspaces?: any[];
 }
 
 const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
@@ -29,6 +29,13 @@ const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
   const handleLogout = useCallback(() => {
     logout();
   }, [logout]);
+
+  const handleWorkspaceChange = useCallback(
+    (id: number) => {
+      navigate(`/dashboard/${id}`);
+    },
+    [navigate]
+  );
 
   const WorkspacesMenu = (
     <HeaderMenu
@@ -40,6 +47,7 @@ const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
             {workspace.name.charAt(0)}
           </Avatar>
         ),
+        onClick: () => handleWorkspaceChange(workspace.id),
       }))}
     />
   );
