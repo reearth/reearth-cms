@@ -21,13 +21,15 @@ const Dashboard: React.FC<Props> = ({ workspaceId }) => {
   const navigate = useNavigate();
 
   const { user, workspaces, currentWorkspace } = useHooks(workspaceId);
-  console.log(workspaces);
-  console.log(currentWorkspace);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header>
-        <MoleculeHeader user={user}></MoleculeHeader>
+        <MoleculeHeader
+          workspaces={workspaces}
+          currentWorkspace={currentWorkspace}
+          user={user}
+        ></MoleculeHeader>
       </Header>
       <Layout>
         <Sider

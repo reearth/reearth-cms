@@ -6,6 +6,7 @@ import {
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import { Workspace } from "@reearth-cms/state";
 import { Menu, Space } from "antd";
 import Dropdown from "antd/lib/dropdown/dropdown";
 import React, { useCallback } from "react";
@@ -17,9 +18,11 @@ export type { User } from "./types";
 
 export interface Props {
   user: User;
+  currentWorkspace?: Workspace;
+  workspaces: any[];
 }
 
-const Header: React.FC<Props> = ({ user }) => {
+const Header: React.FC<Props> = ({ user, currentWorkspace, workspaces }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -27,9 +30,22 @@ const Header: React.FC<Props> = ({ user }) => {
     logout();
   }, [logout]);
 
+  const WorkspacesMenu = (
+    <HeaderMenu
+      items={workspaces?.map((workspace) => ({
+        label: workspace.name,
+        key: workspace.id,
+        icon: (
+          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+            {workspace.name.charAt(0)}
+          </Avatar>
+        ),
+      }))}
+    />
+  );
+
   const menu = (
-    <AccountMenu
-      style={{ color: "#fff" }}
+    <HeaderMenu
       items={[
         {
           label: "Account Settings",
@@ -49,6 +65,15 @@ const Header: React.FC<Props> = ({ user }) => {
   return (
     <>
       <Logo onClick={() => navigate("/")}>Re:Earth CMS</Logo>
+      <VerticalDivider></VerticalDivider>
+      <WorkspaceDropdown overlay={WorkspacesMenu}>
+        <a onClick={(e) => e.preventDefault()}>
+          <Space>
+            {currentWorkspace?.name}
+            <CaretDownOutlined />
+          </Space>
+        </a>
+      </WorkspaceDropdown>
       <Spacer></Spacer>
       <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
         {user.name.charAt(0)}
@@ -78,7 +103,7 @@ const Spacer = styled.div`
   flex: 1;
 `;
 
-const AccountMenu = styled(Menu)`
+const HeaderMenu = styled(Menu)`
   background-color: #1d1d1d;
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
@@ -102,6 +127,24 @@ const AccountDropdown = styled(Dropdown)`
   padding-left: 10px;
   color: #fff;
   background-color: #141414;
+`;
+
+const WorkspaceDropdown = styled(Dropdown)`
+  padding-left: 10px;
+  color: #fff;
+  background-color: #141414;
+`;
+
+const VerticalDivider = styled.div`
+  position: relative;
+  top: -0.06em;
+  display: inline-block;
+  height: 32px;
+  color: #fff;
+  margin: 0 8px;
+  vertical-align: middle;
+  border-top: 0;
+  border-left: 1px solid #303030;
 `;
 
 export default Header;
