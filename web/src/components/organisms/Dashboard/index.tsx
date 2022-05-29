@@ -49,7 +49,12 @@ const Dashboard: React.FC<Props> = () => {
             onCollapse={(value) => setCollapsed(value)}
             style={{ backgroundColor: "#fff" }}
           >
-            <WorkspaceMenu inlineCollapsed={collapsed}></WorkspaceMenu>
+            <WorkspaceMenu
+              isPersonalWorkspace={
+                personalWorkspace?.id === currentWorkspace?.id
+              }
+              inlineCollapsed={collapsed}
+            ></WorkspaceMenu>
           </Sider>
           <PaddedContent>
             <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
