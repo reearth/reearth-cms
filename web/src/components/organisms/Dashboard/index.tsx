@@ -2,6 +2,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Search from "antd/lib/input/Search";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
@@ -18,44 +19,59 @@ export type Props = {
 const Dashboard: React.FC<Props> = () => {
   const { workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
-  const { user, workspaces, currentWorkspace } = useHooks(workspaceId);
+  const {
+    user,
+    workspaces,
+    currentWorkspace,
+    handleWorkspaceCreate,
+    handleModalClose,
+    handleModalOpen,
+    modalShown,
+  } = useHooks(workspaceId);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Header>
-        <MoleculeHeader
-          workspaces={workspaces}
-          currentWorkspace={currentWorkspace}
-          user={user}
-        ></MoleculeHeader>
-      </Header>
-      <Layout>
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          style={{ backgroundColor: "#fff" }}
-        >
-          <WorkspaceMenu inlineCollapsed={collapsed}></WorkspaceMenu>
-        </Sider>
-        <PaddedContent>
-          <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
-          <ActionHeader>
-            <Search
-              placeholder="input search text"
-              allowClear
-              style={{ width: 264 }}
-            />
-            <ButtonWrapper>
-              <Button>Create a Workspace</Button>
-              <Button type="primary" icon={<PlusOutlined />}>
-                Search
-              </Button>
-            </ButtonWrapper>
-          </ActionHeader>
-        </PaddedContent>
+    <>
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header>
+          <MoleculeHeader
+            workspaces={workspaces}
+            currentWorkspace={currentWorkspace}
+            user={user}
+          ></MoleculeHeader>
+        </Header>
+        <Layout>
+          <Sider
+            collapsible
+            collapsed={collapsed}
+            onCollapse={(value) => setCollapsed(value)}
+            style={{ backgroundColor: "#fff" }}
+          >
+            <WorkspaceMenu inlineCollapsed={collapsed}></WorkspaceMenu>
+          </Sider>
+          <PaddedContent>
+            <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
+            <ActionHeader>
+              <Search
+                placeholder="input search text"
+                allowClear
+                style={{ width: 264 }}
+              />
+              <ButtonWrapper>
+                <Button onClick={handleModalOpen}>Create a Workspace</Button>
+                <Button type="primary" icon={<PlusOutlined />}>
+                  Search
+                </Button>
+              </ButtonWrapper>
+            </ActionHeader>
+          </PaddedContent>
+        </Layout>
       </Layout>
-    </Layout>
+      <WorkspaceCreationModal
+        open={modalShown}
+        onClose={handleModalClose}
+        onSubmit={handleWorkspaceCreate}
+      ></WorkspaceCreationModal>
+    </>
   );
 };
 
