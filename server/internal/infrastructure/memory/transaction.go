@@ -6,20 +6,52 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 )
 
-type Transaction struct{}
+type Transaction struct {
+	committed  int
+	beginError error
+	endError   error
+}
 
-type Tx struct{}
+type Tx struct {
+	t         *Transaction
+	committed bool
+	endError  error
+}
 
 func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
-func (*Transaction) Begin() (repo.Tx, error) {
-	return &Tx{}, nil
+func (t *Transaction) SetBeginError(err error) {
+	t.beginError = err
 }
-func (*Tx) Commit() {
-	// do nothing
+
+func (t *Transaction) SetEndError(err error) {
+	t.endError = err
 }
-func (*Tx) End(_ context.Context) error {
-	return nil
+
+func (t *Transaction) Committed() int {
+	return t.committed
+}
+
+func (t *Transaction) Begin() (repo.Tx, error) {
+	if t.beginError != nil {
+		return nil, t.beginError
+	}
+	return &Tx{t: t, endError: t.endError}, nil
+}
+
+func (t *Tx) Commit() {
+	t.committed = true
+	if t.t != nil {
+		t.t.committed++
+	}
+}
+
+func (t *Tx) End(_ context.Context) error {
+	return t.endError
+}
+
+func (t *Tx) IsCommitted() bool {
+	return t.committed
 }

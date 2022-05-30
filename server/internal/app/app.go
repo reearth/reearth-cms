@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
@@ -49,6 +50,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		))
 		log.Printf("gql: GraphQL Playground is available")
 	}
+
+	e.Use(UsecaseMiddleware(cfg.Repos, nil, interactor.ContainerConfig{
+		SignupSecret:    cfg.Config.SignupSecret,
+		AuthSrvUIDomain: cfg.Config.Host_Web,
+	}))
 
 	// apis
 	api := e.Group("/api")

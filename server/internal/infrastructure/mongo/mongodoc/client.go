@@ -434,3 +434,7 @@ func (c *Client) CreateUniqueIndex(ctx context.Context, col string, keys, unique
 	}
 	return nil
 }
+
+func (t *Tx) IsCommitted() bool {
+	return t.commit
+}

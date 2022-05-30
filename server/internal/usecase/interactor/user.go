@@ -21,6 +21,7 @@ import (
 
 type User struct {
 	common
+	repos           *repo.Container
 	userRepo        repo.User
 	workspaceRepo   repo.Workspace
 	transaction     repo.Transaction
@@ -70,41 +71,40 @@ func init() {
 
 func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDomain string) interfaces.User {
 	return &User{
+		repos:         r,
 		userRepo:      r.User,
 		workspaceRepo: r.Workspace,
 		transaction:   r.Transaction,
-		//authenticator:     g.Authenticator,
+		// authenticator:     g.Authenticator,
 		signupSecret:    signupSecret,
 		authSrvUIDomain: authSrcUIDomain,
-		//mailer:            g.Mailer,
+		// mailer:            g.Mailer,
 	}
 }
-
 func (i *User) Fetch(ctx context.Context, ids []id.UserID, operator *usecase.Operator) ([]*user.User, error) {
-	if err := i.OnlyOperator(operator); err != nil {
-		return nil, err
-	}
-	res, err := i.userRepo.FindByIDs(ctx, ids)
-	if err != nil {
-		return res, err
-	}
-	// filter
-	for k, u := range res {
-		workspaces, err := i.workspaceRepo.FindByUser(ctx, u.ID())
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.User, error) {
+		res, err := i.userRepo.FindByIDs(ctx, ids)
 		if err != nil {
 			return res, err
 		}
-		workspaceIDs := make([]id.WorkspaceID, 0, len(workspaces))
-		for _, t := range workspaces {
-			if t != nil {
-				workspaceIDs = append(workspaceIDs, t.ID())
+		// filter
+		for k, u := range res {
+			workspaces, err := i.workspaceRepo.FindByUser(ctx, u.ID())
+			if err != nil {
+				return res, err
+			}
+			workspaceIDs := make([]id.WorkspaceID, 0, len(workspaces))
+			for _, t := range workspaces {
+				if t != nil {
+					workspaceIDs = append(workspaceIDs, t.ID())
+				}
+			}
+			if !operator.IsReadableWorkspace(workspaceIDs...) {
+				res[k] = nil
 			}
 		}
-		if !operator.IsReadableWorkspace(workspaceIDs...) {
-			res[k] = nil
-		}
-	}
-	return res, nil
+		return res, nil
+	})
 }
 
 func (i *User) GetUserByCredentials(ctx context.Context, inp interfaces.GetUserByCredentials) (u *user.User, err error) {

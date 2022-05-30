@@ -14,11 +14,14 @@ import (
 const configPrefix = "reearth"
 
 type Config struct {
-	Port          string `default:"8080" envconfig:"PORT"`
-	Dev           bool
-	GraphQL       GraphQLConfig
-	Origins       []string
-	DB            string `default:"mongodb://localhost"`
+	Port         string `default:"8080" envconfig:"PORT"`
+	Dev          bool
+	Host_Web     string
+	GraphQL      GraphQLConfig
+	Origins      []string
+	DB           string `default:"mongodb://localhost"`
+	SignupSecret string
+	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
 	Auth_ISS      string
