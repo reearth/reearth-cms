@@ -53,7 +53,6 @@ const Members: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const [owner, setOwner] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<any>(undefined);
   const [memberName, setMemberName] = useState("");
   const [workspaceName, setWorkspaceName] = useState("");
 
@@ -77,7 +76,7 @@ const Members: React.FC = () => {
     handleUserSearch,
     handleMemberAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
-    handleMemberRemoveFromWorkspace,
+    selectedMember,
     roleModalShown,
     handleRoleModalClose,
     handleRoleModalOpen,
@@ -87,10 +86,9 @@ const Members: React.FC = () => {
 
   const handleRoleChange = useCallback(
     (member: any) => {
-      setSelectedMember(member);
-      handleRoleModalOpen();
+      handleRoleModalOpen(member);
     },
-    [setSelectedMember, handleRoleModalOpen]
+    [handleRoleModalOpen]
   );
 
   const checkOwner = useCallback(() => {
@@ -123,13 +121,6 @@ const Members: React.FC = () => {
       <a onClick={() => handleRoleChange(member)}>Change Role</a>
     ),
   }));
-  const handleMemberNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setMemberName?.(e.currentTarget.value);
-      handleUserSearch(e.currentTarget.value);
-    },
-    [setMemberName, handleUserSearch]
-  );
 
   const handleMemberAdd = useCallback(() => {
     if (!searchedUser) return;

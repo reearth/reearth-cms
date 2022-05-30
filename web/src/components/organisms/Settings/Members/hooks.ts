@@ -19,6 +19,7 @@ type Props = {
 export default ({ workspaceId }: Props) => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(undefined);
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -133,6 +134,7 @@ export default ({ workspaceId }: Props) => {
   const handleRoleModalClose = useCallback(
     (r?: boolean) => {
       setRoleModalShown(false);
+      setSelectedMember(undefined);
       if (r) {
         refetch();
       }
@@ -140,7 +142,10 @@ export default ({ workspaceId }: Props) => {
     [refetch]
   );
 
-  const handleRoleModalOpen = useCallback(() => setRoleModalShown(true), []);
+  const handleRoleModalOpen = useCallback((member: any) => {
+    setSelectedMember(member);
+    setRoleModalShown(true);
+  }, []);
 
   return {
     me,
@@ -154,6 +159,8 @@ export default ({ workspaceId }: Props) => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
+    setSelectedMember,
+    selectedMember,
     roleModalShown,
     loading,
   };

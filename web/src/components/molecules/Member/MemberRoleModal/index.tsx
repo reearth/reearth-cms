@@ -32,8 +32,6 @@ const MemberRoleModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async (values) => {
-        console.log(member?.userId, values.role);
-
         await onSubmit?.(member?.userId, values?.role);
         onClose?.(true);
         form.resetFields();
@@ -41,12 +39,15 @@ const MemberRoleModal: React.FC<Props> = ({
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit]);
+  }, [form, onClose, onSubmit, member?.userId]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
     onClose?.(true);
   }, [form, onClose]);
+
+  console.log(initialValues);
+
   return (
     <Modal
       title="Role Settings"
