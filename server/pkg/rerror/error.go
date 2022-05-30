@@ -2,6 +2,7 @@ package rerror
 
 import (
 	"fmt"
+	"reflect"
 	"runtime/debug"
 
 	"github.com/labstack/gommon/log"
@@ -131,4 +132,11 @@ func With(label error) func(error) *Error {
 			Separate: true,
 		}
 	}
+}
+
+func ErrIfNil[T any](t T, err error) (T, error) {
+	if reflect.ValueOf(t).IsNil() {
+		return t, err
+	}
+	return t, nil
 }
