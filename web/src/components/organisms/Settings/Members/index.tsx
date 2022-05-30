@@ -1,14 +1,14 @@
-import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
-import List from "@reearth-cms/components/atoms/List";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { PageHeader, Table } from "antd";
+import { PageHeader, Table, Modal } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import Search from "antd/lib/input/Search";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
@@ -54,7 +54,8 @@ const Members: React.FC = () => {
 
   const [owner, setOwner] = useState(false);
   const [memberName, setMemberName] = useState("");
-  const [workspaceName, setWorkspaceName] = useState("");
+
+  const { confirm } = Modal;
 
   const navigate = useNavigate();
 
@@ -72,24 +73,32 @@ const Members: React.FC = () => {
     me,
     currentWorkspace,
     searchedUser,
+    setSelectedMember,
     changeSearchedUser,
     handleUserSearch,
     handleMemberAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,
+    handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
   } = useHooks({ workspaceId });
 
   const members = currentWorkspace?.members;
 
-  const handleRoleChange = useCallback(
-    (member: any) => {
-      handleRoleModalOpen(member);
-    },
-    [handleRoleModalOpen]
-  );
+  const showConfirm = useCallback(() => {
+    confirm({
+      title: "Are you sure to remove this member?",
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "Remove this member from workspace means this member will not view any content of this workspace.",
+      onOk() {
+        handleMemberRemoveFromWorkspace(selectedMember?.userId);
+      },
+      onCancel() {},
+    });
+  }, [confirm, handleMemberRemoveFromWorkspace, selectedMember?.userId]);
 
   const checkOwner = useCallback(() => {
     if (members) {
@@ -117,10 +126,37 @@ const Members: React.FC = () => {
     ),
     email: member.user.email,
     role: member.role,
-    action: member.userId !== me?.id && (
-      <a onClick={() => handleRoleChange(member)}>Change Role</a>
+    action: (
+      <>
+        {member.userId !== me?.id && (
+          <a onClick={() => handleRoleChange(member)}>Change Role</a>
+        )}
+        {member.role !== "OWNER" && (
+          <a
+            style={{ marginLeft: "8px" }}
+            onClick={() => handleMemberDelete(member)}
+          >
+            Remove
+          </a>
+        )}
+      </>
     ),
   }));
+
+  const handleRoleChange = useCallback(
+    (member: any) => {
+      handleRoleModalOpen(member);
+    },
+    [handleRoleModalOpen]
+  );
+
+  const handleMemberDelete = useCallback(
+    (member: any) => {
+      setSelectedMember(member);
+      showConfirm();
+    },
+    [setSelectedMember, showConfirm]
+  );
 
   const handleMemberAdd = useCallback(() => {
     if (!searchedUser) return;

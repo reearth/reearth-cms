@@ -46,8 +46,6 @@ const MemberRoleModal: React.FC<Props> = ({
     onClose?.(true);
   }, [form, onClose]);
 
-  console.log(initialValues);
-
   return (
     <Modal
       title="Role Settings"
