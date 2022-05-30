@@ -9,17 +9,19 @@ import {
 import { Menu } from "antd";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface Props {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
+  workspaceId?: string;
 }
 
 function getItem(
   label: string,
   key: string,
   icon: any,
-  show?: "personal" | "notPersonal" | "both"
+  show: "personal" | "notPersonal" | "both"
 ) {
   return {
     key,
@@ -29,12 +31,16 @@ function getItem(
   };
 }
 
-const topItems: ItemType[] = [getItem("Home", "home", <HomeOutlined />)];
+const topItems: ItemType[] = [
+  getItem("Home", "home", <HomeOutlined />, "both"),
+];
 
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
+  workspaceId,
 }) => {
+  const navigate = useNavigate();
   const items: ItemType[] = [
     getItem("Member", "member", <UsergroupAddOutlined />, "notPersonal"),
     getItem("Account", "account", <UsergroupAddOutlined />, "personal"),
@@ -49,6 +55,12 @@ const WorkspaceMenu: React.FC<Props> = ({
       item.show === "both"
   );
 
+  const onClick: MenuProps["onClick"] = (e: any) => {
+    if (e.key === "member") {
+      navigate(`/members/${workspaceId}`);
+    }
+  };
+
   return (
     <>
       <Menu
@@ -58,6 +70,7 @@ const WorkspaceMenu: React.FC<Props> = ({
         items={topItems}
       />
       <Menu
+        onClick={onClick}
         defaultSelectedKeys={["home"]}
         inlineCollapsed={inlineCollapsed}
         mode="inline"

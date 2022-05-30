@@ -54,6 +54,7 @@ const Dashboard: React.FC<Props> = () => {
                 personalWorkspace?.id === currentWorkspace?.id
               }
               inlineCollapsed={collapsed}
+              workspaceId={currentWorkspace?.id}
             ></WorkspaceMenu>
           </Sider>
           <PaddedContent>
