@@ -86,18 +86,21 @@ const Members: React.FC = () => {
 
   const members = currentWorkspace?.members;
 
-  const showConfirm = useCallback(() => {
-    confirm({
-      title: "Are you sure to remove this member?",
-      icon: <ExclamationCircleOutlined />,
-      content:
-        "Remove this member from workspace means this member will not view any content of this workspace.",
-      onOk() {
-        handleMemberRemoveFromWorkspace(selectedMember?.userId);
-      },
-      onCancel() {},
-    });
-  }, [confirm, handleMemberRemoveFromWorkspace, selectedMember?.userId]);
+  const showConfirm = useCallback(
+    (member: any) => {
+      confirm({
+        title: "Are you sure to remove this member?",
+        icon: <ExclamationCircleOutlined />,
+        content:
+          "Remove this member from workspace means this member will not view any content of this workspace.",
+        onOk() {
+          handleMemberRemoveFromWorkspace(member?.userId);
+        },
+        onCancel() {},
+      });
+    },
+    [confirm, handleMemberRemoveFromWorkspace]
+  );
 
   const dataSource = members?.map((member) => ({
     key: member.userId,
@@ -135,10 +138,9 @@ const Members: React.FC = () => {
 
   const handleMemberDelete = useCallback(
     (member: any) => {
-      setSelectedMember(member);
-      showConfirm();
+      showConfirm(member);
     },
-    [setSelectedMember, showConfirm]
+    [showConfirm]
   );
 
   const handleMemberAdd = useCallback(() => {

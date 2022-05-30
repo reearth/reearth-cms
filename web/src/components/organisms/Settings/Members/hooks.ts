@@ -89,8 +89,6 @@ export default ({ workspaceId }: Props) => {
 
   const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
-      console.log(userId, role);
-
       if (workspaceId) {
         const results = await updateMemberOfWorkspaceMutation({
           variables: {

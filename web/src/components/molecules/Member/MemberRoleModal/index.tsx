@@ -1,6 +1,6 @@
 import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Workspace/hooks";
 import { Form, Modal, Select } from "antd";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 export interface FormValues {
   userId: string;
@@ -23,10 +23,12 @@ const MemberRoleModal: React.FC<Props> = ({
   const { Option } = Select;
   const [form] = Form.useForm();
 
-  const initialValues: FormValues = {
-    userId: member?.userId,
-    role: member?.role,
-  };
+  useEffect(() => {
+    form.setFieldsValue({
+      userId: member?.userId,
+      role: member?.role,
+    });
+  }, [form, member]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -53,7 +55,14 @@ const MemberRoleModal: React.FC<Props> = ({
       onCancel={handleClose}
       onOk={handleSubmit}
     >
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{
+          userId: member?.userId,
+          role: member?.role,
+        }}
+      >
         <Form.Item
           name="role"
           label="Role"
