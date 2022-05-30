@@ -226,6 +226,7 @@ const Members: React.FC = () => {
         searchedUser={searchedUser}
         onClose={handleMemberCreationModalClose}
         handleUserSearch={handleUserSearch}
+        changeSearchedUser={changeSearchedUser}
         onSubmit={handleMemberAdd}
       ></MemberCreationModal>
     </>

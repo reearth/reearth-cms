@@ -1,4 +1,6 @@
-import { Button, Form, Input, Modal } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
+import styled from "@emotion/styled";
+import { Avatar, Form, Input, Modal } from "antd";
 import React, { useCallback, useState } from "react";
 
 export interface FormValues {
@@ -17,6 +19,16 @@ export interface Props {
         email: string;
       }
     | undefined;
+  changeSearchedUser: React.Dispatch<
+    React.SetStateAction<
+      | {
+          id: string;
+          name: string;
+          email: string;
+        }
+      | undefined
+    >
+  >;
 }
 
 const initialValues: FormValues = {
@@ -29,6 +41,7 @@ const MemberCreationModal: React.FC<Props> = ({
   onSubmit,
   handleUserSearch,
   searchedUser,
+  changeSearchedUser,
 }) => {
   const { Search } = Input;
   const [form] = Form.useForm();
@@ -41,15 +54,18 @@ const MemberCreationModal: React.FC<Props> = ({
     },
     [setMemberName, handleUserSearch]
   );
+  console.log(searchedUser);
+
+  const handleMemberRemove = useCallback(() => {
+    setMemberName?.("");
+    changeSearchedUser(undefined);
+  }, [setMemberName, changeSearchedUser]);
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values) => {
-        console.log(values);
-
+      .then(async () => {
         if (searchedUser?.id) await onSubmit?.();
-        // onClose?.(true);
         form.resetFields();
       })
       .catch((info) => {
@@ -76,6 +92,7 @@ const MemberCreationModal: React.FC<Props> = ({
         >
           <Form.Item name="name" label="Email address or user name">
             <Search
+              size="large"
               style={{ width: "300px" }}
               value={memberName}
               onSearch={handleMemberNameChange}
@@ -83,12 +100,58 @@ const MemberCreationModal: React.FC<Props> = ({
             />
           </Form.Item>
           {searchedUser && (
-            <Button style={{ width: "300px" }}>{searchedUser.name}</Button>
+            <SearchedUSerResult>
+              <div>
+                <Avatar
+                  style={{
+                    color: "#fff",
+                    backgroundColor: "#3F3D45",
+                    marginRight: "12px",
+                  }}
+                >
+                  {searchedUser.name.charAt(0)}
+                </Avatar>
+                {searchedUser.name}
+                <EmailContent>{searchedUser.email}</EmailContent>
+              </div>
+              <IconButton onClick={handleMemberRemove}>
+                <CloseOutlined />
+              </IconButton>
+            </SearchedUSerResult>
+            // <Button style={{ width: "300px" }}>{searchedUser.name}</Button>
           )}
         </Form>
       )}
     </Modal>
   );
 };
+
+const IconButton = styled.button`
+  all: unset;
+  cursor: pointer;
+`;
+
+const EmailContent = styled.span`
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  margin-left: 8px;
+  color: rgba(0, 0, 0, 0.45);
+`;
+
+const SearchedUSerResult = styled.div`
+  width: 300px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid #d9d9d9;
+
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
+  border-radius: 2px;
+`;
 
 export default MemberCreationModal;
