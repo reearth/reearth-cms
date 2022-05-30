@@ -3,7 +3,7 @@ import {
   useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export type User = {
@@ -25,6 +25,7 @@ export type Workspace = {
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
+  const [modalShown, setModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
@@ -37,7 +38,16 @@ export default (workspaceId?: string) => {
   const workspace = workspaces?.find(
     (workspace) => workspace.id === workspaceId
   );
+  const personalWorkspace = workspaces?.find(
+    (workspace) => workspace.id === data?.me?.myWorkspace.id
+  );
   const personal = workspaceId === data?.me?.myWorkspace.id;
+
+  useEffect(() => {
+    if (currentWorkspace || workspaceId || !data) return;
+    setCurrentWorkspace(data.me?.myWorkspace);
+    navigate(`/dashboard/${data.me?.myWorkspace?.id}`);
+  }, [data, navigate, setCurrentWorkspace, currentWorkspace, workspaceId]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {
@@ -77,10 +87,26 @@ export default (workspaceId?: string) => {
     [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
   );
 
+  const handleModalClose = useCallback(
+    (r?: boolean) => {
+      setModalShown(false);
+      if (r) {
+        refetch();
+      }
+    },
+    [refetch]
+  );
+
+  const handleModalOpen = useCallback(() => setModalShown(true), []);
+
   return {
     user,
+    personalWorkspace,
     workspaces,
     currentWorkspace,
+    modalShown,
+    handleModalClose,
+    handleModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
   };

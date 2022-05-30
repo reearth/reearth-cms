@@ -1,0 +1,165 @@
+import { CloseOutlined } from "@ant-design/icons";
+import styled from "@emotion/styled";
+import { Avatar, Form, Input, Modal } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+
+export interface FormValues {
+  name: string;
+}
+
+export interface Props {
+  open?: boolean;
+  handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
+  onClose?: (refetch?: boolean) => void;
+  onSubmit?: () => void;
+  searchedUser:
+    | {
+        id: string;
+        name: string;
+        email: string;
+      }
+    | undefined;
+  changeSearchedUser: React.Dispatch<
+    React.SetStateAction<
+      | {
+          id: string;
+          name: string;
+          email: string;
+        }
+      | undefined
+    >
+  >;
+}
+
+const initialValues: FormValues = {
+  name: "",
+};
+
+const MemberCreationModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  handleUserSearch,
+  searchedUser,
+  changeSearchedUser,
+}) => {
+  const { Search } = Input;
+  const [form] = Form.useForm();
+  const [memberName, setMemberName] = useState("");
+
+  const handleMemberNameChange = useCallback(
+    (e: any) => {
+      setMemberName?.(e);
+      handleUserSearch?.(e);
+    },
+    [setMemberName, handleUserSearch]
+  );
+
+  initialValues;
+
+  useEffect(() => {
+    form.setFieldsValue({
+      name: memberName,
+    });
+  }, [form, memberName]);
+
+  const handleMemberRemove = useCallback(() => {
+    setMemberName?.("");
+    changeSearchedUser(undefined);
+  }, [setMemberName, changeSearchedUser]);
+
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async () => {
+        if (searchedUser?.id) await onSubmit?.();
+        form.resetFields();
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, onSubmit, searchedUser?.id]);
+
+  const handleClose = useCallback(() => {
+    setMemberName("");
+    changeSearchedUser(undefined);
+    onClose?.(true);
+  }, [onClose, changeSearchedUser]);
+  return (
+    <Modal
+      title="Add member"
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+    >
+      {open && (
+        <Form
+          title="Search user"
+          form={form}
+          layout="vertical"
+          initialValues={initialValues}
+        >
+          <Form.Item name="name" label="Email address or user name">
+            <Search
+              size="large"
+              style={{ width: "300px" }}
+              value={memberName}
+              onSearch={handleMemberNameChange}
+              type="text"
+            />
+          </Form.Item>
+          {searchedUser && (
+            <SearchedUSerResult>
+              <div>
+                <Avatar
+                  style={{
+                    color: "#fff",
+                    backgroundColor: "#3F3D45",
+                    marginRight: "12px",
+                  }}
+                >
+                  {searchedUser.name.charAt(0)}
+                </Avatar>
+                {searchedUser.name}
+                <EmailContent>{searchedUser.email}</EmailContent>
+              </div>
+              <IconButton onClick={handleMemberRemove}>
+                <CloseOutlined />
+              </IconButton>
+            </SearchedUSerResult>
+          )}
+        </Form>
+      )}
+    </Modal>
+  );
+};
+
+const IconButton = styled.button`
+  all: unset;
+  cursor: pointer;
+`;
+
+const EmailContent = styled.span`
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  margin-left: 8px;
+  color: rgba(0, 0, 0, 0.45);
+`;
+
+const SearchedUSerResult = styled.div`
+  width: 300px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid #d9d9d9;
+
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
+  border-radius: 2px;
+`;
+
+export default MemberCreationModal;
