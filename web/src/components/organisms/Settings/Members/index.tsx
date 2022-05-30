@@ -7,6 +7,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import MemberCreationModal from "@reearth-cms/components/molecules/Member/MemberCreationModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table, Modal } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
@@ -83,6 +84,9 @@ const Members: React.FC = () => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
+    handleMemberCreationModalClose,
+    handleMemberCreationModalOpen,
+    memberCreationModalShown,
   } = useHooks({ workspaceId });
 
   const members = currentWorkspace?.members;
@@ -163,7 +167,13 @@ const Members: React.FC = () => {
     handleMemberAddToWorkspace([searchedUser.id]);
     setMemberName("");
     changeSearchedUser(undefined);
-  }, [searchedUser, handleMemberAddToWorkspace, changeSearchedUser]);
+    handleMemberCreationModalClose();
+  }, [
+    searchedUser,
+    handleMemberAddToWorkspace,
+    changeSearchedUser,
+    handleMemberCreationModalClose,
+  ]);
 
   return (
     <>
@@ -198,7 +208,7 @@ const Members: React.FC = () => {
               extra={
                 <Button
                   type="primary"
-                  onClick={handleModalOpen}
+                  onClick={handleMemberCreationModalOpen}
                   icon={<UsergroupAddOutlined />}
                 >
                   New Member
@@ -232,9 +242,15 @@ const Members: React.FC = () => {
         onClose={handleRoleModalClose}
         onSubmit={handleMemberOfWorkspaceUpdate}
       ></MemberRoleModal>
+      <MemberCreationModal
+        open={memberCreationModalShown}
+        searchedUser={searchedUser}
+        onClose={handleMemberCreationModalClose}
+        handleUserSearch={handleUserSearch}
+        onSubmit={handleMemberAdd}
+      ></MemberCreationModal>
     </>
   );
-  return;
 };
 
 const PaddedContent = styled(Content)`

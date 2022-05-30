@@ -1,5 +1,6 @@
-import { Form, Input, Modal } from "antd";
-import React, { useCallback } from "react";
+import { Button, Form, Input, Modal } from "antd";
+import Search from "antd/lib/transfer/search";
+import React, { useCallback, useState } from "react";
 
 export interface FormValues {
   name: string;
@@ -7,50 +8,84 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
+  handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onSubmit?: (userIds: string[]) => Promise<void>;
+  searchedUser:
+    | {
+        id: string;
+        name: string;
+        email: string;
+      }
+    | undefined;
 }
 
 const initialValues: FormValues = {
   name: "",
 };
 
-const MemberCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const MemberCreationModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  handleUserSearch,
+  searchedUser,
+}) => {
+  const { Search } = Input;
   const [form] = Form.useForm();
+  const [memberName, setMemberName] = useState("");
+
+  const handleMemberNameChange = useCallback(
+    (e: any) => {
+      setMemberName?.(e);
+      handleUserSearch?.(e);
+    },
+    [setMemberName, handleUserSearch]
+  );
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then(async (values) => {
-        await onSubmit?.(values);
-        onClose?.(true);
+        console.log(values);
+
+        if (searchedUser?.id) await onSubmit?.([searchedUser?.id]);
+        // onClose?.(true);
         form.resetFields();
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit]);
+  }, [form, onSubmit, searchedUser?.id]);
 
   const handleClose = useCallback(() => {
     onClose?.(true);
   }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      {/* {formik.isSubmitting} */}
+    <Modal
+      title="Add member"
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+    >
       {open && (
-        <Form form={form} layout="vertical" initialValues={initialValues}>
-          <Form.Item
-            name="name"
-            label="Workspace name"
-            rules={[
-              {
-                required: true,
-                message: "Please input the title of workspace!",
-              },
-            ]}
-          >
-            <Input />
+        <Form
+          title="Search user"
+          form={form}
+          layout="vertical"
+          initialValues={initialValues}
+        >
+          <Form.Item name="name" label="Email address or user name">
+            <Search
+              style={{ width: "300px" }}
+              value={memberName}
+              onSearch={handleMemberNameChange}
+              type="text"
+            />
           </Form.Item>
+          {searchedUser && (
+            <Button style={{ width: "300px" }}>{searchedUser.name}</Button>
+          )}
         </Form>
       )}
     </Modal>
