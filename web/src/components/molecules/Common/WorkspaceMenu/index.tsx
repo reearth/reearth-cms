@@ -55,7 +55,7 @@ const WorkspaceMenu: React.FC<Props> = ({
       item.show === "both"
   );
 
-  const onClick: MenuProps["onClick"] = (e: any) => {
+  const onClick = (e: any) => {
     if (e.key === "member") {
       navigate(`/members/${workspaceId}`);
     }

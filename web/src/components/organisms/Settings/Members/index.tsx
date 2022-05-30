@@ -1,4 +1,4 @@
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -7,6 +7,7 @@ import List from "@reearth-cms/components/atoms/List";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import Search from "antd/lib/input/Search";
@@ -51,6 +52,13 @@ const Members: React.FC = () => {
   const { workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
+  const [owner, setOwner] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(undefined);
+  const [memberName, setMemberName] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
+
+  const navigate = useNavigate();
+
   const {
     user,
     personalWorkspace,
@@ -58,6 +66,7 @@ const Members: React.FC = () => {
     handleModalClose,
     handleModalOpen,
     modalShown,
+    handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
   const {
@@ -65,65 +74,24 @@ const Members: React.FC = () => {
     currentWorkspace,
     searchedUser,
     changeSearchedUser,
-    handleWorkspaceDelete,
     handleUserSearch,
-    handleNameUpdate,
-    handleWorkspaceCreate,
     handleMemberAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
     handleMemberRemoveFromWorkspace,
+    roleModalShown,
+    handleRoleModalClose,
+    handleRoleModalOpen,
   } = useHooks({ workspaceId });
 
-  const [owner, setOwner] = useState(false);
-  const [memberName, setMemberName] = useState("");
-  const [workspaceName, setWorkspaceName] = useState("");
-
-  const navigate = useNavigate();
   const members = currentWorkspace?.members;
-  const dataSource = members?.map((member) => ({
-    key: member.userId,
-    name: member.user.name,
-    thumbnail: (
-      <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-        {member.user.name.charAt(0)}
-      </Avatar>
-    ),
-    email: member.user.email,
-    role: member.role,
-    action: "Hello",
-  }));
-  const handleMemberNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setMemberName?.(e.currentTarget.value);
-      handleUserSearch(e.currentTarget.value);
+
+  const handleRoleChange = useCallback(
+    (member: any) => {
+      setSelectedMember(member);
+      handleRoleModalOpen();
     },
-    [setMemberName, handleUserSearch]
+    [setSelectedMember, handleRoleModalOpen]
   );
-
-  const handleMemberAdd = useCallback(() => {
-    if (!searchedUser) return;
-    handleMemberAddToWorkspace([searchedUser.id]);
-    setMemberName("");
-    changeSearchedUser(undefined);
-  }, [searchedUser, handleMemberAddToWorkspace, changeSearchedUser]);
-
-  const handleWorkspaceDeletion = useCallback(async () => {
-    await handleWorkspaceDelete();
-    navigate("/workspaces");
-  }, [handleWorkspaceDelete, navigate]);
-
-  const handleNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setWorkspaceName?.(e.currentTarget.value);
-    },
-    [setWorkspaceName]
-  );
-
-  const handleWorkspaceNameChange = useCallback(() => {
-    if (!workspaceName) return;
-    handleNameUpdate(workspaceName);
-    setWorkspaceName("");
-  }, [setWorkspaceName, workspaceName, handleNameUpdate]);
 
   const checkOwner = useCallback(() => {
     if (members) {
@@ -140,6 +108,35 @@ const Members: React.FC = () => {
     const o = checkOwner();
     setOwner(o);
   }, [checkOwner]);
+
+  const dataSource = members?.map((member) => ({
+    key: member.userId,
+    name: member.user.name,
+    thumbnail: (
+      <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+        {member.user.name.charAt(0)}
+      </Avatar>
+    ),
+    email: member.user.email,
+    role: member.role,
+    action: member.userId !== me?.id && (
+      <a onClick={() => handleRoleChange(member)}>Change Role</a>
+    ),
+  }));
+  const handleMemberNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setMemberName?.(e.currentTarget.value);
+      handleUserSearch(e.currentTarget.value);
+    },
+    [setMemberName, handleUserSearch]
+  );
+
+  const handleMemberAdd = useCallback(() => {
+    if (!searchedUser) return;
+    handleMemberAddToWorkspace([searchedUser.id]);
+    setMemberName("");
+    changeSearchedUser(undefined);
+  }, [searchedUser, handleMemberAddToWorkspace, changeSearchedUser]);
 
   return (
     <>
@@ -172,7 +169,13 @@ const Members: React.FC = () => {
             <MemberPageHeader
               title="Members"
               extra={
-                <Button onClick={handleModalOpen}>Create a Workspace</Button>
+                <Button
+                  type="primary"
+                  onClick={handleModalOpen}
+                  icon={<UsergroupAddOutlined />}
+                >
+                  New Member
+                </Button>
               }
             ></MemberPageHeader>
             <ActionHeader>
@@ -196,6 +199,12 @@ const Members: React.FC = () => {
         onClose={handleModalClose}
         onSubmit={handleWorkspaceCreate}
       ></WorkspaceCreationModal>
+      <MemberRoleModal
+        member={selectedMember}
+        open={roleModalShown}
+        onClose={handleRoleModalClose}
+        onSubmit={handleMemberOfWorkspaceUpdate}
+      ></MemberRoleModal>
     </>
   );
   return;
