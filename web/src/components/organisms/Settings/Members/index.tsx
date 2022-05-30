@@ -69,7 +69,6 @@ const Members: React.FC = () => {
     me,
     currentWorkspace,
     searchedUser,
-    setSelectedMember,
     changeSearchedUser,
     handleUserSearch,
     handleMemberAddToWorkspace,

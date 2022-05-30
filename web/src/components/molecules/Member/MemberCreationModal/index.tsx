@@ -1,7 +1,7 @@
 import { CloseOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import { Avatar, Form, Input, Modal } from "antd";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 export interface FormValues {
   name: string;
@@ -54,7 +54,14 @@ const MemberCreationModal: React.FC<Props> = ({
     },
     [setMemberName, handleUserSearch]
   );
-  console.log(searchedUser);
+
+  initialValues;
+
+  useEffect(() => {
+    form.setFieldsValue({
+      name: memberName,
+    });
+  }, [form, memberName]);
 
   const handleMemberRemove = useCallback(() => {
     setMemberName?.("");
@@ -74,8 +81,10 @@ const MemberCreationModal: React.FC<Props> = ({
   }, [form, onSubmit, searchedUser?.id]);
 
   const handleClose = useCallback(() => {
+    setMemberName("");
+    changeSearchedUser(undefined);
     onClose?.(true);
-  }, [onClose]);
+  }, [onClose, changeSearchedUser]);
   return (
     <Modal
       title="Add member"
@@ -118,7 +127,6 @@ const MemberCreationModal: React.FC<Props> = ({
                 <CloseOutlined />
               </IconButton>
             </SearchedUSerResult>
-            // <Button style={{ width: "300px" }}>{searchedUser.name}</Button>
           )}
         </Form>
       )}
