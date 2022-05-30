@@ -1,5 +1,4 @@
 import { Button, Form, Input, Modal } from "antd";
-import Search from "antd/lib/transfer/search";
 import React, { useCallback, useState } from "react";
 
 export interface FormValues {
@@ -10,7 +9,7 @@ export interface Props {
   open?: boolean;
   handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: (userIds: string[]) => Promise<void>;
+  onSubmit?: () => void;
   searchedUser:
     | {
         id: string;
@@ -49,7 +48,7 @@ const MemberCreationModal: React.FC<Props> = ({
       .then(async (values) => {
         console.log(values);
 
-        if (searchedUser?.id) await onSubmit?.([searchedUser?.id]);
+        if (searchedUser?.id) await onSubmit?.();
         // onClose?.(true);
         form.resetFields();
       })

@@ -14,8 +14,8 @@ import Avatar from "antd/lib/avatar/avatar";
 import Search from "antd/lib/input/Search";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
-import React, { useCallback, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useCallback, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -53,12 +53,7 @@ const Members: React.FC = () => {
   const { workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
-  const [owner, setOwner] = useState(false);
-  const [memberName, setMemberName] = useState("");
-
   const { confirm } = Modal;
-
-  const navigate = useNavigate();
 
   const {
     user,
@@ -103,22 +98,6 @@ const Members: React.FC = () => {
       onCancel() {},
     });
   }, [confirm, handleMemberRemoveFromWorkspace, selectedMember?.userId]);
-
-  const checkOwner = useCallback(() => {
-    if (members) {
-      for (let i = 0; i < members.length; i++) {
-        if (members[i].userId === me?.id && members[i].role === "OWNER") {
-          return true;
-        }
-      }
-    }
-    return false;
-  }, [members, me?.id]);
-
-  useEffect(() => {
-    const o = checkOwner();
-    setOwner(o);
-  }, [checkOwner]);
 
   const dataSource = members?.map((member) => ({
     key: member.userId,
@@ -165,7 +144,6 @@ const Members: React.FC = () => {
   const handleMemberAdd = useCallback(() => {
     if (!searchedUser) return;
     handleMemberAddToWorkspace([searchedUser.id]);
-    setMemberName("");
     changeSearchedUser(undefined);
     handleMemberCreationModalClose();
   }, [
