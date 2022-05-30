@@ -15,6 +15,7 @@ export interface Props {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
   workspaceId?: string;
+  defaultSelectedKeys?: string[];
 }
 
 function getItem(
@@ -39,6 +40,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
   workspaceId,
+  defaultSelectedKeys,
 }) => {
   const navigate = useNavigate();
   const items: ItemType[] = [
@@ -59,19 +61,23 @@ const WorkspaceMenu: React.FC<Props> = ({
     if (e.key === "member") {
       navigate(`/members/${workspaceId}`);
     }
+    if (e.key === "home") {
+      navigate(`/dashboard/${workspaceId}`);
+    }
   };
 
   return (
     <>
       <Menu
-        defaultSelectedKeys={["home"]}
+        onClick={onClick}
+        defaultSelectedKeys={defaultSelectedKeys}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={["home"]}
+        defaultSelectedKeys={defaultSelectedKeys}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}

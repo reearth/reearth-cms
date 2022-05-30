@@ -50,6 +50,7 @@ const Dashboard: React.FC<Props> = () => {
             style={{ backgroundColor: "#fff" }}
           >
             <WorkspaceMenu
+              defaultSelectedKeys={["home"]}
               isPersonalWorkspace={
                 personalWorkspace?.id === currentWorkspace?.id
               }

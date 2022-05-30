@@ -173,6 +173,7 @@ const Members: React.FC = () => {
             style={{ backgroundColor: "#fff" }}
           >
             <WorkspaceMenu
+              defaultSelectedKeys={["member"]}
               isPersonalWorkspace={
                 personalWorkspace?.id === currentWorkspace?.id
               }
