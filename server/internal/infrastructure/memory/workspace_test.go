@@ -14,7 +14,7 @@ import (
 
 func TestNewWorkspace(t *testing.T) {
 	expected := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	got := NewWorkspace()
 	assert.Equal(t, expected, got)
@@ -24,14 +24,15 @@ func TestWorkspace_FindByID(t *testing.T) {
 	ctx := context.Background()
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	r := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	r.data.Store(ws.ID(), ws)
 	out, err := r.FindByID(ctx, ws.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, ws, out)
 
-	_, err = r.FindByID(ctx, id.WorkspaceID{})
+	out2, err := r.FindByID(ctx, id.WorkspaceID{})
+	assert.Nil(t, out2)
 	assert.Same(t, rerror.ErrNotFound, err)
 }
 
@@ -40,7 +41,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 	r := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	r.data.Store(ws.ID(), ws)
 	r.data.Store(ws2.ID(), ws2)
@@ -57,7 +58,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 	u := user.New().NewID().Email("aaa@bbb.com").MustBuild()
 	ws := user.NewWorkspace().NewID().Name("hoge").Members(map[user.ID]user.Role{u.ID(): user.RoleOwner}).MustBuild()
 	r := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	r.data.Store(ws.ID(), ws)
 	wsl := user.WorkspaceList{ws}
@@ -76,7 +77,7 @@ func TestWorkspace_Remove(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 	r := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	r.data.Store(ws.ID(), ws)
 	r.data.Store(ws2.ID(), ws2)
@@ -90,7 +91,7 @@ func TestWorkspace_RemoveAll(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 	r := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	r.data.Store(ws.ID(), ws)
 	r.data.Store(ws2.ID(), ws2)
@@ -105,7 +106,7 @@ func TestWorkspace_Save(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 
 	got := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	_ = got.Save(ctx, ws)
 	assert.Equal(t, 1, got.data.Len())
@@ -117,7 +118,7 @@ func TestWorkspace_SaveAll(t *testing.T) {
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 
 	got := &Workspace{
-		data: util.SyncMap[id.WorkspaceID, *user.Workspace]{},
+		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
 	_ = got.SaveAll(ctx, []*user.Workspace{ws1, ws2})
 	assert.Equal(t, 2, got.data.Len())

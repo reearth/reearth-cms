@@ -4,7 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 )
 
-func InitRepos() *repo.Container {
+func New() *repo.Container {
 	return &repo.Container{
 		Workspace:   NewWorkspace(),
 		User:        NewUser(),
