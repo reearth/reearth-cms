@@ -16,7 +16,7 @@ func TestTransaction(t *testing.T) {
 	assert.Equal(t, expected, got)
 
 	gotBegin, err := got.Begin()
-	assert.Equal(t, &Tx{}, gotBegin)
+	assert.Equal(t, &Tx{t: got}, gotBegin)
 	assert.NoError(t, err)
 
 	err = gotBegin.End(ctx)
