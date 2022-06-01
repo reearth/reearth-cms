@@ -24,6 +24,7 @@ interface Node {
 enum NodeType {
   USER
   WORKSPACE
+  PROJECT
 }
 
 type PageInfo {
@@ -88,6 +89,39 @@ enum Role {
   OWNER
 }
 
+type ProjectAliasAvailability {
+  alias: String!
+  available: Boolean!
+}
+
+type Project implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  description: String!
+  alias: String!
+  workspaceId: ID!
+  workspace: Workspace @goField(forceResolver: true)
+}
+
+input CreateProjectInput {
+  workspaceId: ID!
+  name: String
+  description: String
+  alias: String
+}
+
+input UpdateProjectInput {
+  projectId: ID!
+  name: String
+  description: String
+}
+
+input DeleteProjectInput {
+  projectId: ID!
+}
+
 input SignupInput {
   lang: Lang
   theme: Theme
@@ -148,6 +182,14 @@ type Query {
   node(id: ID!, type: NodeType!): Node
   nodes(id: [ID!]!, type: NodeType!): [Node]!
   searchUser(nameOrEmail: String!): User
+  projects(
+    workspaceId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ProjectConnection!
+  checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 
 # Payload
@@ -189,6 +231,25 @@ type DeleteWorkspacePayload {
   workspaceId: ID!
 }
 
+type ProjectPayload {
+  project: Project!
+}
+
+type DeleteProjectPayload {
+  projectId: ID!
+}
+
+type ProjectConnection {
+  edges: [ProjectEdge!]!
+  nodes: [Project]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProjectEdge {
+  cursor: Cursor!
+  node: Project
+}
 
 type Mutation {
   # User
@@ -206,6 +267,11 @@ type Mutation {
     input: RemoveMemberFromWorkspaceInput!
   ): RemoveMemberFromWorkspacePayload
   updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
+
+  # Project
+  createProject(input: CreateProjectInput!): ProjectPayload
+  updateProject(input: UpdateProjectInput!): ProjectPayload
+  deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
 }
 
 schema {
