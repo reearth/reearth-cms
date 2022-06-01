@@ -11,273 +11,194 @@ import (
 )
 
 type Workspace struct {
-	common
-	workspaceRepo repo.Workspace
-	userRepo      repo.User
-	transaction   repo.Transaction
+	repos       *repo.Container
+	transaction repo.Transaction
 }
 
 func NewWorkspace(r *repo.Container) interfaces.Workspace {
 	return &Workspace{
-		workspaceRepo: r.Workspace,
-		userRepo:      r.User,
-		transaction:   r.Transaction,
+		repos:       r,
+		transaction: r.Transaction,
 	}
 }
 
 func (i *Workspace) Fetch(ctx context.Context, ids []id.WorkspaceID, operator *usecase.Operator) ([]*user.Workspace, error) {
-	if err := i.OnlyOperator(operator); err != nil {
-		return nil, err
-	}
-	res, err := i.workspaceRepo.FindByIDs(ctx, ids)
-	res2, err := i.filterWorkspaces(res, operator, err)
-	return res2, err
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.Workspace, error) {
+		res, err := i.repos.Workspace.FindByIDs(ctx, ids)
+		res2, err := i.filterWorkspaces(res, operator, err)
+		return res2, err
+	})
 }
 
 func (i *Workspace) FindByUser(ctx context.Context, id id.UserID, operator *usecase.Operator) ([]*user.Workspace, error) {
-	if err := i.OnlyOperator(operator); err != nil {
-		return nil, err
-	}
-	res, err := i.workspaceRepo.FindByUser(ctx, id)
-	res2, err := i.filterWorkspaces(res, operator, err)
-	return res2, err
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.Workspace, error) {
+		res, err := i.repos.Workspace.FindByUser(ctx, id)
+		res2, err := i.filterWorkspaces(res, operator, err)
+		return res2, err
+	})
 }
 
 func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		workspace, err := user.NewWorkspace().
+			NewID().
+			Name(name).
+			Build()
+		if err != nil {
+			return nil, err
 		}
-	}()
 
-	workspace, err := user.NewWorkspace().
-		NewID().
-		Name(name).
-		Build()
-	if err != nil {
-		return nil, err
-	}
+		if err := workspace.Members().Join(firstUser, user.RoleOwner); err != nil {
+			return nil, err
+		}
 
-	if err := workspace.Members().Join(firstUser, user.RoleOwner); err != nil {
-		return nil, err
-	}
+		if err := i.repos.Workspace.Save(ctx, workspace); err != nil {
+			return nil, err
+		}
 
-	if err := i.workspaceRepo.Save(ctx, workspace); err != nil {
-		return nil, err
-	}
-
-	operator.AddNewWorkspace(workspace.ID())
-	tx.Commit()
-	return workspace, nil
+		operator.AddNewWorkspace(workspace.ID())
+		return workspace, nil
+	})
 }
 
 func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
 		}
-	}()
+		if workspace.IsPersonal() {
+			return nil, user.ErrCannotModifyPersonalWorkspace
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return nil, interfaces.ErrOperationDenied
+		}
 
-	if operator == nil {
-		return nil, interfaces.ErrOperationDenied
-	}
+		workspace.Rename(name)
 
-	workspace, err := i.workspaceRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if workspace.IsPersonal() {
-		return nil, user.ErrCannotModifyPersonalWorkspace
-	}
-	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
-		return nil, interfaces.ErrOperationDenied
-	}
+		err = i.repos.Workspace.Save(ctx, workspace)
+		if err != nil {
+			return nil, err
+		}
 
-	workspace.Rename(name)
-
-	err = i.workspaceRepo.Save(ctx, workspace)
-	if err != nil {
-		return nil, err
-	}
-
-	tx.Commit()
-	return workspace, nil
+		return workspace, nil
+	})
 }
 
 func (i *Workspace) AddMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
 		}
-	}()
+		if workspace.IsPersonal() {
+			return nil, user.ErrCannotModifyPersonalWorkspace
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return nil, interfaces.ErrOperationDenied
+		}
 
-	if operator == nil {
-		return nil, interfaces.ErrOperationDenied
-	}
+		_, err = i.repos.User.FindByID(ctx, u)
+		if err != nil {
+			return nil, err
+		}
 
-	workspace, err := i.workspaceRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if workspace.IsPersonal() {
-		return nil, user.ErrCannotModifyPersonalWorkspace
-	}
-	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
-		return nil, interfaces.ErrOperationDenied
-	}
+		err = workspace.Members().Join(u, role)
+		if err != nil {
+			return nil, err
+		}
 
-	_, err = i.userRepo.FindByID(ctx, u)
-	if err != nil {
-		return nil, err
-	}
+		err = i.repos.Workspace.Save(ctx, workspace)
+		if err != nil {
+			return nil, err
+		}
 
-	err = workspace.Members().Join(u, role)
-	if err != nil {
-		return nil, err
-	}
-
-	err = i.workspaceRepo.Save(ctx, workspace)
-	if err != nil {
-		return nil, err
-	}
-
-	tx.Commit()
-	return workspace, nil
+		return workspace, nil
+	})
 }
 
 func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
 		}
-	}()
+		if workspace.IsPersonal() {
+			return nil, user.ErrCannotModifyPersonalWorkspace
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return nil, interfaces.ErrOperationDenied
+		}
 
-	if operator == nil {
-		return nil, interfaces.ErrOperationDenied
-	}
+		if u.Equal(operator.User) {
+			return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
+		}
 
-	workspace, err := i.workspaceRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if workspace.IsPersonal() {
-		return nil, user.ErrCannotModifyPersonalWorkspace
-	}
-	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
-		return nil, interfaces.ErrOperationDenied
-	}
+		err = workspace.Members().Leave(u)
+		if err != nil {
+			return nil, err
+		}
 
-	if u.Equal(operator.User) {
-		return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
-	}
+		err = i.repos.Workspace.Save(ctx, workspace)
+		if err != nil {
+			return nil, err
+		}
 
-	err = workspace.Members().Leave(u)
-	if err != nil {
-		return nil, err
-	}
-
-	err = i.workspaceRepo.Save(ctx, workspace)
-	if err != nil {
-		return nil, err
-	}
-
-	tx.Commit()
-	return workspace, nil
+		return workspace, nil
+	})
 }
 
 func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
 		}
-	}()
+		if workspace.IsPersonal() {
+			return nil, user.ErrCannotModifyPersonalWorkspace
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return nil, interfaces.ErrOperationDenied
+		}
 
-	if operator == nil {
-		return nil, interfaces.ErrOperationDenied
-	}
+		if u.Equal(operator.User) {
+			return nil, interfaces.ErrCannotChangeOwnerRole
+		}
 
-	workspace, err := i.workspaceRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if workspace.IsPersonal() {
-		return nil, user.ErrCannotModifyPersonalWorkspace
-	}
-	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
-		return nil, interfaces.ErrOperationDenied
-	}
+		err = workspace.Members().UpdateRole(u, role)
+		if err != nil {
+			return nil, err
+		}
 
-	if u.Equal(operator.User) {
-		return nil, interfaces.ErrCannotChangeOwnerRole
-	}
+		err = i.repos.Workspace.Save(ctx, workspace)
+		if err != nil {
+			return nil, err
+		}
 
-	err = workspace.Members().UpdateRole(u, role)
-	if err != nil {
-		return nil, err
-	}
-
-	err = i.workspaceRepo.Save(ctx, workspace)
-	if err != nil {
-		return nil, err
-	}
-
-	tx.Commit()
-	return workspace, nil
+		return workspace, nil
+	})
 }
 
-func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *usecase.Operator) (err error) {
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *usecase.Operator) error {
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		if err != nil {
+			return err
 		}
-	}()
+		if workspace.IsPersonal() {
+			return user.ErrCannotModifyPersonalWorkspace
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return interfaces.ErrOperationDenied
+		}
 
-	if operator == nil {
-		return interfaces.ErrOperationDenied
-	}
+		err = i.repos.Workspace.Remove(ctx, id)
+		if err != nil {
+			return err
+		}
 
-	workspace, err := i.workspaceRepo.FindByID(ctx, id)
-	if err != nil {
-		return err
-	}
-	if workspace.IsPersonal() {
-		return user.ErrCannotModifyPersonalWorkspace
-	}
-	if workspace.Members().GetRole(operator.User) != user.RoleOwner {
-		return interfaces.ErrOperationDenied
-	}
-
-	err = i.workspaceRepo.Remove(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	tx.Commit()
-	return
+		return nil
+	})
 }
 
 func (i *Workspace) filterWorkspaces(workspaces []*user.Workspace, operator *usecase.Operator, err error) ([]*user.Workspace, error) {

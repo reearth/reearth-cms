@@ -20,143 +20,126 @@ import (
 )
 
 func (i *User) Signup(ctx context.Context, inp interfaces.SignupParam) (*user.User, *user.Workspace, error) {
-	if inp.Password == "" {
-		return nil, nil, interfaces.ErrSignupInvalidPassword
-	}
-	if inp.Name == "" {
-		return nil, nil, interfaces.ErrSignupInvalidName
-	}
-	if err := i.verifySignupSecret(inp.Secret); err != nil {
-		return nil, nil, err
-	}
-
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return nil, nil, err
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+	return Run2(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, *user.Workspace, error) {
+		if inp.Password == "" {
+			return nil, nil, interfaces.ErrSignupInvalidPassword
 		}
-	}()
-
-	// Check if user and workspace already exists
-	existedUser, existedWorkspace, err := i.userAlreadyExists(ctx, inp.User.UserID, inp.Sub, &inp.Name, inp.User.WorkspaceID)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if existedUser != nil {
-		if existedUser.Verification() == nil || !existedUser.Verification().IsVerified() {
-			// if user exists but not verified -> create a new verification
-			if err := i.createVerification(ctx, existedUser); err != nil {
-				return nil, nil, err
-			}
-			return existedUser, existedWorkspace, nil
+		if inp.Name == "" {
+			return nil, nil, interfaces.ErrSignupInvalidName
 		}
-		return nil, nil, interfaces.ErrUserAlreadyExists
-	}
+		if err := i.verifySignupSecret(inp.Secret); err != nil {
+			return nil, nil, err
+		}
 
-	// Initialize user and workspace
-	var auth *user.Auth
-	if inp.Sub != nil {
-		auth = user.AuthFromAuth0Sub(*inp.Sub).Ref()
-	}
-	u, workspace, err := user.Init(user.InitParams{
-		Email:       inp.Email,
-		Name:        inp.Name,
-		Sub:         auth,
-		Password:    &inp.Password,
-		Lang:        inp.User.Lang,
-		Theme:       inp.User.Theme,
-		UserID:      inp.User.UserID,
-		WorkspaceID: inp.User.WorkspaceID,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if err := i.userRepo.Save(ctx, u); err != nil {
-		return nil, nil, err
-	}
-	if err := i.workspaceRepo.Save(ctx, workspace); err != nil {
-		return nil, nil, err
-	}
-
-	if err := i.createVerification(ctx, u); err != nil {
-		return nil, nil, err
-	}
-
-	tx.Commit()
-	return u, workspace, nil
-}
-
-func (i *User) SignupOIDC(ctx context.Context, inp interfaces.SignupOIDCParam) (u *user.User, _ *user.Workspace, err error) {
-	if err := i.verifySignupSecret(inp.Secret); err != nil {
-		return nil, nil, err
-	}
-
-	sub := inp.Sub
-	name := inp.Name
-	email := inp.Email
-	if sub == "" || email == "" {
-		ui, err := getUserInfoFromISS(ctx, inp.Issuer, inp.AccessToken)
+		// Check if user and workspace already exists
+		existedUser, existedWorkspace, err := i.userAlreadyExists(ctx, inp.User.UserID, inp.Sub, &inp.Name, inp.User.WorkspaceID)
 		if err != nil {
 			return nil, nil, err
 		}
-		sub = ui.Sub
-		email = ui.Email
-		if name == "" {
-			name = ui.Nickname
-		}
-		if name == "" {
-			name = ui.Name
-		}
-		if name == "" {
-			name = ui.Email
-		}
-	}
 
-	tx, err := i.transaction.Begin()
-	if err != nil {
-		return nil, nil, err
-	}
-	defer func() {
-		if err2 := tx.End(ctx); err == nil && err2 != nil {
-			err = err2
+		if existedUser != nil {
+			if existedUser.Verification() == nil || !existedUser.Verification().IsVerified() {
+				// if user exists but not verified -> create a new verification
+				if err := i.createVerification(ctx, existedUser); err != nil {
+					return nil, nil, err
+				}
+				return existedUser, existedWorkspace, nil
+			}
+			return nil, nil, interfaces.ErrUserAlreadyExists
 		}
-	}()
 
-	// Check if user and workspace already exists
-	if existedUser, existedWorkspace, err := i.userAlreadyExists(ctx, inp.User.UserID, &sub, &name, inp.User.WorkspaceID); err != nil {
-		return nil, nil, err
-	} else if existedUser != nil || existedWorkspace != nil {
-		return nil, nil, interfaces.ErrUserAlreadyExists
-	}
+		// Initialize user and workspace
+		var auth *user.Auth
+		if inp.Sub != nil {
+			auth = user.AuthFromAuth0Sub(*inp.Sub).Ref()
+		}
+		u, workspace, err := user.Init(user.InitParams{
+			Email:       inp.Email,
+			Name:        inp.Name,
+			Sub:         auth,
+			Password:    &inp.Password,
+			Lang:        inp.User.Lang,
+			Theme:       inp.User.Theme,
+			UserID:      inp.User.UserID,
+			WorkspaceID: inp.User.WorkspaceID,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
 
-	// Initialize user and workspace
-	u, workspace, err := user.Init(user.InitParams{
-		Email:       email,
-		Name:        name,
-		Sub:         user.AuthFromAuth0Sub(sub).Ref(),
-		Lang:        inp.User.Lang,
-		Theme:       inp.User.Theme,
-		UserID:      inp.User.UserID,
-		WorkspaceID: inp.User.WorkspaceID,
+		if err := i.repos.User.Save(ctx, u); err != nil {
+			return nil, nil, err
+		}
+		if err := i.repos.Workspace.Save(ctx, workspace); err != nil {
+			return nil, nil, err
+		}
+
+		if err := i.createVerification(ctx, u); err != nil {
+			return nil, nil, err
+		}
+
+		return u, workspace, nil
 	})
-	if err != nil {
-		return nil, nil, err
-	}
+}
 
-	if err := i.userRepo.Save(ctx, u); err != nil {
-		return nil, nil, err
-	}
-	if err := i.workspaceRepo.Save(ctx, workspace); err != nil {
-		return nil, nil, err
-	}
+func (i *User) SignupOIDC(ctx context.Context, inp interfaces.SignupOIDCParam) (u *user.User, _ *user.Workspace, err error) {
+	return Run2(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, *user.Workspace, error) {
 
-	tx.Commit()
-	return u, workspace, nil
+		if err := i.verifySignupSecret(inp.Secret); err != nil {
+			return nil, nil, err
+		}
+
+		sub := inp.Sub
+		name := inp.Name
+		email := inp.Email
+		if sub == "" || email == "" {
+			ui, err := getUserInfoFromISS(ctx, inp.Issuer, inp.AccessToken)
+			if err != nil {
+				return nil, nil, err
+			}
+			sub = ui.Sub
+			email = ui.Email
+			if name == "" {
+				name = ui.Nickname
+			}
+			if name == "" {
+				name = ui.Name
+			}
+			if name == "" {
+				name = ui.Email
+			}
+		}
+
+		// Check if user and workspace already exists
+		if existedUser, existedWorkspace, err := i.userAlreadyExists(ctx, inp.User.UserID, &sub, &name, inp.User.WorkspaceID); err != nil {
+			return nil, nil, err
+		} else if existedUser != nil || existedWorkspace != nil {
+			return nil, nil, interfaces.ErrUserAlreadyExists
+		}
+
+		// Initialize user and workspace
+		u, workspace, err := user.Init(user.InitParams{
+			Email:       email,
+			Name:        name,
+			Sub:         user.AuthFromAuth0Sub(sub).Ref(),
+			Lang:        inp.User.Lang,
+			Theme:       inp.User.Theme,
+			UserID:      inp.User.UserID,
+			WorkspaceID: inp.User.WorkspaceID,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if err := i.repos.User.Save(ctx, u); err != nil {
+			return nil, nil, err
+		}
+		if err := i.repos.Workspace.Save(ctx, workspace); err != nil {
+			return nil, nil, err
+		}
+
+		return u, workspace, nil
+	})
 }
 
 func (i *User) verifySignupSecret(secret *string) error {
@@ -172,25 +155,25 @@ func (i *User) userAlreadyExists(ctx context.Context, userID *id.UserID, sub *st
 	var err error
 
 	if userID != nil {
-		existedUser, err = i.userRepo.FindByID(ctx, *userID)
+		existedUser, err = i.repos.User.FindByID(ctx, *userID)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
 	} else if sub != nil {
 		// Check if user already exists
-		existedUser, err = i.userRepo.FindBySub(ctx, *sub)
+		existedUser, err = i.repos.User.FindBySub(ctx, *sub)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
 	} else if name != nil {
-		existedUser, err = i.userRepo.FindByName(ctx, *name)
+		existedUser, err = i.repos.User.FindByName(ctx, *name)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
 	}
 
 	if existedUser != nil {
-		workspace, err := i.workspaceRepo.FindByID(ctx, existedUser.Workspace())
+		workspace, err := i.repos.Workspace.FindByID(ctx, existedUser.Workspace())
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
@@ -199,7 +182,7 @@ func (i *User) userAlreadyExists(ctx context.Context, userID *id.UserID, sub *st
 
 	// Check if workspace already exists
 	if workspaceID != nil {
-		existed, err := i.workspaceRepo.FindByID(ctx, *workspaceID)
+		existed, err := i.repos.Workspace.FindByID(ctx, *workspaceID)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, err
 		}
@@ -350,7 +333,7 @@ func (i *User) createVerification(ctx context.Context, u *user.User) error {
 	vr := user.NewVerification()
 	u.SetVerification(vr)
 
-	if err := i.userRepo.Save(ctx, u); err != nil {
+	if err := i.repos.User.Save(ctx, u); err != nil {
 		return err
 	}
 
@@ -370,7 +353,7 @@ func (i *User) createVerification(ctx context.Context, u *user.User) error {
 		return err
 	}
 
-	if err := i.mailer.SendMail(
+	if err := i.gateways.Mailer.SendMail(
 		[]gateway.Contact{
 			{
 				Email: u.Email(),

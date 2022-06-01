@@ -12,7 +12,7 @@ type Container struct {
 	Workspace   Workspace
 }
 
-func (c *Container) Filtered(team WorkspaceFilter) *Container {
+func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 	if c == nil {
 		return c
 	}
