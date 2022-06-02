@@ -2,7 +2,8 @@
 # for detailed .gqlgen.yml documentation.
 
 schema:
-  - schema.graphql
+  - ./schemas/schema.graphql
+  - ./schemas/project.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:

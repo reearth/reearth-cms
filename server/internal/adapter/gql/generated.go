@@ -880,7 +880,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `# Built-in
+	{Name: "./schemas/schema.graphql", Input: `# Built-in
 
 scalar Upload
 scalar Any
@@ -971,39 +971,6 @@ enum Role {
   OWNER
 }
 
-type ProjectAliasAvailability {
-  alias: String!
-  available: Boolean!
-}
-
-type Project implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  name: String!
-  description: String!
-  alias: String!
-  workspaceId: ID!
-  workspace: Workspace @goField(forceResolver: true)
-}
-
-input CreateProjectInput {
-  workspaceId: ID!
-  name: String
-  description: String
-  alias: String
-}
-
-input UpdateProjectInput {
-  projectId: ID!
-  name: String
-  description: String
-}
-
-input DeleteProjectInput {
-  projectId: ID!
-}
-
 input SignupInput {
   lang: Lang
   theme: Theme
@@ -1064,14 +1031,6 @@ type Query {
   node(id: ID!, type: NodeType!): Node
   nodes(id: [ID!]!, type: NodeType!): [Node]!
   searchUser(nameOrEmail: String!): User
-  projects(
-    workspaceId: ID!
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 
 # Payload
@@ -1113,6 +1072,75 @@ type DeleteWorkspacePayload {
   workspaceId: ID!
 }
 
+type Mutation {
+  # User
+  signup(input: SignupInput!): SignupPayload
+  updateMe(input: UpdateMeInput!): UpdateMePayload
+  removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
+  deleteMe(input: DeleteMeInput!): DeleteMePayload
+
+  # Workspace
+  createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
+  deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
+  updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
+  addMemberToWorkspace(input: AddMemberToWorkspaceInput!): AddMemberToWorkspacePayload
+  removeMemberFromWorkspace(
+    input: RemoveMemberFromWorkspaceInput!
+  ): RemoveMemberFromWorkspacePayload
+  updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
+
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}`, BuiltIn: false},
+	{Name: "./schemas/project.graphql", Input: `type ProjectAliasAvailability {
+  alias: String!
+  available: Boolean!
+}
+
+type Project implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  description: String!
+  alias: String!
+  workspaceId: ID!
+  workspace: Workspace @goField(forceResolver: true)
+}
+
+input CreateProjectInput {
+  workspaceId: ID!
+  name: String
+  description: String
+  alias: String
+}
+
+input UpdateProjectInput {
+  projectId: ID!
+  name: String
+  description: String
+}
+
+input DeleteProjectInput {
+  projectId: ID!
+}
+
+extend type Query {
+  projects(
+    workspaceId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ProjectConnection!
+  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+}
+
+# Payload
+
 type ProjectPayload {
   project: Project!
 }
@@ -1133,33 +1161,13 @@ type ProjectEdge {
   node: Project
 }
 
-type Mutation {
-  # User
-  signup(input: SignupInput!): SignupPayload
-  updateMe(input: UpdateMeInput!): UpdateMePayload
-  removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
-  deleteMe(input: DeleteMeInput!): DeleteMePayload
-
-  # Workspace
-  createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
-  deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
-  updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-  addMemberToWorkspace(input: AddMemberToWorkspaceInput!): AddMemberToWorkspacePayload
-  removeMemberFromWorkspace(
-    input: RemoveMemberFromWorkspaceInput!
-  ): RemoveMemberFromWorkspacePayload
-  updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-
+extend type Mutation {
   # Project
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
 }
-
-schema {
-  query: Query
-  mutation: Mutation
-}`, BuiltIn: false},
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
