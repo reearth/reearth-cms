@@ -12,6 +12,10 @@ resolver:
   filename: internal/adapter/gql/resolver.go
   type: Resolver
 models:
+  Project:
+    fields:
+      workspace:
+        resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
   FileSize:

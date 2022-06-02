@@ -909,6 +909,13 @@ enum NodeType {
   PROJECT
 }
 
+input Pagination{
+  first: Int
+  last: Int
+  after: Cursor
+  before: Cursor
+}
+
 type PageInfo {
   startCursor: Cursor
   endCursor: Cursor
@@ -1111,6 +1118,7 @@ type Project implements Node {
   workspace: Workspace @goField(forceResolver: true)
 }
 
+# Inputs
 input CreateProjectInput {
   workspaceId: ID!
   name: String
@@ -1126,17 +1134,6 @@ input UpdateProjectInput {
 
 input DeleteProjectInput {
   projectId: ID!
-}
-
-extend type Query {
-  projects(
-    workspaceId: ID!
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 
 # Payload
@@ -1161,8 +1158,18 @@ type ProjectEdge {
   node: Project
 }
 
+extend type Query {
+  projects(
+    workspaceId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ProjectConnection!
+  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+}
+
 extend type Mutation {
-  # Project
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
@@ -5491,6 +5498,53 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
 			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (gqlmodel.Pagination, error) {
+	var it gqlmodel.Pagination
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "first":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+			it.First, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "last":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+			it.Last, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "after":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+			it.After, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋusecaseᚐCursor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "before":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+			it.Before, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋusecaseᚐCursor(ctx, v)
 			if err != nil {
 				return it, err
 			}

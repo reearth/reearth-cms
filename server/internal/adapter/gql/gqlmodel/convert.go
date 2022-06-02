@@ -16,13 +16,6 @@ func RefToString(s *string) string {
 	return *s
 }
 
-// func stringToRef(s string) *string {
-// 	if s == "" {
-// 		return nil
-// 	}
-// 	return &s
-// }
-
 func BoolToRef(b bool) *bool {
 	return &b
 }
@@ -39,14 +32,14 @@ func ToPageInfo(p *usecase.PageInfo) *PageInfo {
 	}
 }
 
-// func ToPagination(pagination *Pagination) *usecase.Pagination {
-// 	if pagination == nil {
-// 		return nil
-// 	}
-// 	return &usecase.Pagination{
-// 		Before: pagination.Before,
-// 		After:  pagination.After,
-// 		First:  pagination.First,
-// 		Last:   pagination.Last,
-// 	}
-// }
+func ToPagination(pagination *Pagination) *usecase.Pagination {
+	if pagination == nil {
+		return nil
+	}
+	return &usecase.Pagination{
+		Before: pagination.Before,
+		After:  pagination.After,
+		First:  pagination.First,
+		Last:   pagination.Last,
+	}
+}

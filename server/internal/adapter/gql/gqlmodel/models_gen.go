@@ -84,6 +84,13 @@ type PageInfo struct {
 	HasPreviousPage bool            `json:"hasPreviousPage"`
 }
 
+type Pagination struct {
+	First  *int            `json:"first"`
+	Last   *int            `json:"last"`
+	After  *usecase.Cursor `json:"after"`
+	Before *usecase.Cursor `json:"before"`
+}
+
 type Project struct {
 	ID          ID         `json:"id"`
 	CreatedAt   time.Time  `json:"createdAt"`

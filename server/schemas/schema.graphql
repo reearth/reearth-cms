@@ -27,6 +27,13 @@ enum NodeType {
   PROJECT
 }
 
+input Pagination{
+  first: Int
+  last: Int
+  after: Cursor
+  before: Cursor
+}
+
 type PageInfo {
   startCursor: Cursor
   endCursor: Cursor

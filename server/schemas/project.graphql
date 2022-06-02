@@ -11,9 +11,10 @@ type Project implements Node {
   description: String!
   alias: String!
   workspaceId: ID!
-  workspace: Workspace @goField(forceResolver: true)
+  workspace: Workspace
 }
 
+# Inputs
 input CreateProjectInput {
   workspaceId: ID!
   name: String
@@ -29,17 +30,6 @@ input UpdateProjectInput {
 
 input DeleteProjectInput {
   projectId: ID!
-}
-
-extend type Query {
-  projects(
-    workspaceId: ID!
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 
 # Payload
@@ -64,8 +54,18 @@ type ProjectEdge {
   node: Project
 }
 
+extend type Query {
+  projects(
+    workspaceId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ProjectConnection!
+  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+}
+
 extend type Mutation {
-  # Project
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
