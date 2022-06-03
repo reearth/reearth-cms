@@ -15,7 +15,7 @@ var (
 )
 
 type File interface {
-	UploadAsset(ctx context.Context, *FileData) (*url.URL, error)
+	UploadAsset(context.Context, *FileData) (*url.URL, error)
 }
 
 type FileData struct {
