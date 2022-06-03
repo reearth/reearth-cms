@@ -24,6 +24,14 @@ interface Node {
 enum NodeType {
   USER
   WORKSPACE
+  PROJECT
+}
+
+input Pagination{
+  first: Int
+  last: Int
+  after: Cursor
+  before: Cursor
 }
 
 type PageInfo {
@@ -189,7 +197,6 @@ type DeleteWorkspacePayload {
   workspaceId: ID!
 }
 
-
 type Mutation {
   # User
   signup(input: SignupInput!): SignupPayload
@@ -206,6 +213,7 @@ type Mutation {
     input: RemoveMemberFromWorkspaceInput!
   ): RemoveMemberFromWorkspacePayload
   updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
+
 }
 
 schema {
