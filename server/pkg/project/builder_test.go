@@ -79,7 +79,7 @@ func TestBuilder_ImageURL(t *testing.T) {
 
 func TestBuilder_Team(t *testing.T) {
 	var tb = New().NewID()
-	res := tb.Team(NewWorkspaceID()).MustBuild()
+	res := tb.Workspace(NewWorkspaceID()).MustBuild()
 	assert.NotNil(t, res.Workspace())
 }
 
@@ -164,7 +164,7 @@ func TestBuilder_Build(t *testing.T) {
 			p, err := New().
 				ID(tt.args.id).
 				UpdatedAt(tt.args.updatedAt).
-				Team(tt.args.team).
+				Workspace(tt.args.team).
 				ImageURL(tt.args.imageURL).
 				Name(tt.args.name).
 				Alias(tt.args.alias).
@@ -257,7 +257,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				return New().
 					ID(tt.args.id).
 					UpdatedAt(tt.args.updatedAt).
-					Team(tt.args.team).
+					Workspace(tt.args.team).
 					ImageURL(tt.args.imageURL).
 					Name(tt.args.name).
 					Alias(tt.args.alias).

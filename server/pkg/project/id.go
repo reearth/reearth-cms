@@ -4,7 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-type ID = id.ProjectId
+type ID = id.ProjectID
 type WorkspaceID = id.WorkspaceID
 
 var NewID = id.NewProjectID

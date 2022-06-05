@@ -39,7 +39,8 @@ type Project struct{}
 
 func (Project) Type() string { return "project" }
 
-type ProjectId = idx.ID[Project]
+type ProjectID = idx.ID[Project]
+type ProjectIDList = idx.List[Project]
 
 var MustProjectID = idx.Must[Project]
 var NewProjectID = idx.New[Project]

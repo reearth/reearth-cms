@@ -22,6 +22,7 @@ func NewContainer(r *repo.Container, g *gateway.Container, config ContainerConfi
 	return interfaces.Container{
 		Workspace: NewWorkspace(r),
 		User:      NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
+		Project:   NewProject(r),
 	}
 }
 

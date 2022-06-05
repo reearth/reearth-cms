@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
@@ -10,7 +12,12 @@ type Container struct {
 	User        User
 	Transaction Transaction
 	Workspace   Workspace
+	Project     Project
 }
+
+var (
+	ErrOperationDenied = errors.New("operation denied")
+)
 
 func (c Container) Filtered() Container {
 	return Container{
@@ -18,6 +25,7 @@ func (c Container) Filtered() Container {
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
+		Project:     c.Project,
 	}
 }
 

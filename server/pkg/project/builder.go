@@ -75,7 +75,7 @@ func (b *Builder) ImageURL(imageURL *url.URL) *Builder {
 	return b
 }
 
-func (b *Builder) Team(team WorkspaceID) *Builder {
+func (b *Builder) Workspace(team WorkspaceID) *Builder {
 	b.p.workspaceID = team
 	return b
 }

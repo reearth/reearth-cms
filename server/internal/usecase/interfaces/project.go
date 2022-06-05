@@ -17,7 +17,7 @@ type CreateProjectParam struct {
 }
 
 type UpdateProjectParam struct {
-	ID          id.ProjectId
+	ID          id.ProjectID
 	Name        *string
 	Description *string
 }
@@ -28,10 +28,10 @@ var (
 )
 
 type Project interface {
-	Fetch(context.Context, []id.ProjectId, *usecase.Operator) ([]*project.Project, error)
+	Fetch(context.Context, []id.ProjectID, *usecase.Operator) ([]*project.Project, error)
 	FindByWorkspace(context.Context, id.WorkspaceID, *usecase.Pagination, *usecase.Operator) ([]*project.Project, *usecase.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)
-	Delete(context.Context, id.ProjectId, *usecase.Operator) error
+	Delete(context.Context, id.ProjectID, *usecase.Operator) error
 }
