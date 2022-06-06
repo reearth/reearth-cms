@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -13,10 +14,12 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input *gqlmodel.Crea
 
 	res, err := interfaces.Asset.Create(ctx, interfaces.CreateAssetParam{
 		TeamID: id.TeamID(input.TeamID),
-		File:   gqlmodel.FromFile(&input.File)
-	})
+		File:   gqlmodel.FromFile(&input.File),
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err //エラーハンドリングする
 	}
+
 	return &gqlmodel.CreateAssetPyload{Asset: gqlmodel.ToAsset(res)}, nil
+
 }
