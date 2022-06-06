@@ -195,6 +195,7 @@ type Asset {
 }
 
 input CreateAssetInput {
+  teamId: ID!
   file: Upload!
 }
 
@@ -1738,6 +1739,14 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 	for k, v := range asMap {
 		switch k {
+		case "teamId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamId"))
+			it.TeamID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "file":
 			var err error
 

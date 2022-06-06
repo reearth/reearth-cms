@@ -11,7 +11,8 @@ type Asset struct {
 }
 
 type CreateAssetInput struct {
-	File graphql.Upload `json:"file"`
+	TeamID string         `json:"teamId"`
+	File   graphql.Upload `json:"file"`
 }
 
 type CreateAssetPyload struct {

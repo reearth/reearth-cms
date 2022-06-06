@@ -5,6 +5,7 @@ type Asset {
 }
 
 input CreateAssetInput {
+  teamId: ID!
   file: Upload!
 }
 
