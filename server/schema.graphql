@@ -1,6 +1,5 @@
 # Built-in
 
-scalar Upload
 scalar Any
 
 directive @goModel(
@@ -33,12 +32,18 @@ type PageInfo {
   hasPreviousPage: Boolean!
 }
 
+input Pagination{
+  first: Int
+  last: Int
+  after: Cursor
+  before: Cursor
+}
+
 # Basic types
 
 scalar DateTime
 scalar URL
 scalar Lang
-scalar FileSize
 
 enum Theme {
   DEFAULT
@@ -71,6 +76,12 @@ type Workspace implements Node {
   name: String!
   members: [WorkspaceMember!]!
   personal: Boolean!
+  assets(
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): AssetConnection! @goField(forceResolver: true)
 }
 
 type WorkspaceMember {

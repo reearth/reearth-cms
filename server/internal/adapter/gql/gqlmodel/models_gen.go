@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"golang.org/x/text/language"
 )
@@ -23,6 +25,39 @@ type AddMemberToWorkspaceInput struct {
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type Asset struct {
+	ID          ID        `json:"id"`
+	CreatedAt   time.Time `json:"createdAt"`
+	TeamID      ID        `json:"teamId"`
+	Name        string    `json:"name"`
+	Size        int64     `json:"size"`
+	URL         string    `json:"url"`
+	ContentType string    `json:"contentType"`
+}
+
+func (Asset) IsNode() {}
+
+type AssetConnection struct {
+	Edges      []*AssetEdge `json:"edges"`
+	Nodes      []*Asset     `json:"nodes"`
+	PageInfo   *PageInfo    `json:"pageInfo"`
+	TotalCount int          `json:"totalCount"`
+}
+
+type AssetEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Asset         `json:"node"`
+}
+
+type CreateAssetInput struct {
+	TeamID ID             `json:"teamId"`
+	File   graphql.Upload `json:"file"`
+}
+
+type CreateAssetPayload struct {
+	Asset *Asset `json:"asset"`
 }
 
 type CreateWorkspaceInput struct {
@@ -66,6 +101,21 @@ type PageInfo struct {
 	EndCursor       *usecase.Cursor `json:"endCursor"`
 	HasNextPage     bool            `json:"hasNextPage"`
 	HasPreviousPage bool            `json:"hasPreviousPage"`
+}
+
+type Pagination struct {
+	First  *int            `json:"first"`
+	Last   *int            `json:"last"`
+	After  *usecase.Cursor `json:"after"`
+	Before *usecase.Cursor `json:"before"`
+}
+
+type RemoveAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type RemoveAssetPayload struct {
+	AssetID ID `json:"assetId"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
@@ -139,6 +189,7 @@ type Workspace struct {
 	Name     string             `json:"name"`
 	Members  []*WorkspaceMember `json:"members"`
 	Personal bool               `json:"personal"`
+	Assets   *AssetConnection   `json:"assets"`
 }
 
 func (Workspace) IsNode() {}
@@ -147,6 +198,49 @@ type WorkspaceMember struct {
 	UserID ID    `json:"userId"`
 	Role   Role  `json:"role"`
 	User   *User `json:"user"`
+}
+
+type AssetSortType string
+
+const (
+	AssetSortTypeDate AssetSortType = "DATE"
+	AssetSortTypeSize AssetSortType = "SIZE"
+	AssetSortTypeName AssetSortType = "NAME"
+)
+
+var AllAssetSortType = []AssetSortType{
+	AssetSortTypeDate,
+	AssetSortTypeSize,
+	AssetSortTypeName,
+}
+
+func (e AssetSortType) IsValid() bool {
+	switch e {
+	case AssetSortTypeDate, AssetSortTypeSize, AssetSortTypeName:
+		return true
+	}
+	return false
+}
+
+func (e AssetSortType) String() string {
+	return string(e)
+}
+
+func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AssetSortType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AssetSortType", str)
+	}
+	return nil
+}
+
+func (e AssetSortType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type NodeType string

@@ -6,6 +6,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 )
 
+func (r *Resolver) Workspace() WorkspaceResolver {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (r *Resolver) WorkspaceMember() WorkspaceMemberResolver {
 	return &workspaceMemberResolver{r}
 }

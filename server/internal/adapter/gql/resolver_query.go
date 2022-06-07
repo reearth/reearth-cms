@@ -12,6 +12,13 @@ func (r *Resolver) Query() QueryResolver {
 
 type queryResolver struct{ *Resolver }
 
+func (r *queryResolver) Assets(ctx context.Context, teamID gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	panic("not implemented")
+
+	/* TODO: continue implementation
+	return loaders(ctx).Asset.FindByTeam(ctx, teamID, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)*/
+}
+
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	u := getUser(ctx)
 	if u == nil {
