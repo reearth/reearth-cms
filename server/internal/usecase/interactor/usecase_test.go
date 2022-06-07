@@ -158,5 +158,5 @@ func TestRun(t *testing.T) {
 		},
 	)
 	assert.Same(t, err, goterr)
-	assert.Equal(t, 2, tr.Committed()) // committed but fails
+	assert.Equal(t, 1, tr.Committed()) // fails
 }

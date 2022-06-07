@@ -19,7 +19,7 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, config interacto
 		} else {
 			r2 = r
 		}
-		uc := interactor.NewContainer(r2, g, config)
+		uc := interactor.New(r2, g, config)
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		return ctx
 	})
