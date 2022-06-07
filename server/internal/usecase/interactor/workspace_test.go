@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateWorkspace(t *testing.T) {
+func TestWorkspace_Create(t *testing.T) {
 	ctx := context.Background()
 
 	db := memory.New()
