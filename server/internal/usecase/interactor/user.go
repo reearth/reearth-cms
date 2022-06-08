@@ -259,37 +259,3 @@ func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase
 	})
 
 }
-
-func (i *User) CreateVerification(ctx context.Context, email string) error {
-
-	return Run0(ctx, nil, i.repos, Usecase().Transaction(), func() error {
-		u, err := i.repos.User.FindByEmail(ctx, email)
-		if err != nil {
-			return err
-		}
-		if u.Verification().IsVerified() {
-			return nil
-		}
-		return i.createVerification(ctx, u)
-	})
-}
-
-func (i *User) VerifyUser(ctx context.Context, code string) (*user.User, error) {
-
-	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, error) {
-		u, err := i.repos.User.FindByVerification(ctx, code)
-		if err != nil {
-			return nil, err
-		}
-		if u.Verification().IsExpired() {
-			return nil, errors.New("verification expired")
-		}
-		u.Verification().SetVerified(true)
-		err = i.repos.User.Save(ctx, u)
-		if err != nil {
-			return nil, err
-		}
-		return u, nil
-	})
-
-}
