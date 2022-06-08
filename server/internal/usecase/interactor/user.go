@@ -1,20 +1,16 @@
 package interactor
 
 import (
-	"bytes"
 	"context"
 	_ "embed"
 	"errors"
-	htmlTmpl "html/template"
 	"net/mail"
-	textTmpl "text/template"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/log"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
@@ -26,44 +22,6 @@ type User struct {
 	authSrvUIDomain string
 }
 
-type mailContent struct {
-	UserName    string
-	Message     string
-	Suffix      string
-	ActionLabel string
-	ActionURL   htmlTmpl.URL
-}
-
-var (
-	//go:embed emails/auth_html.tmpl
-	autHTMLTMPLStr string
-	//go:embed emails/auth_text.tmpl
-	authTextTMPLStr string
-
-	authTextTMPL *textTmpl.Template
-	authHTMLTMPL *htmlTmpl.Template
-
-	passwordResetMailContent mailContent
-)
-
-func init() {
-	var err error
-	authTextTMPL, err = textTmpl.New("passwordReset").Parse(authTextTMPLStr)
-	if err != nil {
-		log.Panicf("password reset email template parse error: %s\n", err)
-	}
-	authHTMLTMPL, err = htmlTmpl.New("passwordReset").Parse(autHTMLTMPLStr)
-	if err != nil {
-		log.Panicf("password reset email template parse error: %s\n", err)
-	}
-
-	passwordResetMailContent = mailContent{
-		Message:     "Thank you for using Re:Earth. We’ve received a request to reset your password. If this was you, please click the link below to confirm and change your password.",
-		Suffix:      "If you did not mean to reset your password, then you can ignore this email.",
-		ActionLabel: "Confirm to reset your password",
-	}
-}
-
 func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDomain string) interfaces.User {
 	return &User{
 		repos:           r,
@@ -72,6 +30,7 @@ func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDom
 		authSrvUIDomain: authSrcUIDomain,
 	}
 }
+
 func (i *User) Fetch(ctx context.Context, ids []id.UserID, operator *usecase.Operator) ([]*user.User, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.User, error) {
 		res, err := i.repos.User.FindByIDs(ctx, ids)
@@ -127,76 +86,6 @@ func (i *User) GetUserBySubject(ctx context.Context, sub string) (u *user.User, 
 			return nil, err
 		}
 		return u, nil
-	})
-}
-
-func (i *User) StartPasswordReset(ctx context.Context, email string) error {
-	return Run0(ctx, nil, i.repos, Usecase().Transaction(), func() error {
-
-		u, err := i.repos.User.FindByEmail(ctx, email)
-		if err != nil {
-			return err
-		}
-
-		pr := user.NewPasswordReset()
-		u.SetPasswordReset(pr)
-
-		if err := i.repos.User.Save(ctx, u); err != nil {
-			return err
-		}
-
-		var TextOut, HTMLOut bytes.Buffer
-		link := i.authSrvUIDomain + "/?pwd-reset-token=" + pr.Token
-		passwordResetMailContent.UserName = u.Name()
-		passwordResetMailContent.ActionURL = htmlTmpl.URL(link)
-
-		if err := authTextTMPL.Execute(&TextOut, passwordResetMailContent); err != nil {
-			return err
-		}
-		if err := authHTMLTMPL.Execute(&HTMLOut, passwordResetMailContent); err != nil {
-			return err
-		}
-
-		err = i.gateways.Mailer.SendMail([]gateway.Contact{
-			{
-				Email: u.Email(),
-				Name:  u.Name(),
-			},
-		}, "Password reset", TextOut.String(), HTMLOut.String())
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-}
-
-func (i *User) PasswordReset(ctx context.Context, password, token string) error {
-
-	return Run0(ctx, nil, i.repos, Usecase().Transaction(), func() error {
-		u, err := i.repos.User.FindByPasswordResetRequest(ctx, token)
-		if err != nil {
-			return err
-		}
-
-		passwordReset := u.PasswordReset()
-		ok := passwordReset.Validate(token)
-
-		if !ok {
-			return interfaces.ErrUserInvalidPasswordReset
-		}
-
-		u.SetPasswordReset(nil)
-
-		if err := u.SetPassword(password); err != nil {
-			return err
-		}
-
-		if err := i.repos.User.Save(ctx, u); err != nil {
-			return err
-		}
-
-		return nil
 	})
 }
 
