@@ -9,6 +9,7 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  envPrefix: "REEARTH_CMS_",
   plugins: [react(), yaml()],
   resolve: {
     alias: [{ find: "@reearth-cms", replacement: resolve(__dirname, "src") }],

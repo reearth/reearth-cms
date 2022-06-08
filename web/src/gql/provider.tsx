@@ -3,6 +3,7 @@ import {
   ApolloClient,
   ApolloLink,
   InMemoryCache,
+  HttpLink,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
@@ -42,11 +43,15 @@ const Provider: React.FC<Props> = ({ children }) => {
     }
   });
 
+  const httpLink = new HttpLink({
+    uri: endpoint,
+  });
+
   const cache = new InMemoryCache({});
 
   const client = new ApolloClient({
     uri: endpoint,
-    link: ApolloLink.from([errorLink, authLink]),
+    link: ApolloLink.from([errorLink, authLink, httpLink]),
     cache,
     connectToDevTools: process.env.NODE_ENV === "development",
   });

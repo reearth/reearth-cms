@@ -1,11 +1,14 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
-import Typography from "@reearth-cms/components/atoms/Typography";
+import Dashboard from "@reearth-cms/components/organisms/Dashboard";
 
-const DashboardPage: React.FC = () => {
-  const { Title } = Typography;
+export type Props = {
+  workspaceId?: string;
+};
+
+const DashboardPage: React.FC<Props> = ({ workspaceId }) => {
   return (
     <AuthenticationRequiredPage>
-      <Title>CMS dashboard root</Title>
+      <Dashboard workspaceId={workspaceId} />
     </AuthenticationRequiredPage>
   );
 };
