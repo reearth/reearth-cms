@@ -21,7 +21,7 @@ enum AssetSortType {
 # InputType
 
 input CreateAssetInput {
-    teamId: ID!
+    workspaceId: ID!
     file: Upload!
 }
 
@@ -57,7 +57,7 @@ type AssetEdge {
 
 extend type Query {
     assets(
-        teamId: ID!
+        workspaceId: ID!
         keyword: String
         sort: AssetSortType
         pagination: Pagination

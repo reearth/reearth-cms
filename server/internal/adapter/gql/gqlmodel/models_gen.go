@@ -52,8 +52,8 @@ type AssetEdge struct {
 }
 
 type CreateAssetInput struct {
-	TeamID ID             `json:"teamId"`
-	File   graphql.Upload `json:"file"`
+	WorkspaceID ID             `json:"workspaceId"`
+	File        graphql.Upload `json:"file"`
 }
 
 type CreateAssetPayload struct {

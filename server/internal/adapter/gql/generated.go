@@ -127,7 +127,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Assets     func(childComplexity int, teamID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) int
+		Assets     func(childComplexity int, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) int
 		Me         func(childComplexity int) int
 		Node       func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes      func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
@@ -203,7 +203,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error)
-	Assets(ctx context.Context, teamID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
+	Assets(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
 }
 type WorkspaceResolver interface {
 	Assets(ctx context.Context, obj *gqlmodel.Workspace, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.AssetConnection, error)
@@ -598,7 +598,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Assets(childComplexity, args["teamId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSortType), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Assets(childComplexity, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSortType), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -1086,7 +1086,7 @@ enum AssetSortType {
 # InputType
 
 input CreateAssetInput {
-    teamId: ID!
+    workspaceId: ID!
     file: Upload!
 }
 
@@ -1122,7 +1122,7 @@ type AssetEdge {
 
 extend type Query {
     assets(
-        teamId: ID!
+        workspaceId: ID!
         keyword: String
         sort: AssetSortType
         pagination: Pagination
@@ -1340,14 +1340,14 @@ func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs
 	var err error
 	args := map[string]interface{}{}
 	var arg0 gqlmodel.ID
-	if tmp, ok := rawArgs["teamId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamId"))
+	if tmp, ok := rawArgs["workspaceId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
 		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["teamId"] = arg0
+	args["workspaceId"] = arg0
 	var arg1 *string
 	if tmp, ok := rawArgs["keyword"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keyword"))
@@ -3242,7 +3242,7 @@ func (ec *executionContext) _Query_assets(ctx context.Context, field graphql.Col
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Assets(rctx, args["teamId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSortType), args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Assets(rctx, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSortType), args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5198,11 +5198,11 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 	for k, v := range asMap {
 		switch k {
-		case "teamId":
+		case "workspaceId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamId"))
-			it.TeamID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
+			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
