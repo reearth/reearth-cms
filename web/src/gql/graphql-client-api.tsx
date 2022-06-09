@@ -33,6 +33,47 @@ export type AddMemberToWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type Asset = Node & {
+  __typename?: 'Asset';
+  contentType: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  size: Scalars['FileSize'];
+  teamId: Scalars['ID'];
+  url: Scalars['String'];
+};
+
+export type AssetConnection = {
+  __typename?: 'AssetConnection';
+  edges: Array<AssetEdge>;
+  nodes: Array<Maybe<Asset>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type AssetEdge = {
+  __typename?: 'AssetEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Asset>;
+};
+
+export enum AssetSortType {
+  Date = 'DATE',
+  Name = 'NAME',
+  Size = 'SIZE'
+}
+
+export type CreateAssetInput = {
+  file: Scalars['Upload'];
+  teamId: Scalars['ID'];
+};
+
+export type CreateAssetPayload = {
+  __typename?: 'CreateAssetPayload';
+  asset: Asset;
+};
+
 export type CreateWorkspaceInput = {
   name: Scalars['String'];
 };
@@ -76,9 +117,11 @@ export type Me = {
 export type Mutation = {
   __typename?: 'Mutation';
   addMemberToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
+  createAsset?: Maybe<CreateAssetPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
+  removeAsset?: Maybe<RemoveAssetPayload>;
   removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
@@ -90,6 +133,11 @@ export type Mutation = {
 
 export type MutationAddMemberToWorkspaceArgs = {
   input: AddMemberToWorkspaceInput;
+};
+
+
+export type MutationCreateAssetArgs = {
+  input: CreateAssetInput;
 };
 
 
@@ -105,6 +153,11 @@ export type MutationDeleteMeArgs = {
 
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
+};
+
+
+export type MutationRemoveAssetArgs = {
+  input: RemoveAssetInput;
 };
 
 
@@ -154,12 +207,28 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['Cursor']>;
 };
 
+export type Pagination = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+};
+
 export type Query = {
   __typename?: 'Query';
+  assets: AssetConnection;
   me?: Maybe<Me>;
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   searchUser?: Maybe<User>;
+};
+
+
+export type QueryAssetsArgs = {
+  keyword?: InputMaybe<Scalars['String']>;
+  pagination?: InputMaybe<Pagination>;
+  sort?: InputMaybe<AssetSortType>;
+  teamId: Scalars['ID'];
 };
 
 
@@ -177,6 +246,15 @@ export type QueryNodesArgs = {
 
 export type QuerySearchUserArgs = {
   nameOrEmail: Scalars['String'];
+};
+
+export type RemoveAssetInput = {
+  assetId: Scalars['ID'];
+};
+
+export type RemoveAssetPayload = {
+  __typename?: 'RemoveAssetPayload';
+  assetId: Scalars['ID'];
 };
 
 export type RemoveMemberFromWorkspaceInput = {
@@ -263,10 +341,19 @@ export type User = Node & {
 
 export type Workspace = Node & {
   __typename?: 'Workspace';
+  assets: AssetConnection;
   id: Scalars['ID'];
   members: Array<WorkspaceMember>;
   name: Scalars['String'];
   personal: Scalars['Boolean'];
+};
+
+
+export type WorkspaceAssetsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
 };
 
 export type WorkspaceMember = {
@@ -277,6 +364,31 @@ export type WorkspaceMember = {
 };
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
+
+export type GetAssetsQueryVariables = Exact<{
+  teamId: Scalars['ID'];
+  sort?: InputMaybe<AssetSortType>;
+  keyword?: InputMaybe<Scalars['String']>;
+  pagination?: InputMaybe<Pagination>;
+}>;
+
+
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, createdAt: Date, teamId: string, name: string, size: number, url: string, contentType: string } | null>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+
+export type CreateAssetMutationVariables = Exact<{
+  teamId: Scalars['ID'];
+  file: Scalars['Upload'];
+}>;
+
+
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, teamId: string, name: string, size: number, url: string, contentType: string } } | null };
+
+export type RemoveAssetMutationVariables = Exact<{
+  assetId: Scalars['ID'];
+}>;
+
+
+export type RemoveAssetMutation = { __typename?: 'Mutation', removeAsset?: { __typename?: 'RemoveAssetPayload', assetId: string } | null };
 
 export type GetUserBySearchQueryVariables = Exact<{
   nameOrEmail: Scalars['String'];
@@ -393,6 +505,133 @@ export const WorkspaceFragmentFragmentDoc = gql`
   personal
 }
     `;
+export const GetAssetsDocument = gql`
+    query GetAssets($teamId: ID!, $sort: AssetSortType, $keyword: String, $pagination: Pagination) {
+  assets(teamId: $teamId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+    nodes {
+      id
+      createdAt
+      teamId
+      name
+      size
+      url
+      contentType
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useGetAssetsQuery__
+ *
+ * To run a query within a React component, call `useGetAssetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetsQuery({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      sort: // value for 'sort'
+ *      keyword: // value for 'keyword'
+ *      pagination: // value for 'pagination'
+ *   },
+ * });
+ */
+export function useGetAssetsQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+      }
+export function useGetAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+        }
+export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
+export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
+export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
+export const CreateAssetDocument = gql`
+    mutation CreateAsset($teamId: ID!, $file: Upload!) {
+  createAsset(input: {teamId: $teamId, file: $file}) {
+    asset {
+      id
+      teamId
+      name
+      size
+      url
+      contentType
+    }
+  }
+}
+    `;
+export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation, CreateAssetMutationVariables>;
+
+/**
+ * __useCreateAssetMutation__
+ *
+ * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      file: // value for 'file'
+ *   },
+ * });
+ */
+export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(CreateAssetDocument, options);
+      }
+export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
+export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
+export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
+export const RemoveAssetDocument = gql`
+    mutation RemoveAsset($assetId: ID!) {
+  removeAsset(input: {assetId: $assetId}) {
+    assetId
+  }
+}
+    `;
+export type RemoveAssetMutationFn = Apollo.MutationFunction<RemoveAssetMutation, RemoveAssetMutationVariables>;
+
+/**
+ * __useRemoveAssetMutation__
+ *
+ * To run a mutation, you first call `useRemoveAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAssetMutation, { data, loading, error }] = useRemoveAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useRemoveAssetMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAssetMutation, RemoveAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAssetMutation, RemoveAssetMutationVariables>(RemoveAssetDocument, options);
+      }
+export type RemoveAssetMutationHookResult = ReturnType<typeof useRemoveAssetMutation>;
+export type RemoveAssetMutationResult = Apollo.MutationResult<RemoveAssetMutation>;
+export type RemoveAssetMutationOptions = Apollo.BaseMutationOptions<RemoveAssetMutation, RemoveAssetMutationVariables>;
 export const GetUserBySearchDocument = gql`
     query GetUserBySearch($nameOrEmail: String!) {
   searchUser(nameOrEmail: $nameOrEmail) {

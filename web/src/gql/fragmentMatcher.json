@@ -1,6 +1,7 @@
 {
   "possibleTypes": {
     "Node": [
+      "Asset",
       "User",
       "Workspace"
     ]
