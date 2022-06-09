@@ -1,6 +1,8 @@
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import Account from "@reearth-cms/components/organisms/Settings/Account";
+import AssetListPage from "@reearth-cms/components/pages/AssetList";
+import AssetPage from "@reearth-cms/components/pages/AssetList/Asset";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import WorkspacePage from "@reearth-cms/components/pages/Workspace";
@@ -22,6 +24,8 @@ function AppRoutes() {
     { path: "/workspaces/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces", element: <WorkspaceListPage /> },
     { path: "/account", element: <Account /> },
+    { path: "/asset", element: <AssetListPage /> },
+    { path: "/asset/:assetId", element: <AssetPage /> },
     { path: "*", element: <NotFound /> },
   ]);
   return routes;
