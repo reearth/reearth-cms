@@ -3,12 +3,11 @@ package app
 import (
 	"context"
 
+	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-
-	"github.com/labstack/echo/v4"
 )
 
 func UsecaseMiddleware(r *repo.Container, g *gateway.Container, config interactor.ContainerConfig) echo.MiddlewareFunc {
@@ -16,15 +15,11 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, config interacto
 		var r2 *repo.Container
 		if op := adapter.Operator(ctx); op != nil && r != nil {
 			// apply filters to repos
-			r3 := r.Filtered(
-			//repo.WorkspaceFilterFromOperator(op),
-			)
-			r2 = &r3
+			r2 = r.Filtered(repo.WorkspaceFilterFromOperator(op))
 		} else {
 			r2 = r
 		}
-
-		uc := interactor.NewContainer(r2, g, config)
+		uc := interactor.New(r2, g, config)
 		ctx = adapter.AttachUsecases(ctx, &uc)
 		return ctx
 	})
