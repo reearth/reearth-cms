@@ -8,18 +8,22 @@ import styled from "@emotion/styled";
 import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
 import { Button, Card } from "antd";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface Props {
   className?: string;
   projects?: ProjectType[];
+  workspaceId?: string;
   handleProjectModalOpen: () => void;
 }
 
 const ProjectList: React.FC<Props> = ({
   className,
   projects,
+  workspaceId,
   handleProjectModalOpen,
 }) => {
+  const navigate = useNavigate();
   const { Meta } = Card;
   return (
     <StyledDashboardBlock className={className}>
@@ -31,7 +35,12 @@ const ProjectList: React.FC<Props> = ({
               <Card
                 cover={<Cover>{project.name.charAt(0)}</Cover>}
                 actions={[
-                  <SettingOutlined key="setting" />,
+                  <SettingOutlined
+                    onClick={() =>
+                      navigate("/workspaces/" + workspaceId + "/" + project.id)
+                    }
+                    key="setting"
+                  />,
                   <EditOutlined key="edit" />,
                   <EllipsisOutlined key="ellipsis" />,
                 ]}

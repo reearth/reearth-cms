@@ -89,6 +89,7 @@ const Dashboard: React.FC<Props> = () => {
             <ProjectContainer>
               <ProjectList
                 projects={projects}
+                workspaceId={workspaceId}
                 handleProjectModalOpen={handleProjectModalOpen}
               />
             </ProjectContainer>

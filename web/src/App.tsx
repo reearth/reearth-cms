@@ -22,7 +22,7 @@ function AppRoutes() {
     { path: "/members/:workspaceId", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces", element: <WorkspaceListPage /> },
-    { path: "/projects/:workspaceId/:projectId", element: <ProjectPage /> },
+    { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/account", element: <Account /> },
     { path: "*", element: <NotFound /> },
   ]);
