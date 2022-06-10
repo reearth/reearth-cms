@@ -113,7 +113,9 @@ const Header: React.FC<Props> = ({
 
   return (
     <>
-      <Logo onClick={() => navigate("/")}>Re:Earth CMS</Logo>
+      <Logo onClick={() => navigate("/dashboard/" + currentWorkspace?.id)}>
+        Re:Earth CMS
+      </Logo>
       <VerticalDivider></VerticalDivider>
       <WorkspaceDropdown overlay={WorkspacesMenu}>
         <a onClick={(e) => e.preventDefault()}>

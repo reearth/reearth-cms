@@ -2,6 +2,8 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import Account from "@reearth-cms/components/organisms/Settings/Account";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
+import MembersPage from "@reearth-cms/components/pages/Members";
+import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import WorkspacePage from "@reearth-cms/components/pages/Workspace";
 import WorkspaceListPage from "@reearth-cms/components/pages/WorkspaceList";
@@ -11,7 +13,6 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import "./App.css";
 import "antd/dist/antd.css";
-import MembersPage from "./components/pages/Members";
 
 function AppRoutes() {
   const routes = useRoutes([
@@ -21,6 +22,7 @@ function AppRoutes() {
     { path: "/members/:workspaceId", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces", element: <WorkspaceListPage /> },
+    { path: "/projects/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/account", element: <Account /> },
     { path: "*", element: <NotFound /> },
   ]);
