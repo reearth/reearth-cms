@@ -26,7 +26,7 @@ const Dashboard: React.FC<Props> = () => {
     currentWorkspace,
     handleWorkspaceCreate,
     handleWorkspaceModalClose,
-    handleModalOpen,
+    handleWorkspaceModalOpen,
     workspaceModalShown,
   } = useHooks(workspaceId);
 
@@ -35,7 +35,7 @@ const Dashboard: React.FC<Props> = () => {
       <Layout style={{ minHeight: "100vh" }}>
         <Header>
           <MoleculeHeader
-            handleModalOpen={handleModalOpen}
+            handleModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
@@ -67,7 +67,9 @@ const Dashboard: React.FC<Props> = () => {
                 style={{ width: 264 }}
               />
               <ButtonWrapper>
-                <Button onClick={handleModalOpen}>Create a Workspace</Button>
+                <Button onClick={handleWorkspaceModalOpen}>
+                  Create a Workspace
+                </Button>
                 <Button type="primary" icon={<PlusOutlined />}>
                   New Project
                 </Button>

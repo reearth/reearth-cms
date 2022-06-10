@@ -97,7 +97,10 @@ export default (workspaceId?: string) => {
     [refetch]
   );
 
-  const handleModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
+  const handleWorkspaceModalOpen = useCallback(
+    () => setWorkspaceModalShown(true),
+    []
+  );
 
   return {
     user,
@@ -106,7 +109,7 @@ export default (workspaceId?: string) => {
     currentWorkspace,
     workspaceModalShown,
     handleWorkspaceModalClose,
-    handleModalOpen,
+    handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
   };
