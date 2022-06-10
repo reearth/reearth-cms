@@ -2,14 +2,23 @@ import styled from "@emotion/styled";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import { Button, Form, Input } from "antd";
+import TextArea from "antd/lib/input/TextArea";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../../Dashboard/hooks";
+import useHooks from "../hooks";
+
+export interface FormValues {
+  name: string;
+  description: string;
+}
 
 const ProjectSettings: React.FC = () => {
+  const [form] = Form.useForm();
   const { workspaceId } = useParams();
   const { projectId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
@@ -24,6 +33,27 @@ const ProjectSettings: React.FC = () => {
     workspaceModalShown,
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
+
+  const { project, updateProject, deleteProject } = useHooks({ projectId });
+
+  useEffect(() => {
+    form.setFieldsValue({
+      name: project?.name,
+      description: project?.description,
+    });
+  }, [form, project]);
+
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async (values) => {
+        updateProject({ name: values.name, description: values.description });
+        form.resetFields();
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, updateProject]);
 
   return (
     <>
@@ -51,7 +81,35 @@ const ProjectSettings: React.FC = () => {
             ></ProjectMenu>
           </Sider>
           <PaddedContent>
-            <h2>Welcome</h2>
+            <ProjectSection> {project?.name} </ProjectSection>
+            <ProjectSection>
+              <Form
+                style={{ maxWidth: 400 }}
+                form={form}
+                layout="vertical"
+                autoComplete="off"
+              >
+                <Form.Item name="name" label="Name">
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="description"
+                  label="Description"
+                  extra="You can write some here to describe this record."
+                >
+                  <TextArea rows={4} />
+                </Form.Item>
+                <Form.Item>
+                  <Button
+                    onClick={handleSubmit}
+                    type="primary"
+                    htmlType="submit"
+                  >
+                    Save changes
+                  </Button>
+                </Form.Item>
+              </Form>
+            </ProjectSection>
           </PaddedContent>
         </Layout>
       </Layout>
@@ -66,7 +124,16 @@ const ProjectSettings: React.FC = () => {
 
 const PaddedContent = styled(Content)`
   margin: 16px;
+`;
+
+const ProjectSection = styled.div`
   background-color: #fff;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  color: rgba(0, 0, 0, 0.85);
+  padding: 22px 24px;
+  margin-bottom: 16px;
 `;
 
 export default ProjectSettings;
