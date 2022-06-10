@@ -30,7 +30,7 @@ type AddMemberToWorkspacePayload struct {
 type Asset struct {
 	ID          ID        `json:"id"`
 	CreatedAt   time.Time `json:"createdAt"`
-	TeamID      ID        `json:"teamId"`
+	WorkspaceID ID        `json:"workspaceId"`
 	Name        string    `json:"name"`
 	Size        int64     `json:"size"`
 	URL         string    `json:"url"`
