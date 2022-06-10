@@ -423,3 +423,369 @@ func TestWorkspace_Remove(t *testing.T) {
 		})
 	}
 }
+
+func TestWorkspace_AddMember(t *testing.T) {
+	userID := id.NewUserID()
+	id1 := id.NewWorkspaceID()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	id2 := id.NewWorkspaceID()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	id3 := id.NewWorkspaceID()
+	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+
+	u := user.New().NewID().Email("a@b.c").MustBuild()
+
+	op := &usecase.Operator{
+		User:               userID,
+		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
+		OwningWorkspaces:   []id.WorkspaceID{id1},
+	}
+
+	tests := []struct {
+		name       string
+		seeds      []*user.Workspace
+		usersSeeds []*user.User
+		args       struct {
+			wId      id.WorkspaceID
+			uId      id.UserID
+			role     user.Role
+			operator *usecase.Operator
+		}
+		wantErr assert.ErrorAssertionFunc
+		want    *user.Members
+	}{
+		{
+			name:       "Add non existing",
+			seeds:      []*user.Workspace{w1},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id1,
+				uId:      id.NewUserID(),
+				role:     user.RoleReader,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+		{
+			name:       "Add",
+			seeds:      []*user.Workspace{w2},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id2,
+				uId:      u.ID(),
+				role:     user.RoleReader,
+				operator: op,
+			},
+			wantErr: assert.NoError,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}),
+		},
+		{
+			name:       "Add to personal workspace",
+			seeds:      []*user.Workspace{w3},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id3,
+				uId:      u.ID(),
+				role:     user.RoleReader,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				err := db.Workspace.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			for _, p := range tc.usersSeeds {
+				err := db.User.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			workspaceUC := NewWorkspace(db)
+
+			got, err := workspaceUC.AddMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			if !tc.wantErr(t, err) {
+				return
+			}
+			// assert.Equal(t, tc.want, got.Members())
+
+			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
+			if tc.want == nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.want, got.Members())
+		})
+	}
+}
+
+func TestWorkspace_RemoveMember(t *testing.T) {
+	userID := id.NewUserID()
+	u := user.New().NewID().Email("a@b.c").MustBuild()
+	id1 := id.NewWorkspaceID()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	id2 := id.NewWorkspaceID()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	id3 := id.NewWorkspaceID()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	id4 := id.NewWorkspaceID()
+	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+
+	op := &usecase.Operator{
+		User:               userID,
+		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
+		OwningWorkspaces:   []id.WorkspaceID{id1},
+	}
+
+	tests := []struct {
+		name       string
+		seeds      []*user.Workspace
+		usersSeeds []*user.User
+		args       struct {
+			wId      id.WorkspaceID
+			uId      id.UserID
+			operator *usecase.Operator
+		}
+		wantErr assert.ErrorAssertionFunc
+		want    *user.Members
+	}{
+		{
+			name:       "Remove non existing",
+			seeds:      []*user.Workspace{w1},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				operator *usecase.Operator
+			}{
+				wId:      id1,
+				uId:      id.NewUserID(),
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+		{
+			name:       "Remove",
+			seeds:      []*user.Workspace{w2},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				operator *usecase.Operator
+			}{
+				wId:      id2,
+				uId:      u.ID(),
+				operator: op,
+			},
+			wantErr: assert.NoError,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+		{
+			name:       "Remove personal workspace",
+			seeds:      []*user.Workspace{w3},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				operator *usecase.Operator
+			}{
+				wId:      id3,
+				uId:      userID,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+		{
+			name:       "Remove single member",
+			seeds:      []*user.Workspace{w4},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				operator *usecase.Operator
+			}{
+				wId:      id4,
+				uId:      userID,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				err := db.Workspace.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			for _, p := range tc.usersSeeds {
+				err := db.User.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			workspaceUC := NewWorkspace(db)
+
+			got, err := workspaceUC.RemoveMember(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
+			if !tc.wantErr(t, err) {
+				return
+			}
+			// assert.Equal(t, tc.want, got.Members())
+
+			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
+			if tc.want == nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.want, got.Members())
+		})
+	}
+}
+
+func TestWorkspace_UpdateMember(t *testing.T) {
+	userID := id.NewUserID()
+	u := user.New().NewID().Email("a@b.c").MustBuild()
+	id1 := id.NewWorkspaceID()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	id2 := id.NewWorkspaceID()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	id3 := id.NewWorkspaceID()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+
+	op := &usecase.Operator{
+		User:               userID,
+		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
+		OwningWorkspaces:   []id.WorkspaceID{id1},
+	}
+
+	tests := []struct {
+		name       string
+		seeds      []*user.Workspace
+		usersSeeds []*user.User
+		args       struct {
+			wId      id.WorkspaceID
+			uId      id.UserID
+			role     user.Role
+			operator *usecase.Operator
+		}
+		wantErr assert.ErrorAssertionFunc
+		want    *user.Members
+	}{
+		{
+			name:       "Update non existing",
+			seeds:      []*user.Workspace{w1},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id1,
+				uId:      id.NewUserID(),
+				role:     user.RoleWriter,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+		{
+			name:       "Update",
+			seeds:      []*user.Workspace{w2},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id2,
+				uId:      u.ID(),
+				role:     user.RoleWriter,
+				operator: op,
+			},
+			wantErr: assert.NoError,
+			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleWriter}),
+		},
+		{
+			name:       "Update personal workspace",
+			seeds:      []*user.Workspace{w3},
+			usersSeeds: []*user.User{u},
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id3,
+				uId:      userID,
+				role:     user.RoleReader,
+				operator: op,
+			},
+			wantErr: assert.Error,
+			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			for _, p := range tc.seeds {
+				err := db.Workspace.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			for _, p := range tc.usersSeeds {
+				err := db.User.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+			workspaceUC := NewWorkspace(db)
+
+			got, err := workspaceUC.UpdateMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			if !tc.wantErr(t, err) {
+				return
+			}
+			// assert.Equal(t, tc.want, got.Members())
+
+			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
+			if tc.want == nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.want, got.Members())
+		})
+	}
+}
