@@ -1,3 +1,4 @@
+import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetProjectsQuery,
   useCreateProjectMutation,
@@ -27,11 +28,6 @@ export type Workspace = {
   id?: string;
   name?: string;
   members?: Member[];
-};
-
-export type Project = {
-  id: string;
-  name: string;
 };
 
 export default (workspaceId?: string) => {

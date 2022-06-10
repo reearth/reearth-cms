@@ -5,6 +5,7 @@ import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
 import Search from "antd/lib/input/Search";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
@@ -85,6 +86,9 @@ const Dashboard: React.FC<Props> = () => {
                 </Button>
               </ButtonWrapper>
             </ActionHeader>
+            <ProjectContainer>
+              <ProjectList projects={projects} />
+            </ProjectContainer>
           </PaddedContent>
         </Layout>
       </Layout>
@@ -111,6 +115,12 @@ const ActionHeader = styled(Content)`
   padding: 16px;
   display: flex;
   justify-content: space-between;
+`;
+
+const ProjectContainer = styled(Content)`
+  padding: 16px;
+  margin: 16px;
+  border: 1px solid #d9d9d9;
 `;
 
 const DashboardCard = styled.div`
