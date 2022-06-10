@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 
 export interface FormValues {
   name: string;
-  desciption: string;
+  description: string;
 }
 
 export interface Props {
@@ -15,7 +15,7 @@ export interface Props {
 
 const initialValues: FormValues = {
   name: "",
-  desciption: "",
+  description: "",
 };
 
 const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
