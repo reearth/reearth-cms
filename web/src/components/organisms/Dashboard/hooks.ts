@@ -25,7 +25,7 @@ export type Workspace = {
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const [modalShown, setModalShown] = useState(false);
+  const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
@@ -87,9 +87,9 @@ export default (workspaceId?: string) => {
     [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
   );
 
-  const handleModalClose = useCallback(
+  const handleWorkspaceModalClose = useCallback(
     (r?: boolean) => {
-      setModalShown(false);
+      setWorkspaceModalShown(false);
       if (r) {
         refetch();
       }
@@ -97,15 +97,15 @@ export default (workspaceId?: string) => {
     [refetch]
   );
 
-  const handleModalOpen = useCallback(() => setModalShown(true), []);
+  const handleModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   return {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
-    modalShown,
-    handleModalClose,
+    workspaceModalShown,
+    handleWorkspaceModalClose,
     handleModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
