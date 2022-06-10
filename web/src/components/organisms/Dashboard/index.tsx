@@ -87,7 +87,10 @@ const Dashboard: React.FC<Props> = () => {
               </ButtonWrapper>
             </ActionHeader>
             <ProjectContainer>
-              <ProjectList projects={projects} />
+              <ProjectList
+                projects={projects}
+                handleProjectModalOpen={handleProjectModalOpen}
+              />
             </ProjectContainer>
           </PaddedContent>
         </Layout>
@@ -120,6 +123,7 @@ const ActionHeader = styled(Content)`
 const ProjectContainer = styled(Content)`
   padding: 16px;
   margin: 16px;
+  height: calc(100% - 220px);
   border: 1px solid #d9d9d9;
 `;
 
