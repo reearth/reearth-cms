@@ -5,8 +5,8 @@ import moment from "moment";
 export const columns: ProColumns<Asset>[] = [
   {
     title: "File",
-    dataIndex: "file",
-    key: "file",
+    dataIndex: "name",
+    key: "name",
     sorter: (a, b) => (a.name > b.name ? 1 : -1),
   },
   {

@@ -25,10 +25,7 @@ export default (workspaceId?: string) => {
 
       const asset: AssetNode = {
         id: String(assetList.length + 1),
-        key: assetList.length + 1,
-        file: file.name,
         unzipFile: "",
-        mimeType: file.type,
         contentType: file.type ?? "",
         size: file.size ?? 0,
         createdBy: user?.nickname ?? "",
