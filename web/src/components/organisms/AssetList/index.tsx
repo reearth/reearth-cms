@@ -41,7 +41,7 @@ const AssetList: React.FC = () => {
         handleUpload={handleUpload}
       />
       <AssetBody
-        fileList={assetList}
+        dataSource={assetList}
         columns={columns}
         onRow={handleRowEvents}
       />

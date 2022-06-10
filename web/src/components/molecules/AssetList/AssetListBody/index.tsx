@@ -5,19 +5,19 @@ import type { ColumnsType } from "antd/lib/table";
 import { GetComponentProps } from "rc-table/lib/interface";
 
 type AssetListBodyProps = {
-  fileList: Asset[];
+  dataSource: Asset[];
   columns: ColumnsType<Asset>;
   onRow: GetComponentProps<Asset>;
 };
 
 const AssetListBody: React.FC<AssetListBodyProps> = ({
-  fileList,
+  dataSource,
   columns,
   onRow,
 }) => {
   return (
     <AssetListBodyWrapper>
-      <Table dataSource={fileList} columns={columns} onRow={onRow} />
+      <Table dataSource={dataSource} columns={columns} onRow={onRow} />
     </AssetListBodyWrapper>
   );
 };
