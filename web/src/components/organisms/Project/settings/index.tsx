@@ -1,8 +1,9 @@
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Modal, Typography } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
@@ -18,6 +19,7 @@ export interface FormValues {
 }
 
 const ProjectSettings: React.FC = () => {
+  const { confirm } = Modal;
   const [form] = Form.useForm();
   const { workspaceId } = useParams();
   const { projectId } = useParams();
@@ -34,7 +36,9 @@ const ProjectSettings: React.FC = () => {
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
-  const { project, updateProject, deleteProject } = useHooks({ projectId });
+  const { project, handleUpdateProject, handleDeleteProject } = useHooks({
+    projectId,
+  });
 
   useEffect(() => {
     form.setFieldsValue({
@@ -47,13 +51,27 @@ const ProjectSettings: React.FC = () => {
     form
       .validateFields()
       .then(async (values) => {
-        updateProject({ name: values.name, description: values.description });
+        handleUpdateProject({
+          name: values.name,
+          description: values.description,
+        });
         form.resetFields();
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, updateProject]);
+  }, [form, handleUpdateProject]);
+
+  const showConfirm = useCallback(() => {
+    confirm({
+      title: "Are you sure to delete this peoject?",
+      icon: <ExclamationCircleOutlined />,
+      onOk() {
+        handleDeleteProject();
+      },
+      onCancel() {},
+    });
+  }, [confirm, handleDeleteProject]);
 
   return (
     <>
@@ -109,6 +127,14 @@ const ProjectSettings: React.FC = () => {
                   </Button>
                 </Form.Item>
               </Form>
+            </ProjectSection>
+            <ProjectSection>
+              <Typography style={{ marginBottom: 16 }}>
+                Dangerous Zone
+              </Typography>
+              <Button onClick={showConfirm} type="primary" danger>
+                Delete project
+              </Button>
             </ProjectSection>
           </PaddedContent>
         </Layout>

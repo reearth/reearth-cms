@@ -5,12 +5,14 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Params = {
   projectId?: string;
 };
 
 export default ({ projectId }: Params) => {
+  const navigate = useNavigate();
   const [currentWorkspace] = useWorkspace();
 
   const workspaceId = currentWorkspace?.id;
@@ -42,7 +44,7 @@ export default ({ projectId }: Params) => {
     refetchQueries: ["GetProjects"],
   });
 
-  const updateProject = useCallback(
+  const handleUpdateProject = useCallback(
     (data: { name?: string; description: string }) => {
       if (!projectId || !data.name) return;
       updateProjectMutation({
@@ -56,15 +58,16 @@ export default ({ projectId }: Params) => {
     [projectId, updateProjectMutation]
   );
 
-  const deleteProject = useCallback(async () => {
+  const handleDeleteProject = useCallback(async () => {
     if (!projectId) return;
     const results = await deleteProjectMutation({ variables: { projectId } });
     if (results.errors) {
       console.log("errors");
     } else {
       console.log("succeed");
+      navigate(`/dashboard/${workspaceId}`);
     }
-  }, [projectId, deleteProjectMutation]);
+  }, [projectId, deleteProjectMutation, navigate, workspaceId]);
 
   const [assetModalOpened, setOpenAssets] = useState(false);
 
@@ -83,8 +86,8 @@ export default ({ projectId }: Params) => {
     project,
     projectId,
     currentWorkspace,
-    updateProject,
-    deleteProject,
+    handleUpdateProject,
+    handleDeleteProject,
     assetModalOpened,
     toggleAssetModal,
   };
