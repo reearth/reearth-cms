@@ -11,8 +11,21 @@ import { defineConfig } from "vite";
 export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   plugins: [react(), yaml()],
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+      },
+    },
+  },
   resolve: {
-    alias: [{ find: "@reearth-cms", replacement: resolve(__dirname, "src") }],
+    alias: [
+      { find: "@reearth-cms", replacement: resolve(__dirname, "src") },
+      {
+        find: /^~/,
+        replacement: "",
+      },
+    ],
   },
   test: {
     globals: true,

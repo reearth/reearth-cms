@@ -1,8 +1,8 @@
+import type { ProColumns } from "@ant-design/pro-table";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
-import type { ColumnsType } from "antd/lib/table";
 import moment from "moment";
 
-export const columns: ColumnsType<Asset> = [
+export const columns: ProColumns<Asset>[] = [
   {
     title: "File",
     dataIndex: "file",
@@ -24,7 +24,7 @@ export const columns: ColumnsType<Asset> = [
     dataIndex: "size",
     key: "size",
     sorter: (a, b) => a.size - b.size,
-    render: (size) => `${(size / 1024).toFixed(2)}kb`,
+    render: (_text, record) => `${(record.size / (1024 * 1024)).toFixed(2)}mb`,
   },
   {
     title: "Created By",
@@ -36,6 +36,7 @@ export const columns: ColumnsType<Asset> = [
     dataIndex: "createdAt",
     key: "createdAt",
     sorter: (a, b) => moment(a.createdAt).diff(moment(b.createdAt)),
-    render: (createAt) => `${moment(createAt).format("YYYY-MM-DD hh:mm")}`,
+    render: (_text, record) =>
+      `${moment(record.createdAt).format("YYYY-MM-DD hh:mm")}`,
   },
 ];

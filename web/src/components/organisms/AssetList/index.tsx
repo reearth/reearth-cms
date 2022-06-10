@@ -2,6 +2,7 @@ import AssetBody from "@reearth-cms/components/molecules/AssetList/AssetListBody
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { columns } from "@reearth-cms/components/organisms/AssetList/columns";
+import enUSIntl from "antd/lib/locale/en_US";
 import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
 import { GetComponentProps } from "rc-table/lib/interface";
 
@@ -44,6 +45,12 @@ const AssetList: React.FC = () => {
         dataSource={assetList}
         columns={columns}
         onRow={handleRowEvents}
+        locale={enUSIntl}
+        search={false}
+        rowKey="id"
+        options={{
+          search: true,
+        }}
       />
     </>
   );
