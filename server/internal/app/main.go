@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/log"
 
@@ -21,11 +23,14 @@ func Start(debug bool, version string) {
 	if cerr != nil {
 		log.Fatal(cerr)
 	}
+	repos, gateways := initReposAndGateways(ctx, conf)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
-		Config: conf,
-		Debug:  debug,
+		Config:   conf,
+		Debug:    debug,
+		Repos:    repos,
+		Gateways: gateways,
 	}).Run()
 }
 
@@ -35,9 +40,10 @@ type WebServer struct {
 }
 
 type ServerConfig struct {
-	Config *Config
-	Debug  bool
-	Repos  *repo.Container
+	Config   *Config
+	Debug    bool
+	Repos    *repo.Container
+	Gateways *gateway.Container
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {

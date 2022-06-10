@@ -17,4 +17,5 @@ var (
 type Container struct {
 	Workspace Workspace
 	User      User
+	Project   Project
 }
