@@ -177,13 +177,11 @@ const HeaderMenu = styled(Menu)`
 const AccountDropdown = styled(Dropdown)`
   padding-left: 10px;
   color: #fff;
-  background-color: #141414;
 `;
 
 const WorkspaceDropdown = styled(Dropdown)`
   padding-left: 10px;
   color: #fff;
-  background-color: #141414;
 `;
 
 const VerticalDivider = styled.div`
