@@ -4,7 +4,7 @@ scalar FileSize
 type Asset implements Node {
     id: ID!
     createdAt: DateTime!
-    teamId: ID!
+    workspaceId: ID!
     name: String!
     size: FileSize!
     url: String!
