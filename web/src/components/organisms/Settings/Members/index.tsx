@@ -59,9 +59,9 @@ const Members: React.FC = () => {
     user,
     personalWorkspace,
     workspaces,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
+    workspaceModalShown,
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
@@ -159,7 +159,7 @@ const Members: React.FC = () => {
       <Layout style={{ minHeight: "100vh" }}>
         <Header>
           <MoleculeHeader
-            handleModalOpen={handleModalOpen}
+            handleModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
@@ -212,8 +212,8 @@ const Members: React.FC = () => {
         </Layout>
       </Layout>
       <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
+        open={workspaceModalShown}
+        onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       ></WorkspaceCreationModal>
       <MemberRoleModal
