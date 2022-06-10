@@ -106,8 +106,7 @@ const StyledDashboardBlock = styled.div`
 
 const CardWrapper = styled.div`
   width: 300px;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 12px;
 `;
 
 const Content = styled.div`

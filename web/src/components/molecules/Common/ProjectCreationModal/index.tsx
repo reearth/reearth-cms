@@ -45,7 +45,7 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
           name="name"
           label="Project name"
           rules={[
-            { required: true, message: "Please input the title of workspace!" },
+            { required: true, message: "Please input the name of project!" },
           ]}
         >
           <Input />
