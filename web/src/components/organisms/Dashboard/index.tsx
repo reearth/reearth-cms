@@ -2,6 +2,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Search from "antd/lib/input/Search";
@@ -21,6 +22,7 @@ const Dashboard: React.FC<Props> = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     user,
+    projects,
     personalWorkspace,
     workspaces,
     currentWorkspace,
@@ -28,6 +30,10 @@ const Dashboard: React.FC<Props> = () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     workspaceModalShown,
+    handleProjectModalClose,
+    handleProjectModalOpen,
+    projectModalShown,
+    handleProjectCreate,
   } = useHooks(workspaceId);
 
   return (
@@ -70,7 +76,11 @@ const Dashboard: React.FC<Props> = () => {
                 <Button onClick={handleWorkspaceModalOpen}>
                   Create a Workspace
                 </Button>
-                <Button type="primary" icon={<PlusOutlined />}>
+                <Button
+                  onClick={handleProjectModalOpen}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
                   New Project
                 </Button>
               </ButtonWrapper>
@@ -83,6 +93,11 @@ const Dashboard: React.FC<Props> = () => {
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       ></WorkspaceCreationModal>
+      <ProjectCreationModal
+        open={projectModalShown}
+        onClose={handleProjectModalClose}
+        onSubmit={handleProjectCreate}
+      ></ProjectCreationModal>
     </>
   );
 };
