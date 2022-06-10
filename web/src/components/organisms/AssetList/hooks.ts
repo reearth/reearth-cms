@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export type AssetNode = NonNullable<Asset>;
 
-export default (teamId?: string) => {
+export default (workspaceId?: string) => {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
@@ -19,8 +19,8 @@ export default (teamId?: string) => {
   const createAsset = useCallback(
     (file: UploadFile) => {
       (async () => {
-        if (!teamId) return;
-        await createAssetMutation({ variables: { teamId, file } });
+        if (!workspaceId) return;
+        await createAssetMutation({ variables: { workspaceId, file } });
       })();
 
       const asset: AssetNode = {
@@ -33,7 +33,7 @@ export default (teamId?: string) => {
         size: file.size ?? 0,
         createdBy: user?.nickname ?? "",
         createdAt: new Date(),
-        teamId: "",
+        workspaceId: "",
         name: file.name,
         url: "",
       };
@@ -42,12 +42,12 @@ export default (teamId?: string) => {
         return [...prevAssetList, asset];
       });
     },
-    [teamId, assetList.length, user?.nickname, createAssetMutation]
+    [workspaceId, assetList.length, user?.nickname, createAssetMutation]
   );
 
   const { data } = useGetAssetsQuery({
     variables: {
-      teamId: teamId ?? "",
+      workspaceId: workspaceId ?? "",
     },
   });
 

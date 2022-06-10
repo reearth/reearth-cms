@@ -10,7 +10,7 @@ export interface Asset extends APIAsset {
 
 // id
 // createdAt
-// teamId
+// workspaceId
 // name
 // size
 // url

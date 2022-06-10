@@ -2,13 +2,13 @@ import { gql } from "@apollo/client";
 
 export const GET_ASSETS = gql`
   query GetAssets(
-    $teamId: ID!
+    $workspaceId: ID!
     $sort: AssetSortType
     $keyword: String
     $pagination: Pagination
   ) {
     assets(
-      teamId: $teamId
+      workspaceId: $workspaceId
       keyword: $keyword
       sort: $sort
       pagination: $pagination
@@ -16,7 +16,7 @@ export const GET_ASSETS = gql`
       nodes {
         id
         createdAt
-        teamId
+        workspaceId
         name
         size
         url
@@ -34,11 +34,11 @@ export const GET_ASSETS = gql`
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($teamid: ID!, $file: Upload!) {
-    createAsset(input: { teamId: $teamid, file: $file }) {
+  mutation CreateAsset($workspaceId: ID!, $file: Upload!) {
+    createAsset(input: { workspaceId: $workspaceId, file: $file }) {
       asset {
         id
-        teamId
+        workspaceId
         name
         size
         url

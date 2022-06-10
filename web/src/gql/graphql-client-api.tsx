@@ -40,8 +40,8 @@ export type Asset = Node & {
   id: Scalars['ID'];
   name: Scalars['String'];
   size: Scalars['FileSize'];
-  teamId: Scalars['ID'];
   url: Scalars['String'];
+  workspaceId: Scalars['ID'];
 };
 
 export type AssetConnection = {
@@ -66,7 +66,7 @@ export enum AssetSortType {
 
 export type CreateAssetInput = {
   file: Scalars['Upload'];
-  teamId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
 };
 
 export type CreateAssetPayload = {
@@ -228,7 +228,7 @@ export type QueryAssetsArgs = {
   keyword?: InputMaybe<Scalars['String']>;
   pagination?: InputMaybe<Pagination>;
   sort?: InputMaybe<AssetSortType>;
-  teamId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
 };
 
 
@@ -366,22 +366,22 @@ export type WorkspaceMember = {
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
 export type GetAssetsQueryVariables = Exact<{
-  teamId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
   sort?: InputMaybe<AssetSortType>;
   keyword?: InputMaybe<Scalars['String']>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, createdAt: Date, teamId: string, name: string, size: number, url: string, contentType: string } | null>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, createdAt: Date, workspaceId: string, name: string, size: number, url: string, contentType: string } | null>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
 export type CreateAssetMutationVariables = Exact<{
-  teamId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
   file: Scalars['Upload'];
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, teamId: string, name: string, size: number, url: string, contentType: string } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, workspaceId: string, name: string, size: number, url: string, contentType: string } } | null };
 
 export type RemoveAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -506,12 +506,17 @@ export const WorkspaceFragmentFragmentDoc = gql`
 }
     `;
 export const GetAssetsDocument = gql`
-    query GetAssets($teamId: ID!, $sort: AssetSortType, $keyword: String, $pagination: Pagination) {
-  assets(teamId: $teamId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+    query GetAssets($workspaceId: ID!, $sort: AssetSortType, $keyword: String, $pagination: Pagination) {
+  assets(
+    workspaceId: $workspaceId
+    keyword: $keyword
+    sort: $sort
+    pagination: $pagination
+  ) {
     nodes {
       id
       createdAt
-      teamId
+      workspaceId
       name
       size
       url
@@ -540,7 +545,7 @@ export const GetAssetsDocument = gql`
  * @example
  * const { data, loading, error } = useGetAssetsQuery({
  *   variables: {
- *      teamId: // value for 'teamId'
+ *      workspaceId: // value for 'workspaceId'
  *      sort: // value for 'sort'
  *      keyword: // value for 'keyword'
  *      pagination: // value for 'pagination'
@@ -559,11 +564,11 @@ export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
 export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($teamId: ID!, $file: Upload!) {
-  createAsset(input: {teamId: $teamId, file: $file}) {
+    mutation CreateAsset($workspaceId: ID!, $file: Upload!) {
+  createAsset(input: {workspaceId: $workspaceId, file: $file}) {
     asset {
       id
-      teamId
+      workspaceId
       name
       size
       url
@@ -587,7 +592,7 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  * @example
  * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
  *   variables: {
- *      teamId: // value for 'teamId'
+ *      workspaceId: // value for 'workspaceId'
  *      file: // value for 'file'
  *   },
  * });

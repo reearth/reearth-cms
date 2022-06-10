@@ -190,22 +190,6 @@
             "deprecationReason": null
           },
           {
-            "name": "teamId",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "url",
             "description": null,
             "args": [],
@@ -215,6 +199,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "workspaceId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
                 "ofType": null
               }
             },
@@ -421,7 +421,7 @@
             "deprecationReason": null
           },
           {
-            "name": "teamId",
+            "name": "workspaceId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -1458,7 +1458,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "teamId",
+                "name": "workspaceId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
