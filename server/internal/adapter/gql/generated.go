@@ -161,9 +161,9 @@ type MutationResolver interface {
 	UpdateMemberOfWorkspace(ctx context.Context, input gqlmodel.UpdateMemberOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 }
 type QueryResolver interface {
-	Me(ctx context.Context) (*gqlmodel.Me, error)
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
+	Me(ctx context.Context) (*gqlmodel.Me, error)
 	SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error)
 }
 type WorkspaceMemberResolver interface {
@@ -643,7 +643,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `# Built-in
+	{Name: "./schemas/schema.graphql", Input: `# Built-in
 
 scalar Upload
 scalar Any
@@ -691,171 +691,171 @@ enum Theme {
   DARK
 }
 
-# User
-
-type User implements Node {
-  id: ID!
-  name: String!
-  email: String!
-}
-
-type Me {
-  id: ID!
-  name: String!
-  email: String!
-  lang: Lang!
-  theme: Theme!
-  myWorkspaceId: ID!
-  auths: [String!]!
-  workspaces: [Workspace!]! @goField(forceResolver: true)
-  myWorkspace: Workspace! @goField(forceResolver: true)
-}
-
-type Workspace implements Node {
-  id: ID!
-  name: String!
-  members: [WorkspaceMember!]!
-  personal: Boolean!
-}
-
-type WorkspaceMember {
-  userId: ID!
-  role: Role!
-  user: User @goField(forceResolver: true)
-}
-
-enum Role {
-  # a role who can read project
-  READER
-  # a role who can read and write project
-  WRITER
-  # a eole who can have full controll of project
-  OWNER
-}
-
-input SignupInput {
-  lang: Lang
-  theme: Theme
-  userId: ID
-  workspaceId: ID
-  secret: String
-}
-
-input UpdateMeInput {
-  name: String
-  email: String
-  lang: Lang
-  theme: Theme
-  password: String
-  passwordConfirmation: String
-}
-
-input RemoveMyAuthInput {
-  auth: String!
-}
-
-input DeleteMeInput {
-  userId: ID!
-}
-
-input CreateWorkspaceInput {
-  name: String!
-}
-
-input UpdateWorkspaceInput {
-  workspaceId: ID!
-  name: String!
-}
-
-input AddMemberToWorkspaceInput {
-  workspaceId: ID!
-  userId: ID!
-  role: Role!
-}
-
-input RemoveMemberFromWorkspaceInput {
-  workspaceId: ID!
-  userId: ID!
-}
-
-input UpdateMemberOfWorkspaceInput {
-  workspaceId: ID!
-  userId: ID!
-  role: Role!
-}
-
-input DeleteWorkspaceInput {
-  workspaceId: ID!
-}
-
 type Query {
-  me: Me
   node(id: ID!, type: NodeType!): Node
   nodes(id: [ID!]!, type: NodeType!): [Node]!
-  searchUser(nameOrEmail: String!): User
 }
 
-# Payload
-
-type UpdateMePayload {
-  me: Me!
-}
-
-type SignupPayload {
-  user: User!
-  workspace: Workspace!
-}
-
-type DeleteMePayload {
-  userId: ID!
-}
-
-type CreateWorkspacePayload {
-  workspace: Workspace!
-}
-
-type UpdateWorkspacePayload {
-  workspace: Workspace!
-}
-
-type AddMemberToWorkspacePayload {
-  workspace: Workspace!
-}
-
-type RemoveMemberFromWorkspacePayload {
-  workspace: Workspace!
-}
-
-type UpdateMemberOfWorkspacePayload {
-  workspace: Workspace!
-}
-
-type DeleteWorkspacePayload {
-  workspaceId: ID!
-}
-
-
-type Mutation {
-  # User
-  signup(input: SignupInput!): SignupPayload
-  updateMe(input: UpdateMeInput!): UpdateMePayload
-  removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
-  deleteMe(input: DeleteMeInput!): DeleteMePayload
-
-  # Workspace
-  createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
-  deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
-  updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-  addMemberToWorkspace(input: AddMemberToWorkspaceInput!): AddMemberToWorkspacePayload
-  removeMemberFromWorkspace(
-    input: RemoveMemberFromWorkspaceInput!
-  ): RemoveMemberFromWorkspacePayload
-  updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-}
+type Mutation
 
 schema {
   query: Query
   mutation: Mutation
+}`, BuiltIn: false},
+	{Name: "./schemas/user.graphql", Input: `type User implements Node {
+    id: ID!
+    name: String!
+    email: String!
+}
+
+type Me {
+    id: ID!
+    name: String!
+    email: String!
+    lang: Lang!
+    theme: Theme!
+    myWorkspaceId: ID!
+    auths: [String!]!
+    workspaces: [Workspace!]!
+    myWorkspace: Workspace!
+}
+
+input SignupInput {
+    lang: Lang
+    theme: Theme
+    userId: ID
+    workspaceId: ID
+    secret: String
+}
+
+input UpdateMeInput {
+    name: String
+    email: String
+    lang: Lang
+    theme: Theme
+    password: String
+    passwordConfirmation: String
+}
+
+input RemoveMyAuthInput {
+    auth: String!
+}
+
+input DeleteMeInput {
+    userId: ID!
+}
+
+extend type Query {
+    me: Me
+    searchUser(nameOrEmail: String!): User
+}
+
+
+type UpdateMePayload {
+    me: Me!
+}
+
+type SignupPayload {
+    user: User!
+    workspace: Workspace!
+}
+
+type DeleteMePayload {
+    userId: ID!
+}
+
+extend type Mutation {
+    signup(input: SignupInput!): SignupPayload
+    updateMe(input: UpdateMeInput!): UpdateMePayload
+    removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
+    deleteMe(input: DeleteMeInput!): DeleteMePayload
+}`, BuiltIn: false},
+	{Name: "./schemas/workspace.graphql", Input: `type Workspace implements Node {
+    id: ID!
+    name: String!
+    members: [WorkspaceMember!]!
+    personal: Boolean!
+}
+
+type WorkspaceMember {
+    userId: ID!
+    role: Role!
+    user: User
+}
+
+enum Role {
+    # a role who can read project
+    READER
+    # a role who can read and write project
+    WRITER
+    # a eole who can have full controll of project
+    OWNER
+}
+
+
+input CreateWorkspaceInput {
+    name: String!
+}
+
+input UpdateWorkspaceInput {
+    workspaceId: ID!
+    name: String!
+}
+
+input AddMemberToWorkspaceInput {
+    workspaceId: ID!
+    userId: ID!
+    role: Role!
+}
+
+input RemoveMemberFromWorkspaceInput {
+    workspaceId: ID!
+    userId: ID!
+}
+
+input UpdateMemberOfWorkspaceInput {
+    workspaceId: ID!
+    userId: ID!
+    role: Role!
+}
+
+input DeleteWorkspaceInput {
+    workspaceId: ID!
+}
+
+# extend type Query { }
+
+type CreateWorkspacePayload {
+    workspace: Workspace!
+}
+
+type UpdateWorkspacePayload {
+    workspace: Workspace!
+}
+
+type AddMemberToWorkspacePayload {
+    workspace: Workspace!
+}
+
+type RemoveMemberFromWorkspacePayload {
+    workspace: Workspace!
+}
+
+type UpdateMemberOfWorkspacePayload {
+    workspace: Workspace!
+}
+
+type DeleteWorkspacePayload {
+    workspaceId: ID!
+}
+
+extend type Mutation {
+    createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
+    deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
+    updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
+    addMemberToWorkspace(input: AddMemberToWorkspaceInput!): AddMemberToWorkspacePayload
+    removeMemberFromWorkspace(input: RemoveMemberFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
+    updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -2109,38 +2109,6 @@ func (ec *executionContext) _PageInfo_hasPreviousPage(ctx context.Context, field
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Me(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Me)
-	fc.Result = res
-	return ec.marshalOMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMe(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2220,6 +2188,38 @@ func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.Coll
 	res := resTmp.([]gqlmodel.Node)
 	fc.Result = res
 	return ec.marshalNNode2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Me(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Me)
+	fc.Result = res
+	return ec.marshalOMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMe(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_searchUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4885,26 +4885,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "me":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_me(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "node":
 			field := field
 
@@ -4938,6 +4918,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "me":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_me(ctx, field)
 				return res
 			}
 

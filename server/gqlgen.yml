@@ -2,7 +2,9 @@
 # for detailed .gqlgen.yml documentation.
 
 schema:
-  - schema.graphql
+  - ./schemas/schema.graphql
+  - ./schemas/user.graphql
+  - ./schemas/workspace.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -11,6 +13,16 @@ resolver:
   filename: internal/adapter/gql/resolver.go
   type: Resolver
 models:
+  Me:
+    fields:
+      workspaces:
+        resolver: true
+      myWorkspace:
+        resolver: true
+  WorkspaceMember:
+    fields:
+      user:
+        resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
   FileSize:

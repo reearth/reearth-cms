@@ -1,0 +1,59 @@
+# Built-in
+
+scalar Upload
+scalar Any
+
+directive @goModel(
+  model: String
+  models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+# Meta Type
+
+scalar Cursor
+
+interface Node {
+  id: ID!
+}
+
+enum NodeType {
+  USER
+  WORKSPACE
+}
+
+type PageInfo {
+  startCursor: Cursor
+  endCursor: Cursor
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+# Basic types
+
+scalar DateTime
+scalar URL
+scalar Lang
+scalar FileSize
+
+enum Theme {
+  DEFAULT
+  LIGHT
+  DARK
+}
+
+type Query {
+  node(id: ID!, type: NodeType!): Node
+  nodes(id: [ID!]!, type: NodeType!): [Node]!
+}
+
+type Mutation
+
+schema {
+  query: Query
+  mutation: Mutation
+}
