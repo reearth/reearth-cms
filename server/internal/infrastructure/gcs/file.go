@@ -11,6 +11,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/log"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
