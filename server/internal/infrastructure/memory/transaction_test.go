@@ -15,11 +15,15 @@ func TestTransaction(t *testing.T) {
 	got := NewTransaction()
 	assert.Equal(t, expected, got)
 
-	gotBegin, err := got.Begin()
-	assert.Equal(t, &Tx{t: got}, gotBegin)
+	tx, err := got.Begin()
+	assert.Equal(t, &Tx{t: got}, tx)
 	assert.NoError(t, err)
 
-	err = gotBegin.End(ctx)
+	assert.False(t, tx.IsCommitted())
+	tx.Commit()
+	assert.True(t, tx.IsCommitted())
+
+	err = tx.End(ctx)
 	assert.NoError(t, err)
 }
 
