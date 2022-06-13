@@ -6,7 +6,9 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
@@ -55,7 +57,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    []*user.Workspace
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -68,7 +70,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 				operator: op,
 			},
 			want:    []*user.Workspace{w1},
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name:  "Fetch 2 of 2",
@@ -81,7 +83,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 				operator: op,
 			},
 			want:    []*user.Workspace{w1, w2},
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name:  "Fetch 1 of 0",
@@ -94,7 +96,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name:  "Fetch 2 of 0",
@@ -107,9 +109,10 @@ func TestWorkspace_Fetch(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -124,9 +127,11 @@ func TestWorkspace_Fetch(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.Fetch(ctx, tc.args.ids, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -153,7 +158,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    []*user.Workspace
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -166,7 +171,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 				operator: op,
 			},
 			want:    []*user.Workspace{w1},
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name:  "Fetch 1 of 0",
@@ -179,7 +184,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:  "Fetch 0 of 1",
@@ -192,9 +197,10 @@ func TestWorkspace_FindByUser(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: rerror.ErrNotFound,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -209,9 +215,11 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.FindByUser(ctx, tc.args.userID, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -242,7 +250,7 @@ func TestWorkspace_Update(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    *user.Workspace
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 	}{
 		{
 			name:  "Update 1",
@@ -257,7 +265,7 @@ func TestWorkspace_Update(t *testing.T) {
 				operator: op,
 			},
 			want:    w1Updated,
-			wantErr: assert.NoError,
+			wantErr: nil,
 		},
 		{
 			name:  "Update 2",
@@ -272,7 +280,7 @@ func TestWorkspace_Update(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:  "Update 3",
@@ -287,9 +295,10 @@ func TestWorkspace_Update(t *testing.T) {
 				operator: op,
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -304,9 +313,13 @@ func TestWorkspace_Update(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.Update(ctx, tc.args.wId, tc.args.newName, tc.args.operator)
-			if !tc.wantErr(t, err) || err != nil {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				assert.Nil(t, got)
 				return
 			}
+
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 			got2, err := db.Workspace.FindByID(ctx, tc.args.wId)
 			assert.NoError(t, err)
@@ -339,7 +352,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			wId      id.WorkspaceID
 			operator *usecase.Operator
 		}
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 		want    *user.Workspace
 	}{
 		{
@@ -352,7 +365,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				wId:      id1,
 				operator: op,
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 			want:    nil,
 		},
 		{
@@ -365,7 +378,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				wId:      id2,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: interfaces.ErrOperationDenied,
 			want:    w2,
 		},
 		{
@@ -378,7 +391,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				wId:      id3,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: interfaces.ErrOperationDenied,
 			want:    w3,
 		},
 		{
@@ -391,10 +404,11 @@ func TestWorkspace_Remove(t *testing.T) {
 				wId:      id4,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    w4,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -409,10 +423,12 @@ func TestWorkspace_Remove(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
 
+			assert.NoError(t, err)
 			got, err := db.Workspace.FindByID(ctx, tc.args.wId)
 			if tc.want == nil {
 				assert.Error(t, err)
@@ -451,7 +467,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 		want    *user.Members
 	}{
 		{
@@ -469,7 +485,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				role:     user.RoleReader,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: rerror.ErrNotFound,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
@@ -487,7 +503,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				role:     user.RoleReader,
 				operator: op,
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}),
 		},
 		{
@@ -505,7 +521,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				role:     user.RoleReader,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 	}
@@ -527,10 +543,12 @@ func TestWorkspace_AddMember(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.AddMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
-			// assert.Equal(t, tc.want, got.Members())
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Members())
 
 			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
 			if tc.want == nil {
@@ -570,7 +588,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			uId      id.UserID
 			operator *usecase.Operator
 		}
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 		want    *user.Members
 	}{
 		{
@@ -586,7 +604,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				uId:      id.NewUserID(),
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrTargetUserNotInTheWorkspace,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
@@ -602,7 +620,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				uId:      u.ID(),
 				operator: op,
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
@@ -618,7 +636,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				uId:      userID,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
@@ -634,10 +652,11 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				uId:      userID,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: interfaces.ErrOwnerCannotLeaveTheWorkspace,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -656,10 +675,12 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.RemoveMember(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
-			// assert.Equal(t, tc.want, got.Members())
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Members())
 
 			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
 			if tc.want == nil {
@@ -698,7 +719,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr assert.ErrorAssertionFunc
+		wantErr error
 		want    *user.Members
 	}{
 		{
@@ -716,7 +737,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				role:     user.RoleWriter,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrTargetUserNotInTheWorkspace,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
@@ -734,7 +755,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				role:     user.RoleWriter,
 				operator: op,
 			},
-			wantErr: assert.NoError,
+			wantErr: nil,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleWriter}),
 		},
 		{
@@ -752,10 +773,11 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				role:     user.RoleReader,
 				operator: op,
 			},
-			wantErr: assert.Error,
+			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -774,10 +796,12 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			workspaceUC := NewWorkspace(db)
 
 			got, err := workspaceUC.UpdateMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
-			if !tc.wantErr(t, err) {
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
-			// assert.Equal(t, tc.want, got.Members())
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got.Members())
 
 			got, err = db.Workspace.FindByID(ctx, tc.args.wId)
 			if tc.want == nil {
