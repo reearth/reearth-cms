@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -432,4 +433,8 @@ func (c *Client) CreateUniqueIndex(ctx context.Context, col string, keys, unique
 		return index
 	}
 	return nil
+}
+
+func (t *Tx) IsCommitted() bool {
+	return t.commit
 }

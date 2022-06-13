@@ -72,6 +72,7 @@ func TestWorkspaceList_FilterByUserRoleIncluding(t *testing.T) {
 	assert.Equal(t, WorkspaceList{t2}, WorkspaceList{t1, t2}.FilterByUserRoleIncluding(uid, RoleOwner))
 	assert.Equal(t, WorkspaceList(nil), WorkspaceList(nil).FilterByUserRoleIncluding(uid, RoleOwner))
 }
+
 func TestWorkspaceList_IDs(t *testing.T) {
 	tid1 := NewWorkspaceID()
 	tid2 := NewWorkspaceID()
