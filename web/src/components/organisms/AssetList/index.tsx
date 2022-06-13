@@ -1,3 +1,4 @@
+import { ListToolBarProps } from "@ant-design/pro-table";
 import AssetBody from "@reearth-cms/components/molecules/AssetList/AssetListBody";
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
@@ -34,6 +35,14 @@ const AssetList: React.FC = () => {
     };
   };
 
+  const handleToolbarEvents: ListToolBarProps | undefined = {
+    search: {
+      onSearch: (value: string) => {
+        alert(value);
+      },
+    },
+  };
+
   return (
     <>
       <AssetListHeader
@@ -42,15 +51,16 @@ const AssetList: React.FC = () => {
         handleUpload={handleUpload}
       />
       <AssetBody
+        providerLocale={enUSIntl}
         dataSource={assetList}
         columns={columns}
         onRow={handleRowEvents}
-        locale={enUSIntl}
         search={false}
         rowKey="id"
         options={{
           search: true,
         }}
+        toolbar={handleToolbarEvents}
       />
     </>
   );
