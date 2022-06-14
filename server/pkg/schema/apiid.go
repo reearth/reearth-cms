@@ -1,11 +1,23 @@
 package schema
 
-type apiID string
+import "errors"
 
-func NewAPIID(id string) (apiID, error) {
-	if id == "" {
-		return "", nil
+type ApiID string
+
+var ErrInvalidForm error = errors.New("invalid api ID form")
+
+func NewAPIID(id string) (ApiID, error) {
+	if ok := isUrlValid(id); !ok {
+		return "", ErrInvalidForm
 	}
-	// TODO: check if id is unique under the model
-	return apiID(id), nil
+
+	return ApiID(id), nil
+}
+
+func isUrlValid(val string) bool {
+	if val == "" {
+		return false
+	}
+	//TODO: impl to check if val is URL safe char?
+	return true
 }
