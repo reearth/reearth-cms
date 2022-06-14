@@ -10,7 +10,13 @@ import { GetComponentProps } from "rc-table/lib/interface";
 import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
-  const { assetList, createAsset, navigate } = useHooks();
+  const {
+    assetList,
+    createAsset,
+    navigate,
+    filteredAssetList,
+    setFilteredAssetList,
+  } = useHooks();
 
   const handleUpload = (info: UploadChangeParam<UploadFile<any>>) => {
     if (info.file.status !== "uploading") {
@@ -38,7 +44,14 @@ const AssetList: React.FC = () => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: (value: string) => {
-        alert(value);
+        if (value) {
+          const filteredData = assetList.filter((node) =>
+            node?.name.includes(value)
+          );
+          setFilteredAssetList(filteredData);
+        } else {
+          setFilteredAssetList(assetList);
+        }
       },
     },
   };
@@ -52,7 +65,7 @@ const AssetList: React.FC = () => {
       />
       <AssetBody
         providerLocale={enUSIntl}
-        dataSource={assetList}
+        dataSource={filteredAssetList}
         columns={columns}
         onRow={handleRowEvents}
         search={false}

@@ -14,6 +14,7 @@ export default (workspaceId?: string) => {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
+  const [filteredAssetList, setFilteredAssetList] = useState<AssetNode[]>([]);
 
   const [createAssetMutation] = useCreateAssetMutation();
   const createAsset = useCallback(
@@ -38,6 +39,9 @@ export default (workspaceId?: string) => {
       setAssetList((prevAssetList) => {
         return [...prevAssetList, asset];
       });
+      setFilteredAssetList((prevFilteredAssetList) => {
+        return [...prevFilteredAssetList, asset];
+      });
     },
     [workspaceId, assetList.length, user?.nickname, createAssetMutation]
   );
@@ -56,6 +60,8 @@ export default (workspaceId?: string) => {
   return {
     user,
     assetList,
+    filteredAssetList,
+    setFilteredAssetList,
     createAsset,
     navigate,
   };
