@@ -139,9 +139,9 @@ func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-	if u == operator.User {
-		return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
-	}
+		if u.Equal(operator.User) {
+			return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
+		}
 
 		err = workspace.Members().Leave(u)
 		if err != nil {
@@ -170,9 +170,9 @@ func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-	if u == operator.User {
-		return nil, interfaces.ErrCannotChangeOwnerRole
-	}
+		if u.Equal(operator.User) {
+			return nil, interfaces.ErrCannotChangeOwnerRole
+		}
 
 		err = workspace.Members().UpdateRole(u, role)
 		if err != nil {

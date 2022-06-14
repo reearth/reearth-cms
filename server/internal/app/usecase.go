@@ -24,7 +24,6 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, config interacto
 		return ctx
 	})
 }
-
 func ContextMiddleware(fn func(ctx context.Context) context.Context) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
