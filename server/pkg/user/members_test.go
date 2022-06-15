@@ -17,6 +17,15 @@ func TestNewMembersWith(t *testing.T) {
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
 	assert.NotNil(t, m)
 	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, false, m.Fixed())
+}
+
+func TestNewFixedMembersWith(t *testing.T) {
+	uid := NewID()
+	m := NewFixedMembersWith(map[ID]Role{uid: RoleOwner})
+	assert.NotNil(t, m)
+	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, true, m.Fixed())
 }
 
 func TestMembers_ContainsUser(t *testing.T) {

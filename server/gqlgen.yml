@@ -3,6 +3,8 @@
 
 schema:
   - ./schemas/schema.graphql
+  - ./schemas/user.graphql
+  - ./schemas/workspace.graphql
   - ./schemas/project.graphql
 exec:
   filename: internal/adapter/gql/generated.go
@@ -12,6 +14,16 @@ resolver:
   filename: internal/adapter/gql/resolver.go
   type: Resolver
 models:
+  Me:
+    fields:
+      workspaces:
+        resolver: true
+      myWorkspace:
+        resolver: true
+  WorkspaceMember:
+    fields:
+      user:
+        resolver: true
   Project:
     fields:
       workspace:

@@ -11,13 +11,11 @@ import (
 )
 
 type ContainerConfig struct {
-	SignupSecret       string
-	AuthSrvUIDomain    string
-	PublishedIndexHTML string
-	PublishedIndexURL  *url.URL
+	SignupSecret    string
+	AuthSrvUIDomain string
 }
 
-func NewContainer(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
+func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
 
 	return interfaces.Container{
 		Workspace: NewWorkspace(r),
@@ -25,6 +23,7 @@ func NewContainer(r *repo.Container, g *gateway.Container, config ContainerConfi
 	}
 }
 
+// Deprecated: common will be deprecated . Please use the Usecase function instead.
 type common struct{}
 
 func (common) OnlyOperator(op *usecase.Operator) error {
