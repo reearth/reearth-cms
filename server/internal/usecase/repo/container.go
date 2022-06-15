@@ -3,6 +3,7 @@ package repo
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Container struct {
@@ -12,9 +13,21 @@ type Container struct {
 	Workspace   Workspace
 }
 
+func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
+	if c == nil {
+		return c
+	}
+	return &Container{
+		Lock:        c.Lock,
+		Workspace:   c.Workspace,
+		Transaction: c.Transaction,
+		User:        c.User,
+	}
+}
+
 type WorkspaceFilter struct {
-	Readable id.WorkspaceIDList
-	Writable id.WorkspaceIDList
+	Readable user.WorkspaceIDList
+	Writable user.WorkspaceIDList
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
