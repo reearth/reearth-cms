@@ -75,6 +75,7 @@
     "@auth0/auth0-react": "^1.10.1",
     "@emotion/react": "^11.9.0",
     "antd": "^4.20.5",
+    "formik": "^2.2.9",
     "graphiql": "^1.8.10",
     "graphql": "^16.5.0",
     "i18next": "^21.8.2",
