@@ -53,6 +53,20 @@ type Auth0Config struct {
 	WebClientID  string
 }
 
+type SendGridConfig struct {
+	Email string
+	Name  string
+	API   string
+}
+
+type SMTPConfig struct {
+	Host         string
+	Port         string
+	SMTPUsername string
+	Email        string
+	Password     string
+}
+
 func (c Config) Auths() (res []AuthConfig) {
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
