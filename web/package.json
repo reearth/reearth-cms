@@ -67,6 +67,7 @@
     "storybook-builder-vite": "^0.1.23",
     "typescript": "^4.6.4",
     "vite": "^2.9.9",
+    "vite-plugin-cesium": "^1.2.19",
     "vite-plugin-yaml": "^1.0.5",
     "vitest": "^0.12.6"
   },
@@ -84,6 +85,8 @@
     "i18next-browser-languagedetector": "^6.1.4",
     "jotai": "^1.6.6",
     "react-i18next": "^11.16.9",
-    "react-router-dom": "^6.3.0"
+    "react-router-dom": "^6.3.0",
+    "resium": "^1.14.3",
+    "cesium": "^1.94.3"
   }
 }

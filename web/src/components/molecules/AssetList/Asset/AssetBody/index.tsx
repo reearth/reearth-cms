@@ -1,17 +1,32 @@
 import styled from "@emotion/styled";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
+import { Viewer, Cesium3DTileset } from "cesium";
 import moment from "moment";
+import {
+  Viewer as ResiumViewer,
+  Cesium3DTileset as Resium3DTileset,
+} from "resium";
 
 type AssetBodyProps = { asset: Asset };
 
 const AssetBody: React.FC<AssetBodyProps> = ({ asset }) => {
   const { name, url, contentType, createdAt, createdBy } = asset;
-
+  const displayImage = contentType !== "GIS/3DTiles";
   const formatDate = (date: Date) => {
     return moment(date).format("YYYY-MM-DD hh:mm");
   };
 
   const formattedCreatedAt = formatDate(createdAt);
+
+  let viewer: Viewer | undefined; // This will be raw Cesium's Viewer object.
+
+  const handleReady = async (tileset: Cesium3DTileset) => {
+    try {
+      await viewer?.zoomTo(tileset.root.tileset);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <BodyContainer>
@@ -21,7 +36,28 @@ const AssetBody: React.FC<AssetBodyProps> = ({ asset }) => {
             <h5>{name}</h5>
           </PreviewHeaderWrapper>
           <PreviewImageWrapper>
-            <Image src={url} alt="asset-preview"></Image>
+            {displayImage ? (
+              <Image src={url} alt="asset-preview"></Image>
+            ) : (
+              <ResiumViewer
+                ref={(e) => {
+                  viewer = e?.cesiumElement;
+                }}
+                navigationHelpButton={false}
+                homeButton={false}
+                projectionPicker={false}
+                sceneModePicker={false}
+                baseLayerPicker={false}
+                fullscreenButton={false}
+                vrButton={false}
+                selectionIndicator={false}
+                timeline={false}
+                animation={false}
+                geocoder={false}
+              >
+                <Resium3DTileset url={url} onReady={handleReady} />
+              </ResiumViewer>
+            )}
           </PreviewImageWrapper>
         </PreviewWrapper>
       </BodyWrapper>

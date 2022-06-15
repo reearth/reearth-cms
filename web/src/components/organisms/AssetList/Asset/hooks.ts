@@ -8,12 +8,12 @@ export default () => {
 
   const getAsset = (_assetId?: string | undefined): Asset => {
     const assetNode: Asset = {
-      contentType: "GIS/3D",
+      contentType: "GIS/3DTiles",
       createdAt: new Date(),
       id: "1",
-      name: "filename.gis",
+      name: "tileset.gis",
       size: 0,
-      url: "http://placehold.jp/480x360.png",
+      url: "https://storage.googleapis.com/reearth-plateau/GroundSurface/tileset.json",
       workspaceId: "",
       unzipFile: "",
       createdBy: "b.nour",
