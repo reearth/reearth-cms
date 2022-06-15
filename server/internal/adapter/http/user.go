@@ -114,26 +114,3 @@ func (c *UserController) Signup(ctx context.Context, input SignupInput) (SignupO
 		Email: u.Email(),
 	}, nil
 }
-
-func (c *UserController) CreateVerification(ctx context.Context, input CreateVerificationInput) error {
-	return c.usecase.CreateVerification(ctx, input.Email)
-}
-
-func (c *UserController) VerifyUser(ctx context.Context, code string) (VerifyUserOutput, error) {
-	u, err := c.usecase.VerifyUser(ctx, code)
-	if err != nil {
-		return VerifyUserOutput{}, err
-	}
-	return VerifyUserOutput{
-		UserID:   u.ID().String(),
-		Verified: u.Verification().IsVerified(),
-	}, nil
-}
-
-func (c *UserController) StartPasswordReset(ctx context.Context, input PasswordResetInput) error {
-	return c.usecase.StartPasswordReset(ctx, input.Email)
-}
-
-func (c *UserController) PasswordReset(ctx context.Context, input PasswordResetInput) error {
-	return c.usecase.PasswordReset(ctx, input.Password, input.Token)
-}

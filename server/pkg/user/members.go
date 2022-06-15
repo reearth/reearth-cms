@@ -36,6 +36,14 @@ func NewMembersWith(members map[ID]Role) *Members {
 	return m
 }
 
+func NewFixedMembersWith(members map[ID]Role) *Members {
+	m := &Members{members: map[ID]Role{}, fixed: true}
+	for k, v := range members {
+		m.members[k] = v
+	}
+	return m
+}
+
 func CopyMembers(members *Members) *Members {
 	return NewMembersWith(members.members)
 }

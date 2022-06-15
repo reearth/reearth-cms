@@ -19,8 +19,11 @@ var (
 	ErrOperationDenied = errors.New("operation denied")
 )
 
-func (c Container) Filtered() Container {
-	return Container{
+func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
+	if c == nil {
+		return c
+	}
+	return &Container{
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
