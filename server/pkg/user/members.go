@@ -10,6 +10,7 @@ var (
 	ErrCannotModifyPersonalWorkspace = errors.New("personal workspace cannot be modified")
 	ErrWorkspaceWithProjects         = errors.New("target workspace still has some project")
 	ErrTargetUserNotInTheWorkspace   = errors.New("target user does not exist in the workspace")
+	ErrInvalidName                   = errors.New("invalid workspace name")
 )
 
 type Members struct {
@@ -29,6 +30,14 @@ func NewFixedMembers(u ID) *Members {
 
 func NewMembersWith(members map[ID]Role) *Members {
 	m := &Members{members: map[ID]Role{}}
+	for k, v := range members {
+		m.members[k] = v
+	}
+	return m
+}
+
+func NewFixedMembersWith(members map[ID]Role) *Members {
+	m := &Members{members: map[ID]Role{}, fixed: true}
 	for k, v := range members {
 		m.members[k] = v
 	}
