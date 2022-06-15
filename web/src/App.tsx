@@ -11,12 +11,14 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import "./App.css";
 import "antd/dist/antd.css";
+import MembersPage from "./components/pages/Members";
 
 function AppRoutes() {
   const routes = useRoutes([
     { path: "/", element: <RootPage /> },
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
+    { path: "/members/:workspaceId", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces", element: <WorkspaceListPage /> },
     { path: "/account", element: <Account /> },
