@@ -13,7 +13,7 @@ export default () => {
       id: "1",
       name: "tileset.gis",
       size: 0,
-      url: "https://storage.googleapis.com/reearth-plateau/GroundSurface/tileset.json",
+      url: "https://plateau.reearth.io/13101_chiyoda-ku/tileset.json",
       workspaceId: "",
       unzipFile: "",
       createdBy: "b.nour",

@@ -20,6 +20,7 @@ const TilesetPreview: React.FC<TilesetPreviewProps> = ({
   const handleReady = async (tileset: Cesium3DTileset) => {
     try {
       await viewer?.zoomTo(tileset.root.tileset);
+      tileset.show = true;
     } catch (error) {
       console.log(error);
     }

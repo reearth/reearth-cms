@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
+import { createWorldTerrain } from "cesium";
 import moment from "moment";
 
 type AssetBodyProps = { asset: Asset };
@@ -27,6 +28,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({ asset }) => {
             ) : (
               <TilesetPreview
                 viewerProps={{
+                  terrainProvider: createWorldTerrain(),
                   navigationHelpButton: false,
                   homeButton: false,
                   projectionPicker: false,
