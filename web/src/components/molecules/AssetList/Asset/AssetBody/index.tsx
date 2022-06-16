@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
+import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
+import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { createWorldTerrain } from "cesium";
 import moment from "moment";
@@ -18,50 +20,39 @@ const AssetBody: React.FC<AssetBodyProps> = ({ asset }) => {
   return (
     <BodyContainer>
       <BodyWrapper>
-        <PreviewWrapper>
-          <PreviewHeaderWrapper>
-            <h5>{name}</h5>
-          </PreviewHeaderWrapper>
-          <PreviewImageWrapper>
-            {displayImage ? (
-              <Image src={url} alt="asset-preview"></Image>
-            ) : (
-              <TilesetPreview
-                viewerProps={{
-                  terrainProvider: createWorldTerrain(),
-                  navigationHelpButton: false,
-                  homeButton: false,
-                  projectionPicker: false,
-                  sceneModePicker: false,
-                  baseLayerPicker: false,
-                  fullscreenButton: false,
-                  vrButton: false,
-                  selectionIndicator: false,
-                  timeline: false,
-                  animation: false,
-                  geocoder: false,
-                }}
-                tilesetProps={{
-                  url: url,
-                }}
-              ></TilesetPreview>
-            )}
-          </PreviewImageWrapper>
-        </PreviewWrapper>
+        <Card title={name} style={{ marginBottom: "24px" }}>
+          {displayImage ? (
+            <Image src={url} alt="asset-preview"></Image>
+          ) : (
+            <TilesetPreview
+              viewerProps={{
+                terrainProvider: createWorldTerrain(),
+                navigationHelpButton: false,
+                homeButton: false,
+                projectionPicker: false,
+                sceneModePicker: false,
+                baseLayerPicker: false,
+                fullscreenButton: false,
+                vrButton: false,
+                selectionIndicator: false,
+                timeline: false,
+                animation: false,
+                geocoder: false,
+              }}
+              tilesetProps={{
+                url: url,
+              }}
+            ></TilesetPreview>
+          )}
+        </Card>
+        <Card title="Unzip File">
+          <div style={{ minHeight: "400px" }}></div>
+        </Card>
       </BodyWrapper>
       <SideBarWrapper>
-        <SideBarCard>
-          <CardTitle>Asset Type</CardTitle>
-          <CardValue>{contentType}</CardValue>
-        </SideBarCard>
-        <SideBarCard>
-          <CardTitle>Created Time</CardTitle>
-          <CardValue>{formattedCreatedAt}</CardValue>
-        </SideBarCard>
-        <SideBarCard>
-          <CardTitle>Created By</CardTitle>
-          <CardValue>{createdBy}</CardValue>
-        </SideBarCard>
+        <SideBarCard title="Asset Type">{contentType}</SideBarCard>
+        <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
+        <SideBarCard title="Created By">{createdBy}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );
@@ -78,22 +69,6 @@ const BodyWrapper = styled("div")`
   width: 70%;
 `;
 
-const PreviewWrapper = styled("div")`
-  padding: 0;
-`;
-
-const PreviewHeaderWrapper = styled("div")`
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  font-size: 24px;
-`;
-
-const PreviewImageWrapper = styled("div")`
-  padding: 10px;
-`;
-
 const Image = styled("img")`
   width: 100%;
   height: auto;
@@ -104,34 +79,6 @@ const SideBarWrapper = styled("div")`
   width: 30%;
   display: flex;
   flex-direction: column;
-`;
-
-const SideBarCard = styled("div")`
-  padding: 12px;
-  margin-bottom: 8px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 4px 0 #00000025;
-`;
-
-const CardTitle = styled("span")`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
-  margin-bottom: 4px;
-`;
-
-const CardValue = styled("span")`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
 `;
 
 export default AssetBody;
