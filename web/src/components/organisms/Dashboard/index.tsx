@@ -12,11 +12,7 @@ import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
-export type Props = {
-  workspaceId?: string;
-};
-
-const Dashboard: React.FC<Props> = () => {
+const Dashboard: React.FC = () => {
   const { workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
