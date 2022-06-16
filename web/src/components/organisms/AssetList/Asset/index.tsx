@@ -6,7 +6,7 @@ import useHooks from "./hooks";
 type Props = {};
 
 const Asset: React.FC<Props> = () => {
-  const { asset, assetId } = useHooks();
+  const { asset, assetId, selectedContentType, handleTypeChange } = useHooks();
 
   const handleSave = () => {
     console.log("save");
@@ -19,7 +19,11 @@ const Asset: React.FC<Props> = () => {
         subTitle="This is a subtitle"
         handleSave={handleSave}
       />
-      <AssetBody asset={asset} />
+      <AssetBody
+        asset={asset}
+        selectedContentType={selectedContentType}
+        handleTypeChange={handleTypeChange}
+      />
     </>
   );
 };
