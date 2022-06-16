@@ -29,7 +29,7 @@ export default ({ workspaceId }: Props) => {
     email: string;
   }>();
 
-  const { data, refetch, loading } = useGetWorkspacesQuery();
+  const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
 
@@ -131,32 +131,20 @@ export default ({ workspaceId }: Props) => {
     [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace]
   );
 
-  const handleRoleModalClose = useCallback(
-    (r?: boolean) => {
-      setRoleModalShown(false);
-      setSelectedMember(undefined);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleRoleModalClose = useCallback(() => {
+    setRoleModalShown(false);
+    setSelectedMember(undefined);
+  }, []);
 
   const handleRoleModalOpen = useCallback((member: any) => {
     setRoleModalShown(true);
     setSelectedMember(member);
   }, []);
 
-  const handleMemberCreationModalClose = useCallback(
-    (r?: boolean) => {
-      setMemberCreationModalShown(false);
-      setSelectedMember(undefined);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleMemberCreationModalClose = useCallback(() => {
+    setMemberCreationModalShown(false);
+    setSelectedMember(undefined);
+  }, []);
 
   const handleMemberCreationModalOpen = useCallback((member: any) => {
     setMemberCreationModalShown(true);

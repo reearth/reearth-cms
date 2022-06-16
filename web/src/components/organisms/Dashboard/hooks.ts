@@ -87,15 +87,9 @@ export default (workspaceId?: string) => {
     [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
   );
 
-  const handleModalClose = useCallback(
-    (r?: boolean) => {
-      setModalShown(false);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleModalClose = useCallback(() => {
+    setModalShown(false);
+  }, []);
 
   const handleModalOpen = useCallback(() => setModalShown(true), []);
 
