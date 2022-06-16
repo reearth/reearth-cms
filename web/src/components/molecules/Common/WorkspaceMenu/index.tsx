@@ -59,7 +59,7 @@ const WorkspaceMenu: React.FC<Props> = ({
 
   const onClick = (e: any) => {
     if (e.key === "member") {
-      navigate(`/members/${workspaceId}`);
+      navigate(`/workspaces/${workspaceId}/members`);
     }
     if (e.key === "home") {
       navigate(`/dashboard/${workspaceId}`);
