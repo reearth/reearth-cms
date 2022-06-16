@@ -39,11 +39,10 @@ const Dashboard: React.FC = () => {
           ></MoleculeHeader>
         </Header>
         <Layout>
-          <Sider
+          <DashboardSider
             collapsible
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
-            style={{ backgroundColor: "#fff" }}
           >
             <WorkspaceMenu
               defaultSelectedKeys={["home"]}
@@ -53,7 +52,7 @@ const Dashboard: React.FC = () => {
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}
             ></WorkspaceMenu>
-          </Sider>
+          </DashboardSider>
           <PaddedContent>
             <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
             <ActionHeader>
@@ -80,6 +79,10 @@ const Dashboard: React.FC = () => {
     </>
   );
 };
+
+const DashboardSider = styled(Sider)`
+  background-color: #fff;
+`;
 
 const PaddedContent = styled(Content)`
   margin: 16px;

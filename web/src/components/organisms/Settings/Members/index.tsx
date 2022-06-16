@@ -167,11 +167,10 @@ const Members: React.FC = () => {
           ></MoleculeHeader>
         </Header>
         <Layout>
-          <Sider
+          <MembersSider
             collapsible
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
-            style={{ backgroundColor: "#fff" }}
           >
             <WorkspaceMenu
               defaultSelectedKeys={["member"]}
@@ -181,7 +180,7 @@ const Members: React.FC = () => {
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}
             ></WorkspaceMenu>
-          </Sider>
+          </MembersSider>
           <PaddedContent>
             <MemberPageHeader
               title="Members"
@@ -233,6 +232,10 @@ const Members: React.FC = () => {
     </>
   );
 };
+
+const MembersSider = styled(Sider)`
+  background-color: #fff;
+`;
 
 const PaddedContent = styled(Content)`
   margin: 16px;
