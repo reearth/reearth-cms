@@ -40,13 +40,15 @@ const WorkspaceCreationModal: React.FC<Props> = ({
   }, [onClose]);
   return (
     <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      {/* {formik.isSubmitting} */}
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
           label="Workspace name"
           rules={[
-            { required: true, message: "Please input the title of workspace!" },
+            {
+              required: true,
+              message: "Please input the title of the current workspace!",
+            },
           ]}
         >
           <Input />

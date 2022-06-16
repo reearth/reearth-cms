@@ -35,10 +35,6 @@ const Header: React.FC<Props> = ({
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = useCallback(() => {
-    logout();
-  }, [logout]);
-
   const handleWorkspaceChange = useCallback(
     (id: number) => {
       navigate(`/dashboard/${id}`);
@@ -50,7 +46,7 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: "Presonal Account",
+          label: "Personal Account",
           key: "personal-account",
           type: "group",
           children: workspaces
@@ -105,7 +101,7 @@ const Header: React.FC<Props> = ({
           label: "Logout",
           key: "logout",
           icon: <LogoutOutlined />,
-          onClick: () => handleLogout(),
+          onClick: () => logout(),
         },
       ]}
     />

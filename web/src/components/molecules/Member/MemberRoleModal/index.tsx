@@ -66,7 +66,12 @@ const MemberRoleModal: React.FC<Props> = ({
         <Form.Item
           name="role"
           label="Role"
-          rules={[{ required: true, message: "Please input the role!" }]}
+          rules={[
+            {
+              required: true,
+              message: "Please input the appropriate role for this member!",
+            },
+          ]}
         >
           <Select placeholder="select role">
             <Option value="OWNER">Owner</Option>
