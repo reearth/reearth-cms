@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import {
   AssetType,
@@ -69,10 +70,16 @@ const AssetBody: React.FC<AssetBodyProps> = ({
           )}
         </Card>
         {displayUnzipFileList && (
-          <Card title="Unzip File">
+          <Card title="Unzip File" style={{ marginBottom: "24px" }}>
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
+        <DownloadButton
+          type="ghost"
+          filename={asset.name}
+          url={asset.url}
+          displayDefaultIcon={true}
+        ></DownloadButton>
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
