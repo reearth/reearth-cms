@@ -1,14 +1,18 @@
 import { AssetType } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export default () => {
   const { assetId } = useParams();
   const [asset, setAsset] = useState<Asset>({} as Asset);
   const [selectedContentType, setSelectedContentType] = useState<string>("");
+  const [displayPreview, setDisplayPreview] = useState<boolean>(false);
+  const [displayUnzipFileList, setDisplayUnzipFileList] =
+    useState<boolean>(false);
 
   const getAsset = (_assetId?: string | undefined): Asset => {
+    // TODO: this data is hardcodded, should be replace with actual data.
     const assetNode: Asset = {
       contentType: AssetType.JSON,
       createdAt: new Date(),
@@ -32,17 +36,31 @@ export default () => {
   useEffect(() => {
     if (asset.contentType) {
       setSelectedContentType(asset.contentType);
+      setDisplayPreview(
+        asset.contentType === AssetType.JSON ||
+        asset.contentType === AssetType.ZIP
+      );
+      setDisplayUnzipFileList(
+        asset.contentType === AssetType.JSON ||
+        asset.contentType === AssetType.ZIP
+      );
     }
   }, [asset.contentType]);
 
-  const handleTypeChange = useCallback((value: AssetType) => {
+  const handleTypeChange = (value: AssetType) => {
     setSelectedContentType(value);
-  }, []);
+    setDisplayPreview(value === AssetType.JSON || value === AssetType.ZIP);
+    setDisplayUnzipFileList(
+      value === AssetType.JSON || value === AssetType.ZIP
+    );
+  };
 
   return {
     asset,
     assetId,
     selectedContentType,
     handleTypeChange,
+    displayPreview,
+    displayUnzipFileList,
   };
 };

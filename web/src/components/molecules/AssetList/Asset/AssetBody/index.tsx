@@ -6,6 +6,7 @@ import {
 } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
+import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { DefaultOptionType } from "antd/lib/select";
 import { createWorldTerrain } from "cesium";
@@ -14,6 +15,8 @@ import moment from "moment";
 type AssetBodyProps = {
   asset: Asset;
   selectedContentType: string;
+  displayPreview: boolean;
+  displayUnzipFileList: boolean;
   handleTypeChange: (
     value: AssetType,
     option: DefaultOptionType | DefaultOptionType[]
@@ -24,9 +27,11 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   asset,
   selectedContentType,
   handleTypeChange,
+  displayPreview,
+  displayUnzipFileList,
 }) => {
-  const { name, url, contentType, createdAt, createdBy } = asset;
-  const displayImage = contentType !== AssetType.JSON;
+  const { name, url, createdAt, createdBy } = asset;
+
   const formatDate = (date: Date) => {
     return moment(date).format("YYYY-MM-DD hh:mm");
   };
@@ -36,9 +41,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
     <BodyContainer>
       <BodyWrapper>
         <Card title={name} style={{ marginBottom: "24px" }}>
-          {displayImage ? (
-            <Image src={url} alt="asset-preview"></Image>
-          ) : (
+          {displayPreview ? (
             <TilesetPreview
               viewerProps={{
                 terrainProvider: createWorldTerrain(),
@@ -58,11 +61,18 @@ const AssetBody: React.FC<AssetBodyProps> = ({
                 url: url,
               }}
             ></TilesetPreview>
+          ) : (
+            <Image
+              src="https://via.placeholder.com/640x480.png?text=No+Image"
+              alt="asset-preview"
+            ></Image>
           )}
         </Card>
-        <Card title="Unzip File">
-          <div style={{ minHeight: "400px" }}></div>
-        </Card>
+        {displayUnzipFileList && (
+          <Card title="Unzip File">
+            <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
+          </Card>
+        )}
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
