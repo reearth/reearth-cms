@@ -26,6 +26,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     <Button
       icon={displayDefaultIcon && <DownloadOutlined />}
       onClick={handleDownload}
+      disabled={!url}
       {...props}
     >
       {title ?? "Download"}

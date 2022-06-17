@@ -5,11 +5,11 @@ import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { ConfigProvider } from "antd";
 import { Locale } from "antd/lib/locale-provider";
 
-interface AssetListBodyProps extends ProTableProps<Asset, any> {
+type AssetListTableProps = {
   providerLocale: Locale;
-}
+} & ProTableProps<Asset, any>;
 
-const AssetListBody: React.FC<AssetListBodyProps> = ({
+const AssetListTable: React.FC<AssetListTableProps> = ({
   dataSource,
   columns,
   onRow,
@@ -20,7 +20,7 @@ const AssetListBody: React.FC<AssetListBodyProps> = ({
   toolbar,
 }) => {
   return (
-    <AssetListBodyWrapper>
+    <AssetListTableWrapper>
       <ConfigProvider locale={providerLocale}>
         <ProTable
           dataSource={dataSource}
@@ -32,12 +32,12 @@ const AssetListBody: React.FC<AssetListBodyProps> = ({
           toolbar={toolbar}
         />
       </ConfigProvider>
-    </AssetListBodyWrapper>
+    </AssetListTableWrapper>
   );
 };
 
-const AssetListBodyWrapper = styled("div")`
+const AssetListTableWrapper = styled("div")`
   padding: 16px 24px;
 `;
 
-export default AssetListBody;
+export default AssetListTable;

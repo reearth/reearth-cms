@@ -1,10 +1,12 @@
 import { ListToolBarProps } from "@ant-design/pro-table";
-import AssetBody from "@reearth-cms/components/molecules/AssetList/AssetListBody";
+import type { ProColumns } from "@ant-design/pro-table";
+import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
+import AssetListTable from "@reearth-cms/components/molecules/AssetList/AssetListTable";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
-import { columns } from "@reearth-cms/components/organisms/AssetList/columns";
 import enUSIntl from "antd/lib/locale/en_US";
 import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
+import moment from "moment";
 import { GetComponentProps } from "rc-table/lib/interface";
 
 import useHooks from "./hooks";
@@ -56,6 +58,57 @@ const AssetList: React.FC = () => {
     },
   };
 
+  const columns: ProColumns<Asset>[] = [
+    {
+      title: "File",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => (a.name > b.name ? 1 : -1),
+    },
+    {
+      title: "Size",
+      dataIndex: "size",
+      key: "size",
+      sorter: (a, b) => a.size - b.size,
+      render: (_text, record) =>
+        `${(record.size / (1024 * 1024)).toFixed(2)}mb`,
+    },
+    {
+      title: "Content Type",
+      dataIndex: "contentType",
+      key: "contentType",
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      sorter: (a, b) => moment(a.createdAt).diff(moment(b.createdAt)),
+      render: (_text, record) =>
+        `${moment(record.createdAt).format("YYYY-MM-DD hh:mm")}`,
+    },
+    {
+      title: "Created By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+    },
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Action",
+      render: (_, asset) => (
+        <DownloadButton
+          type="link"
+          filename={asset.name}
+          url={asset.url}
+          displayDefaultIcon={false}
+        ></DownloadButton>
+      ),
+    },
+  ];
+
   return (
     <>
       <AssetListHeader
@@ -63,7 +116,7 @@ const AssetList: React.FC = () => {
         subTitle="This is a subtitle"
         handleUpload={handleUpload}
       />
-      <AssetBody
+      <AssetListTable
         providerLocale={enUSIntl}
         dataSource={filteredAssetList}
         columns={columns}
