@@ -12,7 +12,6 @@ type AssetListTableProps = {
 const AssetListTable: React.FC<AssetListTableProps> = ({
   dataSource,
   columns,
-  onRow,
   providerLocale,
   search,
   rowKey,
@@ -25,7 +24,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         <ProTable
           dataSource={dataSource}
           columns={columns}
-          onRow={onRow}
           search={search}
           rowKey={rowKey}
           options={options}

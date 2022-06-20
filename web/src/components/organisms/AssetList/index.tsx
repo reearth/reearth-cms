@@ -1,5 +1,7 @@
+import { EditOutlined } from "@ant-design/icons";
 import { ListToolBarProps } from "@ant-design/pro-table";
 import type { ProColumns } from "@ant-design/pro-table";
+import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/AssetList/AssetListTable";
@@ -8,7 +10,6 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 import enUSIntl from "antd/lib/locale/en_US";
 import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
-import { GetComponentProps } from "rc-table/lib/interface";
 
 import useHooks from "./hooks";
 
@@ -33,17 +34,6 @@ const AssetList: React.FC = () => {
     }
   };
 
-  const handleRowEvents: GetComponentProps<Asset> = (
-    record: Asset,
-    _rowIndex: number | undefined
-  ) => {
-    return {
-      onDoubleClick: (_event: any) => {
-        navigate(`/asset/${record.id}`);
-      },
-    };
-  };
-
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: (value: string) => {
@@ -59,7 +49,21 @@ const AssetList: React.FC = () => {
     },
   };
 
+  const handleEdit = (asset: Asset) => {
+    navigate(`/asset/${asset.id}`);
+  };
+
   const columns: ProColumns<Asset>[] = [
+    {
+      title: "",
+      render: (_, asset) => (
+        <Button
+          type="link"
+          icon={<EditOutlined />}
+          onClick={() => handleEdit(asset)}
+        ></Button>
+      ),
+    },
     {
       title: "File",
       dataIndex: "name",
@@ -119,7 +123,6 @@ const AssetList: React.FC = () => {
         providerLocale={enUSIntl}
         dataSource={filteredAssetList}
         columns={columns}
-        onRow={handleRowEvents}
         search={false}
         rowKey="id"
         options={{
