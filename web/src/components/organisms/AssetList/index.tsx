@@ -1,7 +1,8 @@
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, MessageOutlined } from "@ant-design/icons";
 import { ListToolBarProps } from "@ant-design/pro-table";
 import type { ProColumns } from "@ant-design/pro-table";
 import Button from "@reearth-cms/components/atoms/Button";
+import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/AssetList/AssetListTable";
@@ -63,6 +64,12 @@ const AssetList: React.FC = () => {
           onClick={() => handleEdit(asset)}
         ></Button>
       ),
+    },
+    {
+      title: () => <MessageOutlined />,
+      dataIndex: "commentsCount",
+      key: "commentsCount",
+      render: (_, asset) => <CustomTag value={asset.commentsCount} />,
     },
     {
       title: "File",

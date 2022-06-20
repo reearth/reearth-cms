@@ -24,6 +24,7 @@ export default (workspaceId?: string) => {
         await createAssetMutation({ variables: { workspaceId, file } });
       })();
 
+      // TODO: these values are hardcoded, should be replaced with actual values
       const asset: AssetNode = {
         id: String(assetList.length + 1),
         unzipFile: "",
@@ -34,6 +35,7 @@ export default (workspaceId?: string) => {
         workspaceId: "",
         name: file.name,
         url: "",
+        commentsCount: 0,
       };
 
       setAssetList((prevAssetList) => {
