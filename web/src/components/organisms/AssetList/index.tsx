@@ -4,9 +4,10 @@ import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import AssetListHeader from "@reearth-cms/components/molecules/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/AssetList/AssetListTable";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 import enUSIntl from "antd/lib/locale/en_US";
 import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
-import moment from "moment";
 import { GetComponentProps } from "rc-table/lib/interface";
 
 import useHooks from "./hooks";
@@ -63,15 +64,14 @@ const AssetList: React.FC = () => {
       title: "File",
       dataIndex: "name",
       key: "name",
-      sorter: (a, b) => (a.name > b.name ? 1 : -1),
+      sorter: (a, b) => stringSort(a.name, b.name),
     },
     {
       title: "Size",
       dataIndex: "size",
       key: "size",
-      sorter: (a, b) => a.size - b.size,
-      render: (_text, record) =>
-        `${(record.size / (1024 * 1024)).toFixed(2)}mb`,
+      sorter: (a, b) => numberSort(a.size, b.size),
+      render: (_text, record) => bytesFormat(record.size),
     },
     {
       title: "Content Type",
@@ -82,9 +82,8 @@ const AssetList: React.FC = () => {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => moment(a.createdAt).diff(moment(b.createdAt)),
-      render: (_text, record) =>
-        `${moment(record.createdAt).format("YYYY-MM-DD hh:mm")}`,
+      sorter: (a, b) => dateSort(a.createdAt, b.createdAt),
+      render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
       title: "Created By",

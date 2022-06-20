@@ -9,9 +9,9 @@ import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/ca
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { DefaultOptionType } from "antd/lib/select";
 import { createWorldTerrain } from "cesium";
-import moment from "moment";
 
 type AssetBodyProps = {
   asset: Asset;
@@ -32,11 +32,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   displayUnzipFileList,
 }) => {
   const { name, url, createdAt, createdBy } = asset;
-
-  const formatDate = (date: Date) => {
-    return moment(date).format("YYYY-MM-DD hh:mm");
-  };
-  const formattedCreatedAt = formatDate(createdAt);
+  const formattedCreatedAt = dateTimeFormat(createdAt);
 
   return (
     <BodyContainer>
