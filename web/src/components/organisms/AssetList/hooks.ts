@@ -15,7 +15,9 @@ export default (workspaceId?: string) => {
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
   const [filteredAssetList, setFilteredAssetList] = useState<AssetNode[]>([]);
-
+  const [selection, setSelection] = useState({
+    selectedRowKeys: [],
+  });
   const [createAssetMutation] = useCreateAssetMutation();
   const createAsset = useCallback(
     (file: UploadFile) => {
@@ -66,5 +68,7 @@ export default (workspaceId?: string) => {
     setFilteredAssetList,
     createAsset,
     navigate,
+    selection,
+    setSelection,
   };
 };

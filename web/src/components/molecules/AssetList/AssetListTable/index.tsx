@@ -17,6 +17,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   rowKey,
   options,
   toolbar,
+  rowSelection,
 }) => {
   return (
     <AssetListTableWrapper>
@@ -28,6 +29,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           rowKey={rowKey}
           options={options}
           toolbar={toolbar}
+          rowSelection={rowSelection}
         />
       </ConfigProvider>
     </AssetListTableWrapper>

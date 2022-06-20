@@ -1,6 +1,8 @@
 import { EditOutlined, MessageOutlined } from "@ant-design/icons";
 import { ListToolBarProps } from "@ant-design/pro-table";
 import type { ProColumns } from "@ant-design/pro-table";
+import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
+import { TableRowSelection } from "@ant-design/pro-table/lib/typing";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -21,6 +23,8 @@ const AssetList: React.FC = () => {
     navigate,
     filteredAssetList,
     setFilteredAssetList,
+    selection,
+    setSelection,
   } = useHooks();
 
   const handleUpload = (info: UploadChangeParam<UploadFile<any>>) => {
@@ -119,6 +123,20 @@ const AssetList: React.FC = () => {
     },
   ];
 
+  const options: OptionConfig = {
+    search: true,
+  };
+
+  const rowSelection: TableRowSelection = {
+    selectedRowKeys: selection.selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys: selectedRowKeys,
+      });
+    },
+  };
+
   return (
     <>
       <AssetListHeader
@@ -132,10 +150,9 @@ const AssetList: React.FC = () => {
         columns={columns}
         search={false}
         rowKey="id"
-        options={{
-          search: true,
-        }}
+        options={options}
         toolbar={handleToolbarEvents}
+        rowSelection={rowSelection}
       />
     </>
   );
