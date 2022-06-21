@@ -3,15 +3,17 @@ import { CSSProperties, ReactNode } from "react";
 
 type CardProps = {
   title: string;
+  toolbar?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;
 };
 
-const Card: React.FC<CardProps> = ({ title, children, style }) => {
+const Card: React.FC<CardProps> = ({ title, toolbar, children, style }) => {
   return (
     <CardWrapper style={style}>
       <CardHeader>
-        <h5>{title}</h5>
+        <Title>{title}</Title>
+        <Toolbar>{toolbar}</Toolbar>
       </CardHeader>
       <CardBody>{children}</CardBody>
     </CardWrapper>
@@ -21,14 +23,25 @@ const Card: React.FC<CardProps> = ({ title, children, style }) => {
 const CardWrapper = styled("div")`
   padding: 0;
   border: 1px solid #f5f5f5;
+  margin-bottom: 24px;
 `;
 
 const CardHeader = styled("div")`
   height: 64px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 0 12px;
   font-size: 24px;
+`;
+
+const Title = styled("h5")`
+  margin: 0;
+`;
+
+const Toolbar = styled("div")`
+  display: flex;
+  align-items: center;
 `;
 
 const CardBody = styled("div")`

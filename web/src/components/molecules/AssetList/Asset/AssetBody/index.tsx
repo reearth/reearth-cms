@@ -1,4 +1,6 @@
+import { FullscreenOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
+import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import {
@@ -11,7 +13,7 @@ import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/Ass
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { DefaultOptionType } from "antd/lib/select";
-import { createWorldTerrain } from "cesium";
+import { createWorldTerrain, Viewer } from "cesium";
 
 type AssetBodyProps = {
   asset: Asset;
@@ -34,10 +36,29 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   const { name, url, createdAt, createdBy } = asset;
   const formattedCreatedAt = dateTimeFormat(createdAt);
 
+  let viewerRef: Viewer | undefined;
+  const getViewer = (viewer: Viewer | undefined) => {
+    viewerRef = viewer;
+  };
+  const handleFullScreen = () => {
+    viewerRef?.canvas.requestFullscreen();
+  };
+
   return (
     <BodyContainer>
       <BodyWrapper>
-        <Card title={name} style={{ marginBottom: "24px" }}>
+        <Card
+          title={name}
+          toolbar={
+            <>
+              <Button
+                type="link"
+                icon={<FullscreenOutlined />}
+                onClick={handleFullScreen}
+              ></Button>
+            </>
+          }
+        >
           {displayPreview ? (
             <TilesetPreview
               viewerProps={{
@@ -57,6 +78,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
               tilesetProps={{
                 url: url,
               }}
+              onGetViewer={getViewer}
             ></TilesetPreview>
           ) : (
             <Image
@@ -66,7 +88,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
           )}
         </Card>
         {displayUnzipFileList && (
-          <Card title="Unzip File" style={{ marginBottom: "24px" }}>
+          <Card title="Unzip File">
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
