@@ -73,6 +73,16 @@ func (m *SyncMap[K, V]) FindAll(f func(key K, value V) bool) (v []V) {
 	return
 }
 
+func (m *SyncMap[K, V]) CountAll(f func(key K, value V) bool) (i int) {
+	m.Range(func(key K, value V) bool {
+		if f(key, value) {
+			i++
+		}
+		return true
+	})
+	return
+}
+
 func (m *SyncMap[K, V]) Clone() *SyncMap[K, V] {
 	if m == nil {
 		return nil

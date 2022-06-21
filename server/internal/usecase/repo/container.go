@@ -28,7 +28,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
-		Project:     c.Project,
+		Project:     c.Project.Filtered(workspace),
 	}
 }
 
@@ -55,14 +55,14 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 	var r, w user.WorkspaceIDList
 	if f.Readable != nil || g.Readable != nil {
 		if f.Readable == nil {
-			r = append(g.Readable[:0:0], g.Readable...)
+			r = g.Readable.Clone()
 		} else {
 			r = append(f.Readable, g.Readable...)
 		}
 	}
 	if f.Writable != nil || g.Writable != nil {
 		if f.Writable == nil {
-			w = append(g.Writable[:0:0], g.Writable...)
+			w = g.Writable.Clone()
 		} else {
 			w = append(f.Writable, g.Writable...)
 		}

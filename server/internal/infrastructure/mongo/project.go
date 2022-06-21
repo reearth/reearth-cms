@@ -133,14 +133,12 @@ func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *u
 func filterProjects(ids []id.ProjectID, rows []*project.Project) []*project.Project {
 	res := make([]*project.Project, 0, len(ids))
 	for _, id := range ids {
-		var r2 *project.Project
 		for _, r := range rows {
 			if r.ID() == id {
-				r2 = r
+				res = append(res, r)
 				break
 			}
 		}
-		res = append(res, r2)
 	}
 	return res
 }

@@ -10,50 +10,53 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/samber/lo"
 )
+
+var Now = time.Now
+
+func MockNow(t time.Time) func() {
+	Now = func() time.Time { return t }
+	return func() { Now = time.Now }
+}
 
 type Project struct {
 	lock sync.Mutex
-	data map[id.ProjectID]*project.Project
+	data util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
 }
 
 func NewProject() repo.Project {
 	return &Project{
-		data: map[id.ProjectID]*project.Project{},
+		data: util.SyncMap[id.ProjectID, *project.Project]{},
 	}
 }
 
 func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	return &Project{
-		// note data is shared between the source repo and mutex cannot work well
 		data: r.data,
 		f:    r.f.Merge(f),
 	}
 }
 
-func (r *Project) FindByWorkspace(_ context.Context, id id.WorkspaceID, _ *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
+func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
 	// TODO: implement pagination
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	var result []*project.Project
-	for _, d := range r.data {
-		if d.Workspace() == id {
-			result = append(result, d)
-		}
-	}
+	result := r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Workspace() == wid
+	})
 
 	var startCursor, endCursor *usecase.Cursor
 	if len(result) > 0 {
-		_startCursor := usecase.Cursor(result[0].ID().String())
-		_endCursor := usecase.Cursor(result[len(result)-1].ID().String())
-		startCursor = &_startCursor
-		endCursor = &_endCursor
+		startCursor = lo.ToPtr(usecase.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecase.Cursor(result[len(result)-1].ID().String()))
 	}
 
 	return result, usecase.NewPageInfo(
-		len(r.data),
+		r.data.Len(),
 		startCursor,
 		endCursor,
 		true,
@@ -65,22 +68,20 @@ func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) ([]*project
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	var result []*project.Project
-	for _, pID := range ids {
-		if d, ok := r.data[pID]; ok && r.f.CanRead(d.Workspace()) {
-			result = append(result, d)
-			continue
-		}
-		result = append(result, nil)
-	}
-	return result, nil
+	return r.data.FindAll(func(k id.ProjectID, _ *project.Project) bool {
+		return ids.Has(k)
+	}), nil
 }
 
-func (r *Project) FindByID(_ context.Context, id id.ProjectID) (*project.Project, error) {
+func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	if p, ok := r.data[id]; ok && r.f.CanRead(p.Workspace()) {
+	p := r.data.Find(func(k id.ProjectID, _ *project.Project) bool {
+		return k == pid
+	})
+
+	if p != nil && r.f.CanRead(p.Workspace()) {
 		return p, nil
 	}
 	return nil, rerror.ErrNotFound
@@ -93,10 +94,13 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	if name == "" {
 		return nil, nil
 	}
-	for _, p := range r.data {
-		if p.Alias() == name && r.f.CanRead(p.Workspace()) {
-			return p, nil
-		}
+
+	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Alias() == name
+	})
+
+	if p != nil && r.f.CanRead(p.Workspace()) {
+		return p, nil
 	}
 	return nil, rerror.ErrNotFound
 }
@@ -105,12 +109,13 @@ func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) 
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	for _, p := range r.data {
-		if p.Workspace() == workspace && r.f.CanRead(p.Workspace()) {
-			c++
-		}
+	if !r.f.CanRead(workspace) {
+		return 0, nil
 	}
-	return
+
+	return r.data.CountAll(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Workspace() == workspace
+	}), nil
 }
 
 func (r *Project) Save(_ context.Context, p *project.Project) error {
@@ -121,8 +126,8 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	p.SetUpdatedAt(time.Now())
-	r.data[p.ID()] = p
+	p.SetUpdatedAt(Now())
+	r.data.Store(p.ID(), p)
 	return nil
 }
 
@@ -130,8 +135,8 @@ func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	if p, ok := r.data[id]; ok && r.f.CanWrite(p.Workspace()) {
-		delete(r.data, id)
+	if p, ok := r.data.Load(id); ok && r.f.CanWrite(p.Workspace()) {
+		r.data.Delete(id)
 	}
 	return nil
 }
