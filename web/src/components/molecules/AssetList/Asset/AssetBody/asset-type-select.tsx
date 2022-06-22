@@ -16,6 +16,7 @@ export enum AssetType {
   GML = "gml",
   GLB = "glb",
   ZIP = "zip",
+  SVG = "svg",
 }
 
 type AssetTypeSelectProps = {
@@ -46,6 +47,7 @@ export const AssetTypeSelect: React.FC<AssetTypeSelectProps> = ({
     { id: 11, name: "gml", value: AssetType.GML },
     { id: 12, name: "glb", value: AssetType.GLB },
     { id: 13, name: "zip", value: AssetType.ZIP },
+    { id: 14, name: "svg", value: AssetType.SVG },
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>
