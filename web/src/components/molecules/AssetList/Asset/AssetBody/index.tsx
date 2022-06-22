@@ -8,6 +8,7 @@ import {
   AssetTypeSelect,
 } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
+import NoSupportedViewer from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/NoSupportedViewer";
 import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/PreviewModal";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
@@ -19,8 +20,6 @@ import { createWorldTerrain, Viewer } from "cesium";
 type AssetBodyProps = {
   asset: Asset;
   selectedContentType: string;
-  displayPreview: boolean;
-  displayUnzipFileList: boolean;
   isModalVisible: boolean;
   handleModalCancel: () => void;
   handleFullScreen: () => void;
@@ -36,17 +35,56 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   asset,
   selectedContentType,
   handleTypeChange,
-  displayPreview,
-  displayUnzipFileList,
   isModalVisible,
   handleModalCancel,
   handleFullScreen,
 }) => {
   const { name, url, createdAt, createdBy } = asset;
   const formattedCreatedAt = dateTimeFormat(createdAt);
-
+  const displayUnzipFileList = selectedContentType === AssetType.ZIP;
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
+  };
+
+  const renderPreview = () => {
+    switch (selectedContentType) {
+      case AssetType.JSON:
+      case AssetType.ZIP:
+        return (
+          <TilesetPreview
+            viewerProps={{
+              terrainProvider: createWorldTerrain(),
+              navigationHelpButton: false,
+              homeButton: false,
+              projectionPicker: false,
+              sceneModePicker: false,
+              baseLayerPicker: false,
+              fullscreenButton: false,
+              vrButton: false,
+              selectionIndicator: false,
+              timeline: false,
+              animation: false,
+              geocoder: false,
+            }}
+            tilesetProps={{
+              url: url,
+            }}
+            onGetViewer={getViewer}
+          ></TilesetPreview>
+        );
+      case AssetType.JPEG:
+      case AssetType.PNG:
+        return (
+          <Image
+            src="https://via.placeholder.com/640x480.png?text=No+Image"
+            alt="asset-preview"
+          ></Image>
+        );
+      case AssetType.SVG:
+        return <NoSupportedViewer />;
+      default:
+        return <NoSupportedViewer />;
+    }
   };
 
   return (
@@ -70,33 +108,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
             </>
           }
         >
-          {displayPreview ? (
-            <TilesetPreview
-              viewerProps={{
-                terrainProvider: createWorldTerrain(),
-                navigationHelpButton: false,
-                homeButton: false,
-                projectionPicker: false,
-                sceneModePicker: false,
-                baseLayerPicker: false,
-                fullscreenButton: false,
-                vrButton: false,
-                selectionIndicator: false,
-                timeline: false,
-                animation: false,
-                geocoder: false,
-              }}
-              tilesetProps={{
-                url: url,
-              }}
-              onGetViewer={getViewer}
-            ></TilesetPreview>
-          ) : (
-            <Image
-              src="https://via.placeholder.com/640x480.png?text=No+Image"
-              alt="asset-preview"
-            ></Image>
-          )}
+          {renderPreview()}
         </Card>
         {displayUnzipFileList && (
           <Card title="Unzip File">

@@ -11,8 +11,6 @@ const Asset: React.FC<Props> = () => {
     assetId,
     selectedContentType,
     handleTypeChange,
-    displayPreview,
-    displayUnzipFileList,
     isModalVisible,
     handleModalCancel,
     handleFullScreen,
@@ -33,8 +31,6 @@ const Asset: React.FC<Props> = () => {
         asset={asset}
         selectedContentType={selectedContentType}
         handleTypeChange={handleTypeChange}
-        displayPreview={displayPreview}
-        displayUnzipFileList={displayUnzipFileList}
         isModalVisible={isModalVisible}
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}

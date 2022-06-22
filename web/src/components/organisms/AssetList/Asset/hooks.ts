@@ -8,9 +8,7 @@ export default () => {
   const { assetId } = useParams();
   const [asset, setAsset] = useState<Asset>({} as Asset);
   const [selectedContentType, setSelectedContentType] = useState<string>("");
-  const [displayPreview, setDisplayPreview] = useState<boolean>(false);
-  const [displayUnzipFileList, setDisplayUnzipFileList] =
-    useState<boolean>(false);
+  useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const getAsset = (_assetId?: string | undefined): Asset => {
@@ -38,23 +36,11 @@ export default () => {
   useEffect(() => {
     if (asset.contentType) {
       setSelectedContentType(asset.contentType);
-      setDisplayPreview(
-        asset.contentType === AssetType.JSON ||
-        asset.contentType === AssetType.ZIP
-      );
-      setDisplayUnzipFileList(
-        asset.contentType === AssetType.JSON ||
-        asset.contentType === AssetType.ZIP
-      );
     }
   }, [asset.contentType]);
 
   const handleTypeChange = (value: AssetType) => {
     setSelectedContentType(value);
-    setDisplayPreview(value === AssetType.JSON || value === AssetType.ZIP);
-    setDisplayUnzipFileList(
-      value === AssetType.JSON || value === AssetType.ZIP
-    );
   };
 
   const handleFullScreen = () => {
@@ -74,8 +60,6 @@ export default () => {
     assetId,
     selectedContentType,
     handleTypeChange,
-    displayPreview,
-    displayUnzipFileList,
     isModalVisible,
     handleModalCancel,
     handleFullScreen,
