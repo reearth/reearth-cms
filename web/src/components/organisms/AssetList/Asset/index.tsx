@@ -13,6 +13,9 @@ const Asset: React.FC<Props> = () => {
     handleTypeChange,
     displayPreview,
     displayUnzipFileList,
+    isModalVisible,
+    handleModalCancel,
+    handleFullScreen,
   } = useHooks();
 
   const handleSave = () => {
@@ -32,6 +35,9 @@ const Asset: React.FC<Props> = () => {
         handleTypeChange={handleTypeChange}
         displayPreview={displayPreview}
         displayUnzipFileList={displayUnzipFileList}
+        isModalVisible={isModalVisible}
+        handleModalCancel={handleModalCancel}
+        handleFullScreen={handleFullScreen}
       />
     </>
   );

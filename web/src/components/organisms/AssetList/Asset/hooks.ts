@@ -1,4 +1,5 @@
 import { AssetType } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
+import { viewerRef } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/index";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -10,6 +11,7 @@ export default () => {
   const [displayPreview, setDisplayPreview] = useState<boolean>(false);
   const [displayUnzipFileList, setDisplayUnzipFileList] =
     useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const getAsset = (_assetId?: string | undefined): Asset => {
     // TODO: this data is hardcodded, should be replace with actual data.
@@ -55,6 +57,18 @@ export default () => {
     );
   };
 
+  const handleFullScreen = () => {
+    if (selectedContentType === AssetType.JSON) {
+      viewerRef?.canvas.requestFullscreen();
+    } else {
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return {
     asset,
     assetId,
@@ -62,5 +76,8 @@ export default () => {
     handleTypeChange,
     displayPreview,
     displayUnzipFileList,
+    isModalVisible,
+    handleModalCancel,
+    handleFullScreen,
   };
 };

@@ -8,6 +8,7 @@ import {
   AssetTypeSelect,
 } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
+import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/PreviewModal";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
@@ -20,11 +21,16 @@ type AssetBodyProps = {
   selectedContentType: string;
   displayPreview: boolean;
   displayUnzipFileList: boolean;
+  isModalVisible: boolean;
+  handleModalCancel: () => void;
+  handleFullScreen: () => void;
   handleTypeChange: (
     value: AssetType,
     option: DefaultOptionType | DefaultOptionType[]
   ) => void | undefined;
 };
+
+export let viewerRef: Viewer | undefined;
 
 const AssetBody: React.FC<AssetBodyProps> = ({
   asset,
@@ -32,16 +38,15 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   handleTypeChange,
   displayPreview,
   displayUnzipFileList,
+  isModalVisible,
+  handleModalCancel,
+  handleFullScreen,
 }) => {
   const { name, url, createdAt, createdBy } = asset;
   const formattedCreatedAt = dateTimeFormat(createdAt);
 
-  let viewerRef: Viewer | undefined;
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
-  };
-  const handleFullScreen = () => {
-    viewerRef?.canvas.requestFullscreen();
   };
 
   return (
@@ -54,8 +59,14 @@ const AssetBody: React.FC<AssetBodyProps> = ({
               <Button
                 type="link"
                 icon={<FullscreenOutlined />}
+                size="large"
                 onClick={handleFullScreen}
               ></Button>
+              <PreviewModal
+                url="https://via.placeholder.com/640x480.png?text=No+Image"
+                visible={isModalVisible}
+                handleCancel={handleModalCancel}
+              />
             </>
           }
         >
@@ -126,8 +137,9 @@ const BodyWrapper = styled("div")`
 `;
 
 const Image = styled("img")`
-  width: 100%;
-  height: auto;
+  width: Auto;
+  height: 500px;
+  object-fit: contain;
 `;
 
 const SideBarWrapper = styled("div")`

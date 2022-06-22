@@ -47,6 +47,7 @@ const Toolbar = styled("div")`
 const CardBody = styled("div")`
   padding: 10px;
   background-color: #f5f5f5;
+  text-align: center;
 `;
 
 export default Card;
