@@ -114,10 +114,11 @@ type VersionQuery struct {
 }
 
 type VersionQueryMatch[T any] struct {
-	Eq    func(Version) T
-	Lt    func(Version) T
-	Gt    func(Version) T
-	Range func(Version, Version) T
+	Eq      func(Version) T
+	Lt      func(Version) T
+	Gt      func(Version) T
+	Range   func(Version, Version) T
+	Default func() T
 }
 
 func MatchVersionQuery[T any](vq VersionQuery, m VersionQueryMatch[T]) (_ T) {
@@ -144,6 +145,9 @@ func MatchVersionQuery[T any](vq VersionQuery, m VersionQueryMatch[T]) (_ T) {
 			return
 		}
 		return m.Lt(vq.lt)
+	}
+	if m.Default != nil {
+		return m.Default()
 	}
 	return
 }

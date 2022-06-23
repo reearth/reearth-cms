@@ -150,8 +150,6 @@ func TestMatchVersionQuery(t *testing.T) {
 		Eq: func(v Version) int {
 			return 1
 		},
-		Lt: nil,
-		Gt: nil,
 	}))
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
 		lt: Version("y"),
@@ -161,14 +159,10 @@ func TestMatchVersionQuery(t *testing.T) {
 			assert.Equal(t, Version("y"), v)
 			return 1
 		},
-		Gt:    nil,
-		Range: nil,
 	}))
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
 		gt: Version("y"),
 	}, VersionQueryMatch[int]{
-		Eq: nil,
-		Lt: nil,
 		Gt: func(v Version) int {
 			assert.Equal(t, Version("y"), v)
 			return 1
@@ -179,12 +173,14 @@ func TestMatchVersionQuery(t *testing.T) {
 		gt: Version("y"),
 		lt: Version("z"),
 	}, VersionQueryMatch[int]{
-		Eq: nil,
-		Lt: nil,
-		Gt: nil,
 		Range: func(o, n Version) int {
 			assert.Equal(t, Version("y"), o)
 			assert.Equal(t, Version("z"), n)
+			return 1
+		},
+	}))
+	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{}, VersionQueryMatch[int]{
+		Default: func() int {
 			return 1
 		},
 	}))
