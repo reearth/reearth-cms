@@ -12,7 +12,7 @@ export default () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const getAsset = (_assetId?: string | undefined): Asset => {
-    // TODO: this data is hardcodded, should be replace with actual data.
+    // TODO: this data is hardcoded, should be replace with actual data.
     const assetNode: Asset = {
       contentType: AssetType.JSON,
       createdAt: new Date(),
