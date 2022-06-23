@@ -60,8 +60,8 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Size        func(childComplexity int) int
-		TeamID      func(childComplexity int) int
 		URL         func(childComplexity int) int
+		WorkspaceID func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -269,19 +269,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asset.Size(childComplexity), true
 
-	case "Asset.teamId":
-		if e.complexity.Asset.TeamID == nil {
-			break
-		}
-
-		return e.complexity.Asset.TeamID(childComplexity), true
-
 	case "Asset.url":
 		if e.complexity.Asset.URL == nil {
 			break
 		}
 
 		return e.complexity.Asset.URL(childComplexity), true
+
+	case "Asset.workspaceId":
+		if e.complexity.Asset.WorkspaceID == nil {
+			break
+		}
+
+		return e.complexity.Asset.WorkspaceID(childComplexity), true
 
 	case "AssetConnection.edges":
 		if e.complexity.AssetConnection.Edges == nil {
@@ -1069,7 +1069,7 @@ scalar FileSize
 type Asset implements Node {
     id: ID!
     createdAt: DateTime!
-    teamId: ID!
+    workspaceId: ID!
     name: String!
     size: FileSize!
     url: String!
@@ -1626,7 +1626,7 @@ func (ec *executionContext) _Asset_createdAt(ctx context.Context, field graphql.
 	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Asset_teamId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+func (ec *executionContext) _Asset_workspaceId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1644,7 +1644,7 @@ func (ec *executionContext) _Asset_teamId(ctx context.Context, field graphql.Col
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TeamID, nil
+		return obj.WorkspaceID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5700,9 +5700,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "teamId":
+		case "workspaceId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Asset_teamId(ctx, field, obj)
+				return ec._Asset_workspaceId(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
