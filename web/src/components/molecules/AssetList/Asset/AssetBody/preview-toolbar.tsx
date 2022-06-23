@@ -1,7 +1,7 @@
 import { FullscreenOutlined } from "@ant-design/icons";
 import Button from "@reearth-cms/components/atoms/Button";
 import { AssetType } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
-import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/PreviewModal";
+import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/preview-modal";
 
 type PreviewToolbar = {
   url?: string;

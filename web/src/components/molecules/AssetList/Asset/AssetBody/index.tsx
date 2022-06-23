@@ -6,7 +6,7 @@ import {
   AssetTypeSelect,
 } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
-import NoSupportedViewer from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/NoSupportedViewer";
+import NoSupportedViewer from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/no-supported-viewer";
 import PreviewToolbar from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/preview-toolbar";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import SVGPreview from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/svg-preview";
