@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_projectRepo_CountByWorkspace(t *testing.T) {
+func TestProjectRepo_CountByWorkspace(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	tests := []struct {
 		name    string
@@ -87,7 +87,7 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 			},
 			arg:     tid1,
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
-			want:    2,
+			want:    0,
 			wantErr: nil,
 		},
 	}
@@ -118,7 +118,7 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_Filtered(t *testing.T) {
+func TestProjectRepo_Filtered(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
@@ -173,7 +173,7 @@ func Test_projectRepo_Filtered(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_FindByID(t *testing.T) {
+func TestProjectRepo_FindByID(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	now := time.Now().Truncate(time.Millisecond).UTC()
@@ -278,7 +278,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_FindByIDs(t *testing.T) {
+func TestProjectRepo_FindByIDs(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
@@ -357,7 +357,7 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 			},
 			arg:     []id.ProjectID{id1, id2},
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
-			want:    []*project.Project{ /*nil, nil*/ },
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -402,7 +402,7 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_FindByPublicName(t *testing.T) {
+func TestProjectRepo_FindByPublicName(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
@@ -532,7 +532,7 @@ func Test_projectRepo_FindByPublicName(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_FindByWorkspace(t *testing.T) {
+func TestProjectRepo_FindByWorkspace(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
@@ -613,7 +613,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			},
 			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1},
+			want:    []*project.Project{p1, p2},
 			wantErr: nil,
 		},
 		{
@@ -626,7 +626,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			},
 			args:    args{tid1, usecase.NewPagination(nil, lo.ToPtr(1), nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p2},
+			want:    []*project.Project{p1, p2},
 			wantErr: nil,
 		},
 		{
@@ -646,7 +646,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			r := NewProject()
 			ctx := context.Background()
@@ -670,7 +670,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_Remove(t *testing.T) {
+func TestProjectRepo_Remove(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
@@ -769,7 +769,7 @@ func Test_projectRepo_Remove(t *testing.T) {
 	}
 }
 
-func Test_projectRepo_Save(t *testing.T) {
+func TestProjectRepo_Save(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Truncate(time.Millisecond).UTC()).MustBuild()

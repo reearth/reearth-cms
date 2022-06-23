@@ -74,7 +74,7 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 }
 
 func (f WorkspaceFilter) CanRead(id user.WorkspaceID) bool {
-	return f.Readable == nil || f.Readable.Has(id)
+	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
 }
 
 func (f WorkspaceFilter) CanWrite(id user.WorkspaceID) bool {

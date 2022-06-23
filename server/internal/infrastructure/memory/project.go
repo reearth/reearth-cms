@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -22,7 +21,6 @@ func MockNow(t time.Time) func() {
 }
 
 type Project struct {
-	lock sync.Mutex
 	data util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
 }
@@ -42,8 +40,10 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 
 func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
 	// TODO: implement pagination
-	r.lock.Lock()
-	defer r.lock.Unlock()
+
+	if !r.f.CanRead(wid) {
+		return nil, nil, nil
+	}
 
 	result := r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
 		return v.Workspace() == wid
@@ -56,7 +56,7 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 	}
 
 	return result, usecase.NewPageInfo(
-		r.data.Len(),
+		len(result),
 		startCursor,
 		endCursor,
 		true,
@@ -65,49 +65,38 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 }
 
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) ([]*project.Project, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	return r.data.FindAll(func(k id.ProjectID, _ *project.Project) bool {
-		return ids.Has(k)
+	return r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
+		return ids.Has(k) && r.f.CanRead(v.Workspace())
 	}), nil
 }
 
 func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
-	p := r.data.Find(func(k id.ProjectID, _ *project.Project) bool {
-		return k == pid
+	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
+		return k == pid && r.f.CanRead(v.Workspace())
 	})
 
-	if p != nil && r.f.CanRead(p.Workspace()) {
+	if p != nil {
 		return p, nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
 func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Project, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if name == "" {
 		return nil, nil
 	}
 
 	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Alias() == name
+		return v.Alias() == name && r.f.CanRead(v.Workspace())
 	})
 
-	if p != nil && r.f.CanRead(p.Workspace()) {
+	if p != nil {
 		return p, nil
 	}
 	return nil, rerror.ErrNotFound
 }
 
 func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) (c int, err error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
 
 	if !r.f.CanRead(workspace) {
 		return 0, nil
@@ -123,20 +112,15 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 		return repo.ErrOperationDenied
 	}
 
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	p.SetUpdatedAt(Now())
 	r.data.Store(p.ID(), p)
 	return nil
 }
 
 func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	if p, ok := r.data.Load(id); ok && r.f.CanWrite(p.Workspace()) {
 		r.data.Delete(id)
+		return nil
 	}
-	return nil
+	return rerror.ErrNotFound
 }
