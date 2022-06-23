@@ -1,6 +1,4 @@
-import { FullscreenOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import {
@@ -9,7 +7,7 @@ import {
 } from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/asset-type-select";
 import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/card";
 import NoSupportedViewer from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/NoSupportedViewer";
-import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/PreviewModal";
+import PreviewToolbar from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/preview-toolbar";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
 import SVGPreview from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/svg-preview";
 import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
@@ -79,14 +77,14 @@ const AssetBody: React.FC<AssetBodyProps> = ({
       case AssetType.JPEG:
       case AssetType.PNG:
         return (
-          // this is a hardcoded url and should be replaced with asset.url
+          // TODO: this is a hardcoded url and should be replaced with asset.url
           <Image
             src="https://via.placeholder.com/640x480.png?text=No+Image"
             alt="asset-preview"
           ></Image>
         );
       case AssetType.SVG:
-        // this is a hardcoded url and should be replaced with asset.url
+        // TODO: this is a hardcoded url and should be replaced with asset.url
         return (
           <SVGPreview
             url="https://assets.codepen.io/3/kiwi.svg"
@@ -104,25 +102,15 @@ const AssetBody: React.FC<AssetBodyProps> = ({
         <Card
           title={name}
           toolbar={
-            <>
-              {selectedContentType === AssetType.SVG && (
-                <>
-                  <Button onClick={handleCodeSourceClick}>Code Source</Button>
-                  <Button onClick={handleRenderClick}>Render</Button>
-                </>
-              )}
-              <Button
-                type="link"
-                icon={<FullscreenOutlined />}
-                size="large"
-                onClick={handleFullScreen}
-              ></Button>
-              <PreviewModal
-                url="https://via.placeholder.com/640x480.png?text=No+Image"
-                visible={isModalVisible}
-                handleCancel={handleModalCancel}
-              />
-            </>
+            <PreviewToolbar
+              url={url}
+              selectedContentType={selectedContentType}
+              isModalVisible={isModalVisible}
+              handleCodeSourceClick={handleCodeSourceClick}
+              handleRenderClick={handleRenderClick}
+              handleFullScreen={handleFullScreen}
+              handleModalCancel={handleModalCancel}
+            />
           }
         >
           {renderPreview()}
