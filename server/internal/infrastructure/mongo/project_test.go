@@ -880,6 +880,7 @@ func Test_projectRepo_Save(t *testing.T) {
 			}
 
 			got, err := r.CountByWorkspace(ctx, tc.arg.Workspace())
+			assert.NoError(t, err)
 			if tc.wantErr != nil {
 				assert.Zero(t, got)
 				return
