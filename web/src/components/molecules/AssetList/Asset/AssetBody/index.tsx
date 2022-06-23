@@ -11,11 +11,14 @@ import Card from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/ca
 import NoSupportedViewer from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/NoSupportedViewer";
 import PreviewModal from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/PreviewModal";
 import SideBarCard from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/side-bar-card";
+import SVGPreview from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/svg-preview";
 import UnzipFileList from "@reearth-cms/components/molecules/AssetList/Asset/AssetBody/unzip-file-list";
 import { Asset } from "@reearth-cms/components/organisms/AssetList/asset.type";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { DefaultOptionType } from "antd/lib/select";
 import { createWorldTerrain, Viewer } from "cesium";
+
+import useHooks from "./hooks";
 
 type AssetBodyProps = {
   asset: Asset;
@@ -40,6 +43,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   handleFullScreen,
 }) => {
   const { name, url, createdAt, createdBy } = asset;
+  const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(createdAt);
   const displayUnzipFileList = selectedContentType === AssetType.ZIP;
   const getViewer = (viewer: Viewer | undefined) => {
@@ -75,13 +79,20 @@ const AssetBody: React.FC<AssetBodyProps> = ({
       case AssetType.JPEG:
       case AssetType.PNG:
         return (
+          // this is a hardcoded url and should be replaced with asset.url
           <Image
             src="https://via.placeholder.com/640x480.png?text=No+Image"
             alt="asset-preview"
           ></Image>
         );
       case AssetType.SVG:
-        return <NoSupportedViewer />;
+        // this is a hardcoded url and should be replaced with asset.url
+        return (
+          <SVGPreview
+            url="https://assets.codepen.io/3/kiwi.svg"
+            svgRender={svgRender}
+          />
+        );
       default:
         return <NoSupportedViewer />;
     }
@@ -94,6 +105,12 @@ const AssetBody: React.FC<AssetBodyProps> = ({
           title={name}
           toolbar={
             <>
+              {selectedContentType === AssetType.SVG && (
+                <>
+                  <Button onClick={handleCodeSourceClick}>Code Source</Button>
+                  <Button onClick={handleRenderClick}>Render</Button>
+                </>
+              )}
               <Button
                 type="link"
                 icon={<FullscreenOutlined />}
