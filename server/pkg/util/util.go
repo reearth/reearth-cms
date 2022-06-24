@@ -26,6 +26,18 @@ func Deref[T any](r *T) T {
 	return *r
 }
 
+func Try(tries ...func() error) error {
+	for _, f := range tries {
+		if f == nil {
+			continue
+		}
+		if err := f(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func CopyURL(u *url.URL) *url.URL {
 	if u == nil {
 		return nil
