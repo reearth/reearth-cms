@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"golang.org/x/text/language"
@@ -25,6 +26,13 @@ type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type CreateProjectInput struct {
+	WorkspaceID ID      `json:"workspaceId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Alias       *string `json:"alias"`
+}
+
 type CreateWorkspaceInput struct {
 	Name string `json:"name"`
 }
@@ -39,6 +47,14 @@ type DeleteMeInput struct {
 
 type DeleteMePayload struct {
 	UserID ID `json:"userId"`
+}
+
+type DeleteProjectInput struct {
+	ProjectID ID `json:"projectId"`
+}
+
+type DeleteProjectPayload struct {
+	ProjectID ID `json:"projectId"`
 }
 
 type DeleteWorkspaceInput struct {
@@ -66,6 +82,47 @@ type PageInfo struct {
 	EndCursor       *usecase.Cursor `json:"endCursor"`
 	HasNextPage     bool            `json:"hasNextPage"`
 	HasPreviousPage bool            `json:"hasPreviousPage"`
+}
+
+type Pagination struct {
+	First  *int            `json:"first"`
+	Last   *int            `json:"last"`
+	After  *usecase.Cursor `json:"after"`
+	Before *usecase.Cursor `json:"before"`
+}
+
+type Project struct {
+	ID          ID         `json:"id"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Alias       string     `json:"alias"`
+	WorkspaceID ID         `json:"workspaceId"`
+	Workspace   *Workspace `json:"workspace"`
+}
+
+func (Project) IsNode() {}
+
+type ProjectAliasAvailability struct {
+	Alias     string `json:"alias"`
+	Available bool   `json:"available"`
+}
+
+type ProjectConnection struct {
+	Edges      []*ProjectEdge `json:"edges"`
+	Nodes      []*Project     `json:"nodes"`
+	PageInfo   *PageInfo      `json:"pageInfo"`
+	TotalCount int            `json:"totalCount"`
+}
+
+type ProjectEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Project       `json:"node"`
+}
+
+type ProjectPayload struct {
+	Project *Project `json:"project"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
@@ -117,6 +174,12 @@ type UpdateMemberOfWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type UpdateProjectInput struct {
+	ProjectID   ID      `json:"projectId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
 type UpdateWorkspaceInput struct {
 	WorkspaceID ID     `json:"workspaceId"`
 	Name        string `json:"name"`
@@ -154,16 +217,18 @@ type NodeType string
 const (
 	NodeTypeUser      NodeType = "USER"
 	NodeTypeWorkspace NodeType = "WORKSPACE"
+	NodeTypeProject   NodeType = "PROJECT"
 )
 
 var AllNodeType = []NodeType{
 	NodeTypeUser,
 	NodeTypeWorkspace,
+	NodeTypeProject,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
 		return true
 	}
 	return false
