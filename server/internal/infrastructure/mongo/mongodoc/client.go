@@ -16,14 +16,18 @@ import (
 )
 
 type Client struct {
-	database string
-	client   *mongo.Client
+	client *mongo.Database
 }
 
 func NewClient(database string, c *mongo.Client) *Client {
 	return &Client{
-		database: database,
-		client:   c,
+		client: c.Database(database),
+	}
+}
+
+func NewClientWithDatabase(c *mongo.Database) *Client {
+	return &Client{
+		client: c,
 	}
 }
 
@@ -35,7 +39,7 @@ func (c *Client) WithCollection(col string) *ClientCollection {
 }
 
 func (c *Client) Collection(col string) *mongo.Collection {
-	return c.client.Database(c.database).Collection(col)
+	return c.client.Collection(col)
 }
 
 func (c *Client) Find(ctx context.Context, col string, filter interface{}, consumer Consumer) error {

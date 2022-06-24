@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -32,7 +34,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -40,7 +42,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -81,7 +83,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -89,7 +91,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -130,7 +132,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -138,7 +140,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -160,8 +162,8 @@ func TestWorkspace_FindByUser(t *testing.T) {
 func TestWorkspace_Remove(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 
-	init := connect(t)
-	client := init(t)
+	init := mongotest.Connect(t)
+	client := mongodoc.NewClientWithDatabase(init(t))
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()
@@ -176,8 +178,8 @@ func TestWorkspace_RemoveAll(t *testing.T) {
 	ws1 := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 
-	init := connect(t)
-	client := init(t)
+	init := mongotest.Connect(t)
+	client := mongodoc.NewClientWithDatabase(init(t))
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()
