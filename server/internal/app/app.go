@@ -60,13 +60,6 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
 	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
-	api.POST("/signup", Signup())
-
-	//if !cfg.Config.AuthSrv.Disabled {
-	//	api.POST("/signup/verify", StartSignupVerify())
-	//	api.POST("/signup/verify/:code", SignupVerify())
-	//	api.POST("/password-reset", PasswordReset())
-	//}
 
 	return e
 }

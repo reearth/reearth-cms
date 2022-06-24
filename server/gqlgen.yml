@@ -5,6 +5,7 @@ schema:
   - ./schemas/schema.graphql
   - ./schemas/user.graphql
   - ./schemas/workspace.graphql
+  - ./schemas/project.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -22,6 +23,10 @@ models:
   WorkspaceMember:
     fields:
       user:
+        resolver: true
+  Project:
+    fields:
+      workspace:
         resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
