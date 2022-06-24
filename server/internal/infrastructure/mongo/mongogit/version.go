@@ -14,17 +14,6 @@ func (r Ref) OrVersion() VersionOrRef {
 	return VersionOrRef{ref: r}
 }
 
-type Refs map[Ref]Version
-
-func (refs Refs) Get(r Ref) Version {
-	if refs != nil {
-		if v, ok := refs[r]; ok {
-			return v
-		}
-	}
-	return VersionZero
-}
-
 type VersionOrRef struct {
 	version Version
 	ref     Ref
@@ -61,33 +50,33 @@ func MatchVersionOrRef[T any](vr VersionOrRef, v func(v Version) T, r func(r Ref
 	return
 }
 
-type VersionRefQuery struct {
+type VersionQuery struct {
 	eq VersionOrRef
 	gt VersionOrRef
 	lt VersionOrRef
 }
 
-func Query() (_ VersionRefQuery) {
+func Query() (_ VersionQuery) {
 	return
 }
 
-func (VersionRefQuery) Equal(v VersionOrRef) VersionRefQuery {
-	return VersionRefQuery{eq: v}
+func (VersionQuery) Equal(v VersionOrRef) VersionQuery {
+	return VersionQuery{eq: v}
 }
 
-func (VersionRefQuery) NewerThan(v VersionOrRef) VersionRefQuery {
-	return VersionRefQuery{gt: v}
+func (VersionQuery) NewerThan(v VersionOrRef) VersionQuery {
+	return VersionQuery{gt: v}
 }
 
-func (VersionRefQuery) OlderThan(v VersionOrRef) VersionRefQuery {
-	return VersionRefQuery{lt: v}
+func (VersionQuery) OlderThan(v VersionOrRef) VersionQuery {
+	return VersionQuery{lt: v}
 }
 
-func (VersionRefQuery) Range(oldest, newest VersionOrRef) VersionRefQuery {
-	return VersionRefQuery{lt: newest, gt: oldest}
+func (VersionQuery) Range(oldest, newest VersionOrRef) VersionQuery {
+	return VersionQuery{lt: newest, gt: oldest}
 }
 
-func (q VersionRefQuery) Refs() (refs []Ref) {
+func (q VersionQuery) Refs() (refs []Ref) {
 	q.eq.Match(nil, func(r Ref) {
 		refs = append(refs, r)
 	})
@@ -100,51 +89,38 @@ func (q VersionRefQuery) Refs() (refs []Ref) {
 	return refs
 }
 
-func (q VersionRefQuery) Solve(refs Refs) (vq VersionQuery) {
-	vq.eq = refs.Get(q.eq.ref)
-	vq.gt = refs.Get(q.gt.ref)
-	vq.lt = refs.Get(q.lt.ref)
-	return
-}
-
-type VersionQuery struct {
-	eq Version
-	gt Version
-	lt Version
-}
-
 type VersionQueryMatch[T any] struct {
-	Eq      func(Version) T
-	Lt      func(Version) T
-	Gt      func(Version) T
-	Range   func(Version, Version) T
+	Eq      func(VersionOrRef) T
+	Lt      func(VersionOrRef) T
+	Gt      func(VersionOrRef) T
+	Range   func(VersionOrRef, VersionOrRef) T
 	Default func() T
 }
 
-func MatchVersionQuery[T any](vq VersionQuery, m VersionQueryMatch[T]) (_ T) {
-	if vq.eq != VersionZero {
+func MatchVersionQuery[T any](q VersionQuery, m VersionQueryMatch[T]) (_ T) {
+	if !q.eq.IsZero() {
 		if m.Eq == nil {
 			return
 		}
-		return m.Eq(vq.eq)
+		return m.Eq(q.eq)
 	}
-	if vq.gt != VersionZero && vq.lt != VersionZero {
+	if !q.gt.IsZero() && !q.lt.IsZero() {
 		if m.Range == nil {
 			return
 		}
-		return m.Range(vq.gt, vq.lt)
+		return m.Range(q.gt, q.lt)
 	}
-	if vq.gt != VersionZero {
+	if !q.gt.IsZero() {
 		if m.Gt == nil {
 			return
 		}
-		return m.Gt(vq.gt)
+		return m.Gt(q.gt)
 	}
-	if vq.lt != VersionZero {
+	if !q.lt.IsZero() {
 		if m.Lt == nil {
 			return
 		}
-		return m.Lt(vq.lt)
+		return m.Lt(q.lt)
 	}
 	if m.Default != nil {
 		return m.Default()

@@ -16,12 +16,6 @@ func TestRef_OrVersion(t *testing.T) {
 	assert.Equal(t, VersionOrRef{}, Ref("").OrVersion())
 }
 
-func TestRefs_Get(t *testing.T) {
-	assert.Equal(t, Version("x"), Refs{"a": "x"}.Get("a"))
-	assert.Equal(t, VersionZero, Refs{}.Get("x"))
-	assert.Equal(t, VersionZero, Refs(nil).Get("x"))
-}
-
 func TestVersionOrRef_IsZero(t *testing.T) {
 	assert.False(t, Version("x").OrRef().IsZero())
 	assert.False(t, Ref("x").OrVersion().IsZero())
@@ -104,78 +98,54 @@ func TestMatchVersionOrRef(t *testing.T) {
 }
 
 func TestQuery(t *testing.T) {
-	assert.Equal(t, VersionRefQuery{
+	assert.Equal(t, VersionQuery{
 		eq: Version("x").OrRef(),
 	}, Query().Equal(Version("x").OrRef()))
-	assert.Equal(t, VersionRefQuery{
+	assert.Equal(t, VersionQuery{
 		lt: Version("x").OrRef(),
 	}, Query().OlderThan(Version("x").OrRef()))
-	assert.Equal(t, VersionRefQuery{
+	assert.Equal(t, VersionQuery{
 		gt: Version("x").OrRef(),
 	}, Query().NewerThan(Version("x").OrRef()))
-	assert.Equal(t, VersionRefQuery{
+	assert.Equal(t, VersionQuery{
 		gt: Version("x").OrRef(),
 		lt: Version("y").OrRef(),
 	}, Query().Range(Version("x").OrRef(), Version("y").OrRef()))
 }
 
-func TestVersionRefQuery_Refs(t *testing.T) {
-	assert.Equal(t, []Ref{"a", "b", "c"}, VersionRefQuery{
-		eq: Ref("a").OrVersion(),
-		gt: Ref("b").OrVersion(),
-		lt: Ref("c").OrVersion(),
-	}.Refs())
-}
-
-func TestVersionRefQuery_Solve(t *testing.T) {
-	assert.Equal(t, VersionQuery{
-		eq: Version("x"),
-		gt: Version("y"),
-		lt: Version("z"),
-	}, VersionRefQuery{
-		eq: Ref("a").OrVersion(),
-		gt: Ref("b").OrVersion(),
-		lt: Ref("c").OrVersion(),
-	}.Solve(Refs{
-		"a": "x",
-		"b": "y",
-		"c": "z",
-	}))
-}
-
 func TestMatchVersionQuery(t *testing.T) {
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
-		eq: Version("x"),
+		eq: Version("x").OrRef(),
 	}, VersionQueryMatch[int]{
-		Eq: func(v Version) int {
+		Eq: func(v VersionOrRef) int {
 			return 1
 		},
 	}))
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
-		lt: Version("y"),
+		lt: Version("y").OrRef(),
 	}, VersionQueryMatch[int]{
 		Eq: nil,
-		Lt: func(v Version) int {
-			assert.Equal(t, Version("y"), v)
+		Lt: func(v VersionOrRef) int {
+			assert.Equal(t, Version("y").OrRef(), v)
 			return 1
 		},
 	}))
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
-		gt: Version("y"),
+		gt: Version("y").OrRef(),
 	}, VersionQueryMatch[int]{
-		Gt: func(v Version) int {
-			assert.Equal(t, Version("y"), v)
+		Gt: func(v VersionOrRef) int {
+			assert.Equal(t, Version("y").OrRef(), v)
 			return 1
 		},
 		Range: nil,
 	}))
 	assert.Equal(t, 1, MatchVersionQuery(VersionQuery{
-		gt: Version("y"),
-		lt: Version("z"),
+		gt: Version("y").OrRef(),
+		lt: Version("z").OrRef(),
 	}, VersionQueryMatch[int]{
-		Range: func(o, n Version) int {
-			assert.Equal(t, Version("y"), o)
-			assert.Equal(t, Version("z"), n)
+		Range: func(o, n VersionOrRef) int {
+			assert.Equal(t, Version("y").OrRef(), o)
+			assert.Equal(t, Version("z").OrRef(), n)
 			return 1
 		},
 	}))
