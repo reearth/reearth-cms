@@ -89,3 +89,9 @@ func TestCopyURL(t *testing.T) {
 		})
 	}
 }
+
+func TestTry(t *testing.T) {
+	err := errors.New("try")
+	assert.Same(t, err, Try(func() error { return err }, func() error { panic("should not called") }))
+	assert.NoError(t, Try(func() error { return nil }, func() error { return nil }))
+}

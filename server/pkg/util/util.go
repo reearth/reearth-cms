@@ -42,3 +42,15 @@ func CloneRef[T any](r *T) *T {
 	r2 := *r
 	return &r2
 }
+
+func Try(tries ...func() error) error {
+	for _, f := range tries {
+		if f == nil {
+			continue
+		}
+		if err := f(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
