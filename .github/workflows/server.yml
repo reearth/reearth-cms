@@ -42,12 +42,12 @@ jobs:
       #   with:
       #     version: v1.45 # v1.46 reports an error
       #     working-directory: server
-      - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
-        env:
-          REEARTH_CMS_DB: mongodb://localhost
-      - name: codecov
-        uses: codecov/codecov-action@v2
-        with:
-          flags: server
-          file: coverage.txt
+      # - name: test
+      #   run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+      #   env:
+      #     REEARTH_CMS_DB: mongodb://localhost
+      # - name: codecov
+      #   uses: codecov/codecov-action@v2
+      #   with:
+      #     flags: server
+      #     file: coverage.txt
