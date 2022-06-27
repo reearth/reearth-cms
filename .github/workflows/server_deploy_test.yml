@@ -1,50 +1,35 @@
-name: server_deploy_test
+name: server-deploy_test
 on:
-  workflow_run:
-    workflows: [server_build]
-    types: [completed]
-    branches: [main]
-
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 env:
   IMAGE: reearth/reearth-cms:nightly
   IMAGE_NAME: us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/reearth-cms:nightly
-  GCP_REGION: us_central1
+  GCP_REGION: us-central1
 jobs:
-  server_deploy_test:
-    name: Deploy app to dev env
+  deploy_test:
+    name: Deploy app to test env
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.event.repository.full_name == 'reearth/reearth-cms'
-    permissions:
-      contents: read
-      id-token: write
+    if: github.event.repository.full_name == 'reearth/reearth-cms
     steps:
-      - uses: actions/checkout@v3
       - uses: google-github-actions/auth@v0
         with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
       - name: Configure docker
         run: gcloud auth configure-docker --quiet
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build and push nightly
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./server
-          platforms: linux/amd64,linux/arm64
-          push: true
-          build-args: VERSION=0.0.0-SNAPSHOT-${{ needs.info.outputs.sha_short }}
-          tags: ${{ env.IMAGE_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: docker push
+        run: |
+          docker pull $IMAGE
+          docker tag $IMAGE $IMAGE_GCP
+          docker push $IMAGE_GCP
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy reearth-cms \
-            --image $IMAGE_NAME \
-            --project $GCP_PROJECT \
+          gcloud run deploy reearth-backend \
+            --image $IMAGE_GCP \
             --region $GCP_REGION \
             --platform managed \
             --quiet
