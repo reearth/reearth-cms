@@ -9,11 +9,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/labstack/echo/v4"
 	"github.com/ravilushqa/otelgqlgen"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-// const enableDataLoaders = true
+const enableDataLoaders = true
 
 func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	schema := gql.NewExecutableSchema(gql.Config{
@@ -49,9 +50,8 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		req := c.Request()
 		ctx := req.Context()
 
-		// TODO: enable this when use cases PR is done
-		// usecases := adapter.Usecases(ctx)
-		// ctx = gql.AttachUsecases(ctx, usecases, enableDataLoaders)
+		usecases := adapter.Usecases(ctx)
+		ctx = gql.AttachUsecases(ctx, usecases, enableDataLoaders)
 		c.SetRequest(req.WithContext(ctx))
 
 		srv.ServeHTTP(c.Response(), c.Request())

@@ -20,6 +20,9 @@ type Config struct {
 	GraphQL      GraphQLConfig
 	Origins      []string
 	DB           string `default:"mongodb://localhost"`
+	Mailer       string
+	SMTP         SMTPConfig
+	SendGrid     SendGridConfig
 	SignupSecret string
 	// auth
 	Auth          AuthConfigs
@@ -51,6 +54,20 @@ type Auth0Config struct {
 	ClientID     string
 	ClientSecret string
 	WebClientID  string
+}
+
+type SendGridConfig struct {
+	Email string
+	Name  string
+	API   string
+}
+
+type SMTPConfig struct {
+	Host         string
+	Port         string
+	SMTPUsername string
+	Email        string
+	Password     string
 }
 
 func (c Config) Auths() (res []AuthConfig) {

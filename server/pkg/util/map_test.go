@@ -119,6 +119,27 @@ func TestSyncMap_FindAll(t *testing.T) {
 	assert.Equal(t, []int(nil), res)
 }
 
+func TestSyncMap_CountAll(t *testing.T) {
+	s := &SyncMap[string, int]{}
+	s.Store("a", 1)
+	s.Store("b", 2)
+
+	res := s.CountAll(func(k string, v int) bool {
+		return k == "a" || k == "b"
+	})
+	assert.Equal(t, 2, res)
+
+	res = s.CountAll(func(k string, v int) bool {
+		return k == "a"
+	})
+	assert.Equal(t, 1, res)
+
+	res = s.CountAll(func(k string, v int) bool {
+		return k == "c"
+	})
+	assert.Equal(t, 0, res)
+}
+
 func TestSyncMap_Map(t *testing.T) {
 	s := &SyncMap[string, int]{}
 	s.Store("a", 1)

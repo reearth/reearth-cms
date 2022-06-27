@@ -3,6 +3,8 @@ package adapter
 import (
 	"context"
 
+	"golang.org/x/text/language"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -52,9 +54,9 @@ func User(ctx context.Context) *user.User {
 	return nil
 }
 
-func Lang(ctx context.Context, lang *string) string {
-	if lang != nil && *lang != "" {
-		return *lang
+func Lang(ctx context.Context, lang *language.Tag) string {
+	if lang != nil && !lang.IsRoot() {
+		return lang.String()
 	}
 
 	u := User(ctx)

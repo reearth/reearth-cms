@@ -66,8 +66,6 @@ const Workspace: React.FC = () => {
 
   const checkOwner = useCallback(() => {
     if (members) {
-      console.log(members);
-
       for (let i = 0; i < members.length; i++) {
         if (members[i].userId === me?.id && members[i].role === "OWNER") {
           return true;
