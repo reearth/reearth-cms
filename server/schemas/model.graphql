@@ -1,0 +1,73 @@
+type Model implements Node {
+  id: ID!
+  projectId: ID!
+  name: String!
+  description: String!
+  key: String!
+  project: Project!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Inputs
+input CreateModelInput {
+  projectId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input UpdateModelInput {
+  modelId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input DeleteModelInput {
+  modelId: ID!
+}
+
+input PublishModelInput {
+  modelId: ID!
+  status: Boolean!
+}
+
+# Payloads
+type ModelPayload {
+  model: Model!
+}
+
+type DeleteModelPayload {
+  modelId: ID!
+}
+
+type ModelConnection {
+  edges: [ModelEdge!]!
+  nodes: [Model]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ModelEdge {
+  cursor: Cursor!
+  node: Model
+}
+
+extend type Query {
+  models(
+    projectId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ModelConnection!
+  checkModelKeyAvailability(key: String!): KeyAvailability!
+}
+
+extend type Mutation {
+  createModel(input: CreateModelInput!): ProjectPayload
+  updateModel(input: UpdateModelInput!): ProjectPayload
+  deleteModel(input: DeleteModelInput!): DeleteProjectPayload
+  publishModel(input: PublishModelInput!): DeleteProjectPayload
+}

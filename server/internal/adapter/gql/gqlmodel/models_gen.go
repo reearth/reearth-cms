@@ -12,6 +12,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type IField interface {
+	IsIField()
+}
+
 type Node interface {
 	IsNode()
 }
@@ -24,6 +28,26 @@ type AddMemberToWorkspaceInput struct {
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type CreateFieldInput struct {
+	ModelID      ID          `json:"modelId"`
+	Type         FiledType   `json:"type"`
+	Title        string      `json:"title"`
+	Description  *string     `json:"description"`
+	Key          string      `json:"key"`
+	IsMultiValue *bool       `json:"isMultiValue"`
+	DefaultValue interface{} `json:"DefaultValue"`
+	Values       interface{} `json:"values"`
+	IsUnique     *bool       `json:"isUnique"`
+	IsRequired   *bool       `json:"isRequired"`
+}
+
+type CreateModelInput struct {
+	ProjectID   ID      `json:"projectId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Key         *string `json:"key"`
 }
 
 type CreateProjectInput struct {
@@ -41,12 +65,28 @@ type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type DeleteFieldInput struct {
+	FieldID ID `json:"fieldId"`
+}
+
+type DeleteFieldPayload struct {
+	FieldID ID `json:"fieldId"`
+}
+
 type DeleteMeInput struct {
 	UserID ID `json:"userId"`
 }
 
 type DeleteMePayload struct {
 	UserID ID `json:"userId"`
+}
+
+type DeleteModelInput struct {
+	ModelID ID `json:"modelId"`
+}
+
+type DeleteModelPayload struct {
+	ModelID ID `json:"modelId"`
 }
 
 type DeleteProjectInput struct {
@@ -65,6 +105,45 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type Field struct {
+	ID                ID                `json:"id"`
+	ModelID           ID                `json:"modelId"`
+	Model             *Model            `json:"model"`
+	Type              FiledType         `json:"type"`
+	Key               string            `json:"key"`
+	Title             string            `json:"title"`
+	Description       *string           `json:"description"`
+	Settings          *FieldSettings    `json:"settings"`
+	Constraints       *FieldConstraints `json:"constraints"`
+	DefaultValue      interface{}       `json:"DefaultValue"`
+	Values            interface{}       `json:"values"`
+	ReferencedModelID *ID               `json:"ReferencedModelId"`
+	CreatedAt         time.Time         `json:"createdAt"`
+	UpdatedAt         time.Time         `json:"updatedAt"`
+}
+
+func (Field) IsIField() {}
+
+type FieldConstraints struct {
+	IsUnique   *bool `json:"isUnique"`
+	IsRequired *bool `json:"isRequired"`
+}
+
+type FieldPayload struct {
+	Field *Field `json:"field"`
+}
+
+type FieldSettings struct {
+	IsMultiValue *bool       `json:"isMultiValue"`
+	IsDeleted    *bool       `json:"isDeleted"`
+	DefaultValue interface{} `json:"DefaultValue"`
+}
+
+type KeyAvailability struct {
+	Key       string `json:"key"`
+	Available bool   `json:"available"`
+}
+
 type Me struct {
 	ID            ID           `json:"id"`
 	Name          string       `json:"name"`
@@ -75,6 +154,35 @@ type Me struct {
 	Auths         []string     `json:"auths"`
 	Workspaces    []*Workspace `json:"workspaces"`
 	MyWorkspace   *Workspace   `json:"myWorkspace"`
+}
+
+type Model struct {
+	ID          ID        `json:"id"`
+	ProjectID   ID        `json:"projectId"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Key         string    `json:"key"`
+	Project     *Project  `json:"project"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+func (Model) IsNode() {}
+
+type ModelConnection struct {
+	Edges      []*ModelEdge `json:"edges"`
+	Nodes      []*Model     `json:"nodes"`
+	PageInfo   *PageInfo    `json:"pageInfo"`
+	TotalCount int          `json:"totalCount"`
+}
+
+type ModelEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Model         `json:"node"`
+}
+
+type ModelPayload struct {
+	Model *Model `json:"model"`
 }
 
 type PageInfo struct {
@@ -93,13 +201,13 @@ type Pagination struct {
 
 type Project struct {
 	ID          ID         `json:"id"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Alias       string     `json:"alias"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Workspace   *Workspace `json:"workspace"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 func (Project) IsNode() {}
@@ -123,6 +231,11 @@ type ProjectEdge struct {
 
 type ProjectPayload struct {
 	Project *Project `json:"project"`
+}
+
+type PublishModelInput struct {
+	ModelID ID   `json:"modelId"`
+	Status  bool `json:"status"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
@@ -151,6 +264,14 @@ type SignupPayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type UpdateFieldInput struct {
+	Title        *string     `json:"title"`
+	Description  *string     `json:"description"`
+	Key          *string     `json:"key"`
+	IsMultiValue *bool       `json:"isMultiValue"`
+	DefaultValue interface{} `json:"DefaultValue"`
+}
+
 type UpdateMeInput struct {
 	Name                 *string       `json:"name"`
 	Email                *string       `json:"email"`
@@ -172,6 +293,13 @@ type UpdateMemberOfWorkspaceInput struct {
 
 type UpdateMemberOfWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type UpdateModelInput struct {
+	ModelID     ID      `json:"modelId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Key         *string `json:"key"`
 }
 
 type UpdateProjectInput struct {
@@ -210,6 +338,67 @@ type WorkspaceMember struct {
 	UserID ID    `json:"userId"`
 	Role   Role  `json:"role"`
 	User   *User `json:"user"`
+}
+
+type FiledType string
+
+const (
+	FiledTypeText         FiledType = "Text"
+	FiledTypeTextArea     FiledType = "TextArea"
+	FiledTypeRichText     FiledType = "RichText"
+	FiledTypeMarkDownText FiledType = "MarkDownText"
+	FiledTypeAsset        FiledType = "Asset"
+	FiledTypeDate         FiledType = "Date"
+	FiledTypeBool         FiledType = "Bool"
+	FiledTypeSelect       FiledType = "Select"
+	FiledTypeTag          FiledType = "Tag"
+	FiledTypeInteger      FiledType = "Integer"
+	FiledTypeReference    FiledType = "Reference"
+	FiledTypeURL          FiledType = "URL"
+)
+
+var AllFiledType = []FiledType{
+	FiledTypeText,
+	FiledTypeTextArea,
+	FiledTypeRichText,
+	FiledTypeMarkDownText,
+	FiledTypeAsset,
+	FiledTypeDate,
+	FiledTypeBool,
+	FiledTypeSelect,
+	FiledTypeTag,
+	FiledTypeInteger,
+	FiledTypeReference,
+	FiledTypeURL,
+}
+
+func (e FiledType) IsValid() bool {
+	switch e {
+	case FiledTypeText, FiledTypeTextArea, FiledTypeRichText, FiledTypeMarkDownText, FiledTypeAsset, FiledTypeDate, FiledTypeBool, FiledTypeSelect, FiledTypeTag, FiledTypeInteger, FiledTypeReference, FiledTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e FiledType) String() string {
+	return string(e)
+}
+
+func (e *FiledType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FiledType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FiledType", str)
+	}
+	return nil
+}
+
+func (e FiledType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type NodeType string

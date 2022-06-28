@@ -1,0 +1,105 @@
+enum FiledType {
+  Text
+  TextArea
+  RichText
+  MarkDownText
+  Asset
+  Date
+  Bool
+  Select
+  Tag
+  Integer
+  Reference
+  URL
+}
+
+type FieldSettings {
+  isMultiValue: Boolean
+  isDeleted: Boolean
+  DefaultValue: Any
+}
+
+type FieldConstraints{
+  isUnique: Boolean
+  isRequired: Boolean
+  #  max: Int
+  #  min: Int
+}
+
+interface IField {
+  id: ID!
+  modelId: ID!
+  model: Model!
+  type: FiledType!
+  key: String!
+  title: String!
+  description: String
+  settings: FieldSettings!
+  constraints: FieldConstraints!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Field implements IField {
+  id: ID!
+  modelId: ID!
+  model: Model!
+  type: FiledType!
+  key: String!
+  title: String!
+  description: String
+  settings: FieldSettings!
+  constraints: FieldConstraints!
+  DefaultValue: Any
+  values: Any # for select field
+  ReferencedModelId: ID # for reference field
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Inputs
+input CreateFieldInput {
+  modelId: ID!
+  type: FiledType!
+  title: String!
+  description: String
+  key: String!
+  isMultiValue: Boolean
+  DefaultValue: Any
+  values: Any # for select field
+  isUnique: Boolean
+  isRequired: Boolean
+}
+
+input UpdateFieldInput {
+  title: String
+  description: String
+  key: String
+  isMultiValue: Boolean
+  DefaultValue: Any
+  # TODO: make sure what are the editable fields
+}
+
+input DeleteFieldInput {
+  fieldId: ID!
+}
+
+# Payloads
+type FieldPayload {
+  field: Field!
+}
+
+type DeleteFieldPayload {
+  fieldId: ID!
+}
+
+extend type Query {
+  getModelFields(modelId: ID!): [Field!]!
+  checkFieldKeyAvailability(key: String!): KeyAvailability!
+}
+
+extend type Mutation {
+  createField(input: CreateFieldInput!): FieldPayload
+  updateField(input: UpdateFieldInput!): FieldPayload
+  deleteField(input: DeleteFieldInput!): DeleteFieldPayload
+}
