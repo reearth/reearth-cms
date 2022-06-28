@@ -21,13 +21,13 @@ func MockNow(t time.Time) func() {
 }
 
 type Project struct {
-	data util.SyncMap[id.ProjectID, *project.Project]
+	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
 }
 
 func NewProject() repo.Project {
 	return &Project{
-		data: util.SyncMap[id.ProjectID, *project.Project]{},
+		data: &util.SyncMap[id.ProjectID, *project.Project]{},
 	}
 }
 

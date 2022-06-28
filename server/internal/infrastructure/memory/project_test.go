@@ -850,8 +850,10 @@ func TestProjectRepo_Save(t *testing.T) {
 			got, err := r.CountByWorkspace(ctx, tc.arg.Workspace())
 			if tc.wantErr != nil {
 				assert.Zero(t, got)
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, 1, got)
 		})
 	}
