@@ -378,7 +378,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			r := NewProject()
 			ctx := context.Background()
