@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/util"
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 var Now = time.Now
@@ -49,6 +50,8 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 		return v.Workspace() == wid
 	})
 
+	slices.SortFunc(result, func(a, b *project.Project) bool { return a.ID().Compare(b.ID()) < 0 })
+
 	var startCursor, endCursor *usecase.Cursor
 	if len(result) > 0 {
 		startCursor = lo.ToPtr(usecase.Cursor(result[0].ID().String()))
@@ -65,9 +68,13 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 }
 
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) ([]*project.Project, error) {
-	return r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
+	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
 		return ids.Has(k) && r.f.CanRead(v.Workspace())
-	}), nil
+	})
+
+	slices.SortFunc(result, func(a, b *project.Project) bool { return a.ID().Compare(b.ID()) < 0 })
+
+	return result, nil
 }
 
 func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
