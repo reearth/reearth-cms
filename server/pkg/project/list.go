@@ -1,6 +1,9 @@
 package project
 
-import "golang.org/x/exp/slices"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/util"
+	"golang.org/x/exp/slices"
+)
 
 type List []*Project
 
@@ -10,4 +13,8 @@ func (l List) SortByID() List {
 		return a.ID().Compare(b.ID()) < 0
 	})
 	return m
+}
+
+func (l List) Clone() List {
+	return util.Map(l, func(p *Project) *Project { return p.Clone() })
 }

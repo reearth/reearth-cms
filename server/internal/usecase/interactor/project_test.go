@@ -12,20 +12,20 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearth-cms/server/pkg/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestProject_Fetch(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -103,8 +103,9 @@ func TestProject_Fetch(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -121,14 +122,15 @@ func TestProject_Fetch(t *testing.T) {
 }
 
 func TestProject_FindByWorkspace(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -206,8 +208,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -224,7 +227,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 }
 
 func TestProject_Create(t *testing.T) {
-
+	mocktime := time.Now()
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -290,8 +293,9 @@ func TestProject_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -319,9 +323,9 @@ func TestProject_Create(t *testing.T) {
 }
 
 func TestProject_Update(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
-	mocktime := time.Now()
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
@@ -383,10 +387,10 @@ func TestProject_Update(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			defer util.MockNow(mocktime)()
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
@@ -405,11 +409,12 @@ func TestProject_Update(t *testing.T) {
 }
 
 func TestProject_CheckAlias(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
@@ -460,8 +465,9 @@ func TestProject_CheckAlias(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -478,14 +484,15 @@ func TestProject_CheckAlias(t *testing.T) {
 }
 
 func TestProject_Delete(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -544,8 +551,9 @@ func TestProject_Delete(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)

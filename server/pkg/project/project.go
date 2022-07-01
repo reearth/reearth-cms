@@ -97,6 +97,10 @@ func (p *Project) UpdateTeam(team WorkspaceID) {
 }
 
 func (p *Project) Clone() *Project {
+	if p == nil {
+		return nil
+	}
+
 	return &Project{
 		id:          p.id.Clone(),
 		workspaceID: p.workspaceID.Clone(),
@@ -104,7 +108,7 @@ func (p *Project) Clone() *Project {
 		description: p.description,
 		alias:       p.alias,
 		imageURL:    util.CopyURL(p.imageURL),
-		updatedAt:   p.updatedAt.UTC(),
+		updatedAt:   p.updatedAt,
 	}
 }
 

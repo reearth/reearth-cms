@@ -100,7 +100,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 			r := NewProject()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -119,12 +119,12 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 }
 
 func TestProjectRepo_Filtered(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -164,9 +164,10 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject().Filtered(tc.arg)
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.ErrorIs(t, err, tc.wantErr)
 			}
 		})
@@ -176,8 +177,8 @@ func TestProjectRepo_Filtered(t *testing.T) {
 func TestProjectRepo_FindByID(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	now := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -258,9 +259,10 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -279,12 +281,12 @@ func TestProjectRepo_FindByID(t *testing.T) {
 }
 
 func TestProjectRepo_FindByIDs(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -378,12 +380,13 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -403,14 +406,14 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 }
 
 func TestProjectRepo_FindByPublicName(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().
 		ID(id1).
 		Workspace(tid1).
 		Alias("xyz123").
-		UpdatedAt(now).
+		UpdatedAt(mocknow).
 		MustBuild()
 
 	id2 := id.NewProjectID()
@@ -418,7 +421,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		ID(id2).
 		Workspace(id.NewWorkspaceID()).
 		Alias("xyz321").
-		UpdatedAt(now).
+		UpdatedAt(mocknow).
 		MustBuild()
 
 	tests := []struct {
@@ -511,9 +514,10 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -533,10 +537,10 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 }
 
 func TestProjectRepo_FindByWorkspace(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	type args struct {
 		tid   id.WorkspaceID
@@ -649,9 +653,10 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -749,7 +754,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 			r := NewProject()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -834,14 +839,14 @@ func TestProjectRepo_Save(t *testing.T) {
 			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				if tc.wantErr != nil {
 					assert.ErrorIs(t, err, tc.wantErr)
 					return
 				}
 			}
 
-			err := r.Save(ctx, tc.arg)
+			err := r.Save(ctx, tc.arg.Clone())
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

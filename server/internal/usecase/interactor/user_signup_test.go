@@ -262,7 +262,7 @@ func TestUser_Signup(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel() cannot be used because Now and GenerateVerificationCode are mocked
 
 			defer util.MockNow(mocktime)()
 			defer user.MockGenerateVerificationCode(mockcode)()
