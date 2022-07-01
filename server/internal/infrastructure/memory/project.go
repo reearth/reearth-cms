@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -11,15 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
-
-var Now = time.Now
-
-func MockNow(t time.Time) func() {
-	Now = func() time.Time { return t }
-	return func() { Now = time.Now }
-}
 
 type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
@@ -39,18 +30,16 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
+func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
 	// TODO: implement pagination
 
 	if !r.f.CanRead(wid) {
 		return nil, nil, nil
 	}
 
-	result := r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
 		return v.Workspace() == wid
-	})
-
-	slices.SortFunc(result, func(a, b *project.Project) bool { return a.ID().Compare(b.ID()) < 0 })
+	})).SortByID()
 
 	var startCursor, endCursor *usecase.Cursor
 	if len(result) > 0 {
@@ -67,14 +56,12 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 	), nil
 }
 
-func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) ([]*project.Project, error) {
+func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
 	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
 		return ids.Has(k) && r.f.CanRead(v.Workspace())
 	})
 
-	slices.SortFunc(result, func(a, b *project.Project) bool { return a.ID().Compare(b.ID()) < 0 })
-
-	return result, nil
+	return project.List(result).SortByID(), nil
 }
 
 func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
@@ -119,7 +106,7 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 		return repo.ErrOperationDenied
 	}
 
-	p.SetUpdatedAt(Now())
+	p.SetUpdatedAt(util.Now())
 	r.data.Store(p.ID(), p)
 	return nil
 }

@@ -28,8 +28,8 @@ var (
 )
 
 type Project interface {
-	Fetch(context.Context, []id.ProjectID, *usecase.Operator) ([]*project.Project, error)
-	FindByWorkspace(context.Context, id.WorkspaceID, *usecase.Pagination, *usecase.Operator) ([]*project.Project, *usecase.PageInfo, error)
+	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
+	FindByWorkspace(context.Context, id.WorkspaceID, *usecase.Pagination, *usecase.Operator) (project.List, *usecase.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)

@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/util"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -28,9 +29,6 @@ func TestUser_Signup(t *testing.T) {
 	tid := id.NewWorkspaceID()
 	mocktime := time.Time{}
 	mockcode := "CODECODE"
-
-	defer user.MockNow(mocktime)()
-	defer user.MockGenerateVerificationCode(mockcode)()
 
 	tests := []struct {
 		name             string
@@ -264,7 +262,11 @@ func TestUser_Signup(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			// t.Parallel() cannot be used
+			t.Parallel()
+
+			defer util.MockNow(mocktime)()
+			defer user.MockGenerateVerificationCode(mockcode)()
+
 			r := memory.New()
 			if tt.createUserBefore != nil {
 				assert.NoError(t, r.User.Save(
@@ -318,9 +320,6 @@ func TestUser_SignupOIDC(t *testing.T) {
 	tid := id.NewWorkspaceID()
 	mocktime := time.Time{}
 	mockcode := "CODECODE"
-
-	defer user.MockNow(mocktime)()
-	defer user.MockGenerateVerificationCode(mockcode)()
 
 	tests := []struct {
 		name             string
@@ -518,6 +517,10 @@ func TestUser_SignupOIDC(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			// t.Parallel() cannot be used
+
+			defer util.MockNow(mocktime)()
+			defer user.MockGenerateVerificationCode(mockcode)()
+
 			r := memory.New()
 			if tt.createUserBefore != nil {
 				assert.NoError(t, r.User.Save(
