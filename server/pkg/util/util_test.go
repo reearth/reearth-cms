@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,4 +50,42 @@ func TestIsNotZero(t *testing.T) {
 func TestDeref(t *testing.T) {
 	assert.Equal(t, struct{ A int }{}, Deref((*(struct{ A int }))(nil)))
 	assert.Equal(t, struct{ A int }{A: 1}, Deref((*(struct{ A int }))(&struct{ A int }{A: 1})))
+}
+
+func TestCopyURL(t *testing.T) {
+	u, _ := url.Parse("http://localhost")
+	u2, _ := url.Parse("http://aaa:bbb@localhost")
+
+	tests := []struct {
+		name string
+		args *url.URL
+	}{
+		{
+			name: "normal",
+			args: u,
+		},
+		{
+			name: "userinfo",
+			args: u2,
+		},
+		{
+			name: "nil",
+			args: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := CopyURL(tt.args)
+			assert.Equal(t, tt.args, got)
+			if got != nil {
+				assert.NotSame(t, tt.args, got)
+				if got.User != nil {
+					assert.NotSame(t, tt.args.User, got.User)
+				}
+			}
+		})
+	}
 }

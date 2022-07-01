@@ -18,7 +18,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     id.WorkspaceID
 		filter  *repo.WorkspaceFilter
 		want    int
@@ -26,7 +26,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 	}{
 		{
 			name:    "0 count in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			arg:     id.NewWorkspaceID(),
 			filter:  nil,
 			want:    0,
@@ -34,7 +34,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		},
 		{
 			name: "0 count with project for another workspaces",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id.NewWorkspaceID(),
@@ -44,7 +44,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		},
 		{
 			name: "1 count with single project",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(tid1).MustBuild(),
 			},
 			arg:     tid1,
@@ -54,7 +54,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		},
 		{
 			name: "1 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(tid1).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -66,7 +66,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		},
 		{
 			name: "2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(tid1).MustBuild(),
 				project.New().NewID().Workspace(tid1).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -79,7 +79,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		},
 		{
 			name: "2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(tid1).MustBuild(),
 				project.New().NewID().Workspace(tid1).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -100,7 +100,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 			r := NewProject()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -119,22 +119,22 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 }
 
 func TestProjectRepo_Filtered(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     repo.WorkspaceFilter
 		wantErr error
 	}{
 		{
 			name: "no r/w workspaces operation denied",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 			},
@@ -146,7 +146,7 @@ func TestProjectRepo_Filtered(t *testing.T) {
 		},
 		{
 			name: "r/w workspaces operation success",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 			},
@@ -164,9 +164,10 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject().Filtered(tc.arg)
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.ErrorIs(t, err, tc.wantErr)
 			}
 		})
@@ -176,11 +177,11 @@ func TestProjectRepo_Filtered(t *testing.T) {
 func TestProjectRepo_FindByID(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	now := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     id.ProjectID
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
@@ -188,7 +189,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 	}{
 		{
 			name:    "Not found in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			arg:     id.NewProjectID(),
 			filter:  nil,
 			want:    nil,
@@ -196,7 +197,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		},
 		{
 			name: "Not found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().MustBuild(),
 			},
 			arg:     id.NewProjectID(),
@@ -206,7 +207,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		},
 		{
 			name: "Found 1",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     id1,
@@ -216,7 +217,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		},
 		{
 			name: "Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -228,7 +229,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		},
 		{
 			name: "Filtered Found 0",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -240,7 +241,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		},
 		{
 			name: "Filtered Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -258,9 +259,10 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -279,24 +281,24 @@ func TestProjectRepo_FindByID(t *testing.T) {
 }
 
 func TestProjectRepo_FindByIDs(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     id.ProjectIDList
 		filter  *repo.WorkspaceFilter
-		want    []*project.Project
+		want    project.List
 		wantErr error
 	}{
 		{
 			name:    "0 count in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			arg:     []id.ProjectID{},
 			filter:  nil,
 			want:    nil,
@@ -304,7 +306,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 		},
 		{
 			name: "0 count with project for another workspaces",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     []id.ProjectID{},
@@ -314,29 +316,29 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 		},
 		{
 			name: "1 count with single project",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     []id.ProjectID{id1},
 			filter:  nil,
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name: "1 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     []id.ProjectID{id1},
 			filter:  nil,
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name: "2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -344,12 +346,12 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			},
 			arg:     []id.ProjectID{id1, id2},
 			filter:  nil,
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name: "Filter 2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -362,7 +364,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 		},
 		{
 			name: "Filter 2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -370,7 +372,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			},
 			arg:     []id.ProjectID{id1, id2},
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{tid1}, Writable: []id.WorkspaceID{}},
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 	}
@@ -381,9 +383,10 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -403,14 +406,14 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 }
 
 func TestProjectRepo_FindByPublicName(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().
 		ID(id1).
 		Workspace(tid1).
 		Alias("xyz123").
-		UpdatedAt(now).
+		UpdatedAt(mocknow).
 		MustBuild()
 
 	id2 := id.NewProjectID()
@@ -418,12 +421,12 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		ID(id2).
 		Workspace(id.NewWorkspaceID()).
 		Alias("xyz321").
-		UpdatedAt(now).
+		UpdatedAt(mocknow).
 		MustBuild()
 
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     string
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
@@ -431,7 +434,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 	}{
 		{
 			name:    "Not found in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			arg:     "xyz123",
 			filter:  nil,
 			want:    nil,
@@ -439,7 +442,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "Not found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Alias("abc123").MustBuild(),
 			},
 			arg:     "xyz123",
@@ -449,7 +452,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "public Found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     "xyz123",
@@ -459,7 +462,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "linited Found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p2,
 			},
 			arg:     "xyz321",
@@ -469,7 +472,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -481,7 +484,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "Filtered should not Found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -493,7 +496,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		},
 		{
 			name: "Filtered should Found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -511,9 +514,10 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -533,10 +537,10 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 }
 
 func TestProjectRepo_FindByWorkspace(t *testing.T) {
-	now := time.Now().Truncate(time.Millisecond).UTC()
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	type args struct {
 		tid   id.WorkspaceID
@@ -544,15 +548,15 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
 		filter  *repo.WorkspaceFilter
-		want    []*project.Project
+		want    project.List
 		wantErr error
 	}{
 		{
 			name:    "0 count in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			args:    args{id.NewWorkspaceID(), nil},
 			filter:  nil,
 			want:    nil,
@@ -560,7 +564,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 		},
 		{
 			name: "0 count with project for another workspaces",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{id.NewWorkspaceID(), nil},
@@ -570,29 +574,29 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 		},
 		{
 			name: "1 count with single project",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name: "1 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name: "2 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -600,12 +604,12 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			},
 			args:    args{tid1, usecase.NewPagination(lo.ToPtr(2), nil, nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name: "get 1st page of 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -613,12 +617,12 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			},
 			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name: "get last page of 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				p2,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -626,12 +630,12 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			},
 			args:    args{tid1, usecase.NewPagination(nil, lo.ToPtr(1), nil, nil)},
 			filter:  nil,
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name: "Filtered sholud not 1 count with multi projects",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -646,12 +650,13 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			r := NewProject()
+			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -676,21 +681,21 @@ func TestProjectRepo_Remove(t *testing.T) {
 	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     id.ProjectID
 		filter  *repo.WorkspaceFilter
 		wantErr error
 	}{
 		{
 			name:    "Not found in empty db",
-			seeds:   []*project.Project{},
+			seeds:   project.List{},
 			arg:     id.NewProjectID(),
 			filter:  nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name: "Not found",
-			seeds: []*project.Project{
+			seeds: project.List{
 				project.New().NewID().MustBuild(),
 			},
 			arg:     id.NewProjectID(),
@@ -699,7 +704,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 		},
 		{
 			name: "Found 1",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     id1,
@@ -708,7 +713,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 		},
 		{
 			name: "Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -719,7 +724,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 		},
 		{
 			name: "Filtered should fail Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -730,7 +735,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 		},
 		{
 			name: "Filtered should work Found 2",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
@@ -749,7 +754,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 			r := NewProject()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 
@@ -775,7 +780,7 @@ func TestProjectRepo_Save(t *testing.T) {
 	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Truncate(time.Millisecond).UTC()).MustBuild()
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		arg     *project.Project
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
@@ -783,7 +788,7 @@ func TestProjectRepo_Save(t *testing.T) {
 	}{
 		{
 			name: "Saved",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     p1,
@@ -793,7 +798,7 @@ func TestProjectRepo_Save(t *testing.T) {
 		},
 		{
 			name: "Filtered should fail - Saved",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     p1,
@@ -803,7 +808,7 @@ func TestProjectRepo_Save(t *testing.T) {
 		},
 		{
 			name: "Filtered should work - Saved",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     p1,
@@ -813,7 +818,7 @@ func TestProjectRepo_Save(t *testing.T) {
 		},
 		{
 			name: "Filtered should work - Saved same data",
-			seeds: []*project.Project{
+			seeds: project.List{
 				p1,
 			},
 			arg:     p1,
@@ -834,14 +839,14 @@ func TestProjectRepo_Save(t *testing.T) {
 			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
-				err := r.Save(ctx, p)
+				err := r.Save(ctx, p.Clone())
 				if tc.wantErr != nil {
 					assert.ErrorIs(t, err, tc.wantErr)
 					return
 				}
 			}
 
-			err := r.Save(ctx, tc.arg)
+			err := r.Save(ctx, tc.arg.Clone())
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -850,8 +855,10 @@ func TestProjectRepo_Save(t *testing.T) {
 			got, err := r.CountByWorkspace(ctx, tc.arg.Workspace())
 			if tc.wantErr != nil {
 				assert.Zero(t, got)
+				assert.Equal(t, tc.wantErr, err)
 				return
 			}
+			assert.NoError(t, err)
 			assert.Equal(t, 1, got)
 		})
 	}

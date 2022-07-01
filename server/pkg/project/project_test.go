@@ -127,3 +127,12 @@ func TestProject_UpdateAlias(t *testing.T) {
 		})
 	}
 }
+
+func TestProject_Clone(t *testing.T) {
+	p := New().NewID().Name("a").MustBuild()
+
+	got := p.Clone()
+	assert.Equal(t, p, got)
+	assert.NotSame(t, p, got)
+	assert.Nil(t, (*Project)(nil).Clone())
+}
