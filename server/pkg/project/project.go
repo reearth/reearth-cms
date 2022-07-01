@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"regexp"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/util"
 )
 
 var (
@@ -92,6 +94,22 @@ func (p *Project) UpdateAlias(alias string) error {
 
 func (p *Project) UpdateTeam(team WorkspaceID) {
 	p.workspaceID = team
+}
+
+func (p *Project) Clone() *Project {
+	if p == nil {
+		return nil
+	}
+
+	return &Project{
+		id:          p.id.Clone(),
+		workspaceID: p.workspaceID.Clone(),
+		name:        p.name,
+		description: p.description,
+		alias:       p.alias,
+		imageURL:    util.CopyURL(p.imageURL),
+		updatedAt:   p.updatedAt,
+	}
 }
 
 func CheckAliasPattern(alias string) bool {

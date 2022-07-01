@@ -4,15 +4,10 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
+	"github.com/reearth/reearth-cms/server/pkg/util"
 )
 
-var Now = time.Now
 var GenerateVerificationCode = generateCode
-
-func MockNow(t time.Time) func() {
-	Now = func() time.Time { return t }
-	return func() { Now = time.Now }
-}
 
 func MockGenerateVerificationCode(code string) func() {
 	GenerateVerificationCode = func() string { return code }
@@ -23,7 +18,7 @@ func NewVerification() *Verification {
 	return &Verification{
 		verified:   false,
 		code:       GenerateVerificationCode(),
-		expiration: Now().Add(time.Hour * 24),
+		expiration: util.Now().Add(time.Hour * 24),
 	}
 }
 
