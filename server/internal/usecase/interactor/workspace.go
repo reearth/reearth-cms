@@ -200,11 +200,12 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
 			return interfaces.ErrOperationDenied
 		}
-		count, err := i.repos.Project.CountByWorkspace(ctx, id)
+
+		projectCount, err := i.repos.Project.CountByWorkspace(ctx, id)
 		if err != nil {
 			return err
 		}
-		if count > 0 {
+		if projectCount > 0 {
 			return user.ErrWorkspaceWithProjects
 		}
 
