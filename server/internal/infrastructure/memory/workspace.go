@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/util"
+	"golang.org/x/exp/slices"
 )
 
 type Workspace struct {
@@ -30,7 +31,7 @@ func (r *Workspace) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user
 	res := r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
 		return ids.Has(key)
 	})
-
+	slices.SortFunc(res, func(a, b *user.Workspace) bool { return a.ID().Compare(b.ID()) < 0 })
 	return res, nil
 }
 

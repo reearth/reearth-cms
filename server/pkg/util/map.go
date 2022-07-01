@@ -1,6 +1,8 @@
 package util
 
-import "sync"
+import (
+	"sync"
+)
 
 type SyncMap[K, V any] struct {
 	m sync.Map

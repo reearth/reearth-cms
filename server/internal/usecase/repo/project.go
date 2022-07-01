@@ -10,9 +10,9 @@ import (
 
 type Project interface {
 	Filtered(filter WorkspaceFilter) Project
-	FindByIDs(context.Context, id.ProjectIDList) ([]*project.Project, error)
+	FindByIDs(context.Context, id.ProjectIDList) (project.List, error)
 	FindByID(context.Context, id.ProjectID) (*project.Project, error)
-	FindByWorkspace(context.Context, id.WorkspaceID, *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error)
+	FindByWorkspace(context.Context, id.WorkspaceID, *usecase.Pagination) (project.List, *usecase.PageInfo, error)
 	FindByPublicName(context.Context, string) (*project.Project, error)
 	CountByWorkspace(context.Context, id.WorkspaceID) (int, error)
 	Save(context.Context, *project.Project) error

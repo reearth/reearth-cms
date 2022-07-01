@@ -40,6 +40,7 @@ jobs:
         with:
           version: v1.45
           working-directory: server
+          args: --config=../.golangci.yml
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
         env:

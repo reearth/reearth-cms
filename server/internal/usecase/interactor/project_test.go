@@ -17,14 +17,15 @@ import (
 )
 
 func TestProject_Fetch(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -38,34 +39,34 @@ func TestProject_Fetch(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
-		want    []*project.Project
+		want    project.List
 		wantErr error
 	}{
 		{
 			name:  "Fetch 1 of 2",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: op,
 			},
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name:  "Fetch 2 of 2",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
 			},
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name:  "Fetch 1 of 0",
-			seeds: []*project.Project{},
+			seeds: project.List{},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: op,
@@ -75,7 +76,7 @@ func TestProject_Fetch(t *testing.T) {
 		},
 		{
 			name:  "Fetch 2 of 0",
-			seeds: []*project.Project{},
+			seeds: project.List{},
 			args: args{
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
@@ -85,7 +86,7 @@ func TestProject_Fetch(t *testing.T) {
 		},
 		{
 			name:  "Fetch 1 with out operator",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: &usecase.Operator{User: u.ID()},
@@ -102,8 +103,9 @@ func TestProject_Fetch(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -120,14 +122,15 @@ func TestProject_Fetch(t *testing.T) {
 }
 
 func TestProject_FindByWorkspace(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -141,34 +144,34 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
-		want    []*project.Project
+		want    project.List
 		wantErr error
 	}{
 		{
 			name:  "Fetch 1 of 2",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: op,
 			},
-			want:    []*project.Project{p1},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
 			name:  "Fetch 2 of 2",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
 			},
-			want:    []*project.Project{p1, p2},
+			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
 		{
 			name:  "Fetch 1 of 0",
-			seeds: []*project.Project{},
+			seeds: project.List{},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: op,
@@ -178,7 +181,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 		},
 		{
 			name:  "Fetch 2 of 0",
-			seeds: []*project.Project{},
+			seeds: project.List{},
 			args: args{
 				ids:      []id.ProjectID{pid1, pid2},
 				operator: op,
@@ -188,7 +191,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 		},
 		{
 			name:  "Fetch 1 with out operator",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: &usecase.Operator{User: u.ID()},
@@ -205,8 +208,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -223,7 +227,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 }
 
 func TestProject_Create(t *testing.T) {
-
+	mocktime := time.Now()
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -239,7 +243,7 @@ func TestProject_Create(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
 		want    *project.Project
 		wantErr error
@@ -289,8 +293,9 @@ func TestProject_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -318,19 +323,17 @@ func TestProject_Create(t *testing.T) {
 }
 
 func TestProject_Update(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
-	mocktime := time.Now()
-	defer memory.MockNow(mocktime)()
-
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
 	p1Updated := project.New().ID(pid1).Workspace(wid1).Name("test123").Description("desc321").
 		UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -345,14 +348,14 @@ func TestProject_Update(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
 		want    *project.Project
 		wantErr error
 	}{
 		{
 			name:  "update",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:          p1.ID(),
@@ -366,7 +369,7 @@ func TestProject_Update(t *testing.T) {
 		},
 		{
 			name:  "update od",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:          p2.ID(),
@@ -387,8 +390,9 @@ func TestProject_Update(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -405,11 +409,12 @@ func TestProject_Update(t *testing.T) {
 }
 
 func TestProject_CheckAlias(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
@@ -426,14 +431,14 @@ func TestProject_CheckAlias(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
 		want    bool
 		wantErr error
 	}{
 		{
 			name:  "Check found",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				alias:    "test123",
 				operator: op,
@@ -443,7 +448,7 @@ func TestProject_CheckAlias(t *testing.T) {
 		},
 		{
 			name:  "Check not found",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				alias:    "321test",
 				operator: op,
@@ -460,8 +465,9 @@ func TestProject_CheckAlias(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)
@@ -478,14 +484,15 @@ func TestProject_CheckAlias(t *testing.T) {
 }
 
 func TestProject_Delete(t *testing.T) {
+	mocktime := time.Now()
 	wid1 := id.NewWorkspaceID()
 	wid2 := id.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -500,14 +507,14 @@ func TestProject_Delete(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*project.Project
+		seeds   project.List
 		args    args
-		want    []*project.Project
+		want    project.List
 		wantErr error
 	}{
 		{
 			name:  "delete",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				id:       pid1,
 				operator: op,
@@ -517,7 +524,7 @@ func TestProject_Delete(t *testing.T) {
 		},
 		{
 			name:  "delete not found",
-			seeds: []*project.Project{p1, p2},
+			seeds: project.List{p1, p2},
 			args: args{
 				id:       id.NewProjectID(),
 				operator: op,
@@ -527,7 +534,7 @@ func TestProject_Delete(t *testing.T) {
 		},
 		{
 			name:  "delete od",
-			seeds: []*project.Project{},
+			seeds: project.List{},
 			args: args{
 				id:       pid2,
 				operator: op,
@@ -544,8 +551,9 @@ func TestProject_Delete(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
+				err := db.Project.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
 			projectUC := NewProject(db)

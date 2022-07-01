@@ -13,21 +13,16 @@ import (
 	"github.com/samber/lo"
 )
 
-var Now = time.Now
-
-func MockNow(t time.Time) func() {
-	Now = func() time.Time { return t }
-	return func() { Now = time.Now }
-}
-
 type Project struct {
-	data util.SyncMap[id.ProjectID, *project.Project]
+	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
+	now  *util.TimeNow
 }
 
 func NewProject() repo.Project {
 	return &Project{
-		data: util.SyncMap[id.ProjectID, *project.Project]{},
+		data: &util.SyncMap[id.ProjectID, *project.Project]{},
+		now:  &util.TimeNow{},
 	}
 }
 
@@ -35,19 +30,20 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	return &Project{
 		data: r.data,
 		f:    r.f.Merge(f),
+		now:  &util.TimeNow{},
 	}
 }
 
-func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
+func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
 	// TODO: implement pagination
 
 	if !r.f.CanRead(wid) {
 		return nil, nil, nil
 	}
 
-	result := r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
 		return v.Workspace() == wid
-	})
+	})).SortByID()
 
 	var startCursor, endCursor *usecase.Cursor
 	if len(result) > 0 {
@@ -64,10 +60,12 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 	), nil
 }
 
-func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) ([]*project.Project, error) {
-	return r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
+func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
+	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
 		return ids.Has(k) && r.f.CanRead(v.Workspace())
-	}), nil
+	})
+
+	return project.List(result).SortByID(), nil
 }
 
 func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
@@ -112,7 +110,7 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 		return repo.ErrOperationDenied
 	}
 
-	p.SetUpdatedAt(Now())
+	p.SetUpdatedAt(r.now.Now())
 	r.data.Store(p.ID(), p)
 	return nil
 }
@@ -123,4 +121,8 @@ func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
 		return nil
 	}
 	return rerror.ErrNotFound
+}
+
+func MockProjectNow(r repo.Project, t time.Time) func() {
+	return r.(*Project).now.Mock(t)
 }

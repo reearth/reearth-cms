@@ -21,7 +21,7 @@ type ProjectDocument struct {
 }
 
 type ProjectConsumer struct {
-	Rows []*project.Project
+	Rows project.List
 }
 
 func (c *ProjectConsumer) Consume(raw bson.Raw) error {

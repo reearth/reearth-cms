@@ -45,7 +45,7 @@ func (r *projectRepo) FindByID(ctx context.Context, id id.ProjectID) (*project.P
 	})
 }
 
-func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) ([]*project.Project, error) {
+func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (project.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -55,7 +55,7 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) ([]*p
 			"$in": ids.Strings(),
 		},
 	}
-	dst := make([]*project.Project, 0, len(ids))
+	dst := make(project.List, 0, len(ids))
 	res, err := r.find(ctx, dst, filter)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) ([]*p
 	return filterProjects(ids, res), nil
 }
 
-func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
+func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecase.EmptyPageInfo(), nil
 	}
@@ -100,7 +100,7 @@ func (r *projectRepo) Remove(ctx context.Context, id id.ProjectID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
-func (r *projectRepo) find(ctx context.Context, dst []*project.Project, filter interface{}) ([]*project.Project, error) {
+func (r *projectRepo) find(ctx context.Context, dst project.List, filter interface{}) (project.List, error) {
 	c := mongodoc.ProjectConsumer{
 		Rows: dst,
 	}
@@ -111,7 +111,7 @@ func (r *projectRepo) find(ctx context.Context, dst []*project.Project, filter i
 }
 
 func (r *projectRepo) findOne(ctx context.Context, filter interface{}) (*project.Project, error) {
-	dst := make([]*project.Project, 0, 1)
+	dst := make(project.List, 0, 1)
 	c := mongodoc.ProjectConsumer{
 		Rows: dst,
 	}
@@ -121,7 +121,7 @@ func (r *projectRepo) findOne(ctx context.Context, filter interface{}) (*project
 	return c.Rows[0], nil
 }
 
-func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) ([]*project.Project, *usecase.PageInfo, error) {
+func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
 	var c mongodoc.ProjectConsumer
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
 	if err != nil {
@@ -130,8 +130,8 @@ func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *u
 	return c.Rows, pageInfo, nil
 }
 
-func filterProjects(ids []id.ProjectID, rows []*project.Project) []*project.Project {
-	res := make([]*project.Project, 0, len(ids))
+func filterProjects(ids []id.ProjectID, rows project.List) project.List {
+	res := make(project.List, 0, len(ids))
 	for _, id := range ids {
 		for _, r := range rows {
 			if r.ID() == id {
