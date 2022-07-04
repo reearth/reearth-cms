@@ -635,3 +635,20 @@ func Test_ValidatePassword(t *testing.T) {
 		})
 	}
 }
+
+func TestUser_Clone(t *testing.T) {
+	uid := NewID()
+	wid := NewWorkspaceID()
+	u := New().ID(uid).
+		Workspace(wid).
+		Name("xxx").
+		LangFrom("en").
+		Email("ff@xx.zz").
+		Auths([]Auth{{
+			Provider: "aaa",
+			Sub:      "sss",
+		}}).MustBuild()
+	got := u.Clone()
+	assert.Equal(t, u, got)
+	assert.NotSame(t, u, got)
+}
