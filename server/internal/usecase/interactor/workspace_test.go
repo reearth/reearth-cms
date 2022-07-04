@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
@@ -338,6 +339,9 @@ func TestWorkspace_Remove(t *testing.T) {
 	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
 	id4 := id.NewWorkspaceID()
 	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	id5 := id.NewWorkspaceID()
+	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	p := project.New().NewID().Workspace(id5).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -351,6 +355,7 @@ func TestWorkspace_Remove(t *testing.T) {
 		args  struct {
 			wId      id.WorkspaceID
 			operator *usecase.Operator
+			project  *project.Project
 		}
 		wantErr error
 		want    *user.Workspace
@@ -361,9 +366,11 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id1,
 				operator: op,
+				project:  nil,
 			},
 			wantErr: nil,
 			want:    nil,
@@ -374,9 +381,11 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id2,
 				operator: op,
+				project:  nil,
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			want:    w2,
@@ -387,9 +396,11 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id3,
 				operator: op,
+				project:  nil,
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			want:    w3,
@@ -400,12 +411,29 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id4,
 				operator: op,
+				project:  nil,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    w4,
+		},
+		{
+			name:  "Remove 5: workspace that has a project",
+			seeds: []*user.Workspace{w5},
+			args: struct {
+				wId      id.WorkspaceID
+				operator *usecase.Operator
+				project  *project.Project
+			}{
+				wId:      id5,
+				operator: op,
+				project:  p,
+			},
+			wantErr: user.ErrWorkspaceWithProjects,
+			want:    nil,
 		},
 	}
 
@@ -418,6 +446,10 @@ func TestWorkspace_Remove(t *testing.T) {
 			db := memory.New()
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
+				if tc.args.project != nil {
+					err := db.Project.Save(ctx, tc.args.project)
+					assert.Nil(t, err)
+				}
 				assert.Nil(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
