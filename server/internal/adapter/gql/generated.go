@@ -79,7 +79,6 @@ type ComplexityRoot struct {
 	}
 
 	Field struct {
-		Constraints       func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
 		DefaultValue      func(childComplexity int) int
 		Description       func(childComplexity int) int
@@ -87,27 +86,18 @@ type ComplexityRoot struct {
 		Key               func(childComplexity int) int
 		Model             func(childComplexity int) int
 		ModelID           func(childComplexity int) int
+		MultiValue        func(childComplexity int) int
 		ReferencedModelID func(childComplexity int) int
-		Settings          func(childComplexity int) int
+		Required          func(childComplexity int) int
 		Title             func(childComplexity int) int
 		Type              func(childComplexity int) int
+		Unique            func(childComplexity int) int
 		UpdatedAt         func(childComplexity int) int
 		Values            func(childComplexity int) int
 	}
 
-	FieldConstraints struct {
-		IsRequired func(childComplexity int) int
-		IsUnique   func(childComplexity int) int
-	}
-
 	FieldPayload struct {
 		Field func(childComplexity int) int
-	}
-
-	FieldSettings struct {
-		DefaultValue func(childComplexity int) int
-		IsDeleted    func(childComplexity int) int
-		IsMultiValue func(childComplexity int) int
 	}
 
 	KeyAvailability struct {
@@ -379,13 +369,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
 
-	case "Field.constraints":
-		if e.complexity.Field.Constraints == nil {
-			break
-		}
-
-		return e.complexity.Field.Constraints(childComplexity), true
-
 	case "Field.createdAt":
 		if e.complexity.Field.CreatedAt == nil {
 			break
@@ -393,7 +376,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Field.CreatedAt(childComplexity), true
 
-	case "Field.DefaultValue":
+	case "Field.defaultValue":
 		if e.complexity.Field.DefaultValue == nil {
 			break
 		}
@@ -435,19 +418,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Field.ModelID(childComplexity), true
 
-	case "Field.ReferencedModelId":
+	case "Field.multiValue":
+		if e.complexity.Field.MultiValue == nil {
+			break
+		}
+
+		return e.complexity.Field.MultiValue(childComplexity), true
+
+	case "Field.referencedModelId":
 		if e.complexity.Field.ReferencedModelID == nil {
 			break
 		}
 
 		return e.complexity.Field.ReferencedModelID(childComplexity), true
 
-	case "Field.settings":
-		if e.complexity.Field.Settings == nil {
+	case "Field.required":
+		if e.complexity.Field.Required == nil {
 			break
 		}
 
-		return e.complexity.Field.Settings(childComplexity), true
+		return e.complexity.Field.Required(childComplexity), true
 
 	case "Field.title":
 		if e.complexity.Field.Title == nil {
@@ -463,6 +453,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Field.Type(childComplexity), true
 
+	case "Field.unique":
+		if e.complexity.Field.Unique == nil {
+			break
+		}
+
+		return e.complexity.Field.Unique(childComplexity), true
+
 	case "Field.updatedAt":
 		if e.complexity.Field.UpdatedAt == nil {
 			break
@@ -477,47 +474,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Field.Values(childComplexity), true
 
-	case "FieldConstraints.isRequired":
-		if e.complexity.FieldConstraints.IsRequired == nil {
-			break
-		}
-
-		return e.complexity.FieldConstraints.IsRequired(childComplexity), true
-
-	case "FieldConstraints.isUnique":
-		if e.complexity.FieldConstraints.IsUnique == nil {
-			break
-		}
-
-		return e.complexity.FieldConstraints.IsUnique(childComplexity), true
-
 	case "FieldPayload.field":
 		if e.complexity.FieldPayload.Field == nil {
 			break
 		}
 
 		return e.complexity.FieldPayload.Field(childComplexity), true
-
-	case "FieldSettings.DefaultValue":
-		if e.complexity.FieldSettings.DefaultValue == nil {
-			break
-		}
-
-		return e.complexity.FieldSettings.DefaultValue(childComplexity), true
-
-	case "FieldSettings.isDeleted":
-		if e.complexity.FieldSettings.IsDeleted == nil {
-			break
-		}
-
-		return e.complexity.FieldSettings.IsDeleted(childComplexity), true
-
-	case "FieldSettings.isMultiValue":
-		if e.complexity.FieldSettings.IsMultiValue == nil {
-			break
-		}
-
-		return e.complexity.FieldSettings.IsMultiValue(childComplexity), true
 
 	case "KeyAvailability.available":
 		if e.complexity.KeyAvailability.Available == nil {
@@ -1757,7 +1719,7 @@ extend type Mutation {
   Text
   TextArea
   RichText
-  MarkDownText
+  MarkdownText
   Asset
   Date
   Bool
@@ -1768,20 +1730,7 @@ extend type Mutation {
   URL
 }
 
-type FieldSettings {
-  isMultiValue: Boolean
-  isDeleted: Boolean
-  DefaultValue: Any
-}
-
-type FieldConstraints{
-  isUnique: Boolean
-  isRequired: Boolean
-  #  max: Int
-  #  min: Int
-}
-
-interface IField {
+interface SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
@@ -1789,13 +1738,22 @@ interface IField {
   key: String!
   title: String!
   description: String
-  settings: FieldSettings!
-  constraints: FieldConstraints!
+
+  # FieldSettings
+  multiValue: Boolean
+  defaultValue: Any
+
+  # FieldConstraints
+  unique: Boolean
+  required: Boolean
+  #  max: Int
+  #  min: Int
+
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-type Field implements IField {
+type Field implements SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
@@ -1803,11 +1761,19 @@ type Field implements IField {
   key: String!
   title: String!
   description: String
-  settings: FieldSettings!
-  constraints: FieldConstraints!
-  DefaultValue: Any
+
+  # FieldSettings
+  multiValue: Boolean
+  defaultValue: Any
+
+  # FieldConstraints
+  unique: Boolean
+  required: Boolean
+  #  max: Int
+  #  min: Int
+
   values: Any # for select field
-  ReferencedModelId: ID # for reference field
+  referencedModelId: ID # for reference field
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -2931,7 +2897,7 @@ func (ec *executionContext) _Field_description(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Field_settings(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
+func (ec *executionContext) _Field_multiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2949,59 +2915,21 @@ func (ec *executionContext) _Field_settings(ctx context.Context, field graphql.C
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Settings, nil
+		return obj.MultiValue, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.FieldSettings)
+	res := resTmp.(*bool)
 	fc.Result = res
-	return ec.marshalNFieldSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSettings(ctx, field.Selections, res)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Field_constraints(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Constraints, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.FieldConstraints)
-	fc.Result = res
-	return ec.marshalNFieldConstraints2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldConstraints(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_DefaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
+func (ec *executionContext) _Field_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3031,6 +2959,70 @@ func (ec *executionContext) _Field_DefaultValue(ctx context.Context, field graph
 	res := resTmp.(interface{})
 	fc.Result = res
 	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Field_unique(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Field",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unique, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Field_required(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Field",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Required, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Field_values(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
@@ -3065,7 +3057,7 @@ func (ec *executionContext) _Field_values(ctx context.Context, field graphql.Col
 	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Field_ReferencedModelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
+func (ec *executionContext) _Field_referencedModelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3167,70 +3159,6 @@ func (ec *executionContext) _Field_updatedAt(ctx context.Context, field graphql.
 	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _FieldConstraints_isUnique(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldConstraints) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FieldConstraints",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsUnique, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FieldConstraints_isRequired(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldConstraints) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FieldConstraints",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsRequired, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _FieldPayload_field(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldPayload) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3264,102 +3192,6 @@ func (ec *executionContext) _FieldPayload_field(ctx context.Context, field graph
 	res := resTmp.(*gqlmodel.Field)
 	fc.Result = res
 	return ec.marshalNField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐField(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FieldSettings_isMultiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldSettings) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FieldSettings",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsMultiValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FieldSettings_isDeleted(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldSettings) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FieldSettings",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsDeleted, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FieldSettings_DefaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldSettings) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FieldSettings",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _KeyAvailability_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.KeyAvailability) (ret graphql.Marshaler) {
@@ -8821,22 +8653,6 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _IField(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.IField) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case gqlmodel.Field:
-		return ec._Field(ctx, sel, &obj)
-	case *gqlmodel.Field:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Field(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -8869,6 +8685,22 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Model(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.SchemaField) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.Field:
+		return ec._Field(ctx, sel, &obj)
+	case *gqlmodel.Field:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Field(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -9095,7 +8927,7 @@ func (ec *executionContext) _DeleteWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
-var fieldImplementors = []string{"Field", "IField"}
+var fieldImplementors = []string{"Field", "SchemaField"}
 
 func (ec *executionContext) _Field(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Field) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, fieldImplementors)
@@ -9172,29 +9004,30 @@ func (ec *executionContext) _Field(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = innerFunc(ctx)
 
-		case "settings":
+		case "multiValue":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_settings(ctx, field, obj)
+				return ec._Field_multiValue(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "constraints":
+		case "defaultValue":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_constraints(ctx, field, obj)
+				return ec._Field_defaultValue(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "DefaultValue":
+		case "unique":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_DefaultValue(ctx, field, obj)
+				return ec._Field_unique(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "required":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Field_required(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -9206,9 +9039,9 @@ func (ec *executionContext) _Field(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = innerFunc(ctx)
 
-		case "ReferencedModelId":
+		case "referencedModelId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_ReferencedModelId(ctx, field, obj)
+				return ec._Field_referencedModelId(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -9244,41 +9077,6 @@ func (ec *executionContext) _Field(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var fieldConstraintsImplementors = []string{"FieldConstraints"}
-
-func (ec *executionContext) _FieldConstraints(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FieldConstraints) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, fieldConstraintsImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FieldConstraints")
-		case "isUnique":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._FieldConstraints_isUnique(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "isRequired":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._FieldConstraints_isRequired(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var fieldPayloadImplementors = []string{"FieldPayload"}
 
 func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FieldPayload) graphql.Marshaler {
@@ -9299,48 +9097,6 @@ func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var fieldSettingsImplementors = []string{"FieldSettings"}
-
-func (ec *executionContext) _FieldSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FieldSettings) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, fieldSettingsImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FieldSettings")
-		case "isMultiValue":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._FieldSettings_isMultiValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "isDeleted":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._FieldSettings_isDeleted(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "DefaultValue":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._FieldSettings_DefaultValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11429,26 +11185,6 @@ func (ec *executionContext) marshalNField2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 		return graphql.Null
 	}
 	return ec._Field(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNFieldConstraints2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldConstraints(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldConstraints) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._FieldConstraints(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNFieldSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldSettings) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._FieldSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx context.Context, v interface{}) (gqlmodel.FiledType, error) {

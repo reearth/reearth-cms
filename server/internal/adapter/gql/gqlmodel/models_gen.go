@@ -12,12 +12,12 @@ import (
 	"golang.org/x/text/language"
 )
 
-type IField interface {
-	IsIField()
-}
-
 type Node interface {
 	IsNode()
+}
+
+type SchemaField interface {
+	IsSchemaField()
 }
 
 type AddMemberToWorkspaceInput struct {
@@ -106,37 +106,27 @@ type DeleteWorkspacePayload struct {
 }
 
 type Field struct {
-	ID                ID                `json:"id"`
-	ModelID           ID                `json:"modelId"`
-	Model             *Model            `json:"model"`
-	Type              FiledType         `json:"type"`
-	Key               string            `json:"key"`
-	Title             string            `json:"title"`
-	Description       *string           `json:"description"`
-	Settings          *FieldSettings    `json:"settings"`
-	Constraints       *FieldConstraints `json:"constraints"`
-	DefaultValue      interface{}       `json:"DefaultValue"`
-	Values            interface{}       `json:"values"`
-	ReferencedModelID *ID               `json:"ReferencedModelId"`
-	CreatedAt         time.Time         `json:"createdAt"`
-	UpdatedAt         time.Time         `json:"updatedAt"`
+	ID                ID          `json:"id"`
+	ModelID           ID          `json:"modelId"`
+	Model             *Model      `json:"model"`
+	Type              FiledType   `json:"type"`
+	Key               string      `json:"key"`
+	Title             string      `json:"title"`
+	Description       *string     `json:"description"`
+	MultiValue        *bool       `json:"multiValue"`
+	DefaultValue      interface{} `json:"defaultValue"`
+	Unique            *bool       `json:"unique"`
+	Required          *bool       `json:"required"`
+	Values            interface{} `json:"values"`
+	ReferencedModelID *ID         `json:"referencedModelId"`
+	CreatedAt         time.Time   `json:"createdAt"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
 }
 
-func (Field) IsIField() {}
-
-type FieldConstraints struct {
-	IsUnique   *bool `json:"isUnique"`
-	IsRequired *bool `json:"isRequired"`
-}
+func (Field) IsSchemaField() {}
 
 type FieldPayload struct {
 	Field *Field `json:"field"`
-}
-
-type FieldSettings struct {
-	IsMultiValue *bool       `json:"isMultiValue"`
-	IsDeleted    *bool       `json:"isDeleted"`
-	DefaultValue interface{} `json:"DefaultValue"`
 }
 
 type KeyAvailability struct {
@@ -346,7 +336,7 @@ const (
 	FiledTypeText         FiledType = "Text"
 	FiledTypeTextArea     FiledType = "TextArea"
 	FiledTypeRichText     FiledType = "RichText"
-	FiledTypeMarkDownText FiledType = "MarkDownText"
+	FiledTypeMarkdownText FiledType = "MarkdownText"
 	FiledTypeAsset        FiledType = "Asset"
 	FiledTypeDate         FiledType = "Date"
 	FiledTypeBool         FiledType = "Bool"
@@ -361,7 +351,7 @@ var AllFiledType = []FiledType{
 	FiledTypeText,
 	FiledTypeTextArea,
 	FiledTypeRichText,
-	FiledTypeMarkDownText,
+	FiledTypeMarkdownText,
 	FiledTypeAsset,
 	FiledTypeDate,
 	FiledTypeBool,
@@ -374,7 +364,7 @@ var AllFiledType = []FiledType{
 
 func (e FiledType) IsValid() bool {
 	switch e {
-	case FiledTypeText, FiledTypeTextArea, FiledTypeRichText, FiledTypeMarkDownText, FiledTypeAsset, FiledTypeDate, FiledTypeBool, FiledTypeSelect, FiledTypeTag, FiledTypeInteger, FiledTypeReference, FiledTypeURL:
+	case FiledTypeText, FiledTypeTextArea, FiledTypeRichText, FiledTypeMarkdownText, FiledTypeAsset, FiledTypeDate, FiledTypeBool, FiledTypeSelect, FiledTypeTag, FiledTypeInteger, FiledTypeReference, FiledTypeURL:
 		return true
 	}
 	return false
