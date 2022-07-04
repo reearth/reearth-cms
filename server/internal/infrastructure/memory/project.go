@@ -17,6 +17,7 @@ type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
 	now  *util.TimeNow
+	err  error
 }
 
 func NewProject() repo.Project {
@@ -35,6 +36,10 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 }
 
 func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
 	// TODO: implement pagination
 
 	if !r.f.CanRead(wid) {
@@ -61,6 +66,10 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 }
 
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
 	result := r.data.FindAll(func(k id.ProjectID, v *project.Project) bool {
 		return ids.Has(k) && r.f.CanRead(v.Workspace())
 	})
@@ -69,6 +78,10 @@ func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.Li
 }
 
 func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
 		return k == pid && r.f.CanRead(v.Workspace())
 	})
@@ -80,6 +93,10 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 }
 
 func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
 	if name == "" {
 		return nil, nil
 	}
@@ -95,6 +112,9 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 }
 
 func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) (c int, err error) {
+	if r.err != nil {
+		return 0, r.err
+	}
 
 	if !r.f.CanRead(workspace) {
 		return 0, nil
@@ -106,6 +126,10 @@ func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) 
 }
 
 func (r *Project) Save(_ context.Context, p *project.Project) error {
+	if r.err != nil {
+		return r.err
+	}
+
 	if !r.f.CanWrite(p.Workspace()) {
 		return repo.ErrOperationDenied
 	}
@@ -116,6 +140,10 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 }
 
 func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
+	if r.err != nil {
+		return r.err
+	}
+
 	if p, ok := r.data.Load(id); ok && r.f.CanWrite(p.Workspace()) {
 		r.data.Delete(id)
 		return nil
@@ -125,4 +153,8 @@ func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
 
 func MockProjectNow(r repo.Project, t time.Time) func() {
 	return r.(*Project).now.Mock(t)
+}
+
+func SetProjectError(r repo.Project, err error) {
+	r.(*Project).err = err
 }
