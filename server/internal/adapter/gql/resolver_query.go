@@ -23,7 +23,7 @@ func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, key strin
 	panic("implement me")
 }
 
-func (r *queryResolver) GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.Field, error) {
+func (r *queryResolver) GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.SchemaField, error) {
 	// TODO implement me
 	panic("implement me")
 }

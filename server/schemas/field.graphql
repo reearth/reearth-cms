@@ -13,11 +13,11 @@ enum FiledType {
   URL
 }
 
-interface SchemaField {
+type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: FiledType!
+  typeProperties: SchemaFieldTypeProperties
   key: String!
   title: String!
   description: String
@@ -36,30 +36,25 @@ interface SchemaField {
   updatedAt: DateTime!
 }
 
-type Field implements SchemaField {
-  id: ID!
-  modelId: ID!
-  model: Model!
-  type: FiledType!
-  key: String!
-  title: String!
-  description: String
+union SchemaFieldTypeProperties = SchemaTextFieldProperties | SchemaTextAreaFieldProperties | SchemaRichTextFieldProperties | SchemaMarkdownTextFieldProperties | SchemaAssetFieldProperties | SchemaDateFieldProperties | SchemaBoolFieldProperties | SchemaSelectFieldProperties | SchemaTagFieldProperties | SchemaIntegerFieldProperties | SchemaReferenceFieldProperties | SchemaURLFieldProperties
 
-  # FieldSettings
-  multiValue: Boolean
-  defaultValue: Any
 
-  # FieldConstraints
-  unique: Boolean
-  required: Boolean
-  #  max: Int
-  #  min: Int
-
-  values: Any # for select field
-  referencedModelId: ID # for reference field
-  createdAt: DateTime!
-  updatedAt: DateTime!
+type SchemaTextFieldProperties  { _f: Any}
+type SchemaTextAreaFieldProperties  { _f: Any}
+type SchemaRichTextFieldProperties  { _f: Any}
+type SchemaMarkdownTextFieldProperties  { _f: Any}
+type SchemaAssetFieldProperties { _f: Any}
+type SchemaDateFieldProperties  { _f: Any}
+type SchemaBoolFieldProperties  { _f: Any}
+type SchemaSelectFieldProperties {
+  values: Any
 }
+type SchemaTagFieldProperties  { _f: Any}
+type SchemaIntegerFieldProperties  { _f: Any}
+type SchemaReferenceFieldProperties {
+  referencedModelId: ID
+}
+type SchemaURLFieldProperties  { _f: Any}
 
 # Inputs
 input CreateFieldInput {
@@ -90,7 +85,7 @@ input DeleteFieldInput {
 
 # Payloads
 type FieldPayload {
-  field: Field!
+  field: SchemaField!
 }
 
 type DeleteFieldPayload {
@@ -98,7 +93,7 @@ type DeleteFieldPayload {
 }
 
 extend type Query {
-  getModelFields(modelId: ID!): [Field!]!
+  getModelFields(modelId: ID!): [SchemaField!]!
   checkFieldKeyAvailability(key: String!): KeyAvailability!
 }
 

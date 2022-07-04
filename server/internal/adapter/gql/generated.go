@@ -78,24 +78,6 @@ type ComplexityRoot struct {
 		WorkspaceID func(childComplexity int) int
 	}
 
-	Field struct {
-		CreatedAt         func(childComplexity int) int
-		DefaultValue      func(childComplexity int) int
-		Description       func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Key               func(childComplexity int) int
-		Model             func(childComplexity int) int
-		ModelID           func(childComplexity int) int
-		MultiValue        func(childComplexity int) int
-		ReferencedModelID func(childComplexity int) int
-		Required          func(childComplexity int) int
-		Title             func(childComplexity int) int
-		Type              func(childComplexity int) int
-		Unique            func(childComplexity int) int
-		UpdatedAt         func(childComplexity int) int
-		Values            func(childComplexity int) int
-	}
-
 	FieldPayload struct {
 		Field func(childComplexity int) int
 	}
@@ -223,6 +205,70 @@ type ComplexityRoot struct {
 		Workspace func(childComplexity int) int
 	}
 
+	SchemaAssetFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaBoolFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaDateFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaField struct {
+		CreatedAt      func(childComplexity int) int
+		DefaultValue   func(childComplexity int) int
+		Description    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Key            func(childComplexity int) int
+		Model          func(childComplexity int) int
+		ModelID        func(childComplexity int) int
+		MultiValue     func(childComplexity int) int
+		Required       func(childComplexity int) int
+		Title          func(childComplexity int) int
+		TypeProperties func(childComplexity int) int
+		Unique         func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
+	}
+
+	SchemaIntegerFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaMarkdownTextFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaReferenceFieldProperties struct {
+		ReferencedModelID func(childComplexity int) int
+	}
+
+	SchemaRichTextFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaSelectFieldProperties struct {
+		Values func(childComplexity int) int
+	}
+
+	SchemaTagFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaTextAreaFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaTextFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
+	SchemaURLFieldProperties struct {
+		F func(childComplexity int) int
+	}
+
 	SignupPayload struct {
 		User      func(childComplexity int) int
 		Workspace func(childComplexity int) int
@@ -298,7 +344,7 @@ type QueryResolver interface {
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error)
-	GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.Field, error)
+	GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.SchemaField, error)
 	CheckFieldKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error)
 }
 type WorkspaceMemberResolver interface {
@@ -368,111 +414,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
-
-	case "Field.createdAt":
-		if e.complexity.Field.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Field.CreatedAt(childComplexity), true
-
-	case "Field.defaultValue":
-		if e.complexity.Field.DefaultValue == nil {
-			break
-		}
-
-		return e.complexity.Field.DefaultValue(childComplexity), true
-
-	case "Field.description":
-		if e.complexity.Field.Description == nil {
-			break
-		}
-
-		return e.complexity.Field.Description(childComplexity), true
-
-	case "Field.id":
-		if e.complexity.Field.ID == nil {
-			break
-		}
-
-		return e.complexity.Field.ID(childComplexity), true
-
-	case "Field.key":
-		if e.complexity.Field.Key == nil {
-			break
-		}
-
-		return e.complexity.Field.Key(childComplexity), true
-
-	case "Field.model":
-		if e.complexity.Field.Model == nil {
-			break
-		}
-
-		return e.complexity.Field.Model(childComplexity), true
-
-	case "Field.modelId":
-		if e.complexity.Field.ModelID == nil {
-			break
-		}
-
-		return e.complexity.Field.ModelID(childComplexity), true
-
-	case "Field.multiValue":
-		if e.complexity.Field.MultiValue == nil {
-			break
-		}
-
-		return e.complexity.Field.MultiValue(childComplexity), true
-
-	case "Field.referencedModelId":
-		if e.complexity.Field.ReferencedModelID == nil {
-			break
-		}
-
-		return e.complexity.Field.ReferencedModelID(childComplexity), true
-
-	case "Field.required":
-		if e.complexity.Field.Required == nil {
-			break
-		}
-
-		return e.complexity.Field.Required(childComplexity), true
-
-	case "Field.title":
-		if e.complexity.Field.Title == nil {
-			break
-		}
-
-		return e.complexity.Field.Title(childComplexity), true
-
-	case "Field.type":
-		if e.complexity.Field.Type == nil {
-			break
-		}
-
-		return e.complexity.Field.Type(childComplexity), true
-
-	case "Field.unique":
-		if e.complexity.Field.Unique == nil {
-			break
-		}
-
-		return e.complexity.Field.Unique(childComplexity), true
-
-	case "Field.updatedAt":
-		if e.complexity.Field.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Field.UpdatedAt(childComplexity), true
-
-	case "Field.values":
-		if e.complexity.Field.Values == nil {
-			break
-		}
-
-		return e.complexity.Field.Values(childComplexity), true
 
 	case "FieldPayload.field":
 		if e.complexity.FieldPayload.Field == nil {
@@ -1172,6 +1113,181 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RemoveMemberFromWorkspacePayload.Workspace(childComplexity), true
 
+	case "SchemaAssetFieldProperties._f":
+		if e.complexity.SchemaAssetFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaAssetFieldProperties.F(childComplexity), true
+
+	case "SchemaBoolFieldProperties._f":
+		if e.complexity.SchemaBoolFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaBoolFieldProperties.F(childComplexity), true
+
+	case "SchemaDateFieldProperties._f":
+		if e.complexity.SchemaDateFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaDateFieldProperties.F(childComplexity), true
+
+	case "SchemaField.createdAt":
+		if e.complexity.SchemaField.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.CreatedAt(childComplexity), true
+
+	case "SchemaField.defaultValue":
+		if e.complexity.SchemaField.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.DefaultValue(childComplexity), true
+
+	case "SchemaField.description":
+		if e.complexity.SchemaField.Description == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Description(childComplexity), true
+
+	case "SchemaField.id":
+		if e.complexity.SchemaField.ID == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.ID(childComplexity), true
+
+	case "SchemaField.key":
+		if e.complexity.SchemaField.Key == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Key(childComplexity), true
+
+	case "SchemaField.model":
+		if e.complexity.SchemaField.Model == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Model(childComplexity), true
+
+	case "SchemaField.modelId":
+		if e.complexity.SchemaField.ModelID == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.ModelID(childComplexity), true
+
+	case "SchemaField.multiValue":
+		if e.complexity.SchemaField.MultiValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.MultiValue(childComplexity), true
+
+	case "SchemaField.required":
+		if e.complexity.SchemaField.Required == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Required(childComplexity), true
+
+	case "SchemaField.title":
+		if e.complexity.SchemaField.Title == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Title(childComplexity), true
+
+	case "SchemaField.typeProperties":
+		if e.complexity.SchemaField.TypeProperties == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.TypeProperties(childComplexity), true
+
+	case "SchemaField.unique":
+		if e.complexity.SchemaField.Unique == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Unique(childComplexity), true
+
+	case "SchemaField.updatedAt":
+		if e.complexity.SchemaField.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.UpdatedAt(childComplexity), true
+
+	case "SchemaIntegerFieldProperties._f":
+		if e.complexity.SchemaIntegerFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaIntegerFieldProperties.F(childComplexity), true
+
+	case "SchemaMarkdownTextFieldProperties._f":
+		if e.complexity.SchemaMarkdownTextFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaMarkdownTextFieldProperties.F(childComplexity), true
+
+	case "SchemaReferenceFieldProperties.referencedModelId":
+		if e.complexity.SchemaReferenceFieldProperties.ReferencedModelID == nil {
+			break
+		}
+
+		return e.complexity.SchemaReferenceFieldProperties.ReferencedModelID(childComplexity), true
+
+	case "SchemaRichTextFieldProperties._f":
+		if e.complexity.SchemaRichTextFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaRichTextFieldProperties.F(childComplexity), true
+
+	case "SchemaSelectFieldProperties.values":
+		if e.complexity.SchemaSelectFieldProperties.Values == nil {
+			break
+		}
+
+		return e.complexity.SchemaSelectFieldProperties.Values(childComplexity), true
+
+	case "SchemaTagFieldProperties._f":
+		if e.complexity.SchemaTagFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaTagFieldProperties.F(childComplexity), true
+
+	case "SchemaTextAreaFieldProperties._f":
+		if e.complexity.SchemaTextAreaFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaTextAreaFieldProperties.F(childComplexity), true
+
+	case "SchemaTextFieldProperties._f":
+		if e.complexity.SchemaTextFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaTextFieldProperties.F(childComplexity), true
+
+	case "SchemaURLFieldProperties._f":
+		if e.complexity.SchemaURLFieldProperties.F == nil {
+			break
+		}
+
+		return e.complexity.SchemaURLFieldProperties.F(childComplexity), true
+
 	case "SignupPayload.user":
 		if e.complexity.SignupPayload.User == nil {
 			break
@@ -1730,11 +1846,11 @@ extend type Mutation {
   URL
 }
 
-interface SchemaField {
+type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: FiledType!
+  typeProperties: SchemaFieldTypeProperties
   key: String!
   title: String!
   description: String
@@ -1753,30 +1869,25 @@ interface SchemaField {
   updatedAt: DateTime!
 }
 
-type Field implements SchemaField {
-  id: ID!
-  modelId: ID!
-  model: Model!
-  type: FiledType!
-  key: String!
-  title: String!
-  description: String
+union SchemaFieldTypeProperties = SchemaTextFieldProperties | SchemaTextAreaFieldProperties | SchemaRichTextFieldProperties | SchemaMarkdownTextFieldProperties | SchemaAssetFieldProperties | SchemaDateFieldProperties | SchemaBoolFieldProperties | SchemaSelectFieldProperties | SchemaTagFieldProperties | SchemaIntegerFieldProperties | SchemaReferenceFieldProperties | SchemaURLFieldProperties
 
-  # FieldSettings
-  multiValue: Boolean
-  defaultValue: Any
 
-  # FieldConstraints
-  unique: Boolean
-  required: Boolean
-  #  max: Int
-  #  min: Int
-
-  values: Any # for select field
-  referencedModelId: ID # for reference field
-  createdAt: DateTime!
-  updatedAt: DateTime!
+type SchemaTextFieldProperties  { _f: Any}
+type SchemaTextAreaFieldProperties  { _f: Any}
+type SchemaRichTextFieldProperties  { _f: Any}
+type SchemaMarkdownTextFieldProperties  { _f: Any}
+type SchemaAssetFieldProperties { _f: Any}
+type SchemaDateFieldProperties  { _f: Any}
+type SchemaBoolFieldProperties  { _f: Any}
+type SchemaSelectFieldProperties {
+  values: Any
 }
+type SchemaTagFieldProperties  { _f: Any}
+type SchemaIntegerFieldProperties  { _f: Any}
+type SchemaReferenceFieldProperties {
+  referencedModelId: ID
+}
+type SchemaURLFieldProperties  { _f: Any}
 
 # Inputs
 input CreateFieldInput {
@@ -1807,7 +1918,7 @@ input DeleteFieldInput {
 
 # Payloads
 type FieldPayload {
-  field: Field!
+  field: SchemaField!
 }
 
 type DeleteFieldPayload {
@@ -1815,7 +1926,7 @@ type DeleteFieldPayload {
 }
 
 extend type Query {
-  getModelFields(modelId: ID!): [Field!]!
+  getModelFields(modelId: ID!): [SchemaField!]!
   checkFieldKeyAvailability(key: String!): KeyAvailability!
 }
 
@@ -2655,510 +2766,6 @@ func (ec *executionContext) _DeleteWorkspacePayload_workspaceId(ctx context.Cont
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Field_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ModelID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_model(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Model, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Model)
-	fc.Result = res
-	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.FiledType)
-	fc.Result = res
-	return ec.marshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_multiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MultiValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_unique(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Unique, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_required(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Required, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_values(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Values, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_referencedModelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ReferencedModelID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Field_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Field) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Field",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _FieldPayload_field(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FieldPayload) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3189,9 +2796,9 @@ func (ec *executionContext) _FieldPayload_field(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.Field)
+	res := resTmp.(*gqlmodel.SchemaField)
 	fc.Result = res
-	return ec.marshalNField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐField(ctx, field.Selections, res)
+	return ec.marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _KeyAvailability_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.KeyAvailability) (ret graphql.Marshaler) {
@@ -5961,9 +5568,9 @@ func (ec *executionContext) _Query_getModelFields(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.Field)
+	res := resTmp.([]*gqlmodel.SchemaField)
 	fc.Result = res
-	return ec.marshalNField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldᚄ(ctx, field.Selections, res)
+	return ec.marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_checkFieldKeyAvailability(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6112,6 +5719,827 @@ func (ec *executionContext) _RemoveMemberFromWorkspacePayload_workspace(ctx cont
 	res := resTmp.(*gqlmodel.Workspace)
 	fc.Result = res
 	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaAssetFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaAssetFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaAssetFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaBoolFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaBoolFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaBoolFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaDateFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaDateFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaDateFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ModelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Model, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Model)
+	fc.Result = res
+	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_typeProperties(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TypeProperties, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.SchemaFieldTypeProperties)
+	fc.Result = res
+	return ec.marshalOSchemaFieldTypeProperties2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypeProperties(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MultiValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_unique(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unique, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_required(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Required, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaField_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaIntegerFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaIntegerFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaIntegerFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaMarkdownTextFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaMarkdownTextFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaMarkdownTextFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaReferenceFieldProperties_referencedModelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaReferenceFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaReferenceFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReferencedModelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaRichTextFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaRichTextFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaRichTextFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaSelectFieldProperties_values(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaSelectFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaSelectFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Values, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaTagFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaTagFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaTagFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaTextAreaFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaTextAreaFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaTextAreaFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaTextFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaTextFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaTextFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaURLFieldProperties__f(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaURLFieldProperties) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaURLFieldProperties",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.F, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SignupPayload_user(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SignupPayload) (ret graphql.Marshaler) {
@@ -8690,17 +9118,94 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	}
 }
 
-func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.SchemaField) graphql.Marshaler {
+func (ec *executionContext) _SchemaFieldTypeProperties(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.SchemaFieldTypeProperties) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.Field:
-		return ec._Field(ctx, sel, &obj)
-	case *gqlmodel.Field:
+	case gqlmodel.SchemaTextFieldProperties:
+		return ec._SchemaTextFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaTextFieldProperties:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Field(ctx, sel, obj)
+		return ec._SchemaTextFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaTextAreaFieldProperties:
+		return ec._SchemaTextAreaFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaTextAreaFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaTextAreaFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaRichTextFieldProperties:
+		return ec._SchemaRichTextFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaRichTextFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaRichTextFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaMarkdownTextFieldProperties:
+		return ec._SchemaMarkdownTextFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaMarkdownTextFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaMarkdownTextFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaAssetFieldProperties:
+		return ec._SchemaAssetFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaAssetFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaAssetFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaDateFieldProperties:
+		return ec._SchemaDateFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaDateFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaDateFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaBoolFieldProperties:
+		return ec._SchemaBoolFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaBoolFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaBoolFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaSelectFieldProperties:
+		return ec._SchemaSelectFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaSelectFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaSelectFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaTagFieldProperties:
+		return ec._SchemaTagFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaTagFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaTagFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaIntegerFieldProperties:
+		return ec._SchemaIntegerFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaIntegerFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaIntegerFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaReferenceFieldProperties:
+		return ec._SchemaReferenceFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaReferenceFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaReferenceFieldProperties(ctx, sel, obj)
+	case gqlmodel.SchemaURLFieldProperties:
+		return ec._SchemaURLFieldProperties(ctx, sel, &obj)
+	case *gqlmodel.SchemaURLFieldProperties:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaURLFieldProperties(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -8909,156 +9414,6 @@ func (ec *executionContext) _DeleteWorkspacePayload(ctx context.Context, sel ast
 		case "workspaceId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._DeleteWorkspacePayload_workspaceId(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var fieldImplementors = []string{"Field", "SchemaField"}
-
-func (ec *executionContext) _Field(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Field) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, fieldImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Field")
-		case "id":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_id(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "modelId":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_modelId(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "model":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_model(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "type":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_type(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "key":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_key(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "title":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_title(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "description":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_description(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "multiValue":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_multiValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "defaultValue":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_defaultValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "unique":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_unique(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "required":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_required(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "values":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_values(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "referencedModelId":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_referencedModelId(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "createdAt":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_createdAt(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updatedAt":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Field_updatedAt(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -10311,6 +10666,475 @@ func (ec *executionContext) _RemoveMemberFromWorkspacePayload(ctx context.Contex
 	return out
 }
 
+var schemaAssetFieldPropertiesImplementors = []string{"SchemaAssetFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaAssetFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaAssetFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaAssetFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaAssetFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaAssetFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaBoolFieldPropertiesImplementors = []string{"SchemaBoolFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaBoolFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaBoolFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaBoolFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaBoolFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaBoolFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaDateFieldPropertiesImplementors = []string{"SchemaDateFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaDateFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaDateFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaDateFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaDateFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaDateFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaFieldImplementors = []string{"SchemaField"}
+
+func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaField")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "modelId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_modelId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "model":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_model(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "typeProperties":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_typeProperties(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "key":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_key(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_title(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_description(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "multiValue":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_multiValue(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "defaultValue":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_defaultValue(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "unique":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_unique(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "required":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_required(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "createdAt":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_createdAt(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updatedAt":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_updatedAt(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaIntegerFieldPropertiesImplementors = []string{"SchemaIntegerFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaIntegerFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaIntegerFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaIntegerFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaIntegerFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaIntegerFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaMarkdownTextFieldPropertiesImplementors = []string{"SchemaMarkdownTextFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaMarkdownTextFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaMarkdownTextFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaMarkdownTextFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaMarkdownTextFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaMarkdownTextFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaReferenceFieldPropertiesImplementors = []string{"SchemaReferenceFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaReferenceFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaReferenceFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaReferenceFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaReferenceFieldProperties")
+		case "referencedModelId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaReferenceFieldProperties_referencedModelId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaRichTextFieldPropertiesImplementors = []string{"SchemaRichTextFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaRichTextFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaRichTextFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaRichTextFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaRichTextFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaRichTextFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaSelectFieldPropertiesImplementors = []string{"SchemaSelectFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaSelectFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaSelectFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaSelectFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaSelectFieldProperties")
+		case "values":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaSelectFieldProperties_values(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaTagFieldPropertiesImplementors = []string{"SchemaTagFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaTagFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaTagFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaTagFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaTagFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaTagFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaTextAreaFieldPropertiesImplementors = []string{"SchemaTextAreaFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaTextAreaFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaTextAreaFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaTextAreaFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaTextAreaFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaTextAreaFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaTextFieldPropertiesImplementors = []string{"SchemaTextFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaTextFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaTextFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaTextFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaTextFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaTextFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var schemaURLFieldPropertiesImplementors = []string{"SchemaURLFieldProperties", "SchemaFieldTypeProperties"}
+
+func (ec *executionContext) _SchemaURLFieldProperties(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaURLFieldProperties) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaURLFieldPropertiesImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaURLFieldProperties")
+		case "_f":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaURLFieldProperties__f(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var signupPayloadImplementors = []string{"SignupPayload"}
 
 func (ec *executionContext) _SignupPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SignupPayload) graphql.Marshaler {
@@ -11133,60 +11957,6 @@ func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreeart
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Field) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐField(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Field) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Field(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx context.Context, v interface{}) (gqlmodel.FiledType, error) {
 	var res gqlmodel.FiledType
 	err := res.UnmarshalGQL(v)
@@ -11626,6 +12396,60 @@ func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcm
 
 func (ec *executionContext) marshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Role) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.SchemaField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._SchemaField(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSignupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupInput(ctx context.Context, v interface{}) (gqlmodel.SignupInput, error) {
@@ -12291,6 +13115,13 @@ func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithub�
 		return graphql.Null
 	}
 	return ec._RemoveMemberFromWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSchemaFieldTypeProperties2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypeProperties(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFieldTypeProperties) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SchemaFieldTypeProperties(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOSignupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SignupPayload) graphql.Marshaler {
