@@ -30,11 +30,15 @@ func CopyURL(u *url.URL) *url.URL {
 	if u == nil {
 		return nil
 	}
+	v := CloneRef(u)
+	v.User = CloneRef(u.User)
+	return v
+}
 
-	v := *u
-	if u.User != nil {
-		ui := *u.User
-		v.User = &ui
+func CloneRef[T any](r *T) *T {
+	if r == nil {
+		return nil
 	}
-	return &v
+	r2 := *r
+	return &r2
 }
