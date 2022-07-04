@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
 import Search from "antd/lib/input/Search";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
@@ -54,7 +55,7 @@ const Dashboard: React.FC = () => {
             ></WorkspaceMenu>
           </DashboardSider>
           <PaddedContent>
-            <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>
+            <Greeting></Greeting>
             <ActionHeader>
               <Search
                 placeholder="input search text"
@@ -93,29 +94,6 @@ const ActionHeader = styled(Content)`
   padding: 16px;
   display: flex;
   justify-content: space-between;
-`;
-
-const DashboardCard = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-
-  height: 121px;
-
-  background: linear-gradient(
-    79.71deg,
-    #1e2086 0%,
-    #df3013 66.79%,
-    #df3013 93.02%
-  );
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 28px;
-  color: #fff;
 `;
 
 const ButtonWrapper = styled.div`
