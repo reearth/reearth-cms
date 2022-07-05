@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -36,6 +37,11 @@ func TestWorkspace_Create(t *testing.T) {
 	assert.Equal(t, resultWorkspaces[0].ID(), workspace.ID())
 	assert.Equal(t, resultWorkspaces[0].Name(), "workspace name")
 	assert.Equal(t, user.WorkspaceIDList{resultWorkspaces[0].ID()}, op.OwningWorkspaces)
+
+	r := &Workspace{}
+	wantErr := errors.New("test")
+	SetWorkspaceError(r, wantErr)
+	assert.Equal(t, wantErr, r.err)
 }
 
 func TestWorkspace_Fetch(t *testing.T) {
@@ -58,6 +64,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    []*user.Workspace
+		mockErr bool
 		wantErr error
 	}{
 		{
@@ -112,12 +119,24 @@ func TestWorkspace_Fetch(t *testing.T) {
 			want:    nil,
 			wantErr: nil,
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -159,6 +178,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    []*user.Workspace
+		mockErr bool
 		wantErr error
 	}{
 		{
@@ -200,12 +220,24 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -252,6 +284,7 @@ func TestWorkspace_Update(t *testing.T) {
 		}
 		want    *user.Workspace
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:  "Update 1",
@@ -298,12 +331,24 @@ func TestWorkspace_Update(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -358,6 +403,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			project  *project.Project
 		}
 		wantErr error
+		mockErr bool
 		want    *user.Workspace
 	}{
 		{
@@ -370,7 +416,6 @@ func TestWorkspace_Remove(t *testing.T) {
 			}{
 				wId:      id1,
 				operator: op,
-				project:  nil,
 			},
 			wantErr: nil,
 			want:    nil,
@@ -385,7 +430,6 @@ func TestWorkspace_Remove(t *testing.T) {
 			}{
 				wId:      id2,
 				operator: op,
-				project:  nil,
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			want:    w2,
@@ -400,7 +444,6 @@ func TestWorkspace_Remove(t *testing.T) {
 			}{
 				wId:      id3,
 				operator: op,
-				project:  nil,
 			},
 			wantErr: interfaces.ErrOperationDenied,
 			want:    w3,
@@ -415,7 +458,6 @@ func TestWorkspace_Remove(t *testing.T) {
 			}{
 				wId:      id4,
 				operator: op,
-				project:  nil,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    w4,
@@ -435,12 +477,24 @@ func TestWorkspace_Remove(t *testing.T) {
 			wantErr: user.ErrWorkspaceWithProjects,
 			want:    nil,
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -500,6 +554,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 			operator *usecase.Operator
 		}
 		wantErr error
+		mockErr bool
 		want    *user.Members
 	}{
 		{
@@ -556,11 +611,23 @@ func TestWorkspace_AddMember(t *testing.T) {
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -621,6 +688,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			operator *usecase.Operator
 		}
 		wantErr error
+		mockErr bool
 		want    *user.Members
 	}{
 		{
@@ -687,12 +755,24 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			wantErr: interfaces.ErrOwnerCannotLeaveTheWorkspace,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
@@ -752,6 +832,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			operator *usecase.Operator
 		}
 		wantErr error
+		mockErr bool
 		want    *user.Members
 	}{
 		{
@@ -808,12 +889,24 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:  "mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			r := &Workspace{}
+			if tc.mockErr {
+				SetWorkspaceError(r, tc.wantErr)
+				assert.Equal(t, tc.wantErr, r.err)
+				return
+			}
 
 			ctx := context.Background()
 			db := memory.New()
