@@ -1,11 +1,24 @@
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
+import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
 import Search from "antd/lib/input/Search";
 import { Content } from "antd/lib/layout/layout";
+import { useParams } from "react-router-dom";
+
+import useDashboardHooks from "../Dashboard/hooks";
 
 const Project: React.FC = () => {
+  const { workspaceId } = useParams();
+
+  const {
+    handleWorkspaceCreate,
+    handleModalClose,
+    handleModalOpen,
+    modalShown,
+  } = useDashboardHooks(workspaceId);
+
   return (
     <>
       <PaddedContent>
@@ -17,13 +30,18 @@ const Project: React.FC = () => {
             style={{ width: 264 }}
           />
           <ButtonWrapper>
-            {/* <Button onClick={handleModalOpen}>Create a Workspace</Button> */}
+            <Button onClick={handleModalOpen}>Create a Workspace</Button>
             <Button type="primary" icon={<PlusOutlined />}>
               Search
             </Button>
           </ButtonWrapper>
         </ActionHeader>
       </PaddedContent>
+      <WorkspaceCreationModal
+        open={modalShown}
+        onClose={handleModalClose}
+        onSubmit={handleWorkspaceCreate}
+      ></WorkspaceCreationModal>
     </>
   );
 };

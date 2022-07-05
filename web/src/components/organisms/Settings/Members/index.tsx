@@ -4,7 +4,6 @@ import {
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import MemberCreationModal from "@reearth-cms/components/molecules/Member/MemberCreationModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table, Modal } from "antd";
@@ -13,8 +12,6 @@ import Search from "antd/lib/input/Search";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
-
-import useDashboardHooks from "../../Dashboard/hooks";
 
 import useHooks from "./hooks";
 
@@ -50,9 +47,6 @@ const Members: React.FC = () => {
   const { workspaceId } = useParams();
 
   const { confirm } = Modal;
-
-  const { handleModalClose, modalShown, handleWorkspaceCreate } =
-    useDashboardHooks(workspaceId);
 
   const {
     me,
@@ -146,11 +140,6 @@ const Members: React.FC = () => {
         />
         ;
       </PaddedContent>
-      <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
-        onSubmit={handleWorkspaceCreate}
-      ></WorkspaceCreationModal>
       <MemberRoleModal
         member={selectedMember}
         open={roleModalShown}
