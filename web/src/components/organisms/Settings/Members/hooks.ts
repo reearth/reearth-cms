@@ -1,3 +1,4 @@
+import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetWorkspacesQuery,
   useAddMemberToWorkspaceMutation,
@@ -21,7 +22,9 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [memberCreationModalShown, setMemberCreationModalShown] =
     useState(false);
-  const [selectedMember, setSelectedMember] = useState<any>(undefined);
+  const [selectedMember, setSelectedMember] = useState<Member | undefined>(
+    undefined
+  );
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
