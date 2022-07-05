@@ -74,7 +74,7 @@ const Members: React.FC = () => {
 
   const members = currentWorkspace?.members;
 
-  const showConfirm = useCallback(
+  const handleMemberDelete = useCallback(
     (member: any) => {
       confirm({
         title: "Are you sure to remove this member?",
@@ -103,7 +103,7 @@ const Members: React.FC = () => {
     action: (
       <>
         {member.userId !== me?.id && (
-          <a onClick={() => handleRoleChange(member)}>Change Role</a>
+          <a onClick={() => handleRoleModalOpen(member)}>Change Role</a>
         )}
         {member.role !== "OWNER" && (
           <a
@@ -116,20 +116,6 @@ const Members: React.FC = () => {
       </>
     ),
   }));
-
-  const handleRoleChange = useCallback(
-    (member: any) => {
-      handleRoleModalOpen(member);
-    },
-    [handleRoleModalOpen]
-  );
-
-  const handleMemberDelete = useCallback(
-    (member: any) => {
-      showConfirm(member);
-    },
-    [showConfirm]
-  );
 
   const handleMemberAdd = useCallback(() => {
     if (!searchedUser) return;
