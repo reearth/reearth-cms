@@ -11,7 +11,7 @@ export interface Props {
   open?: boolean;
   handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: () => void;
+  onSubmit?: (userIds: string[]) => void;
   searchedUser:
     | {
         id: string;
@@ -72,19 +72,21 @@ const MemberCreationModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async () => {
-        if (searchedUser?.id) await onSubmit?.();
+        if (searchedUser?.id) await onSubmit?.([searchedUser.id]);
+        onClose?.(true);
         form.resetFields();
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onSubmit, searchedUser?.id]);
+  }, [form, onSubmit, searchedUser?.id, onClose]);
 
   const handleClose = useCallback(() => {
     setMemberName("");
     changeSearchedUser(undefined);
     onClose?.(true);
   }, [onClose, changeSearchedUser]);
+
   return (
     <Modal
       title="Add member"

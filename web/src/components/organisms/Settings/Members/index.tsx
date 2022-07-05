@@ -117,18 +117,6 @@ const Members: React.FC = () => {
     ),
   }));
 
-  const handleMemberAdd = useCallback(() => {
-    if (!searchedUser) return;
-    handleMemberAddToWorkspace([searchedUser.id]);
-    changeSearchedUser(undefined);
-    handleMemberCreationModalClose();
-  }, [
-    searchedUser,
-    handleMemberAddToWorkspace,
-    changeSearchedUser,
-    handleMemberCreationModalClose,
-  ]);
-
   return (
     <>
       <PaddedContent>
@@ -175,7 +163,7 @@ const Members: React.FC = () => {
         onClose={handleMemberCreationModalClose}
         handleUserSearch={handleUserSearch}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAdd}
+        onSubmit={handleMemberAddToWorkspace}
       ></MemberCreationModal>
     </>
   );
