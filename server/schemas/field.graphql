@@ -1,0 +1,150 @@
+enum SchemaFiledType {
+  Text
+  TextArea
+  RichText
+  MarkdownText
+  Asset
+  Date
+  Bool
+  Select
+  Tag
+  Integer
+  Reference
+  URL
+}
+
+type SchemaField {
+  id: ID!
+  modelId: ID!
+  model: Model!
+  type: SchemaFiledType!
+  typeProperty: SchemaFieldTypeProperty
+  key: String!
+  title: String!
+  description: String
+
+  multiValue: Boolean!
+  unique: Boolean!
+  required: Boolean!
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+union SchemaFieldTypeProperty =
+  SchemaFieldText
+  | SchemaFieldTextArea
+  | SchemaFieldRichText
+  | SchemaMarkdownText
+  | SchemaFieldAsset
+  | SchemaFieldDate
+  | SchemaFieldBool
+  | SchemaFieldSelect
+  | SchemaFieldTag
+  | SchemaFieldInteger
+  | SchemaFieldReference
+  | SchemaFieldURL
+
+
+type SchemaFieldText {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaFieldTextArea {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaFieldRichText {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaMarkdownText {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaFieldAsset {
+  defaultValue: ID
+}
+
+type SchemaFieldDate {
+  defaultValue: DateTime
+}
+
+type SchemaFieldBool {
+  defaultValue: Boolean
+}
+
+type SchemaFieldSelect {
+  values: [String!]!
+  defaultValue: String
+}
+
+type SchemaFieldTag {
+  values: [String!]!
+  defaultValue: String
+}
+
+type SchemaFieldInteger {
+  defaultValue: Int
+  min: Int
+  max: Int
+}
+
+type SchemaFieldReference {
+  modelId: ID
+}
+
+type SchemaFieldURL {
+  defaultValue: String
+}
+
+# Inputs
+input CreateFieldInput {
+  modelId: ID!
+  type: SchemaFiledType!
+  title: String!
+  description: String
+  key: String!
+  isMultiValue: Boolean
+  DefaultValue: Any
+  values: Any # for select field
+  isUnique: Boolean
+  isRequired: Boolean
+}
+
+input UpdateFieldInput {
+  title: String
+  description: String
+  key: String
+  isMultiValue: Boolean
+  DefaultValue: Any
+  # TODO: make sure what are the editable fields
+}
+
+input DeleteFieldInput {
+  fieldId: ID!
+}
+
+# Payloads
+type FieldPayload {
+  field: SchemaField!
+}
+
+type DeleteFieldPayload {
+  fieldId: ID!
+}
+
+extend type Query {
+  getModelFields(modelId: ID!): [SchemaField!]!
+  checkFieldKeyAvailability(key: String!): KeyAvailability!
+}
+
+extend type Mutation {
+  createField(input: CreateFieldInput!): FieldPayload
+  updateField(input: UpdateFieldInput!): FieldPayload
+  deleteField(input: DeleteFieldInput!): DeleteFieldPayload
+}
