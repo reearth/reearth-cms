@@ -64,7 +64,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 			operator *usecase.Operator
 		}
 		want    []*user.Workspace
-		mockErr bool
+		mockWorkspaceErr bool
 		wantErr error
 	}{
 		{
