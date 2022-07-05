@@ -22,6 +22,7 @@ func (l WorkspaceList) FilterByID(ids ...WorkspaceID) WorkspaceList {
 	}
 	return res
 }
+
 func (l WorkspaceList) FilterByUserRole(u ID, r Role) WorkspaceList {
 	if l == nil || u.IsNil() || r == "" {
 		return nil
