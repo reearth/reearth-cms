@@ -4,17 +4,14 @@ import {
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import MemberCreationModal from "@reearth-cms/components/molecules/Member/MemberCreationModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table, Modal } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
 import Search from "antd/lib/input/Search";
-import Layout, { Header, Content } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
-import React, { useCallback, useState } from "react";
+import { Content } from "antd/lib/layout/layout";
+import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../../Dashboard/hooks";
@@ -51,19 +48,11 @@ const columns = [
 
 const Members: React.FC = () => {
   const { workspaceId } = useParams();
-  const [collapsed, setCollapsed] = useState(false);
 
   const { confirm } = Modal;
 
-  const {
-    user,
-    personalWorkspace,
-    workspaces,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
-    handleWorkspaceCreate,
-  } = useDashboardHooks(workspaceId);
+  const { handleModalClose, modalShown, handleWorkspaceCreate } =
+    useDashboardHooks(workspaceId);
 
   const {
     me,
@@ -156,60 +145,33 @@ const Members: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
-        <MainHeader>
-          <MoleculeHeader
-            handleModalOpen={handleModalOpen}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            user={user}
-          ></MoleculeHeader>
-        </MainHeader>
-        <Layout>
-          <MembersSider
-            collapsible
-            collapsed={collapsed}
-            onCollapse={(value) => setCollapsed(value)}
-          >
-            <WorkspaceMenu
-              defaultSelectedKeys={["member"]}
-              isPersonalWorkspace={
-                personalWorkspace?.id === currentWorkspace?.id
-              }
-              inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
-            ></WorkspaceMenu>
-          </MembersSider>
-          <PaddedContent>
-            <MemberPageHeader
-              title="Members"
-              extra={
-                <Button
-                  type="primary"
-                  onClick={handleMemberCreationModalOpen}
-                  icon={<UsergroupAddOutlined />}
-                >
-                  New Member
-                </Button>
-              }
-            ></MemberPageHeader>
-            <ActionHeader>
-              <Search
-                placeholder="input search text"
-                allowClear
-                style={{ width: 264 }}
-              />
-            </ActionHeader>
-            <Table
-              dataSource={dataSource}
-              columns={columns}
-              style={{ padding: "24px" }}
-            />
-            ;
-          </PaddedContent>
-        </Layout>
-      </Layout>
+      <PaddedContent>
+        <MemberPageHeader
+          title="Members"
+          extra={
+            <Button
+              type="primary"
+              onClick={handleMemberCreationModalOpen}
+              icon={<UsergroupAddOutlined />}
+            >
+              New Member
+            </Button>
+          }
+        ></MemberPageHeader>
+        <ActionHeader>
+          <Search
+            placeholder="input search text"
+            allowClear
+            style={{ width: 264 }}
+          />
+        </ActionHeader>
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          style={{ padding: "24px" }}
+        />
+        ;
+      </PaddedContent>
       <WorkspaceCreationModal
         open={modalShown}
         onClose={handleModalClose}
@@ -232,28 +194,6 @@ const Members: React.FC = () => {
     </>
   );
 };
-
-const MainHeader = styled(Header)`
-  display: flex;
-  align-items: center;
-  height: 48px;
-  line-height: 48px;
-`;
-
-const MembersSider = styled(Sider)`
-  background-color: #fff;
-  .ant-layout-sider-trigger {
-    background-color: #fff;
-    color: #002140;
-    text-align: left;
-    padding: 0 24px;
-  }
-  .ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-`;
 
 const PaddedContent = styled(Content)`
   margin: 16px;
