@@ -16,8 +16,8 @@ type Node interface {
 	IsNode()
 }
 
-type SchemaFieldTypeProperties interface {
-	IsSchemaFieldTypeProperties()
+type SchemaFieldTypeProperty interface {
+	IsSchemaFieldTypeProperty()
 }
 
 type AddMemberToWorkspaceInput struct {
@@ -221,93 +221,100 @@ type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
 }
 
-type SchemaAssetFieldProperties struct {
-	F interface{} `json:"_f"`
-}
-
-func (SchemaAssetFieldProperties) IsSchemaFieldTypeProperties() {}
-
-type SchemaBoolFieldProperties struct {
-	F interface{} `json:"_f"`
-}
-
-func (SchemaBoolFieldProperties) IsSchemaFieldTypeProperties() {}
-
-type SchemaDateFieldProperties struct {
-	F interface{} `json:"_f"`
-}
-
-func (SchemaDateFieldProperties) IsSchemaFieldTypeProperties() {}
-
 type SchemaField struct {
-	ID             ID                        `json:"id"`
-	ModelID        ID                        `json:"modelId"`
-	Model          *Model                    `json:"model"`
-	TypeProperties SchemaFieldTypeProperties `json:"typeProperties"`
-	Key            string                    `json:"key"`
-	Title          string                    `json:"title"`
-	Description    *string                   `json:"description"`
-	MultiValue     *bool                     `json:"multiValue"`
-	DefaultValue   interface{}               `json:"defaultValue"`
-	Unique         *bool                     `json:"unique"`
-	Required       *bool                     `json:"required"`
-	CreatedAt      time.Time                 `json:"createdAt"`
-	UpdatedAt      time.Time                 `json:"updatedAt"`
+	ID           ID                      `json:"id"`
+	ModelID      ID                      `json:"modelId"`
+	Model        *Model                  `json:"model"`
+	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
+	Key          string                  `json:"key"`
+	Title        string                  `json:"title"`
+	Description  *string                 `json:"description"`
+	MultiValue   *bool                   `json:"multiValue"`
+	Unique       *bool                   `json:"unique"`
+	Required     *bool                   `json:"required"`
+	CreatedAt    time.Time               `json:"createdAt"`
+	UpdatedAt    time.Time               `json:"updatedAt"`
 }
 
-type SchemaIntegerFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldAsset struct {
+	DefaultValue *ID `json:"defaultValue"`
 }
 
-func (SchemaIntegerFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldAsset) IsSchemaFieldTypeProperty() {}
 
-type SchemaMarkdownTextFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldBool struct {
+	DefaultValue *bool `json:"defaultValue"`
 }
 
-func (SchemaMarkdownTextFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
 
-type SchemaReferenceFieldProperties struct {
-	ReferencedModelID *ID `json:"referencedModelId"`
+type SchemaFieldDate struct {
+	DefaultValue *time.Time `json:"defaultValue"`
 }
 
-func (SchemaReferenceFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
 
-type SchemaRichTextFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldInteger struct {
+	DefaultValue *int `json:"defaultValue"`
+	Min          *int `json:"min"`
+	Max          *int `json:"max"`
 }
 
-func (SchemaRichTextFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldInteger) IsSchemaFieldTypeProperty() {}
 
-type SchemaSelectFieldProperties struct {
-	Values interface{} `json:"values"`
+type SchemaFieldReference struct {
+	ModelID *ID `json:"modelId"`
 }
 
-func (SchemaSelectFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
-type SchemaTagFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldRichText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
 }
 
-func (SchemaTagFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldRichText) IsSchemaFieldTypeProperty() {}
 
-type SchemaTextAreaFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldSelect struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
 }
 
-func (SchemaTextAreaFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldSelect) IsSchemaFieldTypeProperty() {}
 
-type SchemaTextFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldTag struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
 }
 
-func (SchemaTextFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
-type SchemaURLFieldProperties struct {
-	F interface{} `json:"_f"`
+type SchemaFieldText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
 }
 
-func (SchemaURLFieldProperties) IsSchemaFieldTypeProperties() {}
+func (SchemaFieldText) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldTextArea struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaFieldTextArea) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldURL struct {
+	DefaultValue *string `json:"defaultValue"`
+}
+
+func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
+
+type SchemaMarkdownText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaMarkdownText) IsSchemaFieldTypeProperty() {}
 
 type SignupInput struct {
 	Lang        *language.Tag `json:"lang"`

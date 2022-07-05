@@ -17,44 +17,89 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  typeProperties: SchemaFieldTypeProperties
+  typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  # FieldSettings
   multiValue: Boolean
-  defaultValue: Any
-
-  # FieldConstraints
   unique: Boolean
   required: Boolean
-  #  max: Int
-  #  min: Int
 
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-union SchemaFieldTypeProperties = SchemaTextFieldProperties | SchemaTextAreaFieldProperties | SchemaRichTextFieldProperties | SchemaMarkdownTextFieldProperties | SchemaAssetFieldProperties | SchemaDateFieldProperties | SchemaBoolFieldProperties | SchemaSelectFieldProperties | SchemaTagFieldProperties | SchemaIntegerFieldProperties | SchemaReferenceFieldProperties | SchemaURLFieldProperties
+union SchemaFieldTypeProperty =
+  SchemaFieldText
+  | SchemaFieldTextArea
+  | SchemaFieldRichText
+  | SchemaMarkdownText
+  | SchemaFieldAsset
+  | SchemaFieldDate
+  | SchemaFieldBool
+  | SchemaFieldSelect
+  | SchemaFieldTag
+  | SchemaFieldInteger
+  | SchemaFieldReference
+  | SchemaFieldURL
 
 
-type SchemaTextFieldProperties  { _f: Any}
-type SchemaTextAreaFieldProperties  { _f: Any}
-type SchemaRichTextFieldProperties  { _f: Any}
-type SchemaMarkdownTextFieldProperties  { _f: Any}
-type SchemaAssetFieldProperties { _f: Any}
-type SchemaDateFieldProperties  { _f: Any}
-type SchemaBoolFieldProperties  { _f: Any}
-type SchemaSelectFieldProperties {
-  values: Any
+type SchemaFieldText {
+  defaultValue: String
+  maxLength: Int
 }
-type SchemaTagFieldProperties  { _f: Any}
-type SchemaIntegerFieldProperties  { _f: Any}
-type SchemaReferenceFieldProperties {
-  referencedModelId: ID
+
+type SchemaFieldTextArea {
+  defaultValue: String
+  maxLength: Int
 }
-type SchemaURLFieldProperties  { _f: Any}
+
+type SchemaFieldRichText {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaMarkdownText {
+  defaultValue: String
+  maxLength: Int
+}
+
+type SchemaFieldAsset {
+  defaultValue: ID
+}
+
+type SchemaFieldDate {
+  defaultValue: DateTime
+}
+
+type SchemaFieldBool {
+  defaultValue: Boolean
+}
+
+type SchemaFieldSelect {
+  values: [String!]!
+  defaultValue: String
+}
+
+type SchemaFieldTag {
+  values: [String!]!
+  defaultValue: String
+}
+
+type SchemaFieldInteger {
+  defaultValue: Int
+  min: Int
+  max: Int
+}
+
+type SchemaFieldReference {
+  modelId: ID
+}
+
+type SchemaFieldURL {
+  defaultValue: String
+}
 
 # Inputs
 input CreateFieldInput {
