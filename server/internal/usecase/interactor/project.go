@@ -23,21 +23,21 @@ func NewProject(r *repo.Container) interfaces.Project {
 	}
 }
 
-func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) ([]*project.Project, error) {
+func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) (project.List, error) {
 	projects, err := i.repos.Project.FindByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 	pIDs := util.Map(projects, func(p *project.Project) id.WorkspaceID { return p.Workspace() })
 	return Run1(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(pIDs...).Transaction(),
-		func() ([]*project.Project, error) {
+		func() (project.List, error) {
 			return i.repos.Project.FindByIDs(ctx, ids)
 		})
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecase.Pagination, operator *usecase.Operator) ([]*project.Project, *usecase.PageInfo, error) {
+func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecase.Pagination, operator *usecase.Operator) (project.List, *usecase.PageInfo, error) {
 	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(id).Transaction(),
-		func() ([]*project.Project, *usecase.PageInfo, error) {
+		func() (project.List, *usecase.PageInfo, error) {
 			return i.repos.Project.FindByWorkspace(ctx, id, p)
 		})
 }
