@@ -35,11 +35,8 @@ const WorkspaceCreationModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit]);
 
-  const handleClose = useCallback(() => {
-    onClose?.(true);
-  }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal visible={open} onCancel={() => onClose?.(true)} onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
