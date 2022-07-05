@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -23,6 +24,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    int
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "0 count in empty db",
@@ -90,6 +92,11 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 			want:    0,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -98,6 +105,9 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -131,6 +141,7 @@ func TestProjectRepo_Filtered(t *testing.T) {
 		seeds   project.List
 		arg     repo.WorkspaceFilter
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name: "no r/w workspaces operation denied",
@@ -156,6 +167,11 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -164,6 +180,9 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject().Filtered(tc.arg)
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -186,6 +205,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "Not found in empty db",
@@ -251,6 +271,11 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			want:    p1,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -259,6 +284,9 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -295,6 +323,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    project.List
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "0 count in empty db",
@@ -375,6 +404,11 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			want:    project.List{p1, p2},
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -383,6 +417,9 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -431,6 +468,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "Not found in empty db",
@@ -506,6 +544,11 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			want:    p1,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -514,6 +557,9 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -553,6 +599,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    project.List
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "0 count in empty db",
@@ -645,6 +692,11 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			want:    nil,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -653,6 +705,9 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
@@ -685,6 +740,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 		arg     id.ProjectID
 		filter  *repo.WorkspaceFilter
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name:    "Not found in empty db",
@@ -744,6 +800,11 @@ func TestProjectRepo_Remove(t *testing.T) {
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{}, Writable: []id.WorkspaceID{tid1}},
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -752,6 +813,9 @@ func TestProjectRepo_Remove(t *testing.T) {
 			t.Parallel()
 
 			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -778,6 +842,7 @@ func TestProjectRepo_Save(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Truncate(time.Millisecond).UTC()).MustBuild()
+
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -785,6 +850,7 @@ func TestProjectRepo_Save(t *testing.T) {
 		filter  *repo.WorkspaceFilter
 		want    *project.Project
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name: "Saved",
@@ -826,6 +892,11 @@ func TestProjectRepo_Save(t *testing.T) {
 			want:    p1,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -836,6 +907,9 @@ func TestProjectRepo_Save(t *testing.T) {
 			r := NewProject()
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
+			}
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
 			}
 			ctx := context.Background()
 			for _, p := range tc.seeds {

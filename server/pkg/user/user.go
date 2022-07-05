@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/mail"
 
+	"github.com/reearth/reearth-cms/server/pkg/util"
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
 )
 
@@ -190,4 +192,19 @@ func (u *User) SetPasswordReset(pr *PasswordReset) {
 
 func (u *User) SetVerification(v *Verification) {
 	u.verification = v
+}
+
+func (u *User) Clone() *User {
+	return &User{
+		id:            u.id.Clone(),
+		name:          u.name,
+		email:         u.email,
+		password:      u.password,
+		workspace:     u.workspace.Clone(),
+		auths:         slices.Clone(u.auths),
+		lang:          u.lang,
+		theme:         u.theme,
+		verification:  util.CloneRef(u.verification),
+		passwordReset: util.CloneRef(u.passwordReset),
+	}
 }
