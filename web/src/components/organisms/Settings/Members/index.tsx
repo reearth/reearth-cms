@@ -157,7 +157,7 @@ const Members: React.FC = () => {
   return (
     <>
       <Layout style={{ minHeight: "100vh" }}>
-        <Header>
+        <MainHeader>
           <MoleculeHeader
             handleModalOpen={handleModalOpen}
             personalWorkspace={personalWorkspace}
@@ -165,7 +165,7 @@ const Members: React.FC = () => {
             currentWorkspace={currentWorkspace}
             user={user}
           ></MoleculeHeader>
-        </Header>
+        </MainHeader>
         <Layout>
           <MembersSider
             collapsible
@@ -233,8 +233,26 @@ const Members: React.FC = () => {
   );
 };
 
+const MainHeader = styled(Header)`
+  display: flex;
+  align-items: center;
+  height: 48px;
+  line-height: 48px;
+`;
+
 const MembersSider = styled(Sider)`
   background-color: #fff;
+  .ant-layout-sider-trigger {
+    background-color: #fff;
+    color: #002140;
+    text-align: left;
+    padding: 0 24px;
+  }
+  .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
 
 const PaddedContent = styled(Content)`

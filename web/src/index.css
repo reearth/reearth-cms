@@ -9,23 +9,3 @@ body {
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
-
-#root .ant-layout-sider-trigger {
-    background-color: #fff;
-    color: #002140;
-    text-align: left;
-    padding: 0 24px;
-}
-
-#root .ant-layout-header {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    line-height: 48px;
-}
-
-.ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}

@@ -10,7 +10,6 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
-import "./App.css";
 import "antd/dist/antd.css";
 
 function AppRoutes() {

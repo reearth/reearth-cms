@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <Layout style={{ minHeight: "100vh" }}>
-        <Header>
+        <MainHeader>
           <MoleculeHeader
             handleModalOpen={handleModalOpen}
             personalWorkspace={personalWorkspace}
@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
             currentWorkspace={currentWorkspace}
             user={user}
           ></MoleculeHeader>
-        </Header>
+        </MainHeader>
         <Layout>
           <DashboardSider
             collapsible
@@ -81,8 +81,26 @@ const Dashboard: React.FC = () => {
   );
 };
 
+const MainHeader = styled(Header)`
+  display: flex;
+  align-items: center;
+  height: 48px;
+  line-height: 48px;
+`;
+
 const DashboardSider = styled(Sider)`
   background-color: #fff;
+  .ant-layout-sider-trigger {
+    background-color: #fff;
+    color: #002140;
+    text-align: left;
+    padding: 0 24px;
+  }
+  .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
 
 const PaddedContent = styled(Content)`
