@@ -1,4 +1,4 @@
-name: deploy-test-server
+name: server-deploy-test
 on:
   workflow_dispatch:
 concurrency:
