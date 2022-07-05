@@ -215,6 +215,7 @@ type ComplexityRoot struct {
 		MultiValue   func(childComplexity int) int
 		Required     func(childComplexity int) int
 		Title        func(childComplexity int) int
+		Type         func(childComplexity int) int
 		TypeProperty func(childComplexity int) int
 		Unique       func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
@@ -1183,6 +1184,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.Title(childComplexity), true
 
+	case "SchemaField.type":
+		if e.complexity.SchemaField.Type == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Type(childComplexity), true
+
 	case "SchemaField.typeProperty":
 		if e.complexity.SchemaField.TypeProperty == nil {
 			break
@@ -1887,7 +1895,7 @@ extend type Mutation {
   publishModel(input: PublishModelInput!): DeleteProjectPayload
 }
 `, BuiltIn: false},
-	{Name: "./schemas/field.graphql", Input: `enum FiledType {
+	{Name: "./schemas/field.graphql", Input: `enum SchemaFiledType {
   Text
   TextArea
   RichText
@@ -1906,14 +1914,15 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
+  type: SchemaFiledType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  multiValue: Boolean
-  unique: Boolean
-  required: Boolean
+  multiValue: Boolean!
+  unique: Boolean!
+  required: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -1993,7 +2002,7 @@ type SchemaFieldURL {
 # Inputs
 input CreateFieldInput {
   modelId: ID!
-  type: FiledType!
+  type: SchemaFiledType!
   title: String!
   description: String
   key: String!
@@ -5927,6 +5936,41 @@ func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphq
 	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _SchemaField_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.SchemaFiledType)
+	fc.Result = res
+	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _SchemaField_typeProperty(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6086,11 +6130,14 @@ func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaField_unique(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
@@ -6118,11 +6165,14 @@ func (ec *executionContext) _SchemaField_unique(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaField_required(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
@@ -6150,11 +6200,14 @@ func (ec *executionContext) _SchemaField_required(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaField_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
@@ -8641,7 +8694,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11037,6 +11090,16 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "type":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaField_type(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "typeProperty":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaField_typeProperty(ctx, field, obj)
@@ -11078,6 +11141,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "unique":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaField_unique(ctx, field, obj)
@@ -11085,6 +11151,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "required":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaField_required(ctx, field, obj)
@@ -11092,6 +11161,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createdAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaField_createdAt(ctx, field, obj)
@@ -12343,16 +12415,6 @@ func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreeart
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx context.Context, v interface{}) (gqlmodel.FiledType, error) {
-	var res gqlmodel.FiledType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFiledType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.FiledType) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (gqlmodel.ID, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := gqlmodel.ID(tmp)
@@ -12836,6 +12898,16 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 		return graphql.Null
 	}
 	return ec._SchemaField(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, v interface{}) (gqlmodel.SchemaFiledType, error) {
+	var res gqlmodel.SchemaFiledType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFiledType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNSignupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupInput(ctx context.Context, v interface{}) (gqlmodel.SignupInput, error) {

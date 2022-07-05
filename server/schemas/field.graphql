@@ -1,4 +1,4 @@
-enum FiledType {
+enum SchemaFiledType {
   Text
   TextArea
   RichText
@@ -17,14 +17,15 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
+  type: SchemaFiledType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  multiValue: Boolean
-  unique: Boolean
-  required: Boolean
+  multiValue: Boolean!
+  unique: Boolean!
+  required: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -104,7 +105,7 @@ type SchemaFieldURL {
 # Inputs
 input CreateFieldInput {
   modelId: ID!
-  type: FiledType!
+  type: SchemaFiledType!
   title: String!
   description: String
   key: String!

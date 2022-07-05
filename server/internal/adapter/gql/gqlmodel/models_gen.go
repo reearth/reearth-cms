@@ -31,16 +31,16 @@ type AddMemberToWorkspacePayload struct {
 }
 
 type CreateFieldInput struct {
-	ModelID      ID          `json:"modelId"`
-	Type         FiledType   `json:"type"`
-	Title        string      `json:"title"`
-	Description  *string     `json:"description"`
-	Key          string      `json:"key"`
-	IsMultiValue *bool       `json:"isMultiValue"`
-	DefaultValue interface{} `json:"DefaultValue"`
-	Values       interface{} `json:"values"`
-	IsUnique     *bool       `json:"isUnique"`
-	IsRequired   *bool       `json:"isRequired"`
+	ModelID      ID              `json:"modelId"`
+	Type         SchemaFiledType `json:"type"`
+	Title        string          `json:"title"`
+	Description  *string         `json:"description"`
+	Key          string          `json:"key"`
+	IsMultiValue *bool           `json:"isMultiValue"`
+	DefaultValue interface{}     `json:"DefaultValue"`
+	Values       interface{}     `json:"values"`
+	IsUnique     *bool           `json:"isUnique"`
+	IsRequired   *bool           `json:"isRequired"`
 }
 
 type CreateModelInput struct {
@@ -225,13 +225,14 @@ type SchemaField struct {
 	ID           ID                      `json:"id"`
 	ModelID      ID                      `json:"modelId"`
 	Model        *Model                  `json:"model"`
+	Type         SchemaFiledType         `json:"type"`
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
 	Description  *string                 `json:"description"`
-	MultiValue   *bool                   `json:"multiValue"`
-	Unique       *bool                   `json:"unique"`
-	Required     *bool                   `json:"required"`
+	MultiValue   bool                    `json:"multiValue"`
+	Unique       bool                    `json:"unique"`
+	Required     bool                    `json:"required"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
@@ -405,67 +406,6 @@ type WorkspaceMember struct {
 	User   *User `json:"user"`
 }
 
-type FiledType string
-
-const (
-	FiledTypeText         FiledType = "Text"
-	FiledTypeTextArea     FiledType = "TextArea"
-	FiledTypeRichText     FiledType = "RichText"
-	FiledTypeMarkdownText FiledType = "MarkdownText"
-	FiledTypeAsset        FiledType = "Asset"
-	FiledTypeDate         FiledType = "Date"
-	FiledTypeBool         FiledType = "Bool"
-	FiledTypeSelect       FiledType = "Select"
-	FiledTypeTag          FiledType = "Tag"
-	FiledTypeInteger      FiledType = "Integer"
-	FiledTypeReference    FiledType = "Reference"
-	FiledTypeURL          FiledType = "URL"
-)
-
-var AllFiledType = []FiledType{
-	FiledTypeText,
-	FiledTypeTextArea,
-	FiledTypeRichText,
-	FiledTypeMarkdownText,
-	FiledTypeAsset,
-	FiledTypeDate,
-	FiledTypeBool,
-	FiledTypeSelect,
-	FiledTypeTag,
-	FiledTypeInteger,
-	FiledTypeReference,
-	FiledTypeURL,
-}
-
-func (e FiledType) IsValid() bool {
-	switch e {
-	case FiledTypeText, FiledTypeTextArea, FiledTypeRichText, FiledTypeMarkdownText, FiledTypeAsset, FiledTypeDate, FiledTypeBool, FiledTypeSelect, FiledTypeTag, FiledTypeInteger, FiledTypeReference, FiledTypeURL:
-		return true
-	}
-	return false
-}
-
-func (e FiledType) String() string {
-	return string(e)
-}
-
-func (e *FiledType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = FiledType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid FiledType", str)
-	}
-	return nil
-}
-
-func (e FiledType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 type NodeType string
 
 const (
@@ -549,6 +489,67 @@ func (e *Role) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Role) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SchemaFiledType string
+
+const (
+	SchemaFiledTypeText         SchemaFiledType = "Text"
+	SchemaFiledTypeTextArea     SchemaFiledType = "TextArea"
+	SchemaFiledTypeRichText     SchemaFiledType = "RichText"
+	SchemaFiledTypeMarkdownText SchemaFiledType = "MarkdownText"
+	SchemaFiledTypeAsset        SchemaFiledType = "Asset"
+	SchemaFiledTypeDate         SchemaFiledType = "Date"
+	SchemaFiledTypeBool         SchemaFiledType = "Bool"
+	SchemaFiledTypeSelect       SchemaFiledType = "Select"
+	SchemaFiledTypeTag          SchemaFiledType = "Tag"
+	SchemaFiledTypeInteger      SchemaFiledType = "Integer"
+	SchemaFiledTypeReference    SchemaFiledType = "Reference"
+	SchemaFiledTypeURL          SchemaFiledType = "URL"
+)
+
+var AllSchemaFiledType = []SchemaFiledType{
+	SchemaFiledTypeText,
+	SchemaFiledTypeTextArea,
+	SchemaFiledTypeRichText,
+	SchemaFiledTypeMarkdownText,
+	SchemaFiledTypeAsset,
+	SchemaFiledTypeDate,
+	SchemaFiledTypeBool,
+	SchemaFiledTypeSelect,
+	SchemaFiledTypeTag,
+	SchemaFiledTypeInteger,
+	SchemaFiledTypeReference,
+	SchemaFiledTypeURL,
+}
+
+func (e SchemaFiledType) IsValid() bool {
+	switch e {
+	case SchemaFiledTypeText, SchemaFiledTypeTextArea, SchemaFiledTypeRichText, SchemaFiledTypeMarkdownText, SchemaFiledTypeAsset, SchemaFiledTypeDate, SchemaFiledTypeBool, SchemaFiledTypeSelect, SchemaFiledTypeTag, SchemaFiledTypeInteger, SchemaFiledTypeReference, SchemaFiledTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e SchemaFiledType) String() string {
+	return string(e)
+}
+
+func (e *SchemaFiledType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SchemaFiledType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SchemaFiledType", str)
+	}
+	return nil
+}
+
+func (e SchemaFiledType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
