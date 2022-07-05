@@ -41,6 +41,11 @@ type PageInfo {
   hasPreviousPage: Boolean!
 }
 
+type KeyAvailability {
+  key: String!
+  available: Boolean!
+}
+
 # Basic types
 
 scalar DateTime

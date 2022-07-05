@@ -5,13 +5,13 @@ type ProjectAliasAvailability {
 
 type Project implements Node {
   id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
   name: String!
   description: String!
   alias: String!
   workspaceId: ID!
   workspace: Workspace
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 # Inputs
