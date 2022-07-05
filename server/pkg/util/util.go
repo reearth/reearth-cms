@@ -1,5 +1,7 @@
 package util
 
+import "net/url"
+
 func Must[T any](v T, err error) T {
 	if err != nil {
 		panic(err)
@@ -22,4 +24,21 @@ func Deref[T any](r *T) T {
 		return z
 	}
 	return *r
+}
+
+func CopyURL(u *url.URL) *url.URL {
+	if u == nil {
+		return nil
+	}
+	v := CloneRef(u)
+	v.User = CloneRef(u.User)
+	return v
+}
+
+func CloneRef[T any](r *T) *T {
+	if r == nil {
+		return nil
+	}
+	r2 := *r
+	return &r2
 }

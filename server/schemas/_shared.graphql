@@ -24,6 +24,14 @@ interface Node {
 enum NodeType {
   USER
   WORKSPACE
+  PROJECT
+}
+
+input Pagination{
+  first: Int
+  last: Int
+  after: Cursor
+  before: Cursor
 }
 
 type PageInfo {
@@ -31,6 +39,11 @@ type PageInfo {
   endCursor: Cursor
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
+}
+
+type KeyAvailability {
+  key: String!
+  available: Boolean!
 }
 
 # Basic types

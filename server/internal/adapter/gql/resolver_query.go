@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -11,6 +12,26 @@ func (r *Resolver) Query() QueryResolver {
 }
 
 type queryResolver struct{ *Resolver }
+
+func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (r *queryResolver) GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.SchemaField, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (r *queryResolver) CheckFieldKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
+	// TODO implement me
+	panic("implement me")
+}
 
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	u := getUser(ctx)
@@ -69,4 +90,12 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []gqlmodel.ID, typeArg gq
 
 func (r *queryResolver) SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
 	return loaders(ctx).User.SearchUser(ctx, nameOrEmail)
+}
+
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error) {
+	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, first, last, before, after)
+}
+
+func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
+	return loaders(ctx).Project.CheckAlias(ctx, alias)
 }
