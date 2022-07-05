@@ -140,6 +140,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
