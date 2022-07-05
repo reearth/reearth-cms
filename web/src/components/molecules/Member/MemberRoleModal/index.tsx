@@ -1,4 +1,4 @@
-import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Workspace/hooks";
+import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
 import { Form, Modal, Select } from "antd";
 import React, { useCallback, useEffect } from "react";
 
