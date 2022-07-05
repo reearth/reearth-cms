@@ -26,10 +26,6 @@ func NewWorkspace(r *repo.Container) interfaces.Workspace {
 
 func (i *Workspace) Fetch(ctx context.Context, ids []id.WorkspaceID, operator *usecase.Operator) ([]*user.Workspace, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		res, err := i.repos.Workspace.FindByIDs(ctx, ids)
 		res2, err := i.filterWorkspaces(res, operator, err)
 		return res2, err
@@ -38,10 +34,6 @@ func (i *Workspace) Fetch(ctx context.Context, ids []id.WorkspaceID, operator *u
 
 func (i *Workspace) FindByUser(ctx context.Context, id id.UserID, operator *usecase.Operator) ([]*user.Workspace, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		res, err := i.repos.Workspace.FindByUser(ctx, id)
 		res2, err := i.filterWorkspaces(res, operator, err)
 		return res2, err
@@ -50,10 +42,6 @@ func (i *Workspace) FindByUser(ctx context.Context, id id.UserID, operator *usec
 
 func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {		
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		if len(strings.TrimSpace(name)) == 0 {
 			return nil, user.ErrInvalidName
 		}
@@ -81,10 +69,6 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 
 func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
 			return nil, err
@@ -113,10 +97,6 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 
 func (i *Workspace) AddMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
 			return nil, err
@@ -149,10 +129,6 @@ func (i *Workspace) AddMember(ctx context.Context, id id.WorkspaceID, u id.UserI
 
 func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
 			return nil, err
@@ -184,10 +160,6 @@ func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.Us
 
 func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		if i.err != nil {
-			return nil, i.err
-		}
-
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
 			return nil, err
@@ -219,10 +191,6 @@ func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.Us
 
 func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		if i.err != nil {
-			return i.err
-		}
-
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
 			return err
@@ -264,8 +232,4 @@ func (i *Workspace) filterWorkspaces(workspaces []*user.Workspace, operator *use
 		}
 	}
 	return workspaces, nil
-}
-
-func SetWorkspaceError(i *Workspace, err error) {
-	i.err = err
 }
