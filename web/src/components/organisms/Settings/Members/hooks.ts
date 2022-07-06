@@ -148,9 +148,9 @@ export default ({ workspaceId }: Props) => {
     setSelectedMember(undefined);
   }, []);
 
-  const handleMemberAddModalOpen = useCallback((member: Member) => {
+  const handleMemberAddModalOpen = useCallback(() => {
     setMemberAddModalShown(true);
-    setSelectedMember(member);
+    setSelectedMember(undefined);
   }, []);
 
   return {
