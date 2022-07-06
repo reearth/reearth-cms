@@ -8,6 +8,7 @@ type ID = id.AssetID
 type WorkspaceID = id.WorkspaceID
 type UserID = id.UserID
 type AssetFileID = id.AssetFileID
+type ProjectID = id.ProjectID
 
 var NewID = id.NewAssetID
 var NewWorkspaceID = id.NewWorkspaceID

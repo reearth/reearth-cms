@@ -14,12 +14,7 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.id.IsNil() {
 		return nil, ErrInvalidID
 	}
-	//if b.a.team.IsNil() {
-	//	return nil, ErrEmptyTeamID
-	//}
-	if b.a.url == "" {
-		return nil, ErrEmptyURL
-	}
+
 	if b.a.createdAt.IsZero() {
 		b.a.createdAt = b.a.CreatedAt()
 	}
@@ -44,19 +39,8 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-//
-//func (b *Builder) Team(team TeamID) *Builder {
-//	b.a.team = team
-//	return b
-//}
-
 func (b *Builder) Name(name string) *Builder {
-	b.a.name = name
-	return b
-}
-
-func (b *Builder) URL(url string) *Builder {
-	b.a.url = url
+	b.a.fileName = name
 	return b
 }
 
@@ -65,7 +49,7 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	return b
 }
 
-func (b *Builder) Files(files []*AssetFile) *Builder {
+func (b *Builder) Files(files []*File) *Builder {
 	b.a.files = files
 	return b
 }

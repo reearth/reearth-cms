@@ -4,37 +4,32 @@ import (
 	"time"
 )
 
-type AssetFile struct {
+type File struct {
 	id          AssetFileID
 	name        string
-	url         string
 	size        uint64
 	contentType string
 	uploadedAt  time.Time
 	uploadedBy  UserID
-	children    []*AssetFile
+	children    []*AssetFileID
 }
 
-func (fr *AssetFile) Name() string {
+func (fr *File) Name() string {
 	return fr.name
 }
 
-func (fr *AssetFile) Url() string {
-	return fr.url
-}
-
-func (fr *AssetFile) ContentType() string {
+func (fr *File) ContentType() string {
 	return fr.contentType
 }
 
-func (fr *AssetFile) Size() uint64 {
+func (fr *File) Size() uint64 {
 	return fr.size
 }
 
-func (fr *AssetFile) UploadedAt() time.Time {
+func (fr *File) UploadedAt() time.Time {
 	return fr.uploadedAt
 }
 
-func (fr *AssetFile) UploadedBy() UserID {
+func (fr *File) UploadedBy() UserID {
 	return fr.uploadedBy
 }

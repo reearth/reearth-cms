@@ -6,34 +6,31 @@ import (
 )
 
 var (
-	ErrEmptyWorkspaceID = errors.New("require workspace id")
-	ErrEmptyURL         = errors.New("require valid url")
-	ErrEmptySize        = errors.New("file size cannot be zero")
+	ErrEmptyProjectID = errors.New("require project id")
+	ErrEmptySize      = errors.New("file size cannot be zero")
 )
 
 type Asset struct {
 	id        ID
+	projectID ProjectID
 	createdAt time.Time
 	createdBy UserID
-	name      string
-	files     []*AssetFile
+	fileName  string
+	assetType string
+	size      uint64
+	files     []*File
 }
 
 func (a *Asset) ID() ID {
 	return a.id
 }
 
-//
-//func (a *Asset) Workspace() WorkspaceID {
-//	return a.workspace
-//}
-
-func (a *Asset) Name() string {
-	return a.name
+func (a *Asset) Project() ProjectID {
+	return a.projectID
 }
 
-func (a *Asset) URL() string {
-	return a.url
+func (a *Asset) CreatedBy() UserID {
+	return a.createdBy
 }
 
 func (a *Asset) CreatedAt() time.Time {
