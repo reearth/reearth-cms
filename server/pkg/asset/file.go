@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 type File struct {
@@ -11,7 +13,11 @@ type File struct {
 	contentType string
 	uploadedAt  time.Time
 	uploadedBy  UserID
-	children    []*AssetFileID
+	children    id.AssetFileIDList
+}
+
+func (fr *File) ID() AssetFileID {
+	return fr.id
 }
 
 func (fr *File) Name() string {
@@ -32,4 +38,8 @@ func (fr *File) UploadedAt() time.Time {
 
 func (fr *File) UploadedBy() UserID {
 	return fr.uploadedBy
+}
+
+func (fr *File) Children() id.AssetFileIDList {
+	return fr.children
 }

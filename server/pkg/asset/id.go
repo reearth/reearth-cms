@@ -5,28 +5,27 @@ import (
 )
 
 type ID = id.AssetID
-type WorkspaceID = id.WorkspaceID
+type ProjectID = id.ProjectID
 type UserID = id.UserID
 type AssetFileID = id.AssetFileID
-type ProjectID = id.ProjectID
 
 var NewID = id.NewAssetID
-var NewWorkspaceID = id.NewWorkspaceID
-var NewUserID = id.NewWorkspaceID
+var NewProjectID = id.NewProjectID
+var NewUserID = id.NewUserID
 var NewAssetFileID = id.NewAssetFileID
 
 var MustID = id.MustAssetID
-var MustWorkspaceID = id.MustWorkspaceID
+var MustProjectID = id.MustProjectID
 var MustUserID = id.MustUserID
 var MustAssetFileID = id.MustAssetFileID
 
 var IDFrom = id.AssetIDFrom
-var WorkspaceIDFrom = id.WorkspaceIDFrom
+var ProjectIDFrom = id.ProjectIDFrom
 var UserIDFrom = id.UserIDFrom
 var AssetFileIDFrom = id.AssetFileIDFrom
 
 var IDFromRef = id.AssetIDFromRef
-var WorkspaceIDFromRef = id.WorkspaceIDFromRef
+var ProjectIDFromRef = id.ProjectIDFromRef
 var UserIDFromRef = id.UserIDFromRef
 var AssetFileIDFromRef = id.AssetFileIDFromRef
 
