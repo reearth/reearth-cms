@@ -65,9 +65,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 			ids      []id.WorkspaceID
 			operator *usecase.Operator
 		}
-		want    []*user.Workspace
+		want             []*user.Workspace
 		mockWorkspaceErr bool
-		wantErr error
+		wantErr          error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -122,8 +122,8 @@ func TestWorkspace_Fetch(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -175,9 +175,9 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			userID   id.UserID
 			operator *usecase.Operator
 		}
-		want    []*user.Workspace
+		want             []*user.Workspace
 		mockWorkspaceErr bool
-		wantErr error
+		wantErr          error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -219,8 +219,8 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -276,8 +276,8 @@ func TestWorkspace_Update(t *testing.T) {
 			newName  string
 			operator *usecase.Operator
 		}
-		want    *user.Workspace
-		wantErr error
+		want             *user.Workspace
+		wantErr          error
 		mockWorkspaceErr bool
 	}{
 		{
@@ -326,8 +326,8 @@ func TestWorkspace_Update(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -392,9 +392,10 @@ func TestWorkspace_Remove(t *testing.T) {
 			operator *usecase.Operator
 			project  *project.Project
 		}
-		wantErr error
+		wantErr          error
 		mockWorkspaceErr bool
-		want    *user.Workspace
+		mockProjectErr   bool
+		want             *user.Workspace
 	}{
 		{
 			name:  "Remove 1",
@@ -468,8 +469,8 @@ func TestWorkspace_Remove(t *testing.T) {
 			want:    nil,
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock workspace error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -539,9 +540,9 @@ func TestWorkspace_AddMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr error
+		wantErr          error
 		mockWorkspaceErr bool
-		want    *user.Members
+		want             *user.Members
 	}{
 		{
 			name:       "Add non existing",
@@ -598,8 +599,8 @@ func TestWorkspace_AddMember(t *testing.T) {
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -669,9 +670,9 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			uId      id.UserID
 			operator *usecase.Operator
 		}
-		wantErr error
+		wantErr          error
 		mockWorkspaceErr bool
-		want    *user.Members
+		want             *user.Members
 	}{
 		{
 			name:       "Remove non existing",
@@ -738,8 +739,8 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
@@ -809,9 +810,9 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr error
+		wantErr          error
 		mockWorkspaceErr bool
-		want    *user.Members
+		want             *user.Members
 	}{
 		{
 			name:       "Update non existing",
@@ -868,8 +869,8 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
 		{
-			name:  "mock error",
-			wantErr: errors.New("test"),
+			name:             "mock error",
+			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
 	}
