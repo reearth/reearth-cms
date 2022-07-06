@@ -7,10 +7,10 @@ import {
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import Space from "@reearth-cms/components/atoms/Space";
 import { Workspace } from "@reearth-cms/state";
-import { Space } from "antd";
-import Dropdown from "antd/lib/dropdown/dropdown";
 import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 

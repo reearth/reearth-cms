@@ -3,13 +3,15 @@ import {
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
+import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Search from "@reearth-cms/components/atoms/Search";
+import Table from "@reearth-cms/components/atoms/Table";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { PageHeader, Table, Modal } from "antd";
-import Avatar from "antd/lib/avatar/avatar";
-import Search from "antd/lib/input/Search";
 import { Content } from "antd/lib/layout/layout";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";

@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
+import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 

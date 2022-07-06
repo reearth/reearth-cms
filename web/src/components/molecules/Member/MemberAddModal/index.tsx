@@ -1,6 +1,9 @@
 import { CloseOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import { Avatar, Form, Input, Modal } from "antd";
+import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import React, { useCallback, useEffect, useState } from "react";
 
 export interface FormValues {

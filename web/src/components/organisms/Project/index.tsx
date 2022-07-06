@@ -1,9 +1,9 @@
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
+import Search from "@reearth-cms/components/atoms/Search";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
-import Search from "antd/lib/input/Search";
 import { Content } from "antd/lib/layout/layout";
 import { useParams } from "react-router-dom";
 

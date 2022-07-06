@@ -1,4 +1,6 @@
-import { Form, Input, Modal } from "antd";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import React, { useCallback } from "react";
 
 export interface FormValues {
