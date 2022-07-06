@@ -25,7 +25,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          token: ${{ secrets.GPT }}
       - id: changelog
         name: Generate CHANGELOG
         uses: reearth/changelog-action@main
