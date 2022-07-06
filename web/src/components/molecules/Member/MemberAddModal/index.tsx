@@ -35,7 +35,7 @@ const initialValues: FormValues = {
   name: "",
 };
 
-const MemberCreationModal: React.FC<Props> = ({
+const MemberAddModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
@@ -164,4 +164,4 @@ const SearchedUSerResult = styled.div`
   border-radius: 2px;
 `;
 
-export default MemberCreationModal;
+export default MemberAddModal;

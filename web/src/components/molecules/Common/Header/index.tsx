@@ -7,8 +7,9 @@ import {
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Menu from "@reearth-cms/components/atoms/Menu";
 import { Workspace } from "@reearth-cms/state";
-import { Menu, Space } from "antd";
+import { Space } from "antd";
 import Dropdown from "antd/lib/dropdown/dropdown";
 import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -101,7 +102,7 @@ const Header: React.FC<Props> = ({
           label: "Logout",
           key: "logout",
           icon: <LogoutOutlined />,
-          onClick: () => logout(),
+          onClick: logout,
         },
       ]}
     />

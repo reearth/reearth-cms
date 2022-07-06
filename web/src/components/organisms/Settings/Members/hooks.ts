@@ -20,7 +20,7 @@ type Props = {
 export default ({ workspaceId }: Props) => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
-  const [memberCreationModalShown, setMemberCreationModalShown] =
+  const [MemberAddModalShown, setMemberAddModalShown] =
     useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(
     undefined
@@ -144,13 +144,13 @@ export default ({ workspaceId }: Props) => {
     setSelectedMember(member);
   }, []);
 
-  const handleMemberCreationModalClose = useCallback(() => {
-    setMemberCreationModalShown(false);
+  const handleMemberAddModalClose = useCallback(() => {
+    setMemberAddModalShown(false);
     setSelectedMember(undefined);
   }, []);
 
-  const handleMemberCreationModalOpen = useCallback((member: any) => {
-    setMemberCreationModalShown(true);
+  const handleMemberAddModalOpen = useCallback((member: any) => {
+    setMemberAddModalShown(true);
     setSelectedMember(member);
   }, []);
 
@@ -166,9 +166,9 @@ export default ({ workspaceId }: Props) => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
-    handleMemberCreationModalClose,
-    handleMemberCreationModalOpen,
-    memberCreationModalShown,
+    handleMemberAddModalClose,
+    handleMemberAddModalOpen,
+    MemberAddModalShown,
     setSelectedMember,
     selectedMember,
     roleModalShown,

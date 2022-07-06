@@ -4,7 +4,7 @@ import {
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import MemberCreationModal from "@reearth-cms/components/molecules/Member/MemberCreationModal";
+import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table, Modal } from "antd";
 import Avatar from "antd/lib/avatar/avatar";
@@ -61,9 +61,9 @@ const Members: React.FC = () => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
-    handleMemberCreationModalClose,
-    handleMemberCreationModalOpen,
-    memberCreationModalShown,
+    handleMemberAddModalClose,
+    handleMemberAddModalOpen,
+    MemberAddModalShown,
   } = useHooks({ workspaceId });
 
   const members = currentWorkspace?.members;
@@ -119,7 +119,7 @@ const Members: React.FC = () => {
           extra={
             <Button
               type="primary"
-              onClick={handleMemberCreationModalOpen}
+              onClick={handleMemberAddModalOpen}
               icon={<UsergroupAddOutlined />}
             >
               New Member
@@ -146,14 +146,14 @@ const Members: React.FC = () => {
         onClose={handleRoleModalClose}
         onSubmit={handleMemberOfWorkspaceUpdate}
       ></MemberRoleModal>
-      <MemberCreationModal
-        open={memberCreationModalShown}
+      <MemberAddModal
+        open={MemberAddModalShown}
         searchedUser={searchedUser}
-        onClose={handleMemberCreationModalClose}
+        onClose={handleMemberAddModalClose}
         handleUserSearch={handleUserSearch}
         changeSearchedUser={changeSearchedUser}
         onSubmit={handleMemberAddToWorkspace}
-      ></MemberCreationModal>
+      ></MemberAddModal>
     </>
   );
 };
