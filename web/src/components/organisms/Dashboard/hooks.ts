@@ -1,3 +1,4 @@
+import { User } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -5,23 +6,6 @@ import {
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-export type User = {
-  name: string;
-};
-
-export type Member = {
-  user: {
-    id?: string;
-    name?: string;
-  };
-};
-
-export type Workspace = {
-  id?: string;
-  name?: string;
-  members?: Member[];
-};
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
@@ -87,15 +71,9 @@ export default (workspaceId?: string) => {
     [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
   );
 
-  const handleModalClose = useCallback(
-    (r?: boolean) => {
-      setModalShown(false);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleModalClose = useCallback(() => {
+    setModalShown(false);
+  }, []);
 
   const handleModalOpen = useCallback(() => setModalShown(true), []);
 
