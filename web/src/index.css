@@ -9,27 +9,3 @@ body {
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
-
-.ant-layout-sider-trigger {
-    background-color: #fff!important;
-    color: #002140!important;
-    text-align: left!important;
-    padding: 0 24px;
-}
-
-.ant-layout-header {
-    display: flex;
-    align-items: center;
-    height: 48px!important;
-    line-height: 48px!important;
-}
-
-.ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.ant-dropdown-menu-item-group-title {
-    color: #8C8C8C!important;
-}
