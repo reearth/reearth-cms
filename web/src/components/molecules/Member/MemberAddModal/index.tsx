@@ -1,6 +1,9 @@
 import { CloseOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import { Avatar, Form, Input, Modal } from "antd";
+import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import React, { useCallback, useEffect, useState } from "react";
 
 export interface FormValues {
@@ -11,7 +14,7 @@ export interface Props {
   open?: boolean;
   handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: () => void;
+  onSubmit?: (userIds: string[]) => void;
   searchedUser:
     | {
         id: string;
@@ -35,7 +38,7 @@ const initialValues: FormValues = {
   name: "",
 };
 
-const MemberCreationModal: React.FC<Props> = ({
+const MemberAddModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
@@ -72,19 +75,21 @@ const MemberCreationModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async () => {
-        if (searchedUser?.id) await onSubmit?.();
+        if (searchedUser?.id) await onSubmit?.([searchedUser.id]);
+        onClose?.(true);
         form.resetFields();
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onSubmit, searchedUser?.id]);
+  }, [form, onSubmit, searchedUser?.id, onClose]);
 
   const handleClose = useCallback(() => {
     setMemberName("");
     changeSearchedUser(undefined);
     onClose?.(true);
   }, [onClose, changeSearchedUser]);
+
   return (
     <Modal
       title="Add member"
@@ -162,4 +167,4 @@ const SearchedUSerResult = styled.div`
   border-radius: 2px;
 `;
 
-export default MemberCreationModal;
+export default MemberAddModal;
