@@ -16,6 +16,10 @@ type Node interface {
 	IsNode()
 }
 
+type SchemaFieldTypeProperty interface {
+	IsSchemaFieldTypeProperty()
+}
+
 type AddMemberToWorkspaceInput struct {
 	WorkspaceID ID   `json:"workspaceId"`
 	UserID      ID   `json:"userId"`
@@ -24,6 +28,26 @@ type AddMemberToWorkspaceInput struct {
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type CreateFieldInput struct {
+	ModelID      ID              `json:"modelId"`
+	Type         SchemaFiledType `json:"type"`
+	Title        string          `json:"title"`
+	Description  *string         `json:"description"`
+	Key          string          `json:"key"`
+	IsMultiValue *bool           `json:"isMultiValue"`
+	DefaultValue interface{}     `json:"DefaultValue"`
+	Values       interface{}     `json:"values"`
+	IsUnique     *bool           `json:"isUnique"`
+	IsRequired   *bool           `json:"isRequired"`
+}
+
+type CreateModelInput struct {
+	ProjectID   ID      `json:"projectId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Key         *string `json:"key"`
 }
 
 type CreateProjectInput struct {
@@ -41,12 +65,28 @@ type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type DeleteFieldInput struct {
+	FieldID ID `json:"fieldId"`
+}
+
+type DeleteFieldPayload struct {
+	FieldID ID `json:"fieldId"`
+}
+
 type DeleteMeInput struct {
 	UserID ID `json:"userId"`
 }
 
 type DeleteMePayload struct {
 	UserID ID `json:"userId"`
+}
+
+type DeleteModelInput struct {
+	ModelID ID `json:"modelId"`
+}
+
+type DeleteModelPayload struct {
+	ModelID ID `json:"modelId"`
 }
 
 type DeleteProjectInput struct {
@@ -65,6 +105,15 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type FieldPayload struct {
+	Field *SchemaField `json:"field"`
+}
+
+type KeyAvailability struct {
+	Key       string `json:"key"`
+	Available bool   `json:"available"`
+}
+
 type Me struct {
 	ID            ID           `json:"id"`
 	Name          string       `json:"name"`
@@ -75,6 +124,35 @@ type Me struct {
 	Auths         []string     `json:"auths"`
 	Workspaces    []*Workspace `json:"workspaces"`
 	MyWorkspace   *Workspace   `json:"myWorkspace"`
+}
+
+type Model struct {
+	ID          ID        `json:"id"`
+	ProjectID   ID        `json:"projectId"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Key         string    `json:"key"`
+	Project     *Project  `json:"project"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+func (Model) IsNode() {}
+
+type ModelConnection struct {
+	Edges      []*ModelEdge `json:"edges"`
+	Nodes      []*Model     `json:"nodes"`
+	PageInfo   *PageInfo    `json:"pageInfo"`
+	TotalCount int          `json:"totalCount"`
+}
+
+type ModelEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Model         `json:"node"`
+}
+
+type ModelPayload struct {
+	Model *Model `json:"model"`
 }
 
 type PageInfo struct {
@@ -93,13 +171,13 @@ type Pagination struct {
 
 type Project struct {
 	ID          ID         `json:"id"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Alias       string     `json:"alias"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Workspace   *Workspace `json:"workspace"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 func (Project) IsNode() {}
@@ -125,6 +203,11 @@ type ProjectPayload struct {
 	Project *Project `json:"project"`
 }
 
+type PublishModelInput struct {
+	ModelID ID   `json:"modelId"`
+	Status  bool `json:"status"`
+}
+
 type RemoveMemberFromWorkspaceInput struct {
 	WorkspaceID ID `json:"workspaceId"`
 	UserID      ID `json:"userId"`
@@ -138,6 +221,102 @@ type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
 }
 
+type SchemaField struct {
+	ID           ID                      `json:"id"`
+	ModelID      ID                      `json:"modelId"`
+	Model        *Model                  `json:"model"`
+	Type         SchemaFiledType         `json:"type"`
+	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
+	Key          string                  `json:"key"`
+	Title        string                  `json:"title"`
+	Description  *string                 `json:"description"`
+	MultiValue   bool                    `json:"multiValue"`
+	Unique       bool                    `json:"unique"`
+	Required     bool                    `json:"required"`
+	CreatedAt    time.Time               `json:"createdAt"`
+	UpdatedAt    time.Time               `json:"updatedAt"`
+}
+
+type SchemaFieldAsset struct {
+	DefaultValue *ID `json:"defaultValue"`
+}
+
+func (SchemaFieldAsset) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldBool struct {
+	DefaultValue *bool `json:"defaultValue"`
+}
+
+func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldDate struct {
+	DefaultValue *time.Time `json:"defaultValue"`
+}
+
+func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldInteger struct {
+	DefaultValue *int `json:"defaultValue"`
+	Min          *int `json:"min"`
+	Max          *int `json:"max"`
+}
+
+func (SchemaFieldInteger) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldReference struct {
+	ModelID *ID `json:"modelId"`
+}
+
+func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldRichText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaFieldRichText) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldSelect struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
+}
+
+func (SchemaFieldSelect) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldTag struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
+}
+
+func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaFieldText) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldTextArea struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaFieldTextArea) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldURL struct {
+	DefaultValue *string `json:"defaultValue"`
+}
+
+func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
+
+type SchemaMarkdownText struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaMarkdownText) IsSchemaFieldTypeProperty() {}
+
 type SignupInput struct {
 	Lang        *language.Tag `json:"lang"`
 	Theme       *Theme        `json:"theme"`
@@ -149,6 +328,14 @@ type SignupInput struct {
 type SignupPayload struct {
 	User      *User      `json:"user"`
 	Workspace *Workspace `json:"workspace"`
+}
+
+type UpdateFieldInput struct {
+	Title        *string     `json:"title"`
+	Description  *string     `json:"description"`
+	Key          *string     `json:"key"`
+	IsMultiValue *bool       `json:"isMultiValue"`
+	DefaultValue interface{} `json:"DefaultValue"`
 }
 
 type UpdateMeInput struct {
@@ -172,6 +359,13 @@ type UpdateMemberOfWorkspaceInput struct {
 
 type UpdateMemberOfWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type UpdateModelInput struct {
+	ModelID     ID      `json:"modelId"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Key         *string `json:"key"`
 }
 
 type UpdateProjectInput struct {
@@ -295,6 +489,67 @@ func (e *Role) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Role) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SchemaFiledType string
+
+const (
+	SchemaFiledTypeText         SchemaFiledType = "Text"
+	SchemaFiledTypeTextArea     SchemaFiledType = "TextArea"
+	SchemaFiledTypeRichText     SchemaFiledType = "RichText"
+	SchemaFiledTypeMarkdownText SchemaFiledType = "MarkdownText"
+	SchemaFiledTypeAsset        SchemaFiledType = "Asset"
+	SchemaFiledTypeDate         SchemaFiledType = "Date"
+	SchemaFiledTypeBool         SchemaFiledType = "Bool"
+	SchemaFiledTypeSelect       SchemaFiledType = "Select"
+	SchemaFiledTypeTag          SchemaFiledType = "Tag"
+	SchemaFiledTypeInteger      SchemaFiledType = "Integer"
+	SchemaFiledTypeReference    SchemaFiledType = "Reference"
+	SchemaFiledTypeURL          SchemaFiledType = "URL"
+)
+
+var AllSchemaFiledType = []SchemaFiledType{
+	SchemaFiledTypeText,
+	SchemaFiledTypeTextArea,
+	SchemaFiledTypeRichText,
+	SchemaFiledTypeMarkdownText,
+	SchemaFiledTypeAsset,
+	SchemaFiledTypeDate,
+	SchemaFiledTypeBool,
+	SchemaFiledTypeSelect,
+	SchemaFiledTypeTag,
+	SchemaFiledTypeInteger,
+	SchemaFiledTypeReference,
+	SchemaFiledTypeURL,
+}
+
+func (e SchemaFiledType) IsValid() bool {
+	switch e {
+	case SchemaFiledTypeText, SchemaFiledTypeTextArea, SchemaFiledTypeRichText, SchemaFiledTypeMarkdownText, SchemaFiledTypeAsset, SchemaFiledTypeDate, SchemaFiledTypeBool, SchemaFiledTypeSelect, SchemaFiledTypeTag, SchemaFiledTypeInteger, SchemaFiledTypeReference, SchemaFiledTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e SchemaFiledType) String() string {
+	return string(e)
+}
+
+func (e *SchemaFiledType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SchemaFiledType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SchemaFiledType", str)
+	}
+	return nil
+}
+
+func (e SchemaFiledType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

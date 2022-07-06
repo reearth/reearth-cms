@@ -2,10 +2,12 @@
 # for detailed .gqlgen.yml documentation.
 
 schema:
-  - ./schemas/schema.graphql
+  - ./schemas/_shared.graphql
   - ./schemas/user.graphql
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql
+  - ./schemas/model.graphql
+  - ./schemas/field.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
