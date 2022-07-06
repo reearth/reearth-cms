@@ -41,7 +41,7 @@ const Project: React.FC = () => {
         open={modalShown}
         onClose={handleModalClose}
         onSubmit={handleWorkspaceCreate}
-      ></WorkspaceCreationModal>
+      />
     </>
   );
 };

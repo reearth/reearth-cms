@@ -3,6 +3,7 @@ export type User = {
 };
 
 export type Member = {
+  userId: string;
   user: {
     id?: string;
     name?: string;

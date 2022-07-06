@@ -62,7 +62,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
         open={modalShown}
         onClose={handleModalClose}
         onSubmit={handleWorkspaceCreate}
-      ></WorkspaceCreationModal>
+      />
     </>
   );
 };

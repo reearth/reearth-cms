@@ -4,6 +4,7 @@ import {
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
+import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { PageHeader, Table, Modal } from "antd";
@@ -69,7 +70,7 @@ const Members: React.FC = () => {
   const members = currentWorkspace?.members;
 
   const handleMemberDelete = useCallback(
-    (member: any) => {
+    (member: Member) => {
       confirm({
         title: "Are you sure to remove this member?",
         icon: <ExclamationCircleOutlined />,
