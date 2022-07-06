@@ -1,6 +1,8 @@
 package util
 
-import "sync"
+import (
+	"sync"
+)
 
 type SyncMap[K, V any] struct {
 	m sync.Map
@@ -67,6 +69,16 @@ func (m *SyncMap[K, V]) FindAll(f func(key K, value V) bool) (v []V) {
 	m.Range(func(key K, value V) bool {
 		if f(key, value) {
 			v = append(v, value)
+		}
+		return true
+	})
+	return
+}
+
+func (m *SyncMap[K, V]) CountAll(f func(key K, value V) bool) (i int) {
+	m.Range(func(key K, value V) bool {
+		if f(key, value) {
+			i++
 		}
 		return true
 	})

@@ -20,6 +20,9 @@ type Config struct {
 	GraphQL      GraphQLConfig
 	Origins      []string
 	DB           string `default:"mongodb://localhost"`
+	Mailer       string
+	SMTP         SMTPConfig
+	SendGrid     SendGridConfig
 	SignupSecret string
 	// auth
 	Auth          AuthConfigs
