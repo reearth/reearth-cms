@@ -1,3 +1,4 @@
+import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetWorkspacesQuery,
   useAddMemberToWorkspaceMutation,
@@ -19,9 +20,10 @@ type Props = {
 export default ({ workspaceId }: Props) => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
-  const [memberCreationModalShown, setMemberCreationModalShown] =
-    useState(false);
-  const [selectedMember, setSelectedMember] = useState<any>(undefined);
+  const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | undefined>(
+    undefined
+  );
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -29,7 +31,7 @@ export default ({ workspaceId }: Props) => {
     email: string;
   }>();
 
-  const { data, refetch, loading } = useGetWorkspacesQuery();
+  const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
 
@@ -131,36 +133,24 @@ export default ({ workspaceId }: Props) => {
     [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace]
   );
 
-  const handleRoleModalClose = useCallback(
-    (r?: boolean) => {
-      setRoleModalShown(false);
-      setSelectedMember(undefined);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleRoleModalClose = useCallback(() => {
+    setRoleModalShown(false);
+    setSelectedMember(undefined);
+  }, []);
 
-  const handleRoleModalOpen = useCallback((member: any) => {
+  const handleRoleModalOpen = useCallback((member: Member) => {
     setRoleModalShown(true);
     setSelectedMember(member);
   }, []);
 
-  const handleMemberCreationModalClose = useCallback(
-    (r?: boolean) => {
-      setMemberCreationModalShown(false);
-      setSelectedMember(undefined);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleMemberAddModalClose = useCallback(() => {
+    setMemberAddModalShown(false);
+    setSelectedMember(undefined);
+  }, []);
 
-  const handleMemberCreationModalOpen = useCallback((member: any) => {
-    setMemberCreationModalShown(true);
-    setSelectedMember(member);
+  const handleMemberAddModalOpen = useCallback(() => {
+    setMemberAddModalShown(true);
+    setSelectedMember(undefined);
   }, []);
 
   return {
@@ -175,9 +165,9 @@ export default ({ workspaceId }: Props) => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
-    handleMemberCreationModalClose,
-    handleMemberCreationModalOpen,
-    memberCreationModalShown,
+    handleMemberAddModalClose,
+    handleMemberAddModalOpen,
+    MemberAddModalShown,
     setSelectedMember,
     selectedMember,
     roleModalShown,

@@ -1,5 +1,7 @@
-import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Workspace/hooks";
-import { Form, Modal, Select } from "antd";
+import Form from "@reearth-cms/components/atoms/Form";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
+import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
 import React, { useCallback, useEffect } from "react";
 
 export interface FormValues {
@@ -66,7 +68,12 @@ const MemberRoleModal: React.FC<Props> = ({
         <Form.Item
           name="role"
           label="Role"
-          rules={[{ required: true, message: "Please input the role!" }]}
+          rules={[
+            {
+              required: true,
+              message: "Please input the appropriate role for this member!",
+            },
+          ]}
         >
           <Select placeholder="select role">
             <Option value="OWNER">Owner</Option>
