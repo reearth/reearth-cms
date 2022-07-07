@@ -20,7 +20,6 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 		contentType: "xxx",
 		uploadedAt:  tim,
 		uploadedBy:  uid,
-		children:    id.AssetFileIDList{afid},
 	}
 	assert.Equal(t, afid, got.ID())
 	assert.Equal(t, uid, got.UploadedBy())
@@ -28,6 +27,19 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 	assert.Equal(t, "hoge", got.Name())
 	assert.Equal(t, "xxx", got.ContentType())
 	assert.Equal(t, size, got.Size())
+}
+
+func TestAssetFile_Children(t *testing.T) {
+	// nil file should return nil children
+	var got File
+	assert.Nil(t, got.Children())
+
+	// file.Children() should return file.children
+	afid := NewAssetFileID()
+	got = File{
+		id:          afid,
+		children:    id.AssetFileIDList{afid},
+	}
 	assert.Equal(t, id.AssetFileIDList{afid}, got.Children())
 }
 
