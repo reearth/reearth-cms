@@ -2,8 +2,6 @@ package asset
 
 import (
 	"time"
-
-	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 type Builder struct {
@@ -62,11 +60,6 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 
 func (b *Builder) CreatedBy(createdBy UserID) *Builder {
 	b.a.createdBy = createdBy
-	return b
-}
-
-func (b *Builder) Files(files id.AssetFileIDList) *Builder {
-	b.a.files = files.Clone()
 	return b
 }
 
