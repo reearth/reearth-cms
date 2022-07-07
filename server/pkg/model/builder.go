@@ -8,17 +8,20 @@ import (
 
 type Builder struct {
 	p *Model
+	k Key
 }
 
 func New() *Builder {
-	return &Builder{p: &Model{isPublic: false}}
+	return &Builder{p: &Model{}}
 }
 
 func (b *Builder) Build() (*Model, error) {
 	if b.p.id.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.p.key != "" && !CheckKeyPattern(b.p.key) {
+	if b.k.IsValid() {
+		b.p.key = b.k
+	} else {
 		return nil, ErrInvalidKey
 	}
 	if b.p.updatedAt.IsZero() {
@@ -60,13 +63,18 @@ func (b *Builder) Description(description string) *Builder {
 	return b
 }
 
-func (b *Builder) Key(key string) *Builder {
-	b.p.key = key
+func (b *Builder) Key(key Key) *Builder {
+	b.k = key
 	return b
 }
 
-func (b *Builder) IsPublic(isPublic bool) *Builder {
-	b.p.isPublic = isPublic
+func (b *Builder) RandomKey() *Builder {
+	b.k = RandomKey()
+	return b
+}
+
+func (b *Builder) IsPublic(public bool) *Builder {
+	b.p.public = public
 	return b
 }
 

@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"regexp"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -10,7 +9,6 @@ import (
 
 var (
 	ErrInvalidKey = errors.New("invalid key")
-	keyRegexp     = regexp.MustCompile("^[a-zA-Z0-9_-]{5,32}$")
 )
 
 type Model struct {
@@ -18,8 +16,8 @@ type Model struct {
 	project     id.ProjectID
 	name        string
 	description string
-	key         string
-	isPublic    bool
+	key         Key
+	public      bool
 	updatedAt   time.Time
 }
 
@@ -55,25 +53,24 @@ func (p *Model) SetDescription(description string) {
 	p.description = description
 }
 
-func (p *Model) Key() string {
+func (p *Model) Key() Key {
 	return p.key
 }
 
-func (p *Model) SetKey(key string) error {
-	if CheckKeyPattern(key) {
-		p.key = key
-	} else {
+func (p *Model) SetKey(key Key) error {
+	if !key.IsValid() {
 		return ErrInvalidKey
 	}
+	p.key = key
 	return nil
 }
 
 func (p *Model) IsPublic() bool {
-	return p.isPublic
+	return p.public
 }
 
-func (p *Model) SetIsPublic(isPublic bool) {
-	p.isPublic = isPublic
+func (p *Model) SetIsPublic(public bool) {
+	p.public = public
 }
 
 func (p *Model) UpdatedAt() time.Time {
