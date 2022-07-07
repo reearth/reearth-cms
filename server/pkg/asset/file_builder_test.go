@@ -9,7 +9,6 @@ import (
 )
 
 func TestFileBuilder_Build(t *testing.T) {
-	// var aid ID = NewID()
 	uid := NewUserID()
 	afid := NewAssetFileID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -82,4 +81,9 @@ func TestFileBuilder_Build(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFileBuilder_NewID(t *testing.T) {
+	f := NewFile().NewID().MustBuild()
+	assert.False(t, f.id.IsNil())
 }
