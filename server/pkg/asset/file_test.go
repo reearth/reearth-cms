@@ -10,11 +10,13 @@ import (
 
 func TestAssetFile_AssetFileType(t *testing.T) {
 	uid := NewUserID()
+	aid := NewID()
 	afid := NewAssetFileID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 	got := File{
 		id:          afid,
+		assetId:     aid,
 		name:        "hoge",
 		size:        size,
 		contentType: "xxx",
@@ -22,6 +24,7 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 		uploadedBy:  uid,
 	}
 	assert.Equal(t, afid, got.ID())
+	assert.Equal(t, aid, got.AssetID())
 	assert.Equal(t, uid, got.UploadedBy())
 	assert.Equal(t, tim, got.UploadedAt())
 	assert.Equal(t, "hoge", got.Name())
