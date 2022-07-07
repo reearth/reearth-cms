@@ -19,6 +19,7 @@ type Model struct {
 	key         Key
 	public      bool
 	updatedAt   time.Time
+	// schema      id.SchemaID
 }
 
 func (p *Model) ID() ID {

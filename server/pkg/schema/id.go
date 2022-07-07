@@ -1,4 +1,4 @@
-package model
+package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
