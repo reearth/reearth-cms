@@ -11,6 +11,7 @@ import (
 func TestFileBuilder_Build(t *testing.T) {
 	uid := NewUserID()
 	afid := NewAssetFileID()
+	aid := NewID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 	tests := []struct {
@@ -25,6 +26,7 @@ func TestFileBuilder_Build(t *testing.T) {
 			name: "should create an asset file",
 			input: File{
 				id:          afid,
+				assetId:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -38,6 +40,7 @@ func TestFileBuilder_Build(t *testing.T) {
 			}{
 				file: &File{
 					id:          afid,
+					assetId:     aid,
 					name:        "hoge",
 					size:        size,
 					contentType: "xxx",
@@ -50,6 +53,7 @@ func TestFileBuilder_Build(t *testing.T) {
 		{
 			name: "fail: empty id",
 			input: File{
+				assetId:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -69,6 +73,7 @@ func TestFileBuilder_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewFile().
 				ID(tt.input.id).
+				AssetID(tt.input.assetId).
 				Name(tt.input.name).
 				Size(tt.input.size).
 				ContentType(tt.input.contentType).

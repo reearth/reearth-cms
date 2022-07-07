@@ -39,6 +39,11 @@ func (b *FileBuilder) NewID() *FileBuilder {
 	return b
 }
 
+func (b *FileBuilder) AssetID(assetId ID) *FileBuilder {
+	b.f.assetId = assetId
+	return b
+}
+
 func (b *FileBuilder) Name(name string) *FileBuilder {
 	b.f.name = name
 	return b

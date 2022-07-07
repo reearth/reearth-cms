@@ -8,6 +8,7 @@ import (
 
 type File struct {
 	id          AssetFileID
+	assetId     ID
 	name        string
 	size        uint64
 	contentType string
@@ -18,6 +19,10 @@ type File struct {
 
 func (fr *File) ID() AssetFileID {
 	return fr.id
+}
+
+func (fr *File) AssetID() ID {
+	return fr.assetId
 }
 
 func (fr *File) Name() string {
