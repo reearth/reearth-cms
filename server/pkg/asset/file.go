@@ -41,5 +41,15 @@ func (fr *File) UploadedBy() UserID {
 }
 
 func (fr *File) Children() id.AssetFileIDList {
+	if fr == nil {
+		return nil
+	}
 	return fr.children
+}
+
+func (fr *File) AddChildren(children ...AssetFileID) {
+	if fr == nil {
+		return
+	}
+	fr.children = fr.children.Add(children...)
 }
