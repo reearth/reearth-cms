@@ -3,8 +3,6 @@ package asset
 import (
 	"errors"
 	"time"
-
-	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 var (
@@ -20,7 +18,6 @@ type Asset struct {
 	fileName  string
 	assetType string
 	size      uint64
-	files     id.AssetFileIDList
 }
 
 func (a *Asset) ID() ID {
@@ -53,18 +50,4 @@ func (a *Asset) AssetType() string {
 
 func (a *Asset) Size() uint64 {
 	return a.size
-}
-
-func (a *Asset) Files() id.AssetFileIDList {
-	if a == nil {
-		return nil
-	}
-	return a.files
-}
-
-func (a *Asset) AddFiles(files ...AssetFileID) {
-	if a == nil {
-		return
-	}
-	a.files = a.files.Add(files...)
 }
