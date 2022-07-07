@@ -1,4 +1,6 @@
-import { Form, Input, Modal } from "antd";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import React, { useCallback } from "react";
 
 export interface FormValues {
@@ -35,18 +37,17 @@ const WorkspaceCreationModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit]);
 
-  const handleClose = useCallback(() => {
-    onClose?.(true);
-  }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      {/* {formik.isSubmitting} */}
+    <Modal visible={open} onCancel={() => onClose?.(true)} onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
           label="Workspace name"
           rules={[
-            { required: true, message: "Please input the title of workspace!" },
+            {
+              required: true,
+              message: "Please input the title of the current workspace!",
+            },
           ]}
         >
           <Input />
