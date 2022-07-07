@@ -47,3 +47,29 @@ var NewProjectID = idx.New[Project]
 var ProjectIDFrom = idx.From[Project]
 var ProjectIDFromRef = idx.FromRef[Project]
 var ProjectIDListFrom = idx.ListFrom[Project]
+
+type Model struct{}
+
+func (Model) Type() string { return "model" }
+
+type ModelID = idx.ID[Model]
+type ModelIDList = idx.List[Model]
+
+var MustModelID = idx.Must[Model]
+var NewModelID = idx.New[Model]
+var ModelIDFrom = idx.From[Model]
+var ModelIDFromRef = idx.FromRef[Model]
+var ModelIDListFrom = idx.ListFrom[Model]
+
+type Field struct{}
+
+func (Field) Type() string { return "field" }
+
+type FieldID = idx.ID[Field]
+type FieldIDList = idx.List[Field]
+
+var MustFieldID = idx.Must[Field]
+var NewFieldID = idx.New[Field]
+var FieldIDFrom = idx.From[Field]
+var FieldIDFromRef = idx.FromRef[Field]
+var FieldIDListFrom = idx.ListFrom[Field]
