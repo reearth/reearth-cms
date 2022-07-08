@@ -7,9 +7,10 @@ import {
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Menu from "@reearth-cms/components/atoms/Menu";
+import Space from "@reearth-cms/components/atoms/Space";
 import { Workspace } from "@reearth-cms/state";
-import { Menu, Space } from "antd";
-import Dropdown from "antd/lib/dropdown/dropdown";
 import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,10 +36,6 @@ const Header: React.FC<Props> = ({
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = useCallback(() => {
-    logout();
-  }, [logout]);
-
   const handleWorkspaceChange = useCallback(
     (id: number) => {
       navigate(`/dashboard/${id}`);
@@ -50,7 +47,7 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: "Presonal Account",
+          label: "Personal Account",
           key: "personal-account",
           type: "group",
           children: workspaces
@@ -105,7 +102,7 @@ const Header: React.FC<Props> = ({
           label: "Logout",
           key: "logout",
           icon: <LogoutOutlined />,
-          onClick: () => handleLogout(),
+          onClick: logout,
         },
       ]}
     />

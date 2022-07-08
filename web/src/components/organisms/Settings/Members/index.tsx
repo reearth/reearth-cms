@@ -3,21 +3,18 @@ import {
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import styled from "@emotion/styled";
+import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
-import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
-import MemberCreationModal from "@reearth-cms/components/molecules/Member/MemberCreationModal";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Search from "@reearth-cms/components/atoms/Search";
+import Table from "@reearth-cms/components/atoms/Table";
+import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
+import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { PageHeader, Table, Modal } from "antd";
-import Avatar from "antd/lib/avatar/avatar";
-import Search from "antd/lib/input/Search";
-import Layout, { Header, Content } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
-import React, { useCallback, useState } from "react";
+import { Content } from "antd/lib/layout/layout";
+import { useCallback } from "react";
 import { useParams } from "react-router-dom";
-
-import useDashboardHooks from "../../Dashboard/hooks";
 
 import useHooks from "./hooks";
 
@@ -51,19 +48,8 @@ const columns = [
 
 const Members: React.FC = () => {
   const { workspaceId } = useParams();
-  const [collapsed, setCollapsed] = useState(false);
 
   const { confirm } = Modal;
-
-  const {
-    user,
-    personalWorkspace,
-    workspaces,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
-    handleWorkspaceCreate,
-  } = useDashboardHooks(workspaceId);
 
   const {
     me,
@@ -78,15 +64,15 @@ const Members: React.FC = () => {
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
     handleRoleModalOpen,
-    handleMemberCreationModalClose,
-    handleMemberCreationModalOpen,
-    memberCreationModalShown,
+    handleMemberAddModalClose,
+    handleMemberAddModalOpen,
+    MemberAddModalShown,
   } = useHooks({ workspaceId });
 
   const members = currentWorkspace?.members;
 
-  const showConfirm = useCallback(
-    (member: any) => {
+  const handleMemberDelete = useCallback(
+    (member: Member) => {
       confirm({
         title: "Are you sure to remove this member?",
         icon: <ExclamationCircleOutlined />,
@@ -114,7 +100,7 @@ const Members: React.FC = () => {
     action: (
       <>
         {member.userId !== me?.id && (
-          <a onClick={() => handleRoleChange(member)}>Change Role</a>
+          <a onClick={() => handleRoleModalOpen(member)}>Change Role</a>
         )}
         {member.role !== "OWNER" && (
           <a
@@ -128,108 +114,49 @@ const Members: React.FC = () => {
     ),
   }));
 
-  const handleRoleChange = useCallback(
-    (member: any) => {
-      handleRoleModalOpen(member);
-    },
-    [handleRoleModalOpen]
-  );
-
-  const handleMemberDelete = useCallback(
-    (member: any) => {
-      showConfirm(member);
-    },
-    [showConfirm]
-  );
-
-  const handleMemberAdd = useCallback(() => {
-    if (!searchedUser) return;
-    handleMemberAddToWorkspace([searchedUser.id]);
-    changeSearchedUser(undefined);
-    handleMemberCreationModalClose();
-  }, [
-    searchedUser,
-    handleMemberAddToWorkspace,
-    changeSearchedUser,
-    handleMemberCreationModalClose,
-  ]);
-
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
-        <Header>
-          <MoleculeHeader
-            handleModalOpen={handleModalOpen}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            user={user}
-          ></MoleculeHeader>
-        </Header>
-        <Layout>
-          <Sider
-            collapsible
-            collapsed={collapsed}
-            onCollapse={(value) => setCollapsed(value)}
-            style={{ backgroundColor: "#fff" }}
-          >
-            <WorkspaceMenu
-              defaultSelectedKeys={["member"]}
-              isPersonalWorkspace={
-                personalWorkspace?.id === currentWorkspace?.id
-              }
-              inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
-            ></WorkspaceMenu>
-          </Sider>
-          <PaddedContent>
-            <MemberPageHeader
-              title="Members"
-              extra={
-                <Button
-                  type="primary"
-                  onClick={handleMemberCreationModalOpen}
-                  icon={<UsergroupAddOutlined />}
-                >
-                  New Member
-                </Button>
-              }
-            ></MemberPageHeader>
-            <ActionHeader>
-              <Search
-                placeholder="input search text"
-                allowClear
-                style={{ width: 264 }}
-              />
-            </ActionHeader>
-            <Table
-              dataSource={dataSource}
-              columns={columns}
-              style={{ padding: "24px" }}
-            />
-            ;
-          </PaddedContent>
-        </Layout>
-      </Layout>
-      <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
-        onSubmit={handleWorkspaceCreate}
-      ></WorkspaceCreationModal>
+      <PaddedContent>
+        <MemberPageHeader
+          title="Members"
+          extra={
+            <Button
+              type="primary"
+              onClick={handleMemberAddModalOpen}
+              icon={<UsergroupAddOutlined />}
+            >
+              New Member
+            </Button>
+          }
+        ></MemberPageHeader>
+        <ActionHeader>
+          <Search
+            placeholder="input search text"
+            allowClear
+            style={{ width: 264 }}
+          />
+        </ActionHeader>
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          style={{ padding: "24px" }}
+        />
+        ;
+      </PaddedContent>
       <MemberRoleModal
         member={selectedMember}
         open={roleModalShown}
         onClose={handleRoleModalClose}
         onSubmit={handleMemberOfWorkspaceUpdate}
       ></MemberRoleModal>
-      <MemberCreationModal
-        open={memberCreationModalShown}
+      <MemberAddModal
+        open={MemberAddModalShown}
         searchedUser={searchedUser}
-        onClose={handleMemberCreationModalClose}
+        onClose={handleMemberAddModalClose}
         handleUserSearch={handleUserSearch}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAdd}
-      ></MemberCreationModal>
+        onSubmit={handleMemberAddToWorkspace}
+      ></MemberAddModal>
     </>
   );
 };

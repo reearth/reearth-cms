@@ -51,7 +51,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		log.Printf("gql: GraphQL Playground is available")
 	}
 
-	e.Use(UsecaseMiddleware(cfg.Repos, nil, interactor.ContainerConfig{
+	e.Use(UsecaseMiddleware(cfg.Repos, cfg.Gateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
 	}))
@@ -61,6 +61,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	api.GET("/ping", Ping())
 	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
+	webConfig(e, nil, cfg.Config.Auths())
 	return e
 }
 
