@@ -88,6 +88,97 @@ func TestFileBuilder_Build(t *testing.T) {
 	}
 }
 
+func TestFileBuilder_MustBuild(t *testing.T) {
+	uid := NewUserID()
+	afid := NewAssetFileID()
+	aid := NewID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	var size uint64 = 15
+
+	type args struct {
+		id          AssetFileID
+		assetId     ID
+		name        string
+		size        uint64
+		contentType string
+		uploadedAt  time.Time
+		uploadedBy  UserID
+		children    id.AssetFileIDList
+	}
+
+	tests := []struct {
+		name     string
+		args     args
+		expected *File
+		err      error
+	}{
+		{
+			name: "Valid asset file",
+			args: args{
+				id:          afid,
+				assetId:     aid,
+				name:        "hoge",
+				size:        size,
+				contentType: "xxx",
+				uploadedAt:  tim,
+				uploadedBy:  uid,
+				children:    id.AssetFileIDList{afid},
+			},
+			expected: &File{
+				id:          afid,
+				assetId:     aid,
+				name:        "hoge",
+				size:        size,
+				contentType: "xxx",
+				uploadedAt:  tim,
+				uploadedBy:  uid,
+				children:    id.AssetFileIDList{afid},
+			},
+		},
+		{
+			name: "failed invalid Id",
+			args: args{
+				id:     AssetFileID{},
+				assetId:     aid,
+				name:        "hoge",
+				size:        size,
+				contentType: "xxx",
+				uploadedAt:  tim,
+				uploadedBy:  uid,
+				children:    id.AssetFileIDList{afid},
+			},
+			err: ErrInvalidID,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			build := func() *File {
+				t.Helper()
+				return NewFile().
+					ID(tt.args.id).
+					AssetID(tt.args.assetId).
+					Name(tt.args.name).
+					Size(tt.args.size).
+					ContentType(tt.args.contentType).
+					UploadedAt(tt.args.uploadedAt).
+					UploadedBy(tt.args.uploadedBy).
+					Children(tt.args.children).
+					MustBuild()
+			}
+
+			if tt.err != nil {
+				assert.PanicsWithValue(t, tt.err, func() { _ = build() })
+			} else {
+				assert.Equal(t, tt.expected, build())
+			}
+		})
+	}
+}
+
 func TestFileBuilder_NewID(t *testing.T) {
 	f := NewFile().NewID().MustBuild()
 	assert.False(t, f.id.IsNil())
