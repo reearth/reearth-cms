@@ -377,6 +377,9 @@ func TestWorkspace_Remove(t *testing.T) {
 	id5 := id.NewWorkspaceID()
 	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
 	p := project.New().NewID().Workspace(id5).MustBuild()
+	id6 := id.NewWorkspaceID()
+	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	p2 := project.New().NewID().Workspace(id6).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -473,6 +476,21 @@ func TestWorkspace_Remove(t *testing.T) {
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
+		{
+			name:             "mock project count error",
+			seeds: []*user.Workspace{w6},
+			args: struct {
+				wId      id.WorkspaceID
+				operator *usecase.Operator
+				project  *project.Project
+			}{
+				wId:      id6,
+				operator: op,
+				project:  p2,
+			},
+			wantErr:          errors.New("test2"),
+			mockProjectErr:   true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -485,16 +503,21 @@ func TestWorkspace_Remove(t *testing.T) {
 			if tc.mockWorkspaceErr {
 				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
 			}
+			if tc.args.project != nil {
+				err := db.Project.Save(ctx, tc.args.project)
+				assert.Nil(t, err)
+			}
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+				projectCount, err := db.Project.CountByWorkspace(ctx, id.WorkspaceID{})
+				assert.Equal(t, projectCount, 0)
+				assert.NotNil(t, err)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				if tc.args.project != nil {
-					err := db.Project.Save(ctx, tc.args.project)
-					assert.Nil(t, err)
-				}
 				assert.Nil(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
-
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
