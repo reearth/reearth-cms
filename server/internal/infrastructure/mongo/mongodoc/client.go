@@ -363,7 +363,7 @@ func indexes(ctx context.Context, coll *mongo.Collection) map[string]struct{} {
 }
 
 func (c *Client) BeginTransaction() (repo.Tx, error) {
-	s, err := c.client.StartSession()
+	s, err := c.client.Client().StartSession()
 	if err != nil {
 		return nil, err
 	}
