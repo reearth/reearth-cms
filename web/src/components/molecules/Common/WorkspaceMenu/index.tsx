@@ -6,7 +6,7 @@ import {
   UsergroupAddOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
-import { Menu } from "antd";
+import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,22 +18,12 @@ export interface Props {
   defaultSelectedKeys?: string[];
 }
 
-function getItem(
-  label: string,
-  key: string,
-  icon: any,
-  show: "personal" | "notPersonal" | "both"
-) {
-  return {
-    key,
-    icon,
-    label,
-    show,
-  };
-}
+export type MenuShowType = "personal" | "notPersonal" | "both";
 
-const topItems: ItemType[] = [
-  getItem("Home", "home", <HomeOutlined />, "both"),
+export type WorkspaceItemType = ItemType & { show: MenuShowType };
+
+const topItems: WorkspaceItemType[] = [
+  { label: "Home", key: "home", icon: <HomeOutlined />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
@@ -43,13 +33,43 @@ const WorkspaceMenu: React.FC<Props> = ({
   defaultSelectedKeys,
 }) => {
   const navigate = useNavigate();
-  const items: ItemType[] = [
-    getItem("Member", "member", <UsergroupAddOutlined />, "notPersonal"),
-    getItem("Account", "account", <UsergroupAddOutlined />, "personal"),
-    getItem("Integration", "integration", <ApiOutlined />, "both"),
-    getItem("Role", "role", <UserSwitchOutlined />, "notPersonal"),
-    getItem("API key", "api-key", <SearchOutlined />, "both"),
-    getItem("Settings", "settings", <SettingOutlined />, "notPersonal"),
+  const items: WorkspaceItemType[] = [
+    {
+      label: "Member",
+      key: "member",
+      icon: <UsergroupAddOutlined />,
+      show: "notPersonal" as MenuShowType,
+    },
+    {
+      label: "Account",
+      key: "account",
+      icon: <UsergroupAddOutlined />,
+      show: "personal" as MenuShowType,
+    },
+    {
+      label: "Integration",
+      key: "integration",
+      icon: <ApiOutlined />,
+      show: "both" as MenuShowType,
+    },
+    {
+      label: "Role",
+      key: "role",
+      icon: <UserSwitchOutlined />,
+      show: "notPersonal" as MenuShowType,
+    },
+    {
+      label: "API key",
+      key: "api-key",
+      icon: <SearchOutlined />,
+      show: "both" as MenuShowType,
+    },
+    {
+      label: "Settings",
+      key: "settings",
+      icon: <SettingOutlined />,
+      show: "notPersonal" as MenuShowType,
+    },
   ].filter(
     (item) =>
       (isPersonalWorkspace && item.show === "personal") ||
@@ -59,9 +79,8 @@ const WorkspaceMenu: React.FC<Props> = ({
 
   const onClick = (e: any) => {
     if (e.key === "member") {
-      navigate(`/members/${workspaceId}`);
-    }
-    if (e.key === "home") {
+      navigate(`/workspaces/${workspaceId}/members`);
+    } else if (e.key === "home") {
       navigate(`/dashboard/${workspaceId}`);
     }
   };
