@@ -14,7 +14,7 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 	afid := NewAssetFileID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
-	got := File{
+	got := AssetFile{
 		id:          afid,
 		assetId:     aid,
 		name:        "hoge",
@@ -34,12 +34,12 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 
 func TestAssetFile_Children(t *testing.T) {
 	// nil file should return nil children
-	var got File
+	var got AssetFile
 	assert.Nil(t, got.Children())
 
 	// file.Children() should return file.children
 	afid := NewAssetFileID()
-	got = File{
+	got = AssetFile{
 		id:          afid,
 		children:    id.AssetFileIDList{afid},
 	}
@@ -50,12 +50,12 @@ func TestAssetFile_AddChildren(t *testing.T) {
 	afid := NewAssetFileID()
 	tests := []struct {
 		name               string
-		file               *File
+		file               *AssetFile
 		expected, children id.AssetFileIDList
 	}{
 		{
 			name: "should add one child",
-			file: &File{
+			file: &AssetFile{
 				id:       NewAssetFileID(),
 				children: id.AssetFileIDList{},
 			},
