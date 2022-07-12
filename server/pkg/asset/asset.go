@@ -18,6 +18,7 @@ type Asset struct {
 	fileName  string
 	assetType string
 	size      uint64
+	url       string
 }
 
 func (a *Asset) ID() ID {
@@ -50,4 +51,8 @@ func (a *Asset) AssetType() string {
 
 func (a *Asset) Size() uint64 {
 	return a.size
+}
+
+func (a *Asset) URL() string {
+	return a.url
 }

@@ -21,6 +21,7 @@ func TestAsset_AssetType(t *testing.T) {
 		fileName:  "hoge",
 		assetType: "xxx",
 		size:      size,
+		url:       "yyy",
 	}
 	assert.Equal(t, aid, got.ID())
 	assert.Equal(t, pid, got.Project())
@@ -29,4 +30,5 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, "xxx", got.AssetType())
 	assert.Equal(t, size, got.Size())
+	assert.Equal(t, "yyy", got.URL())
 }

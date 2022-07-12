@@ -23,6 +23,7 @@ func TestBuilder_Build(t *testing.T) {
 			fileName  string
 			assetType string
 			size      uint64
+			url       string
 		}
 		want struct {
 			asset *Asset
@@ -39,6 +40,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName  string
 				assetType string
 				size      uint64
+				url       string
 			}{
 				id:        aid,
 				projectID: pid,
@@ -47,6 +49,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:  "hoge",
 				assetType: "xxx",
 				size:      size,
+				url:       "yyy",
 			},
 			want: struct {
 				asset *Asset
@@ -60,6 +63,7 @@ func TestBuilder_Build(t *testing.T) {
 					fileName:  "hoge",
 					assetType: "xxx",
 					size:      size,
+					url:       "yyy",
 				},
 			},
 		},
@@ -73,12 +77,14 @@ func TestBuilder_Build(t *testing.T) {
 				fileName  string
 				assetType string
 				size      uint64
+				url       string
 			}{
 				id:        aid,
 				createdBy: uid,
 				fileName:  "hoge",
 				assetType: "xxx",
 				size:      size,
+				url:       "yyy",
 			},
 			want: struct {
 				asset *Asset
@@ -97,12 +103,14 @@ func TestBuilder_Build(t *testing.T) {
 				fileName  string
 				assetType string
 				size      uint64
+				url       string
 			}{
 				projectID: pid,
 				createdBy: uid,
 				fileName:  "hoge",
 				assetType: "xxx",
 				size:      size,
+				url:       "yyy",
 			},
 			want: struct {
 				asset *Asset
@@ -121,6 +129,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName  string
 				assetType string
 				size      uint64
+				url       string
 			}{
 				id:        aid,
 				projectID: pid,
@@ -128,6 +137,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:  "hoge",
 				assetType: "xxx",
 				size:      size,
+				url:       "yyy",
 			},
 			want: struct {
 				asset *Asset
@@ -141,6 +151,7 @@ func TestBuilder_Build(t *testing.T) {
 					fileName:  "hoge",
 					assetType: "xxx",
 					size:      size,
+					url:       "yyy",
 				},
 			},
 		},
@@ -155,6 +166,7 @@ func TestBuilder_Build(t *testing.T) {
 				Project(tt.input.projectID).
 				Type(tt.input.assetType).
 				Size(tt.input.size).
+				URL(tt.input.url).
 				Build()
 			if (err == nil) != tt.want.err {
 				assert.Equal(t, tt.want.asset, got)
