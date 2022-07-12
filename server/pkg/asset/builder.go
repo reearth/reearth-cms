@@ -72,3 +72,8 @@ func (b *Builder) Type(t string) *Builder {
 	b.a.assetType = t
 	return b
 }
+
+func (b *Builder) URL(url string) *Builder {
+	b.a.url = url
+	return b
+}
