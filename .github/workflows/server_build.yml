@@ -38,6 +38,7 @@ jobs:
           NEW_TAG: ${{ steps.info.outputs.new_tag }}
           NEW_TAG_SHORT: ${{ steps.info.outputs.new_tag_short }}
         run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT"
+        
   docker:
     name: Build and push Docker image
     runs-on: ubuntu-latest
