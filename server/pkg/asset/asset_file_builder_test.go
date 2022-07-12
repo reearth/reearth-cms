@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFileBuilder_Build(t *testing.T) {
+func TestAssetFileBuilder_Build(t *testing.T) {
 	uid := NewUserID()
 	afid := NewAssetFileID()
 	aid := NewID()
@@ -16,15 +16,15 @@ func TestFileBuilder_Build(t *testing.T) {
 	var size uint64 = 15
 	tests := []struct {
 		name  string
-		input File
+		input AssetFile
 		want  struct {
-			file *File
+			file *AssetFile
 			err  bool
 		}
 	}{
 		{
 			name: "should create an asset file",
-			input: File{
+			input: AssetFile{
 				id:          afid,
 				assetId:     aid,
 				name:        "hoge",
@@ -35,10 +35,10 @@ func TestFileBuilder_Build(t *testing.T) {
 				children:    id.AssetFileIDList{afid},
 			},
 			want: struct {
-				file *File
+				file *AssetFile
 				err  bool
 			}{
-				file: &File{
+				file: &AssetFile{
 					id:          afid,
 					assetId:     aid,
 					name:        "hoge",
@@ -52,7 +52,7 @@ func TestFileBuilder_Build(t *testing.T) {
 		},
 		{
 			name: "fail: empty id",
-			input: File{
+			input: AssetFile{
 				assetId:     aid,
 				name:        "hoge",
 				size:        size,
@@ -62,7 +62,7 @@ func TestFileBuilder_Build(t *testing.T) {
 				children:    id.AssetFileIDList{afid},
 			},
 			want: struct {
-				file *File
+				file *AssetFile
 				err  bool
 			}{
 				err: true,
@@ -71,7 +71,7 @@ func TestFileBuilder_Build(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewFile().
+			got, err := NewAssetFile().
 				ID(tt.input.id).
 				AssetID(tt.input.assetId).
 				Name(tt.input.name).
@@ -88,7 +88,7 @@ func TestFileBuilder_Build(t *testing.T) {
 	}
 }
 
-func TestFileBuilder_MustBuild(t *testing.T) {
+func TestAssetFileBuilder_MustBuild(t *testing.T) {
 	uid := NewUserID()
 	afid := NewAssetFileID()
 	aid := NewID()
@@ -109,7 +109,7 @@ func TestFileBuilder_MustBuild(t *testing.T) {
 	tests := []struct {
 		name     string
 		args     args
-		expected *File
+		expected *AssetFile
 		err      error
 	}{
 		{
@@ -124,7 +124,7 @@ func TestFileBuilder_MustBuild(t *testing.T) {
 				uploadedBy:  uid,
 				children:    id.AssetFileIDList{afid},
 			},
-			expected: &File{
+			expected: &AssetFile{
 				id:          afid,
 				assetId:     aid,
 				name:        "hoge",
@@ -156,9 +156,9 @@ func TestFileBuilder_MustBuild(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			build := func() *File {
+			build := func() *AssetFile {
 				t.Helper()
-				return NewFile().
+				return NewAssetFile().
 					ID(tt.args.id).
 					AssetID(tt.args.assetId).
 					Name(tt.args.name).
@@ -179,7 +179,7 @@ func TestFileBuilder_MustBuild(t *testing.T) {
 	}
 }
 
-func TestFileBuilder_NewID(t *testing.T) {
-	f := NewFile().NewID().MustBuild()
+func TestAssetFileBuilder_NewID(t *testing.T) {
+	f := NewAssetFile().NewID().MustBuild()
 	assert.False(t, f.id.IsNil())
 }
