@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/kennygrant/sanitize"
@@ -76,6 +77,14 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, 
 	return u, nil
 }
 
+func (f *fileRepo) RemoveAsset(ctx context.Context, u *url.URL) error {
+	sn := getGCSObjectNameFromURL(f.base, u)
+	if sn == "" {
+		return gateway.ErrInvalidFile
+	}
+	return f.delete(ctx, sn)
+}
+
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
 	if filename == "" {
 		return gateway.ErrInvalidFile
@@ -109,6 +118,29 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
+func (f *fileRepo) delete(ctx context.Context, filename string) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: delete bucket err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+
+	object := bucket.Object(filename)
+	if err := object.Delete(ctx); err != nil {
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return nil
+		}
+
+		log.Errorf("gcs: delete err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
 func getGCSObjectURL(base *url.URL, objectName string) *url.URL {
 	if base == nil {
 		return nil
@@ -117,6 +149,21 @@ func getGCSObjectURL(base *url.URL, objectName string) *url.URL {
 	b := *base
 	b.Path = path.Join(b.Path, objectName)
 	return &b
+}
+
+func getGCSObjectNameFromURL(base, u *url.URL) string {
+	if u == nil {
+		return ""
+	}
+	if base == nil {
+		base = &url.URL{}
+	}
+	p := sanitize.Path(strings.TrimPrefix(u.Path, "/"))
+	if p == "" || u.Host != base.Host || u.Scheme != base.Scheme || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
+		return ""
+	}
+
+	return p
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {

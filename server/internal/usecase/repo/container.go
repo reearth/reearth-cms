@@ -8,6 +8,7 @@ import (
 )
 
 type Container struct {
+	Asset       Asset
 	Lock        Lock
 	User        User
 	Transaction Transaction

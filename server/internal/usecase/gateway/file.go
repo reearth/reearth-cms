@@ -17,4 +17,5 @@ var (
 
 type File interface {
 	UploadAsset(context.Context, *file.File) (*url.URL, error)
+	RemoveAsset(context.Context, *url.URL) error
 }
