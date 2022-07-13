@@ -1,0 +1,36 @@
+type Asset implements Node {
+  id: ID!
+  projectID: ID!
+  createdAt: DateTime!
+  createdBy: ID!
+  fileName: String!
+  size: FileSize!
+  assetType: String!
+  url: String!
+}
+
+input CreateAssetInput {
+  projectID: ID!
+  file: Upload!
+}
+
+input RemoveAssetInput {
+  assetId: ID!
+}
+
+type CreateAssetPayload {
+  asset: Asset!
+}
+
+type RemoveAssetPayload {
+  assetId: ID!
+}
+
+extend type Query {
+  getAsset(assetId: ID!): Asset!
+}
+
+extend type Mutation {
+  createAsset(input: CreateAssetInput!): CreateAssetPayload
+  removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+}

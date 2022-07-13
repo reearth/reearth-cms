@@ -54,6 +54,21 @@ type ComplexityRoot struct {
 		Workspace func(childComplexity int) int
 	}
 
+	Asset struct {
+		AssetType func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
+		FileName  func(childComplexity int) int
+		ID        func(childComplexity int) int
+		ProjectID func(childComplexity int) int
+		Size      func(childComplexity int) int
+		URL       func(childComplexity int) int
+	}
+
+	CreateAssetPayload struct {
+		Asset func(childComplexity int) int
+	}
+
 	CreateWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
@@ -128,6 +143,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddMemberToWorkspace      func(childComplexity int, input gqlmodel.AddMemberToWorkspaceInput) int
+		CreateAsset               func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateField               func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateModel               func(childComplexity int, input gqlmodel.CreateModelInput) int
 		CreateProject             func(childComplexity int, input gqlmodel.CreateProjectInput) int
@@ -138,6 +154,7 @@ type ComplexityRoot struct {
 		DeleteProject             func(childComplexity int, input gqlmodel.DeleteProjectInput) int
 		DeleteWorkspace           func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishModel              func(childComplexity int, input gqlmodel.PublishModelInput) int
+		RemoveAsset               func(childComplexity int, input gqlmodel.RemoveAssetInput) int
 		RemoveMemberFromWorkspace func(childComplexity int, input gqlmodel.RemoveMemberFromWorkspaceInput) int
 		RemoveMyAuth              func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		Signup                    func(childComplexity int, input gqlmodel.SignupInput) int
@@ -192,6 +209,7 @@ type ComplexityRoot struct {
 		CheckFieldKeyAvailability func(childComplexity int, key string) int
 		CheckModelKeyAvailability func(childComplexity int, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
+		GetAsset                  func(childComplexity int, assetID gqlmodel.ID) int
 		GetModelFields            func(childComplexity int, modelID gqlmodel.ID) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) int
@@ -199,6 +217,10 @@ type ComplexityRoot struct {
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
+	}
+
+	RemoveAssetPayload struct {
+		AssetID func(childComplexity int) int
 	}
 
 	RemoveMemberFromWorkspacePayload struct {
@@ -319,6 +341,8 @@ type MeResolver interface {
 	MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Workspace, error)
 }
 type MutationResolver interface {
+	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
+	RemoveAsset(ctx context.Context, input gqlmodel.RemoveAssetInput) (*gqlmodel.RemoveAssetPayload, error)
 	Signup(ctx context.Context, input gqlmodel.SignupInput) (*gqlmodel.SignupPayload, error)
 	UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error)
 	RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error)
@@ -346,6 +370,7 @@ type ProjectResolver interface {
 type QueryResolver interface {
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
+	GetAsset(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.Asset, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
 	SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error)
@@ -380,6 +405,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddMemberToWorkspacePayload.Workspace(childComplexity), true
+
+	case "Asset.assetType":
+		if e.complexity.Asset.AssetType == nil {
+			break
+		}
+
+		return e.complexity.Asset.AssetType(childComplexity), true
+
+	case "Asset.createdAt":
+		if e.complexity.Asset.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Asset.CreatedAt(childComplexity), true
+
+	case "Asset.createdBy":
+		if e.complexity.Asset.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Asset.CreatedBy(childComplexity), true
+
+	case "Asset.fileName":
+		if e.complexity.Asset.FileName == nil {
+			break
+		}
+
+		return e.complexity.Asset.FileName(childComplexity), true
+
+	case "Asset.id":
+		if e.complexity.Asset.ID == nil {
+			break
+		}
+
+		return e.complexity.Asset.ID(childComplexity), true
+
+	case "Asset.projectID":
+		if e.complexity.Asset.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Asset.ProjectID(childComplexity), true
+
+	case "Asset.size":
+		if e.complexity.Asset.Size == nil {
+			break
+		}
+
+		return e.complexity.Asset.Size(childComplexity), true
+
+	case "Asset.url":
+		if e.complexity.Asset.URL == nil {
+			break
+		}
+
+		return e.complexity.Asset.URL(childComplexity), true
+
+	case "CreateAssetPayload.asset":
+		if e.complexity.CreateAssetPayload.Asset == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
 
 	case "CreateWorkspacePayload.workspace":
 		if e.complexity.CreateWorkspacePayload.Workspace == nil {
@@ -624,6 +712,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddMemberToWorkspace(childComplexity, args["input"].(gqlmodel.AddMemberToWorkspaceInput)), true
 
+	case "Mutation.createAsset":
+		if e.complexity.Mutation.CreateAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createAsset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateAsset(childComplexity, args["input"].(gqlmodel.CreateAssetInput)), true
+
 	case "Mutation.createField":
 		if e.complexity.Mutation.CreateField == nil {
 			break
@@ -743,6 +843,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
+
+	case "Mutation.removeAsset":
+		if e.complexity.Mutation.RemoveAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeAsset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveAsset(childComplexity, args["input"].(gqlmodel.RemoveAssetInput)), true
 
 	case "Mutation.removeMemberFromWorkspace":
 		if e.complexity.Mutation.RemoveMemberFromWorkspace == nil {
@@ -1035,6 +1147,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CheckProjectAlias(childComplexity, args["alias"].(string)), true
 
+	case "Query.getAsset":
+		if e.complexity.Query.GetAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAsset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAsset(childComplexity, args["assetId"].(gqlmodel.ID)), true
+
 	case "Query.getModelFields":
 		if e.complexity.Query.GetModelFields == nil {
 			break
@@ -1113,6 +1237,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchUser(childComplexity, args["nameOrEmail"].(string)), true
+
+	case "RemoveAssetPayload.assetId":
+		if e.complexity.RemoveAssetPayload.AssetID == nil {
+			break
+		}
+
+		return e.complexity.RemoveAssetPayload.AssetID(childComplexity), true
 
 	case "RemoveMemberFromWorkspacePayload.workspace":
 		if e.complexity.RemoveMemberFromWorkspacePayload.Workspace == nil {
@@ -1593,6 +1724,42 @@ schema {
   query: Query
   mutation: Mutation
 }`, BuiltIn: false},
+	{Name: "./schemas/asset.graphql", Input: `type Asset implements Node {
+  id: ID!
+  projectID: ID!
+  createdAt: DateTime!
+  createdBy: ID!
+  fileName: String!
+  size: FileSize!
+  assetType: String!
+  url: String!
+}
+
+input CreateAssetInput {
+  projectID: ID!
+  file: Upload!
+}
+
+input RemoveAssetInput {
+  assetId: ID!
+}
+
+type CreateAssetPayload {
+  asset: Asset!
+}
+
+type RemoveAssetPayload {
+  assetId: ID!
+}
+
+extend type Query {
+  getAsset(assetId: ID!): Asset!
+}
+
+extend type Mutation {
+  createAsset(input: CreateAssetInput!): CreateAssetPayload
+  removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+}`, BuiltIn: false},
 	{Name: "./schemas/user.graphql", Input: `type User implements Node {
     id: ID!
     name: String!
@@ -2068,6 +2235,21 @@ func (ec *executionContext) field_Mutation_addMemberToWorkspace_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.CreateAssetInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2210,6 +2392,21 @@ func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.RemoveAssetInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRemoveAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2410,6 +2607,21 @@ func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Conte
 		}
 	}
 	args["alias"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["assetId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["assetId"] = arg0
 	return args, nil
 }
 
@@ -2664,6 +2876,321 @@ func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.C
 	res := resTmp.(*gqlmodel.Workspace)
 	fc.Result = res
 	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_projectID(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_createdBy(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_fileName(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FileName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_size(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNFileSize2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_assetType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Asset_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CreateAssetPayload_asset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CreateAssetPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Asset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Asset)
+	fc.Result = res
+	return ec.marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CreateWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateWorkspacePayload) (ret graphql.Marshaler) {
@@ -3816,6 +4343,84 @@ func (ec *executionContext) _ModelPayload_model(ctx context.Context, field graph
 	res := resTmp.(*gqlmodel.Model)
 	fc.Result = res
 	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createAsset_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateAsset(rctx, args["input"].(gqlmodel.CreateAssetInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.CreateAssetPayload)
+	fc.Result = res
+	return ec.marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_removeAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_removeAsset_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveAsset(rctx, args["input"].(gqlmodel.RemoveAssetInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.RemoveAssetPayload)
+	fc.Result = res
+	return ec.marshalORemoveAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5402,6 +6007,48 @@ func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.Coll
 	return ec.marshalNNode2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getAsset_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAsset(rctx, args["assetId"].(gqlmodel.ID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Asset)
+	fc.Result = res
+	return ec.marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5794,6 +6441,41 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RemoveAssetPayload_assetId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveAssetPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RemoveAssetPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RemoveMemberFromWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveMemberFromWorkspacePayload) (ret graphql.Marshaler) {
@@ -8673,6 +9355,37 @@ func (ec *executionContext) unmarshalInputAddMemberToWorkspaceInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
+	var it gqlmodel.CreateAssetInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "projectID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectID"))
+			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "file":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+			it.File, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, obj interface{}) (gqlmodel.CreateFieldInput, error) {
 	var it gqlmodel.CreateFieldInput
 	asMap := map[string]interface{}{}
@@ -9078,6 +9791,29 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveAssetInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveAssetInput, error) {
+	var it gqlmodel.RemoveAssetInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "assetId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
+			it.AssetID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRemoveMemberFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveMemberFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveMemberFromWorkspaceInput
 	asMap := map[string]interface{}{}
@@ -9469,6 +10205,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case gqlmodel.Asset:
+		return ec._Asset(ctx, sel, &obj)
+	case *gqlmodel.Asset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Asset(ctx, sel, obj)
 	case gqlmodel.User:
 		return ec._User(ctx, sel, &obj)
 	case *gqlmodel.User:
@@ -9612,6 +10355,138 @@ func (ec *executionContext) _AddMemberToWorkspacePayload(ctx context.Context, se
 		case "workspace":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AddMemberToWorkspacePayload_workspace(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var assetImplementors = []string{"Asset", "Node"}
+
+func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Asset) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, assetImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Asset")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "projectID":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_projectID(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdAt":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_createdAt(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdBy":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_createdBy(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "fileName":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_fileName(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "size":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_size(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "assetType":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_assetType(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "url":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Asset_url(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var createAssetPayloadImplementors = []string{"CreateAssetPayload"}
+
+func (ec *executionContext) _CreateAssetPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CreateAssetPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createAssetPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateAssetPayload")
+		case "asset":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._CreateAssetPayload_asset(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -10269,6 +11144,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createAsset":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createAsset(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+		case "removeAsset":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeAsset(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
 		case "signup":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_signup(ctx, field)
@@ -10816,6 +11705,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getAsset":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAsset(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "me":
 			field := field
 
@@ -11008,6 +11920,37 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var removeAssetPayloadImplementors = []string{"RemoveAssetPayload"}
+
+func (ec *executionContext) _RemoveAssetPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveAssetPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeAssetPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveAssetPayload")
+		case "assetId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._RemoveAssetPayload_assetId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12325,6 +13268,20 @@ func (ec *executionContext) unmarshalNAddMemberToWorkspaceInput2githubᚗcomᚋr
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNAsset2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Asset) graphql.Marshaler {
+	return ec._Asset(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Asset(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -12338,6 +13295,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx context.Context, v interface{}) (gqlmodel.CreateAssetInput, error) {
+	res, err := ec.unmarshalInputCreateAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v interface{}) (gqlmodel.CreateFieldInput, error) {
@@ -12413,6 +13375,21 @@ func (ec *executionContext) unmarshalNDeleteProjectInput2githubᚗcomᚋreearth�
 func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.DeleteWorkspaceInput, error) {
 	res, err := ec.unmarshalInputDeleteWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNFileSize2int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (gqlmodel.ID, error) {
@@ -12826,6 +13803,11 @@ func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearth�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNRemoveAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetInput(ctx context.Context, v interface{}) (gqlmodel.RemoveAssetInput, error) {
+	res, err := ec.unmarshalInputRemoveAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRemoveMemberFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMemberFromWorkspaceInput, error) {
 	res, err := ec.unmarshalInputRemoveMemberFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13000,6 +13982,21 @@ func (ec *executionContext) unmarshalNUpdateProjectInput2githubᚗcomᚋreearth�
 func (ec *executionContext) unmarshalNUpdateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.UpdateWorkspaceInput, error) {
 	res, err := ec.unmarshalInputUpdateWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (graphql.Upload, error) {
+	res, err := graphql.UnmarshalUpload(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v graphql.Upload) graphql.Marshaler {
+	res := graphql.MarshalUpload(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
@@ -13426,6 +14423,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateAssetPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateAssetPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -13582,6 +14586,13 @@ func (ec *executionContext) marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋr
 		return graphql.Null
 	}
 	return ec._ProjectPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORemoveAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveAssetPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RemoveAssetPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMemberFromWorkspacePayload) graphql.Marshaler {

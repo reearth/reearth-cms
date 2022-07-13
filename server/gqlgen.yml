@@ -3,6 +3,7 @@
 
 schema:
   - ./schemas/_shared.graphql
+  - ./schemas/asset.graphql
   - ./schemas/user.graphql
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql

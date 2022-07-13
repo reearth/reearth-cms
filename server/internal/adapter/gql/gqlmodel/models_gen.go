@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"golang.org/x/text/language"
 )
@@ -28,6 +29,28 @@ type AddMemberToWorkspaceInput struct {
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type Asset struct {
+	ID        ID        `json:"id"`
+	ProjectID ID        `json:"projectID"`
+	CreatedAt time.Time `json:"createdAt"`
+	CreatedBy ID        `json:"createdBy"`
+	FileName  string    `json:"fileName"`
+	Size      int64     `json:"size"`
+	AssetType string    `json:"assetType"`
+	URL       string    `json:"url"`
+}
+
+func (Asset) IsNode() {}
+
+type CreateAssetInput struct {
+	ProjectID ID             `json:"projectID"`
+	File      graphql.Upload `json:"file"`
+}
+
+type CreateAssetPayload struct {
+	Asset *Asset `json:"asset"`
 }
 
 type CreateFieldInput struct {
@@ -206,6 +229,14 @@ type ProjectPayload struct {
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type RemoveAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type RemoveAssetPayload struct {
+	AssetID ID `json:"assetId"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
