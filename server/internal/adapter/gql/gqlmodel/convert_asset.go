@@ -11,7 +11,7 @@ func ToAsset(a *asset.Asset) *Asset {
 
 	return &Asset{
 		ID:          IDFrom(a.ID()),
-		ProjectID:   IDFrom(a.ProjectID()),
+		ProjectID:   IDFrom(a.Project()),
 		CreatedAt:   a.CreatedAt(),
 		CreatedBy:   IDFrom(a.CreatedBy()),
 		FileName:    a.FileName(),
