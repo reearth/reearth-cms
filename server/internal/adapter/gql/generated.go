@@ -65,6 +65,21 @@ type ComplexityRoot struct {
 		URL       func(childComplexity int) int
 	}
 
+	AssetFile struct {
+		AssetID     func(childComplexity int) int
+		Children    func(childComplexity int) int
+		ContentType func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Size        func(childComplexity int) int
+		UploadedAt  func(childComplexity int) int
+		UploadedBy  func(childComplexity int) int
+	}
+
+	CreateAssetFilePayload struct {
+		AssetFile func(childComplexity int) int
+	}
+
 	CreateAssetPayload struct {
 		Asset func(childComplexity int) int
 	}
@@ -144,6 +159,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddMemberToWorkspace      func(childComplexity int, input gqlmodel.AddMemberToWorkspaceInput) int
 		CreateAsset               func(childComplexity int, input gqlmodel.CreateAssetInput) int
+		CreateAssetFile           func(childComplexity int, input gqlmodel.CreateAssetFileInput) int
 		CreateField               func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateModel               func(childComplexity int, input gqlmodel.CreateModelInput) int
 		CreateProject             func(childComplexity int, input gqlmodel.CreateProjectInput) int
@@ -155,6 +171,7 @@ type ComplexityRoot struct {
 		DeleteWorkspace           func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishModel              func(childComplexity int, input gqlmodel.PublishModelInput) int
 		RemoveAsset               func(childComplexity int, input gqlmodel.RemoveAssetInput) int
+		RemoveAssetFile           func(childComplexity int, input gqlmodel.RemoveAssetFileInput) int
 		RemoveMemberFromWorkspace func(childComplexity int, input gqlmodel.RemoveMemberFromWorkspaceInput) int
 		RemoveMyAuth              func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		Signup                    func(childComplexity int, input gqlmodel.SignupInput) int
@@ -210,6 +227,7 @@ type ComplexityRoot struct {
 		CheckModelKeyAvailability func(childComplexity int, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		GetAsset                  func(childComplexity int, assetID gqlmodel.ID) int
+		GetAssetFile              func(childComplexity int, assetFileID gqlmodel.ID) int
 		GetModelFields            func(childComplexity int, modelID gqlmodel.ID) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) int
@@ -217,6 +235,10 @@ type ComplexityRoot struct {
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
+	}
+
+	RemoveAssetFilePayload struct {
+		AssetFileID func(childComplexity int) int
 	}
 
 	RemoveAssetPayload struct {
@@ -343,6 +365,8 @@ type MeResolver interface {
 type MutationResolver interface {
 	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
 	RemoveAsset(ctx context.Context, input gqlmodel.RemoveAssetInput) (*gqlmodel.RemoveAssetPayload, error)
+	CreateAssetFile(ctx context.Context, input gqlmodel.CreateAssetFileInput) (*gqlmodel.CreateAssetFilePayload, error)
+	RemoveAssetFile(ctx context.Context, input gqlmodel.RemoveAssetFileInput) (*gqlmodel.RemoveAssetFilePayload, error)
 	Signup(ctx context.Context, input gqlmodel.SignupInput) (*gqlmodel.SignupPayload, error)
 	UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error)
 	RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error)
@@ -371,6 +395,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	GetAsset(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.Asset, error)
+	GetAssetFile(ctx context.Context, assetFileID gqlmodel.ID) (*gqlmodel.AssetFile, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
 	SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error)
@@ -461,6 +486,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.URL(childComplexity), true
+
+	case "AssetFile.assetID":
+		if e.complexity.AssetFile.AssetID == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.AssetID(childComplexity), true
+
+	case "AssetFile.children":
+		if e.complexity.AssetFile.Children == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.Children(childComplexity), true
+
+	case "AssetFile.contentType":
+		if e.complexity.AssetFile.ContentType == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.ContentType(childComplexity), true
+
+	case "AssetFile.id":
+		if e.complexity.AssetFile.ID == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.ID(childComplexity), true
+
+	case "AssetFile.name":
+		if e.complexity.AssetFile.Name == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.Name(childComplexity), true
+
+	case "AssetFile.size":
+		if e.complexity.AssetFile.Size == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.Size(childComplexity), true
+
+	case "AssetFile.uploadedAt":
+		if e.complexity.AssetFile.UploadedAt == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.UploadedAt(childComplexity), true
+
+	case "AssetFile.uploadedBy":
+		if e.complexity.AssetFile.UploadedBy == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.UploadedBy(childComplexity), true
+
+	case "CreateAssetFilePayload.assetFile":
+		if e.complexity.CreateAssetFilePayload.AssetFile == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetFilePayload.AssetFile(childComplexity), true
 
 	case "CreateAssetPayload.asset":
 		if e.complexity.CreateAssetPayload.Asset == nil {
@@ -724,6 +812,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateAsset(childComplexity, args["input"].(gqlmodel.CreateAssetInput)), true
 
+	case "Mutation.createAssetFile":
+		if e.complexity.Mutation.CreateAssetFile == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createAssetFile_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateAssetFile(childComplexity, args["input"].(gqlmodel.CreateAssetFileInput)), true
+
 	case "Mutation.createField":
 		if e.complexity.Mutation.CreateField == nil {
 			break
@@ -855,6 +955,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveAsset(childComplexity, args["input"].(gqlmodel.RemoveAssetInput)), true
+
+	case "Mutation.removeAssetFile":
+		if e.complexity.Mutation.RemoveAssetFile == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeAssetFile_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveAssetFile(childComplexity, args["input"].(gqlmodel.RemoveAssetFileInput)), true
 
 	case "Mutation.removeMemberFromWorkspace":
 		if e.complexity.Mutation.RemoveMemberFromWorkspace == nil {
@@ -1159,6 +1271,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAsset(childComplexity, args["assetId"].(gqlmodel.ID)), true
 
+	case "Query.getAssetFile":
+		if e.complexity.Query.GetAssetFile == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAssetFile_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAssetFile(childComplexity, args["assetFileId"].(gqlmodel.ID)), true
+
 	case "Query.getModelFields":
 		if e.complexity.Query.GetModelFields == nil {
 			break
@@ -1237,6 +1361,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchUser(childComplexity, args["nameOrEmail"].(string)), true
+
+	case "RemoveAssetFilePayload.assetFileId":
+		if e.complexity.RemoveAssetFilePayload.AssetFileID == nil {
+			break
+		}
+
+		return e.complexity.RemoveAssetFilePayload.AssetFileID(childComplexity), true
 
 	case "RemoveAssetPayload.assetId":
 		if e.complexity.RemoveAssetPayload.AssetID == nil {
@@ -1724,7 +1855,7 @@ schema {
   query: Query
   mutation: Mutation
 }`, BuiltIn: false},
-	{Name: "./schemas/asset.graphql", Input: `type Asset implements Node {
+	{Name: "./schemas/asset.graphql", Input: `type Asset {
   id: ID!
   projectID: ID!
   createdAt: DateTime!
@@ -1759,6 +1890,42 @@ extend type Query {
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+}
+
+type AssetFile {
+  id: ID!
+  assetID: ID!
+  name: String!
+  size: FileSize!
+  contentType: String!
+  uploadedAt: DateTime!
+  uploadedBy: ID!
+  children: [AssetFile!]
+}
+
+input CreateAssetFileInput {
+  assetID: ID!
+}
+
+input RemoveAssetFileInput {
+  assetFileId: ID!
+}
+
+type CreateAssetFilePayload {
+  assetFile: AssetFile!
+}
+
+type RemoveAssetFilePayload {
+  assetFileId: ID!
+}
+
+extend type Query {
+  getAssetFile(assetFileId: ID!): AssetFile!
+}
+
+extend type Mutation {
+  createAssetFile(input: CreateAssetFileInput!): CreateAssetFilePayload
+  removeAssetFile(input: RemoveAssetFileInput!): RemoveAssetFilePayload
 }`, BuiltIn: false},
 	{Name: "./schemas/user.graphql", Input: `type User implements Node {
     id: ID!
@@ -2235,6 +2402,21 @@ func (ec *executionContext) field_Mutation_addMemberToWorkspace_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createAssetFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.CreateAssetFileInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateAssetFileInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetFileInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2392,6 +2574,21 @@ func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeAssetFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.RemoveAssetFileInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRemoveAssetFileInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetFileInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2607,6 +2804,21 @@ func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Conte
 		}
 	}
 	args["alias"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAssetFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["assetFileId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetFileId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["assetFileId"] = arg0
 	return args, nil
 }
 
@@ -3156,6 +3368,318 @@ func (ec *executionContext) _Asset_url(ctx context.Context, field graphql.Collec
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_assetID(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_size(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Size, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNFileSize2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_contentType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_uploadedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UploadedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_uploadedBy(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UploadedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssetFile_children(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Children, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.AssetFile)
+	fc.Result = res
+	return ec.marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFileᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CreateAssetFilePayload_assetFile(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetFilePayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CreateAssetFilePayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetFile, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.AssetFile)
+	fc.Result = res
+	return ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CreateAssetPayload_asset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetPayload) (ret graphql.Marshaler) {
@@ -4421,6 +4945,84 @@ func (ec *executionContext) _Mutation_removeAsset(ctx context.Context, field gra
 	res := resTmp.(*gqlmodel.RemoveAssetPayload)
 	fc.Result = res
 	return ec.marshalORemoveAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createAssetFile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createAssetFile_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateAssetFile(rctx, args["input"].(gqlmodel.CreateAssetFileInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.CreateAssetFilePayload)
+	fc.Result = res
+	return ec.marshalOCreateAssetFilePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetFilePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_removeAssetFile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_removeAssetFile_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveAssetFile(rctx, args["input"].(gqlmodel.RemoveAssetFileInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.RemoveAssetFilePayload)
+	fc.Result = res
+	return ec.marshalORemoveAssetFilePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetFilePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6049,6 +6651,48 @@ func (ec *executionContext) _Query_getAsset(ctx context.Context, field graphql.C
 	return ec.marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getAssetFile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getAssetFile_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAssetFile(rctx, args["assetFileId"].(gqlmodel.ID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.AssetFile)
+	fc.Result = res
+	return ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6441,6 +7085,41 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _RemoveAssetFilePayload_assetFileId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveAssetFilePayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "RemoveAssetFilePayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetFileID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RemoveAssetPayload_assetId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveAssetPayload) (ret graphql.Marshaler) {
@@ -9355,6 +10034,29 @@ func (ec *executionContext) unmarshalInputAddMemberToWorkspaceInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateAssetFileInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetFileInput, error) {
+	var it gqlmodel.CreateAssetFileInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "assetID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetID"))
+			it.AssetID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
 	asMap := map[string]interface{}{}
@@ -9791,6 +10493,29 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveAssetFileInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveAssetFileInput, error) {
+	var it gqlmodel.RemoveAssetFileInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "assetFileId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetFileId"))
+			it.AssetFileID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRemoveAssetInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveAssetInput, error) {
 	var it gqlmodel.RemoveAssetInput
 	asMap := map[string]interface{}{}
@@ -10205,13 +10930,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.Asset:
-		return ec._Asset(ctx, sel, &obj)
-	case *gqlmodel.Asset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Asset(ctx, sel, obj)
 	case gqlmodel.User:
 		return ec._User(ctx, sel, &obj)
 	case *gqlmodel.User:
@@ -10373,7 +11091,7 @@ func (ec *executionContext) _AddMemberToWorkspacePayload(ctx context.Context, se
 	return out
 }
 
-var assetImplementors = []string{"Asset", "Node"}
+var assetImplementors = []string{"Asset"}
 
 func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Asset) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, assetImplementors)
@@ -10456,6 +11174,135 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 		case "url":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Asset_url(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var assetFileImplementors = []string{"AssetFile"}
+
+func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetFile) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, assetFileImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssetFile")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "assetID":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_assetID(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_name(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "size":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_size(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "contentType":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_contentType(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "uploadedAt":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_uploadedAt(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "uploadedBy":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_uploadedBy(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "children":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AssetFile_children(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var createAssetFilePayloadImplementors = []string{"CreateAssetFilePayload"}
+
+func (ec *executionContext) _CreateAssetFilePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CreateAssetFilePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createAssetFilePayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateAssetFilePayload")
+		case "assetFile":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._CreateAssetFilePayload_assetFile(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -11158,6 +12005,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
 
+		case "createAssetFile":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createAssetFile(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+		case "removeAssetFile":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeAssetFile(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
 		case "signup":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_signup(ctx, field)
@@ -11728,6 +12589,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getAssetFile":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAssetFile(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "me":
 			field := field
 
@@ -11920,6 +12804,37 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var removeAssetFilePayloadImplementors = []string{"RemoveAssetFilePayload"}
+
+func (ec *executionContext) _RemoveAssetFilePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveAssetFilePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeAssetFilePayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveAssetFilePayload")
+		case "assetFileId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._RemoveAssetFilePayload_assetFileId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13282,6 +14197,20 @@ func (ec *executionContext) marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 	return ec._Asset(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAssetFile2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AssetFile) graphql.Marshaler {
+	return ec._AssetFile(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetFile) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AssetFile(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13295,6 +14224,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNCreateAssetFileInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetFileInput(ctx context.Context, v interface{}) (gqlmodel.CreateAssetFileInput, error) {
+	res, err := ec.unmarshalInputCreateAssetFileInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx context.Context, v interface{}) (gqlmodel.CreateAssetInput, error) {
@@ -13800,6 +14734,11 @@ func (ec *executionContext) marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreea
 
 func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v interface{}) (gqlmodel.PublishModelInput, error) {
 	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRemoveAssetFileInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetFileInput(ctx context.Context, v interface{}) (gqlmodel.RemoveAssetFileInput, error) {
+	res, err := ec.unmarshalInputRemoveAssetFileInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -14397,6 +15336,53 @@ func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.AssetFile) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14421,6 +15407,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOCreateAssetFilePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetFilePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateAssetFilePayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateAssetFilePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateAssetPayload) graphql.Marshaler {
@@ -14586,6 +15579,13 @@ func (ec *executionContext) marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋr
 		return graphql.Null
 	}
 	return ec._ProjectPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORemoveAssetFilePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetFilePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveAssetFilePayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RemoveAssetFilePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveAssetPayload) graphql.Marshaler {

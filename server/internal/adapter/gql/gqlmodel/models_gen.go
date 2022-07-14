@@ -42,7 +42,24 @@ type Asset struct {
 	URL       string    `json:"url"`
 }
 
-func (Asset) IsNode() {}
+type AssetFile struct {
+	ID          ID           `json:"id"`
+	AssetID     ID           `json:"assetID"`
+	Name        string       `json:"name"`
+	Size        int64        `json:"size"`
+	ContentType string       `json:"contentType"`
+	UploadedAt  time.Time    `json:"uploadedAt"`
+	UploadedBy  ID           `json:"uploadedBy"`
+	Children    []*AssetFile `json:"children"`
+}
+
+type CreateAssetFileInput struct {
+	AssetID ID `json:"assetID"`
+}
+
+type CreateAssetFilePayload struct {
+	AssetFile *AssetFile `json:"assetFile"`
+}
 
 type CreateAssetInput struct {
 	ProjectID ID             `json:"projectID"`
@@ -229,6 +246,14 @@ type ProjectPayload struct {
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type RemoveAssetFileInput struct {
+	AssetFileID ID `json:"assetFileId"`
+}
+
+type RemoveAssetFilePayload struct {
+	AssetFileID ID `json:"assetFileId"`
 }
 
 type RemoveAssetInput struct {

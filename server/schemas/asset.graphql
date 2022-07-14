@@ -1,4 +1,4 @@
-type Asset implements Node {
+type Asset {
   id: ID!
   projectID: ID!
   createdAt: DateTime!
@@ -33,4 +33,40 @@ extend type Query {
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+}
+
+type AssetFile {
+  id: ID!
+  assetID: ID!
+  name: String!
+  size: FileSize!
+  contentType: String!
+  uploadedAt: DateTime!
+  uploadedBy: ID!
+  children: [AssetFile!]
+}
+
+input CreateAssetFileInput {
+  assetID: ID!
+}
+
+input RemoveAssetFileInput {
+  assetFileId: ID!
+}
+
+type CreateAssetFilePayload {
+  assetFile: AssetFile!
+}
+
+type RemoveAssetFilePayload {
+  assetFileId: ID!
+}
+
+extend type Query {
+  getAssetFile(assetFileId: ID!): AssetFile!
+}
+
+extend type Mutation {
+  createAssetFile(input: CreateAssetFileInput!): CreateAssetFilePayload
+  removeAssetFile(input: RemoveAssetFileInput!): RemoveAssetFilePayload
 }

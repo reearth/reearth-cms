@@ -32,3 +32,12 @@ func (r *mutationResolver) RemoveAsset(ctx context.Context, input gqlmodel.Remov
 
 	return &gqlmodel.RemoveAssetPayload{AssetID: gqlmodel.IDFrom(res)}, nil
 }
+
+func (r *mutationResolver) CreateAssetFile(ctx context.Context, input gqlmodel.CreateAssetFileInput) (*gqlmodel.CreateAssetFilePayload, error) {
+	// TODO implement me
+	panic("implement me")}
+
+func (r *mutationResolver) RemoveAssetFile(ctx context.Context, input gqlmodel.RemoveAssetFileInput) (*gqlmodel.RemoveAssetFilePayload, error) {
+	// TODO implement me
+	panic("implement me")
+}

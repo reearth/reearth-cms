@@ -104,3 +104,8 @@ func (r *queryResolver) GetAsset(ctx context.Context, assetID gqlmodel.ID) (*gql
 	// TODO implement me
 	panic("implement me")
 }
+
+func (r *queryResolver) GetAssetFile(ctx context.Context, assetFileID gqlmodel.ID) (*gqlmodel.AssetFile, error) {
+	// TODO implement me
+	panic("implement me")
+}
