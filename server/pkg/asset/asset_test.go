@@ -32,3 +32,20 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, "yyy", got.URL())
 }
+
+func TestAsset_CreatedAt(t *testing.T) {
+    aid := NewID()
+    pid := NewProjectID()
+    uid := NewUserID()
+    var size uint64 = 15
+    got := Asset{
+        id:        aid,
+        projectID: pid,
+        createdBy: uid,
+        fileName:  "hoge",
+        assetType: "xxx",
+        size:      size,
+        url:       "yyy",
+    }
+    assert.Equal(t, time.Time{}, got.CreatedAt())
+}
