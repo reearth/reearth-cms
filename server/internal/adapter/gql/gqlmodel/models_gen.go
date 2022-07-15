@@ -33,7 +33,7 @@ type AddMemberToWorkspacePayload struct {
 
 type Asset struct {
 	ID        ID        `json:"id"`
-	ProjectID ID        `json:"projectID"`
+	ProjectID ID        `json:"projectId"`
 	CreatedAt time.Time `json:"createdAt"`
 	CreatedBy ID        `json:"createdBy"`
 	FileName  string    `json:"fileName"`
@@ -42,9 +42,10 @@ type Asset struct {
 	URL       string    `json:"url"`
 }
 
+func (Asset) IsNode() {}
+
 type AssetFile struct {
-	ID          ID           `json:"id"`
-	AssetID     ID           `json:"assetID"`
+	AssetID     ID           `json:"assetId"`
 	Name        string       `json:"name"`
 	Size        int64        `json:"size"`
 	ContentType string       `json:"contentType"`
@@ -53,16 +54,8 @@ type AssetFile struct {
 	Children    []*AssetFile `json:"children"`
 }
 
-type CreateAssetFileInput struct {
-	AssetID ID `json:"assetID"`
-}
-
-type CreateAssetFilePayload struct {
-	AssetFile *AssetFile `json:"assetFile"`
-}
-
 type CreateAssetInput struct {
-	ProjectID ID             `json:"projectID"`
+	ProjectID ID             `json:"projectId"`
 	File      graphql.Upload `json:"file"`
 }
 
@@ -246,14 +239,6 @@ type ProjectPayload struct {
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
-}
-
-type RemoveAssetFileInput struct {
-	AssetFileID ID `json:"assetFileId"`
-}
-
-type RemoveAssetFilePayload struct {
-	AssetFileID ID `json:"assetFileId"`
 }
 
 type RemoveAssetInput struct {

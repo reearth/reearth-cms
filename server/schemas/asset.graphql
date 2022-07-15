@@ -1,6 +1,17 @@
-type Asset {
+
+type AssetFile {
+  assetId: ID!
+  name: String!
+  size: FileSize!
+  contentType: String!
+  uploadedAt: DateTime!
+  uploadedBy: ID!
+  children: [AssetFile!]
+}
+
+type Asset implements Node{
   id: ID!
-  projectID: ID!
+  projectId: ID!
   createdAt: DateTime!
   createdBy: ID!
   fileName: String!
@@ -10,7 +21,7 @@ type Asset {
 }
 
 input CreateAssetInput {
-  projectID: ID!
+  projectId: ID!
   file: Upload!
 }
 
@@ -26,47 +37,7 @@ type RemoveAssetPayload {
   assetId: ID!
 }
 
-extend type Query {
-  getAsset(assetId: ID!): Asset!
-}
-
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
-}
-
-type AssetFile {
-  id: ID!
-  assetID: ID!
-  name: String!
-  size: FileSize!
-  contentType: String!
-  uploadedAt: DateTime!
-  uploadedBy: ID!
-  children: [AssetFile!]
-}
-
-input CreateAssetFileInput {
-  assetID: ID!
-}
-
-input RemoveAssetFileInput {
-  assetFileId: ID!
-}
-
-type CreateAssetFilePayload {
-  assetFile: AssetFile!
-}
-
-type RemoveAssetFilePayload {
-  assetFileId: ID!
-}
-
-extend type Query {
-  getAssetFile(assetFileId: ID!): AssetFile!
-}
-
-extend type Mutation {
-  createAssetFile(input: CreateAssetFileInput!): CreateAssetFilePayload
-  removeAssetFile(input: RemoveAssetFileInput!): RemoveAssetFilePayload
 }
