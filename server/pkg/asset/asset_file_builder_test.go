@@ -26,7 +26,7 @@ func TestAssetFileBuilder_Build(t *testing.T) {
 			name: "should create an asset file",
 			input: AssetFile{
 				id:          afid,
-				assetId:     aid,
+				assetID:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -40,7 +40,7 @@ func TestAssetFileBuilder_Build(t *testing.T) {
 			}{
 				file: &AssetFile{
 					id:          afid,
-					assetId:     aid,
+					assetID:     aid,
 					name:        "hoge",
 					size:        size,
 					contentType: "xxx",
@@ -53,7 +53,7 @@ func TestAssetFileBuilder_Build(t *testing.T) {
 		{
 			name: "fail: empty id",
 			input: AssetFile{
-				assetId:     aid,
+				assetID:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -73,7 +73,7 @@ func TestAssetFileBuilder_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewAssetFile().
 				ID(tt.input.id).
-				AssetID(tt.input.assetId).
+				Asset(tt.input.assetID).
 				Name(tt.input.name).
 				Size(tt.input.size).
 				ContentType(tt.input.contentType).
@@ -97,7 +97,7 @@ func TestAssetFileBuilder_MustBuild(t *testing.T) {
 
 	type args struct {
 		id          AssetFileID
-		assetId     ID
+		assetID     ID
 		name        string
 		size        uint64
 		contentType string
@@ -116,7 +116,7 @@ func TestAssetFileBuilder_MustBuild(t *testing.T) {
 			name: "Valid asset file",
 			args: args{
 				id:          afid,
-				assetId:     aid,
+				assetID:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -126,7 +126,7 @@ func TestAssetFileBuilder_MustBuild(t *testing.T) {
 			},
 			expected: &AssetFile{
 				id:          afid,
-				assetId:     aid,
+				assetID:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -139,7 +139,7 @@ func TestAssetFileBuilder_MustBuild(t *testing.T) {
 			name: "failed invalid Id",
 			args: args{
 				id:     AssetFileID{},
-				assetId:     aid,
+				assetID:     aid,
 				name:        "hoge",
 				size:        size,
 				contentType: "xxx",
@@ -160,7 +160,7 @@ func TestAssetFileBuilder_MustBuild(t *testing.T) {
 				t.Helper()
 				return NewAssetFile().
 					ID(tt.args.id).
-					AssetID(tt.args.assetId).
+					Asset(tt.args.assetID).
 					Name(tt.args.name).
 					Size(tt.args.size).
 					ContentType(tt.args.contentType).

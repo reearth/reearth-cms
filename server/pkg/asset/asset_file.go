@@ -8,7 +8,7 @@ import (
 
 type AssetFile struct {
 	id          AssetFileID
-	assetId     ID
+	assetID     ID
 	name        string
 	size        uint64
 	contentType string
@@ -21,8 +21,8 @@ func (af *AssetFile) ID() AssetFileID {
 	return af.id
 }
 
-func (af *AssetFile) AssetID() ID {
-	return af.assetId
+func (af *AssetFile) Asset() ID {
+	return af.assetID
 }
 
 func (af *AssetFile) Name() string {

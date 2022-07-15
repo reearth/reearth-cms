@@ -39,8 +39,8 @@ func (b *AssetFileBuilder) NewID() *AssetFileBuilder {
 	return b
 }
 
-func (b *AssetFileBuilder) AssetID(assetId ID) *AssetFileBuilder {
-	b.af.assetId = assetId
+func (b *AssetFileBuilder) Asset(assetID ID) *AssetFileBuilder {
+	b.af.assetID = assetID
 	return b
 }
 
