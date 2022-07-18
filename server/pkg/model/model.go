@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 )
 
 var (
@@ -14,28 +15,24 @@ var (
 type Model struct {
 	id          ID
 	project     id.ProjectID
+	schema      id.SchemaID
 	name        string
 	description string
-	key         Key
+	key         key.Key
 	public      bool
 	updatedAt   time.Time
-	// schema      id.SchemaID
 }
 
 func (p *Model) ID() ID {
 	return p.id
 }
 
-func (p *Model) SetID(id ID) {
-	p.id = id
+func (p *Model) Schema() id.SchemaID {
+	return p.schema
 }
 
 func (p *Model) Project() id.ProjectID {
 	return p.project
-}
-
-func (p *Model) SetProject(project id.ProjectID) {
-	p.project = project
 }
 
 func (p *Model) Name() string {
@@ -54,11 +51,11 @@ func (p *Model) SetDescription(description string) {
 	p.description = description
 }
 
-func (p *Model) Key() Key {
+func (p *Model) Key() key.Key {
 	return p.key
 }
 
-func (p *Model) SetKey(key Key) error {
+func (p *Model) SetKey(key key.Key) error {
 	if !key.IsValid() {
 		return ErrInvalidKey
 	}
@@ -66,11 +63,11 @@ func (p *Model) SetKey(key Key) error {
 	return nil
 }
 
-func (p *Model) IsPublic() bool {
+func (p *Model) Public() bool {
 	return p.public
 }
 
-func (p *Model) SetIsPublic(public bool) {
+func (p *Model) SetPublic(public bool) {
 	p.public = public
 }
 
@@ -84,8 +81,4 @@ func (p *Model) SetUpdatedAt(updatedAt time.Time) {
 
 func (p *Model) CreatedAt() time.Time {
 	return p.id.Timestamp()
-}
-
-func CheckKeyPattern(key string) bool {
-	return key != "" && keyRegexp.Match([]byte(key))
 }

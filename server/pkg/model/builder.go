@@ -4,11 +4,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 )
 
 type Builder struct {
 	p *Model
-	k Key
+	k key.Key
 }
 
 func New() *Builder {
@@ -17,6 +18,9 @@ func New() *Builder {
 
 func (b *Builder) Build() (*Model, error) {
 	if b.p.id.IsNil() {
+		return nil, ErrInvalidID
+	}
+	if b.p.schema.IsNil() {
 		return nil, ErrInvalidID
 	}
 	if b.k.IsValid() {
@@ -53,6 +57,11 @@ func (b *Builder) Project(p id.ProjectID) *Builder {
 	return b
 }
 
+func (b *Builder) schema(s id.SchemaID) *Builder {
+	b.p.schema = s
+	return b
+}
+
 func (b *Builder) Name(name string) *Builder {
 	b.p.name = name
 	return b
@@ -63,13 +72,13 @@ func (b *Builder) Description(description string) *Builder {
 	return b
 }
 
-func (b *Builder) Key(key Key) *Builder {
+func (b *Builder) Key(key key.Key) *Builder {
 	b.k = key
 	return b
 }
 
 func (b *Builder) RandomKey() *Builder {
-	b.k = RandomKey()
+	b.k = key.RandomKey()
 	return b
 }
 

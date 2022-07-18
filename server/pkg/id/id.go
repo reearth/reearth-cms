@@ -73,3 +73,16 @@ var NewFieldID = idx.New[Field]
 var FieldIDFrom = idx.From[Field]
 var FieldIDFromRef = idx.FromRef[Field]
 var FieldIDListFrom = idx.ListFrom[Field]
+
+type Schema struct{}
+
+func (Schema) Type() string { return "schema" }
+
+type SchemaID = idx.ID[Schema]
+type SchemaIDList = idx.List[Schema]
+
+var MustSchemaID = idx.Must[Schema]
+var NewSchemaID = idx.New[Schema]
+var SchemaIDFrom = idx.From[Schema]
+var SchemaIDFromRef = idx.FromRef[Schema]
+var SchemaIDListFrom = idx.ListFrom[Schema]

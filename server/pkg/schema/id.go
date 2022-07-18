@@ -4,10 +4,18 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-type ID = id.FieldID
+type FieldID = id.FieldID
 
-var NewID = id.NewFieldID
-var MustID = id.MustFieldID
-var IDFrom = id.FieldIDFrom
-var IDFromRef = id.FieldIDFromRef
+var NewFieldID = id.NewFieldID
+var MustFieldID = id.MustFieldID
+var FieldIDFrom = id.FieldIDFrom
+var FieldIDFromRef = id.FieldIDFromRef
+var ErrInvalidFieldID = id.ErrInvalidID
+
+type ID = id.SchemaID
+
+var NewID = id.NewSchemaID
+var MustID = id.MustSchemaID
+var IDFrom = id.SchemaIDFrom
+var IDFromRef = id.SchemaIDFromRef
 var ErrInvalidID = id.ErrInvalidID
