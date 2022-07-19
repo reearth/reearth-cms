@@ -103,6 +103,80 @@ type SchemaFieldURL {
 }
 
 # Inputs
+
+input SchemaFieldTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldTextAreaInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldRichTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaMarkdownTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldAssetInput {
+  defaultValue: ID
+}
+
+input SchemaFieldDateInput {
+  defaultValue: DateTime
+}
+
+input SchemaFieldBoolInput {
+  defaultValue: Boolean
+}
+
+input SchemaFieldSelectInput {
+  values: [String!]!
+  defaultValue: String
+}
+
+input SchemaFieldTagInput {
+  values: [String!]!
+  defaultValue: String
+}
+
+input SchemaFieldIntegerInput {
+  defaultValue: Int
+  min: Int
+  max: Int
+}
+
+input SchemaFieldReferenceInput {
+  modelId: ID
+}
+
+input SchemaFieldURLInput {
+  defaultValue: String
+}
+
+directive @onlyOne on INPUT_OBJECT
+
+input SchemaFieldTypePropertyInput @onlyOne {
+  text: SchemaFieldTextInput
+  textArea: SchemaFieldTextAreaInput
+  richText: SchemaFieldRichTextInput
+  markdownText: SchemaMarkdownTextInput
+  asset: SchemaFieldAssetInput
+  date: SchemaFieldDateInput
+  bool: SchemaFieldBoolInput
+  select: SchemaFieldSelectInput
+  tag: SchemaFieldTagInput
+  integer: SchemaFieldIntegerInput
+  reference: SchemaFieldReferenceInput
+  url: SchemaFieldURLInput
+}
+
 input CreateFieldInput {
   modelId: ID!
   type: SchemaFiledType!
@@ -110,19 +184,17 @@ input CreateFieldInput {
   description: String
   key: String!
   isMultiValue: Boolean
-  DefaultValue: Any
-  values: Any # for select field
   isUnique: Boolean
   isRequired: Boolean
+  SchemaFieldTypeProperty: SchemaFieldTypePropertyInput!
 }
 
 input UpdateFieldInput {
   title: String
   description: String
   key: String
-  isMultiValue: Boolean
-  DefaultValue: Any
-  # TODO: make sure what are the editable fields
+  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  SchemaFieldTypeProperty: SchemaFieldTypePropertyInput!
 }
 
 input DeleteFieldInput {
