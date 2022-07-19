@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"golang.org/x/text/language"
 )
@@ -28,6 +29,55 @@ type AddMemberToWorkspaceInput struct {
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type Asset struct {
+	ID          ID           `json:"id"`
+	ProjectID   ID           `json:"projectId"`
+	CreatedAt   time.Time    `json:"createdAt"`
+	CreatedBy   *User        `json:"createdBy"`
+	CreatedByID ID           `json:"createdById"`
+	FileName    string       `json:"fileName"`
+	Size        int64        `json:"size"`
+	PreviewType *PreviewType `json:"previewType"`
+	File        *AssetFile   `json:"file"`
+	URL         string       `json:"url"`
+}
+
+func (Asset) IsNode() {}
+
+type AssetConnection struct {
+	Edges      []*AssetEdge `json:"edges"`
+	Nodes      []*Asset     `json:"nodes"`
+	PageInfo   *PageInfo    `json:"pageInfo"`
+	TotalCount int          `json:"totalCount"`
+}
+
+type AssetEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Asset         `json:"node"`
+}
+
+type AssetFile struct {
+	AssetID      ID           `json:"assetId"`
+	Asset        *Asset       `json:"asset"`
+	Name         string       `json:"name"`
+	Size         int64        `json:"size"`
+	ContentType  string       `json:"contentType"`
+	UploadedAt   time.Time    `json:"uploadedAt"`
+	UploadedBy   *User        `json:"uploadedBy"`
+	UploadedByID ID           `json:"uploadedById"`
+	Path         string       `json:"path"`
+	Children     []*AssetFile `json:"children"`
+}
+
+type CreateAssetInput struct {
+	ProjectID ID             `json:"projectId"`
+	File      graphql.Upload `json:"file"`
+}
+
+type CreateAssetPayload struct {
+	Asset *Asset `json:"asset"`
 }
 
 type CreateFieldInput struct {
@@ -206,6 +256,14 @@ type ProjectPayload struct {
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type RemoveAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type RemoveAssetPayload struct {
+	AssetID ID `json:"assetId"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {
@@ -406,6 +464,49 @@ type WorkspaceMember struct {
 	User   *User `json:"user"`
 }
 
+type AssetSortType string
+
+const (
+	AssetSortTypeDate AssetSortType = "DATE"
+	AssetSortTypeSize AssetSortType = "SIZE"
+	AssetSortTypeName AssetSortType = "NAME"
+)
+
+var AllAssetSortType = []AssetSortType{
+	AssetSortTypeDate,
+	AssetSortTypeSize,
+	AssetSortTypeName,
+}
+
+func (e AssetSortType) IsValid() bool {
+	switch e {
+	case AssetSortTypeDate, AssetSortTypeSize, AssetSortTypeName:
+		return true
+	}
+	return false
+}
+
+func (e AssetSortType) String() string {
+	return string(e)
+}
+
+func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AssetSortType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AssetSortType", str)
+	}
+	return nil
+}
+
+func (e AssetSortType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type NodeType string
 
 const (
@@ -446,6 +547,51 @@ func (e *NodeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e NodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PreviewType string
+
+const (
+	PreviewTypeImage   PreviewType = "IMAGE"
+	PreviewTypeGeo     PreviewType = "GEO"
+	PreviewTypeGeo3d   PreviewType = "GEO3D"
+	PreviewTypeModel3d PreviewType = "MODEL3D"
+)
+
+var AllPreviewType = []PreviewType{
+	PreviewTypeImage,
+	PreviewTypeGeo,
+	PreviewTypeGeo3d,
+	PreviewTypeModel3d,
+}
+
+func (e PreviewType) IsValid() bool {
+	switch e {
+	case PreviewTypeImage, PreviewTypeGeo, PreviewTypeGeo3d, PreviewTypeModel3d:
+		return true
+	}
+	return false
+}
+
+func (e PreviewType) String() string {
+	return string(e)
+}
+
+func (e *PreviewType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PreviewType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PreviewType", str)
+	}
+	return nil
+}
+
+func (e PreviewType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
