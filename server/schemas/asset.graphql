@@ -60,6 +60,12 @@ type AssetEdge {
   node: Asset
 }
 
+enum AssetSortType {
+  DATE
+  SIZE
+  NAME
+}
+
 extend type Query {
   assets(
     teamId: ID!
