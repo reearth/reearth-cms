@@ -39,39 +39,6 @@ jobs:
           NEW_TAG_SHORT: ${{ steps.info.outputs.new_tag_short }}
         run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT"
 
-  build:
-    name: Build and upload
-    runs-on: ubuntu-latest
-    needs:
-      - info
-    if: needs.info.outputs.name || needs.info.outputs.tag
-    env:
-      ARTIFACTS: dist/reearth-cms_*.*
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha }}
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          args: release --rm-dist ${{ env.SNAPSHOT }}
-        env:
-          SNAPSHOT: ${{ !needs.info.outputs.tag && '--snapshot' || '' }}
-          GORELEASER_CURRENT_TAG: ${{ needs.info.outputs.tag || '0.0.0' }}
-      - name: Rename artifacts
-        if: needs.info.outputs.name
-        run: for f in $ARTIFACTS; do mv $f $(echo $f | sed -E 's/_0\.0\.0-SNAPSHOT-[^_]*/_${{ needs.info.outputs.name }}/'); done
-      - uses: actions/upload-artifact@v3
-        with:
-          name: xx
-          path: path/to/artifact/world.txt
-
   docker:
     name: Build and push Docker image
     runs-on: ubuntu-latest
