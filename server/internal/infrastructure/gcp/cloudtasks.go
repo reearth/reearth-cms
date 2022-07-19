@@ -1,9 +1,11 @@
-package cloudtasks
+package gcp
 
 import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 )
 
 // Queue tasks care of queuing and Tasks will be added to it
@@ -28,7 +30,7 @@ type Config struct {
 	QueueName  string
 }
 
-func NewQueue(c *Config) gateway.Queue {
+func NewTaskRunner(c *Config) gateway.TaskRunner {
 	// TODO: convert config to Queue struct
 	return &Queue{}
 }
@@ -38,8 +40,8 @@ func NewTask() *Task {
 	return &Task{}
 }
 
-// AddTask implements gateway.Queue
-func (*Queue) AddTask(ctx context.Context) (string, error) {
+// Run implements gateway.TaskRunner
+func (*Queue) Run(ctx context.Context, p task.Payload) (id.TaskID, error) {
 	//TODO: implement login to add task to the queue with payload
 	panic("unimplemented")
 }
