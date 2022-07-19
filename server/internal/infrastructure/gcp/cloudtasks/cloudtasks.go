@@ -39,7 +39,7 @@ func NewTask() *Task {
 }
 
 // AddTask implements gateway.Queue
-func (*Queue) AddTask(ctx context.Context) error {
+func (*Queue) AddTask(ctx context.Context) (string, error) {
 	//TODO: implement login to add task to the queue with payload
 	panic("unimplemented")
 }
