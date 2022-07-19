@@ -19,9 +19,8 @@ func connect(t *testing.T) func(*testing.T) *mongodoc.Client {
 	// Skip unit testing if "REEARTH_CMS_DB" is not configured
 	db := os.Getenv("REEARTH_CMS_DB")
 	if db == "" {
-		db = "mongodb://localhost"
-		// t.SkipNow()
-		// return nil
+		t.SkipNow()
+		return nil
 	}
 
 	c, _ := mongo.Connect(
