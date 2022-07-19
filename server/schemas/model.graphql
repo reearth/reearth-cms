@@ -5,6 +5,7 @@ type Model implements Node {
   description: String!
   key: String!
   project: Project!
+  schema: Schema!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

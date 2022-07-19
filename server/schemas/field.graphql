@@ -186,7 +186,7 @@ input CreateFieldInput {
   isMultiValue: Boolean
   isUnique: Boolean
   isRequired: Boolean
-  SchemaFieldTypeProperty: SchemaFieldTypePropertyInput!
+  typeProperty: SchemaFieldTypePropertyInput!
 }
 
 input UpdateFieldInput {
@@ -194,7 +194,7 @@ input UpdateFieldInput {
   description: String
   key: String
   # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
-  SchemaFieldTypeProperty: SchemaFieldTypePropertyInput!
+  typeProperty: SchemaFieldTypePropertyInput
 }
 
 input DeleteFieldInput {
@@ -210,10 +210,7 @@ type DeleteFieldPayload {
   fieldId: ID!
 }
 
-extend type Query {
-  getModelFields(modelId: ID!): [SchemaField!]!
-  checkFieldKeyAvailability(key: String!): KeyAvailability!
-}
+# extend type Query {}
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload

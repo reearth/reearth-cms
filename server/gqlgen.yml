@@ -7,6 +7,7 @@ schema:
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql
   - ./schemas/model.graphql
+  - ./schemas/schema.graphql
   - ./schemas/field.graphql
 exec:
   filename: internal/adapter/gql/generated.go

@@ -1,0 +1,8 @@
+type Schema implements Node {
+  id: ID!
+  fields: [SchemaField!]!
+}
+
+# extend type Query {}
+
+# extend type Mutation {}
