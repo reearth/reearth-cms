@@ -1,0 +1,75 @@
+type AssetFile {
+  assetId: ID!
+  asset: Asset!
+  name: String!
+  size: FileSize!
+  contentType: String!
+  uploadedAt: DateTime!
+  uploadedBy: User
+  uploadedById: ID!
+  path: String!
+  children: [AssetFile!]
+}
+
+type Asset implements Node{
+  id: ID!
+  projectId: ID!
+  createdAt: DateTime!
+  createdBy: User
+  createdById: ID!
+  fileName: String!
+  size: FileSize!
+  previewType: PreviewType
+  file: AssetFile!
+  url: String!
+}
+
+enum PreviewType {
+  IMAGE
+  GEO
+  GEO3D
+  MODEL3D
+}
+
+input CreateAssetInput {
+  projectId: ID!
+  file: Upload!
+}
+
+input RemoveAssetInput {
+  assetId: ID!
+}
+
+type CreateAssetPayload {
+  asset: Asset!
+}
+
+type RemoveAssetPayload {
+  assetId: ID!
+}
+
+type AssetConnection {
+  edges: [AssetEdge!]!
+  nodes: [Asset]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type AssetEdge {
+  cursor: Cursor!
+  node: Asset
+}
+
+extend type Query {
+  assets(
+    teamId: ID!
+    keyword: String
+    sort: AssetSortType
+    pagination: Pagination
+  ): AssetConnection!
+}
+
+extend type Mutation {
+  createAsset(input: CreateAssetInput!): CreateAssetPayload
+  removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+}
