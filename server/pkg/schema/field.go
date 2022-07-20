@@ -8,20 +8,15 @@ import (
 
 type Field struct {
 	id           FieldID
-	schema       ID
 	name         string
 	description  string
 	key          key.Key
 	updatedAt    time.Time
-	typeProperty TypeProperty
+	typeProperty *TypeProperty
 }
 
 func (f *Field) ID() FieldID {
 	return f.id
-}
-
-func (f *Field) Schema() ID {
-	return f.schema
 }
 
 func (f *Field) Name() string {
