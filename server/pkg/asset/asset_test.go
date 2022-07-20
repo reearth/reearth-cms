@@ -43,3 +43,25 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, wantPreviewType, got.PreviewType())
 	assert.Equal(t, "yyy", got.Hash())
 }
+
+func TestAsset_CreatedAt(t *testing.T) {
+    aid := NewID()
+    pid := NewProjectID()
+    uid := NewUserID()
+	u := user.New().ID(uid).Email("test@test.com").MustBuild()
+	p := project.New().ID(pid).MustBuild()
+    var size uint64 = 15
+	
+    got := Asset{
+		id:          aid,
+		project:     p,
+		projectId:   pid,
+		createdBy:   u,
+		createdById: uid,
+		fileName:    "hoge",
+		previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+		size:        size,
+		hash:        "yyy",
+    }
+    assert.Equal(t, time.Time{}, got.CreatedAt())
+}
