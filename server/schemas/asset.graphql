@@ -8,7 +8,19 @@ type Asset implements Node{
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
-  url: String!
+  hash: String!
+  project: Project!
+}
+
+type AssetFile {
+  name: String!
+  size: FileSize!
+  contentType: String
+  uploadedAt: DateTime!
+  uploadedBy: User
+  uploadedById: ID!
+  path: String!
+  children: [AssetFile!]
 }
 
 type AssetFile {
@@ -68,7 +80,7 @@ enum AssetSortType {
 
 extend type Query {
   assets(
-    teamId: ID!
+    projectId: ID!
     keyword: String
     sort: AssetSortType
     pagination: Pagination
@@ -77,5 +89,5 @@ extend type Query {
 
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
-  removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+  deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
 }
