@@ -1,17 +1,10 @@
 package asset
 
 import (
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-)
-
-var (
-	ErrNoProjectID = errors.New("ProjectID is required")
-	ErrZeroSize      = errors.New("File size cannot be zero")
-	ErrNoUser      = errors.New("CreatedByID is required")
 )
 
 type Asset struct {

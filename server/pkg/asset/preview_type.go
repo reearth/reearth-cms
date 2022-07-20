@@ -56,7 +56,3 @@ func (p *PreviewType) StringRef() *string {
 	p2 := string(*p)
 	return &p2
 }
-
-func getStrRef(i string) *string {
-	return &i
-}
