@@ -21,7 +21,8 @@ type Asset implements Node{
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
-  url: String!
+  hash: String!
+  project: Project!
 }
 
 enum PreviewType {
