@@ -1,7 +1,7 @@
 type AssetFile {
   name: String!
   size: FileSize!
-  contentType: String!
+  contentType: String
   uploadedAt: DateTime!
   uploadedBy: User
   uploadedById: ID!
