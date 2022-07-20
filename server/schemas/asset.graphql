@@ -67,7 +67,7 @@ enum AssetSortType {
 
 extend type Query {
   assets(
-    teamId: ID!
+    projectId: ID!
     keyword: String
     sort: AssetSortType
     pagination: Pagination
