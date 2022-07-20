@@ -99,3 +99,7 @@ func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, f
 func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
 	return loaders(ctx).Project.CheckAlias(ctx, alias)
 }
+
+func (r *queryResolver) Assets(ctx context.Context, teamID gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	panic("implement me")
+}
