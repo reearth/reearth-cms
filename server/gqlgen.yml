@@ -17,6 +17,12 @@ resolver:
   filename: internal/adapter/gql/resolver.go
   type: Resolver
 models:
+  Asset:
+    fields:
+      uploadedBy:
+        resolver: true
+      project:
+        resolver: true
   Me:
     fields:
       workspaces:
