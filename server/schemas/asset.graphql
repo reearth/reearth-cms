@@ -1,6 +1,4 @@
 type AssetFile {
-  assetId: ID!
-  asset: Asset!
   name: String!
   size: FileSize!
   contentType: String!
