@@ -78,5 +78,5 @@ extend type Query {
 
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
-  removeAsset(input: RemoveAssetInput!): RemoveAssetPayload
+  deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
 }
