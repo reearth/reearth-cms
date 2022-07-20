@@ -1,2 +1,4 @@
 github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
 github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+github.com/reearth/reearthx v0.0.0-20220708183439-bb7afef9d368 h1:MhJeHJccl8WTnJHP9NzrjnTEKFDp3+UIawtVMP73eJg=
+github.com/reearth/reearthx v0.0.0-20220708183439-bb7afef9d368/go.mod h1:EufAx3RZ+y3il43H700hjurRKqgHLZVLbOwNtEkcHXY=
