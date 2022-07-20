@@ -1,4 +1,4 @@
-type Asset implements Node{
+type Asset implements Node {
   id: ID!
   projectId: ID!
   createdAt: DateTime!
