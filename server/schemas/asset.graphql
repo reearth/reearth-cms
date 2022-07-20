@@ -1,16 +1,3 @@
-type AssetFile {
-  assetId: ID!
-  asset: Asset!
-  name: String!
-  size: FileSize!
-  contentType: String!
-  uploadedAt: DateTime!
-  uploadedBy: User
-  uploadedById: ID!
-  path: String!
-  children: [AssetFile!]
-}
-
 type Asset implements Node{
   id: ID!
   projectId: ID!
@@ -22,6 +9,19 @@ type Asset implements Node{
   previewType: PreviewType
   file: AssetFile!
   url: String!
+}
+
+type AssetFile {
+  assetId: ID!
+  asset: Asset!
+  name: String!
+  size: FileSize!
+  contentType: String!
+  uploadedAt: DateTime!
+  uploadedBy: User
+  uploadedById: ID!
+  path: String!
+  children: [AssetFile!]
 }
 
 enum PreviewType {
