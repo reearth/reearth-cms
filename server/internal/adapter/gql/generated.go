@@ -40,9 +40,12 @@ type Config struct {
 
 type ResolverRoot interface {
 	Me() MeResolver
+	Model() ModelResolver
 	Mutation() MutationResolver
 	Project() ProjectResolver
 	Query() QueryResolver
+	Schema() SchemaResolver
+	SchemaField() SchemaFieldResolver
 	WorkspaceMember() WorkspaceMemberResolver
 }
 
@@ -109,6 +112,7 @@ type ComplexityRoot struct {
 		Project     func(childComplexity int) int
 		ProjectID   func(childComplexity int) int
 		Schema      func(childComplexity int) int
+		SchemaID    func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
 
@@ -206,8 +210,10 @@ type ComplexityRoot struct {
 	}
 
 	Schema struct {
-		Fields func(childComplexity int) int
-		ID     func(childComplexity int) int
+		Fields    func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Project   func(childComplexity int) int
+		ProjectID func(childComplexity int) int
 	}
 
 	SchemaField struct {
@@ -323,6 +329,10 @@ type MeResolver interface {
 	Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error)
 	MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Workspace, error)
 }
+type ModelResolver interface {
+	Project(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Project, error)
+	Schema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error)
+}
 type MutationResolver interface {
 	Signup(ctx context.Context, input gqlmodel.SignupInput) (*gqlmodel.SignupPayload, error)
 	UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error)
@@ -357,6 +367,12 @@ type QueryResolver interface {
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error)
+}
+type SchemaResolver interface {
+	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
+}
+type SchemaFieldResolver interface {
+	Model(ctx context.Context, obj *gqlmodel.SchemaField) (*gqlmodel.Model, error)
 }
 type WorkspaceMemberResolver interface {
 	User(ctx context.Context, obj *gqlmodel.WorkspaceMember) (*gqlmodel.User, error)
@@ -565,6 +581,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Model.Schema(childComplexity), true
+
+	case "Model.schemaId":
+		if e.complexity.Model.SchemaID == nil {
+			break
+		}
+
+		return e.complexity.Model.SchemaID(childComplexity), true
 
 	case "Model.updatedAt":
 		if e.complexity.Model.UpdatedAt == nil {
@@ -1120,6 +1143,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Schema.ID(childComplexity), true
+
+	case "Schema.project":
+		if e.complexity.Schema.Project == nil {
+			break
+		}
+
+		return e.complexity.Schema.Project(childComplexity), true
+
+	case "Schema.projectId":
+		if e.complexity.Schema.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Schema.ProjectID(childComplexity), true
 
 	case "SchemaField.createdAt":
 		if e.complexity.SchemaField.CreatedAt == nil {
@@ -1824,6 +1861,7 @@ extend type Mutation {
 	{Name: "./schemas/model.graphql", Input: `type Model implements Node {
   id: ID!
   projectId: ID!
+  schemaId: ID!
   name: String!
   description: String!
   key: String!
@@ -1898,7 +1936,9 @@ extend type Mutation {
 `, BuiltIn: false},
 	{Name: "./schemas/schema.graphql", Input: `type Schema implements Node {
   id: ID!
+  projectId: ID!
   fields: [SchemaField!]!
+  project: Project!
 }
 
 # extend type Query {}
@@ -3415,6 +3455,41 @@ func (ec *executionContext) _Model_projectId(ctx context.Context, field graphql.
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Model_schemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SchemaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Model_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3531,14 +3606,14 @@ func (ec *executionContext) _Model_project(ctx context.Context, field graphql.Co
 		Object:     "Model",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Project, nil
+		return ec.resolvers.Model().Project(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3566,14 +3641,14 @@ func (ec *executionContext) _Model_schema(ctx context.Context, field graphql.Col
 		Object:     "Model",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Schema, nil
+		return ec.resolvers.Model().Schema(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5866,6 +5941,41 @@ func (ec *executionContext) _Schema_id(ctx context.Context, field graphql.Collec
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Schema_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Schema_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5899,6 +6009,41 @@ func (ec *executionContext) _Schema_fields(ctx context.Context, field graphql.Co
 	res := resTmp.([]*gqlmodel.SchemaField)
 	fc.Result = res
 	return ec.marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Schema_project(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Schema().Project(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Project)
+	fc.Result = res
+	return ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaField_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
@@ -5982,14 +6127,14 @@ func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphq
 		Object:     "SchemaField",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Model, nil
+		return ec.resolvers.SchemaField().Model(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10801,7 +10946,7 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "projectId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10811,7 +10956,17 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "schemaId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Model_schemaId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10821,7 +10976,7 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10831,7 +10986,7 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "key":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10841,28 +10996,48 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "project":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Model_project(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Model_project(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		case "schema":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Model_schema(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Model_schema(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		case "createdAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Model_createdAt(ctx, field, obj)
@@ -10871,7 +11046,7 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "updatedAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -10881,7 +11056,7 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -11796,7 +11971,17 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "projectId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Schema_projectId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "fields":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11806,8 +11991,28 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "project":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Schema_project(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11837,7 +12042,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "modelId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11847,18 +12052,28 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "model":
+			field := field
+
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._SchemaField_model(ctx, field, obj)
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SchemaField_model(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
 
-			out.Values[i] = innerFunc(ctx)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			})
 		case "type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaField_type(ctx, field, obj)
@@ -11867,7 +12082,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "typeProperty":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11884,7 +12099,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11894,7 +12109,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "description":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11911,7 +12126,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "unique":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11921,7 +12136,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "required":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11931,7 +12146,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11941,7 +12156,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "updatedAt":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -11951,7 +12166,7 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = innerFunc(ctx)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -13286,6 +13501,10 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ec._Me(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNModel2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Model) graphql.Marshaler {
+	return ec._Model(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Model) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -13460,6 +13679,10 @@ func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋreearthᚋreearth
 	return ec._PageInfo(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNProject2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Project) graphql.Marshaler {
+	return ec._Project(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNProject2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Project) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -13613,6 +13836,10 @@ func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcm
 
 func (ec *executionContext) marshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Role) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNSchema2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Schema) graphql.Marshaler {
+	return ec._Schema(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Schema) graphql.Marshaler {

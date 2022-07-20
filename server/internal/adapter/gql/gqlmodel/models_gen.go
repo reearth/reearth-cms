@@ -128,6 +128,7 @@ type Me struct {
 type Model struct {
 	ID          ID        `json:"id"`
 	ProjectID   ID        `json:"projectId"`
+	SchemaID    ID        `json:"schemaId"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Key         string    `json:"key"`
@@ -222,8 +223,10 @@ type RemoveMyAuthInput struct {
 }
 
 type Schema struct {
-	ID     ID             `json:"id"`
-	Fields []*SchemaField `json:"fields"`
+	ID        ID             `json:"id"`
+	ProjectID ID             `json:"projectId"`
+	Fields    []*SchemaField `json:"fields"`
+	Project   *Project       `json:"project"`
 }
 
 func (Schema) IsNode() {}

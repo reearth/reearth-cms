@@ -1,6 +1,8 @@
 type Schema implements Node {
   id: ID!
+  projectId: ID!
   fields: [SchemaField!]!
+  project: Project!
 }
 
 # extend type Query {}
