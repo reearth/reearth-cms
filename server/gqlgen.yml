@@ -3,6 +3,7 @@
 
 schema:
   - ./schemas/_shared.graphql
+  - ./schemas/asset.graphql
   - ./schemas/user.graphql
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql
@@ -44,6 +45,12 @@ models:
   SchemaField:
     fields:
       model:
+        resolver: true
+  Asset:
+    fields:
+      uploadedBy:
+        resolver: true
+      project:
         resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
