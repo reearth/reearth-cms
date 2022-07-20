@@ -1910,7 +1910,7 @@ schema {
   query: Query
   mutation: Mutation
 }`, BuiltIn: false},
-	{Name: "./schemas/asset.graphql", Input: `type Asset implements Node{
+	{Name: "./schemas/asset.graphql", Input: `type Asset implements Node {
   id: ID!
   projectId: ID!
   createdAt: DateTime!
@@ -16524,22 +16524,6 @@ func (ec *executionContext) marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._AddMemberToWorkspacePayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalAny(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalAny(v)
-	return res
 }
 
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
