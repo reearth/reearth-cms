@@ -41,7 +41,8 @@ type Asset struct {
 	Size        int64        `json:"size"`
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
-	URL         string       `json:"url"`
+	Hash        string       `json:"hash"`
+	Project     *Project     `json:"project"`
 }
 
 func (Asset) IsNode() {}
@@ -59,11 +60,9 @@ type AssetEdge struct {
 }
 
 type AssetFile struct {
-	AssetID      ID           `json:"assetId"`
-	Asset        *Asset       `json:"asset"`
 	Name         string       `json:"name"`
 	Size         int64        `json:"size"`
-	ContentType  string       `json:"contentType"`
+	ContentType  *string      `json:"contentType"`
 	UploadedAt   time.Time    `json:"uploadedAt"`
 	UploadedBy   *User        `json:"uploadedBy"`
 	UploadedByID ID           `json:"uploadedById"`
@@ -113,6 +112,14 @@ type CreateWorkspaceInput struct {
 
 type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type DeleteAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type DeleteAssetPayload struct {
+	AssetID ID `json:"assetId"`
 }
 
 type DeleteFieldInput struct {
@@ -256,14 +263,6 @@ type ProjectPayload struct {
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
-}
-
-type RemoveAssetInput struct {
-	AssetID ID `json:"assetId"`
-}
-
-type RemoveAssetPayload struct {
-	AssetID ID `json:"assetId"`
 }
 
 type RemoveMemberFromWorkspaceInput struct {

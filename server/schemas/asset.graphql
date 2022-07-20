@@ -23,19 +23,6 @@ type AssetFile {
   children: [AssetFile!]
 }
 
-type AssetFile {
-  assetId: ID!
-  asset: Asset!
-  name: String!
-  size: FileSize!
-  contentType: String!
-  uploadedAt: DateTime!
-  uploadedBy: User
-  uploadedById: ID!
-  path: String!
-  children: [AssetFile!]
-}
-
 enum PreviewType {
   IMAGE
   GEO
@@ -48,7 +35,7 @@ input CreateAssetInput {
   file: Upload!
 }
 
-input RemoveAssetInput {
+input DeleteAssetInput {
   assetId: ID!
 }
 
@@ -56,7 +43,7 @@ type CreateAssetPayload {
   asset: Asset!
 }
 
-type RemoveAssetPayload {
+type DeleteAssetPayload {
   assetId: ID!
 }
 

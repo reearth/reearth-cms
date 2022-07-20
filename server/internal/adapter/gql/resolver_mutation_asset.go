@@ -10,6 +10,6 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	panic("implement me")
 }
 
-func (r *mutationResolver) RemoveAsset(ctx context.Context, input gqlmodel.RemoveAssetInput) (*gqlmodel.RemoveAssetPayload, error) {
+func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error) {
 	panic("implement me")
 }
