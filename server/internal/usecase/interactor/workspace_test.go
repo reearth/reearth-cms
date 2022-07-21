@@ -468,7 +468,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				operator: op,
 				project:  p,
 			},
-			wantErr: user.ErrWorkspaceWithProjects,
+			wantErr: interfaces.ErrWorkspaceWithProjects,
 			want:    nil,
 		},
 		{

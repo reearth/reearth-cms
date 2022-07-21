@@ -206,7 +206,7 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 			return err
 		}
 		if projectCount > 0 {
-			return user.ErrWorkspaceWithProjects
+			return interfaces.ErrWorkspaceWithProjects
 		}
 
 		err = i.repos.Workspace.Remove(ctx, id)
