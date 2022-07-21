@@ -15,11 +15,7 @@ function AppRoutes() {
     { path: "/", element: <RootPage /> },
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
-    // { path: "/members/:workspaceId", element: <MembersPage /> },
-    // { path: "/workspaces/:workspaceId", element: <WorkspacePage /> },
-    // { path: "/workspaces", element: <WorkspaceListPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
-    // { path: "/account", element: <Account /> },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "*", element: <NotFound /> },
   ]);
