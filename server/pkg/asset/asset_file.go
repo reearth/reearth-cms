@@ -2,8 +2,6 @@ package asset
 
 import (
 	"time"
-
-	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type AssetFile struct {
@@ -11,7 +9,6 @@ type AssetFile struct {
 	size         uint64
 	contentType  string
 	uploadedAt   time.Time
-	uploadedBy   *user.User
 	uploadedById UserID
 	path         string
 	children     []*AssetFile
@@ -31,10 +28,6 @@ func (af *AssetFile) ContentType() string {
 
 func (af *AssetFile) UploadedAt() time.Time {
 	return af.uploadedAt
-}
-
-func (af *AssetFile) UploadedBy() *user.User {
-	return af.uploadedBy
 }
 
 func (af *AssetFile) UploadedByID() UserID {

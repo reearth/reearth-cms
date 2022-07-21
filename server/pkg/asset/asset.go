@@ -2,31 +2,22 @@ package asset
 
 import (
 	"time"
-
-	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Asset struct {
 	id          ID
-	project   	*project.Project
 	projectId   ProjectID
 	createdAt   time.Time
-	createdBy   *user.User
 	createdById UserID
 	fileName    string
 	size        uint64
 	previewType *PreviewType
 	file        *AssetFile
-	hash         string
+	hash        string
 }
 
 func (a *Asset) ID() ID {
 	return a.id
-}
-
-func (a *Asset) Project() *project.Project {
-	return a.project
 }
 
 func (a *Asset) ProjectID() ProjectID {
@@ -39,10 +30,6 @@ func (a *Asset) CreatedAt() time.Time {
 	}
 
 	return a.createdAt
-}
-
-func (a *Asset) CreatedBy() *user.User {
-	return a.createdBy
 }
 
 func (a *Asset) CreatedByID() UserID {

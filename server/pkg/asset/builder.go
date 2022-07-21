@@ -2,9 +2,6 @@ package asset
 
 import (
 	"time"
-
-	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Builder struct {
@@ -52,11 +49,6 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) Project(p *project.Project) *Builder {
-	b.a.project = p
-	return b
-}
-
 func (b *Builder) ProjectID(pid ProjectID) *Builder {
 	b.a.projectId = pid
 	return b
@@ -64,11 +56,6 @@ func (b *Builder) ProjectID(pid ProjectID) *Builder {
 
 func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	b.a.createdAt = createdAt
-	return b
-}
-
-func (b *Builder) CreatedBy(createdBy *user.User) *Builder {
-	b.a.createdBy = createdBy
 	return b
 }
 

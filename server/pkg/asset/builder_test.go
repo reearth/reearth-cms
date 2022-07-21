@@ -34,8 +34,6 @@ func TestBuilder_Build(t *testing.T) {
 	var aid ID = NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
-	u := user.New().ID(uid).Email("test@test.com").MustBuild()
-	p := project.New().ID(pid).MustBuild()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	af := AssetFile{}
 	var size uint64 = 15
@@ -45,10 +43,8 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should create an asset",
 			input: Input{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				createdAt:   tim,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -58,10 +54,8 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				createdAt:   tim,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -74,7 +68,6 @@ func TestBuilder_Build(t *testing.T) {
 			name: "fail: empty project id",
 			input: Input{
 				id:          aid,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -87,9 +80,7 @@ func TestBuilder_Build(t *testing.T) {
 		{
 			name: "fail: empty id",
 			input: Input{
-				project:     p,
 				projectId:   pid,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -103,7 +94,6 @@ func TestBuilder_Build(t *testing.T) {
 			name: "fail: empty createdById",
 			input: Input{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				fileName:    "hoge",
 				size:        size,
@@ -117,9 +107,7 @@ func TestBuilder_Build(t *testing.T) {
 			name: "fail: empty createdById",
 			input: Input{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        0,
@@ -133,9 +121,7 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should create asset with id timestamp",
 			input: Input{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -145,10 +131,8 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				createdAt:   aid.Timestamp(),
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -163,10 +147,8 @@ func TestBuilder_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := New().
 				ID(tt.input.id).
-				Project(tt.input.project).
 				ProjectID(tt.input.projectId).
 				CreatedAt(tt.input.createdAt).
-				CreatedBy(tt.input.createdBy).
 				CreatedByID(tt.input.createdById).
 				FileName(tt.input.fileName).
 				Size(tt.input.size).
@@ -185,8 +167,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 	var aid ID = NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
-	u := user.New().ID(uid).Email("test@test.com").MustBuild()
-	p := project.New().ID(pid).MustBuild()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	af := AssetFile{}
 	var size uint64 = 15
@@ -196,10 +176,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "Valid asset",
 			input: Input{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				createdAt:   tim,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -209,10 +187,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				project:     p,
 				projectId:   pid,
 				createdAt:   tim,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -225,10 +201,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "fail: Invalid Id",
 			input: Input{
 				id:          ID{},
-				project:     p,
 				projectId:   pid,
 				createdAt:   tim,
-				createdBy:   u,
 				createdById: uid,
 				fileName:    "hoge",
 				size:        size,
@@ -247,10 +221,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 				t.Helper()
 				return New().
 					ID(tt.input.id).
-					Project(tt.input.project).
 					ProjectID(tt.input.projectId).
 					CreatedAt(tt.input.createdAt).
-					CreatedBy(tt.input.createdBy).
 					CreatedByID(tt.input.createdById).
 					FileName(tt.input.fileName).
 					Type(tt.input.previewType).
