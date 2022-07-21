@@ -2,6 +2,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Search from "@reearth-cms/components/atoms/Search";
+import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
 import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
@@ -15,13 +16,19 @@ import useHooks from "./hooks";
 const Project: React.FC = () => {
   const { workspaceId } = useParams();
 
-  const { handleProjectModalOpen, projects } = useHooks("");
+  const {
+    handleProjectCreate,
+    handleProjectModalClose,
+    handleProjectModalOpen,
+    projectModalShown,
+    projects,
+  } = useHooks();
 
   const {
     handleWorkspaceCreate,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
+    workspaceModalShown,
   } = useDashboardHooks(workspaceId);
 
   return (
@@ -35,21 +42,28 @@ const Project: React.FC = () => {
             style={{ width: 264 }}
           />
           <ButtonWrapper>
-            <Button onClick={handleModalOpen}>Create a Workspace</Button>
-            <Button type="primary" icon={<PlusOutlined />}>
+            <Button onClick={handleWorkspaceModalOpen}>
+              Create a Workspace
+            </Button>
+            <Button
+              onClick={handleProjectModalOpen}
+              type="primary"
+              icon={<PlusOutlined />}
+            >
               New Project
             </Button>
           </ButtonWrapper>
         </ActionHeader>
-        <ProjectList
-          projects={projects}
-          workspaceId={workspaceId}
-          handleProjectModalOpen={handleProjectModalOpen}
-        />
+        <ProjectList projects={projects} workspaceId={workspaceId} />
       </PaddedContent>
+      <ProjectCreationModal
+        open={projectModalShown}
+        onClose={handleProjectModalClose}
+        onSubmit={handleProjectCreate}
+      />
       <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
+        open={workspaceModalShown}
+        onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
     </>

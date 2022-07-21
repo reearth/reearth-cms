@@ -11,7 +11,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../../Dashboard/hooks";
-import useHooks from "../hooks";
+
+import useHooks from "./hooks";
 
 export interface FormValues {
   name: string;

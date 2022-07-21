@@ -1,10 +1,5 @@
+import { User } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
-  User,
-  Project,
-} from "@reearth-cms/components/molecules/Dashboard/types";
-import {
-  useGetProjectsQuery,
-  useCreateProjectMutation,
   useCreateWorkspaceMutation,
   useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -13,7 +8,7 @@ import {
   useUnselectProject,
   useWorkspace,
 } from "@reearth-cms/state";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default (workspaceId?: string) => {
@@ -21,8 +16,6 @@ export default (workspaceId?: string) => {
   const [currentProject] = useProject();
   const unselectProject = useUnselectProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
-  const [projectModalShown, setProjectModalShown] = useState(false);
-  const [modalShown, setModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
@@ -106,88 +99,15 @@ export default (workspaceId?: string) => {
     }
   }, [currentProject, setCurrentWorkspace, unselectProject]);
 
-  const handleProjectModalClose = useCallback(
-    (r?: boolean) => {
-      setProjectModalShown(false);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
-
-  const handleProjectModalOpen = useCallback(
-    () => setProjectModalShown(true),
-    []
-  );
-
-  const { data: projectData } = useGetProjectsQuery({
-    variables: { workspaceId: workspaceId ?? "", first: 100 },
-    skip: !workspaceId,
-  });
-
-  const projects = useMemo(() => {
-    return (projectData?.projects.nodes ?? [])
-      .map<Project | undefined>((project) =>
-        project
-          ? {
-              id: project.id,
-              description: project.description,
-              name: project.name,
-            }
-          : undefined
-      )
-      .filter((project): project is Project => !!project);
-  }, [projectData?.projects.nodes]);
-
-  const [createNewProject] = useCreateProjectMutation({
-    refetchQueries: ["GetProjects"],
-  });
-
-  const handleProjectCreate = useCallback(
-    async (data: { name: string; description: string }) => {
-      if (!workspaceId) return;
-      const project = await createNewProject({
-        variables: {
-          workspaceId,
-          name: data.name,
-          description: data.description,
-        },
-      });
-      if (project.errors || !project.data?.createProject) {
-        setProjectModalShown(false);
-        return;
-      }
-
-      setProjectModalShown(false);
-      refetch();
-    },
-    [createNewProject, workspaceId, refetch]
-  );
-
-  const handleModalClose = useCallback(() => {
-    setModalShown(false);
-  }, []);
-
-  const handleModalOpen = useCallback(() => setModalShown(true), []);
-
   return {
     user,
-    projects,
     personalWorkspace,
     workspaces,
     currentWorkspace,
     workspaceModalShown,
-    projectModalShown,
-    handleProjectCreate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
-    modalShown,
-    handleModalClose,
-    handleModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
-    handleProjectModalClose,
-    handleProjectModalOpen,
   };
 };

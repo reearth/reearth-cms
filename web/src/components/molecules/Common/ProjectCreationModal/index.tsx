@@ -1,5 +1,7 @@
-import { Form, Input, Modal } from "antd";
-import TextArea from "antd/lib/input/TextArea";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import React, { useCallback } from "react";
 
 export interface FormValues {
@@ -39,7 +41,6 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   }, [onClose]);
   return (
     <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      {/* {formik.isSubmitting} */}
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
