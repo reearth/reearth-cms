@@ -86,7 +86,7 @@ const ProjectSettings: React.FC = () => {
           ></MoleculeHeader>
         </Header>
         <Layout>
-          <Sider
+          <ProjectSider
             collapsible
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
@@ -97,7 +97,7 @@ const ProjectSettings: React.FC = () => {
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}
             ></ProjectMenu>
-          </Sider>
+          </ProjectSider>
           <PaddedContent>
             <ProjectSection> {project?.name} </ProjectSection>
             <ProjectSection>
@@ -150,6 +150,21 @@ const ProjectSettings: React.FC = () => {
 
 const PaddedContent = styled(Content)`
   margin: 16px;
+`;
+
+const ProjectSider = styled(Sider)`
+  background-color: #fff;
+  .ant-layout-sider-trigger {
+    background-color: #fff;
+    color: #002140;
+    text-align: left;
+    padding: 0 24px;
+  }
+  .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
 
 const ProjectSection = styled.div`
