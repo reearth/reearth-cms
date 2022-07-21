@@ -37,6 +37,7 @@ func TestBuilder_Build(t *testing.T) {
 	u := user.New().ID(uid).Email("test@test.com").MustBuild()
 	p := project.New().ID(pid).MustBuild()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	af := AssetFile{}
 	var size uint64 = 15
 
 	tests := Tests{
@@ -52,19 +53,21 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
 				hash:        "yyy",
 			},
 			want: &Asset{
-					id:          aid,
-					project:     p,
-					projectId:   pid,
-					createdAt:   tim,
-					createdBy:   u,
-					createdById: uid,
-					fileName:    "hoge",
-					size:        size,
-					previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
-					hash:        "yyy",
+				id:          aid,
+				project:     p,
+				projectId:   pid,
+				createdAt:   tim,
+				createdBy:   u,
+				createdById: uid,
+				fileName:    "hoge",
+				size:        size,
+				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
+				file:        &af,
+				hash:        "yyy",
 			},
 		},
 		{
@@ -76,6 +79,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
 				hash:        "yyy",
 			},
 			err: ErrNoProjectID,
@@ -90,9 +94,40 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
 				hash:        "yyy",
 			},
 			err: ErrInvalidID,
+		},
+		{
+			name: "fail: empty createdById",
+			input: Input{
+				id:          aid,
+				project:     p,
+				projectId:   pid,
+				fileName:    "hoge",
+				size:        size,
+				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
+				hash:        "yyy",
+			},
+			err: ErrNoUser,
+		},
+		{
+			name: "fail: empty createdById",
+			input: Input{
+				id:          aid,
+				project:     p,
+				projectId:   pid,
+				createdBy:   u,
+				createdById: uid,
+				fileName:    "hoge",
+				size:        0,
+				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
+				hash:        "yyy",
+			},
+			err: ErrZeroSize,
 		},
 		{
 			name: "should create asset with id timestamp",
@@ -105,19 +140,21 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+				file:        &af,
 				hash:        "yyy",
 			},
 			want: &Asset{
-					id:          aid,
-					project:     p,
-					projectId:   pid,
-					createdAt:   aid.Timestamp(),
-					createdBy:   u,
-					createdById: uid,
-					fileName:    "hoge",
-					size:        size,
-					previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
-					hash:        "yyy",
+				id:          aid,
+				project:     p,
+				projectId:   pid,
+				createdAt:   aid.Timestamp(),
+				createdBy:   u,
+				createdById: uid,
+				fileName:    "hoge",
+				size:        size,
+				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
+				file:        &af,
+				hash:        "yyy",
 			},
 		},
 	}
@@ -134,9 +171,10 @@ func TestBuilder_Build(t *testing.T) {
 				FileName(tt.input.fileName).
 				Size(tt.input.size).
 				Type(tt.input.previewType).
+				File(tt.input.file).
 				Hash(tt.input.hash).
 				Build()
-			if err  != tt.err {
+			if err != tt.err {
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -150,6 +188,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 	u := user.New().ID(uid).Email("test@test.com").MustBuild()
 	p := project.New().ID(pid).MustBuild()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	af := AssetFile{}
 	var size uint64 = 15
 
 	tests := Tests{
@@ -165,6 +204,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
+				file:        &af,
 				hash:        "yyy",
 			},
 			want: &Asset{
@@ -177,6 +217,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
+				file:        &af,
 				hash:        "yyy",
 			},
 		},
@@ -192,7 +233,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
-				hash:        "yyy",			},
+				file:        &af,
+				hash:        "yyy"},
 			err: ErrInvalidID,
 		},
 	}
@@ -213,6 +255,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					FileName(tt.input.fileName).
 					Type(tt.input.previewType).
 					Size(tt.input.size).
+					File(tt.input.file).
 					Hash(tt.input.hash).
 					MustBuild()
 			}
