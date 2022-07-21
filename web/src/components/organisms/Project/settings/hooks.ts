@@ -1,9 +1,7 @@
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
-  useCreateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useMemo, useState } from "react";
@@ -19,27 +17,9 @@ export default ({ projectId }: Params) => {
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data, refetch } = useGetProjectsQuery({
+  const { data } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", first: 100 },
     skip: !workspaceId,
-  });
-
-  const projects = useMemo(() => {
-    return (data?.projects.nodes ?? [])
-      .map<Project | undefined>((project) =>
-        project
-          ? {
-              id: project.id,
-              description: project.description,
-              name: project.name,
-            }
-          : undefined
-      )
-      .filter((project): project is Project => !!project);
-  }, [data?.projects.nodes]);
-
-  const [createNewProject] = useCreateProjectMutation({
-    refetchQueries: ["GetProjects"],
   });
 
   const rawProject = useMemo(
@@ -104,7 +84,6 @@ export default ({ projectId }: Params) => {
 
   return {
     project,
-    projects,
     projectId,
     currentWorkspace,
     handleProjectUpdate,
