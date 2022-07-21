@@ -6,9 +6,9 @@ import (
 
 type Asset struct {
 	id          ID
-	projectId   ProjectID
+	project     ProjectID
 	createdAt   time.Time
-	createdById UserID
+	createdBy   UserID
 	fileName    string
 	size        uint64
 	previewType *PreviewType
@@ -20,8 +20,8 @@ func (a *Asset) ID() ID {
 	return a.id
 }
 
-func (a *Asset) ProjectID() ProjectID {
-	return a.projectId
+func (a *Asset) Project() ProjectID {
+	return a.project
 }
 
 func (a *Asset) CreatedAt() time.Time {
@@ -32,8 +32,8 @@ func (a *Asset) CreatedAt() time.Time {
 	return a.createdAt
 }
 
-func (a *Asset) CreatedByID() UserID {
-	return a.createdById
+func (a *Asset) CreatedBy() UserID {
+	return a.createdBy
 }
 
 func (a *Asset) FileName() string {

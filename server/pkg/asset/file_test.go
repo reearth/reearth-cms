@@ -14,20 +14,20 @@ func TestFile_FileType(t *testing.T) {
 	var size uint64 = 15
 
 	got := File{
-		name:         "hoge",
-		size:         size,
-		contentType:  "xxx",
-		uploadedAt:   tim,
-		uploadedById: uid,
-		path:         "yyy",
-		children:     c,
+		name:        "hoge",
+		size:        size,
+		contentType: "xxx",
+		uploadedAt:  tim,
+		uploadedBy:  uid,
+		path:        "yyy",
+		children:    c,
 	}
 
 	assert.Equal(t, "hoge", got.Name())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, "xxx", got.ContentType())
 	assert.Equal(t, tim, got.UploadedAt())
-	assert.Equal(t, uid, got.UploadedByID())
+	assert.Equal(t, uid, got.UploadedBy())
 	assert.Equal(t, "yyy", got.Path())
 	assert.Equal(t, c, got.Children())
 }

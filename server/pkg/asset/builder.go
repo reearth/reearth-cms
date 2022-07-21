@@ -16,10 +16,10 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.id.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.a.projectId.IsNil() {
+	if b.a.project.IsNil() {
 		return nil, ErrNoProjectID
 	}
-	if b.a.createdById.IsNil() {
+	if b.a.createdBy.IsNil() {
 		return nil, ErrNoUser
 	}
 	if b.a.size == 0 {
@@ -49,8 +49,8 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) ProjectID(pid ProjectID) *Builder {
-	b.a.projectId = pid
+func (b *Builder) Project(pid ProjectID) *Builder {
+	b.a.project = pid
 	return b
 }
 
@@ -59,8 +59,8 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	return b
 }
 
-func (b *Builder) CreatedByID(createdById UserID) *Builder {
-	b.a.createdById = createdById
+func (b *Builder) CreatedBy(createdBy UserID) *Builder {
+	b.a.createdBy = createdBy
 	return b
 }
 

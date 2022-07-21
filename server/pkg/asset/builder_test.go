@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,11 +16,9 @@ type Tests []struct {
 
 type Input struct {
 	id          ID
-	project     *project.Project
-	projectId   ProjectID
+	project     ProjectID
 	createdAt   time.Time
-	createdBy   *user.User
-	createdById UserID
+	createdBy   UserID
 	fileName    string
 	size        uint64
 	previewType *PreviewType
@@ -43,9 +39,9 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should create an asset",
 			input: Input{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				createdAt:   tim,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -54,9 +50,9 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				createdAt:   tim,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
@@ -68,7 +64,7 @@ func TestBuilder_Build(t *testing.T) {
 			name: "fail: empty project id",
 			input: Input{
 				id:          aid,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -80,8 +76,8 @@ func TestBuilder_Build(t *testing.T) {
 		{
 			name: "fail: empty id",
 			input: Input{
-				projectId:   pid,
-				createdById: uid,
+				project:     pid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -91,10 +87,10 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrInvalidID,
 		},
 		{
-			name: "fail: empty createdById",
+			name: "fail: empty createdBy",
 			input: Input{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -104,11 +100,11 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoUser,
 		},
 		{
-			name: "fail: empty createdById",
+			name: "fail: empty createdBy",
 			input: Input{
 				id:          aid,
-				projectId:   pid,
-				createdById: uid,
+				project:     pid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        0,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -121,8 +117,8 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should create asset with id timestamp",
 			input: Input{
 				id:          aid,
-				projectId:   pid,
-				createdById: uid,
+				project:     pid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -131,9 +127,9 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				createdAt:   aid.Timestamp(),
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
@@ -147,9 +143,9 @@ func TestBuilder_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := New().
 				ID(tt.input.id).
-				ProjectID(tt.input.projectId).
+				Project(tt.input.project).
 				CreatedAt(tt.input.createdAt).
-				CreatedByID(tt.input.createdById).
+				CreatedBy(tt.input.createdBy).
 				FileName(tt.input.fileName).
 				Size(tt.input.size).
 				Type(tt.input.previewType).
@@ -176,9 +172,9 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "Valid asset",
 			input: Input{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				createdAt:   tim,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
@@ -187,9 +183,9 @@ func TestBuilder_MustBuild(t *testing.T) {
 			},
 			want: &Asset{
 				id:          aid,
-				projectId:   pid,
+				project:     pid,
 				createdAt:   tim,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
@@ -201,9 +197,9 @@ func TestBuilder_MustBuild(t *testing.T) {
 			name: "fail: Invalid Id",
 			input: Input{
 				id:          ID{},
-				projectId:   pid,
+				project:     pid,
 				createdAt:   tim,
-				createdById: uid,
+				createdBy:   uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(getStrRef("IMAGE")),
@@ -221,9 +217,9 @@ func TestBuilder_MustBuild(t *testing.T) {
 				t.Helper()
 				return New().
 					ID(tt.input.id).
-					ProjectID(tt.input.projectId).
+					Project(tt.input.project).
 					CreatedAt(tt.input.createdAt).
-					CreatedByID(tt.input.createdById).
+					CreatedBy(tt.input.createdBy).
 					FileName(tt.input.fileName).
 					Type(tt.input.previewType).
 					Size(tt.input.size).
@@ -244,6 +240,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().ProjectID(pid).CreatedByID(uid).Size(size).MustBuild()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

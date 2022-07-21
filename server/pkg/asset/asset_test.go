@@ -17,9 +17,9 @@ func TestAsset_AssetType(t *testing.T) {
 
 	got := Asset{
 		id:          aid,
-		projectId:   pid,
+		project:     pid,
 		createdAt:   tim,
-		createdById: uid,
+		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
 		previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
@@ -28,9 +28,9 @@ func TestAsset_AssetType(t *testing.T) {
 	}
 
 	assert.Equal(t, aid, got.ID())
-	assert.Equal(t, pid, got.ProjectID())
+	assert.Equal(t, pid, got.Project())
 	assert.Equal(t, tim, got.CreatedAt())
-	assert.Equal(t, uid, got.CreatedByID())
+	assert.Equal(t, uid, got.CreatedBy())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())

@@ -5,13 +5,13 @@ import (
 )
 
 type File struct {
-	name         string
-	size         uint64
-	contentType  string
-	uploadedAt   time.Time
-	uploadedById UserID
-	path         string
-	children     []*File
+	name        string
+	size        uint64
+	contentType string
+	uploadedAt  time.Time
+	uploadedBy  UserID
+	path        string
+	children    []*File
 }
 
 func (f *File) Name() string {
@@ -30,8 +30,8 @@ func (f *File) UploadedAt() time.Time {
 	return f.uploadedAt
 }
 
-func (f *File) UploadedByID() UserID {
-	return f.uploadedById
+func (f *File) UploadedBy() UserID {
+	return f.uploadedBy
 }
 
 func (f *File) Path() string {
