@@ -18,20 +18,12 @@ export interface Props {
   defaultSelectedKeys?: string[];
 }
 
-function getItem(label: string, key: string, icon: any) {
-  return {
-    key,
-    icon,
-    label,
-  };
-}
-
 const topItems: ItemType[] = [
-  getItem("Overview", "home", <DashboardOutlined />),
-  getItem("Schema", "list", <UnorderedListOutlined />),
-  getItem("Content", "content", <TableOutlined />),
-  getItem("Asset", "asset", <FileOutlined />),
-  getItem("Request", "request", <PullRequestOutlined />),
+  { label: "Overview", key: "home", icon: <DashboardOutlined /> },
+  { label: "Schema", key: "list", icon: <UnorderedListOutlined /> },
+  { label: "Content", key: "content", icon: <TableOutlined /> },
+  { label: "Asset", key: "asset", icon: <FileOutlined /> },
+  { label: "Request", key: "request", icon: <PullRequestOutlined /> },
 ];
 
 const ProjectMenu: React.FC<Props> = ({
@@ -41,8 +33,8 @@ const ProjectMenu: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const items: ItemType[] = [
-    getItem("Accessibility", "accessibility", <SendOutlined />),
-    getItem("Settings", "settings", <SettingOutlined />),
+    { label: "Accessibility", key: "accessibility", icon: <SendOutlined /> },
+    { label: "Settings", key: "settings", icon: <SettingOutlined /> },
   ];
 
   const onClick = (e: any) => {
