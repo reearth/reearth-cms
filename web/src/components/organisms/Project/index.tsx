@@ -80,6 +80,8 @@ const PaddedContent = styled(Content)`
 `;
 
 const ActionHeader = styled(Content)`
+  max-width: 1200px;
+  margin: auto;
   padding: 16px;
   display: flex;
   justify-content: space-between;

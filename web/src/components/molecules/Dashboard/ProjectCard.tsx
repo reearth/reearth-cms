@@ -40,8 +40,13 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
 };
 
 const CardWrapper = styled.div`
-  width: 300px;
-  padding: 12px;
+  padding: 8px;
+  flex: 0 0 25%;
+  max-width: 25%;
+  @media (max-width: 768px) {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
 `;
 
 const Cover = styled.div`
