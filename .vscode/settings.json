@@ -1,5 +1,9 @@
 {
   "go.testEnvVars": {
     // "REEARTH_CMS_DB": "mongodb://localhost"
-  }
+  },
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": [
+    "--config=${workspaceFolder}/.golangci.yml"
+  ]
 }

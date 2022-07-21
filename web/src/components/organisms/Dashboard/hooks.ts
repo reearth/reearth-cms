@@ -1,4 +1,7 @@
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
+import {
+  User,
+  Project,
+} from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetProjectsQuery,
   useCreateProjectMutation,
@@ -13,29 +16,13 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export type User = {
-  name: string;
-};
-
-export type Member = {
-  user: {
-    id?: string;
-    name?: string;
-  };
-};
-
-export type Workspace = {
-  id?: string;
-  name?: string;
-  members?: Member[];
-};
-
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const unselectProject = useUnselectProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [projectModalShown, setProjectModalShown] = useState(false);
+  const [modalShown, setModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
@@ -178,6 +165,12 @@ export default (workspaceId?: string) => {
     [createNewProject, workspaceId, refetch]
   );
 
+  const handleModalClose = useCallback(() => {
+    setModalShown(false);
+  }, []);
+
+  const handleModalOpen = useCallback(() => setModalShown(true), []);
+
   return {
     user,
     projects,
@@ -189,6 +182,9 @@ export default (workspaceId?: string) => {
     handleProjectCreate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
+    modalShown,
+    handleModalClose,
+    handleModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
     handleProjectModalClose,

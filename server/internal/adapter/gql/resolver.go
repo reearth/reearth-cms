@@ -2,31 +2,18 @@
 
 package gql
 
-// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
-
 import (
-	"context"
+	"errors"
 )
 
-type Resolver struct{}
+// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
+
+var ErrNotImplemented = errors.New("not implemented yet")
+var ErrUnauthorized = errors.New("unauthorized")
+
+type Resolver struct {
+}
 
 func NewResolver() ResolverRoot {
 	return &Resolver{}
 }
-
-func (r *mutationResolver) Test(ctx context.Context) (string, error) {
-	panic("not implemented")
-}
-
-func (r *queryResolver) Test(ctx context.Context) (string, error) {
-	panic("not implemented")
-}
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

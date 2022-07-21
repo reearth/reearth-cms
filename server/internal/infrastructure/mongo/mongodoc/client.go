@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -97,9 +98,12 @@ func (c *Client) RemoveAll(ctx context.Context, col string, f interface{}) error
 }
 
 func (c *Client) RemoveOne(ctx context.Context, col string, f interface{}) error {
-	_, err := c.Collection(col).DeleteOne(ctx, bson.D{{Key: "id", Value: f}})
+	res, err := c.Collection(col).DeleteOne(ctx, f)
 	if err != nil {
 		return err
+	}
+	if res != nil && res.DeletedCount == 0 {
+		return rerror.ErrNotFound
 	}
 	return nil
 }
@@ -432,4 +436,8 @@ func (c *Client) CreateUniqueIndex(ctx context.Context, col string, keys, unique
 		return index
 	}
 	return nil
+}
+
+func (t *Tx) IsCommitted() bool {
+	return t.commit
 }
