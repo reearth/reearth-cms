@@ -48,6 +48,6 @@ func TestAsset_AssetType(t *testing.T) {
 
 func TestAsset_CreatedAt(t *testing.T) {
 	// if asset is nil Asset.CreatedAt() should be time.Time{}
-	got := Asset{}
+	var got *Asset = nil
 	assert.Equal(t, time.Time{}, got.CreatedAt())
 }
