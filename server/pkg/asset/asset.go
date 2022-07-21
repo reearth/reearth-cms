@@ -12,7 +12,7 @@ type Asset struct {
 	fileName    string
 	size        uint64
 	previewType *PreviewType
-	file        *AssetFile
+	file        *File
 	hash        string
 }
 
@@ -48,7 +48,7 @@ func (a *Asset) PreviewType() *PreviewType {
 	return a.previewType
 }
 
-func (a *Asset) File() *AssetFile {
+func (a *Asset) File() *File {
 	return a.file
 }
 

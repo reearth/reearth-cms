@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAssetFile_AssetFileType(t *testing.T) {
+func TestFile_FileType(t *testing.T) {
 	uid := NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	c := []*AssetFile{}
+	c := []*File{}
 	var size uint64 = 15
 
-	got := AssetFile{
+	got := File{
 		name:         "hoge",
 		size:         size,
 		contentType:  "xxx",
@@ -32,14 +32,14 @@ func TestAssetFile_AssetFileType(t *testing.T) {
 	assert.Equal(t, c, got.Children())
 }
 
-func TestAssetFile_Children(t *testing.T) {
+func TestFile_Children(t *testing.T) {
 	// nil file should return nil children
-	var got AssetFile
+	var got File
 	assert.Nil(t, got.Children())
 
 	// file.Children() should return file.children
-	c := []*AssetFile{}
-	got = AssetFile{
+	c := []*File{}
+	got = File{
 		children: c,
 	}
 	assert.Equal(t, c, got.Children())

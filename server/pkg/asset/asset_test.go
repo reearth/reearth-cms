@@ -23,7 +23,7 @@ func TestAsset_AssetType(t *testing.T) {
 		fileName:    "hoge",
 		size:        size,
 		previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
-		file:        &AssetFile{},
+		file:        &File{},
 		hash:        "yyy",
 	}
 
@@ -34,7 +34,7 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
-	assert.Equal(t, &AssetFile{}, got.File())
+	assert.Equal(t, &File{}, got.File())
 	assert.Equal(t, "yyy", got.Hash())
 }
 
