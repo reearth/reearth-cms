@@ -13,6 +13,7 @@ var (
 	ErrOwnerCannotLeaveTheWorkspace = errors.New("owner user cannot leave from the workspace")
 	ErrCannotChangeOwnerRole        = errors.New("cannot change the role of the workspace owner")
 	ErrCannotDeleteWorkspace        = errors.New("cannot delete workspace because at least one project is left")
+	ErrWorkspaceWithProjects        = errors.New("target workspace still has some project")
 )
 
 type Workspace interface {

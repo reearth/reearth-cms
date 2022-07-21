@@ -2,12 +2,14 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
@@ -35,6 +37,13 @@ func TestWorkspace_Create(t *testing.T) {
 	assert.Equal(t, resultWorkspaces[0].ID(), workspace.ID())
 	assert.Equal(t, resultWorkspaces[0].Name(), "workspace name")
 	assert.Equal(t, user.WorkspaceIDList{resultWorkspaces[0].ID()}, op.OwningWorkspaces)
+
+	// mock workspace error
+	wantErr := errors.New("test")
+	memory.SetWorkspaceError(db.Workspace, wantErr)
+	workspace2, err := workspaceUC.Create(ctx, "workspace name 2", u.ID(), op)
+	assert.Nil(t, workspace2)
+	assert.Equal(t, wantErr, err)
 }
 
 func TestWorkspace_Fetch(t *testing.T) {
@@ -56,8 +65,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 			ids      []id.WorkspaceID
 			operator *usecase.Operator
 		}
-		want    []*user.Workspace
-		wantErr error
+		want             []*user.Workspace
+		mockWorkspaceErr bool
+		wantErr          error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -111,6 +121,11 @@ func TestWorkspace_Fetch(t *testing.T) {
 			want:    nil,
 			wantErr: nil,
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -120,6 +135,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
@@ -157,8 +175,9 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			userID   id.UserID
 			operator *usecase.Operator
 		}
-		want    []*user.Workspace
-		wantErr error
+		want             []*user.Workspace
+		mockWorkspaceErr bool
+		wantErr          error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -199,6 +218,11 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -208,6 +232,9 @@ func TestWorkspace_FindByUser(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
@@ -249,8 +276,9 @@ func TestWorkspace_Update(t *testing.T) {
 			newName  string
 			operator *usecase.Operator
 		}
-		want    *user.Workspace
-		wantErr error
+		want             *user.Workspace
+		wantErr          error
+		mockWorkspaceErr bool
 	}{
 		{
 			name:  "Update 1",
@@ -297,6 +325,11 @@ func TestWorkspace_Update(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -306,6 +339,9 @@ func TestWorkspace_Update(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
@@ -338,6 +374,12 @@ func TestWorkspace_Remove(t *testing.T) {
 	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
 	id4 := id.NewWorkspaceID()
 	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	id5 := id.NewWorkspaceID()
+	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	p := project.New().NewID().Workspace(id5).MustBuild()
+	id6 := id.NewWorkspaceID()
+	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	p2 := project.New().NewID().Workspace(id6).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -351,9 +393,12 @@ func TestWorkspace_Remove(t *testing.T) {
 		args  struct {
 			wId      id.WorkspaceID
 			operator *usecase.Operator
+			project  *project.Project
 		}
-		wantErr error
-		want    *user.Workspace
+		wantErr          error
+		mockWorkspaceErr bool
+		mockProjectErr   bool
+		want             *user.Workspace
 	}{
 		{
 			name:  "Remove 1",
@@ -361,6 +406,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id1,
 				operator: op,
@@ -374,6 +420,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id2,
 				operator: op,
@@ -387,6 +434,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id3,
 				operator: op,
@@ -400,12 +448,48 @@ func TestWorkspace_Remove(t *testing.T) {
 			args: struct {
 				wId      id.WorkspaceID
 				operator *usecase.Operator
+				project  *project.Project
 			}{
 				wId:      id4,
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    w4,
+		},
+		{
+			name:  "Remove 5: workspace that has a project",
+			seeds: []*user.Workspace{w5},
+			args: struct {
+				wId      id.WorkspaceID
+				operator *usecase.Operator
+				project  *project.Project
+			}{
+				wId:      id5,
+				operator: op,
+				project:  p,
+			},
+			wantErr: interfaces.ErrWorkspaceWithProjects,
+			want:    nil,
+		},
+		{
+			name:             "mock workspace error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
+		{
+			name:  "mock project count error",
+			seeds: []*user.Workspace{w6},
+			args: struct {
+				wId      id.WorkspaceID
+				operator *usecase.Operator
+				project  *project.Project
+			}{
+				wId:      id6,
+				operator: op,
+				project:  p2,
+			},
+			wantErr:        errors.New("test2"),
+			mockProjectErr: true,
 		},
 	}
 
@@ -416,12 +500,24 @@ func TestWorkspace_Remove(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
+			if tc.args.project != nil {
+				err := db.Project.Save(ctx, tc.args.project)
+				assert.Nil(t, err)
+			}
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+				projectCount, err := db.Project.CountByWorkspace(ctx, id.WorkspaceID{})
+				assert.Equal(t, projectCount, 0)
+				assert.NotNil(t, err)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
-
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -467,8 +563,9 @@ func TestWorkspace_AddMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr error
-		want    *user.Members
+		wantErr          error
+		mockWorkspaceErr bool
+		want             *user.Members
 	}{
 		{
 			name:       "Add non existing",
@@ -524,6 +621,11 @@ func TestWorkspace_AddMember(t *testing.T) {
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
@@ -532,6 +634,9 @@ func TestWorkspace_AddMember(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
@@ -588,8 +693,9 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			uId      id.UserID
 			operator *usecase.Operator
 		}
-		wantErr error
-		want    *user.Members
+		wantErr          error
+		mockWorkspaceErr bool
+		want             *user.Members
 	}{
 		{
 			name:       "Remove non existing",
@@ -655,6 +761,11 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			wantErr: interfaces.ErrOwnerCannotLeaveTheWorkspace,
 			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -664,6 +775,9 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
@@ -719,8 +833,9 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			role     user.Role
 			operator *usecase.Operator
 		}
-		wantErr error
-		want    *user.Members
+		wantErr          error
+		mockWorkspaceErr bool
+		want             *user.Members
 	}{
 		{
 			name:       "Update non existing",
@@ -776,6 +891,11 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
 		},
+		{
+			name:             "mock error",
+			wantErr:          errors.New("test"),
+			mockWorkspaceErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -785,6 +905,9 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockWorkspaceErr {
+				memory.SetWorkspaceError(db.Workspace, tc.wantErr)
+			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
 				assert.Nil(t, err)
