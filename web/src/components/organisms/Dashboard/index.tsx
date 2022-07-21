@@ -30,7 +30,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
+      <DashboardLayout>
         <MainHeader>
           <MoleculeHeader
             handleModalOpen={handleWorkspaceModalOpen}
@@ -57,7 +57,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
-      </Layout>
+      </DashboardLayout>
       <WorkspaceCreationModal
         open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
@@ -72,6 +72,10 @@ const MainHeader = styled(Header)`
   align-items: center;
   height: 48px;
   line-height: 48px;
+`;
+
+const DashboardLayout = styled(Layout)`
+  min-height: 100vh;
 `;
 
 const DashboardSider = styled(Sider)`
