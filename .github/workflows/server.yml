@@ -1,15 +1,17 @@
 name: ci-server
 on:
   push:
-    branches:
-      - main
+    branches: [main, release]
     paths:
-      - server/**
       - .github/workflows/server.yml
+      - server/**
   pull_request:
     paths:
-      - server/**
       - .github/workflows/server.yml
+      - server/**
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ci:
     name: ci
@@ -38,7 +40,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.45
+          version: v1.45 # v1.46 reports an error
           working-directory: server
           args: --config=../.golangci.yml
       - name: test
