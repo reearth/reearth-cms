@@ -80,16 +80,15 @@ type CreateAssetPayload struct {
 }
 
 type CreateFieldInput struct {
-	ModelID      ID              `json:"modelId"`
-	Type         SchemaFiledType `json:"type"`
-	Title        string          `json:"title"`
-	Description  *string         `json:"description"`
-	Key          string          `json:"key"`
-	IsMultiValue *bool           `json:"isMultiValue"`
-	DefaultValue interface{}     `json:"DefaultValue"`
-	Values       interface{}     `json:"values"`
-	IsUnique     *bool           `json:"isUnique"`
-	IsRequired   *bool           `json:"isRequired"`
+	ModelID      ID                            `json:"modelId"`
+	Type         SchemaFiledType               `json:"type"`
+	Title        string                        `json:"title"`
+	Description  *string                       `json:"description"`
+	Key          string                        `json:"key"`
+	MultiValue   bool                          `json:"multiValue"`
+	Unique       bool                          `json:"unique"`
+	Required     bool                          `json:"required"`
+	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
 type CreateModelInput struct {
@@ -186,10 +185,12 @@ type Me struct {
 type Model struct {
 	ID          ID        `json:"id"`
 	ProjectID   ID        `json:"projectId"`
+	SchemaID    ID        `json:"schemaId"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Key         string    `json:"key"`
 	Project     *Project  `json:"project"`
+	Schema      *Schema   `json:"schema"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -278,6 +279,15 @@ type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
 }
 
+type Schema struct {
+	ID        ID             `json:"id"`
+	ProjectID ID             `json:"projectId"`
+	Fields    []*SchemaField `json:"fields"`
+	Project   *Project       `json:"project"`
+}
+
+func (Schema) IsNode() {}
+
 type SchemaField struct {
 	ID           ID                      `json:"id"`
 	ModelID      ID                      `json:"modelId"`
@@ -300,17 +310,29 @@ type SchemaFieldAsset struct {
 
 func (SchemaFieldAsset) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldAssetInput struct {
+	DefaultValue *ID `json:"defaultValue"`
+}
+
 type SchemaFieldBool struct {
 	DefaultValue *bool `json:"defaultValue"`
 }
 
 func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldBoolInput struct {
+	DefaultValue *bool `json:"defaultValue"`
+}
+
 type SchemaFieldDate struct {
 	DefaultValue *time.Time `json:"defaultValue"`
 }
 
 func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldDateInput struct {
+	DefaultValue *time.Time `json:"defaultValue"`
+}
 
 type SchemaFieldInteger struct {
 	DefaultValue *int `json:"defaultValue"`
@@ -320,11 +342,21 @@ type SchemaFieldInteger struct {
 
 func (SchemaFieldInteger) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldIntegerInput struct {
+	DefaultValue *int `json:"defaultValue"`
+	Min          *int `json:"min"`
+	Max          *int `json:"max"`
+}
+
 type SchemaFieldReference struct {
 	ModelID *ID `json:"modelId"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldReferenceInput struct {
+	ModelID *ID `json:"modelId"`
+}
 
 type SchemaFieldRichText struct {
 	DefaultValue *string `json:"defaultValue"`
@@ -333,6 +365,11 @@ type SchemaFieldRichText struct {
 
 func (SchemaFieldRichText) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldRichTextInput struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
 type SchemaFieldSelect struct {
 	Values       []string `json:"values"`
 	DefaultValue *string  `json:"defaultValue"`
@@ -340,12 +377,22 @@ type SchemaFieldSelect struct {
 
 func (SchemaFieldSelect) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldSelectInput struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
+}
+
 type SchemaFieldTag struct {
 	Values       []string `json:"values"`
 	DefaultValue *string  `json:"defaultValue"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldTagInput struct {
+	Values       []string `json:"values"`
+	DefaultValue *string  `json:"defaultValue"`
+}
 
 type SchemaFieldText struct {
 	DefaultValue *string `json:"defaultValue"`
@@ -361,11 +408,40 @@ type SchemaFieldTextArea struct {
 
 func (SchemaFieldTextArea) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldTextAreaInput struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+type SchemaFieldTextInput struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+type SchemaFieldTypePropertyInput struct {
+	Text         *SchemaFieldTextInput      `json:"text"`
+	TextArea     *SchemaFieldTextAreaInput  `json:"textArea"`
+	RichText     *SchemaFieldRichTextInput  `json:"richText"`
+	MarkdownText *SchemaMarkdownTextInput   `json:"markdownText"`
+	Asset        *SchemaFieldAssetInput     `json:"asset"`
+	Date         *SchemaFieldDateInput      `json:"date"`
+	Bool         *SchemaFieldBoolInput      `json:"bool"`
+	Select       *SchemaFieldSelectInput    `json:"select"`
+	Tag          *SchemaFieldTagInput       `json:"tag"`
+	Integer      *SchemaFieldIntegerInput   `json:"integer"`
+	Reference    *SchemaFieldReferenceInput `json:"reference"`
+	URL          *SchemaFieldURLInput       `json:"url"`
+}
+
 type SchemaFieldURL struct {
 	DefaultValue *string `json:"defaultValue"`
 }
 
 func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldURLInput struct {
+	DefaultValue *string `json:"defaultValue"`
+}
 
 type SchemaMarkdownText struct {
 	DefaultValue *string `json:"defaultValue"`
@@ -373,6 +449,11 @@ type SchemaMarkdownText struct {
 }
 
 func (SchemaMarkdownText) IsSchemaFieldTypeProperty() {}
+
+type SchemaMarkdownTextInput struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
 
 type SignupInput struct {
 	Lang        *language.Tag `json:"lang"`
@@ -388,11 +469,10 @@ type SignupPayload struct {
 }
 
 type UpdateFieldInput struct {
-	Title        *string     `json:"title"`
-	Description  *string     `json:"description"`
-	Key          *string     `json:"key"`
-	IsMultiValue *bool       `json:"isMultiValue"`
-	DefaultValue interface{} `json:"DefaultValue"`
+	Title        *string                       `json:"title"`
+	Description  *string                       `json:"description"`
+	Key          *string                       `json:"key"`
+	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
 type UpdateMeInput struct {
