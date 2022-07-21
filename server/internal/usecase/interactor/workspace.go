@@ -201,6 +201,14 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 			return interfaces.ErrOperationDenied
 		}
 
+		projectCount, err := i.repos.Project.CountByWorkspace(ctx, id)
+		if err != nil {
+			return err
+		}
+		if projectCount > 0 {
+			return interfaces.ErrWorkspaceWithProjects
+		}
+
 		err = i.repos.Workspace.Remove(ctx, id)
 		if err != nil {
 			return err
