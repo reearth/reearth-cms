@@ -8,6 +8,7 @@ schema:
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql
   - ./schemas/model.graphql
+  - ./schemas/schema.graphql
   - ./schemas/field.graphql
 exec:
   filename: internal/adapter/gql/generated.go
@@ -30,6 +31,20 @@ models:
   Project:
     fields:
       workspace:
+        resolver: true
+  Model:
+    fields:
+      project:
+        resolver: true
+      schema:
+        resolver: true
+  Schema:
+    fields:
+      project:
+        resolver: true
+  SchemaField:
+    fields:
+      model:
         resolver: true
   Asset:
     fields:
