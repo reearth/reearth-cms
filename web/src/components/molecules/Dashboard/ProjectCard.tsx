@@ -20,7 +20,7 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
   const { Meta } = Card;
   return (
     <CardWrapper key={project.id}>
-      <Card
+      <ProjectStyledCard
         cover={<Cover>{project.name.charAt(0)}</Cover>}
         actions={[
           <SettingOutlined
@@ -34,7 +34,7 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
         ]}
       >
         <Meta title={project.name} description={project.description} />
-      </Card>
+      </ProjectStyledCard>
     </CardWrapper>
   );
 };
@@ -54,6 +54,20 @@ const Cover = styled.div`
   height: 150px;
   background-color: #eeeeee;
   color: #fff;
+`;
+
+const ProjectStyledCard = styled(Card)`
+  .ant-card-body {
+    height: 118px;
+  }
+  .ant-card-meta-description {
+    height: 44px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 `;
 
 export default ProjectCard;
