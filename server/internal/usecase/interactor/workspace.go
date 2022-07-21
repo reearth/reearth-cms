@@ -14,7 +14,6 @@ import (
 type Workspace struct {
 	repos       *repo.Container
 	transaction repo.Transaction
-	err         error
 }
 
 func NewWorkspace(r *repo.Container) interfaces.Workspace {
@@ -41,7 +40,7 @@ func (i *Workspace) FindByUser(ctx context.Context, id id.UserID, operator *usec
 }
 
 func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {		
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		if len(strings.TrimSpace(name)) == 0 {
 			return nil, user.ErrInvalidName
 		}

@@ -477,7 +477,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			mockWorkspaceErr: true,
 		},
 		{
-			name:             "mock project count error",
+			name:  "mock project count error",
 			seeds: []*user.Workspace{w6},
 			args: struct {
 				wId      id.WorkspaceID
@@ -488,8 +488,8 @@ func TestWorkspace_Remove(t *testing.T) {
 				operator: op,
 				project:  p2,
 			},
-			wantErr:          errors.New("test2"),
-			mockProjectErr:   true,
+			wantErr:        errors.New("test2"),
+			mockProjectErr: true,
 		},
 	}
 
