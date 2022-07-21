@@ -51,10 +51,3 @@ func (af *AssetFile) Children() []*AssetFile {
 	}
 	return af.children
 }
-
-func (af *AssetFile) AddChildren(children ...*AssetFile) {
-	if af == nil {
-		return
-	}
-	af.children = append(af.children, children...)
-}
