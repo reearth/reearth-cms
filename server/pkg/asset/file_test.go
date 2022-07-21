@@ -34,12 +34,12 @@ func TestFile_FileType(t *testing.T) {
 
 func TestFile_Children(t *testing.T) {
 	// nil file should return nil children
-	var got File
+	var got *File = nil
 	assert.Nil(t, got.Children())
 
 	// file.Children() should return file.children
 	c := []*File{}
-	got = File{
+	got = &File{
 		children: c,
 	}
 	assert.Equal(t, c, got.Children())
