@@ -14,14 +14,14 @@ export interface Props {
   className?: string;
   projects?: ProjectType[];
   workspaceId?: string;
-  // handleProjectModalOpen: () => void;
+  handleProjectModalOpen: () => void;
 }
 
 const ProjectList: React.FC<Props> = ({
   className,
   projects,
   workspaceId,
-  // handleProjectModalOpen,
+  handleProjectModalOpen,
 }) => {
   const navigate = useNavigate();
   const { Meta } = Card;
@@ -55,7 +55,7 @@ const ProjectList: React.FC<Props> = ({
           <Suggestion>
             Create a new project{" "}
             <Button
-              // onClick={handleProjectModalOpen}
+              onClick={handleProjectModalOpen}
               type="primary"
               icon={<PlusOutlined />}
             >

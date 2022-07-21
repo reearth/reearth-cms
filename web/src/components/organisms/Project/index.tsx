@@ -54,7 +54,11 @@ const Project: React.FC = () => {
             </Button>
           </ButtonWrapper>
         </ActionHeader>
-        <ProjectList projects={projects} workspaceId={workspaceId} />
+        <ProjectList
+          projects={projects}
+          workspaceId={workspaceId}
+          handleProjectModalOpen={handleProjectModalOpen}
+        />
       </PaddedContent>
       <ProjectCreationModal
         open={projectModalShown}
