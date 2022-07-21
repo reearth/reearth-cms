@@ -1,7 +1,9 @@
+import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  useCreateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useMemo, useState } from "react";
@@ -14,13 +16,53 @@ type Params = {
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();
   const [currentWorkspace] = useWorkspace();
+  const [projectModalShown, setProjectModalShown] = useState(false);
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data } = useGetProjectsQuery({
+  const { data, refetch } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", first: 100 },
     skip: !workspaceId,
   });
+
+  const projects = useMemo(() => {
+    return (data?.projects.nodes ?? [])
+      .map<Project | undefined>((project) =>
+        project
+          ? {
+              id: project.id,
+              description: project.description,
+              name: project.name,
+            }
+          : undefined
+      )
+      .filter((project): project is Project => !!project);
+  }, [data?.projects.nodes]);
+
+  const [createNewProject] = useCreateProjectMutation({
+    refetchQueries: ["GetProjects"],
+  });
+
+  const handleProjectCreate = useCallback(
+    async (data: { name: string; description: string }) => {
+      if (!workspaceId) return;
+      const project = await createNewProject({
+        variables: {
+          workspaceId,
+          name: data.name,
+          description: data.description,
+        },
+      });
+      if (project.errors || !project.data?.createProject) {
+        setProjectModalShown(false);
+        return;
+      }
+
+      setProjectModalShown(false);
+      refetch();
+    },
+    [createNewProject, workspaceId, refetch]
+  );
 
   const rawProject = useMemo(
     () => data?.projects.nodes.find((p: any) => p?.id === projectId),
@@ -44,7 +86,7 @@ export default ({ projectId }: Params) => {
     refetchQueries: ["GetProjects"],
   });
 
-  const handleUpdateProject = useCallback(
+  const handleProjectUpdate = useCallback(
     (data: { name?: string; description: string }) => {
       if (!projectId || !data.name) return;
       updateProjectMutation({
@@ -58,7 +100,7 @@ export default ({ projectId }: Params) => {
     [projectId, updateProjectMutation]
   );
 
-  const handleDeleteProject = useCallback(async () => {
+  const handleProjectDelete = useCallback(async () => {
     if (!projectId) return;
     const results = await deleteProjectMutation({ variables: { projectId } });
     if (results.errors) {
@@ -82,12 +124,31 @@ export default ({ projectId }: Params) => {
     [assetModalOpened, setOpenAssets]
   );
 
+  const handleProjectModalClose = useCallback(
+    (r?: boolean) => {
+      setProjectModalShown(false);
+      if (r) {
+        refetch();
+      }
+    },
+    [refetch]
+  );
+
+  const handleProjectModalOpen = useCallback(
+    () => setProjectModalShown(true),
+    []
+  );
+
   return {
     project,
+    projects,
     projectId,
     currentWorkspace,
-    handleUpdateProject,
-    handleDeleteProject,
+    handleProjectCreate,
+    handleProjectUpdate,
+    handleProjectDelete,
+    handleProjectModalOpen,
+    handleProjectModalClose,
     assetModalOpened,
     toggleAssetModal,
   };

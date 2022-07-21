@@ -4,13 +4,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Search from "@reearth-cms/components/atoms/Search";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
+import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
 import { Content } from "antd/lib/layout/layout";
 import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../Dashboard/hooks";
 
+import useHooks from "./hooks";
+
 const Project: React.FC = () => {
   const { workspaceId } = useParams();
+
+  const { handleProjectModalOpen, projects } = useHooks("");
 
   const {
     handleWorkspaceCreate,
@@ -32,10 +37,15 @@ const Project: React.FC = () => {
           <ButtonWrapper>
             <Button onClick={handleModalOpen}>Create a Workspace</Button>
             <Button type="primary" icon={<PlusOutlined />}>
-              Search
+              New Project
             </Button>
           </ButtonWrapper>
         </ActionHeader>
+        <ProjectList
+          projects={projects}
+          workspaceId={workspaceId}
+          handleProjectModalOpen={handleProjectModalOpen}
+        />
       </PaddedContent>
       <WorkspaceCreationModal
         open={modalShown}

@@ -36,7 +36,7 @@ const ProjectSettings: React.FC = () => {
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
-  const { project, handleUpdateProject, handleDeleteProject } = useHooks({
+  const { project, handleProjectUpdate, handleProjectDelete } = useHooks({
     projectId,
   });
 
@@ -51,7 +51,7 @@ const ProjectSettings: React.FC = () => {
     form
       .validateFields()
       .then(async (values) => {
-        handleUpdateProject({
+        handleProjectUpdate({
           name: values.name,
           description: values.description,
         });
@@ -60,18 +60,18 @@ const ProjectSettings: React.FC = () => {
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, handleUpdateProject]);
+  }, [form, handleProjectUpdate]);
 
   const showConfirm = useCallback(() => {
     confirm({
       title: "Are you sure to delete this peoject?",
       icon: <ExclamationCircleOutlined />,
       onOk() {
-        handleDeleteProject();
+        handleProjectDelete();
       },
       onCancel() {},
     });
-  }, [confirm, handleDeleteProject]);
+  }, [confirm, handleProjectDelete]);
 
   return (
     <>
