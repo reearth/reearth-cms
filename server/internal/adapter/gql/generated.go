@@ -1853,6 +1853,8 @@ directive @goField(
   name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
+directive @onlyOne on INPUT_OBJECT
+
 # Meta Type
 
 scalar Cursor
@@ -2467,8 +2469,6 @@ input SchemaFieldURLInput {
   defaultValue: String
 }
 
-directive @onlyOne on INPUT_OBJECT
-
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -2490,9 +2490,9 @@ input CreateFieldInput {
   title: String!
   description: String
   key: String!
-  isMultiValue: Boolean
-  isUnique: Boolean
-  isRequired: Boolean
+  multiValue: Boolean
+  unique: Boolean
+  required: Boolean
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -10447,27 +10447,27 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-		case "isMultiValue":
+		case "multiValue":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isMultiValue"))
-			it.IsMultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
+			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "isUnique":
+		case "unique":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isUnique"))
-			it.IsUnique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
+			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "isRequired":
+		case "required":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isRequired"))
-			it.IsRequired, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
+			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -160,8 +160,6 @@ input SchemaFieldURLInput {
   defaultValue: String
 }
 
-directive @onlyOne on INPUT_OBJECT
-
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -183,9 +181,9 @@ input CreateFieldInput {
   title: String!
   description: String
   key: String!
-  isMultiValue: Boolean
-  isUnique: Boolean
-  isRequired: Boolean
+  multiValue: Boolean
+  unique: Boolean
+  required: Boolean
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
