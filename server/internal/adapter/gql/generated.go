@@ -2490,9 +2490,9 @@ input CreateFieldInput {
   title: String!
   description: String
   key: String!
-  multiValue: Boolean
-  unique: Boolean
-  required: Boolean
+  multiValue: Boolean!
+  unique: Boolean!
+  required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -10451,7 +10451,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
-			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.MultiValue, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10459,7 +10459,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
-			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.Unique, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10467,7 +10467,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
-			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.Required, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}

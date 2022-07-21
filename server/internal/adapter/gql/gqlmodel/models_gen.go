@@ -85,9 +85,9 @@ type CreateFieldInput struct {
 	Title        string                        `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          string                        `json:"key"`
-	MultiValue   *bool                         `json:"multiValue"`
-	Unique       *bool                         `json:"unique"`
-	Required     *bool                         `json:"required"`
+	MultiValue   bool                          `json:"multiValue"`
+	Unique       bool                          `json:"unique"`
+	Required     bool                          `json:"required"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
