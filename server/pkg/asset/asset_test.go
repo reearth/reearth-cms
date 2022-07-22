@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestAsset_AssetType(t *testing.T) {
 	uid := NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
-	wantPreviewType := PreviewTypeFromRef(getStrRef("IMAGE"))
+	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("IMAGE"))
 
 	got := Asset{
 		id:          aid,
@@ -22,7 +23,7 @@ func TestAsset_AssetType(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
-		previewType: PreviewTypeFromRef(getStrRef(PreviewTypeIMAGE.String())),
+		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 		file:        &File{},
 		hash:        "yyy",
 	}

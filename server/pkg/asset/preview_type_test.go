@@ -91,27 +91,27 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	}{
 		{
 			Name:     "IMAGE",
-			Input:    getStrRef("IMAGE"),
+			Input:    lo.ToPtr("IMAGE"),
 			Expected: &i,
 		},
 		{
 			Name:     "GEO",
-			Input:    getStrRef("GEO"),
+			Input:    lo.ToPtr("GEO"),
 			Expected: &g,
 		},
 		{
 			Name:     "GEO3D",
-			Input:    getStrRef("GEO3D"),
+			Input:    lo.ToPtr("GEO3D"),
 			Expected: &g3d,
 		},
 		{
 			Name:     "MODEL3D",
-			Input:    getStrRef("MODEL3D"),
+			Input:    lo.ToPtr("MODEL3D"),
 			Expected: &m,
 		},
 		{
 			Name:  "undefined",
-			Input: getStrRef("undefined"),
+			Input: lo.ToPtr("undefined"),
 		},
 		{
 			Name: "nil input",
