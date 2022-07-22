@@ -68,7 +68,7 @@ const ProjectSettings: React.FC = () => {
 
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
-      title: "Are you sure to delete this peoject?",
+      title: "Are you sure you want to delete this project?",
       icon: <ExclamationCircleOutlined />,
       onOk() {
         handleProjectDelete();
@@ -87,7 +87,7 @@ const ProjectSettings: React.FC = () => {
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
-          ></MoleculeHeader>
+          />
         </Header>
         <Layout>
           <ProjectSider
@@ -100,7 +100,7 @@ const ProjectSettings: React.FC = () => {
               defaultSelectedKeys={["settings"]}
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}
-            ></ProjectMenu>
+            />
           </ProjectSider>
           <PaddedContent>
             <ProjectSection> {project?.name} </ProjectSection>
@@ -117,7 +117,7 @@ const ProjectSettings: React.FC = () => {
                 <Form.Item
                   name="description"
                   label="Description"
-                  extra="You can write some here to describe this record."
+                  extra="Write something here to describe this record."
                 >
                   <TextArea rows={4} />
                 </Form.Item>
@@ -151,7 +151,7 @@ const ProjectSettings: React.FC = () => {
         open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
-      ></WorkspaceCreationModal>
+      />
     </>
   );
 };

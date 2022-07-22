@@ -38,7 +38,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
-          ></MoleculeHeader>
+          />
         </MainHeader>
         <Layout>
           <DashboardSider
