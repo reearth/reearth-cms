@@ -7,11 +7,9 @@ type CustomTagProps = {
 };
 
 const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
-  const defaultColor = "#87e8de";
-  const defaultValue = "";
   return (
-    <CustomTagWrapper color={color ?? defaultColor}>
-      <span>{value ?? defaultValue}</span>
+    <CustomTagWrapper color={color ?? "#87e8de"}>
+      <span>{value ?? ""}</span>
     </CustomTagWrapper>
   );
 };

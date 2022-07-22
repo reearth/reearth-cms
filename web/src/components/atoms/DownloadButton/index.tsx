@@ -1,6 +1,5 @@
-import { DownloadOutlined } from "@ant-design/icons";
-import Button from "@reearth-cms/components/atoms/Button";
-import { ButtonProps } from "antd/lib/button/button";
+import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { saveAs } from "file-saver";
 import React, { MouseEventHandler } from "react";
 
@@ -24,7 +23,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 
   return (
     <Button
-      icon={displayDefaultIcon && <DownloadOutlined />}
+      icon={displayDefaultIcon && <Icon.download />}
       onClick={handleDownload}
       disabled={!url}
       {...props}
