@@ -44,3 +44,10 @@ func (f *File) Children() []*File {
 	}
 	return f.children
 }
+
+func (f *File) AddChildren(children ...*File) {
+	if f == nil {
+		return
+	}
+	f.children = append(f.children, children...)
+}
