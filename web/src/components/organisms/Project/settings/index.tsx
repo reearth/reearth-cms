@@ -67,7 +67,7 @@ const ProjectSettings: React.FC = () => {
       });
   }, [form, handleProjectUpdate]);
 
-  const showConfirm = useCallback(() => {
+  const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
       title: "Are you sure to delete this peoject?",
       icon: <ExclamationCircleOutlined />,
@@ -137,7 +137,11 @@ const ProjectSettings: React.FC = () => {
               <Typography style={{ marginBottom: 16 }}>
                 Dangerous Zone
               </Typography>
-              <Button onClick={showConfirm} type="primary" danger>
+              <Button
+                onClick={handleProjectDeleteConfirmation}
+                type="primary"
+                danger
+              >
                 Delete project
               </Button>
             </ProjectSection>
