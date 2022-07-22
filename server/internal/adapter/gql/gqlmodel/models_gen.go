@@ -33,6 +33,7 @@ type AddMemberToWorkspacePayload struct {
 
 type Asset struct {
 	ID          ID           `json:"id"`
+	Project     *Project     `json:"project"`
 	ProjectID   ID           `json:"projectId"`
 	CreatedAt   time.Time    `json:"createdAt"`
 	CreatedBy   *User        `json:"createdBy"`
@@ -42,7 +43,6 @@ type Asset struct {
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
 	Hash        string       `json:"hash"`
-	Project     *Project     `json:"project"`
 }
 
 func (Asset) IsNode() {}
@@ -60,14 +60,11 @@ type AssetEdge struct {
 }
 
 type AssetFile struct {
-	Name         string       `json:"name"`
-	Size         int64        `json:"size"`
-	ContentType  *string      `json:"contentType"`
-	UploadedAt   time.Time    `json:"uploadedAt"`
-	UploadedBy   *User        `json:"uploadedBy"`
-	UploadedByID ID           `json:"uploadedById"`
-	Path         string       `json:"path"`
-	Children     []*AssetFile `json:"children"`
+	Name        string       `json:"name"`
+	Size        int64        `json:"size"`
+	ContentType *string      `json:"contentType"`
+	Path        string       `json:"path"`
+	Children    []*AssetFile `json:"children"`
 }
 
 type CreateAssetInput struct {

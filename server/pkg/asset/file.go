@@ -1,8 +1,6 @@
 package asset
 
 import (
-	"time"
-
 	"golang.org/x/exp/slices"
 )
 
@@ -10,8 +8,6 @@ type File struct {
 	name        string
 	size        uint64
 	contentType string
-	uploadedAt  time.Time
-	uploadedBy  UserID
 	path        string
 	children    []*File
 }
@@ -28,14 +24,6 @@ func (f *File) ContentType() string {
 	return f.contentType
 }
 
-func (f *File) UploadedAt() time.Time {
-	return f.uploadedAt
-}
-
-func (f *File) UploadedBy() UserID {
-	return f.uploadedBy
-}
-
 func (f *File) Path() string {
 	return f.path
 }
@@ -47,6 +35,6 @@ func (f *File) Children() []*File {
 	return slices.Clone(f.children)
 }
 
-func (f *File) SetChildren(children... *File) {
+func (f *File) SetChildren(children ...*File) {
 	f.children = slices.Clone(children)
-  }
+}
