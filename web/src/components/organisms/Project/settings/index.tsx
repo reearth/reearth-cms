@@ -73,7 +73,6 @@ const ProjectSettings: React.FC = () => {
       onOk() {
         handleProjectDelete();
       },
-      onCancel() {},
     });
   }, [confirm, handleProjectDelete]);
 
