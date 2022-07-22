@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -92,14 +94,14 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -162,14 +164,14 @@ func Test_projectRepo_Filtered(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client).Filtered(tc.arg)
 			ctx := context.Background()
@@ -260,14 +262,14 @@ func Test_projectRepo_FindByID(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -387,14 +389,14 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -521,14 +523,14 @@ func Test_projectRepo_FindByPublicName(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -663,14 +665,14 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -765,14 +767,14 @@ func Test_projectRepo_Remove(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			ctx := context.Background()
@@ -851,14 +853,14 @@ func Test_projectRepo_Save(t *testing.T) {
 		},
 	}
 
-	initDB := connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// t.Parallel()
 
-			client := initDB(t)
+			client := mongodoc.NewClientWithDatabase(initDB(t))
 
 			r := NewProject(client)
 			if tc.filter != nil {
