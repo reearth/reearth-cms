@@ -72,15 +72,9 @@ export default () => {
     [createNewProject, workspaceId, refetch]
   );
 
-  const handleProjectModalClose = useCallback(
-    (r?: boolean) => {
-      setProjectModalShown(false);
-      if (r) {
-        refetch();
-      }
-    },
-    [refetch]
-  );
+  const handleProjectModalClose = useCallback(() => {
+    setProjectModalShown(false);
+  }, []);
 
   const handleProjectModalOpen = useCallback(
     () => setProjectModalShown(true),

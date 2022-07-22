@@ -27,7 +27,7 @@ const ProjectList: React.FC<Props> = ({
               key={project.id}
               project={project}
               workspaceId={workspaceId}
-            ></ProjectCard>
+            />
           ))}
         </Content>
       ) : (

@@ -26,8 +26,7 @@ export interface FormValues {
 const ProjectSettings: React.FC = () => {
   const { confirm } = Modal;
   const [form] = Form.useForm();
-  const { workspaceId } = useParams();
-  const { projectId } = useParams();
+  const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
   const {
