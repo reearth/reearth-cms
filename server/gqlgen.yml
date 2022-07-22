@@ -10,6 +10,7 @@ schema:
   - ./schemas/model.graphql
   - ./schemas/schema.graphql
   - ./schemas/field.graphql
+  - ./schemas/item.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
