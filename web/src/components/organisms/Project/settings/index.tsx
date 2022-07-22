@@ -133,9 +133,7 @@ const ProjectSettings: React.FC = () => {
               </Form>
             </ProjectSection>
             <ProjectSection>
-              <Typography style={{ marginBottom: 16 }}>
-                Dangerous Zone
-              </Typography>
+              <Typography style={{ marginBottom: 16 }}>Danger Zone</Typography>
               <Button
                 onClick={handleProjectDeleteConfirmation}
                 type="primary"
