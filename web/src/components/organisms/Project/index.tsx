@@ -1,7 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
-import Search from "@reearth-cms/components/atoms/Search";
+import Input from "@reearth-cms/components/atoms/Input";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
@@ -14,9 +14,11 @@ import useDashboardHooks from "../Dashboard/hooks";
 import useHooks from "./hooks";
 
 const Project: React.FC = () => {
+  const { Search } = Input;
   const { workspaceId } = useParams();
 
   const {
+    handleProjectSearch,
     handleProjectCreate,
     handleProjectModalClose,
     handleProjectModalOpen,
@@ -37,8 +39,10 @@ const Project: React.FC = () => {
         <Greeting></Greeting>
         <ActionHeader>
           <Search
+            onSearch={handleProjectSearch}
             placeholder="input search text"
             allowClear
+            type="text"
             style={{ width: 264 }}
           />
           <ButtonWrapper>

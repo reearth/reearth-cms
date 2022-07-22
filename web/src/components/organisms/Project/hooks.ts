@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState } from "react";
 export default () => {
   const [currentWorkspace] = useWorkspace();
   const [projectModalShown, setProjectModalShown] = useState(false);
+  const [searchedProjectName, setSearchedProjectName] = useState<string>("");
 
   const workspaceId = currentWorkspace?.id;
 
@@ -28,12 +29,27 @@ export default () => {
             }
           : undefined
       )
-      .filter((project): project is Project => !!project);
-  }, [data?.projects.nodes]);
+      .filter(
+        (project): project is Project =>
+          !!project &&
+          (!searchedProjectName ||
+            (!!searchedProjectName &&
+              project.name
+                .toLocaleLowerCase()
+                .includes(searchedProjectName.toLocaleLowerCase())))
+      );
+  }, [data?.projects.nodes, searchedProjectName]);
 
   const [createNewProject] = useCreateProjectMutation({
     refetchQueries: ["GetProjects"],
   });
+
+  const handleProjectSearch = useCallback(
+    (value: string) => {
+      setSearchedProjectName?.(value);
+    },
+    [setSearchedProjectName]
+  );
 
   const handleProjectCreate = useCallback(
     async (data: { name: string; description: string }) => {
@@ -73,8 +89,10 @@ export default () => {
 
   return {
     projects,
+    searchedProjectName,
     currentWorkspace,
     projectModalShown,
+    handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
     handleProjectModalClose,
