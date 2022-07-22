@@ -9,18 +9,18 @@ const (
 	PreviewTypeMODEL3D PreviewType = "MODEL3D"
 )
 
-func PreviewTypeFrom(p string) PreviewType {
+func PreviewTypeFrom(p string) (PreviewType, bool) {
 	switch PreviewType(p) {
 	case PreviewTypeIMAGE:
-		return PreviewTypeIMAGE
+		return PreviewTypeIMAGE, true
 	case PreviewTypeGEO:
-		return PreviewTypeGEO
+		return PreviewTypeGEO, true
 	case PreviewTypeGEO3D:
-		return PreviewTypeGEO3D
+		return PreviewTypeGEO3D, true
 	case PreviewTypeMODEL3D:
-		return PreviewTypeMODEL3D
+		return PreviewTypeMODEL3D, true
 	default:
-		return PreviewType("")
+		return PreviewType(""), false
 	}
 }
 
