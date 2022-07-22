@@ -7,7 +7,7 @@ import {
   TableOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { Menu } from "antd";
+import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
 import { useNavigate } from "react-router-dom";

@@ -1,9 +1,13 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
+import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import { Button, Form, Input, Modal, Typography } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
