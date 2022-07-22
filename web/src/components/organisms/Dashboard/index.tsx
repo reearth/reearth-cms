@@ -23,22 +23,22 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
     workspaces,
     currentWorkspace,
     handleWorkspaceCreate,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
+    workspaceModalShown,
   } = useHooks(workspaceId);
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
+      <DashboardLayout>
         <MainHeader>
           <MoleculeHeader
-            handleModalOpen={handleModalOpen}
+            handleModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
-          ></MoleculeHeader>
+          />
         </MainHeader>
         <Layout>
           <DashboardSider
@@ -57,10 +57,10 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
-      </Layout>
+      </DashboardLayout>
       <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
+        open={workspaceModalShown}
+        onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
     </>
@@ -72,6 +72,10 @@ const MainHeader = styled(Header)`
   align-items: center;
   height: 48px;
   line-height: 48px;
+`;
+
+const DashboardLayout = styled(Layout)`
+  min-height: 100vh;
 `;
 
 const DashboardSider = styled(Sider)`
