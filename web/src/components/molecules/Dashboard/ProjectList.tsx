@@ -74,6 +74,7 @@ const EmptyListWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-top: 64px;
 `;
 
 const StyledDashboardBlock = styled.div`
