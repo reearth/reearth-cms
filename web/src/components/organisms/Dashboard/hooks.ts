@@ -3,18 +3,12 @@ import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
-import {
-  useProject,
-  useUnselectProject,
-  useWorkspace,
-} from "@reearth-cms/state";
+import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const [currentProject] = useProject();
-  const unselectProject = useUnselectProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
@@ -85,13 +79,6 @@ export default (workspaceId?: string) => {
     () => setWorkspaceModalShown(true),
     []
   );
-
-  useEffect(() => {
-    // unselect project
-    if (currentProject) {
-      unselectProject();
-    }
-  }, [currentProject, setCurrentWorkspace, unselectProject]);
 
   return {
     user,

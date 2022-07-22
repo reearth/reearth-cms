@@ -14,18 +14,3 @@ export type Workspace = {
 };
 const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
-
-export type Project = {
-  id: string;
-  name: string;
-};
-
-const project = atom<Project | undefined>(undefined);
-export const useProject = () => useAtom(project);
-
-const unselectProject = atom(null, (_get, set) => {
-  set(project, undefined);
-  set(workspace, undefined);
-});
-
-export const useUnselectProject = () => useAtom(unselectProject)[1];
