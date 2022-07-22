@@ -72,15 +72,6 @@ func TestFile_AddChildren(t *testing.T) {
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			tc.input.AddChildren(tc.children...)
-
-			if tc.input != nil {
-				f := tc.input
-				assert.Equal(t, append(f.children, tc.children...), f.children)
-				assert.Equal(t, append(f.children, tc.children...), f.Children())
-				assert.Equal(t, f.children, append(f.children, tc.children...))
-				assert.Equal(t, f.Children(), append(f.children, tc.children...))
-				assert.Equal(t, tc.want, tc.input.children)
-			}
 			assert.Equal(t, tc.want, tc.input.Children())
 		})
 	}
