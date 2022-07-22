@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"golang.org/x/exp/slices"
 )
 
 type File struct {
@@ -42,12 +44,9 @@ func (f *File) Children() []*File {
 	if f == nil {
 		return nil
 	}
-	return f.children
+	return slices.Clone(f.children)
 }
 
-func (f *File) AddChildren(children ...*File) {
-	if f == nil {
-		return
-	}
-	f.children = append(f.children, children...)
-}
+func (f *File) SetChildren(children... *File) {
+	f.children = slices.Clone(children)
+  }

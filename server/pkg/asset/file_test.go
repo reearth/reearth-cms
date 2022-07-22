@@ -45,34 +45,11 @@ func TestFile_Children(t *testing.T) {
 	assert.Equal(t, c, got.Children())
 }
 
-func TestFile_AddChildren(t *testing.T) {
-	i := File{}
+func TestFile_SetChildren(t *testing.T) {
 	f := File{}
-	var c = []*File{&f}
+	c := []*File{&f}
+	got := File{}
 
-	tests := []struct {
-		name     string
-		input    *File
-		want     []*File
-		children []*File
-	}{
-		{
-			name:     "should add one child",
-			input:    &i,
-			children: c,
-			want:     c,
-		}, {
-			name:     "nil asset file, should add nothing",
-			children: c,
-			want:     nil,
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
-			tc.input.AddChildren(tc.children...)
-			assert.Equal(t, tc.want, tc.input.Children())
-		})
-	}
+	got.SetChildren(c...)
+	assert.Equal(t, got.Children(), c)
 }
