@@ -1,3 +1,9 @@
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+};
+
 export type User = {
   name: string;
 };
