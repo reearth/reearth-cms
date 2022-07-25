@@ -53,7 +53,7 @@ models:
         resolver: true
   Asset:
     fields:
-      uploadedBy:
+      createdBy:
         resolver: true
       project:
         resolver: true

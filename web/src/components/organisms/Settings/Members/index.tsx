@@ -81,7 +81,6 @@ const Members: React.FC = () => {
         onOk() {
           handleMemberRemoveFromWorkspace(member?.userId);
         },
-        onCancel() {},
       });
     },
     [confirm, handleMemberRemoveFromWorkspace]
