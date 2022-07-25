@@ -1,23 +1,24 @@
 package schema
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id/idx"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 var TypeAsset Type = "asset"
 
 type FieldAsset struct {
-	// TODO: change this to asset id when assets getting merged
-	defaultValue *idx.ID[idx.Type]
+	defaultValue *id.AssetID
 }
 
+// NewFieldTag
+// TODO: check if its ok to remove this
 func NewFieldAsset() *FieldAsset {
 	return &FieldAsset{
 		defaultValue: nil,
 	}
 }
 
-func FieldAssetFrom(id *idx.ID[idx.Type]) *FieldAsset {
+func FieldAssetFrom(id *id.AssetID) *FieldAsset {
 	return &FieldAsset{
 		defaultValue: id,
 	}
