@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const [modalShown, setModalShown] = useState(false);
+  const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
 
   const navigate = useNavigate();
@@ -71,20 +71,23 @@ export default (workspaceId?: string) => {
     [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
   );
 
-  const handleModalClose = useCallback(() => {
-    setModalShown(false);
+  const handleWorkspaceModalClose = useCallback(() => {
+    setWorkspaceModalShown(false);
   }, []);
 
-  const handleModalOpen = useCallback(() => setModalShown(true), []);
+  const handleWorkspaceModalOpen = useCallback(
+    () => setWorkspaceModalShown(true),
+    []
+  );
 
   return {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
-    modalShown,
-    handleModalClose,
-    handleModalOpen,
+    workspaceModalShown,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
   };
