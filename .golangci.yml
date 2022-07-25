@@ -1,2 +1,4 @@
 linters:
   enable-all: false
+run:
+  go: "1.18"
