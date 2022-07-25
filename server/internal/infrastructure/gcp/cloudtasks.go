@@ -3,7 +3,6 @@ package gcp
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -17,7 +16,6 @@ import (
 type TaskRunner struct {
 	queuePath     string
 	subscriberURL string
-	clientFn      func(context.Context) (*cloudtasks.Client, func(), error)
 	credFilePath  string
 }
 
@@ -34,7 +32,6 @@ func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskR
 
 	return &TaskRunner{
 		queuePath:     qURL,
-		clientFn:      opts2.clientFn,
 		subscriberURL: c.SubscriberURL,
 		credFilePath:  opts2.credFilePath,
 	}, nil
@@ -55,13 +52,12 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) (id.TaskID, error)
 	}
 	req := t.buildRequest(t.subscriberURL, bPayload)
 
-	createdTask, err := client.CreateTask(ctx, req)
+	_, err = client.CreateTask(ctx, req)
 	if err != nil {
 		return idx.ID[id.Task]{}, err
 	}
 
-	fmt.Print("------", createdTask)
-
+	//TODO: impl here
 	return idx.ID[id.Task]{}, nil
 }
 
@@ -73,14 +69,6 @@ func (t *TaskRunner) client(ctx context.Context) (*cloudtasks.Client, func(), er
 	} else {
 		c, err = cloudtasks.NewClient(ctx, option.WithCredentialsFile(t.credFilePath))
 	}
-	if err != nil {
-		return nil, nil, err
-	}
-	return c, func() { c.Close() }, nil
-}
-
-func GetClient(ctx context.Context) (*cloudtasks.Client, func(), error) {
-	c, err := cloudtasks.NewClient(ctx)
 	if err != nil {
 		return nil, nil, err
 	}

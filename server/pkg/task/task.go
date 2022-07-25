@@ -27,10 +27,6 @@ func (t *CompressAssetPayload) Payload() Payload {
 	}
 }
 
-type CompressZipPayload struct {
-	// Asset id.AssetID TODO: same as above
-}
-
 func NewDecompressAssetPayloadForTest(aID string) *DecompressAssetPayload {
 	return &DecompressAssetPayload{Asset: aID}
 }
