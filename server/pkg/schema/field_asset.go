@@ -10,7 +10,7 @@ type FieldAsset struct {
 	defaultValue *id.AssetID
 }
 
-// NewFieldTag
+// NewFieldAsset
 // TODO: check if its ok to remove this
 func NewFieldAsset() *FieldAsset {
 	return &FieldAsset{
