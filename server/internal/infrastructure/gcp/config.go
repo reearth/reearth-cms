@@ -7,9 +7,10 @@ type Config struct {
 }
 
 type CloudTasksConfig struct {
-	GCPProject string
-	GCPRegion  string
-	QueueName  string
+	GCPProject    string
+	GCPRegion     string
+	QueueName     string
+	SubscriberURL string
 }
 
 func (c *CloudTasksConfig) buildQueueUrl() (string, error) {

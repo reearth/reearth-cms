@@ -10,26 +10,39 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/id/idx"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
 
 type TaskRunner struct {
-	queuePath string
+	queuePath     string
+	subscriberURL string
+	clientFn      func(context.Context) (*cloudtasks.Client, func(), error)
+	credFilePath  string
 }
 
-func NewTaskRunner(c *CloudTasksConfig) (gateway.TaskRunner, error) {
+func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskRunner, error) {
+	opts2 := defaultTaskRunnerOptions()
+	for _, o := range opts {
+		o.Apply(opts2)
+	}
+
 	qURL, err := c.buildQueueUrl()
 	if err != nil {
 		return nil, err
 	}
 
 	return &TaskRunner{
-		queuePath: qURL,
+		queuePath:     qURL,
+		clientFn:      opts2.clientFn,
+		subscriberURL: c.SubscriberURL,
+		credFilePath:  opts2.credFilePath,
 	}, nil
 }
 
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) (id.TaskID, error) {
+
 	client, closeFn, err := t.client(ctx)
 	if err != nil {
 		return idx.ID[id.Task]{}, err
@@ -40,7 +53,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) (id.TaskID, error)
 	if err != nil {
 		return idx.ID[id.Task]{}, err
 	}
-	req := t.buildRequest("type something here", bPayload)
+	req := t.buildRequest(t.subscriberURL, bPayload)
 
 	createdTask, err := client.CreateTask(ctx, req)
 	if err != nil {
@@ -53,6 +66,20 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) (id.TaskID, error)
 }
 
 func (t *TaskRunner) client(ctx context.Context) (*cloudtasks.Client, func(), error) {
+	var c *cloudtasks.Client
+	var err error
+	if t.credFilePath == "" {
+		c, err = cloudtasks.NewClient(ctx)
+	} else {
+		c, err = cloudtasks.NewClient(ctx, option.WithCredentialsFile(t.credFilePath))
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, func() { c.Close() }, nil
+}
+
+func GetClient(ctx context.Context) (*cloudtasks.Client, func(), error) {
 	c, err := cloudtasks.NewClient(ctx)
 	if err != nil {
 		return nil, nil, err
