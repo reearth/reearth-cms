@@ -2,3 +2,5 @@ web:
   - web/**/*
 server:
   - server/**/*
+worker:
+  - worker/**/*
