@@ -1,0 +1,77 @@
+type Asset implements Node {
+  id: ID!
+  project: Project!
+  projectId: ID!
+  createdAt: DateTime!
+  createdBy: User
+  createdById: ID!
+  fileName: String!
+  size: FileSize!
+  previewType: PreviewType
+  file: AssetFile!
+  hash: String!
+}
+
+type AssetFile {
+  name: String!
+  size: FileSize!
+  contentType: String
+  path: String!
+  children: [AssetFile!]
+}
+
+enum PreviewType {
+  IMAGE
+  GEO
+  GEO3D
+  MODEL3D
+}
+
+input CreateAssetInput {
+  projectId: ID!
+  file: Upload!
+}
+
+input DeleteAssetInput {
+  assetId: ID!
+}
+
+type CreateAssetPayload {
+  asset: Asset!
+}
+
+type DeleteAssetPayload {
+  assetId: ID!
+}
+
+type AssetConnection {
+  edges: [AssetEdge!]!
+  nodes: [Asset]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type AssetEdge {
+  cursor: Cursor!
+  node: Asset
+}
+
+enum AssetSortType {
+  DATE
+  SIZE
+  NAME
+}
+
+extend type Query {
+  assets(
+    projectId: ID!
+    keyword: String
+    sort: AssetSortType
+    pagination: Pagination
+  ): AssetConnection!
+}
+
+extend type Mutation {
+  createAsset(input: CreateAssetInput!): CreateAssetPayload
+  deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
+}

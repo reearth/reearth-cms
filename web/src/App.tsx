@@ -2,6 +2,7 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
+import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
@@ -14,6 +15,7 @@ function AppRoutes() {
     { path: "/", element: <RootPage /> },
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
+    { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "*", element: <NotFound /> },
   ]);
