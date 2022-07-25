@@ -10,7 +10,6 @@ type Item implements Node {
 }
 
 type ItemValue {
-  itemId: ID!
   fieldId: ID!
   #  version: String!
   value: Any!

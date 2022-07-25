@@ -33,6 +33,10 @@ models:
     fields:
       workspace:
         resolver: true
+  Item:
+    fields:
+      model:
+        resolver: true
   Model:
     fields:
       project:
