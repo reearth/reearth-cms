@@ -1,5 +1,6 @@
 type Asset implements Node {
   id: ID!
+  project: Project!
   projectId: ID!
   createdAt: DateTime!
   createdBy: User
@@ -9,16 +10,12 @@ type Asset implements Node {
   previewType: PreviewType
   file: AssetFile!
   hash: String!
-  project: Project!
 }
 
 type AssetFile {
   name: String!
   size: FileSize!
   contentType: String
-  uploadedAt: DateTime!
-  uploadedBy: User
-  uploadedById: ID!
   path: String!
   children: [AssetFile!]
 }
