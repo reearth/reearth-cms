@@ -3,6 +3,7 @@ module github.com/reearth/reearth-cms/server
 go 1.18
 
 require (
+	cloud.google.com/go/cloudtasks v1.4.0
 	github.com/99designs/gqlgen v0.17.2
 	github.com/auth0/go-jwt-middleware/v2 v2.0.1
 	github.com/avast/retry-go/v4 v4.0.4
@@ -28,10 +29,11 @@ require (
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
 	golang.org/x/text v0.3.7
+	google.golang.org/api v0.85.0
+	google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f
 )
 
 require (
-	cloud.google.com/go/cloudtasks v1.4.0 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
@@ -48,7 +50,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/matryer/moq v0.2.3 // indirect
@@ -78,12 +79,9 @@ require (
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.85.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220719170305-83ca9fad585f // indirect
 	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/h2non/gock.v1 v1.1.2 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
