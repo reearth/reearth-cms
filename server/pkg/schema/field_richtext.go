@@ -1,7 +1,5 @@
 package schema
 
-import "github.com/samber/lo"
-
 var TypeRichText Type = "richText"
 
 type FieldRichText struct {
@@ -11,8 +9,8 @@ type FieldRichText struct {
 
 func NewFieldRichText() *FieldRichText {
 	return &FieldRichText{
-		defaultValue: lo.ToPtr(""),
-		maxLength:    lo.ToPtr(65),
+		defaultValue: nil,
+		maxLength:    nil,
 	}
 }
 

@@ -1,7 +1,5 @@
 package schema
 
-import "github.com/samber/lo"
-
 var TypeMarkdown Type = "markdown"
 
 type FieldMarkdown struct {
@@ -11,8 +9,8 @@ type FieldMarkdown struct {
 
 func NewFieldMarkdown() *FieldMarkdown {
 	return &FieldMarkdown{
-		defaultValue: lo.ToPtr(""),
-		maxLength:    lo.ToPtr(65),
+		defaultValue: nil,
+		maxLength:    nil,
 	}
 }
 

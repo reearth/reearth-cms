@@ -1,7 +1,5 @@
 package schema
 
-import "github.com/samber/lo"
-
 var TypeText Type = "text"
 
 type FieldText struct {
@@ -11,8 +9,8 @@ type FieldText struct {
 
 func NewFieldText() *FieldText {
 	return &FieldText{
-		defaultValue: lo.ToPtr(""),
-		maxLength:    lo.ToPtr(65),
+		defaultValue: nil,
+		maxLength:    nil,
 	}
 }
 

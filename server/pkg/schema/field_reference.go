@@ -8,10 +8,6 @@ type FieldReference struct {
 	modelID model.ID
 }
 
-func NewFieldReference() *FieldReference {
-	panic("not implemented")
-}
-
 func FieldReferenceFrom(id model.ID) *FieldReference {
 	return &FieldReference{
 		modelID: id,
