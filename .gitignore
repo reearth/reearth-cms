@@ -11,4 +11,3 @@ node_modules
 /web/storybook-static
 
 /server/mongo
-gcp-credential.json
