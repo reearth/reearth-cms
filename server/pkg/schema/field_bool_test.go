@@ -39,7 +39,6 @@ func TestFieldBoolFrom(t *testing.T) {
 }
 
 func TestFieldBool_TypeProperty(t *testing.T) {
-
 	tests := []struct {
 		name string
 		f    *FieldBool

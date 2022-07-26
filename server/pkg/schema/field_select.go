@@ -10,7 +10,7 @@ var (
 )
 
 type FieldSelect struct {
-	values       *[]string
+	values       []string
 	defaultValue *int
 }
 
@@ -23,11 +23,11 @@ func NewFieldSelect() *FieldSelect {
 	}
 }
 
-func FieldSelectFrom(values *[]string, defaultValue *int) (*FieldSelect, error) {
+func FieldSelectFrom(values []string, defaultValue *int) (*FieldSelect, error) {
 	if values == nil {
 		return nil, ErrFieldValues
 	}
-	if defaultValue != nil && (len(*values) <= *defaultValue || *defaultValue < 0) {
+	if defaultValue != nil && (len(values) <= *defaultValue || *defaultValue < 0) {
 		return nil, ErrFieldDefaultValue
 	}
 	return &FieldSelect{
@@ -36,7 +36,7 @@ func FieldSelectFrom(values *[]string, defaultValue *int) (*FieldSelect, error) 
 	}, nil
 }
 
-func MustFieldSelectFrom(values *[]string, defaultValue *int) *FieldSelect {
+func MustFieldSelectFrom(values []string, defaultValue *int) *FieldSelect {
 	v, err := FieldSelectFrom(values, defaultValue)
 	if err != nil {
 		panic(err)

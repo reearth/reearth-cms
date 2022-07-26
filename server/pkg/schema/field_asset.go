@@ -10,14 +10,6 @@ type FieldAsset struct {
 	defaultValue *id.AssetID
 }
 
-// NewFieldAsset
-// TODO: check if its ok to remove this
-func NewFieldAsset() *FieldAsset {
-	return &FieldAsset{
-		defaultValue: nil,
-	}
-}
-
 func FieldAssetFrom(id *id.AssetID) *FieldAsset {
 	return &FieldAsset{
 		defaultValue: id,

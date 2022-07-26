@@ -7,12 +7,12 @@ import (
 )
 
 func TestNewKey(t *testing.T) {
-	assert.Equal(t, Key{key: "aaaaaaa"}, NewKey("aaaaaaa"))
-	assert.Equal(t, Key{}, NewKey("aaaa"))
+	assert.Equal(t, Key{key: "aaaaaaa"}, New("aaaaaaa"))
+	assert.Equal(t, Key{}, New("aaaa"))
 }
 
 func TestRandomKey(t *testing.T) {
-	k := RandomKey()
+	k := Random()
 	assert.NotEmpty(t, k.String())
 	assert.True(t, k.IsValid())
 }

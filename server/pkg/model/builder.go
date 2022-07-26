@@ -78,7 +78,7 @@ func (b *Builder) Key(key key.Key) *Builder {
 }
 
 func (b *Builder) RandomKey() *Builder {
-	b.k = key.RandomKey()
+	b.k = key.Random()
 	return b
 }
 

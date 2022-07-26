@@ -28,7 +28,7 @@ func TestField_CreatedAt(t *testing.T) {
 				id:           id,
 				name:         "test",
 				description:  "desc",
-				key:          key.RandomKey(),
+				key:          key.Random(),
 				updatedAt:    time.Now(),
 				typeProperty: nil,
 			},
@@ -65,7 +65,7 @@ func TestField_Description(t *testing.T) {
 				id:           NewFieldID(),
 				name:         "test",
 				description:  "desc",
-				key:          key.RandomKey(),
+				key:          key.Random(),
 				updatedAt:    time.Now(),
 				typeProperty: nil,
 			},
@@ -102,7 +102,7 @@ func TestField_ID(t *testing.T) {
 				id:           id,
 				name:         "test",
 				description:  "desc",
-				key:          key.RandomKey(),
+				key:          key.Random(),
 				updatedAt:    time.Now(),
 				typeProperty: nil,
 			},
@@ -143,7 +143,7 @@ func TestField_Key(t *testing.T) {
 			name: "with key",
 			field: Field{
 				id:  id,
-				key: key.NewKey("test_key"),
+				key: key.New("test_key"),
 			},
 			want: struct {
 				value string
@@ -183,7 +183,7 @@ func TestField_Name(t *testing.T) {
 				id:           NewFieldID(),
 				name:         "test",
 				description:  "desc",
-				key:          key.RandomKey(),
+				key:          key.Random(),
 				updatedAt:    time.Now(),
 				typeProperty: nil,
 			},
@@ -407,13 +407,13 @@ func TestField_SetKey(t *testing.T) {
 	}{
 		{
 			name: "success",
-			arg:  key.NewKey(""),
+			arg:  key.New(""),
 			want: Field{},
 		},
 		{
 			name: "success with value",
-			arg:  key.NewKey("test_key"),
-			want: Field{key: key.NewKey("test_key")},
+			arg:  key.New("test_key"),
+			want: Field{key: key.New("test_key")},
 		},
 	}
 	for _, tc := range tests {

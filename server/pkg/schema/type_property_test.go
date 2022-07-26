@@ -163,87 +163,93 @@ func TestTypeProperty_Match(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		tp   TypeProperty
+		tp   *TypeProperty
 		m    TypePropertyMatch
 		msg  string
 	}{
 		{
 			name: "text",
-			tp:   TypeProperty{text: &FieldText{}},
+			tp:   &TypeProperty{text: &FieldText{}},
 			m:    m,
 			msg:  "TPM_Text",
 		},
 		{
 			name: "textArea",
-			tp:   TypeProperty{textArea: &FieldTextArea{}},
+			tp:   &TypeProperty{textArea: &FieldTextArea{}},
 			m:    m,
 			msg:  "TPM_TextArea",
 		},
 		{
 			name: "richText",
-			tp:   TypeProperty{richText: &FieldRichText{}},
+			tp:   &TypeProperty{richText: &FieldRichText{}},
 			m:    m,
 			msg:  "TPM_RichText",
 		},
 		{
 			name: "markdown",
-			tp:   TypeProperty{markdown: &FieldMarkdown{}},
+			tp:   &TypeProperty{markdown: &FieldMarkdown{}},
 			m:    m,
 			msg:  "TPM_Markdown",
 		},
 		{
 			name: "asset",
-			tp:   TypeProperty{asset: &FieldAsset{}},
+			tp:   &TypeProperty{asset: &FieldAsset{}},
 			m:    m,
 			msg:  "TPM_Asset",
 		},
 		{
 			name: "date",
-			tp:   TypeProperty{date: &FieldDate{}},
+			tp:   &TypeProperty{date: &FieldDate{}},
 			m:    m,
 			msg:  "TPM_Date",
 		},
 		{
 			name: "bool",
-			tp:   TypeProperty{bool: &FieldBool{}},
+			tp:   &TypeProperty{bool: &FieldBool{}},
 			m:    m,
 			msg:  "TPM_Bool",
 		},
 		{
 			name: "select",
-			tp:   TypeProperty{selectt: &FieldSelect{}},
+			tp:   &TypeProperty{selectt: &FieldSelect{}},
 			m:    m,
 			msg:  "TPM_Select",
 		},
 		{
 			name: "tag",
-			tp:   TypeProperty{tag: &FieldTag{}},
+			tp:   &TypeProperty{tag: &FieldTag{}},
 			m:    m,
 			msg:  "TPM_Tag",
 		},
 		{
 			name: "integer",
-			tp:   TypeProperty{integer: &FieldInteger{}},
+			tp:   &TypeProperty{integer: &FieldInteger{}},
 			m:    m,
 			msg:  "TPM_Integer",
 		},
 		{
 			name: "reference",
-			tp:   TypeProperty{reference: &FieldReference{}},
+			tp:   &TypeProperty{reference: &FieldReference{}},
 			m:    m,
 			msg:  "TPM_Reference",
 		},
 		{
 			name: "url",
-			tp:   TypeProperty{url: &FieldURL{}},
+			tp:   &TypeProperty{url: &FieldURL{}},
 			m:    m,
 			msg:  "TPM_URL",
 		},
 		{
 			name: "default",
-			tp:   TypeProperty{},
+			tp:   &TypeProperty{},
 			m:    m,
 			msg:  "TPM_Default",
+		},
+		{
+			name: "default",
+			tp:   nil,
+			m:    m,
+			msg:  "",
 		},
 	}
 	for _, tc := range tests {
@@ -251,9 +257,15 @@ func TestTypeProperty_Match(t *testing.T) {
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 
-			assert.PanicsWithValue(tt, tc.msg, func() {
-				tc.tp.Match(tc.m)
-			})
+			if tc.msg == "" {
+				assert.NotPanics(tt, func() {
+					tc.tp.Match(tc.m)
+				})
+			} else {
+				assert.PanicsWithValue(tt, tc.msg, func() {
+					tc.tp.Match(tc.m)
+				})
+			}
 		})
 	}
 }
@@ -323,6 +335,11 @@ func TestTypeProperty_Type(t *testing.T) {
 			name: "URL",
 			tp:   TypeProperty{url: &FieldURL{}},
 			want: TypeURL,
+		},
+		{
+			name: "Default",
+			tp:   TypeProperty{},
+			want: "",
 		},
 	}
 	for _, tc := range tests {

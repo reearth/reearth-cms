@@ -10,7 +10,7 @@ import (
 func TestFieldTagFrom(t *testing.T) {
 	type args struct {
 		defaultValue *int
-		values       *[]string
+		values       []string
 	}
 	tests := []struct {
 		name    string
@@ -20,14 +20,14 @@ func TestFieldTagFrom(t *testing.T) {
 	}{
 		{
 			name:    "success values",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"})},
-			want:    &FieldTag{values: lo.ToPtr([]string{"v1", "v2"})},
+			args:    args{values: []string{"v1", "v2"}},
+			want:    &FieldTag{values: []string{"v1", "v2"}},
 			wantErr: nil,
 		},
 		{
 			name:    "success values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(0)},
-			want:    &FieldTag{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(0)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
+			want:    &FieldTag{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
 			wantErr: nil,
 		},
 		{
@@ -44,13 +44,13 @@ func TestFieldTagFrom(t *testing.T) {
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(3)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(3)},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(-1)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(-1)},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
@@ -75,7 +75,7 @@ func TestFieldTagFrom(t *testing.T) {
 func TestMustFieldTagFrom(t *testing.T) {
 	type args struct {
 		defaultValue *int
-		values       *[]string
+		values       []string
 	}
 	tests := []struct {
 		name    string
@@ -85,14 +85,14 @@ func TestMustFieldTagFrom(t *testing.T) {
 	}{
 		{
 			name:    "success values",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"})},
-			want:    &FieldTag{values: lo.ToPtr([]string{"v1", "v2"})},
+			args:    args{values: []string{"v1", "v2"}},
+			want:    &FieldTag{values: []string{"v1", "v2"}},
 			wantErr: nil,
 		},
 		{
 			name:    "success values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(0)},
-			want:    &FieldTag{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(0)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
+			want:    &FieldTag{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
 			wantErr: nil,
 		},
 		{
@@ -109,13 +109,13 @@ func TestMustFieldTagFrom(t *testing.T) {
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(3)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(3)},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: lo.ToPtr([]string{"v1", "v2"}), defaultValue: lo.ToPtr(-1)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(-1)},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
@@ -155,8 +155,8 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 		},
 		{
 			name: "success values",
-			f:    &FieldTag{values: lo.ToPtr([]string{"V1", "v2"})},
-			want: &TypeProperty{tag: &FieldTag{values: lo.ToPtr([]string{"V1", "v2"})}},
+			f:    &FieldTag{values: []string{"V1", "v2"}},
+			want: &TypeProperty{tag: &FieldTag{values: []string{"V1", "v2"}}},
 		},
 		{
 			name: "success default value",

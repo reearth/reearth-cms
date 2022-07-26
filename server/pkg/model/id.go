@@ -5,6 +5,8 @@ import (
 )
 
 type ID = id.ModelID
+type ProjectID = id.ProjectID
+type SchemaID = id.SchemaID
 
 var NewID = id.NewModelID
 var MustID = id.MustModelID

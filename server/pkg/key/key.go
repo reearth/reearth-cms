@@ -13,16 +13,16 @@ type Key struct {
 	key string
 }
 
-func NewKey(key string) Key {
+func New(key string) Key {
 	if !keyRegexp.MatchString(key) {
 		return Key{}
 	}
 	return Key{key}
 }
 
-func RandomKey() Key {
+func Random() Key {
 	seed := util.Now().UTC().UnixNano()
-	return NewKey(namegenerator.NewNameGenerator(seed).Generate())
+	return New(namegenerator.NewNameGenerator(seed).Generate())
 }
 
 func (k Key) IsValid() bool {

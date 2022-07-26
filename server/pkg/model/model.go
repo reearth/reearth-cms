@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 )
 
@@ -14,8 +13,8 @@ var (
 
 type Model struct {
 	id          ID
-	project     id.ProjectID
-	schema      id.SchemaID
+	project     ProjectID
+	schema      SchemaID
 	name        string
 	description string
 	key         key.Key
@@ -27,11 +26,11 @@ func (p *Model) ID() ID {
 	return p.id
 }
 
-func (p *Model) Schema() id.SchemaID {
+func (p *Model) Schema() SchemaID {
 	return p.schema
 }
 
-func (p *Model) Project() id.ProjectID {
+func (p *Model) Project() ProjectID {
 	return p.project
 }
 
