@@ -6,8 +6,6 @@ import (
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/id/idx"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
@@ -38,27 +36,26 @@ func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskR
 }
 
 // Run implements gateway.TaskRunner
-func (t *TaskRunner) Run(ctx context.Context, p task.Payload) (id.TaskID, error) {
+func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 
 	client, closeFn, err := t.client(ctx)
 	if err != nil {
-		return idx.ID[id.Task]{}, err
+		return err
 	}
 	defer closeFn()
 
 	bPayload, err := json.Marshal(p.DecompressAsset.Payload())
 	if err != nil {
-		return idx.ID[id.Task]{}, err
+		return err
 	}
 	req := t.buildRequest(t.subscriberURL, bPayload)
 
 	_, err = client.CreateTask(ctx, req)
 	if err != nil {
-		return idx.ID[id.Task]{}, err
+		return err
 	}
 
-	//TODO: impl here
-	return idx.ID[id.Task]{}, nil
+	return nil
 }
 
 func (t *TaskRunner) client(ctx context.Context) (*cloudtasks.Client, func(), error) {
