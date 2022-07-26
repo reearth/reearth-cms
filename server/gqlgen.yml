@@ -37,6 +37,10 @@ models:
     fields:
       model:
         resolver: true
+      latestVersion:
+        resolver: true
+      version:
+        resolver: true
   Model:
     fields:
       project:
