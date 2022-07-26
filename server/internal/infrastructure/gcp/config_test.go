@@ -37,7 +37,9 @@ func TestCloudTasksConfig_buildQueueUrl(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c := &CloudTasksConfig{
 				GCPProject: tt.fields.GCPProject,
 				GCPRegion:  tt.fields.GCPRegion,
