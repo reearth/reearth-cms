@@ -7,14 +7,12 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
 
 type TaskRunner struct {
 	queuePath     string
 	subscriberURL string
-	credFilePath  string
 }
 
 func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskRunner, error) {
@@ -31,7 +29,6 @@ func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskR
 	return &TaskRunner{
 		queuePath:     qURL,
 		subscriberURL: c.SubscriberURL,
-		credFilePath:  opts2.credFilePath,
 	}, nil
 }
 
@@ -61,11 +58,8 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 func (t *TaskRunner) client(ctx context.Context) (*cloudtasks.Client, func(), error) {
 	var c *cloudtasks.Client
 	var err error
-	if t.credFilePath == "" {
-		c, err = cloudtasks.NewClient(ctx)
-	} else {
-		c, err = cloudtasks.NewClient(ctx, option.WithCredentialsFile(t.credFilePath))
-	}
+	c, err = cloudtasks.NewClient(ctx)
+
 	if err != nil {
 		return nil, nil, err
 	}
