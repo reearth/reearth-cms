@@ -1,6 +1,10 @@
 package gcp
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestCloudTasksConfig_buildQueueUrl(t *testing.T) {
 	type fields struct {
@@ -40,13 +44,12 @@ func TestCloudTasksConfig_buildQueueUrl(t *testing.T) {
 				QueueName:  tt.fields.QueueName,
 			}
 			got, err := c.buildQueueUrl()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("CloudTasksConfig.buildQueueUrl() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("CloudTasksConfig.buildQueueUrl() = %v, want %v", got, tt.want)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
