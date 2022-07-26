@@ -15,12 +15,7 @@ type TaskRunner struct {
 	subscriberURL string
 }
 
-func NewTaskRunner(c *CloudTasksConfig, opts ...TaskRunnerOption) (gateway.TaskRunner, error) {
-	opts2 := defaultTaskRunnerOptions()
-	for _, o := range opts {
-		o.Apply(opts2)
-	}
-
+func NewTaskRunner(c *CloudTasksConfig) (gateway.TaskRunner, error) {
 	qURL, err := c.buildQueueUrl()
 	if err != nil {
 		return nil, err
