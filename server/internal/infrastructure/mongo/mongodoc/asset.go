@@ -9,6 +9,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+type File struct {
+	name        string
+	size        uint64
+	contentType string
+	path        string
+	children    []*File
+}
+
 type AssetDocument struct {
 	ID          string
 	Project     string
@@ -17,6 +25,7 @@ type AssetDocument struct {
 	FileName    string
 	Size        uint64
 	PreviewType string
+	File        *File
 	Hash        string
 }
 
