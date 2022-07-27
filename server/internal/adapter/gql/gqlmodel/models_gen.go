@@ -68,8 +68,9 @@ type AssetFile struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID ID             `json:"projectId"`
-	File      graphql.Upload `json:"file"`
+	ProjectID   ID             `json:"projectId"`
+	CreatedByID ID             `json:"createdById"`
+	File        graphql.Upload `json:"file"`
 }
 
 type CreateAssetPayload struct {

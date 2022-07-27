@@ -1921,6 +1921,7 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
+  createdById: ID!
   file: Upload!
 }
 
@@ -10254,6 +10255,14 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
 			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdById":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdById"))
+			it.CreatedByID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}

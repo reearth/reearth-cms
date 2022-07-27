@@ -9,8 +9,18 @@ import (
 )
 
 func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error) {
+	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := gqlmodel.ToID[id.User](input.CreatedByID)
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Asset.Create(ctx, interfaces.CreateAssetParam{
-		File: gqlmodel.FromFile(&input.File),
+		ProjectID:   pid,
+		CreatedByID: uid,
+		File:        gqlmodel.FromFile(&input.File),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
