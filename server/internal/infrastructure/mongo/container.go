@@ -21,6 +21,7 @@ func InitRepos(ctx context.Context, c *repo.Container, mc *mongo.Client, databas
 	}
 
 	client := mongodoc.NewClient(databaseName, mc)
+	c.Asset = NewAsset(client)
 	c.Workspace = NewWorkspace(client)
 	c.User = NewUser(client)
 	c.Transaction = NewTransaction(client)
@@ -34,4 +35,11 @@ func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{
 		return filter
 	}
 	return mongodoc.And(filter, "workspace", bson.M{"$in": ids.Strings()})
+}
+
+func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
+	if ids == nil {
+		return filter
+	}
+	return mongodoc.And(filter, "project", bson.M{"$in": ids.Strings()})
 }
