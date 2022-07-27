@@ -24,7 +24,7 @@ func NewFieldSelect() *FieldSelect {
 }
 
 func FieldSelectFrom(values []string, defaultValue *int) (*FieldSelect, error) {
-	if values == nil || len(values) == 0 {
+	if len(values) == 0 {
 		return nil, ErrFieldValues
 	}
 	if defaultValue != nil && (len(values) <= *defaultValue || *defaultValue < 0) {

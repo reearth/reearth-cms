@@ -28,8 +28,7 @@ func (s *Schema) HasField(f FieldID) bool {
 	if s == nil {
 		return false
 	}
-	_, found := lo.Find(s.fields, func(g *Field) bool { return g.ID().Equal(f) })
-	return found
+	return lo.SomeBy(s.fields, func(g *Field) bool { return g.ID().Equal(f) })
 }
 
 func (s *Schema) AddField(f Field) {
