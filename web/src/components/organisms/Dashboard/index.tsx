@@ -1,8 +1,9 @@
+import { UsergroupAddOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import SideMenu from "@reearth-cms/components/molecules/Common/sideMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -11,6 +12,7 @@ import useHooks from "./hooks";
 
 type Props = {
   children?: React.ReactNode;
+  sideMenu?: React.ReactNode;
   defaultSelectedKeys?: string[];
 };
 
@@ -46,14 +48,17 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
           >
-            <WorkspaceMenu
+            <SideMenu
               defaultSelectedKeys={defaultSelectedKeys}
-              isPersonalWorkspace={
-                personalWorkspace?.id === currentWorkspace?.id
-              }
               inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
-            ></WorkspaceMenu>
+              topItems={[
+                {
+                  label: "Member",
+                  key: "member",
+                  icon: <UsergroupAddOutlined />,
+                },
+              ]}
+            ></SideMenu>
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
