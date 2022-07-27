@@ -4,7 +4,7 @@ var TypeTag Type = "tag"
 
 type FieldTag struct {
 	values       []string
-	defaultValue *int
+	defaultValue *string
 }
 
 // NewFieldTag
@@ -16,12 +16,9 @@ func NewFieldTag() *FieldTag {
 	}
 }
 
-func FieldTagFrom(values []string, defaultValue *int) (*FieldTag, error) {
+func FieldTagFrom(values []string, defaultValue *string) (*FieldTag, error) {
 	if values == nil {
 		return nil, ErrFieldValues
-	}
-	if defaultValue != nil && (len(values) <= *defaultValue || *defaultValue < 0) {
-		return nil, ErrFieldDefaultValue
 	}
 	return &FieldTag{
 		values:       values,
@@ -29,7 +26,7 @@ func FieldTagFrom(values []string, defaultValue *int) (*FieldTag, error) {
 	}, nil
 }
 
-func MustFieldTagFrom(values []string, defaultValue *int) *FieldTag {
+func MustFieldTagFrom(values []string, defaultValue *string) *FieldTag {
 	v, err := FieldTagFrom(values, defaultValue)
 	if err != nil {
 		panic(err)
