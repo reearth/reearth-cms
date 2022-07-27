@@ -60,7 +60,7 @@ const Icon: React.FC<Props> = ({
     );
   }
 
-  return src; // this is of type (React.ForwardRefExoticComponent)
+  return React.createElement(src); // this is of type (React.ForwardRefExoticComponent)
 };
 
 const StyledImg = styled.img<{ size?: string }>`
