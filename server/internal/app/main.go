@@ -23,7 +23,7 @@ func Start(debug bool, version string) {
 	if cerr != nil {
 		log.Fatal(cerr)
 	}
-	repos, gateways := initReposAndGateways(ctx, conf)
+	repos, gateways := initReposAndGateways(ctx, conf, debug)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
