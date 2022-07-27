@@ -1,10 +1,7 @@
-import {
-  ExclamationCircleOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
@@ -75,7 +72,7 @@ const Members: React.FC = () => {
     (member: Member) => {
       confirm({
         title: "Are you sure to remove this member?",
-        icon: <ExclamationCircleOutlined />,
+        icon: <Icon.exclamationCircle />,
         content:
           "Remove this member from workspace means this member will not view any content of this workspace.",
         onOk() {
@@ -122,7 +119,7 @@ const Members: React.FC = () => {
             <Button
               type="primary"
               onClick={handleMemberAddModalOpen}
-              icon={<UsergroupAddOutlined />}
+              icon={<Icon.userGroupAdd />}
             >
               New Member
             </Button>

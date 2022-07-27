@@ -1,6 +1,6 @@
-import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
 import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
 import React from "react";
@@ -38,7 +38,7 @@ const ProjectList: React.FC<Props> = ({
             <Button
               onClick={handleProjectModalOpen}
               type="primary"
-              icon={<PlusOutlined />}
+              icon={<Icon.plus />}
             >
               New Project
             </Button>

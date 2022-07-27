@@ -1,6 +1,6 @@
-import { PlusOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
@@ -52,7 +52,7 @@ const Project: React.FC = () => {
             <Button
               onClick={handleProjectModalOpen}
               type="primary"
-              icon={<PlusOutlined />}
+              icon={<Icon.plus />}
             >
               New Project
             </Button>

@@ -1,7 +1,7 @@
-import { CloseOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import React, { useCallback, useEffect, useState } from "react";
@@ -129,7 +129,7 @@ const MemberAddModal: React.FC<Props> = ({
                 <EmailContent>{searchedUser.email}</EmailContent>
               </div>
               <IconButton onClick={handleMemberRemove}>
-                <CloseOutlined />
+                <Icon.close />
               </IconButton>
             </SearchedUSerResult>
           )}

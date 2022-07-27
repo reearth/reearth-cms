@@ -1,12 +1,4 @@
-import {
-  DashboardOutlined,
-  FileOutlined,
-  PullRequestOutlined,
-  SendOutlined,
-  SettingOutlined,
-  TableOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
@@ -19,11 +11,11 @@ export interface Props {
 }
 
 const topItems: ItemType[] = [
-  { label: "Overview", key: "home", icon: <DashboardOutlined /> },
-  { label: "Schema", key: "list", icon: <UnorderedListOutlined /> },
-  { label: "Content", key: "content", icon: <TableOutlined /> },
-  { label: "Asset", key: "asset", icon: <FileOutlined /> },
-  { label: "Request", key: "request", icon: <PullRequestOutlined /> },
+  { label: "Overview", key: "home", icon: <Icon.dashboard /> },
+  { label: "Schema", key: "list", icon: <Icon.unorderedList /> },
+  { label: "Content", key: "content", icon: <Icon.table /> },
+  { label: "Asset", key: "asset", icon: <Icon.file /> },
+  { label: "Request", key: "request", icon: <Icon.pullRequest /> },
 ];
 
 const ProjectMenu: React.FC<Props> = ({
@@ -33,8 +25,8 @@ const ProjectMenu: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const items: ItemType[] = [
-    { label: "Accessibility", key: "accessibility", icon: <SendOutlined /> },
-    { label: "Settings", key: "settings", icon: <SettingOutlined /> },
+    { label: "Accessibility", key: "accessibility", icon: <Icon.send /> },
+    { label: "Settings", key: "settings", icon: <Icon.settings /> },
   ];
 
   const onClick = (e: any) => {
