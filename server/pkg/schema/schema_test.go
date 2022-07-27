@@ -45,6 +45,63 @@ func TestSchema_AddField(t *testing.T) {
 	}
 }
 
+func TestSchema_HasField(t *testing.T) {
+	fid1 := NewFieldID()
+	fid2 := NewFieldID()
+	fid3 := NewFieldID()
+	tests := []struct {
+		name string
+		s    *Schema
+		fid  FieldID
+		want bool
+	}{
+		{
+			name: "add on empty array",
+			s:    nil,
+			fid:  fid1,
+			want: false,
+		},
+		{
+			name: "add on empty array",
+			s:    &Schema{},
+			fid:  fid1,
+			want: false,
+		},
+		{
+			name: "add on empty array",
+			s:    &Schema{fields: []*Field{}},
+			fid:  fid1,
+			want: false,
+		},
+		{
+			name: "add on not empty array",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
+			fid:  fid1,
+			want: true,
+		},
+		{
+			name: "add duplicated field",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			fid:  fid1,
+			want: true,
+		},
+		{
+			name: "add duplicated field",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			fid:  NewFieldID(),
+			want: false,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.s.HasField(tc.fid))
+		})
+	}
+}
+
 func TestSchema_RemoveField(t *testing.T) {
 	fid1 := NewFieldID()
 	fid2 := NewFieldID()

@@ -2,6 +2,8 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 type Schema struct {
@@ -22,14 +24,20 @@ func (s *Schema) SetWorkspace(workspace id.WorkspaceID) {
 	s.workspace = workspace
 }
 
+func (s *Schema) HasField(f FieldID) bool {
+	if s == nil {
+		return false
+	}
+	_, found := lo.Find(s.fields, func(g *Field) bool { return g.ID().Equal(f) })
+	return found
+}
+
 func (s *Schema) AddField(f Field) {
 	if s.fields == nil {
 		s.fields = []*Field{}
 	}
-	for _, sf := range s.fields {
-		if sf.id.Equal(f.ID()) {
-			return
-		}
+	if s.HasField(f.ID()) {
+		return
 	}
 	s.fields = append(s.fields, &f)
 }
@@ -38,10 +46,9 @@ func (s *Schema) Field(fId FieldID) *Field {
 	if s == nil || s.fields == nil {
 		return nil
 	}
-	for _, f := range s.fields {
-		if f.id.Equal(fId) {
-			return f
-		}
+	f, found := lo.Find(s.fields, func(f *Field) bool { return f.id.Equal(fId) })
+	if found {
+		return f
 	}
 	return nil
 }
@@ -50,7 +57,7 @@ func (s *Schema) Fields() []*Field {
 	if s == nil {
 		return nil
 	}
-	return s.fields
+	return slices.Clone(s.fields)
 }
 
 func (s *Schema) RemoveField(fid FieldID) {
@@ -60,7 +67,7 @@ func (s *Schema) RemoveField(fid FieldID) {
 
 	for i, field := range s.fields {
 		if field.id.Equal(fid) {
-			s.fields = append(s.fields[:i], s.fields[i+1:]...)
+			s.fields = slices.Delete(s.fields, i, i+1)
 			return
 		}
 	}

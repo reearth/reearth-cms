@@ -12,7 +12,7 @@ type FieldAsset struct {
 
 func FieldAssetFrom(id *id.AssetID) *FieldAsset {
 	return &FieldAsset{
-		defaultValue: id,
+		defaultValue: id.CloneRef(),
 	}
 }
 
