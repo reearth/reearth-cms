@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/id/idx"
 )
 
 type AssetFilterType string
@@ -19,7 +20,9 @@ const (
 )
 
 type CreateAssetParam struct {
-	File   *file.File
+	ProjectID   idx.ID[id.Project]
+	CreatedByID idx.ID[id.User]
+	File        *file.File
 }
 
 var (

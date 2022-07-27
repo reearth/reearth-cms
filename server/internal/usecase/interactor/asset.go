@@ -45,6 +45,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			a, err := asset.New().
 				NewID().
+				Project(inp.ProjectID).
+				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
 				Hash(url.String()).
