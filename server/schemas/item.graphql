@@ -2,10 +2,10 @@ type Item implements Node {
   id: ID!
   modelId: ID!
   model: Model!
-  publicVersion: String!
   createdAt: DateTime!
   updatedAt: DateTime!
   latestVersion: ItemVersion
+  publicVersion: String!
   versions: [ItemVersion!]!
 }
 
