@@ -1,13 +1,8 @@
-import {
-  CaretDownOutlined,
-  LogoutOutlined,
-  UsergroupAddOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
 import styled from "@emotion/styled";
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Workspace } from "@reearth-cms/state";
@@ -83,7 +78,7 @@ const Header: React.FC<Props> = ({
         {
           label: "new workspace",
           key: "new-workspace",
-          icon: <UsergroupAddOutlined />,
+          icon: <Icon icon="userGroupAdd" />,
           onClick: handleModalOpen,
         },
       ]}
@@ -96,12 +91,12 @@ const Header: React.FC<Props> = ({
         {
           label: "Account Settings",
           key: "account-settings",
-          icon: <UserOutlined />,
+          icon: <Icon icon="user" />,
         },
         {
           label: "Logout",
           key: "logout",
-          icon: <LogoutOutlined />,
+          icon: <Icon icon="logout" />,
           onClick: logout,
         },
       ]}
@@ -116,7 +111,7 @@ const Header: React.FC<Props> = ({
         <a onClick={(e) => e.preventDefault()}>
           <Space>
             {currentWorkspace?.name}
-            <CaretDownOutlined />
+            <Icon icon="caretDown" />
           </Space>
         </a>
       </WorkspaceDropdown>
@@ -128,7 +123,7 @@ const Header: React.FC<Props> = ({
         <a onClick={(e) => e.preventDefault()}>
           <Space>
             {user.name}
-            <CaretDownOutlined />
+            <Icon icon="caretDown" />
           </Space>
         </a>
       </AccountDropdown>
