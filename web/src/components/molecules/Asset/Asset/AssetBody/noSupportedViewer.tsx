@@ -1,16 +1,18 @@
 import styled from "@emotion/styled";
-import { twoTone } from "@reearth-cms/components/atoms/Icon";
+import Icon from "@reearth-cms/components/atoms/Icon";
 
 const NoSupportedViewer: React.FC = () => {
   return (
     <NoSuportedViewerContainer>
       <NoSuportedViewerWrapper>
-        <twoTone.exclamationCircle
+        {/* TODO: should be replaced with ExclamationCircleTwoTone */}
+        <Icon
+          icon="exclamationCircle"
+          color="#faad14"
           style={{
             fontSize: "32px",
             marginBottom: "10px",
           }}
-          twoToneColor="#faad14"
         />
         <NoSuportedViewerText>
           Didn’t find supported viewer

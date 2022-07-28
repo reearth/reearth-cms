@@ -32,7 +32,7 @@ const PreviewToolbar: React.FC<PreviewToolbar> = ({
       )}
       <Button
         type="link"
-        icon={<Icon.fullscreen />}
+        icon={<Icon icon="download" />}
         size="large"
         onClick={handleFullScreen}
       />

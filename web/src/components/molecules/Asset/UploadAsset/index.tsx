@@ -6,7 +6,7 @@ import { UploadProps } from "antd/lib/upload/interface";
 const UploadAsset: React.FC<UploadProps> = ({ ...props }) => {
   return (
     <Upload {...props}>
-      <Button type="primary" icon={<Icon.upload />}>
+      <Button type="primary" icon={<Icon icon="upload" />}>
         Upload Asset
       </Button>
     </Upload>
