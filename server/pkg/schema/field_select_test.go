@@ -9,7 +9,7 @@ import (
 
 func TestFieldSelectFrom(t *testing.T) {
 	type args struct {
-		defaultValue *int
+		defaultValue *string
 		values       []string
 	}
 	tests := []struct {
@@ -26,8 +26,8 @@ func TestFieldSelectFrom(t *testing.T) {
 		},
 		{
 			name:    "success values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
-			want:    &FieldSelect{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v1")},
+			want:    &FieldSelect{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v1")},
 			wantErr: nil,
 		},
 		{
@@ -38,19 +38,13 @@ func TestFieldSelectFrom(t *testing.T) {
 		},
 		{
 			name:    "fail no values",
-			args:    args{defaultValue: lo.ToPtr(0)},
+			args:    args{defaultValue: lo.ToPtr("v1")},
 			want:    nil,
 			wantErr: ErrFieldValues,
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(3)},
-			want:    nil,
-			wantErr: ErrFieldDefaultValue,
-		},
-		{
-			name:    "fail values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(-1)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v3")},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
@@ -74,7 +68,7 @@ func TestFieldSelectFrom(t *testing.T) {
 
 func TestMustFieldSelectFrom(t *testing.T) {
 	type args struct {
-		defaultValue *int
+		defaultValue *string
 		values       []string
 	}
 	tests := []struct {
@@ -91,8 +85,8 @@ func TestMustFieldSelectFrom(t *testing.T) {
 		},
 		{
 			name:    "success values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
-			want:    &FieldSelect{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(0)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v1")},
+			want:    &FieldSelect{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v1")},
 			wantErr: nil,
 		},
 		{
@@ -103,19 +97,13 @@ func TestMustFieldSelectFrom(t *testing.T) {
 		},
 		{
 			name:    "fail no values",
-			args:    args{defaultValue: lo.ToPtr(0)},
+			args:    args{defaultValue: lo.ToPtr("v1")},
 			want:    nil,
 			wantErr: ErrFieldValues,
 		},
 		{
 			name:    "fail values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(3)},
-			want:    nil,
-			wantErr: ErrFieldDefaultValue,
-		},
-		{
-			name:    "fail values and default value",
-			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr(-1)},
+			args:    args{values: []string{"v1", "v2"}, defaultValue: lo.ToPtr("v3")},
 			want:    nil,
 			wantErr: ErrFieldDefaultValue,
 		},
@@ -160,8 +148,8 @@ func TestFieldSelect_TypeProperty(t *testing.T) {
 		},
 		{
 			name: "success default value",
-			f:    &FieldSelect{defaultValue: lo.ToPtr(1)},
-			want: &TypeProperty{selectt: &FieldSelect{defaultValue: lo.ToPtr(1)}},
+			f:    &FieldSelect{defaultValue: lo.ToPtr("v1")},
+			want: &TypeProperty{selectt: &FieldSelect{defaultValue: lo.ToPtr("v1")}},
 		},
 	}
 	for _, tc := range tests {

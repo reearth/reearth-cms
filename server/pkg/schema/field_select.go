@@ -1,6 +1,10 @@
 package schema
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/samber/lo"
+)
 
 var TypeSelect Type = "select"
 
@@ -11,7 +15,7 @@ var (
 
 type FieldSelect struct {
 	values       []string
-	defaultValue *int
+	defaultValue *string
 }
 
 // NewFieldTag
@@ -23,11 +27,11 @@ func NewFieldSelect() *FieldSelect {
 	}
 }
 
-func FieldSelectFrom(values []string, defaultValue *int) (*FieldSelect, error) {
+func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
 	if len(values) == 0 {
 		return nil, ErrFieldValues
 	}
-	if defaultValue != nil && (len(values) <= *defaultValue || *defaultValue < 0) {
+	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
 	return &FieldSelect{
@@ -36,7 +40,7 @@ func FieldSelectFrom(values []string, defaultValue *int) (*FieldSelect, error) {
 	}, nil
 }
 
-func MustFieldSelectFrom(values []string, defaultValue *int) *FieldSelect {
+func MustFieldSelectFrom(values []string, defaultValue *string) *FieldSelect {
 	v, err := FieldSelectFrom(values, defaultValue)
 	if err != nil {
 		panic(err)

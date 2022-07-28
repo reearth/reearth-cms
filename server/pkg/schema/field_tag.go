@@ -1,10 +1,14 @@
 package schema
 
+import (
+	"github.com/reearth/reearth-cms/server/pkg/util"
+)
+
 var TypeTag Type = "tag"
 
 type FieldTag struct {
 	values       []string
-	defaultValue *string
+	defaultValue []string
 }
 
 // NewFieldTag
@@ -16,9 +20,12 @@ func NewFieldTag() *FieldTag {
 	}
 }
 
-func FieldTagFrom(values []string, defaultValue *string) (*FieldTag, error) {
-	if values == nil {
+func FieldTagFrom(values []string, defaultValue []string) (*FieldTag, error) {
+	if len(values) == 0 {
 		return nil, ErrFieldValues
+	}
+	if !util.Subset(values, defaultValue) {
+		return nil, ErrFieldDefaultValue
 	}
 	return &FieldTag{
 		values:       values,
@@ -26,7 +33,7 @@ func FieldTagFrom(values []string, defaultValue *string) (*FieldTag, error) {
 	}, nil
 }
 
-func MustFieldTagFrom(values []string, defaultValue *string) *FieldTag {
+func MustFieldTagFrom(values []string, defaultValue []string) *FieldTag {
 	v, err := FieldTagFrom(values, defaultValue)
 	if err != nil {
 		panic(err)
