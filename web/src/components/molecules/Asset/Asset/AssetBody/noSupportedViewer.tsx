@@ -20,21 +20,21 @@ const NoSupportedViewer: React.FC = () => {
   );
 };
 
-const NoSuportedViewerContainer = styled("div")`
+const NoSuportedViewerContainer = styled.div`
   height: 240px;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const NoSuportedViewerWrapper = styled("div")`
+const NoSuportedViewerWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   alignitems: center;
 `;
 
-const NoSuportedViewerText = styled("span")`
+const NoSuportedViewerText = styled.span`
   font-family: Roboto;
   font-style: normal;
   font-weight: 400;

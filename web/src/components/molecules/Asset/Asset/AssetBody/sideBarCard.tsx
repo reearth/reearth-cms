@@ -20,7 +20,7 @@ const SideBarCard: React.FC<SideBarCardProps> = ({
   );
 };
 
-const SideBarCardWrapper = styled("div")`
+const SideBarCardWrapper = styled.div`
   padding: 12px;
   margin-bottom: 8px;
   width: 100%;
@@ -29,7 +29,7 @@ const SideBarCardWrapper = styled("div")`
   box-shadow: 0 4px 4px 0 #00000025;
 `;
 
-const CardTitle = styled("span")`
+const CardTitle = styled.span`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
@@ -39,7 +39,7 @@ const CardTitle = styled("span")`
   margin-bottom: 4px;
 `;
 
-const CardValue = styled("span")`
+const CardValue = styled.span`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;

@@ -4,15 +4,15 @@ import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
-import NoSupportedViewer from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/no-supported-viewer";
-import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/preview-toolbar";
+import NoSupportedViewer from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/noSupportedViewer";
+import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
   PreviewType,
   PreviewTypeSelect,
-} from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/preview-type-select";
-import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/side-bar-card";
-import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/svg-preview";
-import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzip-file-list";
+} from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
+import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/svgPreview";
+import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { createWorldTerrain, Viewer } from "cesium";
 
@@ -73,7 +73,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
               url: url,
             }}
             onGetViewer={getViewer}
-          ></TilesetPreview>
+          />
         );
       case PreviewType.IMAGE:
         return <Image src={url} alt="asset-preview"></Image>;
@@ -113,7 +113,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
           filename={fileName}
           url={url}
           displayDefaultIcon={true}
-        ></DownloadButton>
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
@@ -130,24 +130,24 @@ const AssetBody: React.FC<AssetBodyProps> = ({
   );
 };
 
-const BodyContainer = styled("div")`
+const BodyContainer = styled.div`
   padding: 16px 24px;
   display: flex;
   flex-direction: row;
 `;
 
-const BodyWrapper = styled("div")`
+const BodyWrapper = styled.div`
   padding: 16px 24px;
   width: 70%;
 `;
 
-const Image = styled("img")`
+const Image = styled.img`
   width: Auto;
   height: 500px;
   object-fit: contain;
 `;
 
-const SideBarWrapper = styled("div")`
+const SideBarWrapper = styled.div`
   padding: 8px;
   width: 30%;
   display: flex;

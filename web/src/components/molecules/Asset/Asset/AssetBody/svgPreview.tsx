@@ -18,12 +18,10 @@ const SVGPreview: React.FC<SVGPreviewProps> = ({ url, svgRender }) => {
     fetchData();
   }, [fetchData]);
 
-  return (
-    <>{svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>}</>
-  );
+  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
 };
 
-const Image = styled("img")`
+const Image = styled.img`
   width: Auto;
   height: 500px;
   object-fit: contain;

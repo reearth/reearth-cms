@@ -23,12 +23,12 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
         height: "90vh",
       }}
     >
-      <PreviewImage src={url} alt="asset-preview"></PreviewImage>
+      <PreviewImage src={url} alt="asset-preview" />
     </Modal>
   );
 };
 
-const PreviewImage = styled("img")`
+const PreviewImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;

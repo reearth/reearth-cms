@@ -20,13 +20,13 @@ const Card: React.FC<CardProps> = ({ title, toolbar, children, style }) => {
   );
 };
 
-const CardWrapper = styled("div")`
+const CardWrapper = styled.div`
   padding: 0;
   border: 1px solid #f5f5f5;
   margin-bottom: 24px;
 `;
 
-const CardHeader = styled("div")`
+const CardHeader = styled.div`
   height: 64px;
   display: flex;
   justify-content: space-between;
@@ -35,16 +35,16 @@ const CardHeader = styled("div")`
   font-size: 24px;
 `;
 
-const Title = styled("h5")`
+const Title = styled.h5`
   margin: 0;
 `;
 
-const Toolbar = styled("div")`
+const Toolbar = styled.div`
   display: flex;
   align-items: center;
 `;
 
-const CardBody = styled("div")`
+const CardBody = styled.div`
   padding: 10px;
   background-color: #f5f5f5;
   text-align: center;

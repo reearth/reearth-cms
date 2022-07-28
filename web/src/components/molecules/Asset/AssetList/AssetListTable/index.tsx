@@ -37,7 +37,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   );
 };
 
-const AssetListTableWrapper = styled("div")`
+const AssetListTableWrapper = styled.div`
   padding: 16px 24px;
 `;
 

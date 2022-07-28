@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import UploadAsset from "@reearth-cms/components/atoms/UploadAsset";
+import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
 
 type AssetListHeaderProps = {
@@ -30,24 +30,24 @@ const AssetListHeader: React.FC<AssetListHeaderProps> = ({
   );
 };
 
-const AssetListHeaderWrapper = styled("div")`
+const AssetListHeaderWrapper = styled.div`
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
-const HeaderTitleWrapper = styled("div")`
+const HeaderTitleWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
 `;
 
-const HeaderTitle = styled("h1")`
+const HeaderTitle = styled.h1`
   margin: 0 16px 0 0;
 `;
 
-const HeaderSubTitle = styled("h3")`
+const HeaderSubTitle = styled.h3`
   margin: 0;
 `;
 
