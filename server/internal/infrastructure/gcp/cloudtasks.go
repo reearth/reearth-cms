@@ -17,15 +17,17 @@ type TaskRunner struct {
 	c             *cloudtasks.Client
 }
 
-func NewTaskRunner(ctx context.Context, c *CloudTasksConfig) (gateway.TaskRunner, error) {
+func NewTaskRunner(ctx context.Context, c *CloudTasksConfig, cl *cloudtasks.Client) (gateway.TaskRunner, error) {
 	qURL, err := c.buildQueueUrl()
 	if err != nil {
 		return nil, err
 	}
 
-	cl, err := cloudtasks.NewClient(ctx)
-	if err != nil {
-		return nil, err
+	if cl == nil {
+		cl, err = cloudtasks.NewClient(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &TaskRunner{
