@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
+	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
@@ -13,36 +14,36 @@ import (
 type TaskRunner struct {
 	queuePath     string
 	subscriberURL string
+	c             *cloudtasks.Client
 }
 
-func NewTaskRunner(c *CloudTasksConfig) (gateway.TaskRunner, error) {
+func NewTaskRunner(ctx context.Context, c *CloudTasksConfig) (gateway.TaskRunner, error) {
 	qURL, err := c.buildQueueUrl()
+	if err != nil {
+		return nil, err
+	}
+
+	cl, err := cloudtasks.NewClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	return &TaskRunner{
 		queuePath:     qURL,
+		c:             cl,
 		subscriberURL: c.SubscriberURL,
 	}, nil
 }
 
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
-
-	client, closeFn, err := t.client(ctx)
-	if err != nil {
-		return err
-	}
-	defer closeFn()
-
 	bPayload, err := json.Marshal(p.DecompressAsset.Payload())
 	if err != nil {
 		return err
 	}
 	req := t.buildRequest(t.subscriberURL, bPayload)
 
-	_, err = client.CreateTask(ctx, req)
+	_, err = t.CreateTask(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -50,15 +51,12 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return nil
 }
 
-func (t *TaskRunner) client(ctx context.Context) (*cloudtasks.Client, func(), error) {
-	var c *cloudtasks.Client
-	var err error
-	c, err = cloudtasks.NewClient(ctx)
+func (t *TaskRunner) CloseConn() error {
+	return t.c.Close()
+}
 
-	if err != nil {
-		return nil, nil, err
-	}
-	return c, func() { c.Close() }, nil
+func (t *TaskRunner) CreateTask(ctx context.Context, req *taskspb.CreateTaskRequest, opts ...gax.CallOption) (*taskspb.Task, error) {
+	return t.c.CreateTask(ctx, req, opts...)
 }
 
 func (t *TaskRunner) buildRequest(url string, message []byte) *taskspb.CreateTaskRequest {
