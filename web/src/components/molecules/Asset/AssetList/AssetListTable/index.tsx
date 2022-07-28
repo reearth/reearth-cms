@@ -3,17 +3,10 @@ import ProTable, {
   ProTableProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { ConfigProvider } from "antd";
-import { Locale } from "antd/lib/locale-provider";
 
-type AssetListTableProps = {
-  providerLocale: Locale;
-} & ProTableProps<Asset, any>;
-
-const AssetListTable: React.FC<AssetListTableProps> = ({
+const AssetListTable: React.FC<ProTableProps<Asset, any>> = ({
   dataSource,
   columns,
-  providerLocale,
   search,
   rowKey,
   options,
@@ -22,17 +15,15 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 }) => {
   return (
     <AssetListTableWrapper>
-      <ConfigProvider locale={providerLocale}>
-        <ProTable
-          dataSource={dataSource}
-          columns={columns}
-          search={search}
-          rowKey={rowKey}
-          options={options}
-          toolbar={toolbar}
-          rowSelection={rowSelection}
-        />
-      </ConfigProvider>
+      <ProTable
+        dataSource={dataSource}
+        columns={columns}
+        search={search}
+        rowKey={rowKey}
+        options={options}
+        toolbar={toolbar}
+        rowSelection={rowSelection}
+      />
     </AssetListTableWrapper>
   );
 };
