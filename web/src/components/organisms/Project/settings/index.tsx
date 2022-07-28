@@ -1,7 +1,7 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -69,7 +69,7 @@ const ProjectSettings: React.FC = () => {
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
       title: "Are you sure you want to delete this project?",
-      icon: <ExclamationCircleOutlined />,
+      icon: <Icon icon="exclamationCircle" />,
       onOk() {
         handleProjectDelete();
       },

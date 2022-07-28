@@ -1,11 +1,4 @@
-import {
-  ApiOutlined,
-  HomeOutlined,
-  SearchOutlined,
-  SettingOutlined,
-  UsergroupAddOutlined,
-  UserSwitchOutlined,
-} from "@ant-design/icons";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
@@ -23,7 +16,7 @@ export type MenuShowType = "personal" | "notPersonal" | "both";
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "home", icon: <HomeOutlined />, show: "both" },
+  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
@@ -37,37 +30,37 @@ const WorkspaceMenu: React.FC<Props> = ({
     {
       label: "Member",
       key: "member",
-      icon: <UsergroupAddOutlined />,
+      icon: <Icon icon="userGroupAdd" />,
       show: "notPersonal" as MenuShowType,
     },
     {
       label: "Account",
       key: "account",
-      icon: <UsergroupAddOutlined />,
+      icon: <Icon icon="userGroupAdd" />,
       show: "personal" as MenuShowType,
     },
     {
       label: "Integration",
       key: "integration",
-      icon: <ApiOutlined />,
+      icon: <Icon icon="api" />,
       show: "both" as MenuShowType,
     },
     {
       label: "Role",
       key: "role",
-      icon: <UserSwitchOutlined />,
+      icon: <Icon icon="userSwitch" />,
       show: "notPersonal" as MenuShowType,
     },
     {
       label: "API key",
       key: "api-key",
-      icon: <SearchOutlined />,
+      icon: <Icon icon="search" />,
       show: "both" as MenuShowType,
     },
     {
       label: "Settings",
       key: "settings",
-      icon: <SettingOutlined />,
+      icon: <Icon icon="settings" />,
       show: "notPersonal" as MenuShowType,
     },
   ].filter(
