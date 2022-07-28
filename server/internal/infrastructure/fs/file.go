@@ -2,7 +2,6 @@ package fs
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/url"
 	"os"
@@ -27,7 +26,7 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	var err error
 	b, err = url.Parse(urlBase)
 	if err != nil {
-		return nil, errors.New("invalid base URL")
+		return nil, invalidBaseURLErr
 	}
 
 	return &fileRepo{

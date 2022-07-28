@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/spf13/afero"
@@ -20,6 +21,10 @@ func TestNewFile(t *testing.T) {
 	f, err := NewFile(mockFs(), "")
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
+
+	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
+	assert.Equal(t, err, invalidBaseURLErr)
+	assert.Nil(t, f1)
 }
 
 func TestFile_UploadAsset(t *testing.T) {
@@ -39,6 +44,12 @@ func TestFile_UploadAsset(t *testing.T) {
 	uf, _ := fs.Open(filepath.Join("assets", path.Base(u.Path)))
 	c, _ := io.ReadAll(uf)
 	assert.Equal(t, "aaa", string(c))
+
+	b, err := url.Parse("https://example.com/assets")
+	assert.NoError(t, err)
+	fn := sanitize.Path(path.Base(u.Path))
+	u1 := getAssetFileURL(b, fn)
+	assert.Equal(t, u1, u)
 }
 
 func TestFile_RemoveAsset(t *testing.T) {
