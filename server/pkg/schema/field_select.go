@@ -2,8 +2,10 @@ package schema
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 var TypeSelect Type = "select"
@@ -34,9 +36,14 @@ func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error
 	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
+	var v *string = nil
+	if defaultValue != nil {
+		v = new(string)
+		*v = strings.Clone(*defaultValue)
+	}
 	return &FieldSelect{
-		values:       values,
-		defaultValue: defaultValue,
+		values:       slices.Clone(values),
+		defaultValue: v,
 	}, nil
 }
 

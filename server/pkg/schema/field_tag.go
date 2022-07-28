@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/util"
+	"golang.org/x/exp/slices"
 )
 
 var TypeTag Type = "tag"
@@ -28,8 +29,8 @@ func FieldTagFrom(values []string, defaultValue []string) (*FieldTag, error) {
 		return nil, ErrFieldDefaultValue
 	}
 	return &FieldTag{
-		values:       values,
-		defaultValue: defaultValue,
+		values:       slices.Clone(values),
+		defaultValue: slices.Clone(defaultValue),
 	}, nil
 }
 
