@@ -17,17 +17,15 @@ type TaskRunner struct {
 	c             *cloudtasks.Client
 }
 
-func NewTaskRunner(ctx context.Context, c *CloudTasksConfig, cl *cloudtasks.Client) (gateway.TaskRunner, error) {
+func NewTaskRunner(ctx context.Context, c *CloudTasksConfig) (gateway.TaskRunner, error) {
 	qURL, err := c.buildQueueUrl()
 	if err != nil {
 		return nil, err
 	}
 
-	if cl == nil {
-		cl, err = cloudtasks.NewClient(ctx)
-		if err != nil {
-			return nil, err
-		}
+	cl, err := cloudtasks.NewClient(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	return &TaskRunner{
@@ -53,6 +51,12 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return nil
 }
 
+// setClient is intended to be used for testing to inject client from external
+func (t *TaskRunner) setClient(c *cloudtasks.Client) {
+	t.c = c
+}
+
+// CloseConn is the function to close cloudtasks Client's connection. We expect this function is prepared for interactive connection since GCP SDK uses gRPC internally. To avoid instantiate client everytime, we keep the client's instance.
 func (t *TaskRunner) CloseConn() error {
 	return t.c.Close()
 }
