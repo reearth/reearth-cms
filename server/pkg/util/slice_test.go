@@ -93,3 +93,84 @@ func TestDerefSlice(t *testing.T) {
 	assert.Nil(t, DerefSlice[int](nil))
 	assert.Equal(t, []int{1, 0, 2}, DerefSlice([]*int{lo.ToPtr(1), nil, lo.ToPtr(0), lo.ToPtr(2)}))
 }
+
+func TestSubset(t *testing.T) {
+	tests := []struct {
+		name          string
+		collection    []string
+		subCollection []string
+		want          bool
+	}{
+		{
+			name:          "",
+			collection:    []string{},
+			subCollection: []string{},
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{},
+			subCollection: nil,
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: nil,
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{},
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{"v1"},
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{"v1", "v2"},
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{"v1", "v2", "v3"},
+			want:          true,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{"v4"},
+			want:          false,
+		},
+		{
+			name:          "",
+			collection:    []string{"v1", "v2", "v3"},
+			subCollection: []string{"v1", "v2", "v4"},
+			want:          false,
+		},
+		{
+			name:          "",
+			collection:    nil,
+			subCollection: []string{"v1"},
+			want:          false,
+		},
+		{
+			name:          "",
+			collection:    []string{},
+			subCollection: []string{"v1"},
+			want:          false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, Subset(tt.collection, tt.subCollection))
+		})
+	}
+}
