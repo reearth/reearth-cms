@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-const NoSupportedViewer: React.FC = () => {
+const ViewerNotSupported: React.FC = () => {
   return (
-    <NoSuportedViewerContainer>
-      <NoSuportedViewerWrapper>
+    <ViewerNotSupportedContainer>
+      <ViewerNotSupportedWrapper>
         {/* TODO: should be replaced with ExclamationCircleTwoTone */}
         <Icon
           icon="exclamationCircle"
@@ -14,29 +14,27 @@ const NoSupportedViewer: React.FC = () => {
             marginBottom: "10px",
           }}
         />
-        <NoSuportedViewerText>
-          Didn’t find supported viewer
-        </NoSuportedViewerText>
-      </NoSuportedViewerWrapper>
-    </NoSuportedViewerContainer>
+        <ViewerNotSupportedText>Not supported</ViewerNotSupportedText>
+      </ViewerNotSupportedWrapper>
+    </ViewerNotSupportedContainer>
   );
 };
 
-const NoSuportedViewerContainer = styled.div`
+const ViewerNotSupportedContainer = styled.div`
   height: 240px;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const NoSuportedViewerWrapper = styled.div`
+const ViewerNotSupportedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   alignitems: center;
 `;
 
-const NoSuportedViewerText = styled.span`
+const ViewerNotSupportedText = styled.span`
   font-family: Roboto;
   font-style: normal;
   font-weight: 400;
@@ -45,4 +43,4 @@ const NoSuportedViewerText = styled.span`
   color: rgba(0, 0, 0, 0.85);
 `;
 
-export default NoSupportedViewer;
+export default ViewerNotSupported;

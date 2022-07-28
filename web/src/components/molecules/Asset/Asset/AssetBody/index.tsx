@@ -4,7 +4,6 @@ import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
-import NoSupportedViewer from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/noSupportedViewer";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
   PreviewType,
@@ -13,6 +12,7 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/svgPreview";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
+import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { createWorldTerrain, Viewer } from "cesium";
 
@@ -80,7 +80,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
       case PreviewType.SVG:
         return <SVGPreview url={url} svgRender={svgRender} />;
       default:
-        return <NoSupportedViewer />;
+        return <ViewerNotSupported />;
     }
   };
 
