@@ -26,7 +26,7 @@ const PreviewToolbar: React.FC<PreviewToolbar> = ({
     <>
       {selectedPreviewType === PreviewType.SVG && (
         <>
-          <Button onClick={handleCodeSourceClick}>Code Source</Button>
+          <Button onClick={handleCodeSourceClick}>Source Code</Button>
           <Button onClick={handleRenderClick}>Render</Button>
         </>
       )}
