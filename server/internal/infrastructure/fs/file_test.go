@@ -52,7 +52,7 @@ func TestFile_UploadAsset(t *testing.T) {
 	assert.Equal(t, u1, u)
 }
 
-func TestFile_RemoveAsset(t *testing.T) {
+func TestFile_DeleteAsset(t *testing.T) {
 	cases := []struct {
 		Name    string
 		URL     string
@@ -74,6 +74,10 @@ func TestFile_RemoveAsset(t *testing.T) {
 			URL:  "https://example.com/plugins/xxx.txt",
 			Err:  gateway.ErrInvalidFile,
 		},
+		{
+			Name: "no url",
+			Err:  nil,
+		},
 	}
 
 	for _, tc := range cases {
@@ -85,6 +89,9 @@ func TestFile_RemoveAsset(t *testing.T) {
 			f, _ := NewFile(fs, "https://example.com/assets")
 
 			u, _ := url.Parse(tc.URL)
+			if tc.URL == "" {
+				u = nil
+			}
 			err := f.DeleteAsset(context.Background(), u)
 
 			if tc.Err == nil {
