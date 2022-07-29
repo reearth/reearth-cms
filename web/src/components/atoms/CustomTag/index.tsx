@@ -14,7 +14,7 @@ const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
   );
 };
 
-const CustomTagWrapper = styled("div")`
+const CustomTagWrapper = styled.div`
   padding: 0px 6px;
   width: 20px;
   height: 16px;
