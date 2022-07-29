@@ -3,7 +3,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 
-type PreviewToolbar = {
+type Props = {
   url: string;
   selectedPreviewType: string;
   isModalVisible: boolean;
@@ -13,7 +13,7 @@ type PreviewToolbar = {
   handleModalCancel: () => void;
 };
 
-const PreviewToolbar: React.FC<PreviewToolbar> = ({
+const PreviewToolbar: React.FC<Props> = ({
   url,
   selectedPreviewType,
   handleCodeSourceClick,

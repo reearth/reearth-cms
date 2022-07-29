@@ -1,5 +1,6 @@
-import Select from "@reearth-cms/components/atoms/Select";
-import { DefaultOptionType } from "antd/lib/select";
+import Select, {
+  DefaultOptionType,
+} from "@reearth-cms/components/atoms/Select";
 import { CSSProperties } from "react";
 
 export enum PreviewType {
@@ -11,7 +12,7 @@ export enum PreviewType {
   ZIP = "zip",
 }
 
-type PreviewTypeSelectProps = {
+type Props = {
   onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[]
@@ -20,7 +21,7 @@ type PreviewTypeSelectProps = {
   value?: PreviewType;
 };
 
-export const PreviewTypeSelect: React.FC<PreviewTypeSelectProps> = ({
+export const PreviewTypeSelect: React.FC<Props> = ({
   onTypeChange,
   style,
   value,

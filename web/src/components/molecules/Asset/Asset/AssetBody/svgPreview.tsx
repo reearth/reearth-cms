@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
-type SVGPreviewProps = { url: string; svgRender: boolean };
+type Props = { url: string; svgRender: boolean };
 
-const SVGPreview: React.FC<SVGPreviewProps> = ({ url, svgRender }) => {
+const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
   const [svgText, setSvgText] = useState<string>("");
 
   const fetchData = useCallback(() => {

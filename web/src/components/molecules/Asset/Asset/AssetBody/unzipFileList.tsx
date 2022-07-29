@@ -2,7 +2,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { CSSProperties, useState } from "react";
 
-type UnzipFileListProps = {
+type Props = {
   style?: CSSProperties;
 };
 
@@ -66,7 +66,7 @@ const treeData: DataNode[] = [
   },
 ];
 
-const UnzipFileList: React.FC<UnzipFileListProps> = ({ style }) => {
+const UnzipFileList: React.FC<Props> = ({ style }) => {
   const [expandedKeys, setExpandedKeys] = useState<DataNode["key"][]>(["0-0"]);
   const [selectedKeys, setSelectedKeys] = useState<DataNode["key"][]>([]);
 

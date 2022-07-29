@@ -1,17 +1,13 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
-type SideBarCardProps = {
+type Props = {
   title: string;
   children?: ReactNode;
   style?: CSSProperties;
 };
 
-const SideBarCard: React.FC<SideBarCardProps> = ({
-  title,
-  children,
-  style,
-}) => {
+const SideBarCard: React.FC<Props> = ({ title, children, style }) => {
   return (
     <SideBarCardWrapper style={style}>
       <CardTitle>{title}</CardTitle>

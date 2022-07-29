@@ -1,17 +1,13 @@
 import styled from "@emotion/styled";
 import Modal from "@reearth-cms/components/atoms/Modal";
 
-type PreviewModalProps = {
+type Props = {
   url: string;
   visible: boolean;
   handleCancel: () => void;
 };
 
-const PreviewModal: React.FC<PreviewModalProps> = ({
-  url,
-  visible,
-  handleCancel,
-}) => {
+const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
   return (
     <Modal
       centered

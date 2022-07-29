@@ -5,13 +5,13 @@ import {
 } from "@reearth-cms/components/atoms/Upload";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 
-type AssetListHeaderProps = {
+type Props = {
   title: string;
   subTitle: string;
   handleUpload: (info: UploadChangeParam<UploadFile<any>>) => void;
 };
 
-const AssetListHeader: React.FC<AssetListHeaderProps> = ({
+const AssetListHeader: React.FC<Props> = ({
   title,
   subTitle,
   handleUpload,

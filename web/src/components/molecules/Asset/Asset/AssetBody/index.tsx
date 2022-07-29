@@ -18,7 +18,7 @@ import { createWorldTerrain, Viewer } from "cesium";
 
 import useHooks from "./hooks";
 
-type AssetBodyProps = {
+type Props = {
   asset: Asset;
   url: string;
   selectedPreviewType: PreviewType;
@@ -33,7 +33,7 @@ type AssetBodyProps = {
 
 export let viewerRef: Viewer | undefined;
 
-const AssetBody: React.FC<AssetBodyProps> = ({
+const AssetBody: React.FC<Props> = ({
   asset,
   url,
   selectedPreviewType,

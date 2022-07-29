@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
-type CardProps = {
+type Props = {
   title: string;
   toolbar?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;
 };
 
-const Card: React.FC<CardProps> = ({ title, toolbar, children, style }) => {
+const Card: React.FC<Props> = ({ title, toolbar, children, style }) => {
   return (
     <CardWrapper style={style}>
       <CardHeader>
