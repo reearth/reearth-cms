@@ -1,13 +1,12 @@
-import { CaretDownFilled } from "@ant-design/icons";
-import Tree from "@reearth-cms/components/atoms/Tree";
-import type { DataNode, TreeProps } from "antd/lib/tree";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { CSSProperties, useState } from "react";
 
 type UnzipFileListProps = {
   style?: CSSProperties;
 };
 
-// TODO: this data is hardcodded, actual data should be formatted in a similar way.
+// TODO: this data is hard-codded, actual data should be formatted in a similar way.
 const treeData: DataNode[] = [
   {
     title: "Folder",
@@ -81,7 +80,7 @@ const UnzipFileList: React.FC<UnzipFileListProps> = ({ style }) => {
 
   return (
     <Tree
-      switcherIcon={<CaretDownFilled />}
+      switcherIcon={<Icon icon="caretDown" />}
       expandedKeys={[...expandedKeys]}
       selectedKeys={[...selectedKeys]}
       onSelect={onSelect}

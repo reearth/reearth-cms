@@ -21,7 +21,7 @@ import useHooks from "./hooks";
 type AssetBodyProps = {
   asset: Asset;
   url: string;
-  selectedPreviewType: string;
+  selectedPreviewType: PreviewType;
   isModalVisible: boolean;
   handleModalCancel: () => void;
   handleFullScreen: () => void;
@@ -119,7 +119,7 @@ const AssetBody: React.FC<AssetBodyProps> = ({
         <SideBarCard title="Asset Type">
           <PreviewTypeSelect
             style={{ width: "60%" }}
-            value={selectedPreviewType as PreviewType}
+            value={selectedPreviewType}
             onTypeChange={handleTypeChange}
           />
         </SideBarCard>

@@ -1,7 +1,6 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Upload from "@reearth-cms/components/atoms/Upload";
-import { UploadProps } from "antd/lib/upload/interface";
+import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
 
 const UploadAsset: React.FC<UploadProps> = ({ ...props }) => {
   return (

@@ -1,6 +1,9 @@
 import styled from "@emotion/styled";
+import {
+  UploadChangeParam,
+  UploadFile,
+} from "@reearth-cms/components/atoms/Upload";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
 
 type AssetListHeaderProps = {
   title: string;
