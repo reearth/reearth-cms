@@ -24,7 +24,7 @@ func Unzip(src, dest string) error {
 
 		if f.FileInfo().IsDir() {
 			path := filepath.Join(dest, f.Name)
-			os.MkdirAll(path, f.Mode())
+			_ = os.MkdirAll(path, f.Mode())
 		} else {
 			buf := make([]byte, f.UncompressedSize)
 			_, err = io.ReadFull(rc, buf)
