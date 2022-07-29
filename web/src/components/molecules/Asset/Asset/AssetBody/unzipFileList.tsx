@@ -1,5 +1,6 @@
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
+import { Key } from "rc-table/lib/interface";
 import { CSSProperties, useState } from "react";
 
 type Props = {
@@ -70,12 +71,12 @@ const UnzipFileList: React.FC<Props> = ({ style }) => {
   const [expandedKeys, setExpandedKeys] = useState<DataNode["key"][]>(["0-0"]);
   const [selectedKeys, setSelectedKeys] = useState<DataNode["key"][]>([]);
 
-  const onSelect: TreeProps["onSelect"] = (selectedKeys) => {
-    setSelectedKeys(selectedKeys);
+  const onSelect: TreeProps["onSelect"] = (keys: Key[]) => {
+    setSelectedKeys(keys);
   };
 
-  const onExpand: TreeProps["onExpand"] = (expandedKeys) => {
-    setExpandedKeys([...expandedKeys]);
+  const onExpand: TreeProps["onExpand"] = (keys: Key[]) => {
+    setExpandedKeys([...keys]);
   };
 
   return (

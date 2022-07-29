@@ -27,12 +27,16 @@ export const PreviewTypeSelect: React.FC<Props> = ({
   value,
 }) => {
   const previewTypeList = [
-    { id: 1, name: "image", value: PreviewType.IMAGE },
-    { id: 2, name: "geo", value: PreviewType.GEO },
-    { id: 3, name: "geo3d", value: PreviewType.GEO3D },
-    { id: 4, name: "model3d", value: PreviewType.MODEL3D },
-    { id: 5, name: "svg", value: PreviewType.SVG },
-    { id: 5, name: "zip", value: PreviewType.ZIP },
+    { id: 1, name: "PNG/JPEG/TIFF", value: PreviewType.IMAGE },
+    {
+      id: 2,
+      name: "JSON/SHAPEFILE/KML/CZML",
+      value: PreviewType.GEO,
+    },
+    { id: 3, name: "GEO3D", value: PreviewType.GEO3D },
+    { id: 4, name: "MODEL3D/GLB", value: PreviewType.MODEL3D },
+    { id: 5, name: "SVG", value: PreviewType.SVG },
+    { id: 6, name: "ZIP", value: PreviewType.ZIP },
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>
