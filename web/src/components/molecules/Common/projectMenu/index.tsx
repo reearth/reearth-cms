@@ -1,8 +1,9 @@
-import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Menu from "@reearth-cms/components/atoms/Menu";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -18,11 +19,7 @@ const topItems: ItemType[] = [
   { label: "Request", key: "request", icon: <Icon icon="pullRequest" /> },
 ];
 
-const ProjectMenu: React.FC<Props> = ({
-  inlineCollapsed,
-  workspaceId,
-  defaultSelectedKeys,
-}) => {
+const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, workspaceId, defaultSelectedKeys }) => {
   const navigate = useNavigate();
   const items: ItemType[] = [
     {

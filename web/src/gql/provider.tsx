@@ -1,12 +1,7 @@
-import {
-  ApolloProvider,
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  HttpLink,
-} from "@apollo/client";
+import { ApolloProvider, ApolloClient, ApolloLink, InMemoryCache, HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+
 import { useAuth } from "@reearth-cms/auth";
 import { useError } from "@reearth-cms/state";
 
@@ -23,8 +18,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const authLink = setContext(async (_, { headers }) => {
     // get the authentication token from local storage if it exists
-    const accessToken =
-      window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
+    const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
     // return the headers to the context so httpLink can read them
     return {
       headers: {
@@ -36,8 +30,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (!networkError && !graphQLErrors) return;
-    const error =
-      networkError?.message ?? graphQLErrors?.map((e) => e.message).join(", ");
+    const error = networkError?.message ?? graphQLErrors?.map(e => e.message).join(", ");
     if (error) {
       setError(error);
     }

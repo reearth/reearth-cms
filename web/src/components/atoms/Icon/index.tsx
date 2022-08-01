@@ -17,33 +17,16 @@ export type Props = {
   onClick?: () => void;
 };
 
-const Icon: React.FC<Props> = ({
-  className,
-  icon,
-  alt,
-  style,
-  color,
-  size,
-  onClick,
-}) => {
+const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onClick }) => {
   const src = useMemo(
-    () =>
-      icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons],
-    [icon]
+    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+    [icon],
   );
   if (!icon) return null;
 
   const sizeStr = typeof size === "number" ? `${size}px` : size;
   if (!src) {
-    return (
-      <StyledImg
-        src={icon}
-        alt={alt}
-        style={style}
-        size={sizeStr}
-        onClick={onClick}
-      />
-    );
+    return <StyledImg src={icon} alt={alt} style={style} size={sizeStr} onClick={onClick} />;
   }
 
   if (typeof src === "string") {
@@ -69,11 +52,8 @@ const StyledImg = styled.img<{ size?: string }>`
 `;
 
 const SVG: React.FC<
-  Pick<
-    ComponentProps<typeof ReactSVG>,
-    "className" | "src" | "onClick" | "alt" | "style"
-  >
-> = (props) => {
+  Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "alt" | "style">
+> = props => {
   return <ReactSVG {...props} wrapper="span" />;
 };
 

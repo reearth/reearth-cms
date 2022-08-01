@@ -1,4 +1,10 @@
 import styled from "@emotion/styled";
+import TextArea from "antd/lib/input/TextArea";
+import Layout, { Header, Content } from "antd/lib/layout/layout";
+import Sider from "antd/lib/layout/Sider";
+import React, { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -8,11 +14,6 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import TextArea from "antd/lib/input/TextArea";
-import Layout, { Header, Content } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
-import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -54,14 +55,14 @@ const ProjectSettings: React.FC = () => {
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values) => {
+      .then(async values => {
         handleProjectUpdate({
           name: values.name,
           description: values.description,
         });
         form.resetFields();
       })
-      .catch((info) => {
+      .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, handleProjectUpdate]);
@@ -92,9 +93,8 @@ const ProjectSettings: React.FC = () => {
           <ProjectSider
             collapsible
             collapsed={collapsed}
-            onCollapse={(value) => setCollapsed(value)}
-            style={{ backgroundColor: "#fff" }}
-          >
+            onCollapse={value => setCollapsed(value)}
+            style={{ backgroundColor: "#fff" }}>
             <ProjectMenu
               defaultSelectedKeys={["settings"]}
               inlineCollapsed={collapsed}
@@ -104,28 +104,18 @@ const ProjectSettings: React.FC = () => {
           <PaddedContent>
             <ProjectSection> {project?.name} </ProjectSection>
             <ProjectSection>
-              <Form
-                style={{ maxWidth: 400 }}
-                form={form}
-                layout="vertical"
-                autoComplete="off"
-              >
+              <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
                 <Form.Item name="name" label="Name">
                   <Input />
                 </Form.Item>
                 <Form.Item
                   name="description"
                   label="Description"
-                  extra="Write something here to describe this record."
-                >
+                  extra="Write something here to describe this record.">
                   <TextArea rows={4} />
                 </Form.Item>
                 <Form.Item>
-                  <Button
-                    onClick={handleSubmit}
-                    type="primary"
-                    htmlType="submit"
-                  >
+                  <Button onClick={handleSubmit} type="primary" htmlType="submit">
                     Save changes
                   </Button>
                 </Form.Item>
@@ -133,11 +123,7 @@ const ProjectSettings: React.FC = () => {
             </ProjectSection>
             <ProjectSection>
               <Typography style={{ marginBottom: 16 }}>Danger Zone</Typography>
-              <Button
-                onClick={handleProjectDeleteConfirmation}
-                type="primary"
-                danger
-              >
+              <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
                 Delete project
               </Button>
             </ProjectSection>
