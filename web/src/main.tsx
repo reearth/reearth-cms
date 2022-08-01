@@ -5,16 +5,18 @@ import "./index.css";
 import App from "./App";
 import loadConfig from "./config";
 
-try {
-  await loadConfig();
-} finally {
-  const element = document.getElementById("root");
-  if (element) {
-    const root = ReactDOM.createRoot(element);
-    root.render(
-      <StrictMode>
-        <App />
-      </StrictMode>,
-    );
+(async function () {
+  try {
+    await loadConfig();
+  } finally {
+    const element = document.getElementById("root");
+    if (element) {
+      const root = ReactDOM.createRoot(element);
+      root.render(
+        <StrictMode>
+          <App />
+        </StrictMode>,
+      );
+    }
   }
-}
+})();
