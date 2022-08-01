@@ -20,6 +20,8 @@ import {
   PlusOutlined,
   CloseOutlined,
   ExclamationCircleOutlined,
+  UploadOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 
 export default {
@@ -44,4 +46,6 @@ export default {
   plus: PlusOutlined,
   close: CloseOutlined,
   exclamationCircle: ExclamationCircleOutlined,
+  upload: UploadOutlined,
+  message: MessageOutlined,
 };

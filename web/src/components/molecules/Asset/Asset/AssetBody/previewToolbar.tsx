@@ -1,12 +1,13 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
-import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
 
 type Props = {
   url: string;
-  selectedPreviewType: string;
+  selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  isSVG: boolean;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
@@ -16,15 +17,16 @@ type Props = {
 const PreviewToolbar: React.FC<Props> = ({
   url,
   selectedPreviewType,
+  isModalVisible,
+  isSVG,
   handleCodeSourceClick,
   handleRenderClick,
   handleFullScreen,
-  isModalVisible,
   handleModalCancel,
 }) => {
   return (
     <>
-      {selectedPreviewType === PreviewType.SVG && (
+      {selectedPreviewType === PreviewType.Image && isSVG && (
         <>
           <Button onClick={handleCodeSourceClick}>Source Code</Button>
           <Button onClick={handleRenderClick}>Render</Button>

@@ -5,18 +5,16 @@ import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
-import {
-  PreviewType,
-  PreviewTypeSelect,
-} from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { PreviewTypeSelect } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
-import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/svgPreview";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { createWorldTerrain, Viewer } from "cesium";
 
 import useHooks from "./hooks";
+import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
@@ -45,14 +43,15 @@ const AssetBody: React.FC<Props> = ({
   const { fileName, createdAt, createdBy } = asset;
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(createdAt);
-  const displayUnzipFileList = selectedPreviewType === PreviewType.ZIP;
+  const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
+  // TODO: maybe we need a better way to check for svg files
+  const isSVG = fileName?.endsWith(".svg") ?? false;
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
   const renderPreview = () => {
     switch (selectedPreviewType) {
-      case PreviewType.GEO:
-      case PreviewType.ZIP:
+      case PreviewType.Geo:
         return (
           <TilesetPreview
             viewerProps={{
@@ -75,10 +74,12 @@ const AssetBody: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case PreviewType.IMAGE:
-        return <Image src={url} alt="asset-preview"></Image>;
-      case PreviewType.SVG:
-        return <SVGPreview url={url} svgRender={svgRender} />;
+      case PreviewType.Image:
+        return isSVG ? (
+          <SVGPreview url={url} svgRender={svgRender} />
+        ) : (
+          <Image src={url} alt="asset-preview"></Image>
+        );
       default:
         return <ViewerNotSupported />;
     }
@@ -94,6 +95,7 @@ const AssetBody: React.FC<Props> = ({
               url={url}
               selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
+              isSVG={isSVG}
               handleCodeSourceClick={handleCodeSourceClick}
               handleRenderClick={handleRenderClick}
               handleFullScreen={handleFullScreen}

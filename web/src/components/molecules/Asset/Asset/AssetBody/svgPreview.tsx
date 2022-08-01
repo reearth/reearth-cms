@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 type Props = { url: string; svgRender: boolean };
 
 const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
-  const [svgText, setSvgText] = useState<string>("");
+  const [svgText, setSvgText] = useState("");
 
   const fetchData = useCallback(() => {
     fetch(url)
