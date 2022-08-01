@@ -11,6 +11,8 @@ import enUSIntl from "antd/lib/locale/en_US";
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import "antd/dist/antd.css";
+import AssetPage from "./components/pages/Asset/Asset";
+import AssetListPage from "./components/pages/Asset/AssetList";
 
 function AppRoutes() {
   const routes = useRoutes([
@@ -18,6 +20,14 @@ function AppRoutes() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
+    {
+      path: "/workspaces/:workspaceId/:projectId/assets",
+      element: <AssetListPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/:projectId/assets/:assetId",
+      element: <AssetPage />,
+    },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "*", element: <NotFound /> },
   ]);
