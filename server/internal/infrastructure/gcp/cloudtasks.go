@@ -7,6 +7,7 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
@@ -43,9 +44,9 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	}
 	req := t.buildRequest(t.subscriberURL, bPayload)
 
-	_, err = t.CreateTask(ctx, req)
+	_, err = t.createTask(ctx, req)
 	if err != nil {
-		return rerror.InternalBy(err)
+		return rerror.ErrInternalBy(err)
 	}
 
 	return nil
