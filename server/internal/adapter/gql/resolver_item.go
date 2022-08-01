@@ -5,4 +5,4 @@ func (r *Resolver) Item() ItemResolver {
 	panic("implement me")
 }
 
-type itemResolver struct{ *Resolver }
+// type itemResolver struct{ *Resolver }
