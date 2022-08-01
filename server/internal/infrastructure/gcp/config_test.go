@@ -46,8 +46,8 @@ func TestCloudTasksConfig_buildQueueUrl(t *testing.T) {
 				QueueName:  tt.fields.QueueName,
 			}
 			got, err := c.buildQueueUrl()
-			if tt.wantErr {
-				assert.Error(t, err)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
 				return
 			}
 			assert.NoError(t, err)
