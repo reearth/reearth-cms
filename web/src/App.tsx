@@ -1,3 +1,7 @@
+import { ConfigProvider } from "antd";
+import enUSIntl from "antd/lib/locale/en_US";
+import { BrowserRouter as Router, useRoutes } from "react-router-dom";
+
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
@@ -6,9 +10,6 @@ import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
-import { ConfigProvider } from "antd";
-import enUSIntl from "antd/lib/locale/en_US";
-import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import "antd/dist/antd.css";
 

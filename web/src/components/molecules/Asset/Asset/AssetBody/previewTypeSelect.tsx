@@ -1,7 +1,6 @@
-import Select, {
-  DefaultOptionType,
-} from "@reearth-cms/components/atoms/Select";
 import { CSSProperties } from "react";
+
+import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 
 export enum PreviewType {
   IMAGE = "image",
@@ -15,17 +14,13 @@ export enum PreviewType {
 type Props = {
   onTypeChange: (
     value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[]
+    option: DefaultOptionType | DefaultOptionType[],
   ) => void | undefined;
   style?: CSSProperties;
   value?: PreviewType;
 };
 
-export const PreviewTypeSelect: React.FC<Props> = ({
-  onTypeChange,
-  style,
-  value,
-}) => {
+export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
   const previewTypeList = [
     { id: 1, name: "PNG/JPEG/TIFF", value: PreviewType.IMAGE },
     {
@@ -40,7 +35,7 @@ export const PreviewTypeSelect: React.FC<Props> = ({
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>
-      {previewTypeList.map((type) => (
+      {previewTypeList.map(type => (
         <Select.Option key={type.id} value={type.value}>
           {type.name}
         </Select.Option>

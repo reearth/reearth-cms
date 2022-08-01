@@ -8,8 +8,8 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
 
   const fetchData = useCallback(() => {
     fetch(url)
-      .then((res) => res.text())
-      .then((val) => {
+      .then(res => res.text())
+      .then(val => {
         setSvgText(val);
       });
   }, [url]);

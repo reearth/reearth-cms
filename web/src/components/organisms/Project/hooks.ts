@@ -1,10 +1,8 @@
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
-import {
-  useGetProjectsQuery,
-  useCreateProjectMutation,
-} from "@reearth-cms/gql/graphql-client-api";
-import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useMemo, useState } from "react";
+
+import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
+import { useGetProjectsQuery, useCreateProjectMutation } from "@reearth-cms/gql/graphql-client-api";
+import { useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const [currentWorkspace] = useWorkspace();
@@ -20,23 +18,21 @@ export default () => {
 
   const projects = useMemo(() => {
     return (data?.projects.nodes ?? [])
-      .map<Project | undefined>((project) =>
+      .map<Project | undefined>(project =>
         project
           ? {
               id: project.id,
               description: project.description,
               name: project.name,
             }
-          : undefined
+          : undefined,
       )
       .filter(
         (project): project is Project =>
           !!project &&
           (!searchedProjectName ||
             (!!searchedProjectName &&
-              project.name
-                .toLocaleLowerCase()
-                .includes(searchedProjectName.toLocaleLowerCase())))
+              project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()))),
       );
   }, [data?.projects.nodes, searchedProjectName]);
 
@@ -48,7 +44,7 @@ export default () => {
     (value: string) => {
       setSearchedProjectName?.(value);
     },
-    [setSearchedProjectName]
+    [setSearchedProjectName],
   );
 
   const handleProjectCreate = useCallback(
@@ -69,17 +65,14 @@ export default () => {
       setProjectModalShown(false);
       refetch();
     },
-    [createNewProject, workspaceId, refetch]
+    [createNewProject, workspaceId, refetch],
   );
 
   const handleProjectModalClose = useCallback(() => {
     setProjectModalShown(false);
   }, []);
 
-  const handleProjectModalOpen = useCallback(
-    () => setProjectModalShown(true),
-    []
-  );
+  const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
   return {
     projects,

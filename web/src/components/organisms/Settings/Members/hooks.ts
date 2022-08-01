@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from "react";
+
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetWorkspacesQuery,
@@ -9,7 +11,6 @@ import {
   useGetUserBySearchLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
-import { useCallback, useEffect, useState } from "react";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
@@ -21,9 +22,7 @@ export default ({ workspaceId }: Props) => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<Member | undefined>(
-    undefined
-  );
+  const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -40,24 +39,22 @@ export default ({ workspaceId }: Props) => {
     if (!currentWorkspace) {
       setWorkspace(
         workspaceId
-          ? workspaces?.find((t) => t.id === workspaceId)
-          : data?.me?.myWorkspace ?? undefined
+          ? workspaces?.find(t => t.id === workspaceId)
+          : data?.me?.myWorkspace ?? undefined,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWorkspace, setWorkspace, workspaces, data?.me]);
 
-  const [searchUserQuery, { data: searchUserData }] =
-    useGetUserBySearchLazyQuery();
+  const [searchUserQuery, { data: searchUserData }] = useGetUserBySearchLazyQuery();
 
   useEffect(() => {
     changeSearchedUser(searchUserData?.searchUser ?? undefined);
   }, [searchUserData?.searchUser]);
 
   const handleUserSearch = useCallback(
-    (nameOrEmail: string) =>
-      nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
-    [searchUserQuery]
+    (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
+    [searchUserQuery],
   );
 
   const [addMemberToWorkspaceMutation] = useAddMemberToWorkspaceMutation();
@@ -65,7 +62,7 @@ export default ({ workspaceId }: Props) => {
   const handleMemberAddToWorkspace = useCallback(
     async (userIds: string[]) => {
       const results = await Promise.all(
-        userIds.map(async (userId) => {
+        userIds.map(async userId => {
           if (!workspaceId) return;
           const result = await addMemberToWorkspaceMutation({
             variables: { userId, workspaceId, role: Role.Reader },
@@ -77,17 +74,16 @@ export default ({ workspaceId }: Props) => {
             return;
           }
           setWorkspace(workspace);
-        })
+        }),
       );
       if (results) {
         // TODO: notification
       }
     },
-    [workspaceId, addMemberToWorkspaceMutation, setWorkspace]
+    [workspaceId, addMemberToWorkspaceMutation, setWorkspace],
   );
 
-  const [updateMemberOfWorkspaceMutation] =
-    useUpdateMemberOfWorkspaceMutation();
+  const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
 
   const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
@@ -109,11 +105,10 @@ export default ({ workspaceId }: Props) => {
         }
       }
     },
-    [workspaceId, setWorkspace, updateMemberOfWorkspaceMutation]
+    [workspaceId, setWorkspace, updateMemberOfWorkspaceMutation],
   );
 
-  const [removeMemberFromWorkspaceMutation] =
-    useRemoveMemberFromWorkspaceMutation();
+  const [removeMemberFromWorkspaceMutation] = useRemoveMemberFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userId: string) => {
@@ -130,7 +125,7 @@ export default ({ workspaceId }: Props) => {
       setWorkspace(workspace);
       // TODO: notification
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace]
+    [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace],
   );
 
   const handleRoleModalClose = useCallback(() => {

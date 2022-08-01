@@ -5,13 +5,16 @@ import "./index.css";
 import App from "./App";
 import loadConfig from "./config";
 
-loadConfig().finally(() => {
+try {
+  await loadConfig();
+} finally {
   const element = document.getElementById("root");
-  if (!element) throw new Error("root element is not found");
-  const root = ReactDOM.createRoot(element);
-  root.render(
-    <StrictMode>
-      <App />
-    </StrictMode>
-  );
-});
+  if (element) {
+    const root = ReactDOM.createRoot(element);
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
+  }
+}
