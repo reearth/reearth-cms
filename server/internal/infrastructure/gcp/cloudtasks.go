@@ -45,7 +45,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 
 	_, err = t.CreateTask(ctx, req)
 	if err != nil {
-		return err
+		return rerror.InternalBy(err)
 	}
 
 	return nil
