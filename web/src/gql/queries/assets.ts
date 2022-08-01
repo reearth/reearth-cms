@@ -7,12 +7,7 @@ export const GET_ASSETS = gql`
     $sort: AssetSortType
     $pagination: Pagination
   ) {
-    assets(
-      projectId: $projectId
-      keyword: $keyword
-      sort: $sort
-      pagination: $pagination
-    ) {
+    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       nodes {
         id
         projectId

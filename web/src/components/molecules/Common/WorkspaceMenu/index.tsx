@@ -1,8 +1,9 @@
-import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Menu from "@reearth-cms/components/atoms/Menu";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -64,10 +65,10 @@ const WorkspaceMenu: React.FC<Props> = ({
       show: "notPersonal" as MenuShowType,
     },
   ].filter(
-    (item) =>
+    item =>
       (isPersonalWorkspace && item.show === "personal") ||
       (!isPersonalWorkspace && item.show === "notPersonal") ||
-      item.show === "both"
+      item.show === "both",
   );
 
   const onClick = (e: any) => {

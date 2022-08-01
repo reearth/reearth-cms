@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+
 import Modal from "@reearth-cms/components/atoms/Modal";
 
 type Props = {
@@ -17,8 +18,7 @@ const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
       width="90vw"
       bodyStyle={{
         height: "90vh",
-      }}
-    >
+      }}>
       <PreviewImage src={url} alt="asset-preview" />
     </Modal>
   );

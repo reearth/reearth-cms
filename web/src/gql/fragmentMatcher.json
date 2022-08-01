@@ -2,6 +2,7 @@
   "possibleTypes": {
     "Node": [
       "Asset",
+      "Item",
       "Model",
       "Project",
       "Schema",

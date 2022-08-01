@@ -1,11 +1,9 @@
-import { User } from "@reearth-cms/components/molecules/Dashboard/types";
-import {
-  useCreateWorkspaceMutation,
-  useGetMeQuery,
-} from "@reearth-cms/gql/graphql-client-api";
-import { useWorkspace } from "@reearth-cms/state";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { User } from "@reearth-cms/components/molecules/Dashboard/types";
+import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useWorkspace } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
@@ -19,11 +17,9 @@ export default (workspaceId?: string) => {
   };
 
   const workspaces = data?.me?.workspaces;
-  const workspace = workspaces?.find(
-    (workspace) => workspace.id === workspaceId
-  );
+  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
   const personalWorkspace = workspaces?.find(
-    (workspace) => workspace.id === data?.me?.myWorkspace.id
+    workspace => workspace.id === data?.me?.myWorkspace.id,
   );
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
@@ -44,15 +40,13 @@ export default (workspaceId?: string) => {
 
   const handleWorkspaceChange = useCallback(
     (workspaceId: string) => {
-      const workspace = workspaces?.find(
-        (workspace) => workspace.id === workspaceId
-      );
+      const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
       if (workspace) {
         setCurrentWorkspace(workspace);
         navigate(`/dashboard/${workspaceId}`);
       }
     },
-    [workspaces, setCurrentWorkspace, navigate]
+    [workspaces, setCurrentWorkspace, navigate],
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
@@ -68,17 +62,14 @@ export default (workspaceId?: string) => {
       }
       refetch();
     },
-    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate]
+    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate],
   );
 
   const handleWorkspaceModalClose = useCallback(() => {
     setWorkspaceModalShown(false);
   }, []);
 
-  const handleWorkspaceModalOpen = useCallback(
-    () => setWorkspaceModalShown(true),
-    []
-  );
+  const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   return {
     user,

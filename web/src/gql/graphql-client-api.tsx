@@ -99,6 +99,11 @@ export type CreateFieldInput = {
   unique: Scalars['Boolean'];
 };
 
+export type CreateItemInput = {
+  fields: Array<ItemFieldInput>;
+  modelId: Scalars['ID'];
+};
+
 export type CreateModelInput = {
   description?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
@@ -140,6 +145,15 @@ export type DeleteFieldPayload = {
   fieldId: Scalars['ID'];
 };
 
+export type DeleteItemInput = {
+  itemId: Scalars['ID'];
+};
+
+export type DeleteItemPayload = {
+  __typename?: 'DeleteItemPayload';
+  itemId: Scalars['ID'];
+};
+
 export type DeleteMeInput = {
   userId: Scalars['ID'];
 };
@@ -179,6 +193,56 @@ export type DeleteWorkspacePayload = {
 export type FieldPayload = {
   __typename?: 'FieldPayload';
   field: SchemaField;
+};
+
+export type Item = Node & {
+  __typename?: 'Item';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+  latestVersion?: Maybe<ItemVersion>;
+  model: Model;
+  modelId: Scalars['ID'];
+  publicVersion: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  versions: Array<ItemVersion>;
+};
+
+export type ItemConnection = {
+  __typename?: 'ItemConnection';
+  edges: Array<ItemEdge>;
+  nodes: Array<Maybe<Item>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type ItemEdge = {
+  __typename?: 'ItemEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Item>;
+};
+
+export type ItemField = {
+  __typename?: 'ItemField';
+  fieldId: Scalars['ID'];
+  value: Scalars['Any'];
+};
+
+export type ItemFieldInput = {
+  fieldId: Scalars['ID'];
+  value: Scalars['Any'];
+};
+
+export type ItemPayload = {
+  __typename?: 'ItemPayload';
+  item: Item;
+};
+
+export type ItemVersion = {
+  __typename?: 'ItemVersion';
+  fields: Array<ItemField>;
+  parent: Array<Scalars['String']>;
+  ref: Array<Scalars['String']>;
+  version: Scalars['String'];
 };
 
 export type KeyAvailability = {
@@ -238,11 +302,13 @@ export type Mutation = {
   addMemberToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
   createAsset?: Maybe<CreateAssetPayload>;
   createField?: Maybe<FieldPayload>;
+  createItem?: Maybe<ItemPayload>;
   createModel?: Maybe<ProjectPayload>;
   createProject?: Maybe<ProjectPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
+  deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteProjectPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
@@ -252,6 +318,7 @@ export type Mutation = {
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
   updateField?: Maybe<FieldPayload>;
+  updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
   updateMemberOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateModel?: Maybe<ProjectPayload>;
@@ -272,6 +339,11 @@ export type MutationCreateAssetArgs = {
 
 export type MutationCreateFieldArgs = {
   input: CreateFieldInput;
+};
+
+
+export type MutationCreateItemArgs = {
+  input: CreateItemInput;
 };
 
 
@@ -297,6 +369,11 @@ export type MutationDeleteAssetArgs = {
 
 export type MutationDeleteFieldArgs = {
   input: DeleteFieldInput;
+};
+
+
+export type MutationDeleteItemArgs = {
+  input: DeleteItemInput;
 };
 
 
@@ -342,6 +419,11 @@ export type MutationSignupArgs = {
 
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
+};
+
+
+export type MutationUpdateItemArgs = {
+  input: UpdateItemInput;
 };
 
 
@@ -448,6 +530,7 @@ export type Query = {
   assets: AssetConnection;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
+  items: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
   node?: Maybe<Node>;
@@ -472,6 +555,15 @@ export type QueryCheckModelKeyAvailabilityArgs = {
 
 export type QueryCheckProjectAliasArgs = {
   alias: Scalars['String'];
+};
+
+
+export type QueryItemsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  modelId: Scalars['ID'];
 };
 
 
@@ -735,6 +827,11 @@ export type UpdateFieldInput = {
   key?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
+};
+
+export type UpdateItemInput = {
+  fields: Array<ItemFieldInput>;
+  itemId: Scalars['ID'];
 };
 
 export type UpdateMeInput = {

@@ -1,8 +1,9 @@
+import React, { useCallback, useEffect } from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
-import React, { useCallback, useEffect } from "react";
 
 export interface FormValues {
   userId: string;
@@ -16,12 +17,7 @@ export interface Props {
   onSubmit?: (userId: string, role: RoleUnion) => Promise<void>;
 }
 
-const MemberRoleModal: React.FC<Props> = ({
-  open,
-  onClose,
-  onSubmit,
-  member,
-}) => {
+const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
 
@@ -35,12 +31,12 @@ const MemberRoleModal: React.FC<Props> = ({
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values) => {
+      .then(async values => {
         await onSubmit?.(member?.userId, values?.role);
         onClose?.(true);
         form.resetFields();
       })
-      .catch((info) => {
+      .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, onClose, onSubmit, member?.userId]);
@@ -51,20 +47,14 @@ const MemberRoleModal: React.FC<Props> = ({
   }, [form, onClose]);
 
   return (
-    <Modal
-      title="Role Settings"
-      visible={open}
-      onCancel={handleClose}
-      onOk={handleSubmit}
-    >
+    <Modal title="Role Settings" visible={open} onCancel={handleClose} onOk={handleSubmit}>
       <Form
         form={form}
         layout="vertical"
         initialValues={{
           userId: member?.userId,
           role: member?.role,
-        }}
-      >
+        }}>
         <Form.Item
           name="role"
           label="Role"
@@ -73,8 +63,7 @@ const MemberRoleModal: React.FC<Props> = ({
               required: true,
               message: "Please input the appropriate role for this member!",
             },
-          ]}
-        >
+          ]}>
           <Select placeholder="select role">
             <Option value="OWNER">Owner</Option>
             <Option value="WRITER">Writer</Option>

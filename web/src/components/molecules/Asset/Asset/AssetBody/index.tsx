@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { createWorldTerrain, Viewer } from "cesium";
+
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
@@ -14,7 +16,6 @@ import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { createWorldTerrain, Viewer } from "cesium";
 
 import useHooks from "./hooks";
 
@@ -27,7 +28,7 @@ type Props = {
   handleFullScreen: () => void;
   handleTypeChange: (
     value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[]
+    option: DefaultOptionType | DefaultOptionType[],
   ) => void | undefined;
 };
 
@@ -99,8 +100,7 @@ const AssetBody: React.FC<Props> = ({
               handleFullScreen={handleFullScreen}
               handleModalCancel={handleModalCancel}
             />
-          }
-        >
+          }>
           {renderPreview()}
         </Card>
         {displayUnzipFileList && (
@@ -108,12 +108,7 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton
-          type="ghost"
-          filename={fileName}
-          url={url}
-          displayDefaultIcon={true}
-        />
+        <DownloadButton type="ghost" filename={fileName} url={url} displayDefaultIcon={true} />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">

@@ -3,3 +3,4 @@
 /storybook-static
 !/.storybook
 /.storybook/public
+/src/gql/graphql-client-api.tsx

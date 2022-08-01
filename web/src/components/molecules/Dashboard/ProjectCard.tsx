@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
-import React from "react";
-import { useNavigate } from "react-router-dom";
 
 export interface Props {
   className?: string;
@@ -21,15 +22,12 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
         actions={[
           <Icon
             icon="settings"
-            onClick={() =>
-              navigate("/workspaces/" + workspaceId + "/" + project.id)
-            }
+            onClick={() => navigate("/workspaces/" + workspaceId + "/" + project.id)}
             key="setting"
           />,
           <Icon icon="edit" key="edit" />,
           <Icon icon="ellipsis" key="ellipsis" />,
-        ]}
-      >
+        ]}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
     </CardWrapper>
