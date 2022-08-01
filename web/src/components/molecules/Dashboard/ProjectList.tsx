@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
+import React from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
 import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
-import React from "react";
 
 export interface Props {
   className?: string;
@@ -23,11 +24,7 @@ const ProjectList: React.FC<Props> = ({
       {projects?.length ? (
         <Content>
           {projects.map((project: ProjectType) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              workspaceId={workspaceId}
-            />
+            <ProjectCard key={project.id} project={project} workspaceId={workspaceId} />
           ))}
         </Content>
       ) : (
@@ -35,11 +32,7 @@ const ProjectList: React.FC<Props> = ({
           <Title>No Projects Yet</Title>
           <Suggestion>
             Create a new project{" "}
-            <Button
-              onClick={handleProjectModalOpen}
-              type="primary"
-              icon={<Icon icon="plus" />}
-            >
+            <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               New Project
             </Button>
           </Suggestion>

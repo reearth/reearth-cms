@@ -1,7 +1,8 @@
-import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import { saveAs } from "file-saver";
 import React, { MouseEventHandler } from "react";
+
+import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 
 type DownloadButtonProps = {
   title?: string;
@@ -26,8 +27,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
       icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={handleDownload}
       disabled={!url}
-      {...props}
-    >
+      {...props}>
       {title ?? "Download"}
     </Button>
   );

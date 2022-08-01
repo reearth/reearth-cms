@@ -17,8 +17,7 @@ const Provider: React.FC<Props> = ({ children }) => {
       useRefreshTokens
       scope="openid profile email"
       cacheLocation="localstorage"
-      redirectUri={window.location.origin}
-    >
+      redirectUri={window.location.origin}>
       {children}
     </Auth0Provider>
   ) : (

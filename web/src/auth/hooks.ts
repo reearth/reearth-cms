@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 export const errorKey = "reeartherror";
 
 export default function useAuth() {
+
   const {
     user,
     isAuthenticated,
@@ -25,9 +26,7 @@ export default function useAuth() {
     logout: () =>
       logout({
         returnTo: error
-          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(
-            error?.message
-          )}`
+          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
           : window.location.origin,
       }),
   };
@@ -61,13 +60,7 @@ export function useCleanUrl() {
 }
 
 export function useAuthenticationRequired(): [boolean, string | undefined] {
-  const {
-    isAuthenticated,
-    isLoading,
-    error: authError,
-    login,
-    logout,
-  } = useAuth();
+  const { isAuthenticated, isLoading, error: authError, login, logout } = useAuth();
 
   useEffect(() => {
     if (isLoading || isAuthenticated) {

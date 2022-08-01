@@ -1,8 +1,9 @@
+import React, { useCallback } from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import React, { useCallback } from "react";
 
 export interface FormValues {
   name: string;
@@ -26,12 +27,12 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values) => {
+      .then(async values => {
         await onSubmit?.(values);
         onClose?.(true);
         form.resetFields();
       })
-      .catch((info) => {
+      .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, onClose, onSubmit]);
@@ -45,10 +46,7 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
         <Form.Item
           name="name"
           label="Project name"
-          rules={[
-            { required: true, message: "Please input the name of project!" },
-          ]}
-        >
+          rules={[{ required: true, message: "Please input the name of project!" }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label="Project description">

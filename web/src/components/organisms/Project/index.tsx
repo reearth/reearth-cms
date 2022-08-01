@@ -1,4 +1,7 @@
 import styled from "@emotion/styled";
+import { Content } from "antd/lib/layout/layout";
+import { useParams } from "react-router-dom";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -6,8 +9,6 @@ import ProjectCreationModal from "@reearth-cms/components/molecules/Common/Proje
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
 import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
-import { Content } from "antd/lib/layout/layout";
-import { useParams } from "react-router-dom";
 
 import useDashboardHooks from "../Dashboard/hooks";
 
@@ -46,14 +47,8 @@ const Project: React.FC = () => {
             style={{ width: 264 }}
           />
           <ButtonWrapper>
-            <Button onClick={handleWorkspaceModalOpen}>
-              Create a Workspace
-            </Button>
-            <Button
-              onClick={handleProjectModalOpen}
-              type="primary"
-              icon={<Icon icon="plus" />}
-            >
+            <Button onClick={handleWorkspaceModalOpen}>Create a Workspace</Button>
+            <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               New Project
             </Button>
           </ButtonWrapper>

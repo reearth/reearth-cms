@@ -1,11 +1,12 @@
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 type Params = {
   projectId?: string;
@@ -24,7 +25,7 @@ export default ({ projectId }: Params) => {
 
   const rawProject = useMemo(
     () => data?.projects.nodes.find((p: any) => p?.id === projectId),
-    [data, projectId]
+    [data, projectId],
   );
   const project = useMemo(
     () =>
@@ -36,7 +37,7 @@ export default ({ projectId }: Params) => {
             alias: rawProject.alias,
           }
         : undefined,
-    [rawProject]
+    [rawProject],
   );
 
   const [updateProjectMutation] = useUpdateProjectMutation();
@@ -55,7 +56,7 @@ export default ({ projectId }: Params) => {
         },
       });
     },
-    [projectId, updateProjectMutation]
+    [projectId, updateProjectMutation],
   );
 
   const handleProjectDelete = useCallback(async () => {
@@ -79,7 +80,7 @@ export default ({ projectId }: Params) => {
         setOpenAssets(open);
       }
     },
-    [assetModalOpened, setOpenAssets]
+    [assetModalOpened, setOpenAssets],
   );
 
   return {

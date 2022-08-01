@@ -1,8 +1,6 @@
 import styled from "@emotion/styled";
-import {
-  UploadChangeParam,
-  UploadFile,
-} from "@reearth-cms/components/atoms/Upload";
+
+import { UploadChangeParam, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 
 type Props = {
@@ -11,11 +9,7 @@ type Props = {
   handleUpload: (info: UploadChangeParam<UploadFile<any>>) => void;
 };
 
-const AssetListHeader: React.FC<Props> = ({
-  title,
-  subTitle,
-  handleUpload,
-}) => {
+const AssetListHeader: React.FC<Props> = ({ title, subTitle, handleUpload }) => {
   return (
     <AssetListHeaderWrapper>
       <HeaderTitleWrapper>

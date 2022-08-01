@@ -1,6 +1,7 @@
-import { useAuth } from "@reearth-cms/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@reearth-cms/auth";
 
 const RootPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();
