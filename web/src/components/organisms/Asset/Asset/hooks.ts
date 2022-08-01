@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import { useAuth } from "@reearth-cms/auth";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
 import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
-
-import { useEffect, useState } from "react";
 
 export default () => {
   const { assetId } = useParams();

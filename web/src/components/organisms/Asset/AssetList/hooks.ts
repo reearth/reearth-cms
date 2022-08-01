@@ -1,7 +1,9 @@
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
@@ -10,8 +12,6 @@ import {
   Project,
   AssetFile,
 } from "@reearth-cms/gql/graphql-client-api";
-import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 
 export type AssetNode = NonNullable<Asset>;
 export type AssetUser = Maybe<User>;
@@ -47,14 +47,14 @@ export default (projectId?: string) => {
         commentsCount: 0,
       };
 
-      setAssetList((prevAssetList) => {
+      setAssetList(prevAssetList => {
         return [...prevAssetList, asset];
       });
-      setFilteredAssetList((prevFilteredAssetList) => {
+      setFilteredAssetList(prevFilteredAssetList => {
         return [...prevFilteredAssetList, asset];
       });
     },
-    [assetList.length, user, projectId, createAssetMutation]
+    [assetList.length, user, projectId, createAssetMutation],
   );
 
   const { data } = useGetAssetsQuery({

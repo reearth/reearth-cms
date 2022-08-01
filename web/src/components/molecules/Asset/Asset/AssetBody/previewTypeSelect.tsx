@@ -1,6 +1,7 @@
+import { CSSProperties } from "react";
+
 import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
-import { CSSProperties } from "react";
 
 type Props = {
   onTypeChange: (

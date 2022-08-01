@@ -1,3 +1,5 @@
+import { useParams } from "react-router-dom";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -8,16 +10,12 @@ import {
   OptionConfig,
   TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
-import {
-  UploadChangeParam,
-  UploadFile,
-} from "@reearth-cms/components/atoms/Upload";
+import { UploadChangeParam, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
-import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -50,9 +48,7 @@ const AssetList: React.FC = () => {
     search: {
       onSearch: (value: string) => {
         if (value) {
-          const filteredData = assetList.filter((node) =>
-            node?.fileName.includes(value)
-          );
+          const filteredData = assetList.filter(node => node?.fileName.includes(value));
           setFilteredAssetList(filteredData);
         } else {
           setFilteredAssetList(assetList);
@@ -69,11 +65,7 @@ const AssetList: React.FC = () => {
     {
       title: "",
       render: (_, asset) => (
-        <Button
-          type="link"
-          icon={<Icon icon="edit" />}
-          onClick={() => handleEdit(asset)}
-        ></Button>
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => handleEdit(asset)}></Button>
       ),
     },
     {
@@ -124,8 +116,7 @@ const AssetList: React.FC = () => {
           type="link"
           filename={asset.fileName}
           url={asset.hash}
-          displayDefaultIcon={false}
-        ></DownloadButton>
+          displayDefaultIcon={false}></DownloadButton>
       ),
     },
   ];
@@ -146,11 +137,7 @@ const AssetList: React.FC = () => {
 
   return (
     <>
-      <AssetListHeader
-        title="Asset"
-        subTitle="This is a subtitle"
-        handleUpload={handleUpload}
-      />
+      <AssetListHeader title="Asset" subTitle="This is a subtitle" handleUpload={handleUpload} />
       <AssetListTable
         dataSource={filteredAssetList}
         columns={columns}
