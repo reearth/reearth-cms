@@ -81,3 +81,20 @@ func (p *Model) SetUpdatedAt(updatedAt time.Time) {
 func (p *Model) CreatedAt() time.Time {
 	return p.id.Timestamp()
 }
+
+func (p *Model) Clone() *Model {
+	if p == nil {
+		return nil
+	}
+
+	return &Model{
+		id:          p.id.Clone(),
+		project:     p.project.Clone(),
+		schema:      p.schema.Clone(),
+		name:        p.name,
+		description: p.description,
+		key:         p.Key().Clone(),
+		public:      p.public,
+		updatedAt:   p.updatedAt,
+	}
+}

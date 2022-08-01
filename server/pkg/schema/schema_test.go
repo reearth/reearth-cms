@@ -350,3 +350,10 @@ func TestSchema_Workspace(t *testing.T) {
 		})
 	}
 }
+
+func TestSchema_Clone(t *testing.T) {
+	s := &Schema{id: NewID()}
+	c := s.Clone()
+	assert.Equal(t, s, c)
+	assert.NotSame(t, s, c)
+}

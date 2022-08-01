@@ -88,6 +88,11 @@ type CreateFieldInput struct {
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
+type CreateItemInput struct {
+	ModelID ID                `json:"modelId"`
+	Fields  []*ItemFieldInput `json:"fields"`
+}
+
 type CreateModelInput struct {
 	ProjectID   ID      `json:"projectId"`
 	Name        *string `json:"name"`
@@ -126,6 +131,14 @@ type DeleteFieldPayload struct {
 	FieldID ID `json:"fieldId"`
 }
 
+type DeleteItemInput struct {
+	ItemID ID `json:"itemId"`
+}
+
+type DeleteItemPayload struct {
+	ItemID ID `json:"itemId"`
+}
+
 type DeleteMeInput struct {
 	UserID ID `json:"userId"`
 }
@@ -160,6 +173,52 @@ type DeleteWorkspacePayload struct {
 
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
+}
+
+type Item struct {
+	ID            ID             `json:"id"`
+	ModelID       ID             `json:"modelId"`
+	Model         *Model         `json:"model"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	LatestVersion *ItemVersion   `json:"latestVersion"`
+	PublicVersion string         `json:"publicVersion"`
+	Versions      []*ItemVersion `json:"versions"`
+}
+
+func (Item) IsNode() {}
+
+type ItemConnection struct {
+	Edges      []*ItemEdge `json:"edges"`
+	Nodes      []*Item     `json:"nodes"`
+	PageInfo   *PageInfo   `json:"pageInfo"`
+	TotalCount int         `json:"totalCount"`
+}
+
+type ItemEdge struct {
+	Cursor usecase.Cursor `json:"cursor"`
+	Node   *Item          `json:"node"`
+}
+
+type ItemField struct {
+	FieldID ID          `json:"fieldId"`
+	Value   interface{} `json:"value"`
+}
+
+type ItemFieldInput struct {
+	FieldID ID          `json:"fieldId"`
+	Value   interface{} `json:"value"`
+}
+
+type ItemPayload struct {
+	Item *Item `json:"item"`
+}
+
+type ItemVersion struct {
+	Version string       `json:"version"`
+	Parent  []string     `json:"parent"`
+	Ref     []string     `json:"ref"`
+	Fields  []*ItemField `json:"fields"`
 }
 
 type KeyAvailability struct {
@@ -259,6 +318,11 @@ type ProjectPayload struct {
 }
 
 type PublishModelInput struct {
+	ModelID ID   `json:"modelId"`
+	Status  bool `json:"status"`
+}
+
+type PublishModelPayload struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
 }
@@ -466,10 +530,16 @@ type SignupPayload struct {
 }
 
 type UpdateFieldInput struct {
+	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          *string                       `json:"key"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+}
+
+type UpdateItemInput struct {
+	ItemID ID                `json:"itemId"`
+	Fields []*ItemFieldInput `json:"fields"`
 }
 
 type UpdateMeInput struct {

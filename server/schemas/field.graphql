@@ -188,6 +188,7 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
+  fieldId: ID!
   title: String
   description: String
   key: String

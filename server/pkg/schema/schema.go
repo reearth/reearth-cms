@@ -71,3 +71,14 @@ func (s *Schema) RemoveField(fid FieldID) {
 		}
 	}
 }
+
+func (s *Schema) Clone() *Schema {
+	if s == nil {
+		return nil
+	}
+	return &Schema{
+		id:        s.ID().Clone(),
+		workspace: s.Workspace().Clone(),
+		fields:    s.Fields(),
+	}
+}

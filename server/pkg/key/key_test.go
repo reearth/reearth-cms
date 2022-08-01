@@ -26,3 +26,10 @@ func TestKey_String(t *testing.T) {
 	assert.Equal(t, "aaaaaa", Key{key: "aaaaaa"}.String())
 	assert.Equal(t, "aaa", Key{key: "aaa"}.String())
 }
+
+func TestKey_Clone(t *testing.T) {
+	k := Key{key: "aaaaaa"}
+	c := k.Clone()
+	assert.Equal(t, k, c)
+	assert.NotSame(t, k, c)
+}

@@ -2,6 +2,7 @@ package key
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/goombaio/namegenerator"
 	"github.com/reearth/reearth-cms/server/pkg/util"
@@ -31,4 +32,10 @@ func (k Key) IsValid() bool {
 
 func (k Key) String() string {
 	return k.key
+}
+
+func (k Key) Clone() Key {
+	return Key{
+		key: strings.Clone(k.key),
+	}
 }
