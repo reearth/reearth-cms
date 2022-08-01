@@ -61,7 +61,7 @@ func (t *TaskRunner) Close() error {
 	return t.c.Close()
 }
 
-func (t *TaskRunner) CreateTask(ctx context.Context, req *taskspb.CreateTaskRequest, opts ...gax.CallOption) (*taskspb.Task, error) {
+func (t *TaskRunner) createTask(ctx context.Context, req *taskspb.CreateTaskRequest, opts ...gax.CallOption) (*taskspb.Task, error) {
 	return t.c.CreateTask(ctx, req, opts...)
 }
 
