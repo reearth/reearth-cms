@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+
 import { workspaceFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_WORKSPACES = gql`
@@ -41,9 +42,7 @@ export const DELETE_WORKSPACE = gql`
 
 export const ADD_MEMBER_TO_WORKSPACE = gql`
   mutation AddMemberToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-    addMemberToWorkspace(
-      input: { workspaceId: $workspaceId, userId: $userId, role: $role }
-    ) {
+    addMemberToWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
       workspace {
         id
         ...WorkspaceFragment
@@ -53,14 +52,8 @@ export const ADD_MEMBER_TO_WORKSPACE = gql`
 `;
 
 export const UPDATE_MEMBER_OF_WORKSPACE = gql`
-  mutation UpdateMemberOfWorkspace(
-    $workspaceId: ID!
-    $userId: ID!
-    $role: Role!
-  ) {
-    updateMemberOfWorkspace(
-      input: { workspaceId: $workspaceId, userId: $userId, role: $role }
-    ) {
+  mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
+    updateMemberOfWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
       workspace {
         id
         ...WorkspaceFragment
@@ -71,9 +64,7 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
 
 export const REMOVE_MEMBER_FROM_WORKSPACE = gql`
   mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-    removeMemberFromWorkspace(
-      input: { workspaceId: $workspaceId, userId: $userId }
-    ) {
+    removeMemberFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
       workspace {
         id
         ...WorkspaceFragment

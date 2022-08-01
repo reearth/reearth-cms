@@ -7,6 +7,7 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
@@ -43,9 +44,9 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	}
 	req := t.buildRequest(t.subscriberURL, bPayload)
 
-	_, err = t.CreateTask(ctx, req)
+	_, err = t.createTask(ctx, req)
 	if err != nil {
-		return err
+		return rerror.ErrInternalBy(err)
 	}
 
 	return nil
@@ -57,11 +58,11 @@ func (t *TaskRunner) setClient(c *cloudtasks.Client) {
 }
 
 // CloseConn is the function to close cloudtasks Client's connection. We expect this function is prepared for interactive connection since GCP SDK uses gRPC internally. To avoid instantiate client everytime, we keep the client's instance.
-func (t *TaskRunner) CloseConn() error {
+func (t *TaskRunner) Close() error {
 	return t.c.Close()
 }
 
-func (t *TaskRunner) CreateTask(ctx context.Context, req *taskspb.CreateTaskRequest, opts ...gax.CallOption) (*taskspb.Task, error) {
+func (t *TaskRunner) createTask(ctx context.Context, req *taskspb.CreateTaskRequest, opts ...gax.CallOption) (*taskspb.Task, error) {
 	return t.c.CreateTask(ctx, req, opts...)
 }
 

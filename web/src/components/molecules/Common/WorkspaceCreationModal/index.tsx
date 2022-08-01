@@ -1,7 +1,8 @@
+import React, { useCallback } from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import React, { useCallback } from "react";
 
 export interface FormValues {
   name: string;
@@ -17,22 +18,18 @@ const initialValues: FormValues = {
   name: "",
 };
 
-const WorkspaceCreationModal: React.FC<Props> = ({
-  open,
-  onClose,
-  onSubmit,
-}) => {
+const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values) => {
+      .then(async values => {
         await onSubmit?.(values);
         onClose?.(true);
         form.resetFields();
       })
-      .catch((info) => {
+      .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, onClose, onSubmit]);
@@ -48,8 +45,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({
               required: true,
               message: "Please input the title of the current workspace!",
             },
-          ]}
-        >
+          ]}>
           <Input />
         </Form.Item>
       </Form>
