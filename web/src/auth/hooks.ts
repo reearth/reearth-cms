@@ -5,6 +5,7 @@ export const errorKey = "reeartherror";
 
 export default function useAuth() {
   const {
+    user,
     isAuthenticated,
     error,
     isLoading,
@@ -14,6 +15,7 @@ export default function useAuth() {
   } = useAuth0();
 
   return {
+    user: user,
     isAuthenticated:
       !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
     isLoading,
@@ -24,8 +26,8 @@ export default function useAuth() {
       logout({
         returnTo: error
           ? `${window.location.origin}?${errorKey}=${encodeURIComponent(
-              error?.message
-            )}`
+            error?.message
+          )}`
           : window.location.origin,
       }),
   };
