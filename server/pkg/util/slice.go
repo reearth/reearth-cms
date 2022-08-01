@@ -116,6 +116,14 @@ func Any[T any](collection []T, predicate func(T) bool) bool {
 	return false
 }
 
+// Subset returns true if all the subCollection items are included in the collection
+func Subset[T comparable](collection, subCollection []T) bool {
+	if len(subCollection) == 0 {
+		return true
+	}
+	return !lo.SomeBy(subCollection, func(t T) bool { return !lo.Contains(collection, t) })
+}
+
 // Filter is similar to lo.Filter, but accepts an iteratee without the index argument.
 func Filter[T any](collection []T, iteratee func(v T) bool) []T {
 	if collection == nil {

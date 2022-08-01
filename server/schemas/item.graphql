@@ -1,0 +1,79 @@
+type Item implements Node {
+  id: ID!
+  modelId: ID!
+  model: Model!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  latestVersion: ItemVersion
+  publicVersion: String!
+  versions: [ItemVersion!]!
+}
+
+type ItemVersion {
+  version: String!
+  parent: [String!]!
+  ref: [String!]!
+  fields: [ItemField!]!
+}
+
+type ItemField {
+  fieldId: ID!
+  value: Any!
+}
+
+# Inputs
+input ItemFieldInput {
+  fieldId: ID!
+  value: Any!
+}
+
+input CreateItemInput {
+  modelId: ID!
+  fields: [ItemFieldInput!]!
+}
+
+input UpdateItemInput {
+  itemId: ID!
+  fields: [ItemFieldInput!]!
+}
+
+input DeleteItemInput {
+  itemId: ID!
+}
+
+# Payloads
+type ItemPayload {
+  item: Item!
+}
+
+type DeleteItemPayload {
+  itemId: ID!
+}
+
+type ItemConnection {
+  edges: [ItemEdge!]!
+  nodes: [Item]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ItemEdge {
+  cursor: Cursor!
+  node: Item
+}
+
+extend type Query {
+  items(
+    modelId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ItemConnection!
+}
+
+extend type Mutation {
+  createItem(input: CreateItemInput!): ItemPayload
+  updateItem(input: UpdateItemInput!): ItemPayload
+  deleteItem(input: DeleteItemInput!): DeleteItemPayload
+}
