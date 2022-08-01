@@ -57,7 +57,7 @@ func (t *TaskRunner) setClient(c *cloudtasks.Client) {
 }
 
 // CloseConn is the function to close cloudtasks Client's connection. We expect this function is prepared for interactive connection since GCP SDK uses gRPC internally. To avoid instantiate client everytime, we keep the client's instance.
-func (t *TaskRunner) CloseConn() error {
+func (t *TaskRunner) Close() error {
 	return t.c.Close()
 }
 
