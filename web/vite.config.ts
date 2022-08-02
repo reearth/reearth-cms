@@ -29,11 +29,18 @@ export default defineConfig({
     ],
   },
   test: {
-    globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     coverage: {
-      reporter: ["text", "json", "html"],
+      all: true,
+      include: ["src/**/*.ts", "src/**/*.tsx"],
+      exclude: [
+        "src/**/*.d.ts",
+        "src/**/*.stories.tsx",
+        "src/gql/graphql-client-api.tsx",
+        "src/test/**/*",
+      ],
+      reporter: ["text", "json", "lcov"],
     },
   },
 });

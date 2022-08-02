@@ -4,18 +4,11 @@ import { useEffect, useState } from "react";
 export const errorKey = "reeartherror";
 
 export default function useAuth() {
-  const {
-    isAuthenticated,
-    error,
-    isLoading,
-    loginWithRedirect,
-    logout,
-    getAccessTokenSilently,
-  } = useAuth0();
+  const { isAuthenticated, error, isLoading, loginWithRedirect, logout, getAccessTokenSilently } =
+    useAuth0();
 
   return {
-    isAuthenticated:
-      !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
+    isAuthenticated: !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
     isLoading,
     error: error?.message,
     getAccessToken: () => getAccessTokenSilently(),
@@ -23,9 +16,7 @@ export default function useAuth() {
     logout: () =>
       logout({
         returnTo: error
-          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(
-              error?.message
-            )}`
+          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
           : window.location.origin,
       }),
   };
@@ -59,13 +50,7 @@ export function useCleanUrl() {
 }
 
 export function useAuthenticationRequired(): [boolean, string | undefined] {
-  const {
-    isAuthenticated,
-    isLoading,
-    error: authError,
-    login,
-    logout,
-  } = useAuth();
+  const { isAuthenticated, isLoading, error: authError, login, logout } = useAuth();
 
   useEffect(() => {
     if (isLoading || isAuthenticated) {

@@ -1,5 +1,6 @@
-import { screen, render } from "@reearth-cms/test/utils";
 import { expect, test } from "vitest";
+
+import { screen, render } from "@reearth-cms/test/utils";
 
 test("hello, world", () => {
   render(<h1>Vite</h1>);
