@@ -1842,6 +1842,7 @@ interface Node {
 }
 
 enum NodeType {
+  ASSET
   USER
   WORKSPACE
   PROJECT

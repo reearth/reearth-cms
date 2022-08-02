@@ -587,12 +587,14 @@ func (e AssetSortType) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
+	NodeTypeAsset     NodeType = "ASSET"
 	NodeTypeUser      NodeType = "USER"
 	NodeTypeWorkspace NodeType = "WORKSPACE"
 	NodeTypeProject   NodeType = "PROJECT"
 )
 
 var AllNodeType = []NodeType{
+	NodeTypeAsset,
 	NodeTypeUser,
 	NodeTypeWorkspace,
 	NodeTypeProject,
@@ -600,7 +602,7 @@ var AllNodeType = []NodeType{
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
+	case NodeTypeAsset, NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
 		return true
 	}
 	return false
