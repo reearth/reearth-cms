@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
-import Layout, { Content, Header } from "antd/lib/layout/layout";
+import Content from "@reearth-cms/components/atoms/Content";
+import Header from "@reearth-cms/components/atoms/Header";
+import Layout from "@reearth-cms/components/atoms/Layout";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 

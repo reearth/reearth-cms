@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
-import TextArea from "antd/lib/input/TextArea";
-import Layout, { Header, Content } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Content from "@reearth-cms/components/atoms/Content";
+import Header from "@reearth-cms/components/atoms/Header";
+import Layout from "@reearth-cms/components/atoms/Layout";
+import Sider from "@reearth-cms/components/atoms/Sider";
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Content } from "antd/lib/layout/layout";
+import Content from "@reearth-cms/components/atoms/Content";
 import { useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
