@@ -1,4 +1,4 @@
-package usecase
+package zip
 
 import (
 	"archive/zip"
