@@ -5,7 +5,7 @@ import (
 )
 
 // util.SyncMap + version = VersionedSyncMap
-type VersionedSyncMap[K, V any] struct {
+type VersionedSyncMap[K comparable, V any] struct {
 	m *util.SyncMap[K, innerValues[V]]
 }
 
@@ -34,13 +34,13 @@ func (v VersionOrRef) Ref() *Ref {
 	return &v2
 }
 
-func NewVersionedSyncMap[K, V any]() *VersionedSyncMap[K, V] {
+func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
 	return &VersionedSyncMap[K, V]{}
 }
 
 func (m *VersionedSyncMap[K, V]) Load(key K, vr VersionOrRef) (res V, ok bool) {
 	_ = m.m.Find(func(k K, v innerValues[V]) bool {
-		if found := v.GetByVersionOrRef(vr); found != nil {
+		if found := v.GetByVersionOrRef(vr); found != nil && k == key {
 			res = found.Value()
 			ok = true
 			return true
@@ -50,38 +50,63 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr VersionOrRef) (res V, ok bool) {
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, ref VersionOrRef) (v []V) {
-	panic("unimpl")
+func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr VersionOrRef) (res []V) {
+	_ = m.m.FindAll(func(k K, v innerValues[V]) bool {
+		for _, kk := range keys {
+			if found := v.GetByVersionOrRef(vr); found != nil && k == kk {
+				res = append(res, found.Value())
+			}
+		}
+		return true
+	})
+	return
 }
 
 func (m *VersionedSyncMap[K, V]) Store(key K, value V, version Version, ref *Ref) {
-	panic("unimpl")
+	iv := innerValue[V]{
+		value:   value,
+		version: version,
+		ref:     ref,
+	}
+	if _, ok := m.Load(key, VersionOrRef{version: version, ref: *ref}); ok {
+		//	??
+	} else {
+		v := innerValues[V]{iv}
+		m.m.Store(key, v)
+	}
 }
 
 func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref Ref, target Version) {
-	panic("unimpl")
+	_ = m.m.Find(func(k K, v innerValues[V]) bool {
+		if found := v.GetByVersion(target); found != nil && k == key {
+			//iv := v.UpdateRef(ref, &target)
+		}
+		return true
+	})
 }
 
 func (m *VersionedSyncMap[K, V]) DeleteRef(key K, ref Ref) {
-	panic("unimpl")
+	if _, ok := m.Load(key, VersionOrRef{ref: ref}); ok {
+		m.m.Delete(key)
+	}
 }
 
 func (m *VersionedSyncMap[K, V]) Delete(key K) {
-	panic("unimpl")
+	m.m.Delete(key)
 }
 
 func (m *VersionedSyncMap[K, V]) DeleteAll(key ...K) {
-	panic("unimpl")
+	m.m.DeleteAll(key...)
 }
 
 func (m *VersionedSyncMap[K, V]) Archive(key K) {
-	panic("unimpl")
+	m.Delete(key)
 }
 
 func (m *VersionedSyncMap[K, V]) ArchiveAll(key ...K) {
-	panic("unimpl")
+	m.DeleteAll(key...)
 }
 
-func (m *VersionedSyncMap[K, V]) Range(f func(key K, value V) bool) {
-	panic("unimpl")
+func (m *VersionedSyncMap[K, V]) Range(f func(key K, value innerValues[V]) bool) {
+	m.m.Range(f)
 }

@@ -14,12 +14,30 @@ func (i innerValue[V]) Value() V {
 
 type innerValues[V any] []innerValue[V]
 
-func (i innerValues[V]) GetByVersion(v Version) innerValue[V] {
-	panic("impl")
+func (i innerValues[V]) GetByVersion(v Version) *innerValue[V] {
+	res, ok := lo.Find(i, func(iv innerValue[V]) bool {
+		if iv.version == v {
+			return true
+		}
+		return false
+	})
+	if !ok {
+		return nil
+	}
+	return &res
 }
 
-func (i innerValues[V]) GetByRef(r Ref) innerValue[V] {
-	panic("impl")
+func (i innerValues[V]) GetByRef(r Ref) *innerValue[V] {
+	res, ok := lo.Find(i, func(iv innerValue[V]) bool {
+		if *iv.ref == r {
+			return true
+		}
+		return false
+	})
+	if !ok {
+		return nil
+	}
+	return &res
 }
 
 func (i innerValues[V]) GetByVersionOrRef(vr VersionOrRef) *innerValue[V] {
@@ -45,5 +63,15 @@ func (i innerValues[V]) GetByVersionOrRef(vr VersionOrRef) *innerValue[V] {
 }
 
 func (i innerValues[V]) UpdateRef(r Ref, version *Version) *innerValue[V] {
-	panic("impl")
+	if version == nil {
+		return nil
+	}
+
+	for _, v := range i {
+		if v.version == *version {
+			v.ref = &r
+			return &v
+		}
+	}
+	return nil
 }
