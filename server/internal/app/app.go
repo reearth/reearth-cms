@@ -61,6 +61,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	api.GET("/ping", Ping())
 	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
+	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())
 	return e
 }

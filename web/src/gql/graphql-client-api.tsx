@@ -1155,8 +1155,8 @@ export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
 export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload!) {
-  createAsset(input: {projectId: $projectId, file: $file}) {
+    mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
+  createAsset(input: {projectId: $projectId, createdById: $createdById, file: $file}) {
     asset {
       id
       projectId

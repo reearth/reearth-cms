@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"errors"
+	"io"
 	"net/url"
 
 	"github.com/reearth/reearth-cms/server/pkg/file"
@@ -16,6 +17,7 @@ var (
 )
 
 type File interface {
+	ReadAsset(context.Context, string) (io.ReadCloser, error)
 	UploadAsset(context.Context, *file.File) (*url.URL, error)
 	DeleteAsset(context.Context, *url.URL) error
 }

@@ -35,6 +35,10 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	}, nil
 }
 
+func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadCloser, error) {
+	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
+}
+
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, error) {
 	filename := sanitize.Path(newAssetID() + path.Ext(file.Path))
 	if err := f.upload(ctx, filepath.Join(assetDir, filename), file.Content); err != nil {

@@ -52,6 +52,14 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 	}, nil
 }
 
+func (f *fileRepo) ReadAsset(ctx context.Context, name string) (io.ReadCloser, error) {
+	sn := sanitize.Path(name)
+	if sn == "" {
+		return nil, rerror.ErrNotFound
+	}
+	return f.read(ctx, path.Join(gcsAssetBasePath, sn))
+}
+
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, error) {
 	if file == nil {
 		return nil, gateway.ErrInvalidFile
@@ -83,6 +91,29 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u *url.URL) error {
 		return gateway.ErrInvalidFile
 	}
 	return f.delete(ctx, sn)
+}
+
+func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
+	if filename == "" {
+		return nil, rerror.ErrNotFound
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: read bucket err: %+v\n", err)
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	reader, err := bucket.Object(filename).NewReader(ctx)
+	if err != nil {
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return nil, rerror.ErrNotFound
+		}
+		log.Errorf("gcs: read err: %+v\n", err)
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	return reader, nil
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
