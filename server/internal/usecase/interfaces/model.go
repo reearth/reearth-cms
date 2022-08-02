@@ -28,7 +28,7 @@ var (
 )
 
 type Model interface {
-	Fetch(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
+	FindByIDs(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
 	FindByProject(context.Context, id.ProjectID, *usecase.Pagination, *usecase.Operator) (model.List, *usecase.PageInfo, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)

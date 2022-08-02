@@ -26,7 +26,7 @@ func (c *SchemaLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmode
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.Fetch(ctx, sIds, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, sIds, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}

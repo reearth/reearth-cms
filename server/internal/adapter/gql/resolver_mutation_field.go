@@ -15,7 +15,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.Fetch(ctx, []id.ModelID{mId}, getOperator(ctx))
+	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
 	if err != nil || len(m) != 1 {
 		return nil, err
 	}

@@ -33,7 +33,7 @@ var (
 )
 
 type Schema interface {
-	Fetch(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
+	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	DeleteField(context.Context, id.FieldID, *usecase.Operator) error
