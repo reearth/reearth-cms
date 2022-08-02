@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"github.com/samber/lo"
 )
 
 type Asset struct {
@@ -45,6 +47,9 @@ func (a *Asset) Size() uint64 {
 }
 
 func (a *Asset) PreviewType() *PreviewType {
+	if a.previewType == nil {
+		return lo.ToPtr(PreviewType(""))
+	}
 	return a.previewType
 }
 
