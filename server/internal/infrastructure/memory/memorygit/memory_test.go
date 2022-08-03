@@ -186,6 +186,27 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	}
 }
 
+func TestVersionedSyncMap_Store(t *testing.T) {
+	vm := &VersionedSyncMap[string, string]{
+		m: &util.SyncMap[string, innerValues[string]]{},
+	}
+
+	_, ok := vm.Load("a", Version("1").OrRef())
+	assert.False(t, ok)
+
+	vm.Store("a", "b", Version("1"))
+
+	got, ok := vm.Load("a", Version("1").OrRef())
+	assert.True(t, ok)
+	assert.Equal(t, "b", got)
+
+	vm.Store("a", "c", Version("1"))
+
+	got2, ok2 := vm.Load("a", Version("1").OrRef())
+	assert.True(t, ok2)
+	assert.Equal(t, "c", got2)
+}
+
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 	type args struct {
 		key     string
