@@ -7,7 +7,7 @@ type FieldTextArea struct {
 	maxLength    *int
 }
 
-func NewFieldTextArea() *FieldTextArea {
+func newFieldTextArea() *FieldTextArea {
 	return &FieldTextArea{
 		defaultValue: nil,
 		maxLength:    nil,

@@ -6,7 +6,7 @@ type FieldURL struct {
 	defaultValue *string
 }
 
-func NewFieldURL() *FieldURL {
+func newFieldURL() *FieldURL {
 	return &FieldURL{
 		defaultValue: nil,
 	}

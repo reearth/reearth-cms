@@ -135,6 +135,27 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 	}
 }
 
+func (t *TypeProperty) Clone() *TypeProperty {
+	if t == nil {
+		return nil
+	}
+
+	return &TypeProperty{
+		text:      t.text,
+		textArea:  t.textArea,
+		richText:  t.richText,
+		markdown:  t.markdown,
+		asset:     t.asset,
+		date:      t.date,
+		bool:      t.bool,
+		selectt:   t.selectt,
+		tag:       t.tag,
+		integer:   t.integer,
+		reference: t.reference,
+		url:       t.url,
+	}
+}
+
 func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T) {
 	t.Match(TypePropertyMatch{
 		Text: func(f *FieldText) {

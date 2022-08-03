@@ -16,7 +16,7 @@ type FieldInteger struct {
 	max          *int
 }
 
-func NewFieldInteger() *FieldInteger {
+func newFieldInteger() *FieldInteger {
 	return &FieldInteger{
 		defaultValue: nil,
 		min:          nil,

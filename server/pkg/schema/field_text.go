@@ -7,7 +7,7 @@ type FieldText struct {
 	maxLength    *int
 }
 
-func NewFieldText() *FieldText {
+func newFieldText() *FieldText {
 	return &FieldText{
 		defaultValue: nil,
 		maxLength:    nil,

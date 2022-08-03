@@ -356,4 +356,8 @@ func TestSchema_Clone(t *testing.T) {
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)
+
+	s = nil
+	c = s.Clone()
+	assert.Nil(t, c)
 }

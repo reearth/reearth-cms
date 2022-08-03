@@ -20,9 +20,9 @@ type FieldSelect struct {
 	defaultValue *string
 }
 
-// NewFieldTag
+// NewFieldSelect
 // TODO: check if its ok to remove this
-func NewFieldSelect() *FieldSelect {
+func newFieldSelect() *FieldSelect {
 	return &FieldSelect{
 		values:       nil,
 		defaultValue: nil,

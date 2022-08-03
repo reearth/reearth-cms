@@ -12,9 +12,9 @@ type FieldTag struct {
 	defaultValue []string
 }
 
-// NewFieldTag
+// newFieldTag
 // TODO: check if its ok to remove this
-func NewFieldTag() *FieldTag {
+func newFieldTag() *FieldTag {
 	return &FieldTag{
 		values:       nil,
 		defaultValue: nil,

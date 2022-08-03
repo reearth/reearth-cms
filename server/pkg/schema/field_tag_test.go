@@ -185,7 +185,7 @@ func TestNewFieldTag(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.want, NewFieldTag())
+			assert.Equal(t, tc.want, newFieldTag())
 		})
 	}
 }

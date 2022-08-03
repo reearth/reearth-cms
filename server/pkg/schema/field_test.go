@@ -482,3 +482,14 @@ func TestField_SetUpdatedAt(t *testing.T) {
 		})
 	}
 }
+
+func TestField_Clone(t *testing.T) {
+	s := &Field{id: NewFieldID()}
+	c := s.Clone()
+	assert.Equal(t, s, c)
+	assert.NotSame(t, s, c)
+
+	s = nil
+	c = s.Clone()
+	assert.Nil(t, c)
+}

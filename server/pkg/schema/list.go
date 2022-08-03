@@ -18,3 +18,17 @@ func (l List) SortByID() List {
 func (l List) Clone() List {
 	return util.Map(l, func(s *Schema) *Schema { return s.Clone() })
 }
+
+type FieldList []*Field
+
+func (l FieldList) SortByID() FieldList {
+	m := slices.Clone(l)
+	slices.SortFunc(m, func(a, b *Field) bool {
+		return a.ID().Compare(b.ID()) < 0
+	})
+	return m
+}
+
+func (l FieldList) Clone() FieldList {
+	return util.Map(l, func(f *Field) *Field { return f.Clone() })
+}

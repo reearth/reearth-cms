@@ -10,7 +10,7 @@ type FieldDate struct {
 	defaultValue *time.Time
 }
 
-func NewFieldDate() *FieldDate {
+func newFieldDate() *FieldDate {
 	return &FieldDate{
 		defaultValue: nil,
 	}

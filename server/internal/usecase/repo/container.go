@@ -13,6 +13,7 @@ type Container struct {
 	Transaction Transaction
 	Workspace   Workspace
 	Project     Project
+	Model       Model
 }
 
 var (

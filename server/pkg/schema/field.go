@@ -11,6 +11,9 @@ type Field struct {
 	name         string
 	description  string
 	key          key.Key
+	unique       bool
+	multiValue   bool
+	required     bool
 	updatedAt    time.Time
 	typeProperty *TypeProperty
 }
@@ -43,6 +46,18 @@ func (f *Field) SetKey(key key.Key) {
 	f.key = key
 }
 
+func (f *Field) Unique() bool {
+	return f.unique
+}
+
+func (f *Field) MultiValue() bool {
+	return f.multiValue
+}
+
+func (f *Field) Required() bool {
+	return f.required
+}
+
 func (f *Field) CreatedAt() time.Time {
 	return f.id.Timestamp()
 }
@@ -57,4 +72,19 @@ func (f *Field) SetUpdatedAt(updatedAt time.Time) {
 
 func (f *Field) Type() Type {
 	return f.typeProperty.Type()
+}
+
+func (f *Field) Clone() *Field {
+	if f == nil {
+		return nil
+	}
+
+	return &Field{
+		id:           f.id.Clone(),
+		name:         f.name,
+		description:  f.description,
+		key:          f.key.Clone(),
+		updatedAt:    f.updatedAt,
+		typeProperty: f.typeProperty.Clone(),
+	}
 }

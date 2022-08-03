@@ -6,7 +6,7 @@ type FieldBool struct {
 	defaultValue *bool
 }
 
-func NewFieldBool() *FieldBool {
+func newFieldBool() *FieldBool {
 	return &FieldBool{
 		defaultValue: nil,
 	}
