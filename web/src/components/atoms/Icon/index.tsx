@@ -43,7 +43,7 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
     );
   }
 
-  return React.createElement(src, { onClick });
+  return React.createElement(src, { onClick, style: { fontSize: size } });
 };
 
 const StyledImg = styled.img<{ size?: string }>`

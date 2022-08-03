@@ -7,6 +7,8 @@ import { useParams } from "react-router-dom";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
+import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -55,7 +57,17 @@ const ProjectSchema: React.FC = () => {
               workspaceId={currentWorkspace?.id}
             />
           </ProjectSider>
-          <PaddedContent></PaddedContent>
+          <PaddedContent>
+            <SchemaStyledMenu>
+              <SchemaMenu></SchemaMenu>
+            </SchemaStyledMenu>
+            <ContentChild>
+              <div>asdsad</div>
+            </ContentChild>
+            <FieldListWrapper>
+              <FieldList></FieldList>
+            </FieldListWrapper>
+          </PaddedContent>
         </Layout>
       </Layout>
       <WorkspaceCreationModal
@@ -67,8 +79,25 @@ const ProjectSchema: React.FC = () => {
   );
 };
 
+const SchemaStyledMenu = styled.div`
+  width: 200px;
+  max-width: 200px;
+`;
+
+const ContentChild = styled.div`
+  flex: 1;
+  background-color: #fff;
+`;
+
 const PaddedContent = styled(Content)`
   margin: 16px;
+  display: flex;
+`;
+
+const FieldListWrapper = styled.div`
+  flex: 0 0 calc(100% / 3);
+  max-width: 300px;
+  padding: 12px;
 `;
 
 const ProjectSider = styled(Sider)`
