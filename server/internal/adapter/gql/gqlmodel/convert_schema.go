@@ -27,7 +27,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	return &SchemaField{
 		ID:           IDFrom(sf.ID()),
 		Type:         ToSchemaFieldType(sf.Type()),
-		TypeProperty: nil,
+		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
 		Description:  lo.ToPtr(sf.Description()),
@@ -68,4 +68,16 @@ func ToSchemaFieldType(t schema.Type) SchemaFiledType {
 	default:
 		return ""
 	}
+}
+
+func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProperty) {
+	tp.Match(schema.TypePropertyMatch{
+		Text: func(f *schema.FieldText) {
+			res = &SchemaFieldText{
+				DefaultValue: f.DefaultValue(),
+				MaxLength:    f.MaxLength(),
+			}
+		},
+	})
+	return
 }

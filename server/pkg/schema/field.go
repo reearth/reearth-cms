@@ -74,6 +74,10 @@ func (f *Field) Type() Type {
 	return f.typeProperty.Type()
 }
 
+func (f *Field) TypeProperty() *TypeProperty {
+	return f.typeProperty
+}
+
 func (f *Field) Clone() *Field {
 	if f == nil {
 		return nil
