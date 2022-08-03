@@ -31,6 +31,7 @@ var (
 
 type Asset interface {
 	Fetch(context.Context, []id.AssetID, *usecase.Operator) ([]*asset.Asset, error)
+	FindByProject(context.Context, id.ProjectID, *string, *asset.SortType, *usecase.Pagination, *usecase.Operator) ([]*asset.Asset, *usecase.PageInfo, error)
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
 }

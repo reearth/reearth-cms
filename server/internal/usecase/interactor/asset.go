@@ -29,14 +29,27 @@ func (i *Asset) Fetch(ctx context.Context, assets []id.AssetID, operator *usecas
 	return i.repos.Asset.FindByIDs(ctx, assets)
 }
 
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *string, sort *asset.SortType, p *usecase.Pagination, operator *usecase.Operator) ([]*asset.Asset, *usecase.PageInfo, error) {
+	return Run2(
+		ctx, operator, i.repos,
+		Usecase(),
+		func() ([]*asset.Asset, *usecase.PageInfo, error) {
+			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
+				Sort:       sort,
+				Keyword:    keyword,
+				Pagination: p,
+			})
+		},
+	)
+}
+
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().
-			Transaction(),
+		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
 			url, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {

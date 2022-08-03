@@ -5,7 +5,9 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/util"
 )
@@ -30,6 +32,36 @@ func (c *AssetLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel
 	}
 
 	return util.Map(res, gqlmodel.ToAsset), nil
+}
+
+func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *asset.SortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	pid, err := gqlmodel.ToID[id.Project](projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	assets, pi, err := c.usecase.FindByProject(ctx, pid, keyword, sort, gqlmodel.ToPagination(pagination), getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
+	nodes := make([]*gqlmodel.Asset, 0, len(assets))
+	for _, a := range assets {
+		asset := gqlmodel.ToAsset(a)
+		edges = append(edges, &gqlmodel.AssetEdge{
+			Node:   asset,
+			Cursor: usecase.Cursor(asset.ID),
+		})
+		nodes = append(nodes, asset)
+	}
+
+	return &gqlmodel.AssetConnection{
+		Edges:      edges,
+		Nodes:      nodes,
+		PageInfo:   gqlmodel.ToPageInfo(pi),
+		TotalCount: pi.TotalCount(),
+	}, nil
 }
 
 type AssetDataLoader interface {
