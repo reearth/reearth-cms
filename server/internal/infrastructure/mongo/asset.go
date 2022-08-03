@@ -71,7 +71,7 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 		})
 	}
 
-	return r.paginate(ctx, filter, uFilter.Pagination)
+	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
 }
 
 func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
@@ -95,9 +95,15 @@ func (r *assetRepo) init() {
 	}
 }
 
-func (r *assetRepo) paginate(ctx context.Context, filter interface{}, pagination *usecase.Pagination) ([]*asset.Asset, *usecase.PageInfo, error) {
+func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecase.Pagination) ([]*asset.Asset, *usecase.PageInfo, error) {
+	var sortstr *string
+	if sort != nil {
+		sortstr2 := string(*sort)
+		sortstr = &sortstr2
+	}
+
 	var c mongodoc.AssetConsumer
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sortstr, pagination, &c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
