@@ -40,3 +40,7 @@ func Unzip(src, dest string) error {
 	}
 	return nil
 }
+
+func Unzip2(z io.ReaderAt, out any) error {
+	return nil
+}
