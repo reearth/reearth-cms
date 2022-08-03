@@ -187,32 +187,54 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
-	m := &util.SyncMap[string, innerValues[string]]{}
-	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
-	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: lo.ToPtr(Ref("a"))}})
-	vsm := &VersionedSyncMap[string, string]{m: m}
+	type args struct {
+		key     string
+		ref     Ref
+		version Version
+	}
+	tests := []struct {
+		name   string
+		target *VersionedSyncMap[string, string]
+		args   args
+		want   innerValues[string]
+	}{
+		{
+			name: "set ref",
+			target: &VersionedSyncMap[string, string]{
+				m: util.SyncMapFrom(
+					util.MapEntry[string, innerValues[string]]{
+						Key: "1",
+						Value: innerValues[string]{
+							{value: "a", version: Version("a"), ref: nil},
+						},
+					},
+					util.MapEntry[string, innerValues[string]]{
+						Key: "2",
+						Value: innerValues[string]{
+							{value: "a", version: Version("a"), ref: nil},
+						},
+					},
+				),
+			},
+			args: args{
+				key:     "1",
+				ref:     Ref("A"),
+				version: Version("a"),
+			},
+			want: innerValues[string]{
+				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("A"))},
+			},
+		},
+	}
 
-	vsm.UpdateRef("a", "xxx", "1")
-	//type fields struct {
-	//	m *util.SyncMap[string, innerValues[string]]
-	//}
-	//type args struct {
-	//	key    string
-	//	ref    Ref
-	//	target Version
-	//}
-	//tests := []struct {
-	//	name   string
-	//	fields fields
-	//	args   args
-	//}{
-	//	// TODO: Add test cases.
-	//}
-	//for _, tt := range tests {
-	//	t.Run(tt.name, func(t *testing.T) {
-	//		m := &VersionedSyncMap{
-	//			m: tt.fields.m,
-	//		}
-	//	})
-	//}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			tt.target.UpdateRef(tt.args.key, tt.args.ref, tt.args.version)
+
+			f, _ := tt.target.m.Load(tt.args.key)
+			assert.Equal(t, tt.want, f)
+		})
+	}
 }

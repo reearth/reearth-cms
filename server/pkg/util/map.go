@@ -4,8 +4,21 @@ import (
 	"sync"
 )
 
+type MapEntry[K, V any] struct {
+	Key   K
+	Value V
+}
+
 type SyncMap[K, V any] struct {
 	m sync.Map
+}
+
+func SyncMapFrom[K, V any](entries ...MapEntry[K, V]) *SyncMap[K, V] {
+	m := &SyncMap[K, V]{}
+	for _, e := range entries {
+		m.Store(e.Key, e.Value)
+	}
+	return m
 }
 
 func (m *SyncMap[K, V]) Load(key K) (vv V, _ bool) {

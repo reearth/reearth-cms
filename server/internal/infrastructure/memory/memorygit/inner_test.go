@@ -85,3 +85,89 @@ func TestInnerValues_GetByVersionOrRef(t *testing.T) {
 		ref: "main2",
 	}))
 }
+
+func TestInnerValues_UpdateRef(t *testing.T) {
+	type args struct {
+		ref     Ref
+		version *Version
+	}
+
+	tests := []struct {
+		name   string
+		target innerValues[string]
+		args   args
+		want   innerValues[string]
+	}{
+		{
+			name: "ref is not found",
+			target: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+			args: args{
+				ref:     Ref("A"),
+				version: nil,
+			},
+			want: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+		},
+		{
+			name: "ref should be deleted",
+			target: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+			args: args{
+				ref:     Ref("B"),
+				version: nil,
+			},
+			want: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: nil},
+			},
+		},
+		{
+			name: "new ref should be set",
+			target: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+			args: args{
+				ref:     Ref("A"),
+				version: lo.ToPtr(Version("a")),
+			},
+			want: innerValues[string]{
+				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("A"))},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+		},
+		{
+			name: "ref should be moved",
+			target: innerValues[string]{
+				{value: "a", version: Version("a"), ref: nil},
+				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+			},
+			args: args{
+				ref:     Ref("B"),
+				version: lo.ToPtr(Version("a")),
+			},
+			want: innerValues[string]{
+				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("B"))},
+				{value: "b", version: Version("b"), ref: nil},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			target := tt.target
+			target.UpdateRef(tt.args.ref, tt.args.version)
+			assert.Equal(t, tt.want, target)
+		})
+	}
+}

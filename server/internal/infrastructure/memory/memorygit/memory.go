@@ -39,7 +39,7 @@ func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
 }
 
 func (m *VersionedSyncMap[K, V]) Load(key K, vr VersionOrRef) (res V, ok bool) {
-	_ = m.m.Find(func(k K, v innerValues[V]) bool {
+	m.m.Range(func(k K, v innerValues[V]) bool {
 		if found := v.GetByVersionOrRef(vr); found != nil && k == key {
 			res = found.Value()
 			ok = true
@@ -51,7 +51,7 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr VersionOrRef) (res V, ok bool) {
 }
 
 func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr VersionOrRef) (res []V) {
-	_ = m.m.FindAll(func(k K, v innerValues[V]) bool {
+	m.m.Range(func(k K, v innerValues[V]) bool {
 		for _, kk := range keys {
 			if found := v.GetByVersionOrRef(vr); found != nil && k == kk {
 				res = append(res, found.Value())
@@ -77,18 +77,23 @@ func (m *VersionedSyncMap[K, V]) Store(key K, value V, version Version, ref *Ref
 }
 
 func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref Ref, target Version) {
-	_ = m.m.Find(func(k K, v innerValues[V]) bool {
-		if found := v.GetByVersion(target); found != nil && k == key {
-			//iv := v.UpdateRef(ref, &target)
+	m.m.Range(func(k K, v innerValues[V]) bool {
+		if k == key {
+			v.UpdateRef(ref, &target)
+			return false
 		}
 		return true
 	})
 }
 
 func (m *VersionedSyncMap[K, V]) DeleteRef(key K, ref Ref) {
-	if _, ok := m.Load(key, VersionOrRef{ref: ref}); ok {
-		m.m.Delete(key)
-	}
+	m.m.Range(func(k K, v innerValues[V]) bool {
+		if k == key {
+			v.UpdateRef(ref, nil)
+			return false
+		}
+		return true
+	})
 }
 
 func (m *VersionedSyncMap[K, V]) Delete(key K) {
@@ -105,8 +110,4 @@ func (m *VersionedSyncMap[K, V]) Archive(key K) {
 
 func (m *VersionedSyncMap[K, V]) ArchiveAll(key ...K) {
 	m.DeleteAll(key...)
-}
-
-func (m *VersionedSyncMap[K, V]) Range(f func(key K, value innerValues[V]) bool) {
-	m.m.Range(f)
 }

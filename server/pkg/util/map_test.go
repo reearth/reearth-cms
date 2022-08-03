@@ -199,3 +199,9 @@ func TestSyncMap_Len(t *testing.T) {
 	s.Store("b", 2)
 	assert.Equal(t, 2, s.Len())
 }
+
+func TestSyncMapFrom(t *testing.T) {
+	m := SyncMapFrom(MapEntry[string, int]{Key: "a", Value: 1})
+	got, _ := m.Load("a")
+	assert.Equal(t, 1, got)
+}
