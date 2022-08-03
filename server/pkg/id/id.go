@@ -97,3 +97,16 @@ var NewSchemaID = idx.New[Schema]
 var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
+
+type Item struct{}
+
+func (Item) Type() string { return "item" }
+
+type ItemID = idx.ID[Item]
+type ItemIDList = idx.List[Item]
+
+var MustItemID = idx.Must[Item]
+var NewItemID = idx.New[Item]
+var ItemIDFrom = idx.From[Item]
+var ItemIDFromRef = idx.FromRef[Item]
+var ItemIDListFrom = idx.ListFrom[Item]
