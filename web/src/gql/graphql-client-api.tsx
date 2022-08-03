@@ -33,6 +33,84 @@ export type AddMemberToWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type Asset = Node & {
+  __typename?: 'Asset';
+  createdAt: Scalars['DateTime'];
+  createdBy?: Maybe<User>;
+  createdById: Scalars['ID'];
+  file: AssetFile;
+  fileName: Scalars['String'];
+  hash: Scalars['String'];
+  id: Scalars['ID'];
+  previewType?: Maybe<PreviewType>;
+  project: Project;
+  projectId: Scalars['ID'];
+  size: Scalars['FileSize'];
+};
+
+export type AssetConnection = {
+  __typename?: 'AssetConnection';
+  edges: Array<AssetEdge>;
+  nodes: Array<Maybe<Asset>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type AssetEdge = {
+  __typename?: 'AssetEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Asset>;
+};
+
+export type AssetFile = {
+  __typename?: 'AssetFile';
+  children?: Maybe<Array<AssetFile>>;
+  contentType?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  path: Scalars['String'];
+  size: Scalars['FileSize'];
+};
+
+export enum AssetSortType {
+  Date = 'DATE',
+  Name = 'NAME',
+  Size = 'SIZE'
+}
+
+export type CreateAssetInput = {
+  file: Scalars['Upload'];
+  projectId: Scalars['ID'];
+};
+
+export type CreateAssetPayload = {
+  __typename?: 'CreateAssetPayload';
+  asset: Asset;
+};
+
+export type CreateFieldInput = {
+  description?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  modelId: Scalars['ID'];
+  multiValue: Scalars['Boolean'];
+  required: Scalars['Boolean'];
+  title: Scalars['String'];
+  type: SchemaFiledType;
+  typeProperty: SchemaFieldTypePropertyInput;
+  unique: Scalars['Boolean'];
+};
+
+export type CreateItemInput = {
+  fields: Array<ItemFieldInput>;
+  modelId: Scalars['ID'];
+};
+
+export type CreateModelInput = {
+  description?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  projectId: Scalars['ID'];
+};
+
 export type CreateProjectInput = {
   alias?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
@@ -49,6 +127,33 @@ export type CreateWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type DeleteAssetInput = {
+  assetId: Scalars['ID'];
+};
+
+export type DeleteAssetPayload = {
+  __typename?: 'DeleteAssetPayload';
+  assetId: Scalars['ID'];
+};
+
+export type DeleteFieldInput = {
+  fieldId: Scalars['ID'];
+};
+
+export type DeleteFieldPayload = {
+  __typename?: 'DeleteFieldPayload';
+  fieldId: Scalars['ID'];
+};
+
+export type DeleteItemInput = {
+  itemId: Scalars['ID'];
+};
+
+export type DeleteItemPayload = {
+  __typename?: 'DeleteItemPayload';
+  itemId: Scalars['ID'];
+};
+
 export type DeleteMeInput = {
   userId: Scalars['ID'];
 };
@@ -56,6 +161,15 @@ export type DeleteMeInput = {
 export type DeleteMePayload = {
   __typename?: 'DeleteMePayload';
   userId: Scalars['ID'];
+};
+
+export type DeleteModelInput = {
+  modelId: Scalars['ID'];
+};
+
+export type DeleteModelPayload = {
+  __typename?: 'DeleteModelPayload';
+  modelId: Scalars['ID'];
 };
 
 export type DeleteProjectInput = {
@@ -76,6 +190,67 @@ export type DeleteWorkspacePayload = {
   workspaceId: Scalars['ID'];
 };
 
+export type FieldPayload = {
+  __typename?: 'FieldPayload';
+  field: SchemaField;
+};
+
+export type Item = Node & {
+  __typename?: 'Item';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+  latestVersion?: Maybe<ItemVersion>;
+  model: Model;
+  modelId: Scalars['ID'];
+  publicVersion: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  versions: Array<ItemVersion>;
+};
+
+export type ItemConnection = {
+  __typename?: 'ItemConnection';
+  edges: Array<ItemEdge>;
+  nodes: Array<Maybe<Item>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type ItemEdge = {
+  __typename?: 'ItemEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Item>;
+};
+
+export type ItemField = {
+  __typename?: 'ItemField';
+  fieldId: Scalars['ID'];
+  value: Scalars['Any'];
+};
+
+export type ItemFieldInput = {
+  fieldId: Scalars['ID'];
+  value: Scalars['Any'];
+};
+
+export type ItemPayload = {
+  __typename?: 'ItemPayload';
+  item: Item;
+};
+
+export type ItemVersion = {
+  __typename?: 'ItemVersion';
+  fields: Array<ItemField>;
+  parent: Array<Scalars['String']>;
+  ref: Array<Scalars['String']>;
+  version: Scalars['String'];
+};
+
+export type KeyAvailability = {
+  __typename?: 'KeyAvailability';
+  available: Scalars['Boolean'];
+  key: Scalars['String'];
+};
+
 export type Me = {
   __typename?: 'Me';
   auths: Array<Scalars['String']>;
@@ -89,19 +264,64 @@ export type Me = {
   workspaces: Array<Workspace>;
 };
 
+export type Model = Node & {
+  __typename?: 'Model';
+  createdAt: Scalars['DateTime'];
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  key: Scalars['String'];
+  name: Scalars['String'];
+  project: Project;
+  projectId: Scalars['ID'];
+  schema: Schema;
+  schemaId: Scalars['ID'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type ModelConnection = {
+  __typename?: 'ModelConnection';
+  edges: Array<ModelEdge>;
+  nodes: Array<Maybe<Model>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type ModelEdge = {
+  __typename?: 'ModelEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Model>;
+};
+
+export type ModelPayload = {
+  __typename?: 'ModelPayload';
+  model: Model;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addMemberToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
+  createAsset?: Maybe<CreateAssetPayload>;
+  createField?: Maybe<FieldPayload>;
+  createItem?: Maybe<ItemPayload>;
+  createModel?: Maybe<ProjectPayload>;
   createProject?: Maybe<ProjectPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
+  deleteAsset?: Maybe<DeleteAssetPayload>;
+  deleteField?: Maybe<DeleteFieldPayload>;
+  deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
+  deleteModel?: Maybe<DeleteProjectPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
+  publishModel?: Maybe<DeleteProjectPayload>;
   removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
+  updateField?: Maybe<FieldPayload>;
+  updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
   updateMemberOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
+  updateModel?: Maybe<ProjectPayload>;
   updateProject?: Maybe<ProjectPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
 };
@@ -109,6 +329,26 @@ export type Mutation = {
 
 export type MutationAddMemberToWorkspaceArgs = {
   input: AddMemberToWorkspaceInput;
+};
+
+
+export type MutationCreateAssetArgs = {
+  input: CreateAssetInput;
+};
+
+
+export type MutationCreateFieldArgs = {
+  input: CreateFieldInput;
+};
+
+
+export type MutationCreateItemArgs = {
+  input: CreateItemInput;
+};
+
+
+export type MutationCreateModelArgs = {
+  input: CreateModelInput;
 };
 
 
@@ -122,8 +362,28 @@ export type MutationCreateWorkspaceArgs = {
 };
 
 
+export type MutationDeleteAssetArgs = {
+  input: DeleteAssetInput;
+};
+
+
+export type MutationDeleteFieldArgs = {
+  input: DeleteFieldInput;
+};
+
+
+export type MutationDeleteItemArgs = {
+  input: DeleteItemInput;
+};
+
+
 export type MutationDeleteMeArgs = {
   input: DeleteMeInput;
+};
+
+
+export type MutationDeleteModelArgs = {
+  input: DeleteModelInput;
 };
 
 
@@ -134,6 +394,11 @@ export type MutationDeleteProjectArgs = {
 
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
+};
+
+
+export type MutationPublishModelArgs = {
+  input: PublishModelInput;
 };
 
 
@@ -152,6 +417,16 @@ export type MutationSignupArgs = {
 };
 
 
+export type MutationUpdateFieldArgs = {
+  input: UpdateFieldInput;
+};
+
+
+export type MutationUpdateItemArgs = {
+  input: UpdateItemInput;
+};
+
+
 export type MutationUpdateMeArgs = {
   input: UpdateMeInput;
 };
@@ -159,6 +434,11 @@ export type MutationUpdateMeArgs = {
 
 export type MutationUpdateMemberOfWorkspaceArgs = {
   input: UpdateMemberOfWorkspaceInput;
+};
+
+
+export type MutationUpdateModelArgs = {
+  input: UpdateModelInput;
 };
 
 
@@ -195,6 +475,13 @@ export type Pagination = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
 };
+
+export enum PreviewType {
+  Geo = 'GEO',
+  Geo3D = 'GEO3D',
+  Image = 'IMAGE',
+  Model3D = 'MODEL3D'
+}
 
 export type Project = Node & {
   __typename?: 'Project';
@@ -233,10 +520,19 @@ export type ProjectPayload = {
   project: Project;
 };
 
+export type PublishModelInput = {
+  modelId: Scalars['ID'];
+  status: Scalars['Boolean'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  assets: AssetConnection;
+  checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
+  items: ItemConnection;
   me?: Maybe<Me>;
+  models: ModelConnection;
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
@@ -244,8 +540,39 @@ export type Query = {
 };
 
 
+export type QueryAssetsArgs = {
+  keyword?: InputMaybe<Scalars['String']>;
+  pagination?: InputMaybe<Pagination>;
+  projectId: Scalars['ID'];
+  sort?: InputMaybe<AssetSortType>;
+};
+
+
+export type QueryCheckModelKeyAvailabilityArgs = {
+  key: Scalars['String'];
+};
+
+
 export type QueryCheckProjectAliasArgs = {
   alias: Scalars['String'];
+};
+
+
+export type QueryItemsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  modelId: Scalars['ID'];
+};
+
+
+export type QueryModelsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  projectId: Scalars['ID'];
 };
 
 
@@ -294,6 +621,187 @@ export enum Role {
   Writer = 'WRITER'
 }
 
+export type Schema = Node & {
+  __typename?: 'Schema';
+  fields: Array<SchemaField>;
+  id: Scalars['ID'];
+  project: Project;
+  projectId: Scalars['ID'];
+};
+
+export type SchemaField = {
+  __typename?: 'SchemaField';
+  createdAt: Scalars['DateTime'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  key: Scalars['String'];
+  model: Model;
+  modelId: Scalars['ID'];
+  multiValue: Scalars['Boolean'];
+  required: Scalars['Boolean'];
+  title: Scalars['String'];
+  type: SchemaFiledType;
+  typeProperty?: Maybe<SchemaFieldTypeProperty>;
+  unique: Scalars['Boolean'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type SchemaFieldAsset = {
+  __typename?: 'SchemaFieldAsset';
+  defaultValue?: Maybe<Scalars['ID']>;
+};
+
+export type SchemaFieldAssetInput = {
+  defaultValue?: InputMaybe<Scalars['ID']>;
+};
+
+export type SchemaFieldBool = {
+  __typename?: 'SchemaFieldBool';
+  defaultValue?: Maybe<Scalars['Boolean']>;
+};
+
+export type SchemaFieldBoolInput = {
+  defaultValue?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type SchemaFieldDate = {
+  __typename?: 'SchemaFieldDate';
+  defaultValue?: Maybe<Scalars['DateTime']>;
+};
+
+export type SchemaFieldDateInput = {
+  defaultValue?: InputMaybe<Scalars['DateTime']>;
+};
+
+export type SchemaFieldInteger = {
+  __typename?: 'SchemaFieldInteger';
+  defaultValue?: Maybe<Scalars['Int']>;
+  max?: Maybe<Scalars['Int']>;
+  min?: Maybe<Scalars['Int']>;
+};
+
+export type SchemaFieldIntegerInput = {
+  defaultValue?: InputMaybe<Scalars['Int']>;
+  max?: InputMaybe<Scalars['Int']>;
+  min?: InputMaybe<Scalars['Int']>;
+};
+
+export type SchemaFieldReference = {
+  __typename?: 'SchemaFieldReference';
+  modelId?: Maybe<Scalars['ID']>;
+};
+
+export type SchemaFieldReferenceInput = {
+  modelId?: InputMaybe<Scalars['ID']>;
+};
+
+export type SchemaFieldRichText = {
+  __typename?: 'SchemaFieldRichText';
+  defaultValue?: Maybe<Scalars['String']>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
+
+export type SchemaFieldRichTextInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  maxLength?: InputMaybe<Scalars['Int']>;
+};
+
+export type SchemaFieldSelect = {
+  __typename?: 'SchemaFieldSelect';
+  defaultValue?: Maybe<Scalars['String']>;
+  values: Array<Scalars['String']>;
+};
+
+export type SchemaFieldSelectInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  values: Array<Scalars['String']>;
+};
+
+export type SchemaFieldTag = {
+  __typename?: 'SchemaFieldTag';
+  defaultValue?: Maybe<Scalars['String']>;
+  values: Array<Scalars['String']>;
+};
+
+export type SchemaFieldTagInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  values: Array<Scalars['String']>;
+};
+
+export type SchemaFieldText = {
+  __typename?: 'SchemaFieldText';
+  defaultValue?: Maybe<Scalars['String']>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
+
+export type SchemaFieldTextArea = {
+  __typename?: 'SchemaFieldTextArea';
+  defaultValue?: Maybe<Scalars['String']>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
+
+export type SchemaFieldTextAreaInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  maxLength?: InputMaybe<Scalars['Int']>;
+};
+
+export type SchemaFieldTextInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  maxLength?: InputMaybe<Scalars['Int']>;
+};
+
+export type SchemaFieldTypeProperty = SchemaFieldAsset | SchemaFieldBool | SchemaFieldDate | SchemaFieldInteger | SchemaFieldReference | SchemaFieldRichText | SchemaFieldSelect | SchemaFieldTag | SchemaFieldText | SchemaFieldTextArea | SchemaFieldUrl | SchemaMarkdownText;
+
+export type SchemaFieldTypePropertyInput = {
+  asset?: InputMaybe<SchemaFieldAssetInput>;
+  bool?: InputMaybe<SchemaFieldBoolInput>;
+  date?: InputMaybe<SchemaFieldDateInput>;
+  integer?: InputMaybe<SchemaFieldIntegerInput>;
+  markdownText?: InputMaybe<SchemaMarkdownTextInput>;
+  reference?: InputMaybe<SchemaFieldReferenceInput>;
+  richText?: InputMaybe<SchemaFieldRichTextInput>;
+  select?: InputMaybe<SchemaFieldSelectInput>;
+  tag?: InputMaybe<SchemaFieldTagInput>;
+  text?: InputMaybe<SchemaFieldTextInput>;
+  textArea?: InputMaybe<SchemaFieldTextAreaInput>;
+  url?: InputMaybe<SchemaFieldUrlInput>;
+};
+
+export type SchemaFieldUrl = {
+  __typename?: 'SchemaFieldURL';
+  defaultValue?: Maybe<Scalars['String']>;
+};
+
+export type SchemaFieldUrlInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+};
+
+export enum SchemaFiledType {
+  Asset = 'Asset',
+  Bool = 'Bool',
+  Date = 'Date',
+  Integer = 'Integer',
+  MarkdownText = 'MarkdownText',
+  Reference = 'Reference',
+  RichText = 'RichText',
+  Select = 'Select',
+  Tag = 'Tag',
+  Text = 'Text',
+  TextArea = 'TextArea',
+  Url = 'URL'
+}
+
+export type SchemaMarkdownText = {
+  __typename?: 'SchemaMarkdownText';
+  defaultValue?: Maybe<Scalars['String']>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
+
+export type SchemaMarkdownTextInput = {
+  defaultValue?: InputMaybe<Scalars['String']>;
+  maxLength?: InputMaybe<Scalars['Int']>;
+};
+
 export type SignupInput = {
   lang?: InputMaybe<Scalars['Lang']>;
   secret?: InputMaybe<Scalars['String']>;
@@ -313,6 +821,18 @@ export enum Theme {
   Default = 'DEFAULT',
   Light = 'LIGHT'
 }
+
+export type UpdateFieldInput = {
+  description?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
+};
+
+export type UpdateItemInput = {
+  fields: Array<ItemFieldInput>;
+  itemId: Scalars['ID'];
+};
 
 export type UpdateMeInput = {
   email?: InputMaybe<Scalars['String']>;
@@ -337,6 +857,13 @@ export type UpdateMemberOfWorkspaceInput = {
 export type UpdateMemberOfWorkspacePayload = {
   __typename?: 'UpdateMemberOfWorkspacePayload';
   workspace: Workspace;
+};
+
+export type UpdateModelInput = {
+  description?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['String']>;
+  modelId: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateProjectInput = {
@@ -378,6 +905,31 @@ export type WorkspaceMember = {
 };
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
+
+export type GetAssetsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  keyword?: InputMaybe<Scalars['String']>;
+  sort?: InputMaybe<AssetSortType>;
+  pagination?: InputMaybe<Pagination>;
+}>;
+
+
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+
+export type CreateAssetMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  file: Scalars['Upload'];
+}>;
+
+
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+
+export type DeleteAssetMutationVariables = Exact<{
+  assetId: Scalars['ID'];
+}>;
+
+
+export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -537,6 +1089,153 @@ export const WorkspaceFragmentFragmentDoc = gql`
   personal
 }
     `;
+export const GetAssetsDocument = gql`
+    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSortType, $pagination: Pagination) {
+  assets(
+    projectId: $projectId
+    keyword: $keyword
+    sort: $sort
+    pagination: $pagination
+  ) {
+    nodes {
+      id
+      projectId
+      createdAt
+      createdById
+      fileName
+      size
+      previewType
+      file {
+        name
+        size
+        contentType
+        path
+      }
+      hash
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useGetAssetsQuery__
+ *
+ * To run a query within a React component, call `useGetAssetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      keyword: // value for 'keyword'
+ *      sort: // value for 'sort'
+ *      pagination: // value for 'pagination'
+ *   },
+ * });
+ */
+export function useGetAssetsQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+      }
+export function useGetAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+        }
+export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
+export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
+export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
+export const CreateAssetDocument = gql`
+    mutation CreateAsset($projectId: ID!, $file: Upload!) {
+  createAsset(input: {projectId: $projectId, file: $file}) {
+    asset {
+      id
+      projectId
+      createdAt
+      createdById
+      fileName
+      size
+      previewType
+      file {
+        name
+        size
+        contentType
+        path
+      }
+      hash
+    }
+  }
+}
+    `;
+export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation, CreateAssetMutationVariables>;
+
+/**
+ * __useCreateAssetMutation__
+ *
+ * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      file: // value for 'file'
+ *   },
+ * });
+ */
+export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(CreateAssetDocument, options);
+      }
+export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
+export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
+export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
+export const DeleteAssetDocument = gql`
+    mutation DeleteAsset($assetId: ID!) {
+  deleteAsset(input: {assetId: $assetId}) {
+    assetId
+  }
+}
+    `;
+export type DeleteAssetMutationFn = Apollo.MutationFunction<DeleteAssetMutation, DeleteAssetMutationVariables>;
+
+/**
+ * __useDeleteAssetMutation__
+ *
+ * To run a mutation, you first call `useDeleteAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAssetMutation, { data, loading, error }] = useDeleteAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetMutation, DeleteAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAssetMutation, DeleteAssetMutationVariables>(DeleteAssetDocument, options);
+      }
+export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
+export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
+export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
 export const GetProjectsDocument = gql`
     query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   projects(

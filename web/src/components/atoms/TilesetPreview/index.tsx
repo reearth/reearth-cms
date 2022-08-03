@@ -1,14 +1,10 @@
 import { Viewer, Cesium3DTileset } from "cesium";
-import {
-  Viewer as ResiumViewer,
-  Cesium3DTileset as Resium3DTileset,
-} from "resium";
-import { Cesium3DTilesetProps } from "resium/dist/Cesium3DTileset/Cesium3DTileset";
-import { ViewerProps } from "resium/dist/Viewer/Viewer";
+import { ComponentProps } from "react";
+import { Viewer as ResiumViewer, Cesium3DTileset as Resium3DTileset } from "resium";
 
 type TilesetPreviewProps = {
-  viewerProps?: ViewerProps;
-  tilesetProps: Cesium3DTilesetProps;
+  viewerProps?: ComponentProps<typeof ResiumViewer>;
+  tilesetProps: ComponentProps<typeof Resium3DTileset>;
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
@@ -31,11 +27,10 @@ const TilesetPreview: React.FC<TilesetPreviewProps> = ({
   return (
     <ResiumViewer
       {...viewerProps}
-      ref={(e) => {
+      ref={e => {
         viewer = e?.cesiumElement;
         onGetViewer(viewer);
-      }}
-    >
+      }}>
       <Resium3DTileset {...tilesetProps} onReady={handleReady} />
     </ResiumViewer>
   );
