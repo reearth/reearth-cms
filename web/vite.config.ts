@@ -10,6 +10,9 @@ import cesium from "vite-plugin-cesium";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 3000,
+  },
   envPrefix: "REEARTH_CMS_",
   plugins: [react(), yaml(), cesium()],
   css: {

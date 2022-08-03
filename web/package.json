@@ -10,7 +10,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "start": "vite --port 3000",
+    "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
