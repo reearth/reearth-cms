@@ -15,6 +15,7 @@ const configPrefix = "reearth"
 
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
+	Host         string
 	Dev          bool
 	Host_Web     string
 	GraphQL      GraphQLConfig
