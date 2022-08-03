@@ -1,4 +1,3 @@
-
-import { Content }  from "antd/lib/layout/layout";
+import { Content } from "antd/lib/layout/layout";
 
 export default Content;
