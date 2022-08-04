@@ -27,3 +27,7 @@ func (f *FieldDate) TypeProperty() *TypeProperty {
 		date: f,
 	}
 }
+
+func (f *FieldDate) DefaultValue() *time.Time {
+	return f.defaultValue
+}

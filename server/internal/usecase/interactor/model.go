@@ -12,11 +12,18 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/util"
 )
 
 type Model struct {
 	repos *repo.Container
+}
+
+func NewModel(r *repo.Container) interfaces.Model {
+	return &Model{
+		repos: r,
+	}
 }
 
 func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
@@ -54,9 +61,15 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
+			s := schema.New().NewID().Workspace(p.Workspace()).MustBuild()
+			if err := i.repos.Schema.Save(ctx, s); err != nil {
+				return nil, err
+			}
+
 			mb := model.
 				New().
 				NewID().
+				Schema(s.ID()).
 				IsPublic(false).
 				Project(param.ProjectId)
 
@@ -116,14 +129,14 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 		})
 }
 
-func (i Model) CheckKey(ctx context.Context, s string) (bool, error) {
+func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
 		func() (bool, error) {
 			if k := key.New(s); !k.IsValid() {
 				return false, model.ErrInvalidKey
 			}
 
-			m, err := i.repos.Model.FindByKey(ctx, s)
+			m, err := i.repos.Model.FindByKey(ctx, pId, s)
 			if m == nil && err == nil || err != nil && errors.Is(err, rerror.ErrNotFound) {
 				return true, nil
 			}

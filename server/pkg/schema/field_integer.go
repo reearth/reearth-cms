@@ -54,3 +54,15 @@ func (f *FieldInteger) TypeProperty() *TypeProperty {
 		integer: f,
 	}
 }
+
+func (f *FieldInteger) DefaultValue() *int {
+	return f.defaultValue
+}
+
+func (f *FieldInteger) Min() *int {
+	return f.min
+}
+
+func (f *FieldInteger) Max() *int {
+	return f.max
+}

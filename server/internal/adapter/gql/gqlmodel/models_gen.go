@@ -409,8 +409,15 @@ type SchemaFieldIntegerInput struct {
 	Max          *int `json:"max"`
 }
 
+type SchemaFieldMarkdown struct {
+	DefaultValue *string `json:"defaultValue"`
+	MaxLength    *int    `json:"maxLength"`
+}
+
+func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
+
 type SchemaFieldReference struct {
-	ModelID *ID `json:"modelId"`
+	ModelID ID `json:"modelId"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
@@ -445,7 +452,7 @@ type SchemaFieldSelectInput struct {
 
 type SchemaFieldTag struct {
 	Values       []string `json:"values"`
-	DefaultValue *string  `json:"defaultValue"`
+	DefaultValue []string `json:"defaultValue"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
@@ -503,13 +510,6 @@ func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
 type SchemaFieldURLInput struct {
 	DefaultValue *string `json:"defaultValue"`
 }
-
-type SchemaMarkdownText struct {
-	DefaultValue *string `json:"defaultValue"`
-	MaxLength    *int    `json:"maxLength"`
-}
-
-func (SchemaMarkdownText) IsSchemaFieldTypeProperty() {}
 
 type SchemaMarkdownTextInput struct {
 	DefaultValue *string `json:"defaultValue"`

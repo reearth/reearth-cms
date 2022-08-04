@@ -14,6 +14,7 @@ type Container struct {
 	Workspace   Workspace
 	Project     Project
 	Model       Model
+	Schema      Schema
 }
 
 var (
@@ -30,6 +31,8 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		Workspace:   c.Workspace,
 		User:        c.User,
 		Project:     c.Project.Filtered(workspace),
+		Model:       c.Model,
+		Schema:      c.Schema,
 	}
 }
 

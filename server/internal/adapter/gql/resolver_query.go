@@ -88,8 +88,8 @@ func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first
 	return loaders(ctx).Model.FindByProject(ctx, projectID, first, last, before, after)
 }
 
-func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
-	return loaders(ctx).Model.CheckKey(ctx, key)
+func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
+	return loaders(ctx).Model.CheckKey(ctx, projectID, key)
 }
 
 func (r *queryResolver) Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ItemConnection, error) {

@@ -60,3 +60,11 @@ func (f *FieldSelect) TypeProperty() *TypeProperty {
 		selectt: f,
 	}
 }
+
+func (f *FieldSelect) Values() []string {
+	return f.values
+}
+
+func (f *FieldSelect) DefaultValue() *string {
+	return f.defaultValue
+}

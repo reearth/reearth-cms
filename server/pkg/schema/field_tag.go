@@ -47,3 +47,11 @@ func (f *FieldTag) TypeProperty() *TypeProperty {
 		tag: f,
 	}
 }
+
+func (f *FieldTag) Values() []string {
+	return f.values
+}
+
+func (f *FieldTag) DefaultValue() []string {
+	return f.defaultValue
+}

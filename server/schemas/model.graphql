@@ -69,7 +69,7 @@ extend type Query {
     after: Cursor
     before: Cursor
   ): ModelConnection!
-  checkModelKeyAvailability(key: String!): KeyAvailability!
+  checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
 extend type Mutation {

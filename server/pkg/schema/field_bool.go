@@ -23,3 +23,7 @@ func (f *FieldBool) TypeProperty() *TypeProperty {
 		bool: f,
 	}
 }
+
+func (f *FieldBool) DefaultValue() *bool {
+	return f.defaultValue
+}

@@ -26,3 +26,11 @@ func (f *FieldMarkdown) TypeProperty() *TypeProperty {
 		markdown: f,
 	}
 }
+
+func (f *FieldMarkdown) DefaultValue() *string {
+	return f.defaultValue
+}
+
+func (f *FieldMarkdown) MaxLength() *int {
+	return f.maxLength
+}

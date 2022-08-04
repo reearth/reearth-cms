@@ -67,8 +67,13 @@ func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 	}, nil
 }
 
-func (c *ModelLoader) CheckKey(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
-	ok, err := c.usecase.CheckKey(ctx, key)
+func (c *ModelLoader) CheckKey(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
+	pId, err := gqlmodel.ToID[id.Project](projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	ok, err := c.usecase.CheckKey(ctx, pId, key)
 	if err != nil {
 		return nil, err
 	}

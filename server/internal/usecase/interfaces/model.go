@@ -32,7 +32,7 @@ type Model interface {
 	FindByProject(context.Context, id.ProjectID, *usecase.Pagination, *usecase.Operator) (model.List, *usecase.PageInfo, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
-	CheckKey(context.Context, string) (bool, error)
+	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	Delete(context.Context, id.ModelID, *usecase.Operator) error
 	Publish(context.Context, id.ModelID, bool, *usecase.Operator) (bool, error)
 }

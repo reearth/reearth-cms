@@ -23,3 +23,7 @@ func (f *FieldURL) TypeProperty() *TypeProperty {
 		url: f,
 	}
 }
+
+func (f *FieldURL) DefaultValue() *string {
+	return f.defaultValue
+}

@@ -293,7 +293,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) int
-		CheckModelKeyAvailability func(childComplexity int, key string) int
+		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		Items                     func(childComplexity int, modelID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) int
 		Me                        func(childComplexity int) int
@@ -349,6 +349,11 @@ type ComplexityRoot struct {
 		Min          func(childComplexity int) int
 	}
 
+	SchemaFieldMarkdown struct {
+		DefaultValue func(childComplexity int) int
+		MaxLength    func(childComplexity int) int
+	}
+
 	SchemaFieldReference struct {
 		ModelID func(childComplexity int) int
 	}
@@ -380,11 +385,6 @@ type ComplexityRoot struct {
 
 	SchemaFieldURL struct {
 		DefaultValue func(childComplexity int) int
-	}
-
-	SchemaMarkdownText struct {
-		DefaultValue func(childComplexity int) int
-		MaxLength    func(childComplexity int) int
 	}
 
 	SignupPayload struct {
@@ -481,7 +481,7 @@ type QueryResolver interface {
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error)
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error)
-	CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error)
+	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ItemConnection, error)
 }
 type SchemaResolver interface {
@@ -1566,7 +1566,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckModelKeyAvailability(childComplexity, args["key"].(string)), true
+		return e.complexity.Query.CheckModelKeyAvailability(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(string)), true
 
 	case "Query.checkProjectAlias":
 		if e.complexity.Query.CheckProjectAlias == nil {
@@ -1827,6 +1827,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldInteger.Min(childComplexity), true
 
+	case "SchemaFieldMarkdown.defaultValue":
+		if e.complexity.SchemaFieldMarkdown.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldMarkdown.DefaultValue(childComplexity), true
+
+	case "SchemaFieldMarkdown.maxLength":
+		if e.complexity.SchemaFieldMarkdown.MaxLength == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
+
 	case "SchemaFieldReference.modelId":
 		if e.complexity.SchemaFieldReference.ModelID == nil {
 			break
@@ -1910,20 +1924,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaFieldURL.DefaultValue(childComplexity), true
-
-	case "SchemaMarkdownText.defaultValue":
-		if e.complexity.SchemaMarkdownText.DefaultValue == nil {
-			break
-		}
-
-		return e.complexity.SchemaMarkdownText.DefaultValue(childComplexity), true
-
-	case "SchemaMarkdownText.maxLength":
-		if e.complexity.SchemaMarkdownText.MaxLength == nil {
-			break
-		}
-
-		return e.complexity.SchemaMarkdownText.MaxLength(childComplexity), true
 
 	case "SignupPayload.user":
 		if e.complexity.SignupPayload.User == nil {
@@ -2544,7 +2544,7 @@ extend type Query {
     after: Cursor
     before: Cursor
   ): ModelConnection!
-  checkModelKeyAvailability(key: String!): KeyAvailability!
+  checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
 extend type Mutation {
@@ -2602,7 +2602,7 @@ union SchemaFieldTypeProperty =
   SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
-  | SchemaMarkdownText
+  | SchemaFieldMarkdown
   | SchemaFieldAsset
   | SchemaFieldDate
   | SchemaFieldBool
@@ -2628,7 +2628,7 @@ type SchemaFieldRichText {
   maxLength: Int
 }
 
-type SchemaMarkdownText {
+type SchemaFieldMarkdown {
   defaultValue: String
   maxLength: Int
 }
@@ -2652,7 +2652,7 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: String
+  defaultValue: [String!]!
 }
 
 type SchemaFieldInteger {
@@ -2662,7 +2662,7 @@ type SchemaFieldInteger {
 }
 
 type SchemaFieldReference {
-  modelId: ID
+  modelId: ID!
 }
 
 type SchemaFieldURL {
@@ -3306,15 +3306,24 @@ func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["key"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["projectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["key"] = arg0
+	args["projectId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["key"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["key"] = arg1
 	return args, nil
 }
 
@@ -8546,7 +8555,7 @@ func (ec *executionContext) _Query_checkModelKeyAvailability(ctx context.Context
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CheckModelKeyAvailability(rctx, args["key"].(string))
+		return ec.resolvers.Query().CheckModelKeyAvailability(rctx, args["projectId"].(gqlmodel.ID), args["key"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9492,6 +9501,70 @@ func (ec *executionContext) _SchemaFieldInteger_max(ctx context.Context, field g
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _SchemaFieldMarkdown_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldMarkdown) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaFieldMarkdown",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SchemaFieldMarkdown_maxLength(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldMarkdown) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SchemaFieldMarkdown",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLength, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _SchemaFieldReference_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9517,11 +9590,14 @@ func (ec *executionContext) _SchemaFieldReference_modelId(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ID)
+	res := resTmp.(gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldRichText) (ret graphql.Marshaler) {
@@ -9715,11 +9791,14 @@ func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SchemaFieldText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldText) (ret graphql.Marshaler) {
@@ -9880,70 +9959,6 @@ func (ec *executionContext) _SchemaFieldURL_defaultValue(ctx context.Context, fi
 	res := resTmp.(*string)
 	fc.Result = res
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SchemaMarkdownText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaMarkdownText) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "SchemaMarkdownText",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _SchemaMarkdownText_maxLength(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaMarkdownText) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "SchemaMarkdownText",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MaxLength, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _SignupPayload_user(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SignupPayload) (ret graphql.Marshaler) {
@@ -13433,13 +13448,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldRichText(ctx, sel, obj)
-	case gqlmodel.SchemaMarkdownText:
-		return ec._SchemaMarkdownText(ctx, sel, &obj)
-	case *gqlmodel.SchemaMarkdownText:
+	case gqlmodel.SchemaFieldMarkdown:
+		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldMarkdown:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SchemaMarkdownText(ctx, sel, obj)
+		return ec._SchemaFieldMarkdown(ctx, sel, obj)
 	case gqlmodel.SchemaFieldAsset:
 		return ec._SchemaFieldAsset(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldAsset:
@@ -16176,6 +16191,41 @@ func (ec *executionContext) _SchemaFieldInteger(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var schemaFieldMarkdownImplementors = []string{"SchemaFieldMarkdown", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldMarkdown(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldMarkdown) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldMarkdownImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldMarkdown")
+		case "defaultValue":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaFieldMarkdown_defaultValue(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "maxLength":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SchemaFieldMarkdown_maxLength(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var schemaFieldReferenceImplementors = []string{"SchemaFieldReference", "SchemaFieldTypeProperty"}
 
 func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldReference) graphql.Marshaler {
@@ -16193,6 +16243,9 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -16304,6 +16357,9 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -16398,41 +16454,6 @@ func (ec *executionContext) _SchemaFieldURL(ctx context.Context, sel ast.Selecti
 		case "defaultValue":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._SchemaFieldURL_defaultValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var schemaMarkdownTextImplementors = []string{"SchemaMarkdownText", "SchemaFieldTypeProperty"}
-
-func (ec *executionContext) _SchemaMarkdownText(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaMarkdownText) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, schemaMarkdownTextImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SchemaMarkdownText")
-		case "defaultValue":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._SchemaMarkdownText_defaultValue(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-		case "maxLength":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._SchemaMarkdownText_maxLength(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

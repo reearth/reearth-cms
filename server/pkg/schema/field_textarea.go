@@ -26,3 +26,11 @@ func (f *FieldTextArea) TypeProperty() *TypeProperty {
 		textArea: f,
 	}
 }
+
+func (f *FieldTextArea) DefaultValue() *string {
+	return f.defaultValue
+}
+
+func (f *FieldTextArea) MaxLength() *int {
+	return f.maxLength
+}

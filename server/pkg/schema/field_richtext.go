@@ -26,3 +26,11 @@ func (f *FieldRichText) TypeProperty() *TypeProperty {
 		richText: f,
 	}
 }
+
+func (f *FieldRichText) DefaultValue() *string {
+	return f.defaultValue
+}
+
+func (f *FieldRichText) MaxLength() *int {
+	return f.maxLength
+}

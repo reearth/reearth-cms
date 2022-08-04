@@ -78,6 +78,68 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 				MaxLength:    f.MaxLength(),
 			}
 		},
+		TextArea: func(f *schema.FieldTextArea) {
+			res = &SchemaFieldTextArea{
+				DefaultValue: f.DefaultValue(),
+				MaxLength:    f.MaxLength(),
+			}
+		},
+		RichText: func(f *schema.FieldRichText) {
+			res = &SchemaFieldRichText{
+				DefaultValue: f.DefaultValue(),
+				MaxLength:    f.MaxLength(),
+			}
+		},
+		Markdown: func(f *schema.FieldMarkdown) {
+			res = &SchemaFieldMarkdown{
+				DefaultValue: f.DefaultValue(),
+				MaxLength:    f.MaxLength(),
+			}
+		},
+		Asset: func(f *schema.FieldAsset) {
+			res = &SchemaFieldAsset{
+				DefaultValue: IDFromRef(f.DefaultValue()),
+			}
+		},
+		Date: func(f *schema.FieldDate) {
+			res = &SchemaFieldDate{
+				DefaultValue: f.DefaultValue(),
+			}
+		},
+		Bool: func(f *schema.FieldBool) {
+			res = &SchemaFieldBool{
+				DefaultValue: f.DefaultValue(),
+			}
+		},
+		Select: func(f *schema.FieldSelect) {
+			res = &SchemaFieldSelect{
+				DefaultValue: f.DefaultValue(),
+				Values:       f.Values(),
+			}
+		},
+		Tag: func(f *schema.FieldTag) {
+			res = &SchemaFieldTag{
+				DefaultValue: f.DefaultValue(),
+				Values:       f.Values(),
+			}
+		},
+		Integer: func(f *schema.FieldInteger) {
+			res = &SchemaFieldInteger{
+				DefaultValue: f.DefaultValue(),
+				Min:          f.Min(),
+				Max:          f.Max(),
+			}
+		},
+		Reference: func(f *schema.FieldReference) {
+			res = &SchemaFieldReference{
+				ModelID: IDFrom(f.ModelID()),
+			}
+		},
+		URL: func(f *schema.FieldURL) {
+			res = &SchemaFieldURL{
+				DefaultValue: f.DefaultValue(),
+			}
+		},
 	})
 	return
 }

@@ -26,6 +26,8 @@ func InitRepos(ctx context.Context, c *repo.Container, mc *mongo.Client, databas
 	c.Transaction = NewTransaction(client)
 	c.Lock = lock
 	c.Project = NewProject(client)
+	c.Model = NewModel(client)
+	c.Schema = NewSchema(client)
 	return nil
 }
 

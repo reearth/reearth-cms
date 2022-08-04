@@ -35,7 +35,7 @@ union SchemaFieldTypeProperty =
   SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
-  | SchemaMarkdownText
+  | SchemaFieldMarkdown
   | SchemaFieldAsset
   | SchemaFieldDate
   | SchemaFieldBool
@@ -61,7 +61,7 @@ type SchemaFieldRichText {
   maxLength: Int
 }
 
-type SchemaMarkdownText {
+type SchemaFieldMarkdown {
   defaultValue: String
   maxLength: Int
 }
@@ -85,7 +85,7 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: String
+  defaultValue: [String!]!
 }
 
 type SchemaFieldInteger {
@@ -95,7 +95,7 @@ type SchemaFieldInteger {
 }
 
 type SchemaFieldReference {
-  modelId: ID
+  modelId: ID!
 }
 
 type SchemaFieldURL {
