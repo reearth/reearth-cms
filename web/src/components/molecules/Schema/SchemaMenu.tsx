@@ -18,7 +18,12 @@ const topItems: ItemType[] = [
   { label: "Model 5", key: "request" },
 ];
 
-const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys }) => {
+export interface Props {
+  defaultSelectedKeys?: string[];
+  handleModalOpen: () => void;
+}
+
+const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, handleModalOpen }) => {
   const onClick = () => {};
 
   return (
@@ -26,7 +31,11 @@ const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys }) => {
       <SchemaStyledTitle>Schema</SchemaStyledTitle>
       <SchemaAction>
         <SchemaStyledMenuTitle>Models</SchemaStyledMenuTitle>
-        <SchemaAddButton color="#1890FF" icon={<Icon icon="plus" />} type="text">
+        <SchemaAddButton
+          onClick={handleModalOpen}
+          color="#1890FF"
+          icon={<Icon icon="plus" />}
+          type="text">
           Add
         </SchemaAddButton>
       </SchemaAction>

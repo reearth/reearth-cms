@@ -21,6 +21,7 @@ function AppRoutes() {
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
+    { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "*", element: <NotFound /> },
   ]);

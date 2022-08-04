@@ -8,9 +8,12 @@ import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
+import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
 
 import useDashboardHooks from "../../Dashboard/hooks";
+
+import useHooks from "./hooks";
 
 export interface FormValues {
   name: string;
@@ -31,6 +34,10 @@ const ProjectSchema: React.FC = () => {
     workspaceModalShown,
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
+
+  const { handleModelModalClose, handleModelModalOpen, modelModalShown } = useHooks({
+    projectId,
+  });
 
   return (
     <>
@@ -59,7 +66,7 @@ const ProjectSchema: React.FC = () => {
           </ProjectSider>
           <PaddedContent>
             <SchemaStyledMenu>
-              <SchemaMenu></SchemaMenu>
+              <SchemaMenu handleModalOpen={handleModelModalOpen}></SchemaMenu>
             </SchemaStyledMenu>
             <ContentChild>
               <div>asdsad</div>
@@ -74,6 +81,11 @@ const ProjectSchema: React.FC = () => {
         open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
+      />
+      <ModelCreationModal
+        open={modelModalShown}
+        onClose={handleModelModalClose}
+        onSubmit={() => console.log("create")}
       />
     </>
   );
