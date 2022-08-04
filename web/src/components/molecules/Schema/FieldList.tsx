@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import React from "react";
 
-import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 
@@ -16,7 +15,6 @@ const data = [
 ];
 
 const FieldList: React.FC<Props> = () => {
-  const { Meta } = Card;
   return (
     <>
       <h1>Add Field</h1>
