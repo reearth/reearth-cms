@@ -2755,6 +2755,7 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
+  modelId: ID!
   fieldId: ID!
   title: String
   description: String
@@ -2764,6 +2765,7 @@ input UpdateFieldInput {
 }
 
 input DeleteFieldInput {
+  modelId: ID!
   fieldId: ID!
 }
 
@@ -12024,6 +12026,14 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 
 	for k, v := range asMap {
 		switch k {
+		case "modelId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "fieldId":
 			var err error
 
@@ -13047,6 +13057,14 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 
 	for k, v := range asMap {
 		switch k {
+		case "modelId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "fieldId":
 			var err error
 

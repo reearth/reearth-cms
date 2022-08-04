@@ -124,6 +124,7 @@ type DeleteAssetPayload struct {
 }
 
 type DeleteFieldInput struct {
+	ModelID ID `json:"modelId"`
 	FieldID ID `json:"fieldId"`
 }
 
@@ -530,6 +531,7 @@ type SignupPayload struct {
 }
 
 type UpdateFieldInput struct {
+	ModelID      ID                            `json:"modelId"`
 	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`

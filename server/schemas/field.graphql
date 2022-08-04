@@ -188,6 +188,7 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
+  modelId: ID!
   fieldId: ID!
   title: String
   description: String
@@ -197,6 +198,7 @@ input UpdateFieldInput {
 }
 
 input DeleteFieldInput {
+  modelId: ID!
   fieldId: ID!
 }
 

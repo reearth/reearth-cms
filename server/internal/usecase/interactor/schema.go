@@ -119,11 +119,94 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 }
 
 func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
-	// TODO implement me
-	panic("implement me")
+	s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
+		func() (*schema.Field, error) {
+			var fb *schema.FieldBuilder
+
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Text: func(fp *schema.FieldText) {
+					fb = schema.NewFieldText(fp.DefaultValue(), fp.MaxLength())
+				},
+				TextArea: func(fp *schema.FieldTextArea) {
+					fb = schema.NewFieldTextArea(fp.DefaultValue(), fp.MaxLength())
+				},
+				RichText: func(fp *schema.FieldRichText) {
+					fb = schema.NewFieldRichText(fp.DefaultValue(), fp.MaxLength())
+				},
+				Markdown: func(fp *schema.FieldMarkdown) {
+					fb = schema.NewFieldMarkdown(fp.DefaultValue(), fp.MaxLength())
+				},
+				Asset: func(fp *schema.FieldAsset) {
+					fb = schema.NewFieldAsset(fp.DefaultValue())
+				},
+				Date: func(fp *schema.FieldDate) {
+					fb = schema.NewFieldDate(fp.DefaultValue())
+				},
+				Bool: func(fp *schema.FieldBool) {
+					fb = schema.NewFieldBool(fp.DefaultValue())
+				},
+				Select: func(fp *schema.FieldSelect) {
+					fb = schema.NewFieldSelect(fp.Values(), fp.DefaultValue())
+				},
+				Tag: func(fp *schema.FieldTag) {
+					fb = schema.NewFieldTag(fp.Values(), fp.DefaultValue())
+				},
+				Integer: func(fp *schema.FieldInteger) {
+					fb = schema.NewFieldInteger(fp.DefaultValue(), fp.Min(), fp.Max())
+				},
+				Reference: func(fp *schema.FieldReference) {
+					fb = schema.NewFieldReference(fp.ModelID())
+				},
+				URL: func(fp *schema.FieldURL) {
+					fb = schema.NewFieldURL(fp.DefaultValue())
+				},
+				Default: func() {
+					fb = nil
+				},
+			})
+			if fb == nil {
+				return nil, interfaces.ErrInvalidTypeProperty
+			}
+
+			f := s.Field(param.FieldId)
+			if f == nil {
+				return nil, interfaces.ErrFieldNotFound
+			}
+
+			if param.Name != nil {
+				f.SetName(*param.Name)
+			}
+			if param.Description != nil {
+				f.SetDescription(*param.Description)
+			}
+			if param.Key != nil {
+				k := key.New(*param.Key)
+				if !k.IsValid() {
+					return nil, interfaces.ErrInvalidKey
+				}
+				f.SetKey(k)
+			}
+
+			if err := i.repos.Schema.Save(ctx, s); err != nil {
+				return nil, err
+			}
+
+			return f, nil
+		})
 }
 
-func (i Schema) DeleteField(ctx context.Context, fieldID id.FieldID, operator *usecase.Operator) error {
-	// TODO implement me
-	panic("implement me")
+func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID id.FieldID, operator *usecase.Operator) error {
+	s, err := i.repos.Schema.FindByID(ctx, schemaId)
+	if err != nil {
+		return err
+	}
+	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
+		func() error {
+			s.RemoveField(fieldID)
+			return i.repos.Schema.Save(ctx, s)
+		})
 }

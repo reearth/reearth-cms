@@ -141,7 +141,18 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
+	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+	if err != nil || len(m) != 1 {
+		return nil, err
+	}
+
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
+		SchemaId:     m[0].Schema(),
 		FieldId:      fId,
 		Name:         input.Title,
 		Description:  input.Description,
@@ -163,7 +174,17 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 
-	if err := usecases(ctx).Schema.DeleteField(ctx, fId, getOperator(ctx)); err != nil {
+	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+	if err != nil || len(m) != 1 {
+		return nil, err
+	}
+
+	if err := usecases(ctx).Schema.DeleteField(ctx, m[0].Schema(), fId, getOperator(ctx)); err != nil {
 		return nil, err
 	}
 
