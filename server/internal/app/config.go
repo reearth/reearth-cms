@@ -8,7 +8,8 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/reearth/reearth-cms/server/pkg/log"
+
+	"github.com/reearth/reearthx/log"
 )
 
 const configPrefix = "reearth"
