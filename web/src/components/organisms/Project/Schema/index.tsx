@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import Layout, { Header, Content } from "antd/lib/layout/layout";
 import Sider from "antd/lib/layout/Sider";
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
@@ -23,9 +23,13 @@ export interface FormValues {
 }
 
 const ProjectSchema: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const { projectId, workspaceId } = useParams();
+  const navigate = useNavigate();
 
+  const [collapsed, setCollapsed] = useState(false);
+  const { projectId, workspaceId, modelId } = useParams();
+  const selectModel = (modelId: string) => {
+    navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
+  };
   const {
     user,
     personalWorkspace,
@@ -43,8 +47,10 @@ const ProjectSchema: React.FC = () => {
     modelModalShown,
     handleProjectCreate,
     models,
+    model,
   } = useHooks({
     projectId,
+    modelId,
   });
 
   return (
@@ -74,10 +80,15 @@ const ProjectSchema: React.FC = () => {
           </ProjectSider>
           <PaddedContent>
             <SchemaStyledMenu>
-              <SchemaMenu models={models} handleModalOpen={handleModelModalOpen}></SchemaMenu>
+              <SchemaMenu
+                selectModel={selectModel}
+                defaultSelectedKeys={[model?.id ?? ""]}
+                models={models}
+                handleModalOpen={handleModelModalOpen}></SchemaMenu>
             </SchemaStyledMenu>
             <ContentChild>
-              <ModelFieldList></ModelFieldList>
+              <ModelTitle>{model?.name}</ModelTitle>
+              <ModelFieldList fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
             <FieldListWrapper>
               <FieldList></FieldList>
@@ -101,6 +112,14 @@ const ProjectSchema: React.FC = () => {
     </>
   );
 };
+
+const ModelTitle = styled.h1`
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 24px 0;
+`;
 
 const SchemaStyledMenu = styled.div`
   width: 200px;

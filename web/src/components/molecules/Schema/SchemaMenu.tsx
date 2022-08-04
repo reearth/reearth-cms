@@ -14,10 +14,18 @@ export interface Props {
   defaultSelectedKeys?: string[];
   models?: Model[];
   handleModalOpen: () => void;
+  selectModel: (modelId: string) => void;
 }
 
-const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, models, handleModalOpen }) => {
-  const onClick = () => {};
+const SchemaMenu: React.FC<Props> = ({
+  defaultSelectedKeys,
+  models,
+  handleModalOpen,
+  selectModel,
+}) => {
+  const onClick = (e: any) => {
+    selectModel(e.key);
+  };
 
   return (
     <SchemaStyledMenu>
@@ -36,7 +44,7 @@ const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, models, handleModalO
         onClick={onClick}
         defaultSelectedKeys={defaultSelectedKeys}
         mode="inline"
-        items={models?.map(model => ({ label: model.name, key: model.key }))}
+        items={models?.map(model => ({ label: model.name, key: model.id }))}
       />
     </SchemaStyledMenu>
   );

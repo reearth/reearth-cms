@@ -5,9 +5,10 @@ import { useGetModelsQuery, useCreateModelMutation } from "@reearth-cms/gql/grap
 
 type Params = {
   projectId?: string;
+  modelId?: string;
 };
 
-export default ({ projectId }: Params) => {
+export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
 
   const { data, refetch } = useGetModelsQuery({
@@ -24,11 +25,50 @@ export default ({ projectId }: Params) => {
               description: model.description,
               name: model.name,
               key: model.key,
+              schema: {
+                id: model.schema.id,
+                fields: model.schema.fields.map(field => ({
+                  id: field.id,
+                  description: field.description,
+                  title: field.title,
+                  type: field.type,
+                  unique: field.unique,
+                  required: field.required,
+                })),
+              },
             }
           : undefined,
       )
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
+
+  const rawModel = useMemo(
+    () => data?.models.nodes.find((p: any) => p?.id === modelId),
+    [data, modelId],
+  );
+  const model = useMemo(
+    () =>
+      rawModel?.id
+        ? {
+            id: rawModel.id,
+            description: rawModel.description,
+            name: rawModel.name,
+            key: rawModel.key,
+            schema: {
+              id: rawModel.schema.id,
+              fields: rawModel.schema.fields.map(field => ({
+                id: field.id,
+                description: field.description,
+                title: field.title,
+                type: field.type,
+                unique: field.unique,
+                required: field.required,
+              })),
+            },
+          }
+        : undefined,
+    [rawModel],
+  );
 
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],
@@ -62,6 +102,7 @@ export default ({ projectId }: Params) => {
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   return {
+    model,
     models,
     modelModalShown,
     handleModelModalOpen,

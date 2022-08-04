@@ -1,38 +1,32 @@
 import styled from "@emotion/styled";
 import React from "react";
 
-import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 
+import { Field } from "../Dashboard/types";
+
 export interface Props {
   className?: string;
+  fields?: Field[];
 }
 
-const data = [
-  {
-    title: "Ant Design Title 1",
-  },
-];
-
-const ModelFieldList: React.FC<Props> = () => {
-  const { Meta } = Card;
+const ModelFieldList: React.FC<Props> = ({ fields }) => {
   return (
     <>
-      <h1>Add Field</h1>
       <FieldStyledList
         itemLayout="horizontal"
-        dataSource={data}
+        dataSource={fields}
         renderItem={item => (
           <>
             <List.Item extra={<Icon icon="more" style={{ fontSize: "22px" }} />}>
               <List.Item.Meta
                 avatar={
                   <FieldThumbnail>
-                    <StyledIcon icon="textT" color="red" /> <h3>Text</h3>
+                    <StyledIcon icon="textT" color="red" /> <h3>{item?.type}</h3>
                   </FieldThumbnail>
                 }
-                title={"Text"}
+                title={`${item?.title}${item.required ? " *" : ""}`}
               />
             </List.Item>
           </>
@@ -65,6 +59,7 @@ const FieldThumbnail = styled.div`
 `;
 
 const FieldStyledList = styled(List)`
+  padding-top: 24px;
   .ant-list-item {
     background-color: #fff;
     cursor: pointer;
