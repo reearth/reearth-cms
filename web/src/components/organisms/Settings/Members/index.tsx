@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
-import { Content } from "antd/lib/layout/layout";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
+import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
