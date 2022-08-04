@@ -2710,7 +2710,7 @@ input SchemaFieldSelectInput {
 
 input SchemaFieldTagInput {
   values: [String!]!
-  defaultValue: String
+  defaultValue: [String!]
 }
 
 input SchemaFieldIntegerInput {
@@ -2720,7 +2720,7 @@ input SchemaFieldIntegerInput {
 }
 
 input SchemaFieldReferenceInput {
-  modelId: ID
+  modelId: ID!
 }
 
 input SchemaFieldURLInput {
@@ -12437,7 +12437,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12530,7 +12530,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

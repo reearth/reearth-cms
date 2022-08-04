@@ -423,7 +423,7 @@ type SchemaFieldReference struct {
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID *ID `json:"modelId"`
+	ModelID ID `json:"modelId"`
 }
 
 type SchemaFieldRichText struct {
@@ -459,7 +459,7 @@ func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
 	Values       []string `json:"values"`
-	DefaultValue *string  `json:"defaultValue"`
+	DefaultValue []string `json:"defaultValue"`
 }
 
 type SchemaFieldText struct {

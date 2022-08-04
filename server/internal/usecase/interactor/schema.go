@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/util"
-	"github.com/samber/lo"
 )
 
 type Schema struct {
@@ -53,8 +52,53 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
 		func() (*schema.Field, error) {
-			f, err := schema.NewFieldText(lo.ToPtr(""), lo.ToPtr(65)).
-				NewID().
+			var fb *schema.FieldBuilder
+
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Text: func(fp *schema.FieldText) {
+					fb = schema.NewFieldText(fp.DefaultValue(), fp.MaxLength())
+				},
+				TextArea: func(fp *schema.FieldTextArea) {
+					fb = schema.NewFieldTextArea(fp.DefaultValue(), fp.MaxLength())
+				},
+				RichText: func(fp *schema.FieldRichText) {
+					fb = schema.NewFieldRichText(fp.DefaultValue(), fp.MaxLength())
+				},
+				Markdown: func(fp *schema.FieldMarkdown) {
+					fb = schema.NewFieldMarkdown(fp.DefaultValue(), fp.MaxLength())
+				},
+				Asset: func(fp *schema.FieldAsset) {
+					fb = schema.NewFieldAsset(fp.DefaultValue())
+				},
+				Date: func(fp *schema.FieldDate) {
+					fb = schema.NewFieldDate(fp.DefaultValue())
+				},
+				Bool: func(fp *schema.FieldBool) {
+					fb = schema.NewFieldBool(fp.DefaultValue())
+				},
+				Select: func(fp *schema.FieldSelect) {
+					fb = schema.NewFieldSelect(fp.Values(), fp.DefaultValue())
+				},
+				Tag: func(fp *schema.FieldTag) {
+					fb = schema.NewFieldTag(fp.Values(), fp.DefaultValue())
+				},
+				Integer: func(fp *schema.FieldInteger) {
+					fb = schema.NewFieldInteger(fp.DefaultValue(), fp.Min(), fp.Max())
+				},
+				Reference: func(fp *schema.FieldReference) {
+					fb = schema.NewFieldReference(fp.ModelID())
+				},
+				URL: func(fp *schema.FieldURL) {
+					fb = schema.NewFieldURL(fp.DefaultValue())
+				},
+				Default: func() {
+					fb = nil
+				},
+			})
+			if fb == nil {
+				return nil, interfaces.ErrInvalidTypeProperty
+			}
+			f, err := fb.NewID().
 				Options(param.Unique, param.MultiValue, param.Required).
 				Name(*param.Name).
 				Description(*param.Description).

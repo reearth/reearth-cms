@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -20,6 +21,100 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
+	var tp schema.TypeProperty
+	switch input.Type {
+	case gqlmodel.SchemaFiledTypeText:
+		x := input.TypeProperty.Text
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
+	case gqlmodel.SchemaFiledTypeTextArea:
+		x := input.TypeProperty.TextArea
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
+	case gqlmodel.SchemaFiledTypeRichText:
+		x := input.TypeProperty.RichText
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
+	case gqlmodel.SchemaFiledTypeMarkdownText:
+		x := input.TypeProperty.MarkdownText
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
+	case gqlmodel.SchemaFiledTypeAsset:
+		x := input.TypeProperty.Asset
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyAsset(gqlmodel.ToIDRef[id.Asset](x.DefaultValue))
+	case gqlmodel.SchemaFiledTypeDate:
+		x := input.TypeProperty.Date
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyDate(x.DefaultValue)
+	case gqlmodel.SchemaFiledTypeBool:
+		x := input.TypeProperty.Bool
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyBool(x.DefaultValue)
+	case gqlmodel.SchemaFiledTypeSelect:
+		x := input.TypeProperty.Select
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
+		if err == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *tp1
+	case gqlmodel.SchemaFiledTypeTag:
+		x := input.TypeProperty.Tag
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
+		if err == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *tp1
+	case gqlmodel.SchemaFiledTypeInteger:
+		x := input.TypeProperty.Integer
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertyInteger(x.DefaultValue, x.Min, x.Max)
+		if err == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *tp1
+	case gqlmodel.SchemaFiledTypeReference:
+		x := input.TypeProperty.Reference
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		mId, err := gqlmodel.ToID[id.Model](x.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		tp = *schema.NewFieldTypePropertyReference(mId)
+	case gqlmodel.SchemaFiledTypeURL:
+		x := input.TypeProperty.URL
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp = *schema.NewFieldTypePropertyURL(x.DefaultValue)
+	default:
+		return nil, errors.New("invalid type property")
+	}
+
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
 		SchemaId:     m[0].Schema(),
 		Type:         schema.Type(input.Type),
@@ -29,7 +124,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		MultiValue:   input.MultiValue,
 		Unique:       input.Unique,
 		Required:     input.Required,
-		TypeProperty: schema.TypeProperty{},
+		TypeProperty: tp,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

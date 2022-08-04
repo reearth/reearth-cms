@@ -3,6 +3,7 @@ package interfaces
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -29,7 +30,7 @@ type UpdateFieldParam struct {
 }
 
 var (
-// Err1 error = errors.New("")
+	ErrInvalidTypeProperty error = errors.New("invalid type property")
 )
 
 type Schema interface {

@@ -63,6 +63,9 @@ func (f *Field) CreatedAt() time.Time {
 }
 
 func (f *Field) UpdatedAt() time.Time {
+	if f.updatedAt.IsZero() {
+		return f.id.Timestamp()
+	}
 	return f.updatedAt
 }
 
