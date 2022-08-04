@@ -25,6 +25,7 @@ const FieldList: React.FC<Props> = () => {
         dataSource={data}
         renderItem={item => (
           <>
+            <FieldCategoryTitle>Text</FieldCategoryTitle>
             <List.Item>
               <List.Item.Meta
                 avatar={<Icon icon="textT" color="red" />}
@@ -46,6 +47,7 @@ const FieldList: React.FC<Props> = () => {
                 description={"Rich text which supports md style"}
               />
             </List.Item>
+            <FieldCategoryTitle>Asset</FieldCategoryTitle>
             <List.Item>
               <List.Item.Meta
                 avatar={<Icon icon="asset" color="red" />}
@@ -53,6 +55,7 @@ const FieldList: React.FC<Props> = () => {
                 description={"Description"}
               />
             </List.Item>
+            <FieldCategoryTitle>Select</FieldCategoryTitle>
             <List.Item>
               <List.Item.Meta
                 avatar={<Icon icon="listBullets" color="red" />}
@@ -60,6 +63,7 @@ const FieldList: React.FC<Props> = () => {
                 description={"Description"}
               />
             </List.Item>
+            <FieldCategoryTitle>Number</FieldCategoryTitle>
             <List.Item>
               <List.Item.Meta
                 avatar={<Icon icon="numberNine" color="red" />}
@@ -67,6 +71,7 @@ const FieldList: React.FC<Props> = () => {
                 description={"Description"}
               />
             </List.Item>
+            <FieldCategoryTitle>URL</FieldCategoryTitle>
             <List.Item>
               <List.Item.Meta
                 avatar={<Icon icon="link" color="red" />}
@@ -80,6 +85,15 @@ const FieldList: React.FC<Props> = () => {
     </>
   );
 };
+
+const FieldCategoryTitle = styled.h2`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 12px;
+  margin-top: 12px;
+  color: rgba(0, 0, 0, 0.45);
+`;
 
 const FieldStyledList = styled(List)`
   .ant-list-item {

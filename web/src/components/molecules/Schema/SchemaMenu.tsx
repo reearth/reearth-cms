@@ -40,7 +40,6 @@ const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, handleModalOpen }) =
         </SchemaAddButton>
       </SchemaAction>
       <Menu
-        style={{ height: "100%" }}
         onClick={onClick}
         defaultSelectedKeys={defaultSelectedKeys}
         mode="inline"
@@ -81,6 +80,7 @@ const SchemaStyledTitle = styled.h2`
 const SchemaStyledMenu = styled.div`
   background-color: #fff;
   height: 100%;
+  border-right: 1px solid #f0f0f0;
 `;
 
 export default SchemaMenu;

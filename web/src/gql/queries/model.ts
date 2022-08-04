@@ -18,7 +18,7 @@ export const CREATE_MODEL = gql`
     createModel(
       input: { projectId: $projectId, name: $name, description: $description, key: $key }
     ) {
-      project {
+      model {
         id
         name
         description

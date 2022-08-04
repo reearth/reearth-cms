@@ -68,9 +68,7 @@ const ProjectSchema: React.FC = () => {
             <SchemaStyledMenu>
               <SchemaMenu handleModalOpen={handleModelModalOpen}></SchemaMenu>
             </SchemaStyledMenu>
-            <ContentChild>
-              <div>asdsad</div>
-            </ContentChild>
+            <ContentChild></ContentChild>
             <FieldListWrapper>
               <FieldList></FieldList>
             </FieldListWrapper>
@@ -99,6 +97,7 @@ const SchemaStyledMenu = styled.div`
 const ContentChild = styled.div`
   flex: 1;
   background-color: #fff;
+  padding: 24px;
 `;
 
 const PaddedContent = styled(Content)`
