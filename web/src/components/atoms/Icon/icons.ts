@@ -22,6 +22,7 @@ import {
   ExclamationCircleOutlined,
   UploadOutlined,
   MessageOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 
 export default {
@@ -48,4 +49,5 @@ export default {
   exclamationCircle: ExclamationCircleOutlined,
   upload: UploadOutlined,
   message: MessageOutlined,
+  inbox: InboxOutlined,
 };

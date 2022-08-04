@@ -1,15 +1,31 @@
 import styled from "@emotion/styled";
 
-import { UploadChangeParam, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 
 type Props = {
   title: string;
   subTitle: string;
-  handleUpload: (info: UploadChangeParam<UploadFile<any>>) => void;
+  fileList: UploadFile<any>[];
+  uploading: boolean;
+  uploadProps: UploadProps;
+  uploadModalVisibility: boolean;
+  displayUploadModal: () => void;
+  hideUploadModal: () => void;
+  handleUpload: () => void;
 };
 
-const AssetListHeader: React.FC<Props> = ({ title, subTitle, handleUpload }) => {
+const AssetListHeader: React.FC<Props> = ({
+  title,
+  subTitle,
+  fileList,
+  uploading,
+  uploadProps,
+  handleUpload,
+  uploadModalVisibility,
+  displayUploadModal,
+  hideUploadModal,
+}) => {
   return (
     <AssetListHeaderWrapper>
       <HeaderTitleWrapper>
@@ -17,11 +33,13 @@ const AssetListHeader: React.FC<Props> = ({ title, subTitle, handleUpload }) => 
         <HeaderSubTitle>{subTitle}</HeaderSubTitle>
       </HeaderTitleWrapper>
       <UploadAsset
-        multiple={false}
-        directory={false}
-        showUploadList={false}
-        accept="image/*,.zip,.json,.geojson,.topojson,.shapefile,.kml,.czml,.glb"
-        onChange={handleUpload}
+        fileList={fileList}
+        uploading={uploading}
+        uploadProps={uploadProps}
+        uploadModalVisibility={uploadModalVisibility}
+        displayUploadModal={displayUploadModal}
+        hideUploadModal={hideUploadModal}
+        handleUpload={handleUpload}
       />
     </AssetListHeaderWrapper>
   );

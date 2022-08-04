@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 import ProTable, { ProTableProps } from "@reearth-cms/components/atoms/ProTable";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset } from "@reearth-cms/gql/graphql-client-api";
 
 const AssetListTable: React.FC<ProTableProps<Asset, any>> = ({
   dataSource,

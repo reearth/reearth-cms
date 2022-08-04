@@ -10,10 +10,10 @@ import {
   OptionConfig,
   TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
-import { UploadChangeParam, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
+import { Asset } from "@reearth-cms/gql/graphql-client-api";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 
@@ -21,27 +21,63 @@ import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
   const { workspaceId, projectId } = useParams();
-  const createdById = "";
+  const createdById = "mockId";
   const {
     assetList,
-    createAsset,
+    createAssets,
     navigate,
     filteredAssetList,
     setFilteredAssetList,
     selection,
     setSelection,
+    fileList,
+    setFileList,
+    uploading,
+    setUploading,
+    uploadModalVisibility,
+    setUploadModalVisibility,
   } = useHooks(projectId, createdById);
 
-  const handleUpload = (info: UploadChangeParam<UploadFile<any>>) => {
-    if (info.file.status !== "uploading") {
-      createAsset(info.file);
-    }
+  const displayUploadModal = () => {
+    setUploadModalVisibility(true);
+  };
+  const hideUploadModal = () => {
+    setUploadModalVisibility(false);
+  };
 
-    if (info.file.status === "done") {
-      console.log(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === "error") {
-      console.log(`${info.file.name} file upload failed.`);
-    }
+  const handleUpload = () => {
+    setUploading(true);
+    createAssets(fileList)
+      .then(() => {
+        setFileList([]);
+      })
+      .catch(error => {
+        console.log(error);
+      })
+      .finally(() => {
+        setUploading(false);
+        hideUploadModal();
+      });
+  };
+
+  const uploadProps: UploadProps = {
+    name: "file",
+    multiple: true,
+    directory: false,
+    showUploadList: true,
+    accept: "image/*,.zip,.json,.geojson,.topojson,.shapefile,.kml,.czml,.glb",
+    listType: "picture",
+    onRemove: file => {
+      const index = fileList.indexOf(file);
+      const newFileList = fileList.slice();
+      newFileList.splice(index, 1);
+      setFileList(newFileList);
+    },
+    beforeUpload: (_file, files) => {
+      setFileList([...fileList, ...files]);
+      return false;
+    },
+    fileList,
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -72,7 +108,7 @@ const AssetList: React.FC = () => {
       title: () => <Icon icon="message" />,
       dataIndex: "commentsCount",
       key: "commentsCount",
-      render: (_, asset) => <CustomTag value={asset.commentsCount} />,
+      render: (_, _asset) => <CustomTag value={0} />,
     },
     {
       title: "File",
@@ -137,7 +173,17 @@ const AssetList: React.FC = () => {
 
   return (
     <>
-      <AssetListHeader title="Asset" subTitle="This is a subtitle" handleUpload={handleUpload} />
+      <AssetListHeader
+        title="Asset"
+        subTitle="This is a subtitle"
+        fileList={fileList}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        displayUploadModal={displayUploadModal}
+        hideUploadModal={hideUploadModal}
+        uploadProps={uploadProps}
+        handleUpload={handleUpload}
+      />
       <AssetListTable
         dataSource={filteredAssetList}
         columns={columns}
