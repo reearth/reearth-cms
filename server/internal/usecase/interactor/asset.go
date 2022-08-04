@@ -30,9 +30,13 @@ func (i *Asset) Fetch(ctx context.Context, assets []id.AssetID, operator *usecas
 }
 
 func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *string, sort *asset.SortType, p *usecase.Pagination, operator *usecase.Operator) ([]*asset.Asset, *usecase.PageInfo, error) {
+	pp, err := i.repos.Project.FindByID(ctx, pid)
+	if err != nil {
+		return nil, nil, err
+	}
 	return Run2(
-		ctx, operator, i.repos,
-		Usecase(),
+		ctx, nil, i.repos,
+		Usecase().WithReadableWorkspaces(pp.Workspace()).Transaction(),
 		func() ([]*asset.Asset, *usecase.PageInfo, error) {
 			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
 				Sort:       sort,
