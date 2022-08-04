@@ -5,25 +5,19 @@ import React from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import { Model } from "@reearth-cms/components/molecules/Dashboard/types";
 
 export interface Props {
   defaultSelectedKeys?: string[];
 }
 
-const topItems: ItemType[] = [
-  { label: "Model 1", key: "home" },
-  { label: "Model 2", key: "schema" },
-  { label: "Model 3", key: "content" },
-  { label: "Model 4", key: "asset" },
-  { label: "Model 5", key: "request" },
-];
-
 export interface Props {
   defaultSelectedKeys?: string[];
+  models?: Model[];
   handleModalOpen: () => void;
 }
 
-const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, handleModalOpen }) => {
+const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, models, handleModalOpen }) => {
   const onClick = () => {};
 
   return (
@@ -43,7 +37,7 @@ const SchemaMenu: React.FC<Props> = ({ defaultSelectedKeys, handleModalOpen }) =
         onClick={onClick}
         defaultSelectedKeys={defaultSelectedKeys}
         mode="inline"
-        items={topItems}
+        items={models?.map(model => ({ label: model.name, key: model.key }))}
       />
     </SchemaStyledMenu>
   );

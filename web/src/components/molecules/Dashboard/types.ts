@@ -1,3 +1,10 @@
+export type Model = {
+  id: string;
+  name: string;
+  description: string;
+  key: string;
+};
+
 export type Project = {
   id: string;
   name: string;

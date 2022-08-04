@@ -35,7 +35,7 @@ const ProjectSchema: React.FC = () => {
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
-  const { handleModelModalClose, handleModelModalOpen, modelModalShown } = useHooks({
+  const { handleModelModalClose, handleModelModalOpen, modelModalShown, models } = useHooks({
     projectId,
   });
 
@@ -66,7 +66,7 @@ const ProjectSchema: React.FC = () => {
           </ProjectSider>
           <PaddedContent>
             <SchemaStyledMenu>
-              <SchemaMenu handleModalOpen={handleModelModalOpen}></SchemaMenu>
+              <SchemaMenu models={models} handleModalOpen={handleModelModalOpen}></SchemaMenu>
             </SchemaStyledMenu>
             <ContentChild></ContentChild>
             <FieldListWrapper>
