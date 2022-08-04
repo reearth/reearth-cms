@@ -10,6 +10,7 @@ import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/Wor
 // import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
+import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
 
 import useDashboardHooks from "../../Dashboard/hooks";
@@ -75,7 +76,9 @@ const ProjectSchema: React.FC = () => {
             <SchemaStyledMenu>
               <SchemaMenu models={models} handleModalOpen={handleModelModalOpen}></SchemaMenu>
             </SchemaStyledMenu>
-            <ContentChild></ContentChild>
+            <ContentChild>
+              <ModelFieldList></ModelFieldList>
+            </ContentChild>
             <FieldListWrapper>
               <FieldList></FieldList>
             </FieldListWrapper>

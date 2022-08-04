@@ -20,6 +20,7 @@ import {
   PlusOutlined,
   CloseOutlined,
   ExclamationCircleOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -59,4 +60,5 @@ export default {
   listBullets: ListBullets,
   numberNine: NumberNine,
   link: Link,
+  more: MoreOutlined,
 };
