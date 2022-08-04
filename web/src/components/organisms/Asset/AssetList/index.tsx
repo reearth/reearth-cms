@@ -20,6 +20,8 @@ import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
+  const { workspaceId, projectId } = useParams();
+  const createdById = "";
   const {
     assetList,
     createAsset,
@@ -28,9 +30,7 @@ const AssetList: React.FC = () => {
     setFilteredAssetList,
     selection,
     setSelection,
-  } = useHooks();
-
-  const { workspaceId, projectId } = useParams();
+  } = useHooks(projectId, createdById);
 
   const handleUpload = (info: UploadChangeParam<UploadFile<any>>) => {
     if (info.file.status !== "uploading") {

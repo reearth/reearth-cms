@@ -16,7 +16,7 @@ import {
 export type AssetNode = NonNullable<Asset>;
 export type AssetUser = Maybe<User>;
 
-export default (projectId?: string) => {
+export default (projectId?: string, createdById?: string) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
@@ -28,8 +28,8 @@ export default (projectId?: string) => {
   const createAsset = useCallback(
     (file: UploadFile) => {
       (async () => {
-        if (!projectId) return;
-        await createAssetMutation({ variables: { projectId, file } });
+        if (!projectId || !createdById) return;
+        await createAssetMutation({ variables: { projectId, createdById, file } });
       })();
 
       // TODO: these values are hardcoded, should be replaced with actual values

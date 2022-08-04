@@ -78,6 +78,7 @@ export enum AssetSortType {
 }
 
 export type CreateAssetInput = {
+  createdById: Scalars['ID'];
   file: Scalars['Upload'];
   projectId: Scalars['ID'];
 };
@@ -918,6 +919,7 @@ export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'Ass
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
+  createdById: Scalars['ID'];
   file: Scalars['Upload'];
 }>;
 
@@ -1155,8 +1157,10 @@ export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
 export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload!) {
-  createAsset(input: {projectId: $projectId, file: $file}) {
+    mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
+  createAsset(
+    input: {projectId: $projectId, createdById: $createdById, file: $file}
+  ) {
     asset {
       id
       projectId
@@ -1192,6 +1196,7 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
  *   variables: {
  *      projectId: // value for 'projectId'
+ *      createdById: // value for 'createdById'
  *      file: // value for 'file'
  *   },
  * });
