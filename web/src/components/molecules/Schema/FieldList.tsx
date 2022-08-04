@@ -3,6 +3,7 @@ import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldType";
 
 export interface Props {
   className?: string;
@@ -10,7 +11,29 @@ export interface Props {
 
 const data = [
   {
-    title: "Ant Design Title 1",
+    title: "Text",
+    color: "#FF7875",
+    fields: ["Text", "TextArea", "MarkdownText"],
+  },
+  {
+    title: "Asset",
+    color: "#FF9C6E",
+    fields: ["Asset"],
+  },
+  {
+    title: "Select",
+    color: "#7CB305",
+    fields: ["Select"],
+  },
+  {
+    title: "Number",
+    color: "#36CFC9",
+    fields: ["Integer"],
+  },
+  {
+    title: "URL",
+    color: "#9254DE",
+    fields: ["URL"],
   },
 ];
 
@@ -23,60 +46,16 @@ const FieldList: React.FC<Props> = () => {
         dataSource={data}
         renderItem={item => (
           <>
-            <FieldCategoryTitle>Text</FieldCategoryTitle>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="textT" color="red" />}
-                title={"Text"}
-                description={"Heading and titles, one-line field"}
-              />
-            </List.Item>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="textT" color="red" />}
-                title={"TextArea"}
-                description={"Multi line text"}
-              />
-            </List.Item>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="markDown" color="red" />}
-                title={"Markdown text"}
-                description={"Rich text which supports md style"}
-              />
-            </List.Item>
-            <FieldCategoryTitle>Asset</FieldCategoryTitle>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="asset" color="red" />}
-                title={"Asset"}
-                description={"Description"}
-              />
-            </List.Item>
-            <FieldCategoryTitle>Select</FieldCategoryTitle>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="listBullets" color="red" />}
-                title={"Option"}
-                description={"Description"}
-              />
-            </List.Item>
-            <FieldCategoryTitle>Number</FieldCategoryTitle>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="numberNine" color="red" />}
-                title={"Int"}
-                description={"Description"}
-              />
-            </List.Item>
-            <FieldCategoryTitle>URL</FieldCategoryTitle>
-            <List.Item>
-              <List.Item.Meta
-                avatar={<Icon icon="link" color="red" />}
-                title={"URL"}
-                description={"Description"}
-              />
-            </List.Item>
+            <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
+            {item.fields?.map((field: string) => (
+              <List.Item key={field}>
+                <List.Item.Meta
+                  avatar={<Icon icon={fieldTypes[field].icon} color={item.color} />}
+                  title={fieldTypes[field].title}
+                  description={fieldTypes[field].description}
+                />
+              </List.Item>
+            ))}
           </>
         )}
       />
