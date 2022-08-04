@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
@@ -91,6 +92,9 @@ const ProjectSchema: React.FC = () => {
         onClose={handleModelModalClose}
         onSubmit={handleProjectCreate}
       />
+      {/* <FieldCreationModal
+        open={modelModalShown}
+        onClose={handleModelModalClose}></FieldCreationModal> */}
     </>
   );
 };
