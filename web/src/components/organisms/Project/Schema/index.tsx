@@ -35,7 +35,13 @@ const ProjectSchema: React.FC = () => {
     handleWorkspaceCreate,
   } = useDashboardHooks(workspaceId);
 
-  const { handleModelModalClose, handleModelModalOpen, modelModalShown, models } = useHooks({
+  const {
+    handleModelModalClose,
+    handleModelModalOpen,
+    modelModalShown,
+    handleProjectCreate,
+    models,
+  } = useHooks({
     projectId,
   });
 
@@ -83,7 +89,7 @@ const ProjectSchema: React.FC = () => {
       <ModelCreationModal
         open={modelModalShown}
         onClose={handleModelModalClose}
-        onSubmit={() => console.log("create")}
+        onSubmit={handleProjectCreate}
       />
     </>
   );

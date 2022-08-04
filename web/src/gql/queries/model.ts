@@ -13,20 +13,18 @@ export const GET_MODELS = gql`
   }
 `;
 
-// export const CREATE_MODEL = gql`
-//   mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
-//     createModel(
-//       input: { projectId: $projectId, name: $name, description: $description, key: $key }
-//     ) {
-//       model {
-//         id
-//         name
-//         description
-//         key
-//       }
-//     }
-//   }
-// `;
+export const CREATE_MODEL = gql`
+  mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
+    createModel(
+      input: { projectId: $projectId, name: $name, description: $description, key: $key }
+    ) {
+      model {
+        id
+        name
+      }
+    }
+  }
+`;
 
 // export const DELETE_MODEL = gql`
 //   mutation DeleteModel($modelId: ID!) {

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { Model } from "@reearth-cms/components/molecules/Dashboard/types";
-import { useGetModelsQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useGetModelsQuery, useCreateModelMutation } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
   projectId?: string;
@@ -10,7 +10,7 @@ type Params = {
 export default ({ projectId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
 
-  const { data } = useGetModelsQuery({
+  const { data, refetch } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
     skip: !projectId,
   });
@@ -30,8 +30,31 @@ export default ({ projectId }: Params) => {
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
-  console.log(data);
+  const [createNewModel] = useCreateModelMutation({
+    refetchQueries: ["GetModels"],
+  });
 
+  const handleProjectCreate = useCallback(
+    async (data: { name: string; description: string; key: string }) => {
+      if (!projectId) return;
+      const project = await createNewModel({
+        variables: {
+          projectId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+        },
+      });
+      if (project.errors || !project.data?.createModel) {
+        setModelModalShown(false);
+        return;
+      }
+
+      setModelModalShown(false);
+      refetch();
+    },
+    [createNewModel, projectId, refetch],
+  );
   const handleModelModalClose = useCallback(() => {
     setModelModalShown(false);
   }, []);
@@ -43,5 +66,6 @@ export default ({ projectId }: Params) => {
     modelModalShown,
     handleModelModalOpen,
     handleModelModalClose,
+    handleProjectCreate,
   };
 };
