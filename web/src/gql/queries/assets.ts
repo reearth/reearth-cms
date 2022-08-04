@@ -8,6 +8,25 @@ export const GET_ASSETS = gql`
     $pagination: Pagination
   ) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+      edges {
+        cursor
+        node {
+          id
+          projectId
+          createdAt
+          createdById
+          fileName
+          size
+          previewType
+          file {
+            name
+            size
+            contentType
+            path
+          }
+          hash
+        }
+      }
       nodes {
         id
         projectId
@@ -25,10 +44,10 @@ export const GET_ASSETS = gql`
         hash
       }
       pageInfo {
+        startCursor
         endCursor
         hasNextPage
         hasPreviousPage
-        startCursor
       }
       totalCount
     }
