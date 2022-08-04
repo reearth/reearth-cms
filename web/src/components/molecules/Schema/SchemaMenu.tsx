@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";

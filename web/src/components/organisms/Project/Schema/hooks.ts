@@ -10,7 +10,7 @@ type Params = {
 export default ({ projectId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
 
-  const { data, refetch } = useGetModelsQuery({
+  const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
     skip: !projectId,
   });
