@@ -71,7 +71,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 			return nil, errors.New("invalid type property")
 		}
 		tp1, err := schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
-		if err == nil {
+		if err != nil {
 			return nil, errors.New("invalid type property")
 		}
 		tp = *tp1
@@ -81,8 +81,8 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 			return nil, errors.New("invalid type property")
 		}
 		tp1, err := schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
-		if err == nil {
-			return nil, errors.New("invalid type property")
+		if err != nil {
+			return nil, err
 		}
 		tp = *tp1
 	case gqlmodel.SchemaFiledTypeInteger:
@@ -91,8 +91,8 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 			return nil, errors.New("invalid type property")
 		}
 		tp1, err := schema.NewFieldTypePropertyInteger(x.DefaultValue, x.Min, x.Max)
-		if err == nil {
-			return nil, errors.New("invalid type property")
+		if err != nil {
+			return nil, err
 		}
 		tp = *tp1
 	case gqlmodel.SchemaFiledTypeReference:
