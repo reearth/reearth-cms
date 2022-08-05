@@ -3,6 +3,7 @@ import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldTypes";
 
 import { Field } from "../Dashboard/types";
 
@@ -23,7 +24,11 @@ const ModelFieldList: React.FC<Props> = ({ fields }) => {
               <List.Item.Meta
                 avatar={
                   <FieldThumbnail>
-                    <StyledIcon icon="textT" color="red" /> <h3>{item?.type}</h3>
+                    <StyledIcon
+                      icon={fieldTypes[item?.type].icon}
+                      color={fieldTypes[item?.type].color}
+                    />
+                    <h3>{item?.type}</h3>
                   </FieldThumbnail>
                 }
                 title={`${item?.title}${item.required ? " *" : ""}`}
@@ -71,12 +76,14 @@ const FieldStyledList = styled(List)`
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
+        margin: auto;
       }
       .ant-list-item-meta-title {
         margin: 0;
       }
       align-items: center;
       .ant-list-item-meta-avatar {
+        min-width: 130px;
       }
     }
   }

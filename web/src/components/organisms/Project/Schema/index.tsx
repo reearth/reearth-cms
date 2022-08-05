@@ -57,7 +57,8 @@ const ProjectSchema: React.FC = () => {
     handleFieldModalClose,
     handleFieldModalOpen,
     fieldModalShown,
-    handleProjectCreate,
+    handleModelCreate,
+    handleFieldCreate,
     models,
     model,
   } = useHooks({
@@ -116,12 +117,13 @@ const ProjectSchema: React.FC = () => {
       <ModelCreationModal
         open={modelModalShown}
         onClose={handleModelModalClose}
-        onSubmit={handleProjectCreate}
+        onSubmit={handleModelCreate}
       />
       <FieldCreationModal
         selectedType={selectedType}
         open={fieldModalShown}
-        onClose={handleFieldModalClose}></FieldCreationModal>
+        onClose={handleFieldModalClose}
+        onSubmit={handleFieldCreate}></FieldCreationModal>
     </>
   );
 };

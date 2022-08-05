@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import Upload from "antd/lib/upload/Upload";
 import React, { useCallback } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -9,13 +10,19 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldTypes";
+import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
 import { FieldType } from "../../Dashboard/types";
 
 export interface FormValues {
-  name: string;
+  title: string;
   description: string;
   key: string;
+  multiValue: boolean;
+  unique: boolean;
+  required: boolean;
+  type: SchemaFiledType;
+  typeProperty: SchemaFieldTypePropertyInput;
 }
 
 export interface Props {
@@ -26,9 +33,14 @@ export interface Props {
 }
 
 const initialValues: FormValues = {
-  name: "",
+  title: "",
   description: "",
   key: "",
+  multiValue: false,
+  unique: false,
+  required: false,
+  type: SchemaFiledType["Text"],
+  typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
 const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
@@ -39,6 +51,38 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
     form
       .validateFields()
       .then(async values => {
+        values.type = selectedType;
+        if (selectedType === "Text") {
+          values.typeProperty = {
+            text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+          };
+        }
+        if (selectedType === "TextArea") {
+          values.typeProperty = {
+            textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+          };
+        }
+        if (selectedType === "MarkdownText") {
+          values.typeProperty = {
+            markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+          };
+        }
+        if (selectedType === "Asset") {
+          values.typeProperty = {
+            asset: { defaultValue: values.defaultValue.uid },
+          };
+        }
+        if (selectedType === "Integer") {
+          values.typeProperty = {
+            integer: { defaultValue: values.defaultValue, min: values.min, max: values.max },
+          };
+        }
+        if (selectedType === "URL") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue },
+          };
+        }
+
         await onSubmit?.(values);
         onClose?.(true);
         form.resetFields();
@@ -46,13 +90,75 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit]);
+  }, [form, onClose, onSubmit, selectedType]);
 
   const handleClose = useCallback(() => {
     onClose?.(true);
   }, [onClose]);
-  console.log(fieldTypes[selectedType].color);
+  let additionalFields = <></>;
+  if (selectedType === "Text") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <Input />
+        </Form.Item>
+        <Form.Item name="maxLength" label="Set maximum length">
+          <Input type="number" />
+        </Form.Item>
+      </>
+    );
+  }
+  if (selectedType === "TextArea" || selectedType === "MarkdownText") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <TextArea rows={3} showCount />
+        </Form.Item>
+        <Form.Item name="maxLength" label="Set maximum length">
+          <Input type="number" />
+        </Form.Item>
+      </>
+    );
+  }
+  if (selectedType === "Asset") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <Upload action="/upload.do" listType="picture-card">
+            <div>
+              <Icon icon="link" />
+              <div style={{ marginTop: 8 }}>Asset</div>
+            </div>
+          </Upload>
+        </Form.Item>
+      </>
+    );
+  }
+  if (selectedType === "Integer") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item name="min" label="Set minimum value">
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item name="max" label="Set maximum value">
+          <Input type="number" />
+        </Form.Item>
+      </>
+    );
+  }
 
+  if (selectedType === "URL") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <Input />
+        </Form.Item>
+      </>
+    );
+  }
   return (
     <Modal
       title={
@@ -87,6 +193,9 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item requiredMark="optional" name="description" label="Description">
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
+            <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
+              <Checkbox>Support multiple values</Checkbox>
+            </Form.Item>
           </TabPane>
           <TabPane tab="Validation" key="validation">
             <Form.Item name="required" extra="Prevents saving an entry if this field is empty">
@@ -99,12 +208,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
-            <Form.Item name="default" extra="Enable Default value here">
-              <Checkbox>Use default value</Checkbox>
-            </Form.Item>
-            <Form.Item name="dd" label="Set default value">
-              <Input />
-            </Form.Item>
+            {additionalFields}
           </TabPane>
         </Tabs>
       </Form>

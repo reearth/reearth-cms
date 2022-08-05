@@ -1,7 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { Model } from "@reearth-cms/components/molecules/Dashboard/types";
-import { useGetModelsQuery, useCreateModelMutation } from "@reearth-cms/gql/graphql-client-api";
+import {
+  useGetModelsQuery,
+  useCreateModelMutation,
+  useCreateFieldMutation,
+  SchemaFiledType,
+  SchemaFieldTypePropertyInput,
+} from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
   projectId?: string;
@@ -75,10 +81,10 @@ export default ({ projectId, modelId }: Params) => {
     refetchQueries: ["GetModels"],
   });
 
-  const handleProjectCreate = useCallback(
+  const handleModelCreate = useCallback(
     async (data: { name: string; description: string; key: string }) => {
       if (!projectId) return;
-      const project = await createNewModel({
+      const model = await createNewModel({
         variables: {
           projectId,
           name: data.name,
@@ -86,7 +92,7 @@ export default ({ projectId, modelId }: Params) => {
           key: data.key,
         },
       });
-      if (project.errors || !project.data?.createModel) {
+      if (model.errors || !model.data?.createModel) {
         setModelModalShown(false);
         return;
       }
@@ -96,6 +102,47 @@ export default ({ projectId, modelId }: Params) => {
     },
     [createNewModel, projectId, refetch],
   );
+
+  const [createNewField] = useCreateFieldMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleFieldCreate = useCallback(
+    async (data: {
+      title: string;
+      description: string;
+      key: string;
+      multiValue: boolean;
+      unique: boolean;
+      required: boolean;
+      type: SchemaFiledType;
+      typeProperty: SchemaFieldTypePropertyInput;
+    }) => {
+      if (!modelId) return;
+      const field = await createNewField({
+        variables: {
+          modelId,
+          title: data.title,
+          description: data.description,
+          key: data.key,
+          multiValue: data.multiValue,
+          unique: data.unique,
+          required: data.required,
+          type: data.type,
+          typeProperty: data.typeProperty,
+        },
+      });
+      if (field.errors || !field.data?.createField) {
+        setModelModalShown(false);
+        return;
+      }
+
+      setModelModalShown(false);
+      refetch();
+    },
+    [createNewModel, projectId, refetch],
+  );
+
   const handleModelModalClose = useCallback(() => {
     setModelModalShown(false);
   }, []);
@@ -114,9 +161,10 @@ export default ({ projectId, modelId }: Params) => {
     modelModalShown,
     handleModelModalOpen,
     handleModelModalClose,
-    handleProjectCreate,
+    handleModelCreate,
     fieldModalShown,
     handleFieldModalOpen,
     handleFieldModalClose,
+    handleFieldCreate,
   };
 };
