@@ -32,7 +32,12 @@ const PreviewToolbar: React.FC<Props> = ({
           <Button onClick={handleRenderClick}>Render</Button>
         </>
       )}
-      <Button type="link" icon={<Icon icon="download" />} size="large" onClick={handleFullScreen} />
+      <Button
+        type="link"
+        icon={<Icon icon="fullscreen" />}
+        size="large"
+        onClick={handleFullScreen}
+      />
       <PreviewModal url={url} visible={isModalVisible} handleCancel={handleModalCancel} />
     </>
   );

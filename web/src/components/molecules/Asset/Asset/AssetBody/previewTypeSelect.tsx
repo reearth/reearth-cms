@@ -14,7 +14,7 @@ type Props = {
 
 export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
   const previewTypeList = [
-    { id: 1, name: "PNG/JPEG/TIFF", value: PreviewType.Image },
+    { id: 1, name: "PNG/JPEG/TIFF/SVG", value: PreviewType.Image },
     {
       id: 2,
       name: "JSON/SHAPEFILE/KML/CZML",

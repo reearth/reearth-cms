@@ -43,9 +43,9 @@ const AssetBody: React.FC<Props> = ({
   const { fileName, createdAt, createdBy } = asset;
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(createdAt);
-  const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
+  const displayUnzipFileList = selectedPreviewType === PreviewType.Geo;
   // TODO: maybe we need a better way to check for svg files
-  const isSVG = fileName?.endsWith(".svg") ?? false;
+  const isSVG = fileName?.endsWith(".svg") ?? true;
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
@@ -69,16 +69,25 @@ const AssetBody: React.FC<Props> = ({
               geocoder: false,
             }}
             tilesetProps={{
-              url: url,
+              // url: url,
+              // TODO: this data is hardcoded, should be replace with actual data.
+              url: "https://plateau.reearth.io/13101_chiyoda-ku/tileset.json",
             }}
             onGetViewer={getViewer}
           />
         );
       case PreviewType.Image:
         return isSVG ? (
-          <SVGPreview url={url} svgRender={svgRender} />
+          <SVGPreview
+            // TODO: this data is hardcoded, should be replace with actual data.
+            /*url={url}*/ url="https://assets.codepen.io/3/kiwi.svg"
+            svgRender={svgRender}
+          />
         ) : (
-          <Image src={url} alt="asset-preview"></Image>
+          <Image
+            // TODO: this data is hardcoded, should be replace with actual data.
+            /*src={url}*/ src="https://via.placeholder.com/640x480.png?text=No+Image"
+            alt="asset-preview"></Image>
         );
       default:
         return <ViewerNotSupported />;

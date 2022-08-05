@@ -23,6 +23,7 @@ import {
   UploadOutlined,
   MessageOutlined,
   InboxOutlined,
+  FullscreenOutlined,
 } from "@ant-design/icons";
 
 export default {
@@ -50,4 +51,5 @@ export default {
   upload: UploadOutlined,
   message: MessageOutlined,
   inbox: InboxOutlined,
+  fullscreen: FullscreenOutlined,
 };
