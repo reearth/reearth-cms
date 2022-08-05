@@ -24,8 +24,8 @@ func TestFieldURLFrom(t *testing.T) {
 		},
 		{
 			name: "success default value",
-			args: args{defaultValue: lo.ToPtr("hugo.com")},
-			want: &FieldURL{defaultValue: lo.ToPtr("hugo.com")},
+			args: args{defaultValue: lo.ToPtr("https://hugo.com")},
+			want: &FieldURL{defaultValue: lo.ToPtr("https://hugo.com")},
 		},
 		{
 			name:    "success default value",

@@ -65,7 +65,7 @@ func TestToSchemaField(t *testing.T) {
 				ModelID:      "",
 				Model:        nil,
 				Type:         SchemaFiledTypeText,
-				TypeProperty: nil,
+				TypeProperty: &SchemaFieldText{},
 				Key:          "K123456",
 				Title:        "N1",
 				Description:  lo.ToPtr("D1"),
