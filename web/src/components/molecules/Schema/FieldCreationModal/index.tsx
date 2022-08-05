@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import Upload from "antd/lib/upload/Upload";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -49,6 +49,11 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const { Option } = Select;
+  const [names, setNames] = useState([]);
+
+  const updateNameValues = () => {
+    setNames(form.getFieldValue("values"));
+  };
 
   const handleSubmit = useCallback(() => {
     form
@@ -93,6 +98,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
 
         await onSubmit?.(values);
         form.resetFields();
+        form.setFieldsValue(initialValues);
         onClose?.(true);
       })
       .catch(info => {
@@ -102,6 +108,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
 
   const handleClose = useCallback(() => {
     form.resetFields();
+    form.setFieldsValue(initialValues);
     onClose?.(true);
   }, [onClose, form]);
   let additionalFields = <></>;
@@ -149,7 +156,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       <>
         <Form.Item name="defaultValue" label="Set default value">
           <Select>
-            {form.getFieldValue("values").map((value: string) => (
+            {names?.map((value: string) => (
               <Option key={value} value={value}>
                 {value}
               </Option>
@@ -251,7 +258,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       visible={open}
       onCancel={handleClose}
       onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      <Form form={form} onChange={updateNameValues} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
           <TabPane tab="Setting" key="setting">
             <Form.Item
