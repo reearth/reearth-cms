@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import Upload from "antd/lib/upload/Upload";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -49,6 +49,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const { Option } = Select;
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -92,7 +93,6 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
 
         await onSubmit?.(values);
         form.resetFields();
-        setDefaultActiveKey("settings");
         onClose?.(true);
       })
       .catch(info => {
@@ -102,7 +102,6 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
 
   const handleClose = useCallback(() => {
     form.resetFields();
-    setDefaultActiveKey("settings");
     onClose?.(true);
   }, [onClose, form]);
   let additionalFields = <></>;
@@ -253,7 +252,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       onCancel={handleClose}
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
-        <Tabs defaultActiveKey="setting">
+        <Tabs defaultActiveKey="settings">
           <TabPane tab="Setting" key="setting">
             <Form.Item
               name="title"
