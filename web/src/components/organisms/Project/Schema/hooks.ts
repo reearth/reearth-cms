@@ -153,7 +153,9 @@ export default ({ projectId, modelId }: Params) => {
     setFieldModalShown(false);
   }, []);
 
-  const handleFieldModalOpen = useCallback(() => setFieldModalShown(true), []);
+  const handleFieldModalOpen = useCallback(() => {
+    if (modelId) setFieldModalShown(true);
+  }, [modelId]);
 
   return {
     model,

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import Upload from "antd/lib/upload/Upload";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -49,7 +49,6 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const { Option } = Select;
-
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -82,7 +81,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
         }
         if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: values.defaultValue, min: values.min, max: values.max },
+            integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
           };
         }
         if (selectedType === "URL") {
@@ -92,8 +91,9 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
         }
 
         await onSubmit?.(values);
-        onClose?.(true);
         form.resetFields();
+        setDefaultActiveKey("settings");
+        onClose?.(true);
       })
       .catch(info => {
         console.log("Validate Failed:", info);
@@ -101,8 +101,10 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   }, [form, onClose, onSubmit, selectedType]);
 
   const handleClose = useCallback(() => {
+    form.resetFields();
+    setDefaultActiveKey("settings");
     onClose?.(true);
-  }, [onClose]);
+  }, [onClose, form]);
   let additionalFields = <></>;
   if (selectedType === "Text") {
     additionalFields = (
