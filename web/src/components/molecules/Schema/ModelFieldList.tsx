@@ -10,9 +10,10 @@ import { Field } from "../Dashboard/types";
 export interface Props {
   className?: string;
   fields?: Field[];
+  handleFieldDelete: (fieldId: string) => Promise<void>;
 }
 
-const ModelFieldList: React.FC<Props> = ({ fields }) => {
+const ModelFieldList: React.FC<Props> = ({ fields, handleFieldDelete }) => {
   return (
     <>
       <FieldStyledList
@@ -20,7 +21,14 @@ const ModelFieldList: React.FC<Props> = ({ fields }) => {
         dataSource={fields}
         renderItem={item => (
           <>
-            <List.Item extra={<Icon icon="more" style={{ fontSize: "22px" }} />}>
+            <List.Item
+              extra={
+                <Icon
+                  icon="more"
+                  style={{ fontSize: "22px" }}
+                  onClick={() => handleFieldDelete(item.id as string)}
+                />
+              }>
               <List.Item.Meta
                 avatar={
                   <FieldThumbnail>

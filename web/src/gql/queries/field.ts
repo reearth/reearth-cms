@@ -31,3 +31,11 @@ export const CREATE_FIELD = gql`
     }
   }
 `;
+
+export const DELETE_FIELD = gql`
+  mutation DeleteField($fieldId: ID!) {
+    deleteField(input: { fieldId: $fieldId }) {
+      fieldId
+    }
+  }
+`;

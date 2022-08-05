@@ -143,6 +143,23 @@ export default ({ projectId, modelId }: Params) => {
     [createNewModel, projectId, refetch, modelId],
   );
 
+  // const [deleteProjectMutation] = useDeleteProjectMutation({
+  //   refetchQueries: ["GetModels"],
+  // });
+
+  // const handleFieldDelete = useCallback(async (fieldId: string) => {
+  //   const results = await deleteProjectMutation({ variables: { fieldId } });
+  //   if (results.errors) {
+  //     console.log("errors");
+  //   } else {
+  //     console.log("succeed");
+  //   }
+  // }, []);
+
+  const handleFieldDelete = (fieldId: string) => {
+    console.log(fieldId);
+  };
+
   const handleModelModalClose = useCallback(() => {
     setModelModalShown(false);
   }, []);
@@ -168,5 +185,6 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleFieldDelete,
   };
 };

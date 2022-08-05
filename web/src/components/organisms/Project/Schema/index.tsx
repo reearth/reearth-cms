@@ -59,6 +59,7 @@ const ProjectSchema: React.FC = () => {
     fieldModalShown,
     handleModelCreate,
     handleFieldCreate,
+    handleFieldDelete,
     models,
     model,
   } = useHooks({
@@ -101,7 +102,9 @@ const ProjectSchema: React.FC = () => {
             </SchemaStyledMenu>
             <ContentChild>
               <ModelTitle>{model?.name}</ModelTitle>
-              <ModelFieldList fields={model?.schema.fields}></ModelFieldList>
+              <ModelFieldList
+                handleFieldDelete={handleFieldDelete}
+                fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
             <FieldListWrapper>
               <FieldList addField={addField}></FieldList>
