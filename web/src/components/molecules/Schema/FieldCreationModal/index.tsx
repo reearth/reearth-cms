@@ -2,11 +2,13 @@ import styled from "@emotion/styled";
 import Upload from "antd/lib/upload/Upload";
 import React, { useCallback } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldTypes";
@@ -46,6 +48,7 @@ const initialValues: FormValues = {
 const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
+  const { Option } = Select;
 
   const handleSubmit = useCallback(() => {
     form
@@ -70,6 +73,11 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
         if (selectedType === "Asset") {
           values.typeProperty = {
             asset: { defaultValue: values.defaultValue.uid },
+          };
+        }
+        if (selectedType === "Select") {
+          values.typeProperty = {
+            select: { defaultValue: values.defaultValue, values: values.values },
           };
         }
         if (selectedType === "Integer") {
@@ -134,6 +142,73 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       </>
     );
   }
+  let defaultInput = <></>;
+  if (selectedType === "Select") {
+    additionalFields = (
+      <>
+        <Form.Item name="defaultValue" label="Set default value">
+          <Select>
+            {form.getFieldValue("values").map((value: string) => (
+              <Option key={value} value={value}>
+                {value}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </>
+    );
+
+    defaultInput = (
+      <>
+        <div style={{ marginBottom: "8px" }}>Set Options</div>
+        <Form.List
+          name="values"
+          rules={[
+            {
+              validator: async (_, values) => {
+                if (!values || values.length < 1) {
+                  return Promise.reject(new Error("At least 1 option"));
+                }
+              },
+            },
+          ]}>
+          {(fields, { add, remove }, { errors }) => (
+            <>
+              {fields.map((field, index) => (
+                <Form.Item required={false} key={field.key}>
+                  <Form.Item
+                    {...field}
+                    validateTrigger={["onChange", "onBlur"]}
+                    rules={[
+                      {
+                        required: true,
+                        whitespace: true,
+                        message: "Please input value or delete this field.",
+                      },
+                    ]}
+                    noStyle>
+                    <Input
+                      placeholder="Option value"
+                      style={{ width: "80%", marginRight: "8px" }}
+                    />
+                  </Form.Item>
+                  {fields.length > 1 ? (
+                    <Icon icon="minusCircle" onClick={() => remove(field.name)} />
+                  ) : null}
+                </Form.Item>
+              ))}
+              <Form.Item>
+                <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
+                  New
+                </Button>
+                <Form.ErrorList errors={errors} />
+              </Form.Item>
+            </>
+          )}
+        </Form.List>
+      </>
+    );
+  }
   if (selectedType === "Integer") {
     additionalFields = (
       <>
@@ -193,6 +268,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item requiredMark="optional" name="description" label="Description">
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
+            {defaultInput}
             <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
               <Checkbox>Support multiple values</Checkbox>
             </Form.Item>
