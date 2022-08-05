@@ -10,7 +10,7 @@ type FieldDate struct {
 	defaultValue *time.Time
 }
 
-func NewFieldDate() *FieldDate {
+func newFieldDate() *FieldDate {
 	return &FieldDate{
 		defaultValue: nil,
 	}
@@ -26,4 +26,8 @@ func (f *FieldDate) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		date: f,
 	}
+}
+
+func (f *FieldDate) DefaultValue() *time.Time {
+	return f.defaultValue
 }

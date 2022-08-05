@@ -6,7 +6,7 @@ type FieldURL struct {
 	defaultValue *string
 }
 
-func NewFieldURL() *FieldURL {
+func newFieldURL() *FieldURL {
 	return &FieldURL{
 		defaultValue: nil,
 	}
@@ -22,4 +22,8 @@ func (f *FieldURL) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		url: f,
 	}
+}
+
+func (f *FieldURL) DefaultValue() *string {
+	return f.defaultValue
 }

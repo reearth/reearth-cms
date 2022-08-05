@@ -12,9 +12,9 @@ type FieldTag struct {
 	defaultValue []string
 }
 
-// NewFieldTag
+// newFieldTag
 // TODO: check if its ok to remove this
-func NewFieldTag() *FieldTag {
+func newFieldTag() *FieldTag {
 	return &FieldTag{
 		values:       nil,
 		defaultValue: nil,
@@ -46,4 +46,12 @@ func (f *FieldTag) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		tag: f,
 	}
+}
+
+func (f *FieldTag) Values() []string {
+	return f.values
+}
+
+func (f *FieldTag) DefaultValue() []string {
+	return f.defaultValue
 }

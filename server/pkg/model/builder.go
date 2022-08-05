@@ -57,7 +57,7 @@ func (b *Builder) Project(p id.ProjectID) *Builder {
 	return b
 }
 
-func (b *Builder) schema(s id.SchemaID) *Builder {
+func (b *Builder) Schema(s id.SchemaID) *Builder {
 	b.p.schema = s
 	return b
 }

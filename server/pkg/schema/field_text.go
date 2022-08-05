@@ -1,5 +1,7 @@
 package schema
 
+import "github.com/reearth/reearth-cms/server/pkg/util"
+
 var TypeText Type = "text"
 
 type FieldText struct {
@@ -7,7 +9,7 @@ type FieldText struct {
 	maxLength    *int
 }
 
-func NewFieldText() *FieldText {
+func newFieldText() *FieldText {
 	return &FieldText{
 		defaultValue: nil,
 		maxLength:    nil,
@@ -25,4 +27,12 @@ func (f *FieldText) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		text: f,
 	}
+}
+
+func (f *FieldText) DefaultValue() *string {
+	return util.CloneRef(f.defaultValue)
+}
+
+func (f *FieldText) MaxLength() *int {
+	return util.CloneRef(f.maxLength)
 }

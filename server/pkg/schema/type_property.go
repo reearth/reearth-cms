@@ -1,5 +1,12 @@
 package schema
 
+import (
+	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+)
+
 // TypeProperty Represent special attributes for some field
 // only one of the type properties should be not nil
 type TypeProperty struct {
@@ -15,6 +22,90 @@ type TypeProperty struct {
 	integer   *FieldInteger
 	reference *FieldReference
 	url       *FieldURL
+}
+
+func NewFieldTypePropertyText(defaultValue *string, maxLength *int) *TypeProperty {
+	return &TypeProperty{
+		text: FieldTextFrom(defaultValue, maxLength),
+	}
+}
+
+func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) *TypeProperty {
+	return &TypeProperty{
+		textArea: FieldTextAreaFrom(defaultValue, maxLength),
+	}
+}
+
+func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) *TypeProperty {
+	return &TypeProperty{
+		richText: FieldRichTextFrom(defaultValue, maxLength),
+	}
+}
+
+func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) *TypeProperty {
+	return &TypeProperty{
+		markdown: FieldMarkdownFrom(defaultValue, maxLength),
+	}
+}
+
+func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {
+	return &TypeProperty{
+		asset: FieldAssetFrom(defaultValue),
+	}
+}
+
+func NewFieldTypePropertyDate(defaultValue *time.Time) *TypeProperty {
+	return &TypeProperty{
+		date: FieldDateFrom(defaultValue),
+	}
+}
+
+func NewFieldTypePropertyBool(defaultValue *bool) *TypeProperty {
+	return &TypeProperty{
+		bool: FieldBoolFrom(defaultValue),
+	}
+}
+
+func NewFieldTypePropertySelect(values []string, defaultValue *string) (*TypeProperty, error) {
+	fs, err := FieldSelectFrom(values, defaultValue)
+	if err != nil {
+		return nil, err
+	}
+	return &TypeProperty{
+		selectt: fs,
+	}, nil
+}
+
+func NewFieldTypePropertyTag(values []string, defaultValue []string) (*TypeProperty, error) {
+	ft, err := FieldTagFrom(values, defaultValue)
+	if err != nil {
+		return nil, err
+	}
+	return &TypeProperty{
+		tag: ft,
+	}, nil
+}
+
+func NewFieldTypePropertyInteger(defaultValue, min, max *int) (*TypeProperty, error) {
+	ft, err := FieldIntegerFrom(defaultValue, min, max)
+	if err != nil {
+		return nil, err
+	}
+	return &TypeProperty{
+		integer: ft,
+	}, err
+}
+
+func NewFieldTypePropertyReference(defaultValue model.ID) *TypeProperty {
+	return &TypeProperty{
+		reference: FieldReferenceFrom(defaultValue),
+	}
+}
+
+func NewFieldTypePropertyURL(defaultValue *string) *TypeProperty {
+	return &TypeProperty{
+		url: FieldURLFrom(defaultValue),
+	}
 }
 
 type TypePropertyMatch struct {
@@ -132,6 +223,27 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 		}
 	} else if m.Default != nil {
 		m.Default()
+	}
+}
+
+func (t *TypeProperty) Clone() *TypeProperty {
+	if t == nil {
+		return nil
+	}
+
+	return &TypeProperty{
+		text:      t.text,
+		textArea:  t.textArea,
+		richText:  t.richText,
+		markdown:  t.markdown,
+		asset:     t.asset,
+		date:      t.date,
+		bool:      t.bool,
+		selectt:   t.selectt,
+		tag:       t.tag,
+		integer:   t.integer,
+		reference: t.reference,
+		url:       t.url,
 	}
 }
 

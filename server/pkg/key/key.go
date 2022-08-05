@@ -32,3 +32,9 @@ func (k Key) IsValid() bool {
 func (k Key) String() string {
 	return k.key
 }
+
+func (k Key) Clone() Key {
+	return Key{
+		key: k.key,
+	}
+}

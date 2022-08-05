@@ -351,3 +351,14 @@ func TestTypeProperty_Type(t *testing.T) {
 		})
 	}
 }
+
+func TestTypeProperty_Clone(t *testing.T) {
+	s := &TypeProperty{text: newFieldText()}
+	c := s.Clone()
+	assert.Equal(t, s, c)
+	assert.NotSame(t, s, c)
+
+	s = nil
+	c = s.Clone()
+	assert.Nil(t, c)
+}

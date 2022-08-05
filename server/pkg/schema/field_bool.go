@@ -6,7 +6,7 @@ type FieldBool struct {
 	defaultValue *bool
 }
 
-func NewFieldBool() *FieldBool {
+func newFieldBool() *FieldBool {
 	return &FieldBool{
 		defaultValue: nil,
 	}
@@ -22,4 +22,8 @@ func (f *FieldBool) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		bool: f,
 	}
+}
+
+func (f *FieldBool) DefaultValue() *bool {
+	return f.defaultValue
 }
