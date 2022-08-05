@@ -36,8 +36,8 @@ export const GET_ASSETS = gql`
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
-    createAsset(input: { projectId: $projectId, createdById: $createdById, file: $file }) {
+  mutation CreateAsset($projectId: ID!, $file: Upload!) {
+    createAsset(input: { projectId: $projectId, file: $file }) {
       asset {
         id
         projectId
