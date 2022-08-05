@@ -1,7 +1,5 @@
 package item
 
-import "github.com/reearth/reearth-cms/server/pkg/schema"
-
 type Version struct {
 	version string
 	parent  []string
@@ -51,6 +49,6 @@ func (v *Version) Ref() []string {
 	return v.ref
 }
 
-func (v *Version) Fields() schema.Field {
+func (v *Version) Fields() []FieldID {
 	return v.fields
 }
