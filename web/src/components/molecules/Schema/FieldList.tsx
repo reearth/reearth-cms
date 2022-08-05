@@ -15,27 +15,22 @@ export interface Props {
 const data = [
   {
     title: "Text",
-    color: "#FF7875",
     fields: ["Text", "TextArea", "MarkdownText"],
   },
   {
     title: "Asset",
-    color: "#FF9C6E",
     fields: ["Asset"],
   },
   {
     title: "Select",
-    color: "#7CB305",
     fields: ["Select"],
   },
   {
     title: "Number",
-    color: "#36CFC9",
     fields: ["Integer"],
   },
   {
     title: "URL",
-    color: "#9254DE",
     fields: ["URL"],
   },
 ];
@@ -53,7 +48,7 @@ const FieldList: React.FC<Props> = ({ addField }) => {
             {item.fields?.map((field: string) => (
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <List.Item.Meta
-                  avatar={<Icon icon={fieldTypes[field].icon} color={item.color} />}
+                  avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={fieldTypes[field].title}
                   description={fieldTypes[field].description}
                 />

@@ -51,6 +51,8 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   const handleClose = useCallback(() => {
     onClose?.(true);
   }, [onClose]);
+  console.log(fieldTypes[selectedType].color);
+
   return (
     <Modal
       title={
