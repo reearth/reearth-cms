@@ -98,6 +98,10 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			if fb == nil {
 				return nil, interfaces.ErrInvalidTypeProperty
 			}
+
+			if s.HasFieldByKey(*param.Key) {
+				return nil, interfaces.ErrInvalidKey
+			}
 			f, err := fb.NewID().
 				Options(param.Unique, param.MultiValue, param.Required).
 				Name(*param.Name).

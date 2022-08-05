@@ -110,7 +110,11 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp = *schema.NewFieldTypePropertyURL(x.DefaultValue)
+		tp1, err := schema.NewFieldTypePropertyURL(x.DefaultValue)
+		if err != nil {
+			return nil, err
+		}
+		tp = *tp1
 	default:
 		return nil, errors.New("invalid type property")
 	}

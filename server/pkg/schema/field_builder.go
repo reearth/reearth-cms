@@ -1,12 +1,15 @@
 package schema
 
 import (
+	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 )
+
+var ErrInvalidKey = errors.New("invalid key")
 
 type FieldBuilder struct {
 	f   *Field
@@ -116,12 +119,14 @@ func NewFieldReference(defaultValue model.ID) *FieldBuilder {
 }
 
 func NewFieldURL(defaultValue *string) *FieldBuilder {
+	tp, err := FieldURLFrom(defaultValue)
 	return &FieldBuilder{
 		f: &Field{
 			typeProperty: &TypeProperty{
-				url: FieldURLFrom(defaultValue),
+				url: tp,
 			},
 		},
+		err: err,
 	}
 }
 
@@ -131,6 +136,9 @@ func (b *FieldBuilder) Build() (*Field, error) {
 	}
 	if b.f.id.IsNil() {
 		return nil, ErrInvalidID
+	}
+	if !b.f.key.IsValid() {
+		return nil, ErrInvalidKey
 	}
 	return b.f, nil
 }

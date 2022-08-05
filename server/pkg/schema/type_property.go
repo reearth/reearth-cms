@@ -102,10 +102,14 @@ func NewFieldTypePropertyReference(defaultValue model.ID) *TypeProperty {
 	}
 }
 
-func NewFieldTypePropertyURL(defaultValue *string) *TypeProperty {
-	return &TypeProperty{
-		url: FieldURLFrom(defaultValue),
+func NewFieldTypePropertyURL(defaultValue *string) (*TypeProperty, error) {
+	tp, err := FieldURLFrom(defaultValue)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		url: tp,
+	}, nil
 }
 
 type TypePropertyMatch struct {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/reearth/reearth-cms/server/pkg/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -30,9 +31,13 @@ func newFieldSelect() *FieldSelect {
 }
 
 func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
-	if len(values) == 0 {
+	empty := len(values) == 0
+	emptyValue := util.Any(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
+	hadDuplication := util.HasDuplicates(values)
+	if empty || emptyValue || hadDuplication {
 		return nil, ErrFieldValues
 	}
+
 	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}

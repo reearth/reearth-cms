@@ -141,3 +141,15 @@ func DerefSlice[T any](collection []*T) []T {
 		return e
 	})
 }
+
+// HasDuplicates returns true if the array contains a duplicated element
+func HasDuplicates[T comparable](collection []T) bool {
+	s := map[T]bool{}
+	return Any(collection, func(e T) bool {
+		if s[e] {
+			return true
+		}
+		s[e] = true
+		return false
+	})
+}

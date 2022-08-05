@@ -12,9 +12,10 @@ func TestFieldURLFrom(t *testing.T) {
 		defaultValue *string
 	}
 	tests := []struct {
-		name string
-		args args
-		want *FieldURL
+		name    string
+		args    args
+		want    *FieldURL
+		wantErr error
 	}{
 		{
 			name: "success default nil",
@@ -26,12 +27,23 @@ func TestFieldURLFrom(t *testing.T) {
 			args: args{defaultValue: lo.ToPtr("hugo.com")},
 			want: &FieldURL{defaultValue: lo.ToPtr("hugo.com")},
 		},
+		{
+			name:    "success default value",
+			args:    args{defaultValue: lo.ToPtr("123")},
+			want:    nil,
+			wantErr: ErrFieldDefaultValue,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldURLFrom(tc.args.defaultValue))
+			tp, err := FieldURLFrom(tc.args.defaultValue)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.Equal(t, tc.want, tp)
 		})
 	}
 }
