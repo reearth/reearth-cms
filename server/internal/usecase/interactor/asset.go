@@ -35,7 +35,7 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *st
 		return nil, nil, err
 	}
 	return Run2(
-		ctx, nil, i.repos,
+		ctx, operator, i.repos,
 		Usecase().WithReadableWorkspaces(pp.Workspace()).Transaction(),
 		func() ([]*asset.Asset, *usecase.PageInfo, error) {
 			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
