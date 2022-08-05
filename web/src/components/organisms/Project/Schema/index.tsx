@@ -8,6 +8,8 @@ import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 // import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldCreationModal";
+import { FieldType } from "@reearth-cms/components/molecules/Dashboard/types";
+import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -26,10 +28,17 @@ const ProjectSchema: React.FC = () => {
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const { projectId, workspaceId, modelId } = useParams();
   const selectModel = (modelId: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
   };
+
+  const addField = (fieldType: FieldType) => {
+    setSelectedType(fieldType);
+    handleFieldModalOpen();
+  };
+
   const {
     user,
     personalWorkspace,
@@ -45,6 +54,9 @@ const ProjectSchema: React.FC = () => {
     handleModelModalClose,
     handleModelModalOpen,
     modelModalShown,
+    handleFieldModalClose,
+    handleFieldModalOpen,
+    fieldModalShown,
     handleProjectCreate,
     models,
     model,
@@ -91,7 +103,7 @@ const ProjectSchema: React.FC = () => {
               <ModelFieldList fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
             <FieldListWrapper>
-              <FieldList></FieldList>
+              <FieldList addField={addField}></FieldList>
             </FieldListWrapper>
           </PaddedContent>
         </Layout>
@@ -106,9 +118,10 @@ const ProjectSchema: React.FC = () => {
         onClose={handleModelModalClose}
         onSubmit={handleProjectCreate}
       />
-      {/* <FieldCreationModal
-        open={modelModalShown}
-        onClose={handleModelModalClose}></FieldCreationModal> */}
+      <FieldCreationModal
+        selectedType={selectedType}
+        open={fieldModalShown}
+        onClose={handleFieldModalClose}></FieldCreationModal>
     </>
   );
 };

@@ -10,6 +10,7 @@ type Params = {
 
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
+  const [fieldModalShown, setFieldModalShown] = useState(false);
 
   const { data, refetch } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
@@ -101,6 +102,12 @@ export default ({ projectId, modelId }: Params) => {
 
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
+  const handleFieldModalClose = useCallback(() => {
+    setFieldModalShown(false);
+  }, []);
+
+  const handleFieldModalOpen = useCallback(() => setFieldModalShown(true), []);
+
   return {
     model,
     models,
@@ -108,5 +115,8 @@ export default ({ projectId, modelId }: Params) => {
     handleModelModalOpen,
     handleModelModalClose,
     handleProjectCreate,
+    fieldModalShown,
+    handleFieldModalOpen,
+    handleFieldModalClose,
   };
 };

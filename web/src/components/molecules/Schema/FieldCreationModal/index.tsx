@@ -1,11 +1,16 @@
+import styled from "@emotion/styled";
 import React, { useCallback } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldTypes";
+
+import { FieldType } from "../../Dashboard/types";
 
 export interface FormValues {
   name: string;
@@ -15,6 +20,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
+  selectedType: FieldType | null;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
@@ -25,7 +31,7 @@ const initialValues: FormValues = {
   key: "",
 };
 
-const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
 
@@ -46,7 +52,21 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
     onClose?.(true);
   }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal
+      title={
+        selectedType ? (
+          <FieldThumbnail>
+            <StyledIcon
+              icon={fieldTypes[selectedType].icon}
+              color={fieldTypes[selectedType].color}
+            />{" "}
+            <h3>Create {fieldTypes[selectedType].title}</h3>
+          </FieldThumbnail>
+        ) : null
+      }
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="setting">
           <TabPane tab="Setting" key="setting">
@@ -89,5 +109,30 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
     </Modal>
   );
 };
+
+const FieldThumbnail = styled.div`
+  display: flex;
+  align-items: center;
+  h3 {
+    margin: 0;
+    margin-left: 12px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(0, 0, 0, 0.85);
+  }
+`;
+
+const StyledIcon = styled(Icon)`
+  border: 1px solid #f0f0f0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span {
+    display: inherit;
+  }
+`;
 
 export default FieldCreationModal;

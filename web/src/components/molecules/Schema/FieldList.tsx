@@ -3,10 +3,13 @@ import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
-import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldType";
+import { fieldTypes } from "@reearth-cms/components/organisms/Project/Schema/fieldTypes";
+
+import { FieldType } from "../Dashboard/types";
 
 export interface Props {
   className?: string;
+  addField: (fieldType: FieldType) => void;
 }
 
 const data = [
@@ -37,7 +40,7 @@ const data = [
   },
 ];
 
-const FieldList: React.FC<Props> = () => {
+const FieldList: React.FC<Props> = ({ addField }) => {
   return (
     <>
       <h1>Add Field</h1>
@@ -48,7 +51,7 @@ const FieldList: React.FC<Props> = () => {
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields?.map((field: string) => (
-              <List.Item key={field}>
+              <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <List.Item.Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={item.color} />}
                   title={fieldTypes[field].title}
