@@ -174,3 +174,29 @@ func TestSubset(t *testing.T) {
 		})
 	}
 }
+
+func TestHasDuplicates(t *testing.T) {
+	tests := []struct {
+		name       string
+		collection []string
+		want       bool
+	}{
+		{
+			name:       "has",
+			collection: []string{"123", "321", "123"},
+			want:       true,
+		},
+		{
+			name:       "has not",
+			collection: []string{"123", "321", "1232"},
+			want:       false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, HasDuplicates(tt.collection))
+		})
+	}
+}
