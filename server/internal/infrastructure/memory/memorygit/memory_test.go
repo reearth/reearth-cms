@@ -112,8 +112,8 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			got, ok := tc.m.Load(tc.input.key, tc.input.vor)
-			assert.Equal(t, tc.want.output, got)
-			assert.True(t, tc.want.ok == ok)
+			assert.Equal(tt, tc.want.output, got)
+			assert.True(tt, tc.want.ok == ok)
 		})
 	}
 }
@@ -126,9 +126,9 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	m.Store("d", innerValues[string]{{value: "D", version: "2", ref: lo.ToPtr(Ref("a"))}})
 	vsm := &VersionedSyncMap[string, string]{m: m}
 	tests := []struct {
-		name  string
-		m     *VersionedSyncMap[string, string]
-		input struct {
+		name string
+		m    *VersionedSyncMap[string, string]
+		args struct {
 			keys []string
 			vor  VersionOrRef
 		}
@@ -137,7 +137,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		{
 			name: "must load a and b",
 			m:    vsm,
-			input: struct {
+			args: struct {
 				keys []string
 				vor  VersionOrRef
 			}{
@@ -151,7 +151,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		{
 			name: "must load b and d",
 			m:    vsm,
-			input: struct {
+			args: struct {
 				keys []string
 				vor  VersionOrRef
 			}{
@@ -165,7 +165,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		{
 			name: "mustn't load item",
 			m:    vsm,
-			input: struct {
+			args: struct {
 				keys []string
 				vor  VersionOrRef
 			}{
@@ -180,8 +180,8 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got := tc.m.LoadAll(tc.input.keys, tc.input.vor)
-			assert.Equal(t, tc.want, got)
+			got := tc.m.LoadAll(tc.args.keys, tc.args.vor)
+			assert.Equal(tt, tc.want, got)
 		})
 	}
 }
@@ -190,21 +190,49 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 	vm := &VersionedSyncMap[string, string]{
 		m: &util.SyncMap[string, innerValues[string]]{},
 	}
-
 	_, ok := vm.Load("a", Version("1").OrRef())
 	assert.False(t, ok)
 
-	vm.Store("a", "b", Version("1"))
-
-	got, ok := vm.Load("a", Version("1").OrRef())
-	assert.True(t, ok)
-	assert.Equal(t, "b", got)
-
-	vm.Store("a", "c", Version("1"))
-
-	got2, ok2 := vm.Load("a", Version("1").OrRef())
-	assert.True(t, ok2)
-	assert.Equal(t, "c", got2)
+	type args struct {
+		key     string
+		value   string
+		version Version
+	}
+	tests := []struct {
+		name   string
+		args   args
+		want   string
+		wantOk bool
+	}{
+		{
+			name: "must return b",
+			args: args{
+				key:     "a",
+				value:   "b",
+				version: "1",
+			},
+			want:   "b",
+			wantOk: true,
+		},
+		{
+			name: "must return c",
+			args: args{
+				key:     "a",
+				value:   "c",
+				version: "1",
+			},
+			want:   "c",
+			wantOk: true,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(tt *testing.T) {
+			vm.Store(tc.args.key, tc.args.value, tc.args.version)
+			got, ok := vm.Load(tc.args.key, tc.args.version.OrRef())
+			assert.True(tt, ok == tc.wantOk)
+			assert.Equal(tt, tc.want, got)
+		})
+	}
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
@@ -246,16 +274,86 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("A"))},
 			},
 		},
+		{
+			name: "key not found",
+			target: &VersionedSyncMap[string, string]{
+				m: util.SyncMapFrom(
+					util.MapEntry[string, innerValues[string]]{
+						Key: "1",
+						Value: innerValues[string]{
+							{value: "a", version: "a", ref: nil},
+						},
+					},
+				),
+			},
+			args: args{
+				key:     "2",
+				ref:     Ref("A"),
+				version: Version("a"),
+			},
+		},
 	}
 
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			tt.target.UpdateRef(tt.args.key, tt.args.ref, tt.args.version)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			tc.target.UpdateRef(tc.args.key, tc.args.ref, tc.args.version)
 
-			f, _ := tt.target.m.Load(tt.args.key)
-			assert.Equal(t, tt.want, f)
+			f, _ := tc.target.m.Load(tc.args.key)
+			assert.Equal(tt, tc.want, f)
 		})
 	}
+}
+
+func TestVersionedSyncMap_Archive(t *testing.T) {
+	m := &util.SyncMap[string, innerValues[string]]{}
+	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
+	m.Store("b", innerValues[string]{{value: "B", version: "1"}})
+	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm.Archive("a")
+	_, ok := vsm.Load("a", Version("1").OrRef())
+	assert.False(t, ok)
+}
+
+func TestVersionedSyncMap_ArchiveAll(t *testing.T) {
+	m := &util.SyncMap[string, innerValues[string]]{}
+	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
+	m.Store("b", innerValues[string]{{value: "B", version: "1"}})
+	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm.ArchiveAll("a", "b")
+	var expected []string
+	got := vsm.LoadAll([]string{"a", "b"}, Version("1").OrRef())
+	assert.Equal(t, expected, got)
+}
+
+func TestVersionedSyncMap_Delete(t *testing.T) {
+	m := &util.SyncMap[string, innerValues[string]]{}
+	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
+	m.Store("b", innerValues[string]{{value: "B", version: "1"}})
+	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm.Delete("a")
+	_, ok := vsm.Load("a", Version("1").OrRef())
+	assert.False(t, ok)
+}
+
+func TestVersionedSyncMap_DeleteAll(t *testing.T) {
+	m := &util.SyncMap[string, innerValues[string]]{}
+	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
+	m.Store("b", innerValues[string]{{value: "B", version: "1"}})
+	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm.DeleteAll("a", "b")
+	var expected []string
+	got := vsm.LoadAll([]string{"a", "b"}, Version("1").OrRef())
+	assert.Equal(t, expected, got)
+}
+
+func TestVersionedSyncMap_DeleteRef(t *testing.T) {
+	m := &util.SyncMap[string, innerValues[string]]{}
+	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: lo.ToPtr(Ref("a"))}})
+	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm.DeleteRef("b", Ref("a"))
+	got := vsm.load("b", Version("1").OrRef())
+	var expected *Ref
+	assert.Equal(t, expected, got.ref)
 }

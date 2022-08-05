@@ -171,3 +171,24 @@ func TestInnerValues_UpdateRef(t *testing.T) {
 		})
 	}
 }
+
+func Test_innerValues_GetByVersion(t *testing.T) {
+	v1 := innerValue[string]{value: "a", version: Version("a"), ref: nil}
+	v2 := innerValue[string]{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))}
+	values := innerValues[string]{v1, v2}
+	got := values.GetByVersion(Version("a"))
+	assert.Equal(t, &v1, got)
+	got2 := values.GetByVersion(Version("c"))
+	var expected *innerValue[string]
+	assert.Equal(t, expected, got2)
+}
+func Test_innerValues_GetByRef(t *testing.T) {
+	v1 := innerValue[string]{value: "a", version: Version("a"), ref: nil}
+	v2 := innerValue[string]{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))}
+	values := innerValues[string]{v1, v2}
+	got := values.GetByRef(Ref("B"))
+	assert.Equal(t, &v2, got)
+	got2 := values.GetByRef(Ref("A"))
+	var expected *innerValue[string]
+	assert.Equal(t, expected, got2)
+}
