@@ -78,6 +78,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 
+	f, err := asset.NewFile().Name(d.File.name).Size(d.File.size).Type(d.File.contentType).Path(d.File.path).Build()
+	if err != nil {
+		return nil, err
+	}
 	return asset.New().
 		ID(aid).
 		Project(pid).
@@ -86,6 +90,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
+		File(f).
 		Hash(d.Hash).
 		Build()
 }
