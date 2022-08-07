@@ -78,6 +78,12 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 
+	if d.File == nil {
+		d.File = &File{
+			name: d.FileName,
+			size: d.Size,
+		}
+	}
 	f, err := asset.NewFile().Name(d.File.name).Size(d.File.size).Type(d.File.contentType).Path(d.File.path).Build()
 	if err != nil {
 		return nil, err
