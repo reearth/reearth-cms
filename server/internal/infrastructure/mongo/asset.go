@@ -66,7 +66,7 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	}
 
 	if uFilter.Keyword != nil {
-		filter = mongodoc.And(filter, "name", bson.M{
+		filter = mongodoc.And(filter, "fileName", bson.M{
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		})
 	}
