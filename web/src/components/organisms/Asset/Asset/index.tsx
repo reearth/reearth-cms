@@ -1,5 +1,6 @@
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import AssetHeader from "@reearth-cms/components/molecules/Asset/Asset/AssetHeader";
+import { hashToURL } from "@reearth-cms/utils/convert";
 
 import useHooks from "./hooks";
 
@@ -13,6 +14,8 @@ const Asset: React.FC = () => {
     handleModalCancel,
     handleFullScreen,
   } = useHooks();
+
+  const url = hashToURL(asset?.hash);
 
   const handleSave = () => {
     console.log("save");
@@ -32,7 +35,7 @@ const Asset: React.FC = () => {
         isModalVisible={isModalVisible}
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}
-        url={asset?.hash}
+        url={url}
       />
     </>
   );
