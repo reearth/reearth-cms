@@ -56,7 +56,7 @@ export default {
   exclamationCircle: ExclamationCircleOutlined,
   textT: Text,
   textAlignLeft: TextAlignLeft,
-  markDown: MarkDown,
+  markdown: MarkDown,
   asset: Asset,
   listBullets: ListBullets,
   numberNine: NumberNine,
