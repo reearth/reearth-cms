@@ -60,3 +60,7 @@ func (a *Asset) File() *File {
 func (a *Asset) Hash() string {
 	return a.hash
 }
+
+func (a *Asset) UpdatePreviewType(p *PreviewType) {
+	a.previewType = p
+}

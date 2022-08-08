@@ -34,6 +34,20 @@ func (c *AssetLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel
 	return util.Map(res, gqlmodel.ToAsset), nil
 }
 
+func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmodel.Asset, error) {
+	aid, err := gqlmodel.ToID[id.Asset](assetId)
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := c.usecase.FindByID(ctx, aid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ToAsset(a), nil
+}
+
 func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *asset.SortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	pid, err := gqlmodel.ToID[id.Project](projectId)
 	if err != nil {

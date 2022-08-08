@@ -82,6 +82,14 @@ func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
 	return r.client.SaveOne(ctx, id, doc)
 }
 
+func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
+	return r.client.UpdateOne(ctx, r.writeFilter(bson.M{
+		"id": a.ID().String(),
+	}), bson.M{
+		"previewType": a.PreviewType().String(),
+	})
+}
+
 func (r *assetRepo) Delete(ctx context.Context, id id.AssetID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
 		"id": id.String(),

@@ -20,5 +20,6 @@ type Asset interface {
 	FindByID(context.Context, id.AssetID) (*asset.Asset, error)
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
 	Save(context.Context, *asset.Asset) error
+	Update(context.Context, *asset.Asset) error
 	Delete(context.Context, id.AssetID) error
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
@@ -27,6 +28,25 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	}
 
 	return &gqlmodel.CreateAssetPayload{Asset: gqlmodel.ToAsset(res)}, nil
+}
+
+func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.UpdateAssetInput) (*gqlmodel.UpdateAssetPayload, error) {
+	aid, err := gqlmodel.ToID[id.Asset](input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	pt := (*asset.PreviewType)(input.PreviewType)
+
+	res, err2 := usecases(ctx).Asset.Update(ctx, interfaces.UpdateAssetParam{
+		AssetID:     aid,
+		PreviewType: pt,
+	}, getOperator(ctx))
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return &gqlmodel.UpdateAssetPayload{Asset: gqlmodel.ToAsset(res)}, nil
 }
 
 func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error) {

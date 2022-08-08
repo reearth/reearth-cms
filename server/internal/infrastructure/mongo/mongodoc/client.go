@@ -158,6 +158,16 @@ func (c *Client) UpdateMany(ctx context.Context, col string, filter, update inte
 	return nil
 }
 
+func (c *Client) UpdateOne(ctx context.Context, col string, filter, update interface{}) error {
+	_, err := c.Collection(col).UpdateOne(ctx, filter, bson.M{
+		"$set": update,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Update struct {
 	Filter       interface{}
 	Update       interface{}

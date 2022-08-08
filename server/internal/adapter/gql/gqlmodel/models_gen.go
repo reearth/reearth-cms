@@ -466,6 +466,15 @@ type SignupPayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type UpdateAssetInput struct {
+	ID          ID           `json:"id"`
+	PreviewType *PreviewType `json:"previewType"`
+}
+
+type UpdateAssetPayload struct {
+	Asset *Asset `json:"asset"`
+}
+
 type UpdateFieldInput struct {
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
