@@ -122,35 +122,6 @@ export default (projectId?: string, createdById?: string) => {
     [createAssetMutation, projectId, createdById],
   );
 
-  // const createAssets2 = useCallback(
-  //   (files: FileList) =>
-  //     (async () => {
-  //       if (!projectId || !createdById) return;
-  //       const results = await Promise.all(
-  //         Array.from(files).map(async file => {
-  //           console.log(file);
-  //           const result = await createAssetMutation({
-  //             variables: { projectId, createdById, file },
-  //           });
-  //           if (result.errors || !result.data?.createAsset) {
-  //             setNotification({
-  //               type: "error",
-  //               text: "Failed to add one or more assets.",
-  //             });
-  //           }
-  //         }),
-  //       );
-  //       if (results) {
-  //         setNotification({
-  //           type: "success",
-  //           text: "Successfully added one or more assets.",
-  //         });
-  //         await refetch();
-  //       }
-  //     })(),
-  //   [createAssetMutation, setNotification, refetch, projectId, createdById],
-  // );
-
   const [deleteAssetMutation] = useDeleteAssetMutation();
   const deleteAssets = useCallback(
     (assetIds: string[]) =>
@@ -223,7 +194,6 @@ export default (projectId?: string, createdById?: string) => {
     user,
     assetList,
     createAssets,
-    // createAssets2,
     deleteAssets,
     navigate,
     selection,

@@ -83,7 +83,6 @@
     "react-i18next": "^11.18.3",
     "react-router-dom": "^6.3.0",
     "react-svg": "^15.1.4",
-    "resium": "^1.15.0",
-    "use-file-input": "^1.0.0"
+    "resium": "^1.15.0"
   }
 }

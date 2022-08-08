@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-// import useFileInput from "use-file-input";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -26,7 +25,6 @@ const AssetList: React.FC = () => {
   const {
     assetList,
     createAssets,
-    // createAssets2,
     navigate,
     handleSearchTerm,
     selection,
@@ -171,22 +169,6 @@ const AssetList: React.FC = () => {
     },
   };
 
-  // const fileFormats = ".kml,.czml,.topojson,.geojson,.json,.gltf,.glb";
-  // const imageFormats = ".jpg,.jpeg,.png,.gif,.svg,.tiff,.webp";
-  // const isMultipleSelectable = false;
-
-  // const handleFileSelect = useFileInput(files => createAssets2?.(files), {
-  //   accept: imageFormats + "," + fileFormats,
-  //   multiple: isMultipleSelectable,
-  // });
-
-  // const handleInput = ({ target: { files } }: any) => {
-  //   if (files) {
-  //     console.log(files);
-  //     createAssets2(files);
-  //   }
-  // };
-
   return (
     <>
       <AssetListHeader
@@ -200,7 +182,6 @@ const AssetList: React.FC = () => {
         uploadProps={uploadProps}
         handleUpload={handleUpload}
       />
-      {/* <input type="file" multiple={false} onChange={handleFileSelect} /> */}
       <AssetListTable
         dataSource={assetList}
         columns={columns}
