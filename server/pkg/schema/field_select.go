@@ -21,15 +21,6 @@ type FieldSelect struct {
 	defaultValue *string
 }
 
-// NewFieldSelect
-// TODO: check if its ok to remove this
-func newFieldSelect() *FieldSelect {
-	return &FieldSelect{
-		values:       nil,
-		defaultValue: nil,
-	}
-}
-
 func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
 	empty := len(values) == 0
 	emptyValue := util.Any(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })

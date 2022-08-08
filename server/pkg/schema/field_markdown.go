@@ -7,13 +7,6 @@ type FieldMarkdown struct {
 	maxLength    *int
 }
 
-func newFieldMarkdown() *FieldMarkdown {
-	return &FieldMarkdown{
-		defaultValue: nil,
-		maxLength:    nil,
-	}
-}
-
 func FieldMarkdownFrom(defaultValue *string, maxLength *int) *FieldMarkdown {
 	return &FieldMarkdown{
 		defaultValue: defaultValue,

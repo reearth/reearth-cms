@@ -8,12 +8,6 @@ type FieldURL struct {
 	defaultValue *string
 }
 
-func newFieldURL() *FieldURL {
-	return &FieldURL{
-		defaultValue: nil,
-	}
-}
-
 func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
 	if defaultValue != nil {
 		if !isUrl(*defaultValue) {

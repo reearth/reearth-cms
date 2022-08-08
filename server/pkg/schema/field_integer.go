@@ -16,14 +16,6 @@ type FieldInteger struct {
 	max          *int
 }
 
-func newFieldInteger() *FieldInteger {
-	return &FieldInteger{
-		defaultValue: nil,
-		min:          nil,
-		max:          nil,
-	}
-}
-
 func FieldIntegerFrom(defaultValue, min, max *int) (*FieldInteger, error) {
 	if min != nil && max != nil && *min > *max {
 		return nil, ErrMinMaxInvalid

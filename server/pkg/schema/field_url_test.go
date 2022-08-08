@@ -80,25 +80,3 @@ func TestFieldURL_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldURL(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldURL
-	}{
-		{
-			name: "new",
-			want: &FieldURL{
-				defaultValue: nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldURL())
-		})
-	}
-}*/

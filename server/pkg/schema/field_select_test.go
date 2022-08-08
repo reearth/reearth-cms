@@ -161,26 +161,3 @@ func TestFieldSelect_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldSelect(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldSelect
-	}{
-		{
-			name: "new",
-			want: &FieldSelect{
-				defaultValue: nil,
-				values:       nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldSelect())
-		})
-	}
-}*/

@@ -7,13 +7,6 @@ type FieldRichText struct {
 	maxLength    *int
 }
 
-func newFieldRichText() *FieldRichText {
-	return &FieldRichText{
-		defaultValue: nil,
-		maxLength:    nil,
-	}
-}
-
 func FieldRichTextFrom(defaultValue *string, maxLength *int) *FieldRichText {
 	return &FieldRichText{
 		defaultValue: defaultValue,

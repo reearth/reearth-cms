@@ -9,13 +9,6 @@ type FieldText struct {
 	maxLength    *int
 }
 
-func newFieldText() *FieldText {
-	return &FieldText{
-		defaultValue: nil,
-		maxLength:    nil,
-	}
-}
-
 func FieldTextFrom(defaultValue *string, maxLength *int) *FieldText {
 	return &FieldText{
 		defaultValue: defaultValue,

@@ -79,26 +79,3 @@ func TestFieldRichText_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldRichText(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldRichText
-	}{
-		{
-			name: "new",
-			want: &FieldRichText{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldRichText())
-		})
-	}
-}*/

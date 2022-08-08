@@ -7,13 +7,6 @@ type FieldTextArea struct {
 	maxLength    *int
 }
 
-func newFieldTextArea() *FieldTextArea {
-	return &FieldTextArea{
-		defaultValue: nil,
-		maxLength:    nil,
-	}
-}
-
 func FieldTextAreaFrom(defaultValue *string, maxLength *int) *FieldTextArea {
 	return &FieldTextArea{
 		defaultValue: defaultValue,

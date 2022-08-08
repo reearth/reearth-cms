@@ -166,26 +166,3 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldTag(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldTag
-	}{
-		{
-			name: "new",
-			want: &FieldTag{
-				defaultValue: nil,
-				values:       nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldTag())
-		})
-	}
-}*/

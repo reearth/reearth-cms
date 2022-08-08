@@ -387,10 +387,10 @@ func TestField_TypeProperty(t *testing.T) {
 				description:  "desc",
 				key:          key.Random(),
 				updatedAt:    time.Now(),
-				typeProperty: &TypeProperty{text: newFieldText()},
+				typeProperty: &TypeProperty{text: &FieldText{}},
 				unique:       true,
 			},
-			want: &TypeProperty{text: newFieldText()},
+			want: &TypeProperty{text: &FieldText{}},
 		},
 	}
 	for _, tc := range tests {

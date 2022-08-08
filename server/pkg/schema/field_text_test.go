@@ -79,26 +79,3 @@ func TestFieldText_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldText(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldText
-	}{
-		{
-			name: "new",
-			want: &FieldText{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldText())
-		})
-	}
-}*/

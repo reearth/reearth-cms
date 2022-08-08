@@ -6,12 +6,6 @@ type FieldBool struct {
 	defaultValue *bool
 }
 
-func newFieldBool() *FieldBool {
-	return &FieldBool{
-		defaultValue: nil,
-	}
-}
-
 func FieldBoolFrom(b *bool) *FieldBool {
 	return &FieldBool{
 		defaultValue: b,

@@ -173,27 +173,3 @@ func TestFieldInteger_TypeProperty(t *testing.T) {
 		})
 	}
 }
-
-/*func TestNewFieldInteger(t *testing.T) {
-	tests := []struct {
-		name string
-		want *FieldInteger
-	}{
-		{
-			name: "new",
-			want: &FieldInteger{
-				defaultValue: nil,
-				min:          nil,
-				max:          nil,
-			},
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tc.want, newFieldInteger())
-		})
-	}
-}*/
