@@ -543,6 +543,7 @@ func TestField_Type(t *testing.T) {
 
 func TestField_UpdatedAt(t *testing.T) {
 	now := time.Now()
+	fId := NewFieldID()
 	tests := []struct {
 		name  string
 		field Field
@@ -554,6 +555,13 @@ func TestField_UpdatedAt(t *testing.T) {
 				updatedAt: now,
 			},
 			want: now,
+		},
+		{
+			name: "success",
+			field: Field{
+				id: fId,
+			},
+			want: fId.Timestamp(),
 		},
 	}
 	for _, tc := range tests {

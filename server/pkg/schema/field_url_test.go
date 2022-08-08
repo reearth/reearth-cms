@@ -81,7 +81,7 @@ func TestFieldURL_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldURL(t *testing.T) {
+/*func TestNewFieldURL(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldURL
@@ -101,4 +101,4 @@ func TestNewFieldURL(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldURL())
 		})
 	}
-}
+}*/

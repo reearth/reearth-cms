@@ -71,6 +71,9 @@ func (p *Model) SetPublic(public bool) {
 }
 
 func (p *Model) UpdatedAt() time.Time {
+	if p.updatedAt.IsZero() {
+		return p.id.Timestamp()
+	}
 	return p.updatedAt
 }
 

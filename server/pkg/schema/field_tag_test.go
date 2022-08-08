@@ -167,7 +167,7 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldTag(t *testing.T) {
+/*func TestNewFieldTag(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldTag
@@ -188,4 +188,4 @@ func TestNewFieldTag(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldTag())
 		})
 	}
-}
+}*/

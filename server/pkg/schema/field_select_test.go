@@ -162,7 +162,7 @@ func TestFieldSelect_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldSelect(t *testing.T) {
+/*func TestNewFieldSelect(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldSelect
@@ -183,4 +183,4 @@ func TestNewFieldSelect(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldSelect())
 		})
 	}
-}
+}*/

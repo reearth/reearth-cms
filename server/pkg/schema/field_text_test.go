@@ -80,7 +80,7 @@ func TestFieldText_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldText(t *testing.T) {
+/*func TestNewFieldText(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldText
@@ -101,4 +101,4 @@ func TestNewFieldText(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldText())
 		})
 	}
-}
+}*/

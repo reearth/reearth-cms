@@ -174,7 +174,7 @@ func TestFieldInteger_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldInteger(t *testing.T) {
+/*func TestNewFieldInteger(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldInteger
@@ -196,4 +196,4 @@ func TestNewFieldInteger(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldInteger())
 		})
 	}
-}
+}*/

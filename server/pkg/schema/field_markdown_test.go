@@ -80,7 +80,7 @@ func TestFieldMarkdown_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldMarkdown(t *testing.T) {
+/*func TestNewFieldMarkdown(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldMarkdown
@@ -101,4 +101,4 @@ func TestNewFieldMarkdown(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldMarkdown())
 		})
 	}
-}
+}*/

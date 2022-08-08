@@ -80,7 +80,7 @@ func TestFieldTextArea_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldTextArea(t *testing.T) {
+/*func TestNewFieldTextArea(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldTextArea
@@ -101,4 +101,4 @@ func TestNewFieldTextArea(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldTextArea())
 		})
 	}
-}
+}*/

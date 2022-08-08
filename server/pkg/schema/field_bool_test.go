@@ -75,7 +75,7 @@ func TestFieldBool_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldBool(t *testing.T) {
+/*func TestnewFieldBool(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldBool
@@ -93,6 +93,50 @@ func TestNewFieldBool(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tc.want, newFieldBool())
+		})
+	}
+}*/
+
+func TestFieldBool_DefaultValue(t *testing.T) {
+	type fields struct {
+		defaultValue *bool
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *bool
+	}{
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: lo.ToPtr(true),
+			},
+			want: lo.ToPtr(true),
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: lo.ToPtr(false),
+			},
+			want: lo.ToPtr(false),
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: nil,
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldBool{
+				defaultValue: tt.fields.defaultValue,
+			}
+			assert.Equal(t, tt.want, f.DefaultValue())
 		})
 	}
 }

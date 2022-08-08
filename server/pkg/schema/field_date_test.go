@@ -67,7 +67,7 @@ func TestFieldDate_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldDate(t *testing.T) {
+/*func TestNewFieldDate(t *testing.T) {
 	tests := []struct {
 		name string
 		want *FieldDate
@@ -87,4 +87,4 @@ func TestNewFieldDate(t *testing.T) {
 			assert.Equal(t, tc.want, newFieldDate())
 		})
 	}
-}
+}*/

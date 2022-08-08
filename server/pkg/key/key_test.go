@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewKey(t *testing.T) {
+func TestNew(t *testing.T) {
 	assert.Equal(t, Key{key: "aaaaaaa"}, New("aaaaaaa"))
 	assert.Equal(t, Key{}, New("aaaa"))
 }
 
-func TestRandomKey(t *testing.T) {
+func TestRandom(t *testing.T) {
 	k := Random()
 	assert.NotEmpty(t, k.String())
 	assert.True(t, k.IsValid())
