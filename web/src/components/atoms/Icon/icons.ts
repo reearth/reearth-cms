@@ -24,7 +24,17 @@ import {
   MessageOutlined,
   InboxOutlined,
   FullscreenOutlined,
+  MoreOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
+
+import Asset from "./Icons/asset.svg";
+import Link from "./Icons/link.svg";
+import ListBullets from "./Icons/listBullets.svg";
+import MarkDown from "./Icons/markDown.svg";
+import NumberNine from "./Icons/numberNine.svg";
+import TextAlignLeft from "./Icons/textAlignLeft.svg";
+import Text from "./Icons/textT.svg";
 
 export default {
   home: HomeOutlined,
@@ -52,4 +62,13 @@ export default {
   message: MessageOutlined,
   inbox: InboxOutlined,
   fullscreen: FullscreenOutlined,
+  textT: Text,
+  textAlignLeft: TextAlignLeft,
+  markdown: MarkDown,
+  asset: Asset,
+  listBullets: ListBullets,
+  numberNine: NumberNine,
+  link: Link,
+  more: MoreOutlined,
+  minusCircle: MinusCircleOutlined,
 };
