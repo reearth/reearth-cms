@@ -4,16 +4,15 @@ import (
 	"context"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
-
-	"github.com/reearth/reearth-cms/server/pkg/log"
-
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
+
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
+	"github.com/reearth/reearthx/log"
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container) {
