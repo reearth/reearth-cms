@@ -20,7 +20,17 @@ import {
   PlusOutlined,
   CloseOutlined,
   ExclamationCircleOutlined,
+  MoreOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
+
+import Asset from "./Icons/asset.svg";
+import Link from "./Icons/link.svg";
+import ListBullets from "./Icons/listBullets.svg";
+import MarkDown from "./Icons/markDown.svg";
+import NumberNine from "./Icons/numberNine.svg";
+import TextAlignLeft from "./Icons/textAlignLeft.svg";
+import Text from "./Icons/textT.svg";
 
 export default {
   home: HomeOutlined,
@@ -44,4 +54,13 @@ export default {
   plus: PlusOutlined,
   close: CloseOutlined,
   exclamationCircle: ExclamationCircleOutlined,
+  textT: Text,
+  textAlignLeft: TextAlignLeft,
+  markDown: MarkDown,
+  asset: Asset,
+  listBullets: ListBullets,
+  numberNine: NumberNine,
+  link: Link,
+  more: MoreOutlined,
+  minusCircle: MinusCircleOutlined,
 };
