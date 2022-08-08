@@ -43,7 +43,7 @@ export type Asset = Node & {
   hash: Scalars['String'];
   id: Scalars['ID'];
   previewType?: Maybe<PreviewType>;
-  project: Project;
+  project?: Maybe<Project>;
   projectId: Scalars['ID'];
   size: Scalars['FileSize'];
 };
@@ -318,6 +318,7 @@ export type Mutation = {
   removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
+  updateAsset?: Maybe<UpdateAssetPayload>;
   updateField?: Maybe<FieldPayload>;
   updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
@@ -418,6 +419,11 @@ export type MutationSignupArgs = {
 };
 
 
+export type MutationUpdateAssetArgs = {
+  input: UpdateAssetInput;
+};
+
+
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
 };
@@ -457,6 +463,7 @@ export type Node = {
 };
 
 export enum NodeType {
+  Asset = 'ASSET',
   Project = 'PROJECT',
   User = 'USER',
   Workspace = 'WORKSPACE'
@@ -528,6 +535,7 @@ export type PublishModelInput = {
 
 export type Query = {
   __typename?: 'Query';
+  asset: Asset;
   assets: AssetConnection;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
@@ -538,6 +546,11 @@ export type Query = {
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
   searchUser?: Maybe<User>;
+};
+
+
+export type QueryAssetArgs = {
+  assetId: Scalars['ID'];
 };
 
 
@@ -823,6 +836,16 @@ export enum Theme {
   Light = 'LIGHT'
 }
 
+export type UpdateAssetInput = {
+  id: Scalars['ID'];
+  previewType?: InputMaybe<PreviewType>;
+};
+
+export type UpdateAssetPayload = {
+  __typename?: 'UpdateAssetPayload';
+  asset: Asset;
+};
+
 export type UpdateFieldInput = {
   description?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
@@ -917,6 +940,13 @@ export type GetAssetsQueryVariables = Exact<{
 
 export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
+export type GetAssetQueryVariables = Exact<{
+  assetId: Scalars['ID'];
+}>;
+
+
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
+
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
   createdById: Scalars['ID'];
@@ -925,6 +955,14 @@ export type CreateAssetMutationVariables = Exact<{
 
 
 export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+
+export type UpdateAssetMutationVariables = Exact<{
+  id: Scalars['ID'];
+  previewType?: InputMaybe<PreviewType>;
+}>;
+
+
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1175,6 +1213,54 @@ export function useGetAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
 export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
 export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
+export const GetAssetDocument = gql`
+    query GetAsset($assetId: ID!) {
+  asset(assetId: $assetId) {
+    id
+    projectId
+    createdAt
+    createdById
+    fileName
+    size
+    previewType
+    file {
+      name
+      size
+      contentType
+      path
+    }
+    hash
+  }
+}
+    `;
+
+/**
+ * __useGetAssetQuery__
+ *
+ * To run a query within a React component, call `useGetAssetQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useGetAssetQuery(baseOptions: Apollo.QueryHookOptions<GetAssetQuery, GetAssetQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
+      }
+export function useGetAssetLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetQuery, GetAssetQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
+        }
+export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
+export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
+export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
 export const CreateAssetDocument = gql`
     mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
   createAsset(
@@ -1227,6 +1313,55 @@ export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
 export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
 export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
+export const UpdateAssetDocument = gql`
+    mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
+  updateAsset(input: {id: $id, previewType: $previewType}) {
+    asset {
+      id
+      projectId
+      createdAt
+      createdById
+      fileName
+      size
+      previewType
+      file {
+        name
+        size
+        contentType
+        path
+      }
+      hash
+    }
+  }
+}
+    `;
+export type UpdateAssetMutationFn = Apollo.MutationFunction<UpdateAssetMutation, UpdateAssetMutationVariables>;
+
+/**
+ * __useUpdateAssetMutation__
+ *
+ * To run a mutation, you first call `useUpdateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAssetMutation, { data, loading, error }] = useUpdateAssetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      previewType: // value for 'previewType'
+ *   },
+ * });
+ */
+export function useUpdateAssetMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAssetMutation, UpdateAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAssetMutation, UpdateAssetMutationVariables>(UpdateAssetDocument, options);
+      }
+export type UpdateAssetMutationHookResult = ReturnType<typeof useUpdateAssetMutation>;
+export type UpdateAssetMutationResult = Apollo.MutationResult<UpdateAssetMutation>;
+export type UpdateAssetMutationOptions = Apollo.BaseMutationOptions<UpdateAssetMutation, UpdateAssetMutationVariables>;
 export const DeleteAssetDocument = gql`
     mutation DeleteAsset($assetId: ID!) {
   deleteAsset(input: {assetId: $assetId}) {

@@ -54,9 +54,53 @@ export const GET_ASSETS = gql`
   }
 `;
 
+export const GET_ASSET = gql`
+  query GetAsset($assetId: ID!) {
+    asset(assetId: $assetId) {
+      id
+      projectId
+      createdAt
+      createdById
+      fileName
+      size
+      previewType
+      file {
+        name
+        size
+        contentType
+        path
+      }
+      hash
+    }
+  }
+`;
+
 export const CREATE_ASSET = gql`
   mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
     createAsset(input: { projectId: $projectId, createdById: $createdById, file: $file }) {
+      asset {
+        id
+        projectId
+        createdAt
+        createdById
+        fileName
+        size
+        previewType
+        file {
+          name
+          size
+          contentType
+          path
+        }
+        hash
+      }
+    }
+  }
+`;
+
+export const UPDATE_ASSET = gql`
+  mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
+    updateAsset(input: { id: $id, previewType: $previewType }) {
       asset {
         id
         projectId
