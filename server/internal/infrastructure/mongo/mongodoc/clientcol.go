@@ -40,6 +40,10 @@ func (c *ClientCollection) SaveAll(ctx context.Context, ids []string, updates []
 	return c.Client.SaveAll(ctx, c.CollectionName, ids, updates)
 }
 
+func (c *ClientCollection) UpdateOne(ctx context.Context, filter interface{}, update interface{}) error {
+	return c.Client.UpdateOne(ctx, c.CollectionName, filter, update)
+}
+
 func (c *ClientCollection) UpdateMany(ctx context.Context, filter interface{}, update interface{}) error {
 	return c.Client.UpdateMany(ctx, c.CollectionName, filter, update)
 }

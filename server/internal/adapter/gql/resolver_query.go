@@ -116,6 +116,10 @@ func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*g
 	return loaders(ctx).Project.CheckAlias(ctx, alias)
 }
 
+func (r *queryResolver) Asset(ctx context.Context, assetId gqlmodel.ID) (*gqlmodel.Asset, error) {
+	return loaders(ctx).Asset.FindByID(ctx, assetId)
+}
+
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
 }

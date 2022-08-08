@@ -66,7 +66,7 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	}
 
 	if uFilter.Keyword != nil {
-		filter = mongodoc.And(filter, "name", bson.M{
+		filter = mongodoc.And(filter, "fileName", bson.M{
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		})
 	}
@@ -80,6 +80,14 @@ func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
 	}
 	doc, id := mongodoc.NewAsset(asset)
 	return r.client.SaveOne(ctx, id, doc)
+}
+
+func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
+	return r.client.UpdateOne(ctx, r.writeFilter(bson.M{
+		"id": a.ID().String(),
+	}), bson.M{
+		"previewType": a.PreviewType().String(),
+	})
 }
 
 func (r *assetRepo) Delete(ctx context.Context, id id.AssetID) error {
