@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+// import useFileInput from "use-file-input";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -21,13 +22,13 @@ import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
   const { workspaceId, projectId } = useParams();
-  const createdById = "mockId";
+  const createdById = "01g9nwtyekn6zzmkdyrz9471dv";
   const {
     assetList,
     createAssets,
+    // createAssets2,
     navigate,
-    filteredAssetList,
-    setFilteredAssetList,
+    handleSearchTerm,
     selection,
     setSelection,
     fileList,
@@ -84,10 +85,9 @@ const AssetList: React.FC = () => {
     search: {
       onSearch: (value: string) => {
         if (value) {
-          const filteredData = assetList.filter(node => node?.fileName.includes(value));
-          setFilteredAssetList(filteredData);
+          handleSearchTerm(value);
         } else {
-          setFilteredAssetList(assetList);
+          handleSearchTerm();
         }
       },
     },
@@ -112,8 +112,8 @@ const AssetList: React.FC = () => {
     },
     {
       title: "File",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "fileName",
+      key: "fileName",
       sorter: (a, b) => stringSort(a.fileName, b.fileName),
     },
     {
@@ -124,9 +124,9 @@ const AssetList: React.FC = () => {
       render: (_text, record) => bytesFormat(record.size),
     },
     {
-      title: "Content Type",
-      dataIndex: "contentType",
-      key: "contentType",
+      title: "Preview Type",
+      dataIndex: "previewType",
+      key: "previewType",
     },
     {
       title: "Created At",
@@ -137,8 +137,8 @@ const AssetList: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "createdBy",
-      key: "createdBy",
+      dataIndex: "createdById",
+      key: "createdById",
     },
     {
       title: "Id",
@@ -171,6 +171,22 @@ const AssetList: React.FC = () => {
     },
   };
 
+  // const fileFormats = ".kml,.czml,.topojson,.geojson,.json,.gltf,.glb";
+  // const imageFormats = ".jpg,.jpeg,.png,.gif,.svg,.tiff,.webp";
+  // const isMultipleSelectable = false;
+
+  // const handleFileSelect = useFileInput(files => createAssets2?.(files), {
+  //   accept: imageFormats + "," + fileFormats,
+  //   multiple: isMultipleSelectable,
+  // });
+
+  // const handleInput = ({ target: { files } }: any) => {
+  //   if (files) {
+  //     console.log(files);
+  //     createAssets2(files);
+  //   }
+  // };
+
   return (
     <>
       <AssetListHeader
@@ -184,8 +200,9 @@ const AssetList: React.FC = () => {
         uploadProps={uploadProps}
         handleUpload={handleUpload}
       />
+      {/* <input type="file" multiple={false} onChange={handleFileSelect} /> */}
       <AssetListTable
-        dataSource={filteredAssetList}
+        dataSource={assetList}
         columns={columns}
         search={false}
         rowKey="id"

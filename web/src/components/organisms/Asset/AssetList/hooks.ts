@@ -10,8 +10,6 @@ import {
   useCreateAssetMutation,
   Maybe,
   User,
-  Project,
-  AssetFile,
   GetAssetsQuery,
   useDeleteAssetMutation,
   AssetSortType as GQLSortType,
@@ -56,7 +54,6 @@ export default (projectId?: string, createdById?: string) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
-  const [filteredAssetList, setFilteredAssetList] = useState<AssetNode[]>([]);
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
@@ -101,58 +98,58 @@ export default (projectId?: string, createdById?: string) => {
     (files: UploadFile<any>[]) =>
       (async () => {
         if (!projectId || !createdById) return;
-        addMockAssets(files);
-        // const results = await Promise.all(
-        //   files.map(async file => {
-        //     const result = await createAssetMutation({
-        //       variables: { projectId, createdById, file },
-        //     });
-        //     if (result.errors || !result.data?.createAsset) {
-        //       setNotification({
-        //         type: "error",
-        //         text: "Failed to add one or more assets.",
-        //       });
-        //     }
-        //   }),
-        // );
-        // if (results) {
-        //   setNotification({
-        //     type: "success",
-        //     text: "Successfully added one or more assets.",
-        //   });
-        //   await refetch();
-        // }
+        const results = await Promise.all(
+          files.map(async file => {
+            const result = await createAssetMutation({
+              variables: { projectId, createdById, file },
+            });
+            if (result.errors || !result.data?.createAsset) {
+              setNotification({
+                type: "error",
+                text: "Failed to add one or more assets.",
+              });
+            }
+          }),
+        );
+        if (results) {
+          setNotification({
+            type: "success",
+            text: "Successfully added one or more assets.",
+          });
+          await refetch();
+        }
       })(),
-    [createAssetMutation, projectId],
+    [createAssetMutation, projectId, createdById],
   );
 
-  const addMockAssets = (files: UploadFile<any>[]) => {
-    if (!projectId || !createdById) {
-      return;
-    }
-
-    for (const file of files) {
-      const asset: Asset = {
-        id: file.uid,
-        size: file.size ?? 0,
-        createdBy: user as AssetUser,
-        createdById: createdById,
-        createdAt: new Date(),
-        project: {} as Project,
-        projectId: projectId,
-        fileName: file.fileName ?? "",
-        file: {} as AssetFile,
-        hash: "",
-      };
-
-      setAssetList(prevAssetList => {
-        return [...prevAssetList, asset];
-      });
-      setFilteredAssetList(prevFilteredAssetList => {
-        return [...prevFilteredAssetList, asset];
-      });
-    }
-  };
+  // const createAssets2 = useCallback(
+  //   (files: FileList) =>
+  //     (async () => {
+  //       if (!projectId || !createdById) return;
+  //       const results = await Promise.all(
+  //         Array.from(files).map(async file => {
+  //           console.log(file);
+  //           const result = await createAssetMutation({
+  //             variables: { projectId, createdById, file },
+  //           });
+  //           if (result.errors || !result.data?.createAsset) {
+  //             setNotification({
+  //               type: "error",
+  //               text: "Failed to add one or more assets.",
+  //             });
+  //           }
+  //         }),
+  //       );
+  //       if (results) {
+  //         setNotification({
+  //           type: "success",
+  //           text: "Successfully added one or more assets.",
+  //         });
+  //         await refetch();
+  //       }
+  //     })(),
+  //   [createAssetMutation, setNotification, refetch, projectId, createdById],
+  // );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
   const deleteAssets = useCallback(
@@ -225,9 +222,8 @@ export default (projectId?: string, createdById?: string) => {
   return {
     user,
     assetList,
-    filteredAssetList,
-    setFilteredAssetList,
     createAssets,
+    // createAssets2,
     deleteAssets,
     navigate,
     selection,
