@@ -5,10 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/util"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
