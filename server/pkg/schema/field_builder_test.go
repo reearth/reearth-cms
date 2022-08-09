@@ -602,7 +602,68 @@ func TestNewFieldSelect(t *testing.T) {
 		args args
 		want *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				values:       nil,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{},
+				},
+				err: ErrFieldValues,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				values:       []string{"v1", "v2", "V3"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{
+						selectt: &FieldSelect{
+							defaultValue: nil,
+							values:       []string{"v1", "v2", "V3"},
+						},
+					},
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: lo.ToPtr("v1"),
+				values:       []string{"v1", "v2", "V3"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{
+						selectt: &FieldSelect{
+							defaultValue: lo.ToPtr("v1"),
+							values:       []string{"v1", "v2", "V3"},
+						},
+					},
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: lo.ToPtr("v4"),
+				values:       []string{"v1", "v2", "V3"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{},
+				},
+				err: ErrFieldDefaultValue,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -623,7 +684,68 @@ func TestNewFieldTag(t *testing.T) {
 		args args
 		want *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				values:       nil,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{},
+				},
+				err: ErrFieldValues,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				values:       []string{"t1", "t2"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{
+						tag: &FieldTag{
+							defaultValue: nil,
+							values:       []string{"t1", "t2"},
+						},
+					},
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: []string{"t1", "t2"},
+				values:       []string{"t1", "t2", "t3"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{
+						tag: &FieldTag{
+							defaultValue: []string{"t1", "t2"},
+							values:       []string{"t1", "t2", "t3"},
+						},
+					},
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: []string{"t1", "t4"},
+				values:       []string{"t1", "t2", "t3"},
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					typeProperty: &TypeProperty{},
+				},
+				err: ErrFieldDefaultValue,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -837,6 +959,7 @@ func TestFieldBuilder_NewID(t *testing.T) {
 }
 
 func TestFieldBuilder_ID(t *testing.T) {
+	fId := NewFieldID()
 	type fields struct {
 		f   *Field
 		err error
@@ -850,7 +973,21 @@ func TestFieldBuilder_ID(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f: &Field{},
+			},
+			args: args{
+				id: fId,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					id: fId,
+				},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -860,12 +997,13 @@ func TestFieldBuilder_ID(t *testing.T) {
 				f:   tt.fields.f,
 				err: tt.fields.err,
 			}
-			assert.Equal(t, tt.want, b.ID(tt.args.id), "ID(%v)", tt.args.id)
+			assert.Equal(t, tt.want, b.ID(tt.args.id))
 		})
 	}
 }
 
 func TestFieldBuilder_Key(t *testing.T) {
+	k := key.Random()
 	type fields struct {
 		f   *Field
 		err error
@@ -879,7 +1017,18 @@ func TestFieldBuilder_Key(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{k},
+			want: &FieldBuilder{
+				f:   &Field{key: k},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -908,7 +1057,20 @@ func TestFieldBuilder_Name(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				name: "n1",
+			},
+			want: &FieldBuilder{
+				f:   &Field{name: "n1"},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -937,7 +1099,20 @@ func TestFieldBuilder_Description(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				description: "d1",
+			},
+			want: &FieldBuilder{
+				f:   &Field{description: "d1"},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -947,7 +1122,7 @@ func TestFieldBuilder_Description(t *testing.T) {
 				f:   tt.fields.f,
 				err: tt.fields.err,
 			}
-			assert.Equal(t, tt.want, b.Description(tt.args.description), "Description(%v)", tt.args.description)
+			assert.Equal(t, tt.want, b.Description(tt.args.description))
 		})
 	}
 }
