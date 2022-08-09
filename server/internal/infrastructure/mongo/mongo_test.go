@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	mongodoc "github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"

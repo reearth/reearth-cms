@@ -1,8 +1,8 @@
 package mongo
 
 import (
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	mongodoc "github.com/reearth/reearthx/mongox"
 )
 
 type Transaction struct {

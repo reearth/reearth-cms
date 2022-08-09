@@ -5,11 +5,11 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/log"
-	mongodoc "github.com/reearth/reearthx/mongox"
 )
 
 type userRepo struct {
