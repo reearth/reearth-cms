@@ -4,9 +4,10 @@ import (
 	"errors"
 	"net/mail"
 
-	"github.com/reearth/reearth-cms/server/pkg/util"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
+
+	"github.com/reearth/reearthx/util"
 )
 
 var (

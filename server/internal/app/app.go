@@ -9,9 +9,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+
+	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearthx/rerror"
 )
 
 func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
@@ -71,7 +72,7 @@ func allowedOrigins(cfg *ServerConfig) []string {
 	}
 	origins := append([]string{}, cfg.Config.Origins...)
 	if cfg.Debug {
-		origins = append(origins, "http://localhost:3000", "http://localhost:8080")
+		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
 	}
 	return origins
 }

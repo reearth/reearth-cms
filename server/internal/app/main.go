@@ -5,12 +5,11 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/log"
-
 	"github.com/labstack/echo/v4"
+
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/log"
 )
 
 func Start(debug bool, version string) {
@@ -52,10 +51,15 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 		port = "8080"
 	}
 
-	address := "0.0.0.0:" + port
-	if cfg.Debug {
-		address = "localhost:" + port
+	host := cfg.Config.ServerHost
+	if host == "" {
+		if cfg.Debug {
+			host = "localhost"
+		} else {
+			host = "0.0.0.0"
+		}
 	}
+	address := host + ":" + port
 
 	w := &WebServer{
 		address: address,

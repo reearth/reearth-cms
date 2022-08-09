@@ -4,7 +4,7 @@ import (
 	"regexp"
 
 	"github.com/goombaio/namegenerator"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 )
 
 var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{5,32}$")
