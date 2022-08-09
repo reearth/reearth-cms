@@ -5,12 +5,12 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/log"
+	mongodoc "github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 )
 

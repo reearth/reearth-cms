@@ -3,12 +3,12 @@ package mongo
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	mongodoc "github.com/reearth/reearthx/mongox"
 )
 
 func InitRepos(ctx context.Context, c *repo.Container, mc *mongo.Client, databaseName string) error {
