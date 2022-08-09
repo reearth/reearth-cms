@@ -1932,10 +1932,10 @@ schema {
 }`, BuiltIn: false},
 	{Name: "./schemas/asset.graphql", Input: `type Asset implements Node {
   id: ID!
-  project: Project @goField(forceResolver: true)
+  project: Project
   projectId: ID!
   createdAt: DateTime!
-  createdBy: User  @goField(forceResolver: true)
+  createdBy: User
   createdById: ID!
   fileName: String!
   size: FileSize!
