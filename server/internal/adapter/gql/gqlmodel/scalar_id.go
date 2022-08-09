@@ -1,7 +1,7 @@
 package gqlmodel
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id/idx"
+	"github.com/reearth/reearthx/idx"
 )
 
 type ID string

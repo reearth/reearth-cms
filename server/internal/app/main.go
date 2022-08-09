@@ -5,12 +5,11 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/log"
-
 	"github.com/labstack/echo/v4"
+
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/log"
 )
 
 func Start(debug bool, version string) {
