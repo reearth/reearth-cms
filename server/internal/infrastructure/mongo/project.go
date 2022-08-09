@@ -10,8 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type projectRepo struct {

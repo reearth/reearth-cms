@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 )
 
 var (
