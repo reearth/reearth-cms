@@ -10,11 +10,11 @@ import (
 )
 
 type File struct {
-	name        string
-	size        uint64
-	contentType string
-	path        string
-	children    []*File
+	Name        string
+	Size        uint64
+	ContentType string
+	Path        string
+	Children    []*File
 }
 
 type AssetDocument struct {
@@ -80,11 +80,11 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 
 	if d.File == nil {
 		d.File = &File{
-			name: d.FileName,
-			size: d.Size,
+			Name: d.FileName,
+			Size: d.Size,
 		}
 	}
-	f, err := asset.NewFile().Name(d.File.name).Size(d.File.size).Type(d.File.contentType).Path(d.File.path).Build()
+	f, err := asset.NewFile().Name(d.File.Name).Size(d.File.Size).Type(d.File.ContentType).Path(d.File.Path).Build()
 	if err != nil {
 		return nil, err
 	}
