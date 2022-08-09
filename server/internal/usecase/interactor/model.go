@@ -11,9 +11,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 )
 
 type Model struct {

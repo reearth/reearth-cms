@@ -5,7 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"

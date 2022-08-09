@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 )
 
 type Schema struct {

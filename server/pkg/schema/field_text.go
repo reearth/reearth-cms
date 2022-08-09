@@ -1,6 +1,6 @@
 package schema
 
-import "github.com/reearth/reearth-cms/server/pkg/util"
+import "github.com/reearth/reearthx/util"
 
 var TypeText Type = "text"
 

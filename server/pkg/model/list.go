@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 	"golang.org/x/exp/slices"
 )
 

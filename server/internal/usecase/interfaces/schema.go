@@ -2,8 +2,8 @@ package interfaces
 
 import (
 	"context"
+	"errors"
 
-	"github.com/pkg/errors"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
