@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/reearth/reearthx/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"golang.org/x/text/language"
 )
 
