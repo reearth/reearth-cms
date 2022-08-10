@@ -3,9 +3,9 @@ package repo
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearthx/usecase"
 )
 
 type Project interface {
