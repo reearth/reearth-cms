@@ -4,18 +4,10 @@ import { useEffect, useState } from "react";
 export const errorKey = "reeartherror";
 
 export default function useAuth() {
-  const {
-    user,
-    isAuthenticated,
-    error,
-    isLoading,
-    loginWithRedirect,
-    logout,
-    getAccessTokenSilently,
-  } = useAuth0();
+  const { isAuthenticated, error, isLoading, loginWithRedirect, logout, getAccessTokenSilently } =
+    useAuth0();
 
   return {
-    user: user,
     isAuthenticated: !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
     isLoading,
     error: error?.message,

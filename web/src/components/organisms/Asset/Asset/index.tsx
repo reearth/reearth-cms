@@ -1,3 +1,5 @@
+import { useParams } from "react-router-dom";
+
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import AssetHeader from "@reearth-cms/components/molecules/Asset/Asset/AssetHeader";
 import { hashToURL } from "@reearth-cms/utils/convert";
@@ -5,26 +7,36 @@ import { hashToURL } from "@reearth-cms/utils/convert";
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
+  const { assetId } = useParams();
   const {
     asset,
-    assetId,
+    updateAsset,
+    isLoading,
     selectedPreviewType,
     handleTypeChange,
     isModalVisible,
     handleModalCancel,
     handleFullScreen,
-  } = useHooks();
+  } = useHooks(assetId);
 
   const url = hashToURL(asset?.hash);
 
-  const handleSave = () => {
-    console.log("save");
+  if (!asset) {
+    return <>not found</>;
+  }
+
+  const handleSave = async () => {
+    if (assetId) {
+      await updateAsset(assetId, selectedPreviewType);
+    }
   };
 
-  return (
+  return isLoading ? (
+    <>loading...</>
+  ) : (
     <>
       <AssetHeader
-        title={`Asset/${assetId}`}
+        title={`Asset/${asset?.fileName}`}
         subTitle="This is a subtitle"
         handleSave={handleSave}
       />

@@ -2,7 +2,6 @@ import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import {
   Asset,
@@ -51,7 +50,6 @@ function pagination(
 }
 
 export default (projectId?: string, createdById?: string) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
   const [selection, setSelection] = useState({
@@ -191,7 +189,6 @@ export default (projectId?: string, createdById?: string) => {
   }, [data?.assets.nodes]);
 
   return {
-    user,
     assetList,
     createAssets,
     deleteAssets,

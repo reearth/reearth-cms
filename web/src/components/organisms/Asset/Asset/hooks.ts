@@ -1,36 +1,62 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 
-import { useAuth } from "@reearth-cms/auth";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
-import { Asset, PreviewType } from "@reearth-cms/gql/graphql-client-api";
+import {
+  Asset,
+  PreviewType,
+  useGetAssetQuery,
+  useUpdateAssetMutation,
+} from "@reearth-cms/gql/graphql-client-api";
+import { useNotification } from "@reearth-cms/state";
 
-export default () => {
-  const { assetId } = useParams();
+export default (assetId?: string) => {
   const [asset, setAsset] = useState<Asset>({} as Asset);
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>(PreviewType.Image);
   useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const { user } = useAuth();
+  const [, setNotification] = useNotification();
 
-  const getAsset = (_assetId?: string | undefined): Asset => {
-    // TODO: this data is hardcoded, should be replace with actual data.
-    const assetNode: Asset = {
-      createdBy: user,
-    } as Asset;
-    return assetNode;
-  };
+  const { data, loading } = useGetAssetQuery({
+    variables: {
+      assetId: assetId ?? "",
+    },
+  });
+
+  const [updateAssetMutation] = useUpdateAssetMutation();
+  const updateAsset = useCallback(
+    (assetId: string, previewType?: PreviewType) =>
+      (async () => {
+        if (!assetId) return;
+        const result = await updateAssetMutation({
+          variables: { id: assetId, previewType },
+          refetchQueries: ["GetAsset"],
+        });
+        if (result.errors || result.data?.updateAsset) {
+          setNotification({
+            type: "error",
+            text: "Failed to delete one or more assets.",
+          });
+        }
+        if (result) {
+          setNotification({
+            type: "info",
+            text: "One or more assets were successfully deleted.",
+          });
+        }
+      })(),
+    [updateAssetMutation, assetId, setNotification],
+  );
 
   useEffect(() => {
-    const assetNode: Asset = getAsset();
-    setAsset(assetNode);
-  }, []);
+    const asset: Asset = data?.asset as Asset;
+    setAsset(asset);
+  }, [data?.asset]);
 
   useEffect(() => {
     if (asset.previewType) {
-      setSelectedPreviewType(asset.previewType);
+      setSelectedPreviewType(asset?.previewType);
     }
-  }, [asset.previewType]);
+  }, [asset?.previewType]);
 
   const handleTypeChange = (value: PreviewType) => {
     setSelectedPreviewType(value);
@@ -50,7 +76,8 @@ export default () => {
 
   return {
     asset,
-    assetId,
+    updateAsset,
+    isLoading: loading,
     selectedPreviewType,
     handleTypeChange,
     isModalVisible,

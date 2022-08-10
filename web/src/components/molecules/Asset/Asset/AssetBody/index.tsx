@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
-import { createWorldTerrain, Viewer } from "cesium";
+import { /*createWorldTerrain,*/ Viewer } from "cesium";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
+// import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import { PreviewTypeSelect } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
@@ -40,40 +40,40 @@ const AssetBody: React.FC<Props> = ({
   handleModalCancel,
   handleFullScreen,
 }) => {
-  const { fileName, createdAt, createdBy } = asset;
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const formattedCreatedAt = dateTimeFormat(createdAt);
+  const formattedCreatedAt = dateTimeFormat(asset?.createdAt);
   const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
   // TODO: maybe we need a better way to check for svg files
-  const isSVG = fileName?.endsWith(".svg") ?? false;
-  const getViewer = (viewer: Viewer | undefined) => {
-    viewerRef = viewer;
-  };
+  const isSVG = asset?.fileName?.endsWith(".svg") ?? false;
+  // const getViewer = (viewer: Viewer | undefined) => {
+  //   viewerRef = viewer;
+  // };
   const renderPreview = () => {
     switch (selectedPreviewType) {
       case PreviewType.Geo:
-        return (
-          <TilesetPreview
-            viewerProps={{
-              terrainProvider: createWorldTerrain(),
-              navigationHelpButton: false,
-              homeButton: false,
-              projectionPicker: false,
-              sceneModePicker: false,
-              baseLayerPicker: false,
-              fullscreenButton: false,
-              vrButton: false,
-              selectionIndicator: false,
-              timeline: false,
-              animation: false,
-              geocoder: false,
-            }}
-            tilesetProps={{
-              url: url,
-            }}
-            onGetViewer={getViewer}
-          />
-        );
+        return <></>;
+      // return (
+      //   <TilesetPreview
+      //     viewerProps={{
+      //       terrainProvider: createWorldTerrain(),
+      //       navigationHelpButton: false,
+      //       homeButton: false,
+      //       projectionPicker: false,
+      //       sceneModePicker: false,
+      //       baseLayerPicker: false,
+      //       fullscreenButton: false,
+      //       vrButton: false,
+      //       selectionIndicator: false,
+      //       timeline: false,
+      //       animation: false,
+      //       geocoder: false,
+      //     }}
+      //     tilesetProps={{
+      //       url: url,
+      //     }}
+      //     onGetViewer={getViewer}
+      //   />
+      // );
       case PreviewType.Image:
         return isSVG ? (
           <SVGPreview url={url} svgRender={svgRender} />
@@ -89,7 +89,7 @@ const AssetBody: React.FC<Props> = ({
     <BodyContainer>
       <BodyWrapper>
         <Card
-          title={fileName}
+          title={asset?.fileName}
           toolbar={
             <PreviewToolbar
               url={url}
@@ -109,18 +109,23 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton type="ghost" filename={fileName} url={url} displayDefaultIcon={true} />
+        <DownloadButton
+          type="ghost"
+          filename={asset?.fileName}
+          url={url}
+          displayDefaultIcon={true}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
           <PreviewTypeSelect
-            style={{ width: "60%" }}
+            style={{ width: "75%" }}
             value={selectedPreviewType}
             onTypeChange={handleTypeChange}
           />
         </SideBarCard>
         <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title="Created By">{createdBy?.name}</SideBarCard>
+        <SideBarCard title="Created By">{asset?.createdById}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );
