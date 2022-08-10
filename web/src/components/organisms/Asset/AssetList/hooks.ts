@@ -2,6 +2,7 @@ import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import {
   Asset,
@@ -12,6 +13,7 @@ import {
   GetAssetsQuery,
   useDeleteAssetMutation,
   AssetSortType as GQLSortType,
+  useGetUserBySearchQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useNotification } from "@reearth-cms/state";
 
@@ -49,7 +51,7 @@ function pagination(
   };
 }
 
-export default (projectId?: string, createdById?: string) => {
+export default (projectId?: string) => {
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<AssetNode[]>([]);
   const [selection, setSelection] = useState({
@@ -64,6 +66,11 @@ export default (projectId?: string, createdById?: string) => {
   const [sort, setSort] = useState<{ type?: AssetSortType; reverse?: boolean }>();
   const [searchTerm, setSearchTerm] = useState<string>();
   const gqlCache = useApolloClient().cache;
+
+  const { user } = useAuth();
+  const email = user?.email as string;
+  const userQuery = useGetUserBySearchQuery({ variables: { nameOrEmail: email } });
+  const currentUser = userQuery?.data?.searchUser as User;
 
   const { data, refetch, loading, fetchMore, networkStatus } = useGetAssetsQuery({
     variables: {
@@ -95,11 +102,11 @@ export default (projectId?: string, createdById?: string) => {
   const createAssets = useCallback(
     (files: UploadFile<any>[]) =>
       (async () => {
-        if (!projectId || !createdById) return;
+        if (!projectId || !currentUser?.id) return;
         const results = await Promise.all(
           files.map(async file => {
             const result = await createAssetMutation({
-              variables: { projectId, createdById, file },
+              variables: { projectId, createdById: currentUser?.id, file },
             });
             if (result.errors || !result.data?.createAsset) {
               setNotification({
@@ -117,7 +124,7 @@ export default (projectId?: string, createdById?: string) => {
           await refetch();
         }
       })(),
-    [createAssetMutation, projectId, createdById],
+    [createAssetMutation, projectId, currentUser?.id],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -189,6 +196,7 @@ export default (projectId?: string, createdById?: string) => {
   }, [data?.assets.nodes]);
 
   return {
+    currentUser,
     assetList,
     createAssets,
     deleteAssets,

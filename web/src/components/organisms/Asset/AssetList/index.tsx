@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 
+// import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -21,7 +22,6 @@ import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
   const { workspaceId, projectId } = useParams();
-  const createdById = "01g9nwtyekn6zzmkdyrz9471dv";
   const {
     assetList,
     createAssets,
@@ -35,7 +35,7 @@ const AssetList: React.FC = () => {
     setUploading,
     uploadModalVisibility,
     setUploadModalVisibility,
-  } = useHooks(projectId, createdById);
+  } = useHooks(projectId);
 
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
