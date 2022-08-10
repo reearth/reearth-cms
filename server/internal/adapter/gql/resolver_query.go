@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearthx/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 )
 
 func (r *Resolver) Query() QueryResolver {
