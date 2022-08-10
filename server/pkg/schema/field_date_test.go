@@ -66,3 +66,41 @@ func TestFieldDate_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldDate_DefaultValue(t *testing.T) {
+	now := time.Now()
+	type fields struct {
+		defaultValue *time.Time
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *time.Time
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: &now,
+			},
+			want: &now,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldDate{
+				defaultValue: tt.fields.defaultValue,
+			}
+			assert.Equalf(t, tt.want, f.DefaultValue(), "DefaultValue()")
+		})
+	}
+}

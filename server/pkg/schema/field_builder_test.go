@@ -941,9 +941,14 @@ func TestFieldBuilder_NewID(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -953,7 +958,9 @@ func TestFieldBuilder_NewID(t *testing.T) {
 				f:   tt.fields.f,
 				err: tt.fields.err,
 			}
-			assert.Equal(t, tt.want, b.NewID(), "NewID()")
+			b.NewID()
+			assert.NotNil(t, b.f.id)
+			assert.False(t, b.f.id.IsEmpty())
 		})
 	}
 }
@@ -1135,9 +1142,14 @@ func TestFieldBuilder_RandomKey(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -1147,7 +1159,9 @@ func TestFieldBuilder_RandomKey(t *testing.T) {
 				f:   tt.fields.f,
 				err: tt.fields.err,
 			}
-			assert.Equal(t, tt.want, b.RandomKey(), "RandomKey()")
+			b.RandomKey()
+			assert.NotNil(t, b.f.key)
+			assert.True(t, b.f.key.IsValid())
 		})
 	}
 }
@@ -1168,7 +1182,66 @@ func TestFieldBuilder_Options(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test unique",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				unique:     true,
+				multiValue: false,
+				required:   false,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					unique:     true,
+					multiValue: false,
+					required:   false,
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test multiValue",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				unique:     false,
+				multiValue: true,
+				required:   false,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					unique:     false,
+					multiValue: true,
+					required:   false,
+				},
+				err: nil,
+			},
+		},
+		{
+			name: "test required",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				unique:     false,
+				multiValue: false,
+				required:   true,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					unique:     false,
+					multiValue: false,
+					required:   true,
+				},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -1184,6 +1257,7 @@ func TestFieldBuilder_Options(t *testing.T) {
 }
 
 func TestFieldBuilder_UpdatedAt(t *testing.T) {
+	now := time.Now()
 	type fields struct {
 		f   *Field
 		err error
@@ -1197,7 +1271,22 @@ func TestFieldBuilder_UpdatedAt(t *testing.T) {
 		args   args
 		want   *FieldBuilder
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				t: now,
+			},
+			want: &FieldBuilder{
+				f: &Field{
+					updatedAt: now,
+				},
+				err: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

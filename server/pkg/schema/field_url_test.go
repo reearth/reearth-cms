@@ -122,3 +122,40 @@ func TestMustFieldURLFrom(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldURL_DefaultValue(t *testing.T) {
+	type fields struct {
+		defaultValue *string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *string
+	}{
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: lo.ToPtr("test"),
+			},
+			want: lo.ToPtr("test"),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldURL{
+				defaultValue: tt.fields.defaultValue,
+			}
+			assert.Equal(t, tt.want, f.DefaultValue())
+		})
+	}
+}

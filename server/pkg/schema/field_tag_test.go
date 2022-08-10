@@ -166,3 +166,85 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldTag_DefaultValue(t *testing.T) {
+	type fields struct {
+		values       []string
+		defaultValue []string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []string
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				values:       nil,
+				defaultValue: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				values:       nil,
+				defaultValue: []string{"v", "v1"},
+			},
+			want: []string{"v", "v1"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldTag{
+				values:       tt.fields.values,
+				defaultValue: tt.fields.defaultValue,
+			}
+			assert.Equalf(t, tt.want, f.DefaultValue(), "DefaultValue()")
+		})
+	}
+}
+
+func TestFieldTag_Values(t *testing.T) {
+	type fields struct {
+		values       []string
+		defaultValue []string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []string
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				values:       nil,
+				defaultValue: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				values:       []string{"v", "v1"},
+				defaultValue: nil,
+			},
+			want: []string{"v", "v1"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldTag{
+				values:       tt.fields.values,
+				defaultValue: tt.fields.defaultValue,
+			}
+			assert.Equalf(t, tt.want, f.Values(), "Values()")
+		})
+	}
+}

@@ -173,3 +173,138 @@ func TestFieldInteger_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldInteger_DefaultValue(t *testing.T) {
+	type fields struct {
+		defaultValue *int
+		min          *int
+		max          *int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *int
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				min:          nil,
+				max:          nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: lo.ToPtr(123),
+				min:          nil,
+				max:          nil,
+			},
+			want: lo.ToPtr(123),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldInteger{
+				defaultValue: tt.fields.defaultValue,
+				min:          tt.fields.min,
+				max:          tt.fields.max,
+			}
+			assert.Equalf(t, tt.want, f.DefaultValue(), "DefaultValue()")
+		})
+	}
+}
+
+func TestFieldInteger_Max(t *testing.T) {
+	type fields struct {
+		defaultValue *int
+		min          *int
+		max          *int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *int
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				min:          nil,
+				max:          nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				min:          nil,
+				max:          lo.ToPtr(123),
+			},
+			want: lo.ToPtr(123),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldInteger{
+				defaultValue: tt.fields.defaultValue,
+				min:          tt.fields.min,
+				max:          tt.fields.max,
+			}
+			assert.Equalf(t, tt.want, f.Max(), "Max()")
+		})
+	}
+}
+
+func TestFieldInteger_Min(t *testing.T) {
+	type fields struct {
+		defaultValue *int
+		min          *int
+		max          *int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *int
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				min:          nil,
+				max:          nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				min:          lo.ToPtr(123),
+				max:          nil,
+			},
+			want: lo.ToPtr(123),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldInteger{
+				defaultValue: tt.fields.defaultValue,
+				min:          tt.fields.min,
+				max:          tt.fields.max,
+			}
+			assert.Equalf(t, tt.want, f.Min(), "Min()")
+		})
+	}
+}
