@@ -1,6 +1,6 @@
 package gqlmodel
 
-import "github.com/reearth/reearth-cms/server/internal/usecase"
+import "github.com/reearth/reearthx/usecase"
 
 func RefToIndex(i *int) int {
 	if i == nil {
@@ -25,10 +25,10 @@ func ToPageInfo(p *usecase.PageInfo) *PageInfo {
 		return &PageInfo{}
 	}
 	return &PageInfo{
-		StartCursor:     p.StartCursor(),
-		EndCursor:       p.EndCursor(),
-		HasNextPage:     p.HasNextPage(),
-		HasPreviousPage: p.HasPreviousPage(),
+		StartCursor:     p.StartCursor,
+		EndCursor:       p.EndCursor,
+		HasNextPage:     p.HasNextPage,
+		HasPreviousPage: p.HasPreviousPage,
 	}
 }
 
