@@ -15,7 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearthx/usecase"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/text/language"
