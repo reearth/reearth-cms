@@ -17,7 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	gqlparser "github.com/vektah/gqlparser/v2"
-	"github.com/vektah/gqlparser/v2/ast"ss
+	"github.com/vektah/gqlparser/v2/ast"
 	"golang.org/x/text/language"
 )
 

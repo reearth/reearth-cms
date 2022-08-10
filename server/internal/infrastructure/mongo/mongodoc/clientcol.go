@@ -3,7 +3,7 @@ package mongodoc
 import (
 	"context"
 
-	"github.com/reearth/reearthx/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
