@@ -1,6 +1,6 @@
 package gqlmodel
 
-import "github.com/reearth/reearthx/usecase"
+import "github.com/reearth/reearth-cms/server/internal/usecase"
 
 func RefToIndex(i *int) int {
 	if i == nil {
