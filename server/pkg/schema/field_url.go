@@ -19,6 +19,14 @@ func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
 	}, nil
 }
 
+func MustFieldURLFrom(defaultValue *string) *FieldURL {
+	v, err := FieldURLFrom(defaultValue)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 func isUrl(str string) bool {
 	u, err := url.Parse(str)
 	return err == nil && u.Scheme != "" && u.Host != ""

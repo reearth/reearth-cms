@@ -2,7 +2,11 @@ package schema
 
 import (
 	"testing"
+	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -361,4 +365,414 @@ func TestTypeProperty_Clone(t *testing.T) {
 	s = nil
 	c = s.Clone()
 	assert.Nil(t, c)
+}
+
+func TestNewFieldTypePropertyAsset(t *testing.T) {
+	type args struct {
+		defaultValue *id.AssetID
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				asset: FieldAssetFrom(nil),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyAsset(tt.args.defaultValue))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyBool(t *testing.T) {
+	type args struct {
+		defaultValue *bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{defaultValue: nil},
+			want: &TypeProperty{
+				bool: FieldBoolFrom(nil),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyBool(tt.args.defaultValue))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyDate(t *testing.T) {
+	type args struct {
+		defaultValue *time.Time
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{defaultValue: nil},
+			want: &TypeProperty{date: FieldDateFrom(nil)},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyDate(tt.args.defaultValue))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyInteger(t *testing.T) {
+	type args struct {
+		defaultValue *int
+		min          *int
+		max          *int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr error
+	}{
+		{
+			name:    "test",
+			args:    args{defaultValue: lo.ToPtr(-1), min: lo.ToPtr(0)},
+			want:    nil,
+			wantErr: ErrMinDefaultInvalid,
+		},
+		{
+			name:    "test",
+			args:    args{defaultValue: nil},
+			want:    &TypeProperty{integer: MustFieldIntegerFrom(nil, nil, nil)},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := NewFieldTypePropertyInteger(tt.args.defaultValue, tt.args.min, tt.args.max)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewFieldTypePropertyMarkdown(t *testing.T) {
+	type args struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: &TypeProperty{markdown: FieldMarkdownFrom(nil, nil)},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyMarkdown(tt.args.defaultValue, tt.args.maxLength))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyReference(t *testing.T) {
+	mId := id.NewModelID()
+	type args struct {
+		defaultValue model.ID
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{defaultValue: mId},
+			want: &TypeProperty{reference: FieldReferenceFrom(mId)},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyReference(tt.args.defaultValue))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyRichText(t *testing.T) {
+	type args struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: &TypeProperty{richText: FieldRichTextFrom(nil, nil)},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyRichText(tt.args.defaultValue, tt.args.maxLength))
+		})
+	}
+}
+
+func TestNewFieldTypePropertySelect(t *testing.T) {
+	type args struct {
+		values       []string
+		defaultValue *string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr error
+	}{
+		{
+			name: "test",
+			args: args{
+				values:       nil,
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				selectt: nil,
+			},
+			wantErr: ErrFieldValues,
+		},
+		{
+			name: "test",
+			args: args{
+				values:       []string{"v1"},
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				selectt: MustFieldSelectFrom([]string{"v1"}, nil),
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := NewFieldTypePropertySelect(tt.args.values, tt.args.defaultValue)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewFieldTypePropertyTag(t *testing.T) {
+	type args struct {
+		values       []string
+		defaultValue []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr error
+	}{
+		{
+			name: "test",
+			args: args{
+				values:       nil,
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				tag: nil,
+			},
+			wantErr: ErrFieldValues,
+		},
+		{
+			name: "test",
+			args: args{
+				values:       []string{"v1"},
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				tag: MustFieldTagFrom([]string{"v1"}, nil),
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := NewFieldTypePropertyTag(tt.args.values, tt.args.defaultValue)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.Equal(t, tt.want, got, "NewFieldTypePropertyTag(%v, %v)")
+		})
+	}
+}
+
+func TestNewFieldTypePropertyText(t *testing.T) {
+	type args struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: &TypeProperty{
+				text: FieldTextFrom(nil, nil),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyText(tt.args.defaultValue, tt.args.maxLength))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyTextArea(t *testing.T) {
+	type args struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name string
+		args args
+		want *TypeProperty
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: &TypeProperty{
+				textArea: FieldTextAreaFrom(nil, nil),
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, NewFieldTypePropertyTextArea(tt.args.defaultValue, tt.args.maxLength))
+		})
+	}
+}
+
+func TestNewFieldTypePropertyURL(t *testing.T) {
+	type args struct {
+		defaultValue *string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr error
+	}{
+		{
+			name: "test",
+			args: args{
+				defaultValue: nil,
+			},
+			want: &TypeProperty{
+				url: MustFieldURLFrom(nil),
+			},
+		},
+		{
+			name: "test",
+			args: args{
+				defaultValue: lo.ToPtr("test"),
+			},
+			want: &TypeProperty{
+				url: nil,
+			},
+			wantErr: ErrFieldDefaultValue,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := NewFieldTypePropertyURL(tt.args.defaultValue)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

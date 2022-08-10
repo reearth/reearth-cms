@@ -80,3 +80,45 @@ func TestFieldURL_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestMustFieldURLFrom(t *testing.T) {
+	type args struct {
+		defaultValue *string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *FieldURL
+		wantErr error
+	}{
+		{
+			name: "success default nil",
+			args: args{},
+			want: &FieldURL{defaultValue: nil},
+		},
+		{
+			name: "success default value",
+			args: args{defaultValue: lo.ToPtr("https://hugo.com")},
+			want: &FieldURL{defaultValue: lo.ToPtr("https://hugo.com")},
+		},
+		{
+			name:    "success default value",
+			args:    args{defaultValue: lo.ToPtr("123")},
+			want:    nil,
+			wantErr: ErrFieldDefaultValue,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if tc.wantErr != nil {
+				assert.PanicsWithValue(t, tc.wantErr, func() {
+					MustFieldURLFrom(tc.args.defaultValue)
+				})
+				return
+			}
+			assert.Equal(t, tc.want, MustFieldURLFrom(tc.args.defaultValue))
+		})
+	}
+}

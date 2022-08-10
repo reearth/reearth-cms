@@ -13,6 +13,8 @@ import (
 func TestToSchema(t *testing.T) {
 	wId := id.NewWorkspaceID()
 	sId := schema.NewID()
+	fId := id.NewFieldID()
+	k := key.Random()
 	tests := []struct {
 		name   string
 		schema *schema.Schema
@@ -30,6 +32,26 @@ func TestToSchema(t *testing.T) {
 				ID:      IDFrom(sId),
 				Project: nil,
 				Fields:  []*SchemaField{},
+			},
+		},
+		{
+			name:   "success",
+			schema: schema.New().ID(sId).Workspace(wId).Fields([]*schema.Field{schema.NewFieldText(nil, nil).ID(fId).Key(k).MustBuild()}).MustBuild(),
+			want: &Schema{
+				ID:      IDFrom(sId),
+				Project: nil,
+				Fields: []*SchemaField{{
+					ID:          IDFrom(fId),
+					Type:        "Text",
+					Description: lo.ToPtr(""),
+					TypeProperty: &SchemaFieldText{
+						DefaultValue: nil,
+						MaxLength:    nil,
+					},
+					Key:       k.String(),
+					CreatedAt: fId.Timestamp(),
+					UpdatedAt: fId.Timestamp(),
+				}},
 			},
 		},
 	}
@@ -166,6 +188,96 @@ func TestToSchemaFieldType(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.want, ToSchemaFieldType(tt.t))
+		})
+	}
+}
+
+func TestToSchemaFieldTypeProperty(t *testing.T) {
+	mId := id.NewModelID()
+	tpInt, _ := schema.NewFieldTypePropertyInteger(nil, nil, nil)
+	tpURL, _ := schema.NewFieldTypePropertyURL(nil)
+	tpTag, _ := schema.NewFieldTypePropertyTag([]string{"v1"}, nil)
+	tpSelect, _ := schema.NewFieldTypePropertySelect([]string{"v1"}, nil)
+	type args struct {
+		tp *schema.TypeProperty
+	}
+	tests := []struct {
+		name string
+		args args
+		want SchemaFieldTypeProperty
+	}{
+		{
+			name: "test",
+			args: args{tp: nil},
+			want: nil,
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyText(nil, nil)},
+			want: &SchemaFieldText{DefaultValue: nil, MaxLength: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyTextArea(nil, nil)},
+			want: &SchemaFieldTextArea{DefaultValue: nil, MaxLength: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyMarkdown(nil, nil)},
+			want: &SchemaFieldMarkdown{DefaultValue: nil, MaxLength: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyBool(nil)},
+			want: &SchemaFieldBool{DefaultValue: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyDate(nil)},
+			want: &SchemaFieldDate{DefaultValue: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyReference(mId)},
+			want: &SchemaFieldReference{ModelID: IDFrom(mId)},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyRichText(nil, nil)},
+			want: &SchemaFieldRichText{DefaultValue: nil, MaxLength: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: schema.NewFieldTypePropertyAsset(nil)},
+			want: &SchemaFieldAsset{DefaultValue: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: tpInt},
+			want: &SchemaFieldInteger{DefaultValue: nil, Min: nil, Max: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: tpURL},
+			want: &SchemaFieldURL{DefaultValue: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: tpTag},
+			want: &SchemaFieldTag{Values: []string{"v1"}, DefaultValue: nil},
+		},
+		{
+			name: "test",
+			args: args{tp: tpSelect},
+			want: &SchemaFieldSelect{Values: []string{"v1"}, DefaultValue: nil},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, ToSchemaFieldTypeProperty(tt.args.tp))
 		})
 	}
 }
