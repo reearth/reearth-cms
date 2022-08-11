@@ -142,7 +142,7 @@ const BodyWrapper = styled.div`
 `;
 
 const Image = styled.img`
-  width: Auto;
+  width: 100%;
   height: 500px;
   object-fit: contain;
 `;

@@ -22,7 +22,7 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
 };
 
 const Image = styled.img`
-  width: Auto;
+  width: 100%;
   height: 500px;
   object-fit: contain;
 `;
