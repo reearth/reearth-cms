@@ -72,7 +72,6 @@
     "antd": "^4.22.3",
     "apollo-upload-client": "^17.0.0",
     "cesium": "1.94.0",
-    "file-saver": "^2.0.5",
     "formik": "^2.2.9",
     "graphiql": "^1.10.0",
     "graphql": "^16.5.0",
