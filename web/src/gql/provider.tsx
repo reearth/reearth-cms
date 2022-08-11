@@ -49,7 +49,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const client = new ApolloClient({
     uri: endpoint,
-    link: ApolloLink.from([errorLink, authLink, httpLink, uploadLink]),
+    link: ApolloLink.from([errorLink, authLink, uploadLink, httpLink]),
     cache,
     connectToDevTools: process.env.NODE_ENV === "development",
   });
