@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
+	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/file"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/log"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 )
@@ -68,18 +68,19 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, 
 		return nil, gateway.ErrFileTooLarge
 	}
 
-	sn := sanitize.Path(newAssetID() + path.Ext(file.Path))
-	if sn == "" {
+	uuid := newUUID()
+	p := path.Join(uuid[:2], uuid[2:], file.Path)
+	snp := sanitize.Path(p)
+	if snp == "" {
 		return nil, gateway.ErrInvalidFile
 	}
 
-	filename := path.Join(gcsAssetBasePath, sn)
-	u := getGCSObjectURL(f.base, filename)
+	u := getGCSObjectURL(f.base, snp)
 	if u == nil {
 		return nil, gateway.ErrInvalidFile
 	}
 
-	if err := f.upload(ctx, filename, file.Content); err != nil {
+	if err := f.upload(ctx, snp, file.Content); err != nil {
 		return nil, err
 	}
 	return u, nil
@@ -190,7 +191,7 @@ func getGCSObjectNameFromURL(base, u *url.URL) string {
 		base = &url.URL{}
 	}
 	p := sanitize.Path(strings.TrimPrefix(u.Path, "/"))
-	if p == "" || u.Host != base.Host || u.Scheme != base.Scheme || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
+	if p == "" || u.Host != base.Host || u.Scheme != base.Scheme {
 		return ""
 	}
 
@@ -206,7 +207,6 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
-func newAssetID() string {
-	// TODO: replace
-	return id.NewAssetID().String()
+func newUUID() string {
+	return uuid.New().String()
 }
