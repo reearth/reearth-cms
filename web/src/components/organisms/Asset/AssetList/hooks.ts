@@ -198,6 +198,7 @@ export default (projectId?: string) => {
   return {
     currentUser,
     assetList,
+    assetsPerPage,
     createAssets,
     deleteAssets,
     navigate,

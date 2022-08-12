@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 
-// import { useAuth } from "@reearth-cms/auth";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -10,6 +9,7 @@ import {
   ProColumns,
   OptionConfig,
   TableRowSelection,
+  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
@@ -25,6 +25,7 @@ const AssetList: React.FC = () => {
   const {
     assetList,
     createAssets,
+    assetsPerPage,
     navigate,
     handleSearchTerm,
     selection,
@@ -93,6 +94,12 @@ const AssetList: React.FC = () => {
 
   const handleEdit = (asset: Asset) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/assets/${asset.id}`);
+  };
+
+  const pagination: TablePaginationConfig = {
+    pageSize: assetsPerPage,
+    onChange: _page => console.log("implement me"),
+    showSizeChanger: false,
   };
 
   const columns: ProColumns<Asset>[] = [
@@ -188,6 +195,7 @@ const AssetList: React.FC = () => {
         search={false}
         rowKey="id"
         options={options}
+        pagination={pagination}
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
       />
