@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/log"
+	"github.com/reearth/reearthx/log"
 )
 
 func verifyEmails(contacts []gateway.Contact) ([]string, error) {
