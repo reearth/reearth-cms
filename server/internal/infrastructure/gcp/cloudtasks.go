@@ -7,8 +7,8 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/rerror"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
 

@@ -4,7 +4,8 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+
+	"github.com/reearth/reearthx/util"
 )
 
 var GenerateVerificationCode = generateCode

@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { Content } from "antd/lib/layout/layout";
 import { useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
