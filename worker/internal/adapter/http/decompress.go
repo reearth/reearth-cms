@@ -25,6 +25,6 @@ type DecompressOutput struct {
 }
 
 func (c *DecompressController) Decompress(ctx context.Context, input DecompressInput) (DecompressOutput, error) {
-	c.usecase.Decompress(ctx, "")
+	c.usecase.Decompress(ctx, input.assetURL)
 	panic("not implemented")
 }
