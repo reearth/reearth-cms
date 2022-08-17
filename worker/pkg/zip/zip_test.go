@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -16,58 +15,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testFilePrefix = "test"
-
-func TestUnzip(t *testing.T) {
-	type args struct {
-		src  string
-		dest string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "success",
-			args: args{
-				src:  "./test.zip",
-				dest: "./",
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			defer cleanUp()
-			_, err := prepareZipFor()
-			require.NoError(t, err)
-			if err := Unzip(tt.args.src, tt.args.dest); (err != nil) != tt.wantErr {
-				t.Errorf("Unzip() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-var fileContent = "Hello"
+const (
+	testFilePrefix = "test"
+	fileContent    = "Hello"
+)
 
 //ダミーファイルを作成
-func createDummyFiles(fileNames ...string) {
+// createDummyFiles creates dummy files with given filenames
+func createDummyFiles(t *testing.T, fileNames ...string) {
+	t.Helper()
+
 	for _, f := range fileNames {
 		f, err := os.Create(f)
 		defer f.Close()
 		if err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
+		//file content
 		if _, err = f.Write([]byte(f.Name() + fileContent)); err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 	}
 }
 
 // 指定されたファイルからZipを作成(メモリ上)
-func compress(fileNames []string) *bytes.Buffer {
+// compress compresses files and return in memory zip file
+func compress(t *testing.T, fileNames []string) *bytes.Buffer {
+	t.Helper()
+
 	b := new(bytes.Buffer)
 	w := zip.NewWriter(b)
 	defer w.Close()
@@ -79,32 +54,33 @@ func compress(fileNames []string) *bytes.Buffer {
 		hdr.Name = "files/" + file
 		f, err := w.CreateHeader(hdr)
 		if err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 
 		body, err := ioutil.ReadFile(file)
 		if err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 		if _, err := f.Write(body); err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 	}
 	return b
 }
 
 // save メモリ上の保存されたzipをファイルシステムに保存
-func save(name string, b *bytes.Buffer) (*os.File, error) {
+// save saves in memory buffer to file system
+func save(t *testing.T, name string, b *bytes.Buffer) *os.File {
+	t.Helper()
 	zf, err := os.Create(name)
-	// defer zf.Close()
 	if err != nil {
-		return nil, err
+		t.Fatal(t)
 	}
 	_, err = zf.Write(b.Bytes())
 	if err != nil {
-		return nil, err
+		t.Fatal(t)
 	}
-	return zf, nil
+	return zf
 }
 
 func getFileNames(fileNum int64) []string {
@@ -115,16 +91,14 @@ func getFileNames(fileNum int64) []string {
 	return fileNames
 }
 
-// prepareZipFor 複数ファイルを作成し、Zipファイルを保存する
-func prepareZipFor() (*os.File, error) {
-	fileNames := getFileNames(3)
-	createDummyFiles(fileNames...)
-	b := compress(fileNames)
-	zf, err := save(testFilePrefix+".zip", b)
-	if err != nil {
-		return nil, err
-	}
-	return zf, nil
+// prepareZip 複数ファイルを作成し、Zipファイルを保存する
+// prepareZip creates files, zip them and save it
+func prepareZip(t *testing.T, fileNum int64) *os.File {
+	fileNames := getFileNames(fileNum)
+	createDummyFiles(t, fileNames...)
+	b := compress(t, fileNames)
+	zf := save(t, testFilePrefix+".zip", b)
+	return zf
 }
 
 func cleanUp() {
@@ -152,9 +126,8 @@ func TestNewUnzipper(t *testing.T) {
 		size int64
 		wFn  func(name string) io.Writer
 	}
-	zf, err := prepareZipFor()
+	zf := prepareZip(t, 3)
 	defer cleanUp()
-	require.NoError(t, err)
 
 	fInfo, err := zf.Stat()
 	require.NoError(t, err)
@@ -168,52 +141,46 @@ func TestNewUnzipper(t *testing.T) {
 }
 
 func TestUnzipper_Unzip(t *testing.T) {
-	tests := []struct {
-		name      string
-		prepareFn func() (*os.File, fs.FileInfo)
-		wantErr   bool
-	}{
-		{
-			name: "success",
-			prepareFn: func() (*os.File, fs.FileInfo) {
-				zf, err := prepareZipFor()
-				defer cleanUp()
-				if err != nil {
-					panic(err)
-				}
+	var fileNum = 3
+	// prepare
+	zf := prepareZip(t, int64(fileNum))
+	defer cleanUp()
 
-				fInfo, err := zf.Stat()
-				if err != nil {
-					panic(err)
-				}
-				return zf, fInfo
-			},
-			wantErr: false,
-		},
+	fInfo, err := zf.Stat()
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			zf, fInfo := tt.prepareFn()
 
-			//map of buffers which will keep expected data
-			fileNames := getFileNames(3)
-			expectedFiles := make(map[string]*bytes.Buffer)
-			for _, f := range fileNames {
-				expectedFiles[f] = new(bytes.Buffer)
-			}
-			wFn := func(name string) io.Writer {
-				return expectedFiles[name]
-			}
-			uz, err := NewUnzipper(zf, fInfo.Size(), wFn)
+	fileNames := getFileNames(int64(fileNum))
+
+	//expected
+	expectedFiles := make(map[string]*bytes.Buffer)
+	for _, f := range fileNames {
+		b := new(bytes.Buffer)
+		_, err := b.Write([]byte(f + fileContent))
+		if err != nil {
 			require.NoError(t, err)
-
-			err = uz.Unzip()
-			assert.NoError(t, err)
-			for k, v := range expectedFiles {
-				fmt.Print(string(v.Bytes()))
-				assert.Equal(t, string(v.Bytes()), k+fileContent)
-			}
-
-		})
+		}
+		expectedFiles[f] = b
 	}
+
+	//map of buffers which will keep unzipped data
+	files := make(map[string]*bytes.Buffer)
+	for _, f := range fileNames {
+		files[f] = new(bytes.Buffer)
+	}
+	wFn := func(name string) io.Writer {
+		return files[name]
+	}
+
+	uz, err := NewUnzipper(zf, fInfo.Size(), wFn)
+	require.NoError(t, err)
+
+	err = uz.Unzip()
+	assert.NoError(t, err)
+	for k, v := range files {
+		fmt.Printf("expected:%v, actual:%v", string(expectedFiles[k].Bytes()), string(v.Bytes()))
+		assert.Equal(t, string(v.Bytes()), string(expectedFiles[k].Bytes()))
+	}
+
 }
