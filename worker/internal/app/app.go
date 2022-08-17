@@ -35,6 +35,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 
 	t := handler.DecompressHandler()
 	api.GET("/decompress", t)
+	api.POST("/decompress", t)
 
 	return e
 }
