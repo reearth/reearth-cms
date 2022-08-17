@@ -18,5 +18,5 @@ var (
 type File interface {
 	// ReadAsset(ctx context.Context, name string) (io.ReadCloser, error)
 	RandomReadAssetByURL(ctx context.Context, url *url.URL) (io.ReaderAt, int64, error)
-	// UploadAsset(context.Context, *file.File) (*url.URL, error)
+	UploadAsset(ctx context.Context, name string) (io.WriteCloser, error)
 }

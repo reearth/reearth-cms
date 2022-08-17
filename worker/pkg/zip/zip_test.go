@@ -132,8 +132,8 @@ func TestNewUnzipper(t *testing.T) {
 	fInfo, err := zf.Stat()
 	require.NoError(t, err)
 
-	wFn := func(name string) io.Writer {
-		return new(bytes.Buffer)
+	wFn := func(name string) (io.Writer, error) {
+		return new(bytes.Buffer), nil
 	}
 	_, err = NewUnzipper(zf, fInfo.Size(), wFn)
 	assert.NoError(t, err)
@@ -169,8 +169,8 @@ func TestUnzipper_Unzip(t *testing.T) {
 	for _, f := range fileNames {
 		files[f] = new(bytes.Buffer)
 	}
-	wFn := func(name string) io.Writer {
-		return files[name]
+	wFn := func(name string) (io.Writer, error) {
+		return files[name], nil
 	}
 
 	uz, err := NewUnzipper(zf, fInfo.Size(), wFn)

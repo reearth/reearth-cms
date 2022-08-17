@@ -7,10 +7,10 @@ import (
 
 type Unzipper struct {
 	r   *zip.Reader
-	wFn func(name string) io.Writer
+	wFn func(name string) (io.Writer, error)
 }
 
-func NewUnzipper(ra io.ReaderAt, size int64, wFn func(name string) io.Writer) (*Unzipper, error) {
+func NewUnzipper(ra io.ReaderAt, size int64, wFn func(name string) (io.Writer, error)) (*Unzipper, error) {
 	r, err := zip.NewReader(ra, size)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,10 @@ func (uz *Unzipper) Unzip() error {
 			}
 			defer rc.Close()
 
-			w := uz.wFn(f.FileInfo().Name())
+			w, err := uz.wFn(f.FileInfo().Name())
+			if err != nil {
+				return err
+			}
 			_, err = io.Copy(w, rc)
 			if err != nil {
 				return err

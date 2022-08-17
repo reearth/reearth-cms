@@ -70,7 +70,7 @@ type GCSReaderAt struct {
 	cache *bufra.BufReaderAt
 }
 
-func (f *fileRepo) UploadFunc(ctx context.Context, name string) (io.WriteCloser, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, name string) (io.WriteCloser, error) {
 	if name == "" {
 		return nil, gateway.ErrInvalidFile
 	}
