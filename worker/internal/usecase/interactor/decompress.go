@@ -10,10 +10,10 @@ import (
 )
 
 type Usecase struct {
-	gateways gateway.File
+	gateways *gateway.Container
 }
 
-func NewUsecase(g gateway.File) *Usecase {
+func NewUsecase(g *gateway.Container) *Usecase {
 	return &Usecase{gateways: g}
 }
 
@@ -22,13 +22,13 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 	if err != nil {
 
 	}
-	a, size, err := u.gateways.RandomReadAssetByURL(ctx, url)
+	a, size, err := u.gateways.File.RandomReadAssetByURL(ctx, url)
 	if err != nil {
 		return err
 	}
 
 	uploadFunc := func(name string) (io.Writer, error) {
-		w, err := u.gateways.UploadAsset(ctx, name)
+		w, err := u.gateways.File.UploadAsset(ctx, name)
 		if err != nil {
 			return nil, err
 		}
