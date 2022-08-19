@@ -7,23 +7,24 @@ import (
 )
 
 func TestVersionOrRef_IsZero(t *testing.T) {
-	assert.False(t, Version("x").OrRef().IsZero())
+	assert.False(t, New().OrRef().IsZero())
 	assert.False(t, Ref("x").OrVersion().IsZero())
-	assert.True(t, Version("").OrRef().IsZero())
+	assert.True(t, Zero.OrRef().IsZero())
 	assert.True(t, Ref("").OrVersion().IsZero())
 	assert.True(t, VersionOrRef{}.IsZero())
 }
 
 func TestVersionOrRef_Match(t *testing.T) {
+	v1, v2 := New(), New()
 	called := 0
-	Version("x").OrRef().Match(func(v Version) {
-		assert.Equal(t, Version("x"), v)
+	v1.OrRef().Match(func(v Version) {
+		assert.Equal(t, v1, v)
 		called++
 	}, func(_ Ref) {
 		panic("this function should not be called!")
 	})
 	assert.Equal(t, 1, called)
-	Version("x").OrRef().Match(nil, nil)
+	v1.OrRef().Match(nil, nil)
 
 	Ref("y").OrVersion().Match(func(_ Version) {
 		panic("this function should not be called!")
@@ -32,9 +33,9 @@ func TestVersionOrRef_Match(t *testing.T) {
 		called++
 	})
 	assert.Equal(t, 2, called)
-	Version("y").OrRef().Match(nil, nil)
+	v2.OrRef().Match(nil, nil)
 
-	Version("").OrRef().Match(func(_ Version) {
+	Zero.OrRef().Match(func(_ Version) {
 		panic("this function should not be called!")
 	}, func(r Ref) {
 		panic("this function should not be called!")
@@ -54,11 +55,13 @@ func TestVersionOrRef_Match(t *testing.T) {
 }
 
 func TestMatchVersionOrRef(t *testing.T) {
-	assert.Equal(t, 1, MatchVersionOrRef(Version("x").OrRef(), func(v Version) int {
-		assert.Equal(t, Version("x"), v)
+	v1, v2 := New(), New()
+
+	assert.Equal(t, 1, MatchVersionOrRef(v1.OrRef(), func(v Version) int {
+		assert.Equal(t, v1, v)
 		return 1
 	}, func(_ Ref) int { panic("this function should not be called!") }))
-	Version("x").OrRef().Match(nil, nil)
+	v1.OrRef().Match(nil, nil)
 
 	assert.Equal(t, 1, MatchVersionOrRef(Ref("y").OrVersion(), func(_ Version) int {
 		panic("this function should not be called!")
@@ -66,9 +69,9 @@ func TestMatchVersionOrRef(t *testing.T) {
 		assert.Equal(t, Ref("y"), r)
 		return 1
 	}))
-	Version("y").OrRef().Match(nil, nil)
+	v2.OrRef().Match(nil, nil)
 
-	assert.Equal(t, 0, MatchVersionOrRef(Version("").OrRef(), func(_ Version) int {
+	assert.Equal(t, 0, MatchVersionOrRef(Zero.OrRef(), func(_ Version) int {
 		panic("this function should not be called!")
 	}, func(r Ref) int {
 		panic("this function should not be called!")

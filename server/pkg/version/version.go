@@ -2,12 +2,12 @@ package version
 
 import "github.com/google/uuid"
 
-type Version string
+type Version uuid.UUID
 
-const Zero Version = ""
+var Zero Version = Version(uuid.UUID{})
 
 func New() Version {
-	return Version(uuid.NewString())
+	return Version(uuid.New())
 }
 
 func (v Version) IsZero() bool {
@@ -19,7 +19,7 @@ func (v Version) Ref() *Version {
 }
 
 func (v Version) String() string {
-	return string(v)
+	return uuid.UUID(v).String()
 }
 
 func (v Version) OrRef() VersionOrRef {

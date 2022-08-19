@@ -10,13 +10,14 @@ import (
 )
 
 func TestVersionedSyncMap_Load(t *testing.T) {
+	vx := version.New()
 	vsm := &VersionedSyncMap[string, string]{
 		m: util.SyncMapFrom(map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				&version.Value[string]{Value: "A", Version: "1"},
+				&version.Value[string]{Value: "A", Version: vx},
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: "1", Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "B", Version: vx, Refs: version.RefsFrom("a")},
 			),
 		}),
 	}
@@ -41,7 +42,7 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 				vor version.VersionOrRef
 			}{
 				key: "a",
-				vor: version.Version("1").OrRef(),
+				vor: vx.OrRef(),
 			},
 			want: struct {
 				output string
@@ -70,7 +71,7 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "should fail can't find reference",
+			name: "should fail to find ref",
 			m:    vsm,
 			input: struct {
 				key string
@@ -88,14 +89,14 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "should fail can't find version",
+			name: "should fail to find version",
 			m:    vsm,
 			input: struct {
 				key string
 				vor version.VersionOrRef
 			}{
 				key: "a",
-				vor: version.Version("100").OrRef(),
+				vor: version.New().OrRef(),
 			},
 			want: struct {
 				output string
@@ -119,19 +120,20 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 }
 
 func TestVersionedSyncMap_LoadAll(t *testing.T) {
+	vx, vy := version.New(), version.New()
 	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
 		map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				&version.Value[string]{Value: "A", Version: "1"},
+				&version.Value[string]{Value: "A", Version: vx},
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: "1", Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "B", Version: vx, Refs: version.RefsFrom("a")},
 			),
 			"c": version.MustBeValues(
-				&version.Value[string]{Value: "C", Version: "1"},
+				&version.Value[string]{Value: "C", Version: vx},
 			),
 			"d": version.MustBeValues(
-				&version.Value[string]{Value: "D", Version: "2", Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "D", Version: vy, Refs: version.RefsFrom("a")},
 			),
 		},
 	)}
@@ -152,7 +154,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 				vor  version.VersionOrRef
 			}{
 				keys: []string{"a", "b"},
-				vor:  version.Version("1").OrRef(),
+				vor:  vx.OrRef(),
 			},
 			want: []string{"A", "B"},
 		},
@@ -176,7 +178,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 				vor  version.VersionOrRef
 			}{
 				keys: []string{"d"},
-				vor:  version.Version("1").OrRef(),
+				vor:  vx.OrRef(),
 			},
 		},
 	}
@@ -214,6 +216,8 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
+	vx := version.New()
+
 	type args struct {
 		key     string
 		ref     version.Ref
@@ -230,18 +234,18 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 			target: &VersionedSyncMap[string, string]{
 				m: util.SyncMapFrom(
 					map[string]*version.Values[string]{
-						"1": version.MustBeValues(&version.Value[string]{Value: "a", Version: version.Version("a")}),
-						"2": version.MustBeValues(&version.Value[string]{Value: "a", Version: version.Version("a")}),
+						"1": version.MustBeValues(&version.Value[string]{Value: "a", Version: vx}),
+						"2": version.MustBeValues(&version.Value[string]{Value: "a", Version: vx}),
 					},
 				),
 			},
 			args: args{
 				key:     "1",
 				ref:     "A",
-				version: version.Version("a").Ref(),
+				version: vx.Ref(),
 			},
 			want: version.MustBeValues(
-				&version.Value[string]{Value: "a", Version: version.Version("a"), Refs: version.RefsFrom("A")},
+				&version.Value[string]{Value: "a", Version: vx, Refs: version.RefsFrom("A")},
 			),
 		},
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 func TestVersion_OrRef(t *testing.T) {
-	assert.Equal(t, VersionOrRef{version: Version("x")}, Version("x").OrRef())
+	v := New()
+	assert.Equal(t, VersionOrRef{version: v}, v.OrRef())
 	assert.Equal(t, VersionOrRef{}, Zero.OrRef())
 }
