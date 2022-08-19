@@ -196,32 +196,35 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 
 func TestVersionedSyncMap_Store(t *testing.T) {
 	vm := &VersionedSyncMap[string, string]{
-		m: &util.SyncMap[string, *version.Values[string]]{},
+		m: util.SyncMapFrom(map[string]*version.Values[string]{}),
 	}
 
 	_, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.False(t, ok)
 
 	vm.Store("a", "b", nil)
-
 	got, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok)
 	assert.Equal(t, "b", got)
 
-	vm.Store("a", "c", version.Latest.Ref())
-
+	vm.Store("a", "c", nil)
 	got2, ok2 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok2)
 	assert.Equal(t, "c", got2)
+
+	vm.Store("a", "d", version.Latest.Ref())
+	got3, ok3 := vm.Load("a", version.Latest.OrVersion())
+	assert.True(t, ok3)
+	assert.Equal(t, "d", got3)
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 	vx := version.New()
 
 	type args struct {
-		key     string
-		ref     version.Ref
-		version *version.Version
+		key string
+		ref version.Ref
+		vr  *version.VersionOrRef
 	}
 	tests := []struct {
 		name   string
@@ -240,9 +243,9 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				),
 			},
 			args: args{
-				key:     "1",
-				ref:     "A",
-				version: vx.Ref(),
+				key: "1",
+				ref: "A",
+				vr:  vx.OrRef().Ref(),
 			},
 			want: version.MustBeValues(
 				&version.Value[string]{Value: "a", Version: vx, Refs: version.RefsFrom("A")},
@@ -254,7 +257,7 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			tt.target.UpdateRef(tt.args.key, tt.args.ref, tt.args.version)
+			tt.target.UpdateRef(tt.args.key, tt.args.ref, tt.args.vr)
 
 			f, _ := tt.target.m.Load(tt.args.key)
 			assert.Equal(t, tt.want, f)

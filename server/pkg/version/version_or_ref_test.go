@@ -14,6 +14,24 @@ func TestVersionOrRef_IsZero(t *testing.T) {
 	assert.True(t, VersionOrRef{}.IsZero())
 }
 
+func TestVersionOrRef_IsRef(t *testing.T) {
+	assert.False(t, New().OrRef().IsRef("x"))
+	assert.True(t, Ref("x").OrVersion().IsRef("x"))
+	assert.False(t, Ref("y").OrVersion().IsRef("x"))
+	assert.False(t, Zero.OrRef().IsRef("x"))
+	assert.False(t, Ref("").OrVersion().IsRef("x"))
+	assert.False(t, VersionOrRef{}.IsRef("x"))
+}
+
+func TestVersionOrRef_IsSpecialRef(t *testing.T) {
+	assert.False(t, New().OrRef().IsSpecialRef("x"))
+	assert.True(t, Latest.OrVersion().IsSpecialRef("x"))
+	assert.False(t, Ref("y").OrVersion().IsSpecialRef("x"))
+	assert.False(t, Zero.OrRef().IsSpecialRef("x"))
+	assert.False(t, Ref("").OrVersion().IsSpecialRef("x"))
+	assert.False(t, VersionOrRef{}.IsSpecialRef("x"))
+}
+
 func TestVersionOrRef_Match(t *testing.T) {
 	v1, v2 := New(), New()
 	called := 0

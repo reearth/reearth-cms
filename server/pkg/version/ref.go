@@ -18,6 +18,10 @@ func (r Ref) OrVersion() VersionOrRef {
 	return VersionOrRef{ref: r}
 }
 
+func (r Ref) IsSpecial() bool {
+	return r == Ref("") || r == Latest
+}
+
 type Refs = set.Set[Ref]
 
 func RefsFrom(refs ...Ref) Refs {

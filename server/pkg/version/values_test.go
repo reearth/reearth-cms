@@ -49,6 +49,15 @@ func TestValues_MustBeValues(t *testing.T) {
 	assert.Panics(t, func() { MustBeValues(v, v2) })
 }
 
+func TestValues_IsArchived(t *testing.T) {
+	v := &Values[int]{}
+	assert.False(t, v.IsArchived())
+	assert.Same(t, v, v.SetArchived(true))
+	assert.True(t, v.IsArchived())
+	assert.Same(t, v, v.SetArchived(false))
+	assert.False(t, v.IsArchived())
+}
+
 func TestValues_Get(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
@@ -160,6 +169,7 @@ func TestValues_Clone(t *testing.T) {
 			{Version: vy},
 			{Version: vz},
 		},
+		archived: true,
 	}
 	got := v.Clone()
 	assert.Equal(t, v, got)
@@ -190,14 +200,21 @@ func TestValues_Add(t *testing.T) {
 		Value:   "2",
 	}, v.Get(vy.OrRef()))
 	assert.True(t, v.validate())
+
+	v.Add("3", Ref("").Ref())
+	assert.Nil(t, v.Get(Ref("").OrVersion()))
+
+	v.archived = true
+	v.Add("3", Ref("xxx").Ref())
+	assert.Nil(t, v.Get(Ref("xxx").OrVersion()))
 }
 
 func TestValues_UpdateRef(t *testing.T) {
 	vx, vy := New(), New()
 
 	type args struct {
-		ref     Ref
-		version *Version
+		ref Ref
+		vr  *VersionOrRef
 	}
 
 	tests := []struct {
@@ -214,8 +231,8 @@ func TestValues_UpdateRef(t *testing.T) {
 					{Value: "b", Version: vy, Refs: RefsFrom("B")},
 				}},
 			args: args{
-				ref:     "A",
-				version: nil,
+				ref: "A",
+				vr:  nil,
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
@@ -233,8 +250,8 @@ func TestValues_UpdateRef(t *testing.T) {
 				},
 			},
 			args: args{
-				ref:     "B",
-				version: nil,
+				ref: "B",
+				vr:  nil,
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
@@ -252,8 +269,8 @@ func TestValues_UpdateRef(t *testing.T) {
 				},
 			},
 			args: args{
-				ref:     "A",
-				version: vx.Ref(),
+				ref: "A",
+				vr:  vx.OrRef().Ref(),
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
@@ -266,19 +283,57 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "ref should be moved",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					{Value: "a", Version: vx, Refs: nil},
+					{Value: "a", Version: vx, Refs: RefsFrom("A")},
 					{Value: "b", Version: vy, Refs: RefsFrom("B")},
 				},
 			},
 			args: args{
-				ref:     "B",
-				version: vx.Ref(),
+				ref: "B",
+				vr:  Ref("A").OrVersion().Ref(),
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					{Value: "a", Version: vx, Refs: RefsFrom("B")},
-					{Value: "b", Version: vy, Refs: nil},
+					{Value: "a", Version: vx, Refs: RefsFrom("A", "B")},
+					{Value: "b", Version: vy},
 				},
+			},
+		},
+		{
+			name: "latest should not be updated",
+			target: &Values[string]{
+				inner: []*Value[string]{
+					{Value: "a", Version: vx},
+					{Value: "b", Version: vy, Prev: vx.Ref(), Refs: RefsFrom(Latest)},
+				},
+			},
+			args: args{
+				ref: Latest,
+				vr:  vx.OrRef().Ref(),
+			},
+			want: &Values[string]{
+				inner: []*Value[string]{
+					{Value: "a", Version: vx},
+					{Value: "b", Version: vy, Prev: vx.Ref(), Refs: RefsFrom(Latest)},
+				},
+			},
+		},
+		{
+			name: "archived should not be updated",
+			target: &Values[string]{
+				inner: []*Value[string]{
+					{Value: "a", Version: vx},
+				},
+				archived: true,
+			},
+			args: args{
+				ref: "x",
+				vr:  vx.OrRef().Ref(),
+			},
+			want: &Values[string]{
+				inner: []*Value[string]{
+					{Value: "a", Version: vx},
+				},
+				archived: true,
 			},
 		},
 	}
@@ -289,7 +344,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			t.Parallel()
 
 			target := tt.target
-			target.UpdateRef(tt.args.ref, tt.args.version)
+			target.UpdateRef(tt.args.ref, tt.args.vr)
 			assert.Equal(t, tt.want, target)
 			assert.True(t, target.validate())
 		})

@@ -46,6 +46,7 @@ func (m *VersionedSyncMap[K, V]) Store(key K, value V, ref *version.Ref) {
 		if k != key {
 			return true
 		}
+		found = true
 		v.Add(value, ref)
 		return false
 	})
@@ -57,23 +58,24 @@ func (m *VersionedSyncMap[K, V]) Store(key K, value V, ref *version.Ref) {
 	}
 }
 
-func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref version.Ref, ver *version.Version) {
+func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref version.Ref, vr *version.VersionOrRef) {
 	m.Range(func(k K, v *version.Values[V]) bool {
 		if k == key {
-			v.UpdateRef(ref, ver)
-			m.m.Store(k, v)
+			v.UpdateRef(ref, vr)
 			return false
 		}
 		return true
 	})
 }
 
-func (m *VersionedSyncMap[K, V]) Archive(key K) {
-	m.Delete(key)
+func (m *VersionedSyncMap[K, V]) IsArchived(key K) bool {
+	v, _ := m.m.Load(key)
+	return v.IsArchived()
 }
 
-func (m *VersionedSyncMap[K, V]) ArchiveAll(key ...K) {
-	m.DeleteAll(key...)
+func (m *VersionedSyncMap[K, V]) Archive(key K, archived bool) {
+	v, _ := m.m.Load(key)
+	_ = v.SetArchived(archived)
 }
 
 func (m *VersionedSyncMap[K, V]) Delete(key K) {

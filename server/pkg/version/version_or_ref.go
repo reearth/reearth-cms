@@ -5,8 +5,20 @@ type VersionOrRef struct {
 	ref     Ref
 }
 
+func (vr VersionOrRef) Ref() *VersionOrRef {
+	return &vr
+}
+
 func (vr VersionOrRef) IsZero() bool {
 	return vr == VersionOrRef{}
+}
+
+func (vr VersionOrRef) IsRef(ref Ref) bool {
+	return MatchVersionOrRef(vr, nil, func(r Ref) bool { return r == ref })
+}
+
+func (vr VersionOrRef) IsSpecialRef(ref Ref) bool {
+	return MatchVersionOrRef(vr, nil, func(r Ref) bool { return r.IsSpecial() })
 }
 
 func (vr VersionOrRef) Match(v func(v Version), r func(r Ref)) {

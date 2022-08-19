@@ -7,7 +7,8 @@ import (
 )
 
 type Values[T any] struct {
-	inner []*Value[T]
+	inner    []*Value[T]
+	archived bool
 }
 
 func NewValues[V any](values ...*Value[V]) *Values[V] {
@@ -27,37 +28,46 @@ func MustBeValues[V any](values ...*Value[V]) *Values[V] {
 	return v
 }
 
-func (i *Values[V]) Get(vr VersionOrRef) *Value[V] {
-	return i.get(vr).Clone()
+func (v *Values[V]) IsArchived() bool {
+	return v.archived
 }
 
-func (i *Values[V]) get(vr VersionOrRef) *Value[V] {
-	if i == nil {
+func (v *Values[V]) SetArchived(archived bool) *Values[V] {
+	v.archived = archived
+	return v
+}
+
+func (v *Values[V]) Get(vr VersionOrRef) *Value[V] {
+	return v.get(vr).Clone()
+}
+
+func (v *Values[V]) get(vr VersionOrRef) *Value[V] {
+	if v == nil {
 		return nil
 	}
-	v, ok := lo.Find(i.inner, func(iv *Value[V]) bool {
+	w, ok := lo.Find(v.inner, func(w *Value[V]) bool {
 		return MatchVersionOrRef(vr, func(v Version) bool {
-			return iv.Version == v
+			return w.Version == v
 		}, func(r Ref) bool {
-			return iv.Refs.Has(r)
+			return w.Refs.Has(r)
 		})
 	})
 	if !ok {
 		return nil
 	}
-	return v
+	return w
 }
 
-func (i *Values[V]) Latest() *Value[V] {
-	return i.get(Latest.OrVersion())
+func (v *Values[V]) Latest() *Value[V] {
+	return v.get(Latest.OrVersion())
 }
 
-func (i *Values[V]) LatestVersion() *Version {
-	v := i.Latest()
-	if v == nil {
+func (v *Values[V]) LatestVersion() *Version {
+	latest := v.Latest()
+	if latest == nil {
 		return nil
 	}
-	return v.Version.Ref()
+	return latest.Version.Ref()
 }
 
 func (v *Values[V]) All() []*Value[V] {
@@ -71,11 +81,14 @@ func (v *Values[V]) Clone() *Values[V] {
 	if v == nil {
 		return nil
 	}
-	return &Values[V]{inner: v.All()}
+	return &Values[V]{
+		inner:    v.All(),
+		archived: v.archived,
+	}
 }
 
 func (v *Values[V]) Add(value V, ref *Ref) {
-	if v == nil {
+	if v == nil || v.IsArchived() || ref != nil && ref.IsSpecial() && *ref != Latest {
 		return
 	}
 
@@ -99,22 +112,21 @@ func (v *Values[V]) Add(value V, ref *Ref) {
 	v.inner = append(v.inner, vv)
 }
 
-func (v *Values[V]) UpdateRef(r Ref, version *Version) {
-	if v == nil {
+func (v *Values[V]) UpdateRef(r Ref, vr *VersionOrRef) {
+	if v == nil || v.IsArchived() || r.IsSpecial() {
 		return
 	}
 
 	// delete ref
-	if v := v.get(r.OrVersion()); v != nil && v.Refs != nil && (version == nil || v.Version != *version) {
+	if v := v.get(r.OrVersion()); v != nil && v.Refs != nil {
 		v.DeleteRefs(r)
 	}
-
-	if version == nil {
+	if vr == nil {
 		return
 	}
 
 	// set ref to specified version
-	if v2 := v.get(version.OrRef()); v2 != nil {
+	if v2 := v.get(*vr); v2 != nil {
 		v2.AddRefs(r)
 	}
 }
