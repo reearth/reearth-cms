@@ -3,23 +3,23 @@ package memorygit
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestVersionedSyncMap_Load(t *testing.T) {
-	m := &util.SyncMap[string, innerValues[string]]{}
-	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
-	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: lo.ToPtr(Ref("a"))}})
-	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(map[string]innerValues[string]{
+		"a": {{value: "A", version: "1"}},
+		"b": {{value: "B", version: "1", ref: version.Ref("a").Ref()}},
+	})}
 
 	tests := []struct {
 		name  string
 		m     *VersionedSyncMap[string, string]
 		input struct {
 			key string
-			vor VersionOrRef
+			vor version.VersionOrRef
 		}
 		want struct {
 			output string
@@ -27,16 +27,14 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 		}
 	}{
 		{
-			name: "must load by version",
+			name: "should load by version",
 			m:    vsm,
 			input: struct {
 				key string
-				vor VersionOrRef
+				vor version.VersionOrRef
 			}{
 				key: "a",
-				vor: VersionOrRef{
-					version: "1",
-				},
+				vor: version.Version("1").OrRef(),
 			},
 			want: struct {
 				output string
@@ -47,16 +45,14 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "must load by reference",
+			name: "should load by ref",
 			m:    vsm,
 			input: struct {
 				key string
-				vor VersionOrRef
+				vor version.VersionOrRef
 			}{
 				key: "b",
-				vor: VersionOrRef{
-					ref: "a",
-				},
+				vor: version.Ref("a").OrVersion(),
 			},
 			want: struct {
 				output string
@@ -67,16 +63,14 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "must fail can't find reference",
+			name: "should fail can't find reference",
 			m:    vsm,
 			input: struct {
 				key string
-				vor VersionOrRef
+				vor version.VersionOrRef
 			}{
 				key: "b",
-				vor: VersionOrRef{
-					ref: "xxxx",
-				},
+				vor: version.Ref("xxxx").OrVersion(),
 			},
 			want: struct {
 				output string
@@ -87,16 +81,14 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 		{
-			name: "must fail can't find version",
+			name: "should fail can't find version",
 			m:    vsm,
 			input: struct {
 				key string
-				vor VersionOrRef
+				vor version.VersionOrRef
 			}{
 				key: "a",
-				vor: VersionOrRef{
-					version: "100",
-				},
+				vor: version.Version("100").OrRef(),
 			},
 			want: struct {
 				output string
@@ -107,6 +99,7 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
@@ -121,61 +114,56 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	m := &util.SyncMap[string, innerValues[string]]{}
 	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
-	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: lo.ToPtr(Ref("a"))}})
+	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: version.Ref("a").Ref()}})
 	m.Store("c", innerValues[string]{{value: "C", version: "1"}})
-	m.Store("d", innerValues[string]{{value: "D", version: "2", ref: lo.ToPtr(Ref("a"))}})
+	m.Store("d", innerValues[string]{{value: "D", version: "2", ref: version.Ref("a").Ref()}})
 	vsm := &VersionedSyncMap[string, string]{m: m}
 	tests := []struct {
 		name  string
 		m     *VersionedSyncMap[string, string]
 		input struct {
 			keys []string
-			vor  VersionOrRef
+			vor  version.VersionOrRef
 		}
 		want []string
 	}{
 		{
-			name: "must load a and b",
+			name: "should load by version",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  VersionOrRef
+				vor  version.VersionOrRef
 			}{
 				keys: []string{"a", "b"},
-				vor: VersionOrRef{
-					version: "1",
-				},
+				vor:  version.Version("1").OrRef(),
 			},
 			want: []string{"A", "B"},
 		},
 		{
-			name: "must load b and d",
+			name: "should load by ref",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  VersionOrRef
+				vor  version.VersionOrRef
 			}{
 				keys: []string{"b", "d"},
-				vor: VersionOrRef{
-					ref: "a",
-				},
+				vor:  version.Ref("a").OrVersion(),
 			},
 			want: []string{"B", "D"},
 		},
 		{
-			name: "mustn't load item",
+			name: "should not load",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  VersionOrRef
+				vor  version.VersionOrRef
 			}{
 				keys: []string{"d"},
-				vor: VersionOrRef{
-					version: "1",
-				},
+				vor:  version.Version("1").OrRef(),
 			},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
@@ -191,18 +179,18 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 		m: &util.SyncMap[string, innerValues[string]]{},
 	}
 
-	_, ok := vm.Load("a", Version("1").OrRef())
+	_, ok := vm.Load("a", version.Version("1").OrRef())
 	assert.False(t, ok)
 
-	vm.Store("a", "b", Version("1"))
+	vm.Store("a", "b", version.Version("1"))
 
-	got, ok := vm.Load("a", Version("1").OrRef())
+	got, ok := vm.Load("a", version.Version("1").OrRef())
 	assert.True(t, ok)
 	assert.Equal(t, "b", got)
 
-	vm.Store("a", "c", Version("1"))
+	vm.Store("a", "c", version.Version("1"))
 
-	got2, ok2 := vm.Load("a", Version("1").OrRef())
+	got2, ok2 := vm.Load("a", version.Version("1").OrRef())
 	assert.True(t, ok2)
 	assert.Equal(t, "c", got2)
 }
@@ -210,8 +198,8 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 	type args struct {
 		key     string
-		ref     Ref
-		version Version
+		ref     version.Ref
+		version version.Version
 	}
 	tests := []struct {
 		name   string
@@ -225,21 +213,21 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				m: util.SyncMapFrom(
 					map[string]innerValues[string]{
 						"1": {
-							{value: "a", version: Version("a"), ref: nil},
+							{value: "a", version: version.Version("a"), ref: nil},
 						},
 						"2": {
-							{value: "a", version: Version("a"), ref: nil},
+							{value: "a", version: version.Version("a"), ref: nil},
 						},
 					},
 				),
 			},
 			args: args{
 				key:     "1",
-				ref:     Ref("A"),
-				version: Version("a"),
+				ref:     version.Ref("A"),
+				version: version.Version("a"),
 			},
 			want: innerValues[string]{
-				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("A"))},
+				{value: "a", version: version.Version("a"), ref: version.Ref("A").Ref()},
 			},
 		},
 	}

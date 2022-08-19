@@ -3,7 +3,7 @@ package memorygit
 import (
 	"testing"
 
-	"github.com/samber/lo"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,14 +24,12 @@ func TestInnerValues_GetByVersionOrRef(t *testing.T) {
 			value:   "foo3",
 			version: "c",
 		},
-	}).GetByVersionOrRef(VersionOrRef{
-		version: "c",
-	}))
+	}).GetByVersionOrRef(version.Version("c").OrRef()))
 
 	assert.Equal(t, &innerValue[string]{
 		value:   "foo2",
 		version: "b",
-		ref:     lo.ToPtr(Ref("main")),
+		ref:     version.Ref("main").Ref(),
 	}, innerValues[string]([]innerValue[string]{
 		{
 			value:   "foo1",
@@ -40,15 +38,13 @@ func TestInnerValues_GetByVersionOrRef(t *testing.T) {
 		{
 			value:   "foo2",
 			version: "b",
-			ref:     lo.ToPtr(Ref("main")),
+			ref:     version.Ref("main").Ref(),
 		},
 		{
 			value:   "foo3",
 			version: "c",
 		},
-	}).GetByVersionOrRef(VersionOrRef{
-		ref: "main",
-	}))
+	}).GetByVersionOrRef(version.Ref("main").OrVersion()))
 
 	assert.Nil(t, innerValues[string]([]innerValue[string]{
 		{
@@ -63,9 +59,7 @@ func TestInnerValues_GetByVersionOrRef(t *testing.T) {
 			value:   "foo3",
 			version: "c",
 		},
-	}).GetByVersionOrRef(VersionOrRef{
-		version: "d",
-	}))
+	}).GetByVersionOrRef(version.Version("d").OrRef()))
 
 	assert.Nil(t, innerValues[string]([]innerValue[string]{
 		{
@@ -79,17 +73,15 @@ func TestInnerValues_GetByVersionOrRef(t *testing.T) {
 		{
 			value:   "foo3",
 			version: "c",
-			ref:     lo.ToPtr(Ref("main")),
+			ref:     version.Ref("main").Ref(),
 		},
-	}).GetByVersionOrRef(VersionOrRef{
-		ref: "main2",
-	}))
+	}).GetByVersionOrRef(version.Ref("main2").OrVersion()))
 }
 
 func TestInnerValues_UpdateRef(t *testing.T) {
 	type args struct {
-		ref     Ref
-		version *Version
+		ref     version.Ref
+		version *version.Version
 	}
 
 	tests := []struct {
@@ -101,61 +93,61 @@ func TestInnerValues_UpdateRef(t *testing.T) {
 		{
 			name: "ref is not found",
 			target: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 			args: args{
-				ref:     Ref("A"),
+				ref:     version.Ref("A"),
 				version: nil,
 			},
 			want: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 		},
 		{
 			name: "ref should be deleted",
 			target: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 			args: args{
-				ref:     Ref("B"),
+				ref:     version.Ref("B"),
 				version: nil,
 			},
 			want: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: nil},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: nil},
 			},
 		},
 		{
 			name: "new ref should be set",
 			target: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 			args: args{
-				ref:     Ref("A"),
-				version: lo.ToPtr(Version("a")),
+				ref:     version.Ref("A"),
+				version: version.Version("a").Ref(),
 			},
 			want: innerValues[string]{
-				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("A"))},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: version.Ref("A").Ref()},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 		},
 		{
 			name: "ref should be moved",
 			target: innerValues[string]{
-				{value: "a", version: Version("a"), ref: nil},
-				{value: "b", version: Version("b"), ref: lo.ToPtr(Ref("B"))},
+				{value: "a", version: version.Version("a"), ref: nil},
+				{value: "b", version: version.Version("b"), ref: version.Ref("B").Ref()},
 			},
 			args: args{
-				ref:     Ref("B"),
-				version: lo.ToPtr(Version("a")),
+				ref:     version.Ref("B"),
+				version: version.Version("a").Ref(),
 			},
 			want: innerValues[string]{
-				{value: "a", version: Version("a"), ref: lo.ToPtr(Ref("B"))},
-				{value: "b", version: Version("b"), ref: nil},
+				{value: "a", version: version.Version("a"), ref: version.Ref("B").Ref()},
+				{value: "b", version: version.Version("b"), ref: nil},
 			},
 		},
 	}

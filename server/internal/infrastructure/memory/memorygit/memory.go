@@ -1,6 +1,7 @@
 package memorygit
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -9,55 +10,18 @@ type VersionedSyncMap[K comparable, V any] struct {
 	m *util.SyncMap[K, innerValues[V]]
 }
 
-type Version string
-
-func (v Version) OrRef() VersionOrRef {
-	return VersionOrRef{
-		version: v,
-	}
-}
-
-type Ref string
-
-func (r Ref) OrVersion() VersionOrRef {
-	return VersionOrRef{
-		ref: r,
-	}
-}
-
-type VersionOrRef struct {
-	version Version
-	ref     Ref
-}
-
-func (v VersionOrRef) Version() *Version {
-	if v.version == "" {
-		return nil
-	}
-	v2 := v.version
-	return &v2
-}
-
-func (v VersionOrRef) Ref() *Ref {
-	if v.ref == "" {
-		return nil
-	}
-	v2 := v.ref
-	return &v2
-}
-
 func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
 	return &VersionedSyncMap[K, V]{}
 }
 
-func (m *VersionedSyncMap[K, V]) Load(key K, vr VersionOrRef) (res V, ok bool) {
+func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res V, ok bool) {
 	if v := m.load(key, vr); v != nil {
 		return v.Value(), true
 	}
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr VersionOrRef) (res []V) {
+func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res []V) {
 	m.m.Range(func(k K, v innerValues[V]) bool {
 		for _, kk := range keys {
 			if found := v.GetByVersionOrRef(vr); found != nil && k == kk {
@@ -69,7 +33,7 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr VersionOrRef) (res []V) {
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) Store(key K, value V, version Version) {
+func (m *VersionedSyncMap[K, V]) Store(key K, value V, version version.Version) {
 	found := false
 
 	m.m.Range(func(k K, v innerValues[V]) bool {
@@ -95,7 +59,7 @@ func (m *VersionedSyncMap[K, V]) Store(key K, value V, version Version) {
 	}
 }
 
-func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref Ref, target Version) {
+func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref version.Ref, target version.Version) {
 	m.m.Range(func(k K, v innerValues[V]) bool {
 		if k == key {
 			v.UpdateRef(ref, &target)
@@ -105,7 +69,7 @@ func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref Ref, target Version) {
 	})
 }
 
-func (m *VersionedSyncMap[K, V]) DeleteRef(key K, ref Ref) {
+func (m *VersionedSyncMap[K, V]) DeleteRef(key K, ref version.Ref) {
 	m.m.Range(func(k K, v innerValues[V]) bool {
 		if k == key {
 			v.UpdateRef(ref, nil)
@@ -131,7 +95,7 @@ func (m *VersionedSyncMap[K, V]) ArchiveAll(key ...K) {
 	m.DeleteAll(key...)
 }
 
-func (m *VersionedSyncMap[K, V]) load(key K, vr VersionOrRef) (res *innerValue[V]) {
+func (m *VersionedSyncMap[K, V]) load(key K, vr version.VersionOrRef) (res *innerValue[V]) {
 	m.m.Range(func(k K, v innerValues[V]) bool {
 		if k == key {
 			if found := v.GetByVersionOrRef(vr); found != nil {

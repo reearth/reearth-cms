@@ -2,6 +2,7 @@ package mongogit
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -59,9 +60,9 @@ const (
 )
 
 type Meta struct {
-	Version         Version `json:"__v" bson:"__v"`
-	PreviousVersion Version `json:"__w" bson:"__w"`
-	Ref             []Ref   `json:"__refs" bson:"__refs"`
+	Version         version.Version `json:"__v" bson:"__v"`
+	PreviousVersion version.Version `json:"__w" bson:"__w"`
+	Ref             []version.Ref   `json:"__refs" bson:"__refs"`
 }
 
 func metaFromRaw(r bson.Raw) Meta {
