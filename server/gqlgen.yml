@@ -10,6 +10,7 @@ schema:
   - ./schemas/model.graphql
   - ./schemas/schema.graphql
   - ./schemas/field.graphql
+  - ./schemas/item.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -32,6 +33,14 @@ models:
     fields:
       workspace:
         resolver: true
+  Item:
+    fields:
+      model:
+        resolver: true
+      latestVersion:
+        resolver: true
+      version:
+        resolver: true
   Model:
     fields:
       project:
@@ -48,7 +57,7 @@ models:
         resolver: true
   Asset:
     fields:
-      uploadedBy:
+      createdBy:
         resolver: true
       project:
         resolver: true

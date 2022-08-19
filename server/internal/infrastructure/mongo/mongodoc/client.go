@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"github.com/reearth/reearthx/rerror"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"

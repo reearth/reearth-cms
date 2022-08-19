@@ -14,11 +14,11 @@ const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
   );
 };
 
-const CustomTagWrapper = styled("div")`
+const CustomTagWrapper = styled.div`
   padding: 0px 6px;
   width: 20px;
   height: 16px;
-  background-color: ${(props) => props.color};
+  background-color: ${props => props.color};
   color: #ffffff;
   border-radius: 100px;
   font-family: Roboto Mono;

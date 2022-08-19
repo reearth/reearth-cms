@@ -3,7 +3,7 @@ package memorygit
 import (
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -223,15 +223,11 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 			name: "set ref",
 			target: &VersionedSyncMap[string, string]{
 				m: util.SyncMapFrom(
-					util.MapEntry[string, innerValues[string]]{
-						Key: "1",
-						Value: innerValues[string]{
+					map[string]innerValues[string]{
+						"1": {
 							{value: "a", version: Version("a"), ref: nil},
 						},
-					},
-					util.MapEntry[string, innerValues[string]]{
-						Key: "2",
-						Value: innerValues[string]{
+						"2": {
 							{value: "a", version: Version("a"), ref: nil},
 						},
 					},

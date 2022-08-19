@@ -1,10 +1,11 @@
-import {
-  ExclamationCircleOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+import { useParams } from "react-router-dom";
+
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
+import Content from "@reearth-cms/components/atoms/Content";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
@@ -12,9 +13,6 @@ import Table from "@reearth-cms/components/atoms/Table";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { Content } from "antd/lib/layout/layout";
-import { useCallback } from "react";
-import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -75,7 +73,7 @@ const Members: React.FC = () => {
     (member: Member) => {
       confirm({
         title: "Are you sure to remove this member?",
-        icon: <ExclamationCircleOutlined />,
+        icon: <Icon icon="exclamationCircle" />,
         content:
           "Remove this member from workspace means this member will not view any content of this workspace.",
         onOk() {
@@ -83,10 +81,10 @@ const Members: React.FC = () => {
         },
       });
     },
-    [confirm, handleMemberRemoveFromWorkspace]
+    [confirm, handleMemberRemoveFromWorkspace],
   );
 
-  const dataSource = members?.map((member) => ({
+  const dataSource = members?.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (
@@ -98,14 +96,9 @@ const Members: React.FC = () => {
     role: member.role,
     action: (
       <>
-        {member.userId !== me?.id && (
-          <a onClick={() => handleRoleModalOpen(member)}>Change Role</a>
-        )}
+        {member.userId !== me?.id && <a onClick={() => handleRoleModalOpen(member)}>Change Role</a>}
         {member.role !== "OWNER" && (
-          <a
-            style={{ marginLeft: "8px" }}
-            onClick={() => handleMemberDelete(member)}
-          >
+          <a style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
             Remove
           </a>
         )}
@@ -122,40 +115,27 @@ const Members: React.FC = () => {
             <Button
               type="primary"
               onClick={handleMemberAddModalOpen}
-              icon={<UsergroupAddOutlined />}
-            >
+              icon={<Icon icon="userGroupAdd" />}>
               New Member
             </Button>
-          }
-        ></MemberPageHeader>
+          }></MemberPageHeader>
         <ActionHeader>
-          <Search
-            placeholder="input search text"
-            allowClear
-            style={{ width: 264 }}
-          />
+          <Search placeholder="input search text" allowClear style={{ width: 264 }} />
         </ActionHeader>
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          style={{ padding: "24px" }}
-        />
-        ;
+        <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />;
       </PaddedContent>
       <MemberRoleModal
         member={selectedMember}
         open={roleModalShown}
         onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}
-      ></MemberRoleModal>
+        onSubmit={handleMemberOfWorkspaceUpdate}></MemberRoleModal>
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         onClose={handleMemberAddModalClose}
         handleUserSearch={handleUserSearch}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAddToWorkspace}
-      ></MemberAddModal>
+        onSubmit={handleMemberAddToWorkspace}></MemberAddModal>
     </>
   );
 };

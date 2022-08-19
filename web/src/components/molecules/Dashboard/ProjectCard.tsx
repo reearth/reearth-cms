@@ -1,13 +1,10 @@
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
 import styled from "@emotion/styled";
-import Card from "@reearth-cms/components/atoms/Card";
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
+import Card from "@reearth-cms/components/atoms/Card";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 
 export interface Props {
   className?: string;
@@ -23,16 +20,14 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
       <ProjectStyledCard
         cover={<Cover>{project.name.charAt(0)}</Cover>}
         actions={[
-          <SettingOutlined
-            onClick={() =>
-              navigate("/workspaces/" + workspaceId + "/" + project.id)
-            }
+          <Icon
+            icon="settings"
+            onClick={() => navigate("/workspaces/" + workspaceId + "/" + project.id)}
             key="setting"
           />,
-          <EditOutlined key="edit" />,
-          <EllipsisOutlined key="ellipsis" />,
-        ]}
-      >
+          <Icon icon="edit" key="edit" />,
+          <Icon icon="ellipsis" key="ellipsis" />,
+        ]}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
     </CardWrapper>

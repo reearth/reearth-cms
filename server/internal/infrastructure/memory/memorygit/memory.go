@@ -1,7 +1,7 @@
 package memorygit
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/util"
 )
 
 // util.SyncMap + version = VersionedSyncMap
