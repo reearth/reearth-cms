@@ -24,7 +24,7 @@ func (vr VersionOrRef) Match(v func(v Version), r func(r Ref)) {
 }
 
 func MatchVersionOrRef[T any](vr VersionOrRef, v func(v Version) T, r func(r Ref) T) (_ T) {
-	if vr.version != VersionZero {
+	if vr.version != Zero {
 		if v != nil {
 			return v(vr.version)
 		}

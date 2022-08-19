@@ -102,7 +102,7 @@ func TestVersionFromRaw(t *testing.T) {
 	})
 	assert.Equal(t, Meta{
 		Version:         version.Version("x"),
-		PreviousVersion: version.VersionZero,
+		PreviousVersion: version.Zero,
 		Ref:             nil,
 	}, metaFromRaw(raw))
 }

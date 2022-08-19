@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.12
 	github.com/auth0/go-jwt-middleware/v2 v2.0.1
 	github.com/avast/retry-go/v4 v4.0.4
+	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/google/uuid v1.3.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/jarcoal/httpmock v1.2.0

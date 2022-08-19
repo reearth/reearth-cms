@@ -6,13 +6,20 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 )
 
 func TestVersionedSyncMap_Load(t *testing.T) {
-	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(map[string]innerValues[string]{
-		"a": {{value: "A", version: "1"}},
-		"b": {{value: "B", version: "1", ref: version.Ref("a").Ref()}},
-	})}
+	vsm := &VersionedSyncMap[string, string]{
+		m: util.SyncMapFrom(map[string]*version.Values[string]{
+			"a": version.MustBeValues(
+				&version.Value[string]{Value: "A", Version: "1"},
+			),
+			"b": version.MustBeValues(
+				&version.Value[string]{Value: "B", Version: "1", Refs: version.RefsFrom("a")},
+			),
+		}),
+	}
 
 	tests := []struct {
 		name  string
@@ -102,8 +109,8 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got, ok := tc.m.Load(tc.input.key, tc.input.vor)
 			assert.Equal(t, tc.want.output, got)
 			assert.True(t, tc.want.ok == ok)
@@ -112,12 +119,22 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 }
 
 func TestVersionedSyncMap_LoadAll(t *testing.T) {
-	m := &util.SyncMap[string, innerValues[string]]{}
-	m.Store("a", innerValues[string]{{value: "A", version: "1"}})
-	m.Store("b", innerValues[string]{{value: "B", version: "1", ref: version.Ref("a").Ref()}})
-	m.Store("c", innerValues[string]{{value: "C", version: "1"}})
-	m.Store("d", innerValues[string]{{value: "D", version: "2", ref: version.Ref("a").Ref()}})
-	vsm := &VersionedSyncMap[string, string]{m: m}
+	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
+		map[string]*version.Values[string]{
+			"a": version.MustBeValues(
+				&version.Value[string]{Value: "A", Version: "1"},
+			),
+			"b": version.MustBeValues(
+				&version.Value[string]{Value: "B", Version: "1", Refs: version.RefsFrom("a")},
+			),
+			"c": version.MustBeValues(
+				&version.Value[string]{Value: "C", Version: "1"},
+			),
+			"d": version.MustBeValues(
+				&version.Value[string]{Value: "D", Version: "2", Refs: version.RefsFrom("a")},
+			),
+		},
+	)}
 	tests := []struct {
 		name  string
 		m     *VersionedSyncMap[string, string]
@@ -166,9 +183,10 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got := tc.m.LoadAll(tc.input.keys, tc.input.vor)
+			slices.Sort(got)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -176,21 +194,21 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 
 func TestVersionedSyncMap_Store(t *testing.T) {
 	vm := &VersionedSyncMap[string, string]{
-		m: &util.SyncMap[string, innerValues[string]]{},
+		m: &util.SyncMap[string, *version.Values[string]]{},
 	}
 
-	_, ok := vm.Load("a", version.Version("1").OrRef())
+	_, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.False(t, ok)
 
-	vm.Store("a", "b", version.Version("1"))
+	vm.Store("a", "b", nil)
 
-	got, ok := vm.Load("a", version.Version("1").OrRef())
+	got, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok)
 	assert.Equal(t, "b", got)
 
-	vm.Store("a", "c", version.Version("1"))
+	vm.Store("a", "c", version.Latest.Ref())
 
-	got2, ok2 := vm.Load("a", version.Version("1").OrRef())
+	got2, ok2 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok2)
 	assert.Equal(t, "c", got2)
 }
@@ -199,36 +217,32 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 	type args struct {
 		key     string
 		ref     version.Ref
-		version version.Version
+		version *version.Version
 	}
 	tests := []struct {
 		name   string
 		target *VersionedSyncMap[string, string]
 		args   args
-		want   innerValues[string]
+		want   *version.Values[string]
 	}{
 		{
 			name: "set ref",
 			target: &VersionedSyncMap[string, string]{
 				m: util.SyncMapFrom(
-					map[string]innerValues[string]{
-						"1": {
-							{value: "a", version: version.Version("a"), ref: nil},
-						},
-						"2": {
-							{value: "a", version: version.Version("a"), ref: nil},
-						},
+					map[string]*version.Values[string]{
+						"1": version.MustBeValues(&version.Value[string]{Value: "a", Version: version.Version("a")}),
+						"2": version.MustBeValues(&version.Value[string]{Value: "a", Version: version.Version("a")}),
 					},
 				),
 			},
 			args: args{
 				key:     "1",
-				ref:     version.Ref("A"),
-				version: version.Version("a"),
+				ref:     "A",
+				version: version.Version("a").Ref(),
 			},
-			want: innerValues[string]{
-				{value: "a", version: version.Version("a"), ref: version.Ref("A").Ref()},
-			},
+			want: version.MustBeValues(
+				&version.Value[string]{Value: "a", Version: version.Version("a"), Refs: version.RefsFrom("A")},
+			),
 		},
 	}
 

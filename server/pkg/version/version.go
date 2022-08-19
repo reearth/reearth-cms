@@ -1,8 +1,18 @@
 package version
 
+import "github.com/google/uuid"
+
 type Version string
 
-const VersionZero Version = ""
+const Zero Version = ""
+
+func New() Version {
+	return Version(uuid.NewString())
+}
+
+func (v Version) IsZero() bool {
+	return v == Zero
+}
 
 func (v Version) Ref() *Version {
 	return &v
@@ -14,18 +24,4 @@ func (v Version) String() string {
 
 func (v Version) OrRef() VersionOrRef {
 	return VersionOrRef{version: v}
-}
-
-type Ref string
-
-func (r Ref) Ref() *Ref {
-	return &r
-}
-
-func (r Ref) String() string {
-	return string(r)
-}
-
-func (r Ref) OrVersion() VersionOrRef {
-	return VersionOrRef{ref: r}
 }
