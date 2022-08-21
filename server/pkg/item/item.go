@@ -8,11 +8,11 @@ type Item struct {
 	createdAt     time.Time
 	updatedAt     time.Time
 	publicVersion string
-	latestVersion Version
-	versions      []Version
+	latestVersion *Version
+	versions      []*Version
 }
 
-func (i *Item) Id() ID {
+func (i *Item) ID() ID {
 	return i.id
 }
 
@@ -32,10 +32,10 @@ func (i *Item) PublicVersion() string {
 	return i.publicVersion
 }
 
-func (i *Item) LatestVersion() Version {
+func (i *Item) LatestVersion() *Version {
 	return i.latestVersion
 }
 
-func (i *Item) Versions() []Version {
+func (i *Item) Versions() []*Version {
 	return i.versions
 }

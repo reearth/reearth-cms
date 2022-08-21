@@ -1,13 +1,15 @@
 package item
 
+import "github.com/reearth/reearth-cms/server/pkg/id"
+
 type Version struct {
 	version string
 	parent  []string
 	ref     []string
-	fields  []FieldID
+	fields  id.FieldIDList
 }
 
-func NewVersion(version *string, parent, ref []string, fields []FieldID) *Version {
+func NewVersion(version *string, parent, ref []string, fields id.FieldIDList) *Version {
 	if version == nil {
 		return nil
 	}
@@ -33,8 +35,8 @@ func (v *Version) AddParent(parent *string) {
 	v.parent = append(v.parent, *parent)
 }
 
-func (v *Version) AddField(field FieldID) {
-	v.fields = append(v.fields, field)
+func (v *Version) AddField(field id.FieldID) {
+	v.fields = v.fields.Add(field)
 }
 
 func (v *Version) Version() string {
@@ -49,6 +51,6 @@ func (v *Version) Ref() []string {
 	return v.ref
 }
 
-func (v *Version) Fields() []FieldID {
+func (v *Version) Fields() id.FieldIDList {
 	return v.fields
 }
