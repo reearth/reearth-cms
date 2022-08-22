@@ -224,7 +224,7 @@ func (c *Client) Paginate(ctx context.Context, col string, filter interface{}, p
 			{Key: key, Value: 1},
 		}
 		if after := p.After; after != nil {
-			filter = appendE(filter, bson.E{Key: key, Value: bson.D{
+			filter = AppendE(filter, bson.E{Key: key, Value: bson.D{
 				{Key: "$gt", Value: *after},
 			}})
 		}
@@ -236,7 +236,7 @@ func (c *Client) Paginate(ctx context.Context, col string, filter interface{}, p
 			{Key: key, Value: -1},
 		}
 		if before := p.Before; before != nil {
-			filter = appendE(filter, bson.E{Key: key, Value: bson.D{
+			filter = AppendE(filter, bson.E{Key: key, Value: bson.D{
 				{Key: "$lt", Value: *before},
 			}})
 		}

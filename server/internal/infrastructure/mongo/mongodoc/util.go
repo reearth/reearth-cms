@@ -2,7 +2,7 @@ package mongodoc
 
 import "go.mongodb.org/mongo-driver/bson"
 
-func appendE(f interface{}, elements ...bson.E) interface{} {
+func AppendE(f interface{}, elements ...bson.E) interface{} {
 	switch f2 := f.(type) {
 	case bson.D:
 		for _, e := range elements {
@@ -151,5 +151,5 @@ func And(filter interface{}, key string, f interface{}) interface{} {
 			"$and": []interface{}{filter, g},
 		}
 	}
-	return appendE(filter, bson.E{Key: key, Value: f})
+	return AppendE(filter, bson.E{Key: key, Value: f})
 }
