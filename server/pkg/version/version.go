@@ -1,6 +1,9 @@
 package version
 
-import "github.com/google/uuid"
+import (
+	"github.com/chrispappas/golang-generics-set/set"
+	"github.com/google/uuid"
+)
 
 type Version uuid.UUID
 
@@ -24,4 +27,12 @@ func (v Version) String() string {
 
 func (v Version) OrRef() VersionOrRef {
 	return VersionOrRef{version: v}
+}
+
+type Versions = set.Set[Version]
+
+func NewVersions(v ...Version) Versions {
+	s := Versions{}
+	s.Add(v...)
+	return s
 }

@@ -98,7 +98,7 @@ func (v *Values[V]) Add(value V, ref *Ref) {
 		vv.DeleteRefs(r)
 		vv = &Value[V]{
 			Version: New(),
-			Prev:    vv.Version.Ref(),
+			Parent:  NewVersions(vv.Version),
 			Refs:    RefsFrom(r),
 			Value:   value,
 		}
@@ -139,7 +139,7 @@ func (v Values[V]) validate() bool {
 	versions := set.Set[Version]{}
 	refs := set.Set[Ref]{}
 	for _, v := range v.inner {
-		if (v.Prev != nil && v.Version == *v.Prev) ||
+		if (v.Parent != nil && v.Parent.Has(v.Version)) ||
 			versions.Has(v.Version) ||
 			refs.Intersection(v.Refs).Len() > 0 {
 			return false
@@ -148,7 +148,7 @@ func (v Values[V]) validate() bool {
 		refs = refs.Union(v.Refs)
 	}
 	for _, v := range v.inner {
-		if v.Prev != nil && !versions.Has(*v.Prev) {
+		if v.Parent != nil && versions.Intersection(v.Parent).Len() != v.Parent.Len() {
 			return false
 		}
 	}

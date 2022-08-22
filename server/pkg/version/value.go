@@ -1,10 +1,8 @@
 package version
 
-import "github.com/reearth/reearthx/util"
-
 type Value[T any] struct {
 	Version Version
-	Prev    *Version
+	Parent  Versions
 	Refs    Refs
 	Value   T
 }
@@ -21,9 +19,13 @@ func (v *Value[T]) Clone() *Value[T] {
 	if v.Refs != nil {
 		refs = v.Refs.Clone()
 	}
+	var parent Versions
+	if v.Parent != nil {
+		parent = v.Parent
+	}
 	return &Value[T]{
 		Version: v.Version,
-		Prev:    util.CloneRef(v.Prev),
+		Parent:  parent,
 		Refs:    refs,
 		Value:   v.Value,
 	}

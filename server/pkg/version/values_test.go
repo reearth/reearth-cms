@@ -24,7 +24,7 @@ func TestNewValues(t *testing.T) {
 	}
 	v4 := &Value[int]{
 		Version: vy,
-		Prev:    Version(vz).Ref(),
+		Parent:  NewVersions(vz),
 	}
 	assert.Equal(t, &Values[int]{
 		inner: []*Value[int]{v},
@@ -182,7 +182,7 @@ func TestValues_Add(t *testing.T) {
 	vx, vy := New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Prev: vy.Ref(), Refs: RefsFrom(Latest), Value: "1"},
+			{Version: vx, Parent: NewVersions(vy), Refs: RefsFrom(Latest), Value: "1"},
 			{Version: vy, Refs: RefsFrom("a"), Value: "2"},
 		},
 	}
@@ -191,7 +191,7 @@ func TestValues_Add(t *testing.T) {
 	vv := v.Get(Ref("a").OrVersion())
 	assert.Equal(t, &Value[string]{
 		Version: vv.Version,
-		Prev:    vy.Ref(),
+		Parent:  NewVersions(vy),
 		Refs:    RefsFrom("a"),
 		Value:   "3",
 	}, vv)
@@ -303,7 +303,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			target: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx},
-					{Value: "b", Version: vy, Prev: vx.Ref(), Refs: RefsFrom(Latest)},
+					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: RefsFrom(Latest)},
 				},
 			},
 			args: args{
@@ -313,7 +313,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			want: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx},
-					{Value: "b", Version: vy, Prev: vx.Ref(), Refs: RefsFrom(Latest)},
+					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: RefsFrom(Latest)},
 				},
 			},
 		},

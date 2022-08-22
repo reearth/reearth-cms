@@ -10,7 +10,7 @@ func TestValue_Ref(t *testing.T) {
 	vx, vy := New(), New()
 	r := Value[string]{
 		Version: vx,
-		Prev:    vy.Ref(),
+		Parent:  NewVersions(vy),
 		Refs:    RefsFrom("latest"),
 		Value:   "a",
 	}
@@ -22,14 +22,14 @@ func TestValue_Clone(t *testing.T) {
 	assert.Nil(t, (*Value[any])(nil).Clone())
 	v := &Value[string]{
 		Version: vx,
-		Prev:    vy.Ref(),
+		Parent:  NewVersions(vy),
 		Refs:    RefsFrom("latest"),
 		Value:   "a",
 	}
 	got := v.Clone()
 	assert.Equal(t, v, got)
 	assert.NotSame(t, v, got)
-	assert.NotSame(t, v.Prev, got.Prev)
+	assert.NotSame(t, v.Parent, got.Parent)
 	assert.NotSame(t, v.Refs, got.Refs)
 
 	v2 := &Value[string]{
