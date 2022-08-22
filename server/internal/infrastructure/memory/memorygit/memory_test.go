@@ -17,7 +17,7 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 				&version.Value[string]{Value: "A", Version: vx},
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: vx, Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "B", Version: vx, Refs: version.NewRefs("a")},
 			),
 		}),
 	}
@@ -127,13 +127,13 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 				&version.Value[string]{Value: "A", Version: vx},
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: vx, Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "B", Version: vx, Refs: version.NewRefs("a")},
 			),
 			"c": version.MustBeValues(
 				&version.Value[string]{Value: "C", Version: vx},
 			),
 			"d": version.MustBeValues(
-				&version.Value[string]{Value: "D", Version: vy, Refs: version.RefsFrom("a")},
+				&version.Value[string]{Value: "D", Version: vy, Refs: version.NewRefs("a")},
 			),
 		},
 	)}
@@ -212,7 +212,7 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 	assert.True(t, ok2)
 	assert.Equal(t, "c", got2)
 
-	vm.Store("a", "d", version.Latest.Ref())
+	vm.Store("a", "d", version.Latest.OrVersion().Ref())
 	got3, ok3 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok3)
 	assert.Equal(t, "d", got3)
@@ -248,7 +248,7 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				vr:  vx.OrRef().Ref(),
 			},
 			want: version.MustBeValues(
-				&version.Value[string]{Value: "a", Version: vx, Refs: version.RefsFrom("A")},
+				&version.Value[string]{Value: "a", Version: vx, Refs: version.NewRefs("A")},
 			),
 		},
 	}

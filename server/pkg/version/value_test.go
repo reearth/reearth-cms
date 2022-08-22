@@ -11,7 +11,7 @@ func TestValue_Ref(t *testing.T) {
 	r := Value[string]{
 		Version: vx,
 		Parent:  NewVersions(vy),
-		Refs:    RefsFrom("latest"),
+		Refs:    NewRefs("latest"),
 		Value:   "a",
 	}
 	assert.Equal(t, &r, r.Ref())
@@ -23,7 +23,7 @@ func TestValue_Clone(t *testing.T) {
 	v := &Value[string]{
 		Version: vx,
 		Parent:  NewVersions(vy),
-		Refs:    RefsFrom("latest"),
+		Refs:    NewRefs("latest"),
 		Value:   "a",
 	}
 	got := v.Clone()
@@ -42,17 +42,17 @@ func TestValue_Clone(t *testing.T) {
 func TestValue_AddRefs(t *testing.T) {
 	v := &Value[any]{}
 	v.AddRefs("aaa", "bbb")
-	assert.Equal(t, RefsFrom("aaa", "bbb"), v.Refs)
+	assert.Equal(t, NewRefs("aaa", "bbb"), v.Refs)
 	v.AddRefs("ccc", "ddd")
-	assert.Equal(t, RefsFrom("aaa", "bbb", "ccc", "ddd"), v.Refs)
+	assert.Equal(t, NewRefs("aaa", "bbb", "ccc", "ddd"), v.Refs)
 }
 
 func TestValue_DeleteRefs(t *testing.T) {
 	v := &Value[any]{
-		Refs: RefsFrom("aaa", "bbb", "ccc", "ddd"),
+		Refs: NewRefs("aaa", "bbb", "ccc", "ddd"),
 	}
 	v.DeleteRefs("aaa", "bbb")
-	assert.Equal(t, RefsFrom("ccc", "ddd"), v.Refs)
+	assert.Equal(t, NewRefs("ccc", "ddd"), v.Refs)
 	v.DeleteRefs("ccc", "ddd")
 	assert.Nil(t, v.Refs)
 }

@@ -49,7 +49,7 @@ func (v *Values[V]) get(vr VersionOrRef) *Value[V] {
 		return MatchVersionOrRef(vr, func(v Version) bool {
 			return w.Version == v
 		}, func(r Ref) bool {
-			return w.Refs.Has(r)
+			return w.Refs != nil && w.Refs.Has(r)
 		})
 	})
 	if !ok {
@@ -87,29 +87,39 @@ func (v *Values[V]) Clone() *Values[V] {
 	}
 }
 
-func (v *Values[V]) Add(value V, ref *Ref) {
-	if v == nil || v.IsArchived() || ref != nil && ref.IsSpecial() && *ref != Latest {
+func (v *Values[V]) IsEmpty() bool {
+	return v == nil || len(v.inner) == 0
+}
+
+func (v *Values[V]) Add(value V, parent *VersionOrRef) {
+	if v == nil || v.IsArchived() || parent != nil && parent.IsSpecialRef() && !parent.IsRef(Latest) {
 		return
 	}
 
-	r := lo.FromPtrOr(ref, Latest)
-	vv := v.get(r.OrVersion())
+	p := lo.FromPtrOr(parent, Latest.OrVersion())
+	vv := v.get(p)
 	if vv != nil {
-		vv.DeleteRefs(r)
+		var refs Refs
+		p.Match(nil, func(r Ref) {
+			vv.DeleteRefs(r)
+			refs = NewRefs(r)
+		})
 		vv = &Value[V]{
 			Version: New(),
 			Parent:  NewVersions(vv.Version),
-			Refs:    RefsFrom(r),
+			Refs:    refs,
 			Value:   value,
 		}
-	} else {
+	} else if v.IsEmpty() {
 		vv = &Value[V]{
 			Version: New(),
-			Refs:    RefsFrom(Latest),
+			Refs:    NewRefs(Latest),
 			Value:   value,
 		}
 	}
-	v.inner = append(v.inner, vv)
+	if vv != nil {
+		v.inner = append(v.inner, vv)
+	}
 }
 
 func (v *Values[V]) UpdateRef(r Ref, vr *VersionOrRef) {
@@ -139,6 +149,9 @@ func (v Values[V]) validate() bool {
 	versions := set.Set[Version]{}
 	refs := set.Set[Ref]{}
 	for _, v := range v.inner {
+		if v == nil {
+			return false
+		}
 		if (v.Parent != nil && v.Parent.Has(v.Version)) ||
 			versions.Has(v.Version) ||
 			refs.Intersection(v.Refs).Len() > 0 {

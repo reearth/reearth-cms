@@ -24,12 +24,12 @@ func TestVersionOrRef_IsRef(t *testing.T) {
 }
 
 func TestVersionOrRef_IsSpecialRef(t *testing.T) {
-	assert.False(t, New().OrRef().IsSpecialRef("x"))
-	assert.True(t, Latest.OrVersion().IsSpecialRef("x"))
-	assert.False(t, Ref("y").OrVersion().IsSpecialRef("x"))
-	assert.False(t, Zero.OrRef().IsSpecialRef("x"))
-	assert.False(t, Ref("").OrVersion().IsSpecialRef("x"))
-	assert.False(t, VersionOrRef{}.IsSpecialRef("x"))
+	assert.False(t, New().OrRef().IsSpecialRef())
+	assert.True(t, Latest.OrVersion().IsSpecialRef())
+	assert.False(t, Ref("y").OrVersion().IsSpecialRef())
+	assert.False(t, Zero.OrRef().IsSpecialRef())
+	assert.False(t, Ref("").OrVersion().IsSpecialRef())
+	assert.False(t, VersionOrRef{}.IsSpecialRef())
 }
 
 func TestVersionOrRef_Match(t *testing.T) {

@@ -15,12 +15,12 @@ func TestNewValues(t *testing.T) {
 	v2 := &Value[int]{
 		Version: vx,
 		Value:   1,
-		Refs:    RefsFrom("y"),
+		Refs:    NewRefs("y"),
 	}
 	v3 := &Value[int]{
 		Version: vy,
 		Value:   1,
-		Refs:    RefsFrom("y"),
+		Refs:    NewRefs("y"),
 	}
 	v4 := &Value[int]{
 		Version: vy,
@@ -73,7 +73,7 @@ func TestValues_Get(t *testing.T) {
 			{
 				Value:   "foo3",
 				Version: vz,
-				Refs:    RefsFrom(Latest),
+				Refs:    NewRefs(Latest),
 			},
 		},
 	}
@@ -82,7 +82,7 @@ func TestValues_Get(t *testing.T) {
 	assert.Equal(t, &Value[string]{
 		Value:   "foo3",
 		Version: vz,
-		Refs:    RefsFrom(Latest),
+		Refs:    NewRefs(Latest),
 	}, got)
 
 	// cannot modify
@@ -93,7 +93,7 @@ func TestValues_Get(t *testing.T) {
 	assert.Equal(t, &Value[string]{
 		Value:   "foo3",
 		Version: vz,
-		Refs:    RefsFrom(Latest),
+		Refs:    NewRefs(Latest),
 	}, got)
 
 	// cannot modify
@@ -108,10 +108,10 @@ func TestValues_Latest(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	assert.Equal(
 		t,
-		&Value[string]{Version: vx, Refs: RefsFrom("latest")},
+		&Value[string]{Version: vx, Refs: NewRefs("latest")},
 		(&Values[string]{
 			inner: []*Value[string]{
-				{Version: vx, Refs: RefsFrom("latest")},
+				{Version: vx, Refs: NewRefs("latest")},
 				{Version: vy},
 				{Version: vz},
 			},
@@ -119,7 +119,7 @@ func TestValues_Latest(t *testing.T) {
 	)
 	assert.Nil(t, (&Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Refs: RefsFrom("a")},
+			{Version: vx, Refs: NewRefs("a")},
 			{Version: vy},
 			{Version: vz},
 		},
@@ -131,14 +131,14 @@ func TestValues_LatestVersion(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	assert.Equal(t, vx.Ref(), (&Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Refs: RefsFrom("latest")},
+			{Version: vx, Refs: NewRefs("latest")},
 			{Version: vy},
 			{Version: vz},
 		},
 	}).LatestVersion())
 	assert.Nil(t, (&Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Refs: RefsFrom("a")},
+			{Version: vx, Refs: NewRefs("a")},
 			{Version: vy},
 			{Version: vz},
 		},
@@ -150,7 +150,7 @@ func TestValues_All(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Refs: RefsFrom("latest")},
+			{Version: vx, Refs: NewRefs("latest")},
 			{Version: vy},
 			{Version: vz},
 		},
@@ -165,7 +165,7 @@ func TestValues_Clone(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Refs: RefsFrom("latest")},
+			{Version: vx, Refs: NewRefs("latest")},
 			{Version: vy},
 			{Version: vz},
 		},
@@ -182,17 +182,17 @@ func TestValues_Add(t *testing.T) {
 	vx, vy := New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			{Version: vx, Parent: NewVersions(vy), Refs: RefsFrom(Latest), Value: "1"},
-			{Version: vy, Refs: RefsFrom("a"), Value: "2"},
+			{Version: vx, Parent: NewVersions(vy), Refs: NewRefs(Latest), Value: "1"},
+			{Version: vy, Refs: NewRefs("a"), Value: "2"},
 		},
 	}
 
-	v.Add("3", Ref("a").Ref())
+	v.Add("3", Ref("a").OrVersion().Ref())
 	vv := v.Get(Ref("a").OrVersion())
 	assert.Equal(t, &Value[string]{
 		Version: vv.Version,
 		Parent:  NewVersions(vy),
-		Refs:    RefsFrom("a"),
+		Refs:    NewRefs("a"),
 		Value:   "3",
 	}, vv)
 	assert.Equal(t, &Value[string]{
@@ -201,11 +201,11 @@ func TestValues_Add(t *testing.T) {
 	}, v.Get(vy.OrRef()))
 	assert.True(t, v.validate())
 
-	v.Add("3", Ref("").Ref())
+	v.Add("3", Ref("").OrVersion().Ref())
 	assert.Nil(t, v.Get(Ref("").OrVersion()))
 
 	v.archived = true
-	v.Add("3", Ref("xxx").Ref())
+	v.Add("3", Ref("xxx").OrVersion().Ref())
 	assert.Nil(t, v.Get(Ref("xxx").OrVersion()))
 }
 
@@ -228,7 +228,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			target: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx, Refs: nil},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				}},
 			args: args{
 				ref: "A",
@@ -237,7 +237,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			want: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx, Refs: nil},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				},
 			},
 		},
@@ -246,7 +246,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			target: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx, Refs: nil},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				},
 			},
 			args: args{
@@ -265,7 +265,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			target: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx, Refs: nil},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				},
 			},
 			args: args{
@@ -274,8 +274,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					{Value: "a", Version: vx, Refs: RefsFrom("A")},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "a", Version: vx, Refs: NewRefs("A")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				},
 			},
 		},
@@ -283,8 +283,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "ref should be moved",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					{Value: "a", Version: vx, Refs: RefsFrom("A")},
-					{Value: "b", Version: vy, Refs: RefsFrom("B")},
+					{Value: "a", Version: vx, Refs: NewRefs("A")},
+					{Value: "b", Version: vy, Refs: NewRefs("B")},
 				},
 			},
 			args: args{
@@ -293,7 +293,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					{Value: "a", Version: vx, Refs: RefsFrom("A", "B")},
+					{Value: "a", Version: vx, Refs: NewRefs("A", "B")},
 					{Value: "b", Version: vy},
 				},
 			},
@@ -303,7 +303,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			target: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx},
-					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: RefsFrom(Latest)},
+					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: NewRefs(Latest)},
 				},
 			},
 			args: args{
@@ -313,7 +313,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			want: &Values[string]{
 				inner: []*Value[string]{
 					{Value: "a", Version: vx},
-					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: RefsFrom(Latest)},
+					{Value: "b", Version: vy, Parent: NewVersions(vx), Refs: NewRefs(Latest)},
 				},
 			},
 		},

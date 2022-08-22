@@ -27,7 +27,7 @@ func TestRef_IsSpecial(t *testing.T) {
 }
 
 func TestRefsFrom(t *testing.T) {
-	s := RefsFrom("x", "y")
+	s := NewRefs("x", "y")
 	assert.True(t, s.Has("x"))
 	assert.True(t, s.Has("y"))
 	assert.False(t, s.Has("z"))

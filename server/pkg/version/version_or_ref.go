@@ -17,7 +17,7 @@ func (vr VersionOrRef) IsRef(ref Ref) bool {
 	return MatchVersionOrRef(vr, nil, func(r Ref) bool { return r == ref })
 }
 
-func (vr VersionOrRef) IsSpecialRef(ref Ref) bool {
+func (vr VersionOrRef) IsSpecialRef() bool {
 	return MatchVersionOrRef(vr, nil, func(r Ref) bool { return r.IsSpecial() })
 }
 

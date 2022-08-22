@@ -24,7 +24,7 @@ func (r Ref) IsSpecial() bool {
 
 type Refs = set.Set[Ref]
 
-func RefsFrom(refs ...Ref) Refs {
+func NewRefs(refs ...Ref) Refs {
 	s := Refs{}
 	s.Add(refs...)
 	return s

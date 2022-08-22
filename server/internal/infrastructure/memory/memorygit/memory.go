@@ -40,20 +40,20 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) Store(key K, value V, ref *version.Ref) {
+func (m *VersionedSyncMap[K, V]) Store(key K, value V, parent *version.VersionOrRef) {
 	found := false
 	m.Range(func(k K, v *version.Values[V]) bool {
 		if k != key {
 			return true
 		}
 		found = true
-		v.Add(value, ref)
+		v.Add(value, parent)
 		return false
 	})
 
 	if !found {
 		values := version.NewValues[V]()
-		values.Add(value, ref)
+		values.Add(value, parent)
 		m.m.Store(key, values)
 	}
 }
