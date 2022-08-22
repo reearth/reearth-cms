@@ -47,9 +47,9 @@ func (v *Values[V]) get(vr VersionOrRef) *Value[V] {
 	}
 	w, ok := lo.Find(v.inner, func(w *Value[V]) bool {
 		return MatchVersionOrRef(vr, func(v Version) bool {
-			return w.Version == v
+			return w.Version() == v
 		}, func(r Ref) bool {
-			return w.Refs != nil && w.Refs.Has(r)
+			return w.Refs().Has(r)
 		})
 	})
 	if !ok {
@@ -67,7 +67,7 @@ func (v *Values[V]) LatestVersion() *Version {
 	if latest == nil {
 		return nil
 	}
-	return latest.Version.Ref()
+	return latest.Version().Ref()
 }
 
 func (v *Values[V]) All() []*Value[V] {
@@ -104,18 +104,9 @@ func (v *Values[V]) Add(value V, parent *VersionOrRef) {
 			vv.DeleteRefs(r)
 			refs = NewRefs(r)
 		})
-		vv = &Value[V]{
-			Version: New(),
-			Parent:  NewVersions(vv.Version),
-			Refs:    refs,
-			Value:   value,
-		}
+		vv = NewValue(New(), NewVersions(vv.Version()), refs, value)
 	} else if v.IsEmpty() {
-		vv = &Value[V]{
-			Version: New(),
-			Refs:    NewRefs(Latest),
-			Value:   value,
-		}
+		vv = NewValue(New(), nil, NewRefs(Latest), value)
 	}
 	if vv != nil {
 		v.inner = append(v.inner, vv)
@@ -128,7 +119,7 @@ func (v *Values[V]) UpdateRef(r Ref, vr *VersionOrRef) {
 	}
 
 	// delete ref
-	if v := v.get(r.OrVersion()); v != nil && v.Refs != nil {
+	if v := v.get(r.OrVersion()); v != nil {
 		v.DeleteRefs(r)
 	}
 	if vr == nil {
@@ -152,16 +143,17 @@ func (v Values[V]) validate() bool {
 		if v == nil {
 			return false
 		}
-		if (v.Parent != nil && v.Parent.Has(v.Version)) ||
-			versions.Has(v.Version) ||
-			refs.Intersection(v.Refs).Len() > 0 {
+		if (v.Parents().Has(v.Version())) ||
+			versions.Has(v.Version()) ||
+			refs.Intersection(v.Refs()).Len() > 0 {
 			return false
 		}
-		versions.Add(v.Version)
-		refs = refs.Union(v.Refs)
+		versions.Add(v.Version())
+		refs = refs.Union(v.Refs())
 	}
 	for _, v := range v.inner {
-		if v.Parent != nil && versions.Intersection(v.Parent).Len() != v.Parent.Len() {
+		p := v.Parents()
+		if versions.Intersection(p).Len() != p.Len() {
 			return false
 		}
 	}

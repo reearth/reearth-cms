@@ -1,10 +1,59 @@
 package version
 
 type Value[T any] struct {
-	Version Version
-	Parent  Versions
-	Refs    Refs
-	Value   T
+	version Version
+	parents Versions
+	refs    Refs
+	value   T
+}
+
+func NewValue[T any](version Version, parents Versions, refs Refs, value T) *Value[T] {
+	res := &Value[T]{
+		version: version,
+		parents: parents,
+		refs:    refs,
+		value:   value,
+	}
+	if !res.validate() {
+		return nil
+	}
+	if parents != nil && parents.Len() > 0 {
+		res.parents = parents.Clone()
+	}
+	if refs != nil && refs.Len() > 0 {
+		res.refs = refs.Clone()
+	}
+	return res
+}
+
+func MustBeValue[T any](version Version, parents Versions, refs Refs, value T) *Value[T] {
+	v := NewValue(version, parents, refs, value)
+	if v == nil {
+		panic("invalid version or parents")
+	}
+	return v
+}
+
+func (v Value[T]) Version() Version {
+	return v.version
+}
+
+func (v Value[T]) Parents() Versions {
+	if v.parents == nil {
+		return Versions{}
+	}
+	return v.parents.Clone()
+}
+
+func (v Value[T]) Refs() Refs {
+	if v.refs == nil {
+		return Refs{}
+	}
+	return v.refs.Clone()
+}
+
+func (v Value[T]) Value() T {
+	return v.value
 }
 
 func (v Value[T]) Ref() *Value[T] {
@@ -15,32 +64,26 @@ func (v *Value[T]) Clone() *Value[T] {
 	if v == nil {
 		return nil
 	}
-	var refs Refs
-	if v.Refs != nil {
-		refs = v.Refs.Clone()
-	}
-	var parent Versions
-	if v.Parent != nil {
-		parent = v.Parent
-	}
-	return &Value[T]{
-		Version: v.Version,
-		Parent:  parent,
-		Refs:    refs,
-		Value:   v.Value,
-	}
+	return NewValue(v.version, v.parents, v.refs, v.value)
 }
 
 func (v *Value[T]) AddRefs(refs ...Ref) {
-	if v.Refs == nil {
-		v.Refs = Refs{}
+	if v.refs == nil {
+		v.refs = Refs{}
 	}
-	v.Refs.Add(refs...)
+	v.refs.Add(refs...)
 }
 
 func (v *Value[T]) DeleteRefs(refs ...Ref) {
-	v.Refs.Delete(refs...)
-	if v.Refs.Len() == 0 {
-		v.Refs = nil
+	if v.refs == nil {
+		return
 	}
+	v.refs.Delete(refs...)
+	if v.refs.Len() == 0 {
+		v.refs = nil
+	}
+}
+
+func (v *Value[T]) validate() bool {
+	return !v.version.IsZero() && !v.Parents().Has(v.version)
 }

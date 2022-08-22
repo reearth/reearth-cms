@@ -23,7 +23,7 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res V, _ 
 	if vv == nil {
 		return
 	}
-	return vv.Value, true
+	return vv.Value(), true
 }
 
 func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res []V) {
@@ -31,7 +31,7 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res
 		for _, kk := range keys {
 			if k == kk {
 				if found := v.Get(vr); found != nil {
-					res = append(res, found.Value)
+					res = append(res, found.Value())
 				}
 			}
 		}

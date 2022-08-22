@@ -14,10 +14,10 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 	vsm := &VersionedSyncMap[string, string]{
 		m: util.SyncMapFrom(map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				&version.Value[string]{Value: "A", Version: vx},
+				version.NewValue(vx, nil, nil, "A"),
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: vx, Refs: version.NewRefs("a")},
+				version.NewValue(vx, nil, version.NewRefs("a"), "B"),
 			),
 		}),
 	}
@@ -124,16 +124,16 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
 		map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				&version.Value[string]{Value: "A", Version: vx},
+				version.NewValue(vx, nil, nil, "A"),
 			),
 			"b": version.MustBeValues(
-				&version.Value[string]{Value: "B", Version: vx, Refs: version.NewRefs("a")},
+				version.NewValue(vx, nil, version.NewRefs("a"), "B"),
 			),
 			"c": version.MustBeValues(
-				&version.Value[string]{Value: "C", Version: vx},
+				version.NewValue(vx, nil, nil, "C"),
 			),
 			"d": version.MustBeValues(
-				&version.Value[string]{Value: "D", Version: vy, Refs: version.NewRefs("a")},
+				version.NewValue(vy, nil, version.NewRefs("a"), "D"),
 			),
 		},
 	)}
@@ -237,8 +237,8 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 			target: &VersionedSyncMap[string, string]{
 				m: util.SyncMapFrom(
 					map[string]*version.Values[string]{
-						"1": version.MustBeValues(&version.Value[string]{Value: "a", Version: vx}),
-						"2": version.MustBeValues(&version.Value[string]{Value: "a", Version: vx}),
+						"1": version.MustBeValues(version.NewValue(vx, nil, nil, "a")),
+						"2": version.MustBeValues(version.NewValue(vx, nil, nil, "a")),
 					},
 				),
 			},
@@ -248,7 +248,7 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				vr:  vx.OrRef().Ref(),
 			},
 			want: version.MustBeValues(
-				&version.Value[string]{Value: "a", Version: vx, Refs: version.NewRefs("A")},
+				version.NewValue(vx, nil, version.NewRefs("A"), "a"),
 			),
 		},
 	}
