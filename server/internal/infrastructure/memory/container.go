@@ -13,6 +13,7 @@ func New() *repo.Container {
 		User:        NewUser(),
 		Workspace:   NewWorkspace(),
 		Project:     NewProject(),
+		Model:       NewModel(),
 		// Schema:      NewSchema(),
 	}
 }
