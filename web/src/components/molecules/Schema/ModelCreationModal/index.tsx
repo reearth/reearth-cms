@@ -42,13 +42,14 @@ const ModelCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const handleClose = useCallback(() => {
     onClose?.(true);
   }, [onClose]);
+
   return (
     <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
           label="Model name"
-          rules={[{ required: true, message: "Please input the name of Model!" }]}>
+          rules={[{ required: true, message: "Please input the name of the model!" }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label="Model description">
@@ -57,7 +58,7 @@ const ModelCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
         <Form.Item
           name="key"
           label="Model key"
-          rules={[{ required: true, message: "Please input the key of Model!" }]}>
+          rules={[{ required: true, message: "Please input the key of the model!" }]}>
           <Input />
         </Form.Item>
       </Form>
