@@ -8,18 +8,24 @@ import Menu from "@reearth-cms/components/atoms/Menu";
 export interface Props {
   inlineCollapsed: boolean;
   workspaceId?: string;
+  projectId?: string;
   defaultSelectedKeys?: string[];
 }
 
 const topItems: ItemType[] = [
   { label: "Overview", key: "home", icon: <Icon icon="dashboard" /> },
-  { label: "Schema", key: "list", icon: <Icon icon="unorderedList" /> },
+  { label: "Schema", key: "schema", icon: <Icon icon="unorderedList" /> },
   { label: "Content", key: "content", icon: <Icon icon="table" /> },
   { label: "Asset", key: "asset", icon: <Icon icon="file" /> },
   { label: "Request", key: "request", icon: <Icon icon="pullRequest" /> },
 ];
 
-const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, workspaceId, defaultSelectedKeys }) => {
+const ProjectMenu: React.FC<Props> = ({
+  inlineCollapsed,
+  workspaceId,
+  projectId,
+  defaultSelectedKeys,
+}) => {
   const navigate = useNavigate();
   const items: ItemType[] = [
     {
@@ -37,6 +43,8 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, workspaceId, defaultSel
   const onClick = (e: any) => {
     if (e.key === "home") {
       navigate(`/dashboard/${workspaceId}`);
+    } else if (e.key === "schema") {
+      navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
     }
   };
 
