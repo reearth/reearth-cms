@@ -1,6 +1,6 @@
 package id
 
-import "github.com/reearth/reearth-cms/server/pkg/id/idx"
+import "github.com/reearth/reearthx/idx"
 
 type Workspace struct{}
 type User struct{}
