@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/log"
+	"github.com/reearth/reearthx/log"
 )
 
 type Auth0 struct {

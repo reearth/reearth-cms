@@ -8,13 +8,15 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/reearth/reearth-cms/server/pkg/log"
+
+	"github.com/reearth/reearthx/log"
 )
 
 const configPrefix = "reearth"
 
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
+	ServerHost   string
 	Dev          bool
 	Host_Web     string
 	GraphQL      GraphQLConfig
