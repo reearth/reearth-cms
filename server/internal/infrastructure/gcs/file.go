@@ -60,34 +60,29 @@ func (f *fileRepo) ReadAsset(ctx context.Context, name string) (io.ReadCloser, e
 	return f.read(ctx, path.Join(gcsAssetBasePath, sn))
 }
 
-func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
 	if file == nil {
-		return nil, gateway.ErrInvalidFile
+		return "", gateway.ErrInvalidFile
 	}
 	if file.Size >= fileSizeLimit {
-		return nil, gateway.ErrFileTooLarge
+		return "", gateway.ErrFileTooLarge
 	}
 
 	uuid := newUUID()
-	p := path.Join(uuid[:2], uuid[2:], file.Path)
-	snp := sanitize.Path(p)
-	if snp == "" {
-		return nil, gateway.ErrInvalidFile
+
+	p := getGCSObjectPath(file.Path, uuid)
+	if p == "" {
+		return "", gateway.ErrInvalidFile
 	}
 
-	u := getGCSObjectURL(f.base, snp)
-	if u == nil {
-		return nil, gateway.ErrInvalidFile
+	if err := f.upload(ctx, p, file.Content); err != nil {
+		return "", err
 	}
-
-	if err := f.upload(ctx, snp, file.Content); err != nil {
-		return nil, err
-	}
-	return u, nil
+	return p, nil
 }
 
-func (f *fileRepo) DeleteAsset(ctx context.Context, u *url.URL) error {
-	sn := getGCSObjectNameFromURL(f.base, u)
+func (f *fileRepo) DeleteAsset(ctx context.Context, p string) error {
+	sn := sanitize.Path(p)
 	if sn == "" {
 		return gateway.ErrInvalidFile
 	}
@@ -171,6 +166,11 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+func getGCSObjectPath(filename, uuid string) string {
+	p := path.Join(uuid[:2], uuid[2:], filename)
+	return sanitize.Path(p)
 }
 
 func getGCSObjectURL(base *url.URL, objectName string) *url.URL {

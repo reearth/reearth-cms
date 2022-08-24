@@ -9,7 +9,7 @@ type Asset implements Node {
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
-  hash: String!
+  uuid: String!
 }
 
 type AssetFile {

@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"net/url"
 	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -73,7 +72,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
-			url, err := i.gateways.File.UploadAsset(ctx, inp.File)
+			uuid, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {
 				return nil, err
 			}
@@ -84,7 +83,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
-				Hash(url.String()).
+				UUID(uuid).
 				Build()
 			if err != nil {
 				return nil, err
@@ -128,8 +127,8 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			if url, _ := url.Parse(asset.Hash()); url != nil {
-				if err := i.gateways.File.DeleteAsset(ctx, url); err != nil {
+			if uuid := asset.UUID(); uuid != "" {
+				if err := i.gateways.File.DeleteAsset(ctx, uuid); err != nil {
 					return aid, err
 				}
 			}

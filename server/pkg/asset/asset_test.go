@@ -25,7 +25,7 @@ func TestAsset_AssetType(t *testing.T) {
 		size:        size,
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 		file:        &File{},
-		hash:        "yyy",
+		uuid:        "yyy",
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -36,7 +36,7 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
-	assert.Equal(t, "yyy", got.Hash())
+	assert.Equal(t, "yyy", got.UUID())
 }
 
 func TestAsset_CreatedAt(t *testing.T) {

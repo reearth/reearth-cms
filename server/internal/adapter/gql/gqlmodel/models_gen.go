@@ -42,7 +42,7 @@ type Asset struct {
 	Size        int64        `json:"size"`
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
-	Hash        string       `json:"hash"`
+	UUID        string       `json:"uuid"`
 }
 
 func (Asset) IsNode() {}

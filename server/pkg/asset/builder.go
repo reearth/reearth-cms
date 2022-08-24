@@ -84,7 +84,7 @@ func (b *Builder) File(file *File) *Builder {
 	return b
 }
 
-func (b *Builder) Hash(hash string) *Builder {
-	b.a.hash = hash
+func (b *Builder) UUID(uuid string) *Builder {
+	b.a.uuid = uuid
 	return b
 }

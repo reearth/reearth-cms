@@ -26,7 +26,7 @@ type AssetDocument struct {
 	Size        uint64
 	PreviewType string
 	File        *File
-	Hash        string
+	UUID        string
 }
 
 type AssetConsumer struct {
@@ -60,7 +60,7 @@ func NewAsset(asset *asset.Asset) (*AssetDocument, string) {
 		FileName:    asset.FileName(),
 		Size:        asset.Size(),
 		PreviewType: asset.PreviewType().String(),
-		Hash:        asset.Hash(),
+		UUID:        asset.UUID(),
 	}, aid
 }
 
@@ -97,6 +97,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(f).
-		Hash(d.Hash).
+		UUID(d.UUID).
 		Build()
 }

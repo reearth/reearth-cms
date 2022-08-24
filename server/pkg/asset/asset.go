@@ -15,7 +15,7 @@ type Asset struct {
 	size        uint64
 	previewType *PreviewType
 	file        *File
-	hash        string
+	uuid        string
 }
 
 func (a *Asset) ID() ID {
@@ -57,8 +57,8 @@ func (a *Asset) File() *File {
 	return a.file
 }
 
-func (a *Asset) Hash() string {
-	return a.hash
+func (a *Asset) UUID() string {
+	return a.uuid
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {

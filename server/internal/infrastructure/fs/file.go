@@ -8,10 +8,10 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/file"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/spf13/afero"
 )
@@ -39,23 +39,35 @@ func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadClose
 	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
 }
 
-func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (*url.URL, error) {
-	filename := sanitize.Path(newAssetID() + path.Ext(file.Path))
-	if err := f.upload(ctx, filepath.Join(assetDir, filename), file.Content); err != nil {
-		return nil, err
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
+	if file == nil {
+		return "", gateway.ErrInvalidFile
 	}
-	return getAssetFileURL(f.urlBase, filename), nil
+	if file.Size >= fileSizeLimit {
+		return "", gateway.ErrFileTooLarge
+	}
+
+	uuid := newUUID()
+
+	p := getFSObjectPath(file.Path, uuid)
+	if p == "" {
+		return "", gateway.ErrInvalidFile
+	}
+
+	if err := f.upload(ctx, p, file.Content); err != nil {
+		return "", err
+	}
+
+	return p, nil
 }
 
-func (f *fileRepo) DeleteAsset(ctx context.Context, u *url.URL) error {
-	if u == nil {
-		return nil
-	}
-	p := sanitize.Path(u.Path)
-	if p == "" || f.urlBase == nil || u.Scheme != f.urlBase.Scheme || u.Host != f.urlBase.Host || path.Dir(p) != f.urlBase.Path {
+func (f *fileRepo) DeleteAsset(ctx context.Context, p string) error {
+	sn := sanitize.Path(p)
+
+	if sn == "" {
 		return gateway.ErrInvalidFile
 	}
-	return f.delete(ctx, filepath.Join(assetDir, path.Base(p)))
+	return f.delete(ctx, sn)
 }
 
 // helpers
@@ -122,6 +134,11 @@ func (f *fileRepo) move(ctx context.Context, from, dest string) error {
 	return nil
 }
 
+func getFSObjectPath(filename, uuid string) string {
+	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
+	return sanitize.Path(p)
+}
+
 func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	if filename == "" {
 		return gateway.ErrFailedToUploadFile
@@ -136,18 +153,6 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-func getAssetFileURL(base *url.URL, filename string) *url.URL {
-	if base == nil {
-		return nil
-	}
-
-	// https://github.com/golang/go/issues/38351
-	b := *base
-	b.Path = path.Join(b.Path, filename)
-	return &b
-}
-
-func newAssetID() string {
-	// TODO: replace
-	return id.NewAssetID().String()
+func newUUID() string {
+	return uuid.New().String()
 }

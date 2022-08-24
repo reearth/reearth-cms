@@ -65,12 +65,12 @@ type ComplexityRoot struct {
 		CreatedByID func(childComplexity int) int
 		File        func(childComplexity int) int
 		FileName    func(childComplexity int) int
-		Hash        func(childComplexity int) int
 		ID          func(childComplexity int) int
 		PreviewType func(childComplexity int) int
 		Project     func(childComplexity int) int
 		ProjectID   func(childComplexity int) int
 		Size        func(childComplexity int) int
+		UUID        func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -497,13 +497,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asset.FileName(childComplexity), true
 
-	case "Asset.hash":
-		if e.complexity.Asset.Hash == nil {
-			break
-		}
-
-		return e.complexity.Asset.Hash(childComplexity), true
-
 	case "Asset.id":
 		if e.complexity.Asset.ID == nil {
 			break
@@ -538,6 +531,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.Size(childComplexity), true
+
+	case "Asset.uuid":
+		if e.complexity.Asset.UUID == nil {
+			break
+		}
+
+		return e.complexity.Asset.UUID(childComplexity), true
 
 	case "AssetConnection.edges":
 		if e.complexity.AssetConnection.Edges == nil {
@@ -1941,7 +1941,7 @@ schema {
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
-  hash: String!
+  uuid: String!
 }
 
 type AssetFile {
@@ -3585,7 +3585,7 @@ func (ec *executionContext) _Asset_file(ctx context.Context, field graphql.Colle
 	return ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Asset_hash(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+func (ec *executionContext) _Asset_uuid(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3603,7 +3603,7 @@ func (ec *executionContext) _Asset_hash(ctx context.Context, field graphql.Colle
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Hash, nil
+		return obj.UUID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12307,9 +12307,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "hash":
+		case "uuid":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Asset_hash(ctx, field, obj)
+				return ec._Asset_uuid(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

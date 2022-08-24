@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetGCSObjectPath(t *testing.T) {
+	n := "xxx.yyy"
+	u := "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy", getGCSObjectPath(n, u))
+}
+
 func TestGetGCSObjectURL(t *testing.T) {
 	e, _ := url.Parse("https://hoge.com/xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy")
 	b, _ := url.Parse("https://hoge.com/")

@@ -26,7 +26,7 @@ func ToAsset(a *asset.Asset) *Asset {
 		Size:        int64(a.Size()),
 		PreviewType: ToPreviewType(a.PreviewType()),
 		File:        ToAssetFile(a.File()),
-		Hash:        a.Hash(),
+		UUID:        a.UUID(),
 	}
 }
 

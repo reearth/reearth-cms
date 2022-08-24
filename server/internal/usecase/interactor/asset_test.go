@@ -61,7 +61,7 @@ func TestAsset_Create(t *testing.T) {
 		CreatedBy(uid).
 		FileName("hoge.txt").
 		Size(uint64(buflen)).
-		Hash(res.Hash()).
+		UUID(res.UUID()).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(""))).
 		MustBuild()
 
