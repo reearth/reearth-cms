@@ -40,12 +40,12 @@ export type Asset = Node & {
   createdById: Scalars['ID'];
   file: AssetFile;
   fileName: Scalars['String'];
-  hash: Scalars['String'];
   id: Scalars['ID'];
   previewType?: Maybe<PreviewType>;
   project?: Maybe<Project>;
   projectId: Scalars['ID'];
   size: Scalars['FileSize'];
+  uuid: Scalars['String'];
 };
 
 export type AssetConnection = {
@@ -938,14 +938,14 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -954,7 +954,7 @@ export type CreateAssetMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
 
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -962,7 +962,7 @@ export type UpdateAssetMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1153,7 +1153,7 @@ export const GetAssetsDocument = gql`
           contentType
           path
         }
-        hash
+        uuid
       }
     }
     nodes {
@@ -1170,7 +1170,7 @@ export const GetAssetsDocument = gql`
         contentType
         path
       }
-      hash
+      uuid
     }
     pageInfo {
       startCursor
@@ -1229,7 +1229,7 @@ export const GetAssetDocument = gql`
       contentType
       path
     }
-    hash
+    uuid
   }
 }
     `;
@@ -1280,7 +1280,7 @@ export const CreateAssetDocument = gql`
         contentType
         path
       }
-      hash
+      uuid
     }
   }
 }
@@ -1330,7 +1330,7 @@ export const UpdateAssetDocument = gql`
         contentType
         path
       }
-      hash
+      uuid
     }
   }
 }

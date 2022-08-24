@@ -24,7 +24,7 @@ export const GET_ASSETS = gql`
             contentType
             path
           }
-          hash
+          uuid
         }
       }
       nodes {
@@ -41,7 +41,7 @@ export const GET_ASSETS = gql`
           contentType
           path
         }
-        hash
+        uuid
       }
       pageInfo {
         startCursor
@@ -70,7 +70,7 @@ export const GET_ASSET = gql`
         contentType
         path
       }
-      hash
+      uuid
     }
   }
 `;
@@ -92,7 +92,7 @@ export const CREATE_ASSET = gql`
           contentType
           path
         }
-        hash
+        uuid
       }
     }
   }
@@ -115,7 +115,7 @@ export const UPDATE_ASSET = gql`
           contentType
           path
         }
-        hash
+        uuid
       }
     }
   }
