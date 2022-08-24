@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import type { MenuInfo } from "rc-menu/lib/interface";
 import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -23,7 +24,7 @@ const SchemaMenu: React.FC<Props> = ({
   handleModalOpen,
   selectModel,
 }) => {
-  const onClick = (e: any) => {
+  const onClick = (e: MenuInfo) => {
     selectModel(e.key);
   };
 
