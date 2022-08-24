@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/id/idx"
+	"github.com/reearth/reearthx/idx"
 )
 
 type AssetFilterType string

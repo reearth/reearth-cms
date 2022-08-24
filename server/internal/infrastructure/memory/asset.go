@@ -10,7 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type Asset struct {
