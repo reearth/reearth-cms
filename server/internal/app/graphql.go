@@ -18,7 +18,8 @@ const enableDataLoaders = true
 
 func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	schema := gql.NewExecutableSchema(gql.Config{
-		Resolvers: gql.NewResolver(),
+		Resolvers:  gql.NewResolver(),
+		Directives: gql.NewDirective(),
 	})
 
 	srv := handler.NewDefaultServer(schema)
