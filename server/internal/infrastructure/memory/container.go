@@ -14,7 +14,7 @@ func New() *repo.Container {
 		Workspace:   NewWorkspace(),
 		Project:     NewProject(),
 		Model:       NewModel(),
-		// Schema:      NewSchema(),
+		Schema:      NewSchema(),
 	}
 }
 
