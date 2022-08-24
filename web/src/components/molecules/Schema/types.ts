@@ -1,7 +1,7 @@
 export type Model = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   key: string;
   schema: Schema;
 };
