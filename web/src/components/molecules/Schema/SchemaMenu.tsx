@@ -67,7 +67,7 @@ const SchemaStyledMenuTitle = styled.h1`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  color: #00000073;
 `;
 
 const SchemaStyledTitle = styled.h2`
