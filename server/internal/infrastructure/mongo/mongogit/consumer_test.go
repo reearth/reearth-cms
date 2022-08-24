@@ -13,19 +13,19 @@ func TestFuncConsumer(t *testing.T) {
 	vx, vy := version.New(), version.New()
 	err := errors.New("aaa")
 	raw, _ := bson.Marshal(map[string]any{
-		versionKey:         vx,
-		previousVersionKey: vy,
-		refKey:             []version.Ref{"main"},
-		"test":             "hoge",
+		versionKey: vx,
+		parentsKey: []version.Version{vy},
+		refsKey:    []version.Ref{"main"},
+		"test":     "hoge",
 	})
 
 	called := 0
 	c := FuncConsumer(func(r bson.Raw, m Meta) error {
 		assert.Equal(t, bson.Raw(raw), r)
 		assert.Equal(t, Meta{
-			Version:         vx,
-			PreviousVersion: vy,
-			Ref:             []version.Ref{"main"},
+			Version: vx,
+			Parents: []version.Version{vy},
+			Refs:    []version.Ref{"main"},
 		}, m)
 		called++
 		return err
@@ -39,19 +39,19 @@ func TestSimpleConsumer(t *testing.T) {
 	type d struct{ Test string }
 	err := errors.New("aaa")
 	raw, _ := bson.Marshal(map[string]any{
-		versionKey:         vx,
-		previousVersionKey: vy,
-		refKey:             []version.Ref{"main"},
-		"test":             "hoge",
+		versionKey: vx,
+		parentsKey: []version.Version{vy},
+		refsKey:    []version.Ref{"main"},
+		"test":     "hoge",
 	})
 
 	called := 0
 	c := SimpleConsumer[d](func(e d, m Meta) error {
 		assert.Equal(t, d{Test: "hoge"}, e)
 		assert.Equal(t, Meta{
-			Version:         vx,
-			PreviousVersion: vy,
-			Ref:             []version.Ref{"main"},
+			Version: vx,
+			Parents: []version.Version{vy},
+			Refs:    []version.Ref{"main"},
 		}, m)
 		called++
 		return err
@@ -64,10 +64,10 @@ func TestSliceConsumer(t *testing.T) {
 	vx, vy := version.New(), version.New()
 	type d struct{ Test string }
 	raw, _ := bson.Marshal(map[string]any{
-		versionKey:         vx,
-		previousVersionKey: vy,
-		refKey:             []version.Ref{"main"},
-		"test":             "hoge",
+		versionKey: vx,
+		parentsKey: []version.Version{vy},
+		refsKey:    []version.Ref{"main"},
+		"test":     "hoge",
 	})
 
 	c := &SliceConsumer[d]{}
@@ -78,9 +78,9 @@ func TestSliceConsumer(t *testing.T) {
 				Test: "hoge",
 			},
 			Meta: Meta{
-				Version:         vx,
-				PreviousVersion: vy,
-				Ref:             []version.Ref{"main"},
+				Version: vx,
+				Parents: []version.Version{vy},
+				Refs:    []version.Ref{"main"},
 			},
 		},
 	}, c.Result)
@@ -89,15 +89,15 @@ func TestSliceConsumer(t *testing.T) {
 func TestVersionFromRaw(t *testing.T) {
 	vx, vy := version.New(), version.New()
 	raw, _ := bson.Marshal(map[string]any{
-		versionKey:         vx,
-		previousVersionKey: vy,
-		refKey:             []version.Ref{"main"},
-		"test":             "hoge",
+		versionKey: vx,
+		parentsKey: []version.Version{vy},
+		refsKey:    []version.Ref{"main"},
+		"test":     "hoge",
 	})
 	assert.Equal(t, Meta{
-		Version:         vx,
-		PreviousVersion: vy,
-		Ref:             []version.Ref{"main"},
+		Version: vx,
+		Parents: []version.Version{vy},
+		Refs:    []version.Ref{"main"},
 	}, metaFromRaw(raw))
 
 	raw, _ = bson.Marshal(map[string]any{
@@ -105,8 +105,7 @@ func TestVersionFromRaw(t *testing.T) {
 		"test":     "hoge",
 	})
 	assert.Equal(t, Meta{
-		Version:         vx,
-		PreviousVersion: version.Zero,
-		Ref:             nil,
+		Version: vx,
+		Refs:    nil,
 	}, metaFromRaw(raw))
 }

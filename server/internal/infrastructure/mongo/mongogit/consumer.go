@@ -2,7 +2,6 @@ package mongogit
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -53,25 +52,18 @@ func consumer(c Consumer) mongodoc.Consumer {
 	return &consumerAdapter{c: c}
 }
 
-const (
-	versionKey         = "__v"
-	previousVersionKey = "__w"
-	refKey             = "__refs"
-)
-
-type Meta struct {
-	Version         version.Version `json:"__v" bson:"__v"`
-	PreviousVersion version.Version `json:"__w" bson:"__w"`
-	Ref             []version.Ref   `json:"__refs" bson:"__refs"`
-}
-
-func metaFromRaw(r bson.Raw) Meta {
-	m := Meta{}
-	_ = bson.Unmarshal(r, &m)
-	return m
-}
-
 type DataAndMeta[T any] struct {
 	Data T
 	Meta Meta
+}
+
+func dataAndMetaFromRaw[T any](r bson.Raw) (DataAndMeta[T], error) {
+	var data T
+	if err := bson.Unmarshal(r, &data); err != nil {
+		return DataAndMeta[T]{}, err
+	}
+	return DataAndMeta[T]{
+		Data: data,
+		Meta: metaFromRaw(r),
+	}, nil
 }

@@ -1,10 +1,14 @@
 package version
 
 import (
+	"errors"
+
 	"github.com/chrispappas/golang-generics-set/set"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
+
+var ErrArchived = errors.New("archived")
 
 type Values[T any] struct {
 	inner    []*Value[T]
