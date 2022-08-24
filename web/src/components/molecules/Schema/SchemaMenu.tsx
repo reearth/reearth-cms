@@ -32,11 +32,7 @@ const SchemaMenu: React.FC<Props> = ({
       <SchemaStyledTitle>Schema</SchemaStyledTitle>
       <SchemaAction>
         <SchemaStyledMenuTitle>Models</SchemaStyledMenuTitle>
-        <SchemaAddButton
-          onClick={handleModalOpen}
-          color="#1890FF"
-          icon={<Icon icon="plus" />}
-          type="text">
+        <SchemaAddButton onClick={handleModalOpen} icon={<Icon icon="plus" />} type="text">
           Add
         </SchemaAddButton>
       </SchemaAction>
