@@ -29,7 +29,7 @@ func TestKey_String(t *testing.T) {
 
 func TestKey_Clone(t *testing.T) {
 	k := Key{key: "aaaaaa"}
-	c := k.Clone()
+	c := k
 	assert.Equal(t, k, c)
 	assert.NotSame(t, k, c)
 }

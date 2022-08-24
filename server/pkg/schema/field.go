@@ -90,7 +90,7 @@ func (f *Field) Clone() *Field {
 		id:           f.id.Clone(),
 		name:         f.name,
 		description:  f.description,
-		key:          f.key.Clone(),
+		key:          f.key,
 		updatedAt:    f.updatedAt,
 		typeProperty: f.typeProperty.Clone(),
 	}

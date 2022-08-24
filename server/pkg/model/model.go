@@ -96,7 +96,7 @@ func (p *Model) Clone() *Model {
 		schema:      p.schema.Clone(),
 		name:        p.name,
 		description: p.description,
-		key:         p.Key().Clone(),
+		key:         p.Key(),
 		public:      p.public,
 		updatedAt:   p.updatedAt,
 	}
