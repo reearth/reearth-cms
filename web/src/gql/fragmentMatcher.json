@@ -14,14 +14,14 @@
       "SchemaFieldBool",
       "SchemaFieldDate",
       "SchemaFieldInteger",
+      "SchemaFieldMarkdown",
       "SchemaFieldReference",
       "SchemaFieldRichText",
       "SchemaFieldSelect",
       "SchemaFieldTag",
       "SchemaFieldText",
       "SchemaFieldTextArea",
-      "SchemaFieldURL",
-      "SchemaMarkdownText"
+      "SchemaFieldURL"
     ]
   }
 }
