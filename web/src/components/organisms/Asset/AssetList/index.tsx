@@ -93,7 +93,7 @@ const AssetList: React.FC = () => {
   };
 
   const handleEdit = (asset: Asset) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/assets/${asset.id}`);
+    navigate(`/workspaces/${workspaceId}/${projectId}/asset/${asset.id}`);
   };
 
   const pagination: TablePaginationConfig = {

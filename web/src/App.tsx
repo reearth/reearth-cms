@@ -22,11 +22,11 @@ function AppRoutes() {
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     {
-      path: "/workspaces/:workspaceId/:projectId/assets",
+      path: "/workspaces/:workspaceId/:projectId/asset",
       element: <AssetListPage />,
     },
     {
-      path: "/workspaces/:workspaceId/:projectId/assets/:assetId",
+      path: "/workspaces/:workspaceId/:projectId/asset/:assetId",
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
