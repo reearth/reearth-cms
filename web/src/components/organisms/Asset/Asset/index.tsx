@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import AssetHeader from "@reearth-cms/components/molecules/Asset/Asset/AssetHeader";
-import { hashToURL } from "@reearth-cms/utils/convert";
+import { uuidToURL } from "@reearth-cms/utils/convert";
 
 import useHooks from "./hooks";
 
@@ -19,7 +19,7 @@ const Asset: React.FC = () => {
     handleFullScreen,
   } = useHooks(assetId);
 
-  const url = hashToURL(asset?.hash);
+  const url = uuidToURL(asset?.uuid);
 
   if (!asset) {
     return <>not found</>;

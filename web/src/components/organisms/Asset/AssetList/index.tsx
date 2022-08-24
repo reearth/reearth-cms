@@ -15,6 +15,7 @@ import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
 import { Asset } from "@reearth-cms/gql/graphql-client-api";
+import { uuidToURL } from "@reearth-cms/utils/convert";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 
@@ -156,7 +157,7 @@ const AssetList: React.FC = () => {
         <DownloadButton
           type="link"
           filename={asset.fileName}
-          url={asset.hash}
+          url={uuidToURL(asset?.uuid)}
           displayDefaultIcon={false}></DownloadButton>
       ),
     },
