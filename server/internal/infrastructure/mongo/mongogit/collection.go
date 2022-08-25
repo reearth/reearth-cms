@@ -39,6 +39,10 @@ func (c *Collection) Paginate(ctx context.Context, filter any, q Query, p *useca
 	return c.client.Paginate(ctx, q.apply(filter), p, consumer)
 }
 
+func (c *Collection) Count(ctx context.Context, filter any, q Query) (int64, error) {
+	return c.client.Count(ctx, q.apply(filter))
+}
+
 func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
 	if archived, err := c.IsArchived(ctx, id); err != nil {
 		return err

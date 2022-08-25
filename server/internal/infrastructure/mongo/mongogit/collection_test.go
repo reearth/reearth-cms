@@ -128,6 +128,65 @@ func TestCollection_Find(t *testing.T) {
 	assert.Empty(t, consumer4.Result)
 }
 
+func TestCollection_Count(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Collection()
+	vx, vy := version.New(), version.New()
+
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+			},
+			Meta: Meta{
+				Version: vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+				"b": "c",
+			},
+			Meta: Meta{
+				Version: vy,
+				Parents: []version.Version{vx},
+				Refs:    []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "d",
+				"b": "a",
+			},
+			Meta: Meta{
+				Version: vy,
+				Refs:    []version.Ref{"latest"},
+			},
+		},
+	})
+
+	// all
+	count, err := col.Count(ctx, bson.M{"a": "b"}, All())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(2), count)
+
+	// version
+	count, err = col.Count(ctx, bson.M{"a": "b"}, Eq(vx.OrRef()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	// ref
+	count, err = col.Count(ctx, bson.M{"a": "b"}, Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	// not found
+	count, err = col.Count(ctx, bson.M{"a": "c"}, Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+}
+
 func TestCollection_Paginate(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
