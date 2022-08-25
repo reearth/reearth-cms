@@ -13,6 +13,5 @@ func (r *Resolver) Schema() SchemaResolver {
 type schemaResolver struct{ *Resolver }
 
 func (s schemaResolver) Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error) {
-	// TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }

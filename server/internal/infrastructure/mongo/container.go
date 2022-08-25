@@ -27,6 +27,8 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 		Transaction: NewTransaction(client),
 		Lock:        lock,
 		Project:     NewProject(client),
+		Model:       NewModel(client),
+		Schema:      NewSchema(client),
 	}
 	return c, nil
 }

@@ -53,3 +53,34 @@ func TestFieldReference_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldReference_ModelID(t *testing.T) {
+	mId := id.NewModelID()
+	type fields struct {
+		modelID model.ID
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   model.ID
+	}{
+		{
+			name: "test",
+			fields: fields{
+				modelID: mId,
+			},
+			want: mId,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldReference{
+				modelID: tt.fields.modelID,
+			}
+			assert.Equalf(t, tt.want, f.ModelID(), "ModelID()")
+		})
+	}
+}
