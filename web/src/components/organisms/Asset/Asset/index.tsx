@@ -21,10 +21,6 @@ const Asset: React.FC = () => {
 
   const url = uuidToURL(asset?.uuid);
 
-  if (!asset) {
-    return <>not found</>;
-  }
-
   const handleSave = async () => {
     if (assetId) {
       await updateAsset(assetId, selectedPreviewType);
@@ -33,7 +29,7 @@ const Asset: React.FC = () => {
 
   return isLoading ? (
     <>loading...</>
-  ) : (
+  ) : asset ? (
     <>
       <AssetHeader
         title={`Asset/${asset?.fileName}`}
@@ -50,6 +46,8 @@ const Asset: React.FC = () => {
         url={url}
       />
     </>
+  ) : (
+    <>not found</>
   );
 };
 
