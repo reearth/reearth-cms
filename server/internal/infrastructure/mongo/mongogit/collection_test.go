@@ -103,9 +103,16 @@ func TestCollection_Find(t *testing.T) {
 	})
 
 	// all
-	consumer0 := &mongodoc.SliceConsumer[d]{}
+	consumer0 := &mongodoc.SliceConsumer[Document[d]]{}
 	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, All(), consumer0))
-	assert.Equal(t, []d{{A: "b"}, {A: "b", B: "c"}}, consumer0.Result)
+	assert.Equal(t, []Document[d]{
+		{Data: d{A: "b"}, Meta: Meta{Version: vx}},
+		{Data: d{A: "b", B: "c"}, Meta: Meta{
+			Version: vy,
+			Parents: []version.Version{vx},
+			Refs:    []version.Ref{"latest", "aaa"},
+		}},
+	}, consumer0.Result)
 
 	// latest
 	consumer1 := &mongodoc.SliceConsumer[d]{}
