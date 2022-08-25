@@ -52,3 +52,28 @@ func TestFieldAsset_TypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldAsset_DefaultValue(t *testing.T) {
+	aId := id.NewAssetID()
+	tests := []struct {
+		name  string
+		field *FieldAsset
+		want  *id.AssetID
+	}{
+		{
+			name:  "nil",
+			field: &FieldAsset{defaultValue: nil},
+			want:  nil,
+		},
+		{
+			name:  "nil",
+			field: &FieldAsset{defaultValue: &aId},
+			want:  &aId,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.field.DefaultValue())
+		})
+	}
+}

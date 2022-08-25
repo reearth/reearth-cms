@@ -71,6 +71,9 @@ func (p *Model) SetPublic(public bool) {
 }
 
 func (p *Model) UpdatedAt() time.Time {
+	if p.updatedAt.IsZero() {
+		return p.id.Timestamp()
+	}
 	return p.updatedAt
 }
 
@@ -80,4 +83,21 @@ func (p *Model) SetUpdatedAt(updatedAt time.Time) {
 
 func (p *Model) CreatedAt() time.Time {
 	return p.id.Timestamp()
+}
+
+func (p *Model) Clone() *Model {
+	if p == nil {
+		return nil
+	}
+
+	return &Model{
+		id:          p.id.Clone(),
+		project:     p.project.Clone(),
+		schema:      p.schema.Clone(),
+		name:        p.name,
+		description: p.description,
+		key:         p.Key(),
+		public:      p.public,
+		updatedAt:   p.updatedAt,
+	}
 }

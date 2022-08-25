@@ -303,17 +303,17 @@ export type Mutation = {
   createAsset?: Maybe<CreateAssetPayload>;
   createField?: Maybe<FieldPayload>;
   createItem?: Maybe<ItemPayload>;
-  createModel?: Maybe<ProjectPayload>;
+  createModel?: Maybe<ModelPayload>;
   createProject?: Maybe<ProjectPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
-  deleteModel?: Maybe<DeleteProjectPayload>;
+  deleteModel?: Maybe<DeleteModelPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
-  publishModel?: Maybe<DeleteProjectPayload>;
+  publishModel?: Maybe<PublishModelPayload>;
   removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
@@ -321,7 +321,7 @@ export type Mutation = {
   updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
   updateMemberOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
-  updateModel?: Maybe<ProjectPayload>;
+  updateModel?: Maybe<ModelPayload>;
   updateProject?: Maybe<ProjectPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
 };
@@ -525,6 +525,12 @@ export type PublishModelInput = {
   status: Scalars['Boolean'];
 };
 
+export type PublishModelPayload = {
+  __typename?: 'PublishModelPayload';
+  modelId: Scalars['ID'];
+  status: Scalars['Boolean'];
+};
+
 export type Query = {
   __typename?: 'Query';
   assets: AssetConnection;
@@ -550,6 +556,7 @@ export type QueryAssetsArgs = {
 
 export type QueryCheckModelKeyAvailabilityArgs = {
   key: Scalars['String'];
+  projectId: Scalars['ID'];
 };
 
 
@@ -686,13 +693,19 @@ export type SchemaFieldIntegerInput = {
   min?: InputMaybe<Scalars['Int']>;
 };
 
+export type SchemaFieldMarkdown = {
+  __typename?: 'SchemaFieldMarkdown';
+  defaultValue?: Maybe<Scalars['String']>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
+
 export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
-  modelId?: Maybe<Scalars['ID']>;
+  modelId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
-  modelId?: InputMaybe<Scalars['ID']>;
+  modelId: Scalars['ID'];
 };
 
 export type SchemaFieldRichText = {
@@ -719,12 +732,12 @@ export type SchemaFieldSelectInput = {
 
 export type SchemaFieldTag = {
   __typename?: 'SchemaFieldTag';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue: Array<Scalars['String']>;
   values: Array<Scalars['String']>;
 };
 
 export type SchemaFieldTagInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Array<Scalars['String']>>;
   values: Array<Scalars['String']>;
 };
 
@@ -750,7 +763,7 @@ export type SchemaFieldTextInput = {
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
-export type SchemaFieldTypeProperty = SchemaFieldAsset | SchemaFieldBool | SchemaFieldDate | SchemaFieldInteger | SchemaFieldReference | SchemaFieldRichText | SchemaFieldSelect | SchemaFieldTag | SchemaFieldText | SchemaFieldTextArea | SchemaFieldUrl | SchemaMarkdownText;
+export type SchemaFieldTypeProperty = SchemaFieldAsset | SchemaFieldBool | SchemaFieldDate | SchemaFieldInteger | SchemaFieldMarkdown | SchemaFieldReference | SchemaFieldRichText | SchemaFieldSelect | SchemaFieldTag | SchemaFieldText | SchemaFieldTextArea | SchemaFieldUrl;
 
 export type SchemaFieldTypePropertyInput = {
   asset?: InputMaybe<SchemaFieldAssetInput>;
@@ -791,12 +804,6 @@ export enum SchemaFiledType {
   Url = 'URL'
 }
 
-export type SchemaMarkdownText = {
-  __typename?: 'SchemaMarkdownText';
-  defaultValue?: Maybe<Scalars['String']>;
-  maxLength?: Maybe<Scalars['Int']>;
-};
-
 export type SchemaMarkdownTextInput = {
   defaultValue?: InputMaybe<Scalars['String']>;
   maxLength?: InputMaybe<Scalars['Int']>;
@@ -824,6 +831,7 @@ export enum Theme {
 
 export type UpdateFieldInput = {
   description?: InputMaybe<Scalars['String']>;
+  fieldId: Scalars['ID'];
   key?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
@@ -930,6 +938,42 @@ export type DeleteAssetMutationVariables = Exact<{
 
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
+
+export type CreateFieldMutationVariables = Exact<{
+  modelId: Scalars['ID'];
+  type: SchemaFiledType;
+  title: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  multiValue: Scalars['Boolean'];
+  unique: Scalars['Boolean'];
+  required: Scalars['Boolean'];
+  typeProperty: SchemaFieldTypePropertyInput;
+}>;
+
+
+export type CreateFieldMutation = { __typename?: 'Mutation', createField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
+
+export type GetModelsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, description?: string | null, required: boolean, unique: boolean }> } } | null> } };
+
+export type CreateModelMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CreateModelMutation = { __typename?: 'Mutation', createModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -1236,6 +1280,153 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const CreateFieldDocument = gql`
+    mutation CreateField($modelId: ID!, $type: SchemaFiledType!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+  createField(
+    input: {modelId: $modelId, type: $type, title: $title, description: $description, key: $key, multiValue: $multiValue, unique: $unique, required: $required, typeProperty: $typeProperty}
+  ) {
+    field {
+      id
+    }
+  }
+}
+    `;
+export type CreateFieldMutationFn = Apollo.MutationFunction<CreateFieldMutation, CreateFieldMutationVariables>;
+
+/**
+ * __useCreateFieldMutation__
+ *
+ * To run a mutation, you first call `useCreateFieldMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateFieldMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createFieldMutation, { data, loading, error }] = useCreateFieldMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      type: // value for 'type'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      key: // value for 'key'
+ *      multiValue: // value for 'multiValue'
+ *      unique: // value for 'unique'
+ *      required: // value for 'required'
+ *      typeProperty: // value for 'typeProperty'
+ *   },
+ * });
+ */
+export function useCreateFieldMutation(baseOptions?: Apollo.MutationHookOptions<CreateFieldMutation, CreateFieldMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateFieldMutation, CreateFieldMutationVariables>(CreateFieldDocument, options);
+      }
+export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMutation>;
+export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
+export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
+export const GetModelsDocument = gql`
+    query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+  models(
+    projectId: $projectId
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+  ) {
+    nodes {
+      id
+      name
+      description
+      key
+      schema {
+        id
+        fields {
+          id
+          type
+          title
+          description
+          required
+          unique
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetModelsQuery__
+ *
+ * To run a query within a React component, call `useGetModelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetModelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetModelsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *   },
+ * });
+ */
+export function useGetModelsQuery(baseOptions: Apollo.QueryHookOptions<GetModelsQuery, GetModelsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
+      }
+export function useGetModelsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetModelsQuery, GetModelsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
+        }
+export type GetModelsQueryHookResult = ReturnType<typeof useGetModelsQuery>;
+export type GetModelsLazyQueryHookResult = ReturnType<typeof useGetModelsLazyQuery>;
+export type GetModelsQueryResult = Apollo.QueryResult<GetModelsQuery, GetModelsQueryVariables>;
+export const CreateModelDocument = gql`
+    mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
+  createModel(
+    input: {projectId: $projectId, name: $name, description: $description, key: $key}
+  ) {
+    model {
+      id
+      name
+    }
+  }
+}
+    `;
+export type CreateModelMutationFn = Apollo.MutationFunction<CreateModelMutation, CreateModelMutationVariables>;
+
+/**
+ * __useCreateModelMutation__
+ *
+ * To run a mutation, you first call `useCreateModelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateModelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createModelMutation, { data, loading, error }] = useCreateModelMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      name: // value for 'name'
+ *      description: // value for 'description'
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useCreateModelMutation(baseOptions?: Apollo.MutationHookOptions<CreateModelMutation, CreateModelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateModelMutation, CreateModelMutationVariables>(CreateModelDocument, options);
+      }
+export type CreateModelMutationHookResult = ReturnType<typeof useCreateModelMutation>;
+export type CreateModelMutationResult = Apollo.MutationResult<CreateModelMutation>;
+export type CreateModelMutationOptions = Apollo.BaseMutationOptions<CreateModelMutation, CreateModelMutationVariables>;
 export const GetProjectsDocument = gql`
     query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   projects(
