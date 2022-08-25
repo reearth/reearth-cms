@@ -1,8 +1,11 @@
+import styled from "@emotion/styled";
+
 import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import Upload, { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+
+import Tab1 from "./tab1";
 
 const { TabPane } = Tabs;
 
@@ -15,8 +18,6 @@ type Props = {
   handleCancel: () => void;
 };
 
-const { Dragger } = Upload;
-
 const UploadModal: React.FC<Props> = ({
   visible,
   uploadProps,
@@ -26,6 +27,7 @@ const UploadModal: React.FC<Props> = ({
   handleCancel,
 }) => {
   const handleTabChange = (key: string) => {
+    // needs implementation
     console.log(key);
   };
 
@@ -46,32 +48,15 @@ const UploadModal: React.FC<Props> = ({
       </div>
       <Tabs defaultActiveKey="1" onChange={handleTabChange}>
         <TabPane tab="Local" key="1">
-          <div>
-            <Dragger {...uploadProps}>
-              <p className="ant-upload-drag-icon">
-                <Icon icon="inbox" />
-              </p>
-              <p className="ant-upload-text">Click or drag file to this area to upload</p>
-              <p className="ant-upload-hint">
-                Support for a single or bulk upload. Strictly prohibit from uploading company data
-                or other band files
-              </p>
-            </Dragger>
-          </div>
+          <Tab1 uploadProps={uploadProps} />
         </TabPane>
         <TabPane tab="URL" key="2"></TabPane>
         <TabPane tab="Google Drive" key="3"></TabPane>
       </Tabs>
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          right: "20px",
-          padding: "10px",
-        }}>
-        <Button type="default" onClick={handleCancel} style={{ marginRight: "8px" }}>
+      <Footer>
+        <CancelButton type="default" onClick={handleCancel}>
           Cancel
-        </Button>
+        </CancelButton>
         <Button
           type="primary"
           onClick={handleUpload}
@@ -79,9 +64,20 @@ const UploadModal: React.FC<Props> = ({
           loading={uploading}>
           {uploading ? "Uploading" : "Upload"}
         </Button>
-      </div>
+      </Footer>
     </Modal>
   );
 };
+
+const Footer = styled.div`
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px;
+`;
+
+const CancelButton = styled(Button)`
+  margin-right: 8px;
+`;
 
 export default UploadModal;
