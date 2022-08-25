@@ -27,16 +27,16 @@ func (c *Collection) Client() *mongodoc.ClientCollection {
 	return c.client
 }
 
-func (c *Collection) FindOne(ctx context.Context, filter any, version Query, consumer mongodoc.Consumer) error {
-	return c.client.FindOne(ctx, applyQuery(version, excludeMetadata(filter)), consumer)
+func (c *Collection) FindOne(ctx context.Context, filter any, q Query, consumer mongodoc.Consumer) error {
+	return c.client.FindOne(ctx, q.apply(filter), consumer)
 }
 
-func (c *Collection) Find(ctx context.Context, filter any, version Query, consumer mongodoc.Consumer) error {
-	return c.client.Find(ctx, applyQuery(version, excludeMetadata(filter)), consumer)
+func (c *Collection) Find(ctx context.Context, filter any, q Query, consumer mongodoc.Consumer) error {
+	return c.client.Find(ctx, q.apply(filter), consumer)
 }
 
-func (c *Collection) Paginate(ctx context.Context, filter any, version Query, p *usecase.Pagination, consumer mongodoc.Consumer) (*usecase.PageInfo, error) {
-	return c.client.Paginate(ctx, applyQuery(version, excludeMetadata(filter)), p, consumer)
+func (c *Collection) Paginate(ctx context.Context, filter any, q Query, p *usecase.Pagination, consumer mongodoc.Consumer) (*usecase.PageInfo, error) {
+	return c.client.Paginate(ctx, q.apply(filter), p, consumer)
 }
 
 func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
@@ -78,7 +78,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 		return err
 	}
 
-	if _, err := c.client.Collection().InsertOne(ctx, Document[any]{
+	if _, err := c.client.Collection().InsertOne(ctx, &Document[any]{
 		Data: replacement,
 		Meta: newmeta,
 	}); err != nil {
@@ -106,7 +106,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if dest != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, applyQuery(dest, bson.M{
+		if _, err := c.client.Collection().UpdateOne(ctx, Eq(*dest).apply(bson.M{
 			"id": id,
 		}), bson.M{
 			"$push": bson.M{refsKey: ref},
@@ -184,19 +184,15 @@ func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []strin
 	return nil
 }
 
-func (c *Collection) meta(ctx context.Context, id string, vq Query) (*Meta, error) {
+func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Meta, error) {
 	consumer := mongodoc.SliceConsumer[Meta]{}
-	if err := c.client.FindOne(ctx, applyQuery(vq, bson.M{
+	if err := c.client.FindOne(ctx, Eq(lo.FromPtrOr(v, version.Latest.OrVersion())).apply(bson.M{
 		"id": id,
 	}), &consumer); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) && (vq == nil || vq.IsRef(version.Latest)) {
+		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {
 			return nil, nil
 		}
 		return nil, err
 	}
 	return &consumer.Result[0], nil
-}
-
-func excludeMetadata(f any) any {
-	return mongodoc.And(f, metaKey, bson.M{"$exists": false})
 }

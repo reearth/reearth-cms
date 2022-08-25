@@ -8,16 +8,36 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func TestApplyQuery(t *testing.T) {
+func TestQuery_Apply(t *testing.T) {
 	v := version.New()
 	assert.Equal(
 		t,
-		bson.M{"$and": []any{bson.M{"a": "b"}, bson.M{refsKey: bson.M{"$in": []string{"latest"}}}}},
-		applyQuery(nil, bson.M{"a": "b"}),
+		bson.M{
+			"a":     "b",
+			metaKey: bson.M{"$exists": false},
+		},
+		All().apply(bson.M{"a": "b"}),
 	)
 	assert.Equal(
 		t,
-		bson.M{"$and": []any{bson.M{"a": "b"}, bson.M{versionKey: v}}},
-		applyQuery(v.OrRef().Ref(), bson.M{"a": "b"}),
+		bson.M{"$and": []any{
+			bson.M{
+				"a":     "b",
+				metaKey: bson.M{"$exists": false},
+			},
+			bson.M{versionKey: v}},
+		},
+		Eq(v.OrRef()).apply(bson.M{"a": "b"}),
+	)
+	assert.Equal(
+		t,
+		bson.M{"$and": []any{
+			bson.M{
+				"a":     "b",
+				metaKey: bson.M{"$exists": false},
+			},
+			bson.M{refsKey: bson.M{"$in": []string{"latest"}}}},
+		},
+		Eq(version.Latest.OrVersion()).apply(bson.M{"a": "b"}),
 	)
 }

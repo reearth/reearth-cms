@@ -7,21 +7,56 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type Query = *version.VersionOrRef
-
-func applyQuery(q Query, f any) any {
-	return eqVersion(q, f)
+type Query struct {
+	all bool
+	eq  *version.VersionOrRef
 }
 
-func eqVersion(vr *version.VersionOrRef, f any) any {
-	e := version.MatchVersionOrRef(
-		lo.FromPtrOr(vr, version.Latest.OrVersion()),
-		func(v version.Version) bson.M {
-			return bson.M{versionKey: v}
+func All() Query {
+	return Query{all: true}
+}
+
+func Eq(vr version.VersionOrRef) Query {
+	return Query{eq: lo.ToPtr(vr)}
+}
+
+type QueryMatch struct {
+	All func()
+	Eq  func(version.VersionOrRef)
+}
+
+func (q Query) Match(m QueryMatch) {
+	if q.all && m.All != nil {
+		m.All()
+		return
+	}
+	if q.eq != nil && m.Eq != nil {
+		m.Eq(*q.eq)
+		return
+	}
+}
+
+func (q Query) apply(f any) (res any) {
+	f = excludeMetadata(f)
+	q.Match(QueryMatch{
+		All: func() {
+			res = f
 		},
-		func(r version.Ref) bson.M {
-			return bson.M{refsKey: bson.M{"$in": []string{r.String()}}}
+		Eq: func(vr version.VersionOrRef) {
+			res = mongodoc.And(f, "", version.MatchVersionOrRef(
+				vr,
+				func(v version.Version) bson.M {
+					return bson.M{versionKey: v}
+				},
+				func(r version.Ref) bson.M {
+					return bson.M{refsKey: bson.M{"$in": []string{r.String()}}}
+				},
+			))
 		},
-	)
-	return mongodoc.And(f, "", e)
+	})
+	return
+}
+
+func excludeMetadata(f any) any {
+	return mongodoc.And(f, metaKey, bson.M{"$exists": false})
 }
