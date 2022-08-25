@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -347,6 +348,74 @@ func TestSchema_Workspace(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tc.want, tc.s.Workspace())
+		})
+	}
+}
+
+func TestSchema_Clone(t *testing.T) {
+	s := &Schema{id: NewID()}
+	c := s.Clone()
+	assert.Equal(t, s, c)
+	assert.NotSame(t, s, c)
+
+	s = nil
+	c = s.Clone()
+	assert.Nil(t, c)
+}
+
+func TestSchema_HasFieldByKey(t *testing.T) {
+	fid1 := NewFieldID()
+	fid2 := NewFieldID()
+	fid3 := NewFieldID()
+	tests := []struct {
+		name string
+		s    *Schema
+		fKey string
+		want bool
+	}{
+		{
+			name: "add on empty array",
+			s:    nil,
+			fKey: "K123123",
+			want: false,
+		},
+		{
+			name: "add on empty array",
+			s:    &Schema{},
+			fKey: "K123123",
+			want: false,
+		},
+		{
+			name: "add on empty array",
+			s:    &Schema{fields: []*Field{}},
+			fKey: "K123123",
+			want: false,
+		},
+		{
+			name: "add on not empty array",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: key.New("K123123")}}},
+			fKey: "K123123",
+			want: true,
+		},
+		{
+			name: "add duplicated field",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: key.New("K123123")}, {id: fid2, name: "f2", key: key.New("K111222")}, {id: fid3, name: "f3", key: key.New("K123111")}}},
+			fKey: "K123123",
+			want: true,
+		},
+		{
+			name: "add duplicated field",
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			fKey: "K123123",
+			want: false,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.s.HasFieldByKey(tc.fKey))
 		})
 	}
 }
