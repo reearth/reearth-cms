@@ -7,8 +7,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -57,19 +59,122 @@ func TestCollection_FindOne(t *testing.T) {
 	assert.Empty(t, consumer4.Result)
 }
 
-// func TestCollection_Find(t *testing.T) {
-// 	ctx := context.Background()
-// 	col := initCollection(t)
-// 	c := col.Client().Collection()
+func TestCollection_Find(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Collection()
+	vx, vy := version.New(), version.New()
 
-// }
+	type d struct {
+		A string
+		B string
+	}
 
-// func TestCollection_Paginate(t *testing.T) {
-// 	ctx := context.Background()
-// 	col := initCollection(t)
-// 	c := col.Client().Collection()
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+			},
+			Meta: Meta{
+				Version: vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+				"b": "c",
+			},
+			Meta: Meta{
+				Version: vy,
+				Parents: []version.Version{vx},
+				Refs:    []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "d",
+				"b": "a",
+			},
+			Meta: Meta{
+				Version: vy,
+				Refs:    []version.Ref{"latest"},
+			},
+		},
+	})
 
-// }
+	// latest
+	consumer := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{}, nil, consumer))
+	assert.Equal(t, []d{{A: "b", B: "c"}, {A: "d", B: "a"}}, consumer.Result)
+
+	// version
+	consumer2 := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, vx.OrRef().Ref(), consumer2))
+	assert.Equal(t, []d{{A: "b"}}, consumer2.Result)
+
+	// ref
+	consumer3 := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, version.Ref("aaa").OrVersion().Ref(), consumer3))
+	assert.Equal(t, []d{{A: "b", B: "c"}}, consumer3.Result)
+
+	// not found
+	consumer4 := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "c"}, nil, consumer4))
+	assert.Empty(t, consumer4.Result)
+}
+
+func TestCollection_Paginate(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Collection()
+	vx, vy := version.New(), version.New()
+
+	type d struct {
+		ID string
+		A  string
+	}
+
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "a",
+				"a":  "a",
+			},
+			Meta: Meta{
+				Version: vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "a",
+				"a":  "b",
+			},
+			Meta: Meta{
+				Version: vy,
+				Parents: []version.Version{vx},
+				Refs:    []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "b",
+				"a":  "a",
+			},
+			Meta: Meta{
+				Version: vy,
+				Refs:    []version.Ref{"latest"},
+			},
+		},
+	})
+
+	consumer := &mongodoc.SliceConsumer[d]{}
+	pi, err := col.Paginate(ctx, bson.M{}, nil, &usecase.Pagination{
+		First: lo.ToPtr(2),
+	}, consumer)
+	assert.NoError(t, err)
+	assert.Equal(t, usecase.NewPageInfo(2, usecase.Cursor("a").Ref(), usecase.Cursor("b").Ref(), false, false), pi)
+	assert.Equal(t, []d{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
+}
 
 func TestCollection_SaveOne(t *testing.T) {
 	ctx := context.Background()

@@ -61,7 +61,7 @@ func (c *Client) Find(ctx context.Context, col string, filter interface{}, consu
 		}
 
 		if !c {
-			if err := consumer.Consume(nil); err != nil {
+			if err := consumer.Consume(nil); err != nil && !errors.Is(err, io.EOF) {
 				return err
 			}
 			break
