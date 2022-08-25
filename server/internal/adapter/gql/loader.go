@@ -18,6 +18,8 @@ type Loaders struct {
 	Workspace *WorkspaceLoader
 	User      *UserLoader
 	Project   *ProjectLoader
+	Model     *ModelLoader
+	Schema    *SchemaLoader
 }
 
 type DataLoaders struct {
@@ -25,6 +27,8 @@ type DataLoaders struct {
 	Workspace WorkspaceDataLoader
 	User      UserDataLoader
 	Project   ProjectDataLoader
+	Model     ModelDataLoader
+	Schema    SchemaDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {
@@ -37,6 +41,8 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Workspace: NewWorkspaceLoader(usecases.Workspace),
 		User:      NewUserLoader(usecases.User),
 		Project:   NewProjectLoader(usecases.Project),
+		Model:     NewModelLoader(usecases.Model),
+		Schema:    NewSchemaLoader(usecases.Schema),
 	}
 }
 
@@ -53,6 +59,8 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		Workspace: l.Workspace.DataLoader(ctx),
 		User:      l.User.DataLoader(ctx),
 		Project:   l.Project.DataLoader(ctx),
+		Model:     l.Model.DataLoader(ctx),
+		Schema:    l.Schema.DataLoader(ctx),
 	}
 }
 
@@ -62,5 +70,7 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		Workspace: l.Workspace.OrdinaryDataLoader(ctx),
 		User:      l.User.OrdinaryDataLoader(ctx),
 		Project:   l.Project.OrdinaryDataLoader(ctx),
+		Model:     l.Model.OrdinaryDataLoader(ctx),
+		Schema:    l.Schema.OrdinaryDataLoader(ctx),
 	}
 }

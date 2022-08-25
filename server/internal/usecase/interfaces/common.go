@@ -20,4 +20,6 @@ type Container struct {
 	Workspace Workspace
 	User      User
 	Project   Project
+	Model     Model
+	Schema    Schema
 }
