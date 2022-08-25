@@ -16,12 +16,12 @@ func applyQuery(q Query, f any) any {
 func eqVersion(vr *version.VersionOrRef, f any) any {
 	e := version.MatchVersionOrRef(
 		lo.FromPtrOr(vr, version.Latest.OrVersion()),
-		func(v version.Version) bson.E {
-			return bson.E{Key: versionKey, Value: v}
+		func(v version.Version) bson.M {
+			return bson.M{versionKey: v}
 		},
-		func(r version.Ref) bson.E {
-			return bson.E{Key: refsKey, Value: bson.M{"$in": []string{r.String()}}}
+		func(r version.Ref) bson.M {
+			return bson.M{refsKey: bson.M{"$in": []string{r.String()}}}
 		},
 	)
-	return mongodoc.AppendE(f, e)
+	return mongodoc.And(f, "", e)
 }

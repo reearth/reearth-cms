@@ -28,19 +28,15 @@ func (c *Collection) Client() *mongodoc.ClientCollection {
 }
 
 func (c *Collection) FindOne(ctx context.Context, filter any, version Query, consumer mongodoc.Consumer) error {
-	return c.client.FindOne(ctx, applyQuery(version, filter), consumer)
+	return c.client.FindOne(ctx, applyQuery(version, excludeMetadata(filter)), consumer)
 }
 
 func (c *Collection) Find(ctx context.Context, filter any, version Query, consumer mongodoc.Consumer) error {
-	return c.client.Find(ctx, applyQuery(version, filter), consumer)
-}
-
-func (c *Collection) All(ctx context.Context, id string, consumer mongodoc.Consumer) error {
-	return c.client.Find(ctx, bson.M{"id": id, metaKey: bson.M{"$exists": false}}, consumer)
+	return c.client.Find(ctx, applyQuery(version, excludeMetadata(filter)), consumer)
 }
 
 func (c *Collection) Paginate(ctx context.Context, filter any, version Query, p *usecase.Pagination, consumer mongodoc.Consumer) (*usecase.PageInfo, error) {
-	return c.client.Paginate(ctx, applyQuery(version, filter), p, consumer)
+	return c.client.Paginate(ctx, applyQuery(version, excludeMetadata(filter)), p, consumer)
 }
 
 func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
@@ -82,12 +78,10 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 		return err
 	}
 
-	newReplacement, err := newmeta.Apply(replacement)
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
-	if _, err := c.client.Collection().InsertOne(ctx, newReplacement); err != nil {
+	if _, err := c.client.Collection().InsertOne(ctx, Document[any]{
+		Data: replacement,
+		Meta: newmeta,
+	}); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 
@@ -125,7 +119,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 }
 
 func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
-	cons := mongodoc.SliceConsumer[Metadata]{}
+	cons := mongodoc.SliceConsumer[MetadataDocument]{}
 	if err := c.client.FindOne(ctx, bson.M{
 		"id":    id,
 		metaKey: true,
@@ -147,7 +141,7 @@ func (c *Collection) ArchiveOne(ctx context.Context, id string, archived bool) e
 		return nil
 	}
 
-	_, err := c.client.Collection().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, Metadata{
+	_, err := c.client.Collection().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
 		ID:       id,
 		Meta:     true,
 		Archived: archived,
@@ -201,4 +195,8 @@ func (c *Collection) meta(ctx context.Context, id string, vq Query) (*Meta, erro
 		return nil, err
 	}
 	return &consumer.Result[0], nil
+}
+
+func excludeMetadata(f any) any {
+	return mongodoc.And(f, metaKey, bson.M{"$exists": false})
 }

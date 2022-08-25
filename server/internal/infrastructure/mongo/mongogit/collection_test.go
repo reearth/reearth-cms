@@ -14,6 +14,63 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+func TestCollection_FindOne(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Collection()
+	vx := version.New()
+
+	type d struct {
+		A string
+	}
+
+	_, _ = c.InsertOne(ctx, &Document[bson.M]{
+		Data: bson.M{
+			"a": "b",
+		},
+		Meta: Meta{
+			Version: vx,
+			Refs:    []version.Ref{"latest", "aaa"},
+		},
+	})
+
+	// nil query (latest ref)
+	consumer := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, nil, consumer))
+	assert.Equal(t, d{
+		A: "b",
+	}, consumer.Result[0])
+
+	// version
+	consumer2 := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, vx.OrRef().Ref(), consumer2))
+	assert.Equal(t, d{A: "b"}, consumer2.Result[0])
+
+	// ref
+	consumer3 := &mongodoc.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, version.Ref("aaa").OrVersion().Ref(), consumer3))
+	assert.Equal(t, d{A: "b"}, consumer3.Result[0])
+
+	// not found
+	consumer4 := &mongodoc.SliceConsumer[d]{}
+	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{"a": "b"}, version.Ref("x").OrVersion().Ref(), consumer4))
+	assert.Empty(t, consumer4.Result)
+}
+
+// func TestCollection_Find(t *testing.T) {
+// 	ctx := context.Background()
+// 	col := initCollection(t)
+// 	c := col.Client().Collection()
+
+// }
+
+// func TestCollection_Paginate(t *testing.T) {
+// 	ctx := context.Background()
+// 	col := initCollection(t)
+// 	c := col.Client().Collection()
+
+// }
+
 func TestCollection_SaveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
@@ -171,7 +228,7 @@ func TestCollection_ArchiveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
 	c := col.Client().Collection()
-	var metadata Metadata
+	var metadata MetadataDocument
 
 	assert.NoError(t, col.ArchiveOne(ctx, "xxx", false))
 	got := c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
@@ -180,7 +237,7 @@ func TestCollection_ArchiveOne(t *testing.T) {
 	assert.NoError(t, col.ArchiveOne(ctx, "xxx", true))
 	got = c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
 	assert.NoError(t, got.Decode(&metadata))
-	assert.Equal(t, Metadata{
+	assert.Equal(t, MetadataDocument{
 		ID:       "xxx",
 		Meta:     true,
 		Archived: true,
@@ -189,7 +246,7 @@ func TestCollection_ArchiveOne(t *testing.T) {
 	assert.NoError(t, col.ArchiveOne(ctx, "yyy", true))
 	got = c.FindOne(ctx, bson.M{"id": "yyy", metaKey: true})
 	assert.NoError(t, got.Decode(&metadata))
-	assert.Equal(t, Metadata{
+	assert.Equal(t, MetadataDocument{
 		ID:       "yyy",
 		Meta:     true,
 		Archived: true,
