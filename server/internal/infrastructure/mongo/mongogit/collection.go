@@ -36,7 +36,7 @@ func (c *Collection) Find(ctx context.Context, filter any, q Query, consumer mon
 }
 
 func (c *Collection) Paginate(ctx context.Context, filter any, q Query, p *usecase.Pagination, consumer mongodoc.Consumer) (*usecase.PageInfo, error) {
-	return c.client.Paginate(ctx, q.apply(filter), p, consumer)
+	return c.client.Paginate(ctx, q.apply(filter), nil, p, consumer)
 }
 
 func (c *Collection) Count(ctx context.Context, filter any, q Query) (int64, error) {
