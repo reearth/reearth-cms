@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/mongox"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -20,11 +20,11 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 		return nil, err
 	}
 
-	client := mongodoc.NewClient(databaseName, mc)
+	client := mongox.NewClient(databaseName, mc)
 	c := &repo.Container{
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
-		Transaction: NewTransaction(client),
+		Transaction: mongox.NewTransaction(client),
 		Lock:        lock,
 		Project:     NewProject(client),
 		Model:       NewModel(client),

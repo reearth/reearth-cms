@@ -40,7 +40,7 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) Store(key K, value V, parent *version.VersionOrRef) {
+func (m *VersionedSyncMap[K, V]) SaveOne(key K, value V, parent *version.VersionOrRef) {
 	found := false
 	m.Range(func(k K, v *version.Values[V]) bool {
 		if k != key {
