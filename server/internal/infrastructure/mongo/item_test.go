@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
@@ -35,7 +37,7 @@ func Test_itemRepo_FindByID(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -43,7 +45,7 @@ func Test_itemRepo_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewItem(client)
 			ctx := context.Background()
@@ -84,7 +86,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -92,7 +94,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewItem(client)
 			ctx := context.Background()
@@ -136,7 +138,7 @@ func Test_itemRepo_FindByModel(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -144,7 +146,7 @@ func Test_itemRepo_FindByModel(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongodoc.NewClientWithDatabase(init(t))
 
 			repo := NewItem(client)
 			ctx := context.Background()
@@ -166,8 +168,8 @@ func Test_itemRepo_FindByModel(t *testing.T) {
 func Test_itemRepo_Remove(t *testing.T) {
 	i, _ := item.New().NewID().Build()
 
-	init := connect(t)
-	client := init(t)
+	init := mongotest.Connect(t)
+	client := mongodoc.NewClientWithDatabase(init(t))
 
 	repo := NewItem(client)
 	ctx := context.Background()
@@ -182,8 +184,8 @@ func Test_itemRepo_RemoveAll(t *testing.T) {
 	i1, _ := item.New().NewID().Build()
 	i2, _ := item.New().NewID().Build()
 
-	init := connect(t)
-	client := init(t)
+	init := mongotest.Connect(t)
+	client := mongodoc.NewClientWithDatabase(init(t))
 
 	repo := NewItem(client)
 	ctx := context.Background()
