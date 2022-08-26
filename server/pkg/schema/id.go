@@ -5,6 +5,7 @@ import (
 )
 
 type FieldID = id.FieldID
+type WorkspaceID = id.WorkspaceID
 
 var NewFieldID = id.NewFieldID
 var MustFieldID = id.MustFieldID

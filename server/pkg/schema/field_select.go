@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -20,19 +21,14 @@ type FieldSelect struct {
 	defaultValue *string
 }
 
-// NewFieldTag
-// TODO: check if its ok to remove this
-func NewFieldSelect() *FieldSelect {
-	return &FieldSelect{
-		values:       nil,
-		defaultValue: nil,
-	}
-}
-
 func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
-	if len(values) == 0 {
+	empty := len(values) == 0
+	emptyValue := util.Any(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
+	hadDuplication := util.HasDuplicates(values)
+	if empty || emptyValue || hadDuplication {
 		return nil, ErrFieldValues
 	}
+
 	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
@@ -59,4 +55,12 @@ func (f *FieldSelect) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		selectt: f,
 	}
+}
+
+func (f *FieldSelect) Values() []string {
+	return f.values
+}
+
+func (f *FieldSelect) DefaultValue() *string {
+	return f.defaultValue
 }

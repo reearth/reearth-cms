@@ -11,22 +11,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func InitRepos(ctx context.Context, c *repo.Container, mc *mongo.Client, databaseName string) error {
+func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Container, error) {
 	if databaseName == "" {
 		databaseName = "reearth_cms"
 	}
 	lock, err := NewLock(mc.Database(databaseName).Collection("locks"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	client := mongodoc.NewClient(databaseName, mc)
-	c.Workspace = NewWorkspace(client)
-	c.User = NewUser(client)
-	c.Transaction = NewTransaction(client)
-	c.Lock = lock
-	c.Project = NewProject(client)
-	return nil
+	c := &repo.Container{
+		Workspace:   NewWorkspace(client),
+		User:        NewUser(client),
+		Transaction: NewTransaction(client),
+		Lock:        lock,
+		Project:     NewProject(client),
+		Model:       NewModel(client),
+		Schema:      NewSchema(client),
+	}
+	return c, nil
 }
 
 func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{} {
