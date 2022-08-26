@@ -27,20 +27,20 @@ func (c *Collection) Client() *mongox.ClientCollection {
 	return c.client
 }
 
-func (c *Collection) FindOne(ctx context.Context, filter any, q Query, consumer mongox.Consumer) error {
-	return c.client.FindOne(ctx, q.apply(filter), consumer)
+func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	return c.client.FindOne(ctx, apply(q, filter), consumer)
 }
 
-func (c *Collection) Find(ctx context.Context, filter any, q Query, consumer mongox.Consumer) error {
-	return c.client.Find(ctx, q.apply(filter), consumer)
+func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	return c.client.Find(ctx, apply(q, filter), consumer)
 }
 
-func (c *Collection) Paginate(ctx context.Context, filter any, q Query, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.Paginate(ctx, q.apply(filter), p, consumer)
+func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	return c.client.Paginate(ctx, apply(q, filter), p, consumer)
 }
 
-func (c *Collection) Count(ctx context.Context, filter any, q Query) (int64, error) {
-	return c.client.Count(ctx, q.apply(filter))
+func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (int64, error) {
+	return c.client.Count(ctx, apply(q, filter))
 }
 
 func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
@@ -110,7 +110,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if dest != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, Eq(*dest).apply(bson.M{
+		if _, err := c.client.Collection().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
 			"id": id,
 		}), bson.M{
 			"$push": bson.M{refsKey: ref},
@@ -190,7 +190,7 @@ func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []strin
 
 func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Meta, error) {
 	consumer := mongox.SliceConsumer[Meta]{}
-	if err := c.client.FindOne(ctx, Eq(lo.FromPtrOr(v, version.Latest.OrVersion())).apply(bson.M{
+	if err := c.client.FindOne(ctx, apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
 		"id": id,
 	}), &consumer); err != nil {
 		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {

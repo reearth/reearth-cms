@@ -16,7 +16,7 @@ func TestQuery_Apply(t *testing.T) {
 			"a":     "b",
 			metaKey: bson.M{"$exists": false},
 		},
-		All().apply(bson.M{"a": "b"}),
+		apply(version.All(), bson.M{"a": "b"}),
 	)
 	assert.Equal(
 		t,
@@ -27,7 +27,7 @@ func TestQuery_Apply(t *testing.T) {
 			},
 			bson.M{versionKey: v}},
 		},
-		Eq(v.OrRef()).apply(bson.M{"a": "b"}),
+		apply(version.Eq(v.OrRef()), bson.M{"a": "b"}),
 	)
 	assert.Equal(
 		t,
@@ -38,6 +38,6 @@ func TestQuery_Apply(t *testing.T) {
 			},
 			bson.M{refsKey: bson.M{"$in": []string{"latest"}}}},
 		},
-		Eq(version.Latest.OrVersion()).apply(bson.M{"a": "b"}),
+		apply(version.Eq(version.Latest.OrVersion()), bson.M{"a": "b"}),
 	)
 }

@@ -3,42 +3,12 @@ package mongogit
 import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type Query struct {
-	all bool
-	eq  *version.VersionOrRef
-}
-
-func All() Query {
-	return Query{all: true}
-}
-
-func Eq(vr version.VersionOrRef) Query {
-	return Query{eq: lo.ToPtr(vr)}
-}
-
-type QueryMatch struct {
-	All func()
-	Eq  func(version.VersionOrRef)
-}
-
-func (q Query) Match(m QueryMatch) {
-	if q.all && m.All != nil {
-		m.All()
-		return
-	}
-	if q.eq != nil && m.Eq != nil {
-		m.Eq(*q.eq)
-		return
-	}
-}
-
-func (q Query) apply(f any) (res any) {
+func apply(q version.Query, f any) (res any) {
 	f = excludeMetadata(f)
-	q.Match(QueryMatch{
+	q.Match(version.QueryMatch{
 		All: func() {
 			res = f
 		},

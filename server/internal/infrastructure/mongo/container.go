@@ -24,7 +24,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 	c := &repo.Container{
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
-		Transaction: NewTransaction(client),
+		Transaction: mongox.NewTransaction(client),
 		Lock:        lock,
 		Project:     NewProject(client),
 		Model:       NewModel(client),

@@ -202,17 +202,17 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 	_, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.False(t, ok)
 
-	vm.Store("a", "b", nil)
+	vm.SaveOne("a", "b", nil)
 	got, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok)
 	assert.Equal(t, "b", got)
 
-	vm.Store("a", "c", nil)
+	vm.SaveOne("a", "c", nil)
 	got2, ok2 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok2)
 	assert.Equal(t, "c", got2)
 
-	vm.Store("a", "d", version.Latest.OrVersion().Ref())
+	vm.SaveOne("a", "d", version.Latest.OrVersion().Ref())
 	got3, ok3 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok3)
 	assert.Equal(t, "d", got3)

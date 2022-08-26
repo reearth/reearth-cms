@@ -18,6 +18,32 @@ type Document[T any] struct {
 	Meta Meta
 }
 
+func NewDocument[T any](v *version.Value[T]) *Document[T] {
+	if v == nil {
+		return nil
+	}
+	return &Document[T]{
+		Data: v.Value(),
+		Meta: Meta{
+			Version: v.Version(),
+			Parents: v.Parents().Values(),
+			Refs:    v.Refs().Values(),
+		},
+	}
+}
+
+func (d *Document[T]) Value() *version.Value[T] {
+	if d == nil {
+		return nil
+	}
+	return version.NewValue(
+		d.Meta.Version,
+		version.NewVersions(d.Meta.Parents...),
+		version.NewRefs(d.Meta.Refs...),
+		d.Data,
+	)
+}
+
 func (d *Document[T]) MarshalBSON() ([]byte, error) {
 	val, err := d.Meta.apply(d.Data)
 	if err != nil {
