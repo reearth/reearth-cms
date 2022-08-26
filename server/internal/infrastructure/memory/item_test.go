@@ -43,7 +43,7 @@ func TestItem_FindByIDs(t *testing.T) {
 	r.data.Store(i2.ID(), i2)
 
 	ids := id.ItemIDList{i.ID()}
-	il := []*item.Item{i}
+	il := item.List{i}
 	out, err := r.FindByIDs(ctx, ids)
 	assert.NoError(t, err)
 	assert.Equal(t, il, out)
@@ -64,7 +64,7 @@ func TestItem_FindByModel(t *testing.T) {
 	}
 	r.data.Store(i.ID(), i)
 	r.data.Store(i2.ID(), i2)
-	list := []*item.Item{i, i2}
+	list := item.List{i, i2}
 	out, err := r.FindByModel(ctx, mid)
 	assert.NoError(t, err)
 	assert.Equal(t, list, out)
@@ -138,7 +138,7 @@ func TestItem_SaveAll(t *testing.T) {
 	r := &Item{
 		data: &util.SyncMap[id.ItemID, *item.Item]{},
 	}
-	_ = r.SaveAll(ctx, []*item.Item{i1, i2})
+	_ = r.SaveAll(ctx, item.List{i1, i2})
 	assert.Equal(t, 2, r.data.Len())
 
 	wantErr := errors.New("test")

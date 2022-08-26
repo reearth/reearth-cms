@@ -22,7 +22,7 @@ func NewItem() repo.Item {
 	}
 }
 
-func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID) ([]*item.Item, error) {
+func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -32,7 +32,7 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID) ([]*item.Ite
 	}), rerror.ErrNotFound)
 }
 
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) ([]*item.Item, error) {
+func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -63,7 +63,7 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) SaveAll(ctx context.Context, items []*item.Item) error {
+func (r *Item) SaveAll(ctx context.Context, items item.List) error {
 	if r.err != nil {
 		return r.err
 	}
