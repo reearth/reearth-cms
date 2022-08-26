@@ -14,6 +14,9 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.id.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.updatedAt.IsZero() {
+		b.i.updatedAt = b.i.CreatedAt()
+	}
 	return b.i, nil
 }
 
@@ -27,13 +30,8 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) ModelID(modelId ModelID) *Builder {
+func (b *Builder) Model(modelId ModelID) *Builder {
 	b.i.modelId = modelId
-	return b
-}
-
-func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
-	b.i.createdAt = createdAt
 	return b
 }
 

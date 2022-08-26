@@ -8,11 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBuilder_CreatedAt(t *testing.T) {
-	b, _ := New().NewID().CreatedAt(time.Unix(0, 0)).Build()
-	assert.Equal(t, time.Unix(0, 0), b.CreatedAt())
-}
-
 func TestBuilder_ID(t *testing.T) {
 	iid := NewID()
 	b, _ := New().ID(iid).Build()
@@ -28,8 +23,8 @@ func TestBuilder_LatestVersion(t *testing.T) {
 
 func TestBuilder_ModelID(t *testing.T) {
 	mid := NewModelID()
-	b, _ := New().NewID().ModelID(mid).Build()
-	assert.Equal(t, mid, b.ModelId())
+	b, _ := New().NewID().Model(mid).Build()
+	assert.Equal(t, mid, b.Model())
 }
 
 func TestBuilder_PublicVersion(t *testing.T) {
@@ -60,6 +55,7 @@ func TestBuilder_NewID(t *testing.T) {
 }
 
 func TestBuilder_Build(t *testing.T) {
+	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	iid := NewID()
 	type fields struct {
 		i *Item
@@ -74,11 +70,13 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should build an item",
 			fields: fields{
 				i: &Item{
-					id: iid,
+					id:        iid,
+					updatedAt: d,
 				},
 			},
 			want: &Item{
-				id: iid,
+				id:        iid,
+				updatedAt: d,
 			},
 			wantErr: false,
 		},
