@@ -42,6 +42,16 @@ func TestFileBuilder_Build(t *testing.T) {
 				children:    c,
 			},
 		},
+		{
+			name: "invalid asset: zero size",
+			input: FileInput{
+				name:        "xxx.yyy",
+				contentType: "",
+				path:        "",
+				children:    c,
+			},
+			err: ErrZeroSize,
+		},
 	}
 
 	for _, tt := range tests {
@@ -81,6 +91,16 @@ func TestFileBuilder_MustBuild(t *testing.T) {
 				path:        "",
 				children:    c,
 			},
+		},
+		{
+			name: "invalid asset: zero size",
+			input: FileInput{
+				name:        "xxx.yyy",
+				contentType: "",
+				path:        "",
+				children:    c,
+			},
+			err: ErrZeroSize,
 		},
 	}
 

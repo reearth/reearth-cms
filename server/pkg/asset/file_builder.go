@@ -13,6 +13,9 @@ func NewFile() *FileBuilder {
 }
 
 func (b *FileBuilder) Build() (*File, error) {
+	if b.f.size == 0 {
+		return nil, ErrZeroSize
+	}
 	return b.f, nil
 }
 
