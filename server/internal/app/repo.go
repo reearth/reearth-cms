@@ -16,7 +16,6 @@ import (
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container) {
-	repos := &repo.Container{}
 	gateways := &gateway.Container{}
 
 	// Mongo
@@ -30,9 +29,12 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
-	if err := mongorepo.InitRepos(ctx, repos, client, ""); err != nil {
+
+	repos, err := mongorepo.New(ctx, client, "")
+	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
+
 	// Auth0
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 

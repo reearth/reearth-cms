@@ -200,6 +200,209 @@ func TestField_Name(t *testing.T) {
 	}
 }
 
+func TestField_Unique(t *testing.T) {
+
+	tests := []struct {
+		name  string
+		field Field
+		want  bool
+	}{
+		{
+			name: "success",
+			field: Field{
+				id: NewFieldID(),
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				unique:       false,
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				unique:       true,
+			},
+			want: true,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.field.Unique())
+		})
+	}
+}
+
+func TestField_MultiValue(t *testing.T) {
+
+	tests := []struct {
+		name  string
+		field Field
+		want  bool
+	}{
+		{
+			name: "success",
+			field: Field{
+				id: NewFieldID(),
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				multiValue:   false,
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				multiValue:   true,
+			},
+			want: true,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.field.MultiValue())
+		})
+	}
+}
+
+func TestField_Required(t *testing.T) {
+
+	tests := []struct {
+		name  string
+		field Field
+		want  bool
+	}{
+		{
+			name: "success",
+			field: Field{
+				id: NewFieldID(),
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				required:     false,
+			},
+			want: false,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+				required:     true,
+			},
+			want: true,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.field.Required())
+		})
+	}
+}
+
+func TestField_TypeProperty(t *testing.T) {
+
+	tests := []struct {
+		name  string
+		field Field
+		want  *TypeProperty
+	}{
+		{
+			name: "success",
+			field: Field{
+				id: NewFieldID(),
+			},
+			want: nil,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: nil,
+			},
+			want: nil,
+		},
+		{
+			name: "success2",
+			field: Field{
+				id:           NewFieldID(),
+				name:         "test",
+				description:  "desc",
+				key:          key.Random(),
+				updatedAt:    time.Now(),
+				typeProperty: &TypeProperty{text: &FieldText{}},
+				unique:       true,
+			},
+			want: &TypeProperty{text: &FieldText{}},
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.field.TypeProperty())
+		})
+	}
+}
+
 func TestField_Type(t *testing.T) {
 
 	tests := []struct {
@@ -340,6 +543,7 @@ func TestField_Type(t *testing.T) {
 
 func TestField_UpdatedAt(t *testing.T) {
 	now := time.Now()
+	fId := NewFieldID()
 	tests := []struct {
 		name  string
 		field Field
@@ -351,6 +555,13 @@ func TestField_UpdatedAt(t *testing.T) {
 				updatedAt: now,
 			},
 			want: now,
+		},
+		{
+			name: "success",
+			field: Field{
+				id: fId,
+			},
+			want: fId.Timestamp(),
 		},
 	}
 	for _, tc := range tests {
@@ -481,4 +692,15 @@ func TestField_SetUpdatedAt(t *testing.T) {
 			assert.Equal(t, tc.want, f)
 		})
 	}
+}
+
+func TestField_Clone(t *testing.T) {
+	s := &Field{id: NewFieldID()}
+	c := s.Clone()
+	assert.Equal(t, s, c)
+	assert.NotSame(t, s, c)
+
+	s = nil
+	c = s.Clone()
+	assert.Nil(t, c)
 }

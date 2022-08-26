@@ -3,7 +3,7 @@ node_modules
 
 /.idea/
 
-/server/.env*
+.env*
 
 /web/.env*
 /web/coverage
