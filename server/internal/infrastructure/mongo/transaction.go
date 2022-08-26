@@ -1,15 +1,15 @@
 package mongo
 
 import (
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type Transaction struct {
-	client *mongodoc.Client
+	client *mongox.Client
 }
 
-func NewTransaction(client *mongodoc.Client) repo.Transaction {
+func NewTransaction(client *mongox.Client) repo.Transaction {
 	return &Transaction{
 		client: client,
 	}

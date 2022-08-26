@@ -1,8 +1,8 @@
 package mongogit
 
 import (
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/mongox"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -56,7 +56,7 @@ func (meta Meta) apply(d any) (any, error) {
 		return nil, err
 	}
 
-	return mongodoc.AppendE(
+	return mongox.AppendE(
 		m,
 		bson.E{Key: versionKey, Value: meta.Version},
 		bson.E{Key: parentsKey, Value: meta.Parents},

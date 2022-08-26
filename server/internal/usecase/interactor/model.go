@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -43,13 +44,13 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecas
 		})
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecase.Pagination, operator *usecase.Operator) (model.List, *usecase.PageInfo, error) {
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
 	p, err := i.repos.Project.FindByID(ctx, projectID)
 	if err != nil {
 		return nil, nil, err
 	}
 	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(p.Workspace()).Transaction(),
-		func() (model.List, *usecase.PageInfo, error) {
+		func() (model.List, *usecasex.PageInfo, error) {
 			return i.repos.Model.FindByProject(ctx, projectID, pagination)
 		})
 }

@@ -1,8 +1,8 @@
 package mongogit
 
 import (
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -43,7 +43,7 @@ func (q Query) apply(f any) (res any) {
 			res = f
 		},
 		Eq: func(vr version.VersionOrRef) {
-			res = mongodoc.And(f, "", version.MatchVersionOrRef(
+			res = mongox.And(f, "", version.MatchVersionOrRef(
 				vr,
 				func(v version.Version) bson.M {
 					return bson.M{versionKey: v}
@@ -58,5 +58,5 @@ func (q Query) apply(f any) (res any) {
 }
 
 func excludeMetadata(f any) any {
-	return mongodoc.And(f, metaKey, bson.M{"$exists": false})
+	return mongox.And(f, metaKey, bson.M{"$exists": false})
 }
