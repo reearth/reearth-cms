@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
@@ -42,7 +42,7 @@ func TestWorkspace_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := mongodoc.NewClientWithDatabase(init(t))
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -91,7 +91,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := mongodoc.NewClientWithDatabase(init(t))
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -140,7 +140,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := mongodoc.NewClientWithDatabase(init(t))
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewWorkspace(client)
 			ctx := context.Background()
@@ -163,7 +163,7 @@ func TestWorkspace_Remove(t *testing.T) {
 	ws := user.NewWorkspace().NewID().Name("hoge").MustBuild()
 
 	init := mongotest.Connect(t)
-	client := mongodoc.NewClientWithDatabase(init(t))
+	client := mongox.NewClientWithDatabase(init(t))
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()
@@ -179,7 +179,7 @@ func TestWorkspace_RemoveAll(t *testing.T) {
 	ws2 := user.NewWorkspace().NewID().Name("foo").MustBuild()
 
 	init := mongotest.Connect(t)
-	client := mongodoc.NewClientWithDatabase(init(t))
+	client := mongox.NewClientWithDatabase(init(t))
 
 	repo := NewWorkspace(client)
 	ctx := context.Background()

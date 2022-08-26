@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type CreateModelParam struct {
@@ -29,7 +30,7 @@ var (
 
 type Model interface {
 	FindByIDs(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
-	FindByProject(context.Context, id.ProjectID, *usecase.Pagination, *usecase.Operator) (model.List, *usecase.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)

@@ -6,20 +6,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type projectRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 	f      repo.WorkspaceFilter
 }
 
-func NewProject(client *mongodoc.Client) repo.Project {
+func NewProject(client *mongox.Client) repo.Project {
 	r := &projectRepo{client: client.WithCollection("project")}
 	r.init()
 	return r
@@ -63,9 +64,9 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
+func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
-		return nil, usecase.EmptyPageInfo(), nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 	return r.paginate(ctx, bson.M{
 		"workspace": id.String(),
@@ -121,7 +122,7 @@ func (r *projectRepo) findOne(ctx context.Context, filter interface{}) (*project
 	return c.Rows[0], nil
 }
 
-func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
+func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	var c mongodoc.ProjectConsumer
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
 	if err != nil {
