@@ -20,7 +20,6 @@ import (
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container) {
-	repos := &repo.Container{}
 	gateways := &gateway.Container{}
 
 	// Mongo
@@ -34,7 +33,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
-	if err := mongorepo.InitRepos(ctx, repos, client, ""); err != nil {
+
+	repos, err := mongorepo.New(ctx, client, "")
+	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 

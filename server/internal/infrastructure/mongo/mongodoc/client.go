@@ -16,14 +16,18 @@ import (
 )
 
 type Client struct {
-	database string
-	client   *mongo.Client
+	client *mongo.Database
 }
 
 func NewClient(database string, c *mongo.Client) *Client {
 	return &Client{
-		database: database,
-		client:   c,
+		client: c.Database(database),
+	}
+}
+
+func NewClientWithDatabase(c *mongo.Database) *Client {
+	return &Client{
+		client: c,
 	}
 }
 
@@ -35,7 +39,7 @@ func (c *Client) WithCollection(col string) *ClientCollection {
 }
 
 func (c *Client) Collection(col string) *mongo.Collection {
-	return c.client.Database(c.database).Collection(col)
+	return c.client.Collection(col)
 }
 
 func (c *Client) Find(ctx context.Context, col string, filter interface{}, consumer Consumer) error {
@@ -57,7 +61,7 @@ func (c *Client) Find(ctx context.Context, col string, filter interface{}, consu
 		}
 
 		if !c {
-			if err := consumer.Consume(nil); err != nil {
+			if err := consumer.Consume(nil); err != nil && !errors.Is(err, io.EOF) {
 				return err
 			}
 			break
@@ -230,7 +234,7 @@ func (c *Client) Paginate(ctx context.Context, col string, filter interface{}, s
 			{Key: key, Value: 1},
 		}
 		if after := p.After; after != nil {
-			filter = appendE(filter, bson.E{Key: key, Value: bson.D{
+			filter = AppendE(filter, bson.E{Key: key, Value: bson.D{
 				{Key: "$gt", Value: *after},
 			}})
 		}
@@ -242,7 +246,7 @@ func (c *Client) Paginate(ctx context.Context, col string, filter interface{}, s
 			{Key: key, Value: -1},
 		}
 		if before := p.Before; before != nil {
-			filter = appendE(filter, bson.E{Key: key, Value: bson.D{
+			filter = AppendE(filter, bson.E{Key: key, Value: bson.D{
 				{Key: "$lt", Value: *before},
 			}})
 		}
@@ -369,7 +373,7 @@ func indexes(ctx context.Context, coll *mongo.Collection) map[string]struct{} {
 }
 
 func (c *Client) BeginTransaction() (repo.Tx, error) {
-	s, err := c.client.StartSession()
+	s, err := c.client.Client().StartSession()
 	if err != nil {
 		return nil, err
 	}
