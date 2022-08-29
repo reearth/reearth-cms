@@ -70,7 +70,6 @@
     "@emotion/styled": "^11.10.0",
     "antd": "^4.22.3",
     "cesium": "^1.95.0",
-    "file-saver": "^2.0.5",
     "formik": "^2.2.9",
     "graphiql": "^1.10.0",
     "graphql": "^16.5.0",
