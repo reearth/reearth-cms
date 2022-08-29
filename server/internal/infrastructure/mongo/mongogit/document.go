@@ -1,8 +1,8 @@
 package mongogit
 
 import (
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/mongox"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -16,6 +16,32 @@ const (
 type Document[T any] struct {
 	Data T
 	Meta Meta
+}
+
+func NewDocument[T any](v *version.Value[T]) *Document[T] {
+	if v == nil {
+		return nil
+	}
+	return &Document[T]{
+		Data: v.Value(),
+		Meta: Meta{
+			Version: v.Version(),
+			Parents: v.Parents().Values(),
+			Refs:    v.Refs().Values(),
+		},
+	}
+}
+
+func (d *Document[T]) Value() *version.Value[T] {
+	if d == nil {
+		return nil
+	}
+	return version.NewValue(
+		d.Meta.Version,
+		version.NewVersions(d.Meta.Parents...),
+		version.NewRefs(d.Meta.Refs...),
+		d.Data,
+	)
 }
 
 func (d *Document[T]) MarshalBSON() ([]byte, error) {
@@ -56,7 +82,7 @@ func (meta Meta) apply(d any) (any, error) {
 		return nil, err
 	}
 
-	return mongodoc.AppendE(
+	return mongox.AppendE(
 		m,
 		bson.E{Key: versionKey, Value: meta.Version},
 		bson.E{Key: parentsKey, Value: meta.Parents},

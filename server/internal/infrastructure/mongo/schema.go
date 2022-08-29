@@ -8,17 +8,18 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type schemaRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 	f      *repo.WorkspaceFilter
 }
 
-func NewSchema(client *mongodoc.Client) repo.Schema {
+func NewSchema(client *mongox.Client) repo.Schema {
 	r := &schemaRepo{client: client.WithCollection("schema")}
 	r.init()
 	return r
@@ -105,7 +106,7 @@ func (r *schemaRepo) find(ctx context.Context, dst schema.List, filter interface
 	return c.Rows, nil
 }
 
-// func (r *schemaRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) (schema.List, *usecase.PageInfo, error) {
+// func (r *schemaRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (schema.List, *usecasex.PageInfo, error) {
 // 	var c mongodoc.SchemaConsumer
 // 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
 // 	if err != nil {

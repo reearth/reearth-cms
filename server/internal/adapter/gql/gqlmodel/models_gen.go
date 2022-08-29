@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearthx/usecasex"
 	"golang.org/x/text/language"
 )
 
@@ -55,8 +55,8 @@ type AssetConnection struct {
 }
 
 type AssetEdge struct {
-	Cursor usecase.Cursor `json:"cursor"`
-	Node   *Asset         `json:"node"`
+	Cursor usecasex.Cursor `json:"cursor"`
+	Node   *Asset          `json:"node"`
 }
 
 type AssetFile struct {
@@ -197,8 +197,8 @@ type ItemConnection struct {
 }
 
 type ItemEdge struct {
-	Cursor usecase.Cursor `json:"cursor"`
-	Node   *Item          `json:"node"`
+	Cursor usecasex.Cursor `json:"cursor"`
+	Node   *Item           `json:"node"`
 }
 
 type ItemField struct {
@@ -262,8 +262,8 @@ type ModelConnection struct {
 }
 
 type ModelEdge struct {
-	Cursor usecase.Cursor `json:"cursor"`
-	Node   *Model         `json:"node"`
+	Cursor usecasex.Cursor `json:"cursor"`
+	Node   *Model          `json:"node"`
 }
 
 type ModelPayload struct {
@@ -271,17 +271,17 @@ type ModelPayload struct {
 }
 
 type PageInfo struct {
-	StartCursor     *usecase.Cursor `json:"startCursor"`
-	EndCursor       *usecase.Cursor `json:"endCursor"`
-	HasNextPage     bool            `json:"hasNextPage"`
-	HasPreviousPage bool            `json:"hasPreviousPage"`
+	StartCursor     *usecasex.Cursor `json:"startCursor"`
+	EndCursor       *usecasex.Cursor `json:"endCursor"`
+	HasNextPage     bool             `json:"hasNextPage"`
+	HasPreviousPage bool             `json:"hasPreviousPage"`
 }
 
 type Pagination struct {
-	First  *int            `json:"first"`
-	Last   *int            `json:"last"`
-	After  *usecase.Cursor `json:"after"`
-	Before *usecase.Cursor `json:"before"`
+	First  *int             `json:"first"`
+	Last   *int             `json:"last"`
+	After  *usecasex.Cursor `json:"after"`
+	Before *usecasex.Cursor `json:"before"`
 }
 
 type Project struct {
@@ -310,8 +310,8 @@ type ProjectConnection struct {
 }
 
 type ProjectEdge struct {
-	Cursor usecase.Cursor `json:"cursor"`
-	Node   *Project       `json:"node"`
+	Cursor usecasex.Cursor `json:"cursor"`
+	Node   *Project        `json:"node"`
 }
 
 type ProjectPayload struct {
