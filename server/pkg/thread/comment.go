@@ -1,8 +1,13 @@
 package thread
 
 type Comment struct {
+	id      CommentID
 	author  UserID
 	content string
+}
+
+func (c *Comment) ID() CommentID {
+	return c.id
 }
 
 func (c *Comment) Author() UserID {

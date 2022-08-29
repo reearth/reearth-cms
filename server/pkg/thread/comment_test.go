@@ -7,14 +7,17 @@ import (
 )
 
 func TestComment_CommentType(t *testing.T) {
+	cid := NewCommentID()
 	uid := NewUserID()
-	m := "xxx"
+	c := "xxx"
 
 	got := Comment{
+		id:      cid,
 		author:  uid,
-		content: m,
+		content: c,
 	}
 
+	assert.Equal(t, cid, got.ID())
 	assert.Equal(t, uid, got.Author())
-	assert.Equal(t, m, got.Content())
+	assert.Equal(t, c, got.Content())
 }
