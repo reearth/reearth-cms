@@ -1,0 +1,35 @@
+type Thread {
+  id: ID!
+  comments: [Comment]
+}
+
+type Comment {
+  id: ID!
+  authorId: ID!
+  content: String!
+}
+
+input CreateCommentInput {
+  threadId: ID!
+  authorId: ID!
+  content: string!
+}
+
+input UpdateCommentInput {
+  commentId: ID!
+  content: string!
+}
+
+input DeleteCommentInput {
+  CommentId: ID!
+}
+
+extend type Query {
+  comments(threadId: ID!): [Comment]
+}
+
+extend type Mutation {
+  createComment(input: CreateCommentInput!): Comment: Comment!
+  UpdateComment(input: UpdateCommentInput!): Comment: Comment!
+  deleteComment(input: DeleteCommentInput!): CommentId: ID!
+}

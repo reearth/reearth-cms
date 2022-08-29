@@ -11,6 +11,7 @@ schema:
   - ./schemas/schema.graphql
   - ./schemas/field.graphql
   - ./schemas/item.graphql
+  - ./schemas/thread.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -60,6 +61,8 @@ models:
       createdBy:
         resolver: true
       project:
+        resolver: true
+      thread:
         resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time

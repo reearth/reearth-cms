@@ -10,6 +10,8 @@ type Asset implements Node {
   previewType: PreviewType
   file: AssetFile!
   hash: String!
+  thread: Thread
+  threadId: ID!
 }
 
 type AssetFile {
