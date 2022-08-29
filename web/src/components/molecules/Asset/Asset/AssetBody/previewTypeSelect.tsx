@@ -1,15 +1,7 @@
 import { CSSProperties } from "react";
 
 import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-
-export enum PreviewType {
-  IMAGE = "image",
-  GEO = "geo",
-  GEO3D = "geo3d",
-  MODEL3D = "model3d",
-  SVG = "svg",
-  ZIP = "zip",
-}
+import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
 
 type Props = {
   onTypeChange: (
@@ -22,16 +14,14 @@ type Props = {
 
 export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
   const previewTypeList = [
-    { id: 1, name: "PNG/JPEG/TIFF", value: PreviewType.IMAGE },
+    { id: 1, name: "PNG/JPEG/TIFF/SVG", value: PreviewType.Image },
     {
       id: 2,
       name: "JSON/SHAPEFILE/KML/CZML",
-      value: PreviewType.GEO,
+      value: PreviewType.Geo,
     },
-    { id: 3, name: "GEO3D", value: PreviewType.GEO3D },
-    { id: 4, name: "MODEL3D/GLB", value: PreviewType.MODEL3D },
-    { id: 5, name: "SVG", value: PreviewType.SVG },
-    { id: 6, name: "ZIP", value: PreviewType.ZIP },
+    { id: 3, name: "GEO3D", value: PreviewType.Geo3D },
+    { id: 4, name: "MODEL3D/GLB", value: PreviewType.Model3D },
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>
