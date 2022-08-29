@@ -3,6 +3,7 @@ package thread
 import (
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,49 +56,17 @@ func TestBuilder_Build(t *testing.T) {
 }
 
 func TestBuilder_MustBuild(t *testing.T) {
-	var thid ID = NewID()
+	thid := NewID()
 	c := []*Comment{}
+	got := New().
+		ID(thid).
+		Comments(c).
+		MustBuild()
+	want := lo.Must(New().
+		ID(thid).
+		Comments(c).Build())
 
-	tests := Tests{
-		{
-			name: "Valid thread",
-			input: Input{
-				id:       thid,
-				comments: c,
-			},
-			want: &Thread{
-				id:       thid,
-				comments: c,
-			},
-		},
-		{
-			name: "fail: Invalid Id",
-			input: Input{
-				id:       ID{},
-				comments: c,
-			},
-			err: ErrInvalidID,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			build := func() *Thread {
-				t.Helper()
-				return New().
-					ID(tt.input.id).
-					Comments(tt.input.comments).
-					MustBuild()
-			}
-			if tt.err != nil {
-				assert.PanicsWithValue(t, tt.err, func() { _ = build() })
-			} else {
-				assert.Equal(t, tt.want, build())
-			}
-		})
-	}
+	assert.Equal(t, want, got)
 }
 
 func TestBuilder_NewID(t *testing.T) {
