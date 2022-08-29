@@ -14,6 +14,7 @@ type Asset struct {
 	previewType *PreviewType
 	file        *File
 	hash        string
+	thread      ThreadID
 }
 
 func (a *Asset) ID() ID {
@@ -54,4 +55,8 @@ func (a *Asset) File() *File {
 
 func (a *Asset) Hash() string {
 	return a.hash
+}
+
+func (a *Asset) Thread() ThreadID {
+	return a.thread
 }

@@ -88,3 +88,8 @@ func (b *Builder) Hash(hash string) *Builder {
 	b.a.hash = hash
 	return b
 }
+
+func (b *Builder) Thread(th ThreadID) *Builder {
+	b.a.thread = th
+	return b
+}
