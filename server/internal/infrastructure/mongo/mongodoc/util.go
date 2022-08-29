@@ -2,7 +2,7 @@ package mongodoc
 
 import "go.mongodb.org/mongo-driver/bson"
 
-func appendE(f interface{}, elements ...bson.E) interface{} {
+func AppendE(f interface{}, elements ...bson.E) interface{} {
 	switch f2 := f.(type) {
 	case bson.D:
 		for _, e := range elements {
@@ -36,66 +36,25 @@ func getE(f interface{}, k string) interface{} {
 	return nil
 }
 
-func convertDToM(i interface{}) interface{} {
-	if i == nil {
-		return nil
-	}
-	switch i2 := i.(type) {
-	case bson.D:
-		return i2.Map()
-	case bson.A:
-		a := make([]interface{}, 0, len(i2))
-		for _, e := range i2 {
-			a = append(a, convertDToM(e))
-		}
-		return a
-	case []bson.M:
-		a := make([]interface{}, 0, len(i2))
-		for _, e := range i2 {
-			a = append(a, convertDToM(e))
-		}
-		return a
-	case []bson.D:
-		a := make([]interface{}, 0, len(i2))
-		for _, e := range i2 {
-			a = append(a, convertDToM(e))
-		}
-		return a
-	case []bson.A:
-		a := make([]interface{}, 0, len(i2))
-		for _, e := range i2 {
-			a = append(a, convertDToM(e))
-		}
-		return a
-	case []interface{}:
-		a := make([]interface{}, 0, len(i2))
-		for _, e := range i2 {
-			a = append(a, convertDToM(e))
-		}
-		return a
-	}
-	return i
-}
-
-func appendI(f interface{}, elements ...interface{}) interface{} {
+func appendI(f any, elements ...any) any {
 	switch f2 := f.(type) {
 	case []bson.D:
-		res := make([]interface{}, 0, len(f2))
+		res := make([]any, 0, len(f2))
 		for _, e := range f2 {
 			res = append(res, e)
 		}
 		return append(res, elements...)
 	case []bson.M:
-		res := make([]interface{}, 0, len(f2)+len(elements))
+		res := make([]any, 0, len(f2)+len(elements))
 		for _, e := range f2 {
 			res = append(res, e)
 		}
 		return append(res, elements...)
 	case bson.A:
-		res := make([]interface{}, 0, len(f2)+len(elements))
+		res := make([]any, 0, len(f2)+len(elements))
 		return append(res, append(f2, elements...)...)
-	case []interface{}:
-		res := make([]interface{}, 0, len(f2)+len(elements))
+	case []any:
+		res := make([]any, 0, len(f2)+len(elements))
 		return append(res, append(f2, elements...)...)
 	}
 	return f
@@ -151,5 +110,5 @@ func And(filter interface{}, key string, f interface{}) interface{} {
 			"$and": []interface{}{filter, g},
 		}
 	}
-	return appendE(filter, bson.E{Key: key, Value: f})
+	return AppendE(filter, bson.E{Key: key, Value: f})
 }
