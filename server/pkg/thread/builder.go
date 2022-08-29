@@ -1,6 +1,9 @@
 package thread
 
-import "golang.org/x/exp/slices"
+import (
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
+)
 
 type Builder struct {
 	th *Thread
@@ -19,11 +22,7 @@ func (b *Builder) Build() (*Thread, error) {
 }
 
 func (b *Builder) MustBuild() *Thread {
-	r, err := b.Build()
-	if err != nil {
-		panic(err)
-	}
-	return r
+	return lo.Must(b.Build())
 }
 
 func (b *Builder) ID(id ID) *Builder {

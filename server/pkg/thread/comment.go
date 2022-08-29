@@ -17,3 +17,7 @@ func (c *Comment) Author() UserID {
 func (c *Comment) Content() string {
 	return c.content
 }
+
+func (c *Comment) SetContent(content string) {
+	c.content = content
+}

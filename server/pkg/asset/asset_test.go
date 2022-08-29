@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAsset_AssetType(t *testing.T) {
+func TestAsset_Getters(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
