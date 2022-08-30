@@ -36,3 +36,31 @@ export const CREATE_MODEL = gql`
     }
   }
 `;
+
+export const DELETE_MODEL = gql`
+  mutation DeleteModel($modelId: ID!) {
+    deleteModel(input: { modelId: $modelId }) {
+      modelId
+    }
+  }
+`;
+
+export const UPDATE_MODEL = gql`
+  mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+    updateModel(input: { modelId: $modelId, name: $name, description: $description, key: $key }) {
+      model {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const GET_MODEL_KEY_AVAILABILITY = gql`
+  query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
+    checkModelKeyAvailability(projectId: $projectId, key: $key) {
+      key
+      available
+    }
+  }
+`;
