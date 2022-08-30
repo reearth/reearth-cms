@@ -7,7 +7,7 @@ type Props = {
   uploadProps: UploadProps;
 };
 
-const Tab1: React.FC<Props> = ({ uploadProps }) => {
+const LocalTab: React.FC<Props> = ({ uploadProps }) => {
   return (
     <div>
       <Dragger {...uploadProps}>
@@ -24,4 +24,4 @@ const Tab1: React.FC<Props> = ({ uploadProps }) => {
   );
 };
 
-export default Tab1;
+export default LocalTab;
