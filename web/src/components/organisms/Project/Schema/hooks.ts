@@ -137,9 +137,8 @@ export default ({ projectId, modelId }: Params) => {
       }
 
       setModelModalShown(false);
-      refetch();
     },
-    [createNewModel, projectId, refetch, modelId],
+    [createNewModel, projectId, modelId],
   );
 
   const handleModelModalClose = useCallback(() => {
