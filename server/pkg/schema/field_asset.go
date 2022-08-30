@@ -21,3 +21,7 @@ func (f *FieldAsset) TypeProperty() *TypeProperty {
 		asset: f,
 	}
 }
+
+func (f *FieldAsset) DefaultValue() *id.AssetID {
+	return f.defaultValue
+}

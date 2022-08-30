@@ -10,13 +10,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type userRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 }
 
-func NewUser(client *mongodoc.Client) repo.User {
+func NewUser(client *mongox.Client) repo.User {
 	r := &userRepo{client: client.WithCollection("user")}
 	r.init()
 	return r

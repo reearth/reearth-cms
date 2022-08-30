@@ -7,6 +7,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
@@ -39,7 +41,7 @@ func TestUserRepo_FindByID(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -47,7 +49,7 @@ func TestUserRepo_FindByID(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -109,7 +111,7 @@ func TestUserRepo_FindByIDs(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -117,7 +119,7 @@ func TestUserRepo_FindByIDs(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -168,7 +170,7 @@ func TestUserRepo_FindByName(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -176,7 +178,7 @@ func TestUserRepo_FindByName(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -224,7 +226,7 @@ func TestUserRepo_FindByEmail(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -232,7 +234,7 @@ func TestUserRepo_FindByEmail(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -286,7 +288,7 @@ func TestUserRepo_FindByNameOrEmail(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -294,7 +296,7 @@ func TestUserRepo_FindByNameOrEmail(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -347,7 +349,7 @@ func TestUserRepo_FindByPasswordResetRequest(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -355,7 +357,7 @@ func TestUserRepo_FindByPasswordResetRequest(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -407,7 +409,7 @@ func TestUserRepo_FindByVerification(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -415,7 +417,7 @@ func TestUserRepo_FindByVerification(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -467,7 +469,7 @@ func TestUserRepo_FindBySub(t *testing.T) {
 		},
 	}
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
@@ -475,7 +477,7 @@ func TestUserRepo_FindBySub(t *testing.T) {
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
-			client := init(t)
+			client := mongox.NewClientWithDatabase(init(t))
 
 			repo := NewUser(client)
 			ctx := context.Background()
@@ -504,9 +506,9 @@ func TestUserRepo_Remove(t *testing.T) {
 		Name("foo").
 		MustBuild()
 
-	init := connect(t)
+	init := mongotest.Connect(t)
 
-	client := init(t)
+	client := mongox.NewClientWithDatabase(init(t))
 
 	repo := NewUser(client)
 	ctx := context.Background()
