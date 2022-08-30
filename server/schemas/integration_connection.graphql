@@ -3,8 +3,6 @@ type IntegrationConnection implements Node {
   active: Boolean!
   integrationId: ID!
   integration: Integration!
-  developerId: ID!
-  developer: User!
   role: Role!
   createdAt: DateTime!
   updatedAt: DateTime!
