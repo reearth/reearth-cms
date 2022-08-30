@@ -1,6 +1,8 @@
 package gqlmodel
 
-import "github.com/reearth/reearth-cms/server/internal/usecase"
+import (
+	"github.com/reearth/reearthx/usecasex"
+)
 
 func RefToIndex(i *int) int {
 	if i == nil {
@@ -20,23 +22,23 @@ func BoolToRef(b bool) *bool {
 	return &b
 }
 
-func ToPageInfo(p *usecase.PageInfo) *PageInfo {
+func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
 	if p == nil {
 		return &PageInfo{}
 	}
 	return &PageInfo{
-		StartCursor:     p.StartCursor(),
-		EndCursor:       p.EndCursor(),
-		HasNextPage:     p.HasNextPage(),
-		HasPreviousPage: p.HasPreviousPage(),
+		StartCursor:     p.StartCursor,
+		EndCursor:       p.EndCursor,
+		HasNextPage:     p.HasNextPage,
+		HasPreviousPage: p.HasPreviousPage,
 	}
 }
 
-func ToPagination(pagination *Pagination) *usecase.Pagination {
+func ToPagination(pagination *Pagination) *usecasex.Pagination {
 	if pagination == nil {
 		return nil
 	}
-	return &usecase.Pagination{
+	return &usecasex.Pagination{
 		Before: pagination.Before,
 		After:  pagination.After,
 		First:  pagination.First,

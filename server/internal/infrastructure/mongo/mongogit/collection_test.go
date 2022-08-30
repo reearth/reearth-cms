@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongotest"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,25 +37,25 @@ func TestCollection_FindOne(t *testing.T) {
 	})
 
 	// latest
-	consumer := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, Eq(version.Latest.OrVersion()), consumer))
+	consumer := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, version.Eq(version.Latest.OrVersion()), consumer))
 	assert.Equal(t, d{
 		A: "b",
 	}, consumer.Result[0])
 
 	// version
-	consumer2 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, Eq(vx.OrRef()), consumer2))
+	consumer2 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, version.Eq(vx.OrRef()), consumer2))
 	assert.Equal(t, d{A: "b"}, consumer2.Result[0])
 
 	// ref
-	consumer3 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, Eq(version.Ref("aaa").OrVersion()), consumer3))
+	consumer3 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, version.Eq(version.Ref("aaa").OrVersion()), consumer3))
 	assert.Equal(t, d{A: "b"}, consumer3.Result[0])
 
 	// not found
-	consumer4 := &mongodoc.SliceConsumer[d]{}
-	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{"a": "b"}, Eq(version.Ref("x").OrVersion()), consumer4))
+	consumer4 := &mongox.SliceConsumer[d]{}
+	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{"a": "b"}, version.Eq(version.Ref("x").OrVersion()), consumer4))
 	assert.Empty(t, consumer4.Result)
 }
 
@@ -103,8 +103,8 @@ func TestCollection_Find(t *testing.T) {
 	})
 
 	// all
-	consumer0 := &mongodoc.SliceConsumer[Document[d]]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, All(), consumer0))
+	consumer0 := &mongox.SliceConsumer[Document[d]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, version.All(), consumer0))
 	assert.Equal(t, []Document[d]{
 		{Data: d{A: "b"}, Meta: Meta{Version: vx}},
 		{Data: d{A: "b", B: "c"}, Meta: Meta{
@@ -115,23 +115,23 @@ func TestCollection_Find(t *testing.T) {
 	}, consumer0.Result)
 
 	// latest
-	consumer1 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.Find(ctx, bson.M{}, Eq(version.Latest.OrVersion()), consumer1))
+	consumer1 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{}, version.Eq(version.Latest.OrVersion()), consumer1))
 	assert.Equal(t, []d{{A: "b", B: "c"}, {A: "d", B: "a"}}, consumer1.Result)
 
 	// version
-	consumer2 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, Eq(vx.OrRef()), consumer2))
+	consumer2 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, version.Eq(vx.OrRef()), consumer2))
 	assert.Equal(t, []d{{A: "b"}}, consumer2.Result)
 
 	// ref
-	consumer3 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, Eq(version.Ref("aaa").OrVersion()), consumer3))
+	consumer3 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, version.Eq(version.Ref("aaa").OrVersion()), consumer3))
 	assert.Equal(t, []d{{A: "b", B: "c"}}, consumer3.Result)
 
 	// not found
-	consumer4 := &mongodoc.SliceConsumer[d]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "c"}, Eq(version.Latest.OrVersion()), consumer4))
+	consumer4 := &mongox.SliceConsumer[d]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "c"}, version.Eq(version.Latest.OrVersion()), consumer4))
 	assert.Empty(t, consumer4.Result)
 }
 
@@ -174,22 +174,22 @@ func TestCollection_Count(t *testing.T) {
 	})
 
 	// all
-	count, err := col.Count(ctx, bson.M{"a": "b"}, All())
+	count, err := col.Count(ctx, bson.M{"a": "b"}, version.All())
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), count)
 
 	// version
-	count, err = col.Count(ctx, bson.M{"a": "b"}, Eq(vx.OrRef()))
+	count, err = col.Count(ctx, bson.M{"a": "b"}, version.Eq(vx.OrRef()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
 	// ref
-	count, err = col.Count(ctx, bson.M{"a": "b"}, Eq(version.Latest.OrVersion()))
+	count, err = col.Count(ctx, bson.M{"a": "b"}, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
 	// not found
-	count, err = col.Count(ctx, bson.M{"a": "c"}, Eq(version.Latest.OrVersion()))
+	count, err = col.Count(ctx, bson.M{"a": "c"}, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), count)
 }
@@ -238,12 +238,12 @@ func TestCollection_Paginate(t *testing.T) {
 		},
 	})
 
-	consumer := &mongodoc.SliceConsumer[d]{}
-	pi, err := col.Paginate(ctx, bson.M{}, Eq(version.Latest.OrVersion()), &usecase.Pagination{
+	consumer := &mongox.SliceConsumer[d]{}
+	pi, err := col.Paginate(ctx, bson.M{}, version.Eq(version.Latest.OrVersion()), &usecasex.Pagination{
 		First: lo.ToPtr(2),
 	}, consumer)
 	assert.NoError(t, err)
-	assert.Equal(t, usecase.NewPageInfo(2, usecase.Cursor("a").Ref(), usecase.Cursor("b").Ref(), false, false), pi)
+	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("a").Ref(), usecasex.Cursor("b").Ref(), false, false), pi)
 	assert.Equal(t, []d{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
 }
 
@@ -516,5 +516,5 @@ func TestCollection_Meta(t *testing.T) {
 func initCollection(t *testing.T) *Collection {
 	t.Helper()
 	c := mongotest.Connect(t)(t)
-	return NewCollection(mongodoc.NewClientWithDatabase(c).WithCollection("test_" + uuid.NewString()))
+	return NewCollection(mongox.NewClientWithDatabase(c).WithCollection("test_" + uuid.NewString()))
 }

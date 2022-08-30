@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -326,7 +327,7 @@ func TestModel_FindByProject(t *testing.T) {
 	mockTime := time.Now()
 	type args struct {
 		projectID  id.ProjectID
-		pagination *usecase.Pagination
+		pagination *usecasex.Pagination
 		operator   *usecase.Operator
 	}
 	type seeds struct {
@@ -338,7 +339,7 @@ func TestModel_FindByProject(t *testing.T) {
 		seeds   seeds
 		args    args
 		want    model.List
-		want1   *usecase.PageInfo
+		want1   *usecasex.PageInfo
 		mockErr bool
 		wantErr error
 	}{
