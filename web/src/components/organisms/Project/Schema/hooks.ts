@@ -53,7 +53,7 @@ export default ({ projectId, modelId }: Params) => {
     () => data?.models.nodes.find((p: any) => p?.id === modelId),
     [data, modelId],
   );
-  const model = useMemo(
+  const model = useMemo<Model | undefined>(
     () =>
       rawModel?.id
         ? {
@@ -147,9 +147,7 @@ export default ({ projectId, modelId }: Params) => {
 
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
-  const handleFieldModalClose = useCallback(() => {
-    setFieldModalShown(false);
-  }, []);
+  const handleFieldModalClose = useCallback(() => setFieldModalShown(false), []);
 
   const handleFieldModalOpen = useCallback(() => {
     if (modelId) setFieldModalShown(true);
