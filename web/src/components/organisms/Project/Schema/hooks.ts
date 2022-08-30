@@ -19,7 +19,7 @@ export default ({ projectId, modelId }: Params) => {
   const [fieldModalShown, setFieldModalShown] = useState(false);
 
   const { data, refetch } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "", first: 100 },
+    variables: { projectId: projectId ?? "" },
     skip: !projectId,
   });
 
