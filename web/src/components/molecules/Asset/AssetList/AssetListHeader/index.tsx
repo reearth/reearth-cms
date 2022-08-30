@@ -21,10 +21,10 @@ const AssetListHeader: React.FC<Props> = ({
   fileList,
   uploading,
   uploadProps,
-  handleUpload,
   uploadModalVisibility,
   displayUploadModal,
   hideUploadModal,
+  handleUpload,
 }) => {
   return (
     <AssetListHeaderWrapper>

@@ -4,13 +4,16 @@ import { createWorldTerrain, Viewer } from "cesium";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
-import { PreviewTypeSelect } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import {
+  PreviewType,
+  PreviewTypeSelect,
+} from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
-import { Asset, PreviewType } from "@reearth-cms/gql/graphql-client-api";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -41,7 +44,7 @@ const AssetBody: React.FC<Props> = ({
   handleFullScreen,
 }) => {
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const formattedCreatedAt = dateTimeFormat(asset?.createdAt);
+  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
   // TODO: maybe we need a better way to check for svg files
   const isSVG = asset?.fileName?.endsWith(".svg") ?? false;
@@ -108,12 +111,7 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton
-          type="ghost"
-          filename={asset?.fileName}
-          url={url}
-          displayDefaultIcon={true}
-        />
+        <DownloadButton type="ghost" filename={asset?.fileName} url={url} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">

@@ -1,7 +1,13 @@
 import { CSSProperties } from "react";
 
 import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
+
+export enum PreviewType {
+  Geo = "GEO",
+  Geo3D = "GEO3D",
+  Image = "IMAGE",
+  Model3D = "MODEL3D",
+}
 
 type Props = {
   onTypeChange: (

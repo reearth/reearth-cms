@@ -1,13 +1,13 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
-import { PreviewType } from "@reearth-cms/gql/graphql-client-api";
+import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 
 type Props = {
   url: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  isSVG: boolean;
+  isSVG?: boolean;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
