@@ -1,0 +1,63 @@
+type WebhookEvent {
+  model: ID!
+  onCreate: Boolean!
+  onUpdate: Boolean!
+  onDelete: Boolean!
+  onApiAccess: Boolean!
+}
+
+type Webhook implements Node {
+  id: ID!
+  name: String!
+  url: URL!
+  active: Boolean!
+  event: [WebhookEvent!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Inputs
+
+input WebhookEventInput {
+  model: ID!
+  onCreate: Boolean!
+  onUpdate: Boolean!
+  onDelete: Boolean!
+  onApiAccess: Boolean!
+}
+
+input CreateWebhookInput {
+  name: String!
+  url: URL!
+  active: Boolean!
+  event: [WebhookEventInput!]!
+}
+
+input UpdateWebhookInput {
+  webhookId: ID!
+  name: String
+  url: URL
+  active: Boolean
+  event: [WebhookEventInput!]
+}
+
+input DeleteWebhookInput {
+  webhookId: ID!
+}
+
+# Payload
+type WebhookPayload {
+  webhook: Webhook!
+}
+
+type DeleteWebhookPayload {
+  webhookId: ID!
+}
+
+# extend type Query {}
+
+extend type Mutation {
+  createWebhook(input: CreateWebhookInput!): WebhookPayload
+  updateWebhook(input: UpdateWebhookInput!): WebhookPayload
+  deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload
+}

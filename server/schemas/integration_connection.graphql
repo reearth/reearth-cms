@@ -1,0 +1,51 @@
+type IntegrationConnection implements Node {
+  id: ID!
+  active: Boolean!
+  integrationId: ID!
+  integration: Integration!
+  developerId: ID!
+  developer: User!
+  role: Role!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Inputs
+input CreateIntegrationConnectionInput {
+  integrationId: ID!
+  workspaceId: ID!
+  role: Role!
+}
+
+input UpdateIntegrationConnectionInput {
+  connectionId: ID!
+  active: Boolean
+  role: Role
+}
+
+input DeleteIntegrationConnectionInput {
+  connectionId: ID!
+}
+
+# Payload
+type IntegrationConnectionConnection {
+  edges: [IntegrationConnectionEdge!]!
+  nodes: [IntegrationConnection]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type IntegrationConnectionEdge {
+  cursor: Cursor!
+  node: IntegrationConnection
+}
+
+extend type Query {
+  integrationConnections(keyword: String, pageInfo: Pagination!): [IntegrationConnectionConnection]!
+}
+
+extend type Mutation {
+  createIntegrationConnection(input: CreateIntegrationConnectionInput!): Boolean
+  updateIntegrationConnection(input: UpdateIntegrationConnectionInput!): Boolean
+  deleteIntegrationConnection(input: DeleteIntegrationConnectionInput!): Boolean
+}
