@@ -1,3 +1,4 @@
+import fileDownload from "js-file-download";
 import React, { MouseEventHandler } from "react";
 
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -18,20 +19,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   ...props
 }) => {
   const handleDownload: MouseEventHandler<HTMLElement> | undefined = () => {
-    fetch(url, {
-      method: "GET",
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", filename);
-
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-      });
+    fileDownload(url, filename);
   };
 
   return (
