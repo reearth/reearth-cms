@@ -93,6 +93,7 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (model.errors || !model.data?.createModel) {
+        // Show error message
         setModelModalShown(false);
         return;
       }
@@ -132,6 +133,7 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.createField) {
+        // Show error message
         setModelModalShown(false);
         return;
       }
