@@ -143,9 +143,7 @@ export default ({ projectId, modelId }: Params) => {
     [createNewModel, projectId, modelId],
   );
 
-  const handleModelModalClose = useCallback(() => {
-    setModelModalShown(false);
-  }, []);
+  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
 
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
