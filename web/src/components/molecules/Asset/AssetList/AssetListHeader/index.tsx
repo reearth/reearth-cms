@@ -6,7 +6,7 @@ import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 type Props = {
   title: string;
   subTitle: string;
-  fileList: UploadFile<any>[];
+  fileList: UploadFile<File>[];
   uploading: boolean;
   uploadProps: UploadProps;
   uploadModalVisibility: boolean;

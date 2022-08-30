@@ -12,7 +12,7 @@ const { TabPane } = Tabs;
 type Props = {
   visible: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<any>[];
+  fileList: UploadFile<File>[];
   uploading: boolean;
   handleUpload: () => void;
   handleCancel: () => void;

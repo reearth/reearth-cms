@@ -6,7 +6,7 @@ import UploadModal from "../UploadModal/uploadModal";
 
 type Props = {
   uploadProps: UploadProps;
-  fileList: UploadFile<any>[];
+  fileList: UploadFile<File>[];
   uploading: boolean;
   uploadModalVisibility: boolean;
   displayUploadModal: () => void;
