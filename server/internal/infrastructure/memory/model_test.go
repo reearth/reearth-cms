@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	// "github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -100,4 +99,68 @@ func TestMemory_FindByKey(t *testing.T) {
 
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Equal(t, m, res)
+}
+
+func TestMemory_FindByID(t *testing.T) {
+	ctx := context.Background()
+	mId := id.NewModelID()
+
+	r := &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+	}
+	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
+		return k.Equal(mId)
+	})
+
+	res, err := r.FindByID(ctx, mId)
+
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Equal(t, m, res)
+}
+
+/*
+func TestMemory_FindByIDs(t *testing.T) {
+	ctx := context.Background()
+	model := id.NewModelID()
+	mId := id.ModelIDList()
+
+	r := &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+	}
+	m := r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
+		return ids.Has(k)
+	})
+
+	res, err := r.FindByIDs(ctx, mId)
+
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Equal(t, m, res)
+}
+*/
+
+func TestMemory_Save(t *testing.T) {
+	ctx := context.Background()
+	m := &model.Model{}
+
+	r := &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+	}
+	r.data.Store(id.NewModelID(), m)
+	err := r.Save(ctx, m)
+	assert.NoError(t, err)
+}
+
+func TestMemory_Remove(t *testing.T) {
+	ctx := context.Background()
+	m := &model.Model{}
+
+	r := &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+	}
+	err := r.Remove(ctx, m.ID())
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
 }
