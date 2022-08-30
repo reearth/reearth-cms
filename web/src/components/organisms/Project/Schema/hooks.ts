@@ -98,9 +98,8 @@ export default ({ projectId, modelId }: Params) => {
       }
 
       setModelModalShown(false);
-      refetch();
     },
-    [createNewModel, projectId, refetch],
+    [createNewModel, projectId],
   );
 
   const [createNewField] = useCreateFieldMutation({
