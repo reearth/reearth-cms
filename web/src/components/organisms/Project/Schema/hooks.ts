@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
+import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
   useCreateModelMutation,
@@ -7,42 +8,6 @@ import {
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/graphql-client-api";
-
-type Model = {
-  id: string;
-  name: string;
-  description?: string;
-  key: string;
-  schema: Schema;
-};
-
-type Schema = {
-  id: string;
-  fields: Field[];
-};
-
-type Field = {
-  id: string;
-  type: FieldType;
-  title: string;
-  description: string | null | undefined;
-  required: boolean;
-  unique: boolean;
-};
-
-export type FieldType =
-  | "Text"
-  | "TextArea"
-  | "RichText"
-  | "MarkdownText"
-  | "Asset"
-  | "Date"
-  | "Bool"
-  | "Select"
-  | "Tag"
-  | "Integer"
-  | "Reference"
-  | "URL";
 
 type Params = {
   projectId?: string;
