@@ -9,7 +9,9 @@ import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
+import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
 
 import useDashboardHooks from "../../Dashboard/hooks";
@@ -25,16 +27,16 @@ const ProjectSchema: React.FC = () => {
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState(false);
-  //   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const { projectId, workspaceId, modelId } = useParams();
   const selectModel = (modelId: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
   };
 
-  //   const addField = (fieldType: FieldType) => {
-  //     setSelectedType(fieldType);
-  //     handleFieldModalOpen();
-  //   };
+  const addField = (fieldType: FieldType) => {
+    setSelectedType(fieldType);
+    handleFieldModalOpen();
+  };
 
   const {
     user,
@@ -51,11 +53,11 @@ const ProjectSchema: React.FC = () => {
     handleModelModalClose,
     handleModelModalOpen,
     modelModalShown,
-    // handleFieldModalClose,
-    // handleFieldModalOpen,
-    // fieldModalShown,
+    handleFieldModalClose,
+    handleFieldModalOpen,
+    fieldModalShown,
     handleModelCreate,
-    // handleFieldCreate,
+    handleFieldCreate,
     models,
     model,
   } = useHooks({
@@ -98,9 +100,11 @@ const ProjectSchema: React.FC = () => {
             </SchemaStyledMenu>
             <ContentChild>
               <ModelTitle>{model?.name}</ModelTitle>
-              {/* <ModelFieldList fields={model?.schema.fields}></ModelFieldList> */}
+              <ModelFieldList fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
-            <FieldListWrapper>{/* <FieldList addField={addField}></FieldList> */}</FieldListWrapper>
+            <FieldListWrapper>
+              <FieldList addField={addField}></FieldList>
+            </FieldListWrapper>
           </PaddedContent>
         </Layout>
       </Layout>
