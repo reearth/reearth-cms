@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -23,9 +22,9 @@ type FieldSelect struct {
 
 func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
 	empty := len(values) == 0
-	emptyValue := util.Any(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
-	hadDuplication := util.HasDuplicates(values)
-	if empty || emptyValue || hadDuplication {
+	emptyValue := lo.SomeBy(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
+	dups := lo.FindDuplicates(values)
+	if empty || emptyValue || len(dups) > 0 {
 		return nil, ErrFieldValues
 	}
 

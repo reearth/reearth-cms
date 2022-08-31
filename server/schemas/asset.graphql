@@ -1,6 +1,6 @@
 type Asset implements Node {
   id: ID!
-  project: Project!
+  project: Project
   projectId: ID!
   createdAt: DateTime!
   createdBy: User
@@ -9,7 +9,7 @@ type Asset implements Node {
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
-  hash: String!
+  uuid: String!
 }
 
 type AssetFile {
@@ -29,7 +29,13 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
+  createdById: ID!
   file: Upload!
+}
+
+input UpdateAssetInput {
+  id: ID!
+  previewType: PreviewType
 }
 
 input DeleteAssetInput {
@@ -37,6 +43,10 @@ input DeleteAssetInput {
 }
 
 type CreateAssetPayload {
+  asset: Asset!
+}
+
+type UpdateAssetPayload {
   asset: Asset!
 }
 
@@ -63,6 +73,7 @@ enum AssetSortType {
 }
 
 extend type Query {
+  asset(assetId: ID!): Asset!
   assets(
     projectId: ID!
     keyword: String
@@ -73,5 +84,6 @@ extend type Query {
 
 extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
+  updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
 }
