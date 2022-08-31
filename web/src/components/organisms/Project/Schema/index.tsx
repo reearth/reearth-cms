@@ -13,6 +13,7 @@ import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
+import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -27,16 +28,16 @@ const ProjectSchema: React.FC = () => {
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  // const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const { projectId, workspaceId, modelId } = useParams();
   const selectModel = (modelId: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
   };
 
-  const addField = (fieldType: FieldType) => {
-    setSelectedType(fieldType);
-    handleFieldModalOpen();
-  };
+  // const addField = (fieldType: FieldType) => {
+  //   setSelectedType(fieldType);
+  //   handleFieldModalOpen();
+  // };
 
   const {
     user,
@@ -53,11 +54,11 @@ const ProjectSchema: React.FC = () => {
     handleModelModalClose,
     handleModelModalOpen,
     modelModalShown,
-    handleFieldModalClose,
+    // handleFieldModalClose,
     handleFieldModalOpen,
-    fieldModalShown,
+    // fieldModalShown,
     handleModelCreate,
-    handleFieldCreate,
+    // handleFieldCreate,
     models,
     model,
   } = useHooks({
