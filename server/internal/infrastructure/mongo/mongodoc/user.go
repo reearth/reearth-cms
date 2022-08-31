@@ -5,7 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type PasswordResetDocument struct {
@@ -30,27 +30,6 @@ type UserVerificationDoc struct {
 	Code       string
 	Expiration time.Time
 	Verified   bool
-}
-
-type UserConsumer struct {
-	Rows []*user.User
-}
-
-func (u *UserConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc UserDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	user, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	u.Rows = append(u.Rows, user)
-	return nil
 }
 
 func NewUser(user *user.User) (*UserDocument, string) {
@@ -138,4 +117,10 @@ func (d *PasswordResetDocument) Model() *user.PasswordReset {
 		Token:     d.Token,
 		CreatedAt: d.CreatedAt,
 	}
+}
+
+type UserConsumer = mongox.SliceFuncConsumer[*UserDocument, *user.User]
+
+func NewUserConsumer() *UserConsumer {
+	return NewComsumer[*UserDocument, *user.User]()
 }
