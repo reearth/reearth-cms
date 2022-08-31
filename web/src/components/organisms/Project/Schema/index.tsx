@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Button } from "antd";
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -59,6 +60,8 @@ const ProjectSchema: React.FC = () => {
     fieldModalShown,
     handleModelCreate,
     handleFieldCreate,
+    handleModelKeyCheck,
+    isKeyAvailable,
     models,
     model,
   } = useHooks({
@@ -115,6 +118,9 @@ const ProjectSchema: React.FC = () => {
         onSubmit={handleWorkspaceCreate}
       />
       <ModelCreationModal
+        isKeyAvailable={isKeyAvailable}
+        projectId={projectId}
+        handleModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
         onClose={handleModelModalClose}
         onSubmit={handleModelCreate}

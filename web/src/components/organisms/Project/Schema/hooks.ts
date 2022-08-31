@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
@@ -7,6 +7,7 @@ import {
   useCreateFieldMutation,
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
+  useCheckModelKeyAvailabilityLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -17,6 +18,23 @@ type Params = {
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
   const [fieldModalShown, setFieldModalShown] = useState(false);
+  const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleModelKeyCheck = useCallback(
+    async (projectId: string, key: string) => {
+      if (!projectId || !key) return false;
+      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+      return response.data ? response.data.checkModelKeyAvailability.available : false;
+    },
+    [projectId, CheckModelKeyAvailability],
+  );
+
+  useEffect(() => {
+    setIsKeyAvailable(keyData?.checkModelKeyAvailability.available ?? false);
+  }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
@@ -164,5 +182,7 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleModelKeyCheck,
+    isKeyAvailable,
   };
 };
