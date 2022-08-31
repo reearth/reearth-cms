@@ -97,3 +97,16 @@ var NewSchemaID = idx.New[Schema]
 var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
+
+type Integration struct{}
+
+func (Integration) Type() string { return "integration" }
+
+type IntegrationID = idx.ID[Integration]
+type IntegrationIDList = idx.List[Integration]
+
+var MustIntegrationID = idx.Must[Integration]
+var NewIntegrationID = idx.New[Integration]
+var IntegrationIDFrom = idx.From[Integration]
+var IntegrationIDFromRef = idx.FromRef[Integration]
+var IntegrationIDListFrom = idx.ListFrom[Integration]
