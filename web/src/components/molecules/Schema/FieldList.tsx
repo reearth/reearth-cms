@@ -12,7 +12,9 @@ export interface Props {
   addField: (fieldType: FieldType) => void;
 }
 
-const data: { title: string; fields: string[] }[] = [
+type FieldListItem = { title: string; fields: string[] };
+
+const data: FieldListItem[] = [
   {
     title: "Text",
     fields: ["Text", "TextArea", "MarkdownText"],
@@ -42,10 +44,10 @@ const FieldList: React.FC<Props> = ({ addField }) => {
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={data}
-        renderItem={(item: { title: string; fields: string[] }) => (
+        renderItem={item => (
           <>
-            <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
-            {item.fields?.map((field: string) => (
+            <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
+            {(item as FieldListItem).fields?.map((field: string) => (
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <List.Item.Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
@@ -78,7 +80,7 @@ const FieldStyledList = styled(List)`
       margin-top: 12px;
     }
     padding: 4px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 2px 8px #00000026;
     .ant-list-item-meta {
       .ant-list-item-meta-title {
         margin: 0;
