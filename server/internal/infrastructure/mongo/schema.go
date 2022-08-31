@@ -9,6 +9,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -106,14 +108,14 @@ func (r *schemaRepo) find(ctx context.Context, dst schema.List, filter interface
 	return c.Rows, nil
 }
 
-// func (r *schemaRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (schema.List, *usecasex.PageInfo, error) {
-// 	var c mongodoc.SchemaConsumer
-// 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
-// 	if err != nil {
-// 		return nil, nil, rerror.ErrInternalBy(err)
-// 	}
-// 	return c.Rows, pageInfo, nil
-// }
+func (r *schemaRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (schema.List, *usecasex.PageInfo, error) {
+	var c mongodoc.SchemaConsumer
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
+	if err != nil {
+		return nil, nil, rerror.ErrInternalBy(err)
+	}
+	return c.Rows, pageInfo, nil
+}
 
 func (r *schemaRepo) readFilter(filter interface{}) interface{} {
 	if r.f == nil {

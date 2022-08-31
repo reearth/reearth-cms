@@ -16,16 +16,32 @@ func (f *File) Name() string {
 	return f.name
 }
 
+func (f *File) SetName(n string) {
+	f.name = n
+}
+
 func (f *File) Size() uint64 {
 	return f.size
+}
+
+func (f *File) SetSize(s uint64) {
+	f.size = s
 }
 
 func (f *File) ContentType() string {
 	return f.contentType
 }
 
+func (f *File) SetContentType(c string) {
+	f.contentType = c
+}
+
 func (f *File) Path() string {
 	return f.path
+}
+
+func (f *File) SetPath(p string) {
+	f.path = p
 }
 
 func (f *File) Children() []*File {
