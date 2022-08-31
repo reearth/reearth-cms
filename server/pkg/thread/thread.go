@@ -3,12 +3,17 @@ package thread
 import "golang.org/x/exp/slices"
 
 type Thread struct {
-	id       ID
-	comments []*Comment
+	id        ID
+	workspace WorkspaceID
+	comments  []*Comment
 }
 
 func (th *Thread) ID() ID {
 	return th.id
+}
+
+func (th *Thread) Workspace() WorkspaceID {
+	return th.workspace
 }
 
 func (th *Thread) Comments() []*Comment {

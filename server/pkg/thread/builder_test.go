@@ -57,14 +57,16 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	thid := NewID()
+	wid := NewWorkspaceID()
 	c := []*Comment{}
 	got := New().
 		ID(thid).
 		Comments(c).
+		Workspace(wid).
 		MustBuild()
 	want := lo.Must(New().
 		ID(thid).
-		Comments(c).Build())
+		Comments(c).Workspace(wid).Build())
 
 	assert.Equal(t, want, got)
 }

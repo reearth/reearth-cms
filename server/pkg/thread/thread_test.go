@@ -8,14 +8,17 @@ import (
 
 func TestThread_ThreadType(t *testing.T) {
 	thid := NewID()
+	wid := NewWorkspaceID()
 	c := []*Comment{}
 
 	got := Thread{
-		id:       thid,
-		comments: c,
+		id:        thid,
+		workspace: wid,
+		comments:  c,
 	}
 
 	assert.Equal(t, thid, got.ID())
+	assert.Equal(t, wid, got.Workspace())
 	assert.Equal(t, c, got.Comments())
 }
 

@@ -30,6 +30,11 @@ func (b *Builder) ID(id ID) *Builder {
 	return b
 }
 
+func (b *Builder) Workspace(wid WorkspaceID) *Builder {
+	b.th.workspace = wid
+	return b
+}
+
 func (b *Builder) NewID() *Builder {
 	b.th.id = NewID()
 	return b
