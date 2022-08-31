@@ -3,16 +3,20 @@ enum IntegrationType {
   Private
 }
 
+type IntegrationConfig {
+  token: String!
+  webhooks: [Webhook!]!
+}
+
 type Integration implements Node {
   id: ID!
   name: String!
   description: String
   logoUrl: URL!
-  type: IntegrationType!
-  token: String!
+  iType: IntegrationType!
   developerId: ID!
   developer: User!
-  webhook: [Webhook!]!
+  config: IntegrationConfig # only for a developer of this integration
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -45,9 +49,7 @@ type DeleteIntegrationPayload {
   integrationId: ID!
 }
 
-extend type Query {
-  integrations(type: IntegrationType, keyword: String): [IntegrationPayload]!
-}
+# extend type Query {}
 
 extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload

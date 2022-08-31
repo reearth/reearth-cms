@@ -1,9 +1,11 @@
-type WebhookEvent {
-  model: ID!
-  onCreate: Boolean!
-  onUpdate: Boolean!
-  onDelete: Boolean!
-  onApiAccess: Boolean!
+type WebhookTrigger  {
+  onItemCreate: Boolean
+  onItemUpdate: Boolean
+  onItemDelete: Boolean
+  onAssetUpload: Boolean
+  onAssetDeleted: Boolean
+  onItemPublish: Boolean
+  onItemUnPublish: Boolean
 }
 
 type Webhook implements Node {
@@ -11,26 +13,28 @@ type Webhook implements Node {
   name: String!
   url: URL!
   active: Boolean!
-  event: [WebhookEvent!]!
+  trigger: WebhookTrigger!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
 # Inputs
 
-input WebhookEventInput {
-  model: ID!
-  onCreate: Boolean!
-  onUpdate: Boolean!
-  onDelete: Boolean!
-  onApiAccess: Boolean!
+input WebhookTriggerInput {
+  onItemCreate: Boolean
+  onItemUpdate: Boolean
+  onItemDelete: Boolean
+  onAssetUpload: Boolean
+  onAssetDeleted: Boolean
+  onItemPublish: Boolean
+  onItemUnPublish: Boolean
 }
 
 input CreateWebhookInput {
   name: String!
   url: URL!
   active: Boolean!
-  event: [WebhookEventInput!]!
+  trigger: WebhookTriggerInput!
 }
 
 input UpdateWebhookInput {
@@ -38,7 +42,7 @@ input UpdateWebhookInput {
   name: String
   url: URL
   active: Boolean
-  event: [WebhookEventInput!]
+  trigger: WebhookTriggerInput
 }
 
 input DeleteWebhookInput {
