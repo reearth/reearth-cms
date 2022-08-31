@@ -4,22 +4,23 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type modelRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 	f      *repo.WorkspaceFilter
 }
 
-func NewModel(client *mongodoc.Client) repo.Model {
+func NewModel(client *mongox.Client) repo.Model {
 	r := &modelRepo{client: client.WithCollection("model")}
 	r.init()
 	return r
@@ -63,7 +64,7 @@ func (r *modelRepo) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.Li
 	return prepare(ids, res), nil
 }
 
-func (r *modelRepo) FindByProject(ctx context.Context, pId id.ProjectID, pagination *usecase.Pagination) (model.List, *usecase.PageInfo, error) {
+func (r *modelRepo) FindByProject(ctx context.Context, pId id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	return r.paginate(ctx, bson.M{
 		"project": pId.String(),
 	}, pagination)
@@ -119,7 +120,7 @@ func (r *modelRepo) find(ctx context.Context, dst model.List, filter interface{}
 	return c.Rows, nil
 }
 
-func (r *modelRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) (model.List, *usecase.PageInfo, error) {
+func (r *modelRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	var c mongodoc.ModelConsumer
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
 	if err != nil {

@@ -5,10 +5,10 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -37,13 +37,13 @@ func (c *ModelLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel
 	}), nil
 }
 
-func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, first *int, last *int, before *usecase.Cursor, after *usecase.Cursor) (*gqlmodel.ModelConnection, error) {
+func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ModelConnection, error) {
 	pId, err := gqlmodel.ToID[id.Project](projectId)
 	if err != nil {
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByProject(ctx, pId, usecase.NewPagination(first, last, before, after), getOperator(ctx))
+	res, pi, err := c.usecase.FindByProject(ctx, pId, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		m := gqlmodel.ToModel(r)
 		edges = append(edges, &gqlmodel.ModelEdge{
 			Node:   m,
-			Cursor: usecase.Cursor(m.ID),
+			Cursor: usecasex.Cursor(m.ID),
 		})
 		nodes = append(nodes, m)
 	}
@@ -63,7 +63,7 @@ func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: pi.TotalCount(),
+		TotalCount: pi.TotalCount,
 	}, nil
 }
 
