@@ -8,6 +8,7 @@ import {
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
   useCheckModelKeyAvailabilityLazyQuery,
+  useDeleteFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -125,6 +126,21 @@ export default ({ projectId, modelId }: Params) => {
     refetchQueries: ["GetModels"],
   });
 
+  const [deleteFieldMutation] = useDeleteFieldMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleFieldDelete = useCallback(
+    async (fieldId: string) => {
+      if (!modelId) return;
+      const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
+      if (results.errors) {
+        console.log("errors");
+      }
+    },
+    [modelId, deleteFieldMutation],
+  );
+
   const handleFieldCreate = useCallback(
     async (data: {
       title: string;
@@ -182,6 +198,7 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleFieldDelete,
     handleModelKeyCheck,
     isKeyAvailable,
   };
