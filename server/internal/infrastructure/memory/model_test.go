@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/reearth/reearthx/usecasex"
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -48,15 +48,16 @@ func TestMemory_FindByProject(t *testing.T) {
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project().Equal(pId)
 	})).SortByID()
-	expectedPageInfo := usecase.NewPageInfo(
+	var startCursor, endCursor *usecasex.Cursor
+	expectedPageInfo := usecasex.NewPageInfo(
 		0,
-		lo.ToPtr(usecase.Cursor("")),
-		lo.ToPtr(usecase.Cursor("")),
+		startCursor,
+		endCursor,
 		true,
 		true,
 	)
-	var arg *usecase.Cursor
-	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecase.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
+	var arg *usecasex.Cursor
+	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
