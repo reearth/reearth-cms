@@ -12,7 +12,7 @@ export interface Props {
   addField: (fieldType: FieldType) => void;
 }
 
-const data = [
+const data: { title: string; fields: string[] }[] = [
   {
     title: "Text",
     fields: ["Text", "TextArea", "MarkdownText"],
@@ -42,7 +42,7 @@ const FieldList: React.FC<Props> = ({ addField }) => {
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={data}
-        renderItem={item => (
+        renderItem={(item: { title: string; fields: string[] }) => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields?.map((field: string) => (
