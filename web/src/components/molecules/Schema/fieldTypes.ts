@@ -1,4 +1,6 @@
-export const fieldTypes = {
+export const fieldTypes: {
+  [P: string]: { icon: string; title: string; description: string; color: string };
+} = {
   Text: {
     icon: "textT",
     title: "Text",

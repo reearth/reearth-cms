@@ -18,15 +18,15 @@ const ModelFieldList: React.FC<Props> = ({ fields }) => {
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={fields}
-        renderItem={item => (
+        renderItem={(item: Field) => (
           <>
             <List.Item extra={<Icon icon="more" style={{ fontSize: "22px" }} />}>
               <List.Item.Meta
                 avatar={
                   <FieldThumbnail>
                     <StyledIcon
-                      icon={fieldTypes[item?.type].icon}
-                      color={fieldTypes[item?.type].color}
+                      icon={fieldTypes[item.type].icon}
+                      color={fieldTypes[item.type].color}
                     />
                     <h3>{item?.type}</h3>
                   </FieldThumbnail>
