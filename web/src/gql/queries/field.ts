@@ -31,3 +31,37 @@ export const CREATE_FIELD = gql`
     }
   }
 `;
+
+export const UPDATE_FIELD = gql`
+  mutation UpdateField(
+    $modelId: ID!
+    $fieldId: ID!
+    $title: String!
+    $description: String
+    $key: String!
+    $typeProperty: SchemaFieldTypePropertyInput!
+  ) {
+    updateField(
+      input: {
+        modelId: $modelId
+        fieldId: $fieldId
+        title: $title
+        description: $description
+        key: $key
+        typeProperty: $typeProperty
+      }
+    ) {
+      field {
+        id
+      }
+    }
+  }
+`;
+
+export const DELETE_FIELD = gql`
+  mutation DeleteField($modelId: ID!, $fieldId: ID!) {
+    deleteField(input: { modelId: $modelId, fieldId: $fieldId }) {
+      fieldId
+    }
+  }
+`;
