@@ -1,12 +1,15 @@
 type Thread {
   id: ID!
-  comments: [Comment]
+  workspace: Workspace
+  workspaceId: ID!
+  comments: [Comment!]!
 }
 
 type Comment {
   id: ID!
   authorId: ID!
   content: String!
+  createdAt: DateTime!
 }
 
 input CreateCommentInput {
@@ -16,20 +19,18 @@ input CreateCommentInput {
 }
 
 input UpdateCommentInput {
+  threadId: ID!
   commentId: ID!
   content: string!
 }
 
 input DeleteCommentInput {
-  CommentId: ID!
-}
-
-extend type Query {
-  comments(threadId: ID!): [Comment]
+  threadId: ID!
+  commentId: ID!
 }
 
 extend type Mutation {
   createComment(input: CreateCommentInput!): Comment: Comment!
-  UpdateComment(input: UpdateCommentInput!): Comment: Comment!
+  updateComment(input: UpdateCommentInput!): Comment: Comment!
   deleteComment(input: DeleteCommentInput!): CommentId: ID!
 }
