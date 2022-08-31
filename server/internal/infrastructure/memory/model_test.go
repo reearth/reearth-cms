@@ -20,7 +20,6 @@ func TestNewModel(t *testing.T) {
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		now:  &util.TimeNow{},
 	}
-
 	got := NewModel()
 	assert.Equal(t, expected, got)
 }
@@ -35,7 +34,6 @@ func TestMemory_Filtered(t *testing.T) {
 		f:    r.f.Merge(r.f),
 		now:  &util.TimeNow{},
 	}
-
 	got := r.Filtered(r.f)
 	assert.Equal(t, expected, got)
 }
@@ -43,17 +41,14 @@ func TestMemory_Filtered(t *testing.T) {
 func TestMemory_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
-
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-
-	modelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
+	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project().Equal(pId)
 	})).SortByID()
-
-	pageInfo := usecase.NewPageInfo(
+	expectedPageInfo := usecase.NewPageInfo(
 		0,
 		lo.ToPtr(usecase.Cursor("")),
 		lo.ToPtr(usecase.Cursor("")),
@@ -61,26 +56,22 @@ func TestMemory_FindByProject(t *testing.T) {
 		true,
 	)
 	var arg *usecase.Cursor
-	resModelList, respageInfo, err := r.FindByProject(ctx, pId, usecase.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
-
+	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecase.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
 	assert.NoError(t, err)
-	assert.Equal(t, modelList, resModelList)
-	assert.Equal(t, pageInfo, respageInfo)
+	assert.Equal(t, expectedModelList, gotModelList)
+	assert.Equal(t, expectedPageInfo, gotPageInfo)
 }
 
 func TestMemory_CountByProject(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
-
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-
-	res, err := r.CountByProject(ctx, pId)
-
+	got, err := r.CountByProject(ctx, pId)
 	assert.NoError(t, err)
-	assert.Equal(t, res, 0)
+	assert.Equal(t, 0, got)
 }
 
 func TestMemory_FindByKey(t *testing.T) {
@@ -91,59 +82,48 @@ func TestMemory_FindByKey(t *testing.T) {
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
 		return m.Key().String() == key && m.Project().Equal(pId)
 	})
-
-	res, err := r.FindByKey(ctx, pId, key)
-
+	got, err := r.FindByKey(ctx, pId, key)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
-	assert.Equal(t, m, res)
+	assert.Equal(t, expected, got)
 }
 
 func TestMemory_FindByID(t *testing.T) {
 	ctx := context.Background()
 	mId := id.NewModelID()
-
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
+	expected := r.data.Find(func(k id.ModelID, m *model.Model) bool {
 		return k.Equal(mId)
 	})
-
-	res, err := r.FindByID(ctx, mId)
-
+	got, err := r.FindByID(ctx, mId)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
-	assert.Equal(t, m, res)
+	assert.Equal(t, expected, got)
 }
 
-/*
 func TestMemory_FindByIDs(t *testing.T) {
 	ctx := context.Background()
-	model := id.NewModelID()
-	mId := id.ModelIDList()
-
+	pId := id.NewProjectID()
+	mId := []id.ModelID{}
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-	m := r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
-		return ids.Has(k)
-	})
-
-	res, err := r.FindByIDs(ctx, mId)
-
-	assert.ErrorIs(t, err, rerror.ErrNotFound)
-	assert.Equal(t, m, res)
+	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
+		return m.Project().Equal(pId)
+	})).SortByID()
+	got, err := r.FindByIDs(ctx, mId)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedModelList, got)
 }
-*/
 
 func TestMemory_Save(t *testing.T) {
 	ctx := context.Background()
 	m := &model.Model{}
-
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
@@ -156,7 +136,6 @@ func TestMemory_Save(t *testing.T) {
 func TestMemory_Remove(t *testing.T) {
 	ctx := context.Background()
 	m := &model.Model{}
-
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
