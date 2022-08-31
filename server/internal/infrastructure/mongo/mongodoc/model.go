@@ -3,11 +3,10 @@ package mongodoc
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"go.mongodb.org/mongo-driver/bson"
-
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type ModelDocument struct {
@@ -19,27 +18,6 @@ type ModelDocument struct {
 	Project     string
 	Schema      string
 	UpdatedAt   time.Time
-}
-
-type ModelConsumer struct {
-	Rows model.List
-}
-
-func (c *ModelConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc ModelDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	m, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	c.Rows = append(c.Rows, m)
-	return nil
 }
 
 func NewModel(model *model.Model) (*ModelDocument, string) {
@@ -80,4 +58,10 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Project(pId).
 		Schema(sId).
 		Build()
+}
+
+type ModelConsumer = mongox.SliceFuncConsumer[*ModelDocument, *model.Model]
+
+func NewModelConsumer() *ModelConsumer {
+	return NewComsumer[*ModelDocument, *model.Model]()
 }
