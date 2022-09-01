@@ -10,7 +10,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
-import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationProps";
+import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../../fieldTypes";
