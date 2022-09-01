@@ -9,6 +9,7 @@ const AssetListTable: React.FC<ProTableProps<Asset, any>> = ({
   search,
   rowKey,
   options,
+  pagination,
   toolbar,
   rowSelection,
 }) => {
@@ -20,6 +21,7 @@ const AssetListTable: React.FC<ProTableProps<Asset, any>> = ({
         search={search}
         rowKey={rowKey}
         options={options}
+        pagination={pagination}
         toolbar={toolbar}
         rowSelection={rowSelection}
       />
