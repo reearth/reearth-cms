@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -54,7 +53,7 @@ func compress(t *testing.T, fileNames []string) *bytes.Buffer {
 			t.Fatal(err)
 		}
 
-		body, err := ioutil.ReadFile(file)
+		body, err := os.ReadFile(file)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -101,7 +100,7 @@ func cleanUp() {
 	if err != nil {
 		panic(err)
 	}
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		panic(err)
 	}
