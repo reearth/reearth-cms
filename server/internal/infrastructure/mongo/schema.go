@@ -33,9 +33,13 @@ func (r *schemaRepo) init() {
 }
 
 func (r *schemaRepo) Filtered(f repo.WorkspaceFilter) repo.Schema {
+	filter := f
+	if r.f != nil {
+		filter = f.Merge(filter)
+	}
 	return &schemaRepo{
 		client: r.client,
-		f:      lo.ToPtr(r.f.Merge(f)),
+		f:      &filter,
 	}
 }
 
