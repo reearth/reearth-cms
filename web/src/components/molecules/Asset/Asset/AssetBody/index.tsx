@@ -47,7 +47,7 @@ const AssetBody: React.FC<Props> = ({
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
   // TODO: maybe we need a better way to check for svg files
-  const isSVG = asset.fileName?.endsWith(".svg") ?? false;
+  const isSVG = !!asset.fileName?.endsWith(".svg");
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };

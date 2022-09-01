@@ -14,11 +14,8 @@ const LocalTab: React.FC<Props> = ({ uploadProps }) => {
         <p className="ant-upload-drag-icon">
           <Icon icon="inbox" />
         </p>
-        <p className="ant-upload-text">Click or drag file to this area to upload</p>
-        <p className="ant-upload-hint">
-          Support for a single or bulk upload. Strictly prohibit from uploading company data or
-          other band files
-        </p>
+        <p className="ant-upload-text">Click or drag files to this area to upload</p>
+        <p className="ant-upload-hint">Single or multiple file upload is supported</p>
       </Dragger>
     </div>
   );
