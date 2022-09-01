@@ -4,6 +4,8 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
+import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import ProjectPage from "@reearth-cms/components/pages/Project";
@@ -12,8 +14,6 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
-import AssetPage from "./components/pages/Asset/Asset";
-import AssetListPage from "./components/pages/Asset/AssetList";
 
 function AppRoutes() {
   const routes = useRoutes([
