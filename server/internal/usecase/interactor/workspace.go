@@ -9,11 +9,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type Workspace struct {
 	repos       *repo.Container
-	transaction repo.Transaction
+	transaction usecasex.Transaction
 }
 
 func NewWorkspace(r *repo.Container) interfaces.Workspace {
@@ -139,7 +140,7 @@ func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u.Equal(operator.User) {
+		if u == operator.User {
 			return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
 		}
 
@@ -170,7 +171,7 @@ func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u.Equal(operator.User) {
+		if u == operator.User {
 			return nil, interfaces.ErrCannotChangeOwnerRole
 		}
 

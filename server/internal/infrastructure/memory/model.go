@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -35,28 +35,28 @@ func (r *Model) Filtered(f repo.WorkspaceFilter) repo.Model {
 	}
 }
 
-func (r *Model) FindByProject(_ context.Context, pId id.ProjectID, _ *usecase.Pagination) (model.List, *usecase.PageInfo, error) {
+func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	// TODO: implement pagination
 
-	/*if !r.f.CanRead(pId) {
+	/*if !r.f.CanRead(pid) {
 		return nil, nil, nil
 	}*/
 
 	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project().Equal(pId)
+		return m.Project() == pid
 	})).SortByID()
 
-	var startCursor, endCursor *usecase.Cursor
+	var startCursor, endCursor *usecasex.Cursor
 	if len(result) > 0 {
-		startCursor = lo.ToPtr(usecase.Cursor(result[0].ID().String()))
-		endCursor = lo.ToPtr(usecase.Cursor(result[len(result)-1].ID().String()))
+		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
 	}
 
-	return result, usecase.NewPageInfo(
+	return result, usecasex.NewPageInfo(
 		len(result),
 		startCursor,
 		endCursor,
@@ -65,31 +65,31 @@ func (r *Model) FindByProject(_ context.Context, pId id.ProjectID, _ *usecase.Pa
 	), nil
 }
 
-func (r *Model) CountByProject(_ context.Context, pId id.ProjectID) (int, error) {
+func (r *Model) CountByProject(_ context.Context, pid id.ProjectID) (int, error) {
 	if r.err != nil {
 		return 0, r.err
 	}
 
-	/*if !r.f.CanRead(pId) {
+	/*if !r.f.CanRead(pid) {
 		return 0, nil
 	}*/
 
 	return r.data.CountAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project().Equal(pId)
+		return m.Project() == pid
 	}), nil
 }
 
-func (r *Model) FindByKey(_ context.Context, pId id.ProjectID, key string) (*model.Model, error) {
+func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*model.Model, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	/*if !r.f.CanRead(pId) {
+	/*if !r.f.CanRead(pid) {
 		return  nil, nil
 	}*/
 
 	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return m.Key().String() == key && m.Project().Equal(pId)
+		return m.Key().String() == key && m.Project() == pid
 	})
 	if m == nil {
 		return nil, rerror.ErrNotFound
@@ -98,13 +98,13 @@ func (r *Model) FindByKey(_ context.Context, pId id.ProjectID, key string) (*mod
 	return m, nil
 }
 
-func (r *Model) FindByID(_ context.Context, mId id.ModelID) (*model.Model, error) {
+func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
-		return k.Equal(mId) /*&& r.f.CanRead(m.Workspace())*/
+		return k == mid /*&& r.f.CanRead(m.Workspace())*/
 	})
 
 	if m != nil {

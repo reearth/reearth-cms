@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -88,7 +88,7 @@ func (r *queryResolver) SearchUser(ctx context.Context, nameOrEmail string) (*gq
 	return loaders(ctx).User.SearchUser(ctx, nameOrEmail)
 }
 
-func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error) {
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ProjectConnection, error) {
 	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, first, last, before, after)
 }
 
@@ -100,7 +100,7 @@ func (r *queryResolver) Asset(ctx context.Context, assetId gqlmodel.ID) (*gqlmod
 	return loaders(ctx).Asset.FindByID(ctx, assetId)
 }
 
-func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error) {
+func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error) {
 	return loaders(ctx).Model.FindByProject(ctx, projectID, first, last, before, after)
 }
 
@@ -108,7 +108,7 @@ func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID
 	return loaders(ctx).Model.CheckKey(ctx, projectID, key)
 }
 
-func (r *queryResolver) Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ItemConnection, error) {
+func (r *queryResolver) Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
 	// TODO implement me
 	panic("implement me")
 }

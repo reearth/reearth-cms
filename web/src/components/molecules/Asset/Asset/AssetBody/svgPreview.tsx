@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 type Props = { url: string; svgRender: boolean };
 
 const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
-  const [svgText, setSvgText] = useState<string>("");
+  const [svgText, setSvgText] = useState("");
 
   const fetchData = useCallback(() => {
     fetch(url)
@@ -22,7 +22,7 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
 };
 
 const Image = styled.img`
-  width: Auto;
+  width: 100%;
   height: 500px;
   object-fit: contain;
 `;

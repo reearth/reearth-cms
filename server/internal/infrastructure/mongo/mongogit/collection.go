@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,31 +16,31 @@ import (
 )
 
 type Collection struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 }
 
-func NewCollection(client *mongodoc.ClientCollection) *Collection {
+func NewCollection(client *mongox.ClientCollection) *Collection {
 	return &Collection{client: client}
 }
 
-func (c *Collection) Client() *mongodoc.ClientCollection {
+func (c *Collection) Client() *mongox.ClientCollection {
 	return c.client
 }
 
-func (c *Collection) FindOne(ctx context.Context, filter any, q Query, consumer mongodoc.Consumer) error {
-	return c.client.FindOne(ctx, q.apply(filter), consumer)
+func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	return c.client.FindOne(ctx, apply(q, filter), consumer)
 }
 
-func (c *Collection) Find(ctx context.Context, filter any, q Query, consumer mongodoc.Consumer) error {
-	return c.client.Find(ctx, q.apply(filter), consumer)
+func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	return c.client.Find(ctx, apply(q, filter), consumer)
 }
 
-func (c *Collection) Paginate(ctx context.Context, filter any, q Query, p *usecase.Pagination, consumer mongodoc.Consumer) (*usecase.PageInfo, error) {
-	return c.client.Paginate(ctx, q.apply(filter), nil, p, consumer)
+func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	return c.client.Paginate(ctx, apply(q, filter), nil, nil, p, consumer)
 }
 
-func (c *Collection) Count(ctx context.Context, filter any, q Query) (int64, error) {
-	return c.client.Count(ctx, q.apply(filter))
+func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (int64, error) {
+	return c.client.Count(ctx, apply(q, filter))
 }
 
 func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
@@ -82,7 +82,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 		return err
 	}
 
-	if _, err := c.client.Collection().InsertOne(ctx, &Document[any]{
+	if _, err := c.client.Client().InsertOne(ctx, &Document[any]{
 		Data: replacement,
 		Meta: newmeta,
 	}); err != nil {
@@ -99,7 +99,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if current != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, bson.M{
+		if _, err := c.client.Client().UpdateOne(ctx, bson.M{
 			"id":       id,
 			versionKey: current.Version,
 		}, bson.M{
@@ -110,7 +110,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if dest != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, Eq(*dest).apply(bson.M{
+		if _, err := c.client.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
 			"id": id,
 		}), bson.M{
 			"$push": bson.M{refsKey: ref},
@@ -123,7 +123,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 }
 
 func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
-	cons := mongodoc.SliceConsumer[MetadataDocument]{}
+	cons := mongox.SliceConsumer[MetadataDocument]{}
 	if err := c.client.FindOne(ctx, bson.M{
 		"id":    id,
 		metaKey: true,
@@ -138,14 +138,14 @@ func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
 
 func (c *Collection) ArchiveOne(ctx context.Context, id string, archived bool) error {
 	if !archived {
-		_, err := c.client.Collection().DeleteOne(ctx, bson.M{"id": id, metaKey: true})
+		_, err := c.client.Client().DeleteOne(ctx, bson.M{"id": id, metaKey: true})
 		if err != nil {
 			return rerror.ErrInternalBy(err)
 		}
 		return nil
 	}
 
-	_, err := c.client.Collection().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
+	_, err := c.client.Client().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
 		ID:       id,
 		Meta:     true,
 		Archived: archived,
@@ -161,7 +161,7 @@ func (c *Collection) RemoveOne(ctx context.Context, id string) error {
 }
 
 func (c *Collection) Empty(ctx context.Context) error {
-	return c.client.Collection().Drop(ctx)
+	return c.client.Client().Drop(ctx)
 }
 
 func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []string) error {
@@ -182,15 +182,15 @@ func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []strin
 		)...,
 	)
 
-	if _, err := c.client.Collection().Indexes().CreateMany(ctx, indexes); err != nil {
+	if _, err := c.client.Client().Indexes().CreateMany(ctx, indexes); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
 
 func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Meta, error) {
-	consumer := mongodoc.SliceConsumer[Meta]{}
-	if err := c.client.FindOne(ctx, Eq(lo.FromPtrOr(v, version.Latest.OrVersion())).apply(bson.M{
+	consumer := mongox.SliceConsumer[Meta]{}
+	if err := c.client.FindOne(ctx, apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
 		"id": id,
 	}), &consumer); err != nil {
 		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {
