@@ -8,30 +8,30 @@ import (
 )
 
 type Builder struct {
-	p *Model
-	k key.Key
+	model *Model
+	k     key.Key
 }
 
 func New() *Builder {
-	return &Builder{p: &Model{}}
+	return &Builder{model: &Model{}}
 }
 
 func (b *Builder) Build() (*Model, error) {
-	if b.p.id.IsNil() {
+	if b.model.id.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.p.schema.IsNil() {
+	if b.model.schema.IsNil() {
 		return nil, ErrInvalidID
 	}
 	if b.k.IsValid() {
-		b.p.key = b.k
+		b.model.key = b.k
 	} else {
 		return nil, ErrInvalidKey
 	}
-	if b.p.updatedAt.IsZero() {
-		b.p.updatedAt = b.p.CreatedAt()
+	if b.model.updatedAt.IsZero() {
+		b.model.updatedAt = b.model.CreatedAt()
 	}
-	return b.p, nil
+	return b.model, nil
 }
 
 func (b *Builder) MustBuild() *Model {
@@ -43,32 +43,32 @@ func (b *Builder) MustBuild() *Model {
 }
 
 func (b *Builder) ID(id ID) *Builder {
-	b.p.id = id
+	b.model.id = id
 	return b
 }
 
 func (b *Builder) NewID() *Builder {
-	b.p.id = NewID()
+	b.model.id = NewID()
 	return b
 }
 
 func (b *Builder) Project(p id.ProjectID) *Builder {
-	b.p.project = p
+	b.model.project = p
 	return b
 }
 
-func (b *Builder) schema(s id.SchemaID) *Builder {
-	b.p.schema = s
+func (b *Builder) Schema(s id.SchemaID) *Builder {
+	b.model.schema = s
 	return b
 }
 
 func (b *Builder) Name(name string) *Builder {
-	b.p.name = name
+	b.model.name = name
 	return b
 }
 
 func (b *Builder) Description(description string) *Builder {
-	b.p.description = description
+	b.model.description = description
 	return b
 }
 
@@ -83,11 +83,11 @@ func (b *Builder) RandomKey() *Builder {
 }
 
 func (b *Builder) IsPublic(public bool) *Builder {
-	b.p.public = public
+	b.model.public = public
 	return b
 }
 
 func (b *Builder) UpdatedAt(updatedAt time.Time) *Builder {
-	b.p.updatedAt = updatedAt
+	b.model.updatedAt = updatedAt
 	return b
 }

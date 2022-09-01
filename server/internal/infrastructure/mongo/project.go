@@ -6,27 +6,28 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type projectRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 	f      repo.WorkspaceFilter
 }
 
-func NewProject(client *mongodoc.Client) repo.Project {
+func NewProject(client *mongox.Client) repo.Project {
 	r := &projectRepo{client: client.WithCollection("project")}
 	r.init()
 	return r
 }
 
 func (r *projectRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"alias", "workspace"})
+	i := r.client.CreateIndex(context.Background(), []string{"alias", "workspace"}, []string{"id"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "project", i)
 	}
@@ -55,17 +56,16 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 			"$in": ids.Strings(),
 		},
 	}
-	dst := make(project.List, 0, len(ids))
-	res, err := r.find(ctx, dst, filter)
+	res, err := r.find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 	return filterProjects(ids, res), nil
 }
 
-func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
+func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
-		return nil, usecase.EmptyPageInfo(), nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 	return r.paginate(ctx, bson.M{
 		"workspace": id.String(),
@@ -100,34 +100,29 @@ func (r *projectRepo) Remove(ctx context.Context, id id.ProjectID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
-func (r *projectRepo) find(ctx context.Context, dst project.List, filter interface{}) (project.List, error) {
-	c := mongodoc.ProjectConsumer{
-		Rows: dst,
-	}
-	if err := r.client.Find(ctx, r.readFilter(filter), &c); err != nil {
+func (r *projectRepo) find(ctx context.Context, filter any) (project.List, error) {
+	c := mongodoc.NewProjectConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
-	return c.Rows, nil
+	return c.Result, nil
 }
 
-func (r *projectRepo) findOne(ctx context.Context, filter interface{}) (*project.Project, error) {
-	dst := make(project.List, 0, 1)
-	c := mongodoc.ProjectConsumer{
-		Rows: dst,
-	}
-	if err := r.client.FindOne(ctx, r.readFilter(filter), &c); err != nil {
+func (r *projectRepo) findOne(ctx context.Context, filter any) (*project.Project, error) {
+	c := mongodoc.NewProjectConsumer()
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
-	return c.Rows[0], nil
+	return c.Result[0], nil
 }
 
-func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
-	var c mongodoc.ProjectConsumer
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
+func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+	c := mongodoc.NewProjectConsumer()
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
-	return c.Rows, pageInfo, nil
+	return c.Result, pageInfo, nil
 }
 
 func filterProjects(ids []id.ProjectID, rows project.List) project.List {
@@ -143,10 +138,10 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 	return res
 }
 
-func (r *projectRepo) readFilter(filter interface{}) interface{} {
+func (r *projectRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-func (r *projectRepo) writeFilter(filter interface{}) interface{} {
+func (r *projectRepo) writeFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Writable)
 }

@@ -20,19 +20,14 @@ type FieldSelect struct {
 	defaultValue *string
 }
 
-// NewFieldTag
-// TODO: check if its ok to remove this
-func NewFieldSelect() *FieldSelect {
-	return &FieldSelect{
-		values:       nil,
-		defaultValue: nil,
-	}
-}
-
 func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
-	if len(values) == 0 {
+	empty := len(values) == 0
+	emptyValue := lo.SomeBy(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
+	dups := lo.FindDuplicates(values)
+	if empty || emptyValue || len(dups) > 0 {
 		return nil, ErrFieldValues
 	}
+
 	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
@@ -59,4 +54,12 @@ func (f *FieldSelect) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		selectt: f,
 	}
+}
+
+func (f *FieldSelect) Values() []string {
+	return f.values
+}
+
+func (f *FieldSelect) DefaultValue() *string {
+	return f.defaultValue
 }

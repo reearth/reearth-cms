@@ -1,4 +1,4 @@
-import { saveAs } from "file-saver";
+import fileDownload from "js-file-download";
 import React, { MouseEventHandler } from "react";
 
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -19,7 +19,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   ...props
 }) => {
   const handleDownload: MouseEventHandler<HTMLElement> | undefined = () => {
-    saveAs(url, filename);
+    fileDownload(url, filename);
   };
 
   return (

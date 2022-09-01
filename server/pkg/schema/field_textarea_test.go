@@ -80,25 +80,84 @@ func TestFieldTextArea_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldTextArea(t *testing.T) {
+func TestFieldTextArea_DefaultValue(t *testing.T) {
+	type fields struct {
+		defaultValue *string
+		maxLength    *int
+	}
 	tests := []struct {
-		name string
-		want *FieldTextArea
+		name   string
+		fields fields
+		want   *string
 	}{
 		{
-			name: "new",
-			want: &FieldTextArea{
+			name: "test nil",
+			fields: fields{
 				defaultValue: nil,
 				maxLength:    nil,
 			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: lo.ToPtr("test"),
+				maxLength:    nil,
+			},
+			want: lo.ToPtr("test"),
 		},
 	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.want, NewFieldTextArea())
+			f := &FieldTextArea{
+				defaultValue: tt.fields.defaultValue,
+				maxLength:    tt.fields.maxLength,
+			}
+			assert.Equal(t, tt.want, f.DefaultValue())
+		})
+	}
+}
+
+func TestFieldTextArea_MaxLength(t *testing.T) {
+	type fields struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *int
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: nil,
+				maxLength:    lo.ToPtr(123),
+			},
+			want: lo.ToPtr(123),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldTextArea{
+				defaultValue: tt.fields.defaultValue,
+				maxLength:    tt.fields.maxLength,
+			}
+			assert.Equal(t, tt.want, f.MaxLength())
 		})
 	}
 }
