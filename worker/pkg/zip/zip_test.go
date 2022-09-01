@@ -20,7 +20,6 @@ const (
 	fileContent    = "Hello"
 )
 
-//ダミーファイルを作成
 // createDummyFiles creates dummy files with given filenames
 func createDummyFiles(t *testing.T, fileNames ...string) {
 	t.Helper()
@@ -38,7 +37,6 @@ func createDummyFiles(t *testing.T, fileNames ...string) {
 	}
 }
 
-// 指定されたファイルからZipを作成(メモリ上)
 // compress compresses files and return in memory zip file
 func compress(t *testing.T, fileNames []string) *bytes.Buffer {
 	t.Helper()
@@ -68,7 +66,6 @@ func compress(t *testing.T, fileNames []string) *bytes.Buffer {
 	return b
 }
 
-// save メモリ上の保存されたzipをファイルシステムに保存
 // save saves in memory buffer to file system
 func save(t *testing.T, name string, b *bytes.Buffer) *os.File {
 	t.Helper()
@@ -91,7 +88,6 @@ func getFileNames(fileNum int64) []string {
 	return fileNames
 }
 
-// prepareZip 複数ファイルを作成し、Zipファイルを保存する
 // prepareZip creates files, zip them and save it
 func prepareZip(t *testing.T, fileNum int64) *os.File {
 	fileNames := getFileNames(fileNum)
@@ -142,7 +138,6 @@ func TestNewUnzipper(t *testing.T) {
 
 func TestUnzipper_Unzip(t *testing.T) {
 	var fileNum = 3
-	// prepare
 	zf := prepareZip(t, int64(fileNum))
 	defer cleanUp()
 

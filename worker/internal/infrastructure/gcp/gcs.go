@@ -56,7 +56,6 @@ func (f *fileRepo) RandomReadAssetByURL(ctx context.Context, url *url.URL) (io.R
 }
 
 // helpers
-
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
