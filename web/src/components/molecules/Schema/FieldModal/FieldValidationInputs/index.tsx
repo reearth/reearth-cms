@@ -6,7 +6,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { FieldType } from "../../types";
 
 export interface Props {
-  selectedType: FieldType | null;
+  selectedType: FieldType;
 }
 
 const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {

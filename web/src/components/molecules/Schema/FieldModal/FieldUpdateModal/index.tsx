@@ -25,7 +25,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
-  selectedType: FieldType | null;
+  selectedType: FieldType;
   selectedField?: Field | null;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;

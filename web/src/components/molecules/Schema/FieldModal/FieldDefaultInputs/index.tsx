@@ -11,7 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { FieldType } from "../../types";
 
 export interface Props {
-  selectedType: FieldType | null;
+  selectedType: FieldType;
   form: FormInstance<any>;
 }
 

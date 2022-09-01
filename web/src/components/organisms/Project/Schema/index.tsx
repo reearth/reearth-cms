@@ -130,19 +130,23 @@ const ProjectSchema: React.FC = () => {
         onClose={handleModelModalClose}
         onSubmit={handleModelCreate}
       />
-      <FieldCreationModal
-        selectedType={selectedType}
-        open={fieldCreationModalShown}
-        onClose={handleFieldCreationModalClose}
-        onSubmit={handleFieldCreate}
-      />
-      <FieldUpdateModal
-        selectedType={selectedType}
-        open={fieldUpdateModalShown}
-        selectedField={selectedField}
-        onClose={handleFieldUpdateModalClose}
-        onSubmit={handleFieldUpdate}
-      />
+      {selectedType && (
+        <FieldCreationModal
+          selectedType={selectedType}
+          open={fieldCreationModalShown}
+          onClose={handleFieldCreationModalClose}
+          onSubmit={handleFieldCreate}
+        />
+      )}
+      {selectedType && (
+        <FieldUpdateModal
+          selectedType={selectedType}
+          open={fieldUpdateModalShown}
+          selectedField={selectedField}
+          onClose={handleFieldUpdateModalClose}
+          onSubmit={handleFieldUpdate}
+        />
+      )}
     </>
   );
 };
