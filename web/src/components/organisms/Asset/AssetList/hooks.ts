@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import {
-  Asset,
   useGetAssetsQuery,
   useCreateAssetMutation,
   Maybe,
@@ -57,7 +57,7 @@ export default (projectId?: string) => {
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
-  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+  const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -100,7 +100,7 @@ export default (projectId?: string) => {
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
   const createAssets = useCallback(
-    (files: UploadFile<any>[]) =>
+    (files: UploadFile<File>[]) =>
       (async () => {
         if (!projectId || !currentUser?.id) return;
         const results = await Promise.all(

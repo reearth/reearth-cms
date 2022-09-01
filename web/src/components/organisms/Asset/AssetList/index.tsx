@@ -12,9 +12,9 @@ import {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
-import { Asset } from "@reearth-cms/gql/graphql-client-api";
 import { uuidToURL } from "@reearth-cms/utils/convert";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
