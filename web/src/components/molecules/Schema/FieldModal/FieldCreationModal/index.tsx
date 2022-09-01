@@ -187,7 +187,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
           </TabPane>
           <TabPane tab="Validation" key="validation">
-            <FieldValidationProps selectedType={selectedType}></FieldValidationProps>
+            <FieldValidationProps selectedType={selectedType} />
             <Form.Item name="required" extra="Prevents saving an entry if this field is empty">
               <Checkbox>Make field required</Checkbox>
             </Form.Item>
@@ -198,7 +198,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
-            <FieldDefaultInputs form={form} selectedType={selectedType}></FieldDefaultInputs>
+            <FieldDefaultInputs form={form} selectedType={selectedType} />
           </TabPane>
         </Tabs>
       </Form>
