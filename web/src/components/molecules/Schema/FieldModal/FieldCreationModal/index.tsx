@@ -58,33 +58,27 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
           values.typeProperty = {
             text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
           };
-        }
-        if (selectedType === "TextArea") {
+        } else if (selectedType === "TextArea") {
           values.typeProperty = {
             textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
           };
-        }
-        if (selectedType === "MarkdownText") {
+        } else if (selectedType === "MarkdownText") {
           values.typeProperty = {
             markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
           };
-        }
-        if (selectedType === "Asset") {
+        } else if (selectedType === "Asset") {
           values.typeProperty = {
             asset: { defaultValue: values.defaultValue.uid },
           };
-        }
-        if (selectedType === "Select") {
+        } else if (selectedType === "Select") {
           values.typeProperty = {
             select: { defaultValue: values.defaultValue, values: values.values },
           };
-        }
-        if (selectedType === "Integer") {
+        } else if (selectedType === "Integer") {
           values.typeProperty = {
             integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
           };
-        }
-        if (selectedType === "URL") {
+        } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };
