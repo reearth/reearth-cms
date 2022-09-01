@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -30,8 +31,9 @@ func TestAsset_Create(t *testing.T) {
 
 	mfs := afero.NewMemMapFs()
 	f, _ := fs.NewFile(mfs, "")
-	repos := memory.New()
-	transaction := memory.NewTransaction()
+	transaction := &usecasex.NopTransaction{}
+	repos := &repo.Container{Transaction: transaction}
+
 	repos.Transaction = transaction
 	uc := &Asset{
 		repos: repos,
@@ -67,7 +69,7 @@ func TestAsset_Create(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, want, res)
-	assert.Equal(t, 1, transaction.Committed())
+	assert.False(t, transaction.IsCommitted())
 	a, err := repos.Asset.FindByID(ctx, aid)
 	assert.NoError(t, err)
 	assert.Equal(t, want, a)

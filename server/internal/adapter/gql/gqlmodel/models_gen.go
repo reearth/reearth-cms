@@ -15,6 +15,7 @@ import (
 
 type Node interface {
 	IsNode()
+	GetID() ID
 }
 
 type SchemaFieldTypeProperty interface {
@@ -45,7 +46,8 @@ type Asset struct {
 	UUID        string       `json:"uuid"`
 }
 
-func (Asset) IsNode() {}
+func (Asset) IsNode()        {}
+func (this Asset) GetID() ID { return this.ID }
 
 type AssetConnection struct {
 	Edges      []*AssetEdge `json:"edges"`
@@ -188,7 +190,8 @@ type Item struct {
 	Versions      []*ItemVersion `json:"versions"`
 }
 
-func (Item) IsNode() {}
+func (Item) IsNode()        {}
+func (this Item) GetID() ID { return this.ID }
 
 type ItemConnection struct {
 	Edges      []*ItemEdge `json:"edges"`
@@ -253,7 +256,8 @@ type Model struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-func (Model) IsNode() {}
+func (Model) IsNode()        {}
+func (this Model) GetID() ID { return this.ID }
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`
@@ -296,7 +300,8 @@ type Project struct {
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
-func (Project) IsNode() {}
+func (Project) IsNode()        {}
+func (this Project) GetID() ID { return this.ID }
 
 type ProjectAliasAvailability struct {
 	Alias     string `json:"alias"`
@@ -349,7 +354,8 @@ type Schema struct {
 	Project   *Project       `json:"project"`
 }
 
-func (Schema) IsNode() {}
+func (Schema) IsNode()        {}
+func (this Schema) GetID() ID { return this.ID }
 
 type SchemaField struct {
 	ID           ID                      `json:"id"`
@@ -605,7 +611,8 @@ type User struct {
 	Email string `json:"email"`
 }
 
-func (User) IsNode() {}
+func (User) IsNode()        {}
+func (this User) GetID() ID { return this.ID }
 
 type Workspace struct {
 	ID       ID                 `json:"id"`
@@ -614,7 +621,8 @@ type Workspace struct {
 	Personal bool               `json:"personal"`
 }
 
-func (Workspace) IsNode() {}
+func (Workspace) IsNode()        {}
+func (this Workspace) GetID() ID { return this.ID }
 
 type WorkspaceMember struct {
 	UserID ID    `json:"userId"`

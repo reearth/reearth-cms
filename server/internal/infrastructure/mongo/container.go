@@ -44,5 +44,5 @@ func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
 	if ids == nil {
 		return filter
 	}
-	return mongodoc.And(filter, "project", bson.M{"$in": ids.Strings()})
+	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
 }

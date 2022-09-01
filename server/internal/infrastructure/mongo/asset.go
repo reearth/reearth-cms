@@ -6,22 +6,23 @@ import (
 	"regexp"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type assetRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 	f      repo.ProjectFilter
 }
 
-func NewAsset(client *mongodoc.Client) repo.Asset {
+func NewAsset(client *mongox.Client) repo.Asset {
 	r := &assetRepo{client: client.WithCollection("asset")}
 	r.init()
 	return r
@@ -56,9 +57,9 @@ func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset
 	return filterAssets(ids, res), nil
 }
 
-func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecase.PageInfo, error) {
+func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
-		return nil, usecase.EmptyPageInfo(), nil
+		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
 	var filter interface{} = bson.M{
@@ -66,7 +67,7 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	}
 
 	if uFilter.Keyword != nil {
-		filter = mongodoc.And(filter, "fileName", bson.M{
+		filter = mongox.And(filter, "fileName", bson.M{
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		})
 	}
@@ -83,7 +84,7 @@ func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
 }
 
 func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
-	return r.client.UpdateOne(ctx, r.writeFilter(bson.M{
+	return r.client.UpdateMany(ctx, r.writeFilter(bson.M{
 		"id": a.ID().String(),
 	}), bson.M{
 		"previewType": a.PreviewType().String(),
@@ -97,13 +98,13 @@ func (r *assetRepo) Delete(ctx context.Context, id id.AssetID) error {
 }
 
 func (r *assetRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"project"})
+	i := r.client.CreateIndex(context.Background(), []string{"project"}, []string{"id"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "asset", i)
 	}
 }
 
-func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecase.Pagination) ([]*asset.Asset, *usecase.PageInfo, error) {
+func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	var sortstr *string
 	if sort != nil {
 		sortstr2 := string(*sort)
