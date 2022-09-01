@@ -19,68 +19,50 @@ const FieldDefaultProps: React.FC<Props> = ({ selectedType, form }) => {
   const { Option } = Select;
   if (selectedType === "Text") {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input />
-        </Form.Item>
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <Input />
+      </Form.Item>
     );
   } else if (selectedType === "TextArea" || selectedType === "MarkdownText") {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <TextArea rows={3} showCount />
-        </Form.Item>
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <TextArea rows={3} showCount />
+      </Form.Item>
     );
   } else if (selectedType === "Asset") {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Upload action="/upload.do" listType="picture-card">
-            <div>
-              <Icon icon="link" />
-              <div style={{ marginTop: 8 }}>Asset</div>
-            </div>
-          </Upload>
-        </Form.Item>
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <Upload action="/upload.do" listType="picture-card">
+          <div>
+            <Icon icon="link" />
+            <div style={{ marginTop: 8 }}>Asset</div>
+          </div>
+        </Upload>
+      </Form.Item>
     );
   } else if (selectedType === "Select") {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Select>
-            {form.getFieldValue("values").map((value: string) => (
-              <Option key={value} value={value}>
-                {value}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <Select>
+          {form.getFieldValue("values").map((value: string) => (
+            <Option key={value} value={value}>
+              {value}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
     );
   } else if (selectedType === "Integer") {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input type="number" />
-        </Form.Item>
-        {/* <Form.Item name="min" label="Set minimum value">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item name="max" label="Set maximum value">
-          <Input type="number" />
-        </Form.Item> */}
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <Input type="number" />
+      </Form.Item>
     );
   } else {
     return (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input />
-        </Form.Item>
-      </>
+      <Form.Item name="defaultValue" label="Set default value">
+        <Input />
+      </Form.Item>
     );
   }
 };
