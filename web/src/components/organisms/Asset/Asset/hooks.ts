@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
 import {
-  Asset,
   PreviewType,
   useGetAssetQuery,
   useUpdateAssetMutation,
