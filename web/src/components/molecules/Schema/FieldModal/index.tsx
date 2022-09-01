@@ -9,8 +9,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import FieldDefaultProps from "@reearth-cms/components/molecules/Schema/FieldCreationModal/FieldDefaultProps";
-import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldCreationModal/FieldValidationProps";
+import FieldDefaultProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultProps";
+import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationProps";
 import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../fieldTypes";
@@ -45,7 +45,7 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
+const FieldModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
 
@@ -242,4 +242,4 @@ const StyledIcon = styled(Icon)`
   }
 `;
 
-export default FieldCreationModal;
+export default FieldModal;

@@ -9,6 +9,7 @@ import {
   SchemaFieldTypePropertyInput,
   useCheckModelKeyAvailabilityLazyQuery,
   useDeleteFieldMutation,
+  useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -126,6 +127,10 @@ export default ({ projectId, modelId }: Params) => {
     refetchQueries: ["GetModels"],
   });
 
+  const [updateField] = useUpdateFieldMutation({
+    refetchQueries: ["GetModels"],
+  });
+
   const [deleteFieldMutation] = useDeleteFieldMutation({
     refetchQueries: ["GetModels"],
   });
@@ -139,6 +144,36 @@ export default ({ projectId, modelId }: Params) => {
       }
     },
     [modelId, deleteFieldMutation],
+  );
+
+  const handleFieldUpdate = useCallback(
+    async (data: {
+      fieldId: string;
+      title: string;
+      description: string;
+      key: string;
+      typeProperty: SchemaFieldTypePropertyInput;
+    }) => {
+      if (!modelId) return;
+      const field = await updateField({
+        variables: {
+          modelId,
+          fieldId: data.fieldId,
+          title: data.title,
+          description: data.description,
+          key: data.key,
+          typeProperty: data.typeProperty,
+        },
+      });
+      if (field.errors || !field.data?.updateField) {
+        // Show error message
+        setModelModalShown(false);
+        return;
+      }
+
+      setModelModalShown(false);
+    },
+    [createNewModel, projectId, modelId],
   );
 
   const handleFieldCreate = useCallback(
