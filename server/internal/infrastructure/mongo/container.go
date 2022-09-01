@@ -21,6 +21,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 
 	client := mongox.NewClient(databaseName, mc)
 	c := &repo.Container{
+		Asset:       NewAsset(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: mongox.NewTransaction(client),
@@ -37,4 +38,11 @@ func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{
 		return filter
 	}
 	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
+}
+
+func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
+	if ids == nil {
+		return filter
+	}
+	return mongodoc.And(filter, "project", bson.M{"$in": ids.Strings()})
 }

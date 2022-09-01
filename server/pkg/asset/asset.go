@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"github.com/samber/lo"
 )
 
 type Asset struct {
@@ -13,7 +15,7 @@ type Asset struct {
 	size        uint64
 	previewType *PreviewType
 	file        *File
-	hash        string
+	uuid        string
 }
 
 func (a *Asset) ID() ID {
@@ -45,6 +47,9 @@ func (a *Asset) Size() uint64 {
 }
 
 func (a *Asset) PreviewType() *PreviewType {
+	if a.previewType == nil {
+		return lo.ToPtr(PreviewType(""))
+	}
 	return a.previewType
 }
 
@@ -52,6 +57,10 @@ func (a *Asset) File() *File {
 	return a.file
 }
 
-func (a *Asset) Hash() string {
-	return a.hash
+func (a *Asset) UUID() string {
+	return a.uuid
+}
+
+func (a *Asset) UpdatePreviewType(p *PreviewType) {
+	a.previewType = p
 }

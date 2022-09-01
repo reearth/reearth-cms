@@ -9,6 +9,7 @@ import (
 )
 
 type Container struct {
+	Asset       Asset
 	Lock        Lock
 	User        User
 	Workspace   Workspace
@@ -27,6 +28,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		return c
 	}
 	return &Container{
+		Asset:       c.Asset,
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
@@ -83,5 +85,54 @@ func (f WorkspaceFilter) CanRead(id user.WorkspaceID) bool {
 }
 
 func (f WorkspaceFilter) CanWrite(id user.WorkspaceID) bool {
+	return f.Writable == nil || f.Writable.Has(id)
+}
+
+type ProjectFilter struct {
+	Readable user.ProjectIDList
+	Writable user.ProjectIDList
+}
+
+func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
+	return ProjectFilter{
+		Readable: o.AllReadableProjects(),
+		Writable: o.AllWritableProjects(),
+	}
+}
+
+func (f ProjectFilter) Clone() ProjectFilter {
+	return ProjectFilter{
+		Readable: f.Readable.Clone(),
+		Writable: f.Writable.Clone(),
+	}
+}
+
+func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
+	var r, w user.ProjectIDList
+	if f.Readable != nil || g.Readable != nil {
+		if f.Readable == nil {
+			r = g.Readable.Clone()
+		} else {
+			r = append(f.Readable, g.Readable...)
+		}
+	}
+	if f.Writable != nil || g.Writable != nil {
+		if f.Writable == nil {
+			w = g.Writable.Clone()
+		} else {
+			w = append(f.Writable, g.Writable...)
+		}
+	}
+	return ProjectFilter{
+		Readable: r,
+		Writable: w,
+	}
+}
+
+func (f ProjectFilter) CanRead(id user.ProjectID) bool {
+	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
+}
+
+func (f ProjectFilter) CanWrite(id user.ProjectID) bool {
 	return f.Writable == nil || f.Writable.Has(id)
 }
