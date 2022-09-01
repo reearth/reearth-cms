@@ -15,7 +15,6 @@ import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModa
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -30,15 +29,9 @@ const ProjectSchema: React.FC = () => {
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const { projectId, workspaceId, modelId } = useParams();
   const selectModel = (modelId: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
-  };
-
-  const addField = (fieldType: FieldType) => {
-    setSelectedType(fieldType);
-    handleFieldCreationModalOpen();
   };
 
   const {
@@ -71,6 +64,7 @@ const ProjectSchema: React.FC = () => {
     isKeyAvailable,
     models,
     model,
+    selectedType,
   } = useHooks({
     projectId,
     modelId,
@@ -117,7 +111,7 @@ const ProjectSchema: React.FC = () => {
                 fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
             <FieldListWrapper>
-              <FieldList addField={addField}></FieldList>
+              <FieldList addField={handleFieldCreationModalOpen}></FieldList>
             </FieldListWrapper>
           </PaddedContent>
         </Layout>

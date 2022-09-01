@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Field, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
   useCreateModelMutation,
@@ -23,6 +23,7 @@ export default ({ projectId, modelId }: Params) => {
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>();
+  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -223,9 +224,13 @@ export default ({ projectId, modelId }: Params) => {
 
   const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
-  const handleFieldCreationModalOpen = useCallback(() => {
-    if (modelId) setFieldCreationModalShown(true);
-  }, [modelId]);
+  const handleFieldCreationModalOpen = useCallback(
+    (fieldType: FieldType) => {
+      setSelectedType(fieldType);
+      if (modelId) setFieldCreationModalShown(true);
+    },
+    [modelId],
+  );
 
   const handleFieldUpdateModalClose = useCallback(() => {
     setSelectedField(null);
@@ -234,6 +239,7 @@ export default ({ projectId, modelId }: Params) => {
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {
+      setSelectedType(field.type);
       setSelectedField(field);
       setFieldUpdateModalShown(true);
     },
@@ -259,5 +265,6 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldDelete,
     handleModelKeyCheck,
     isKeyAvailable,
+    selectedType,
   };
 };
