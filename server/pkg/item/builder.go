@@ -1,6 +1,6 @@
 package item
 
-import "time"
+import "github.com/reearth/reearth-cms/server/pkg/schema"
 
 type Builder struct {
 	i *Item
@@ -27,32 +27,12 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) ModelID(modelId ModelID) *Builder {
-	b.i.modelId = modelId
+func (b *Builder) Fields(fs []*Field) *Builder {
+	b.i.fields = fs
 	return b
 }
 
-func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
-	b.i.createdAt = createdAt
-	return b
-}
-
-func (b *Builder) UpdatedAt(updatedAt time.Time) *Builder {
-	b.i.updatedAt = updatedAt
-	return b
-}
-
-func (b *Builder) PublicVersion(publicVersion string) *Builder {
-	b.i.publicVersion = publicVersion
-	return b
-}
-
-func (b *Builder) LatestVersion(latestVersion *Version) *Builder {
-	b.i.latestVersion = latestVersion
-	return b
-}
-
-func (b *Builder) Versions(versions []*Version) *Builder {
-	b.i.versions = versions
+func (b *Builder) Schema(sid schema.ID) *Builder {
+	b.i.schemaID = sid
 	return b
 }

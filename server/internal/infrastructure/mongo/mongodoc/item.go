@@ -1,27 +1,21 @@
 package mongodoc
 
 import (
-	"time"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ItemDocument struct {
-	ID            string
-	SchemaModel   string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	PublicVersion string
-	LatestVersion *ItemVersionDoc
-	Versions      []ItemVersionDoc
+	ID     string
+	Schema string
+	Fields []ItemFieldDoc
 }
-type ItemVersionDoc struct {
-	Version string
-	Parent  []string
-	Ref     []string
-	Fields  []string
+type ItemFieldDoc struct {
+	SchemaField string
+	ValueType   string
+	Value       any
 }
 
 type ItemConsumer struct {
@@ -46,30 +40,21 @@ func (c *ItemConsumer) Consume(raw bson.Raw) error {
 }
 
 func NewItem(ws *item.Item) (*ItemDocument, string) {
-	var versionsDoc []ItemVersionDoc
-	for _, v := range ws.Versions() {
-		versionsDoc = append(versionsDoc, ItemVersionDoc{
-			Version: v.Version(),
-			Parent:  v.Parent(),
-			Ref:     v.Ref(),
-			Fields:  v.Fields().Strings(),
+	var fieldDoc []ItemFieldDoc
+	for _, f := range ws.Fields() {
+		fieldDoc = append(fieldDoc, ItemFieldDoc{
+			SchemaField: f.SchemaFieldID().String(),
+			ValueType:   string(f.ValueType()),
+			Value:       f.Value(),
 		})
 	}
-	vDoc := &ItemVersionDoc{
-		Version: ws.LatestVersion().Version(),
-		Parent:  ws.LatestVersion().Parent(),
-		Ref:     ws.LatestVersion().Ref(),
-		Fields:  ws.LatestVersion().Fields().Strings(),
-	}
+
 	id := ws.ID().String()
+	sid := ws.Schema().String()
 	return &ItemDocument{
-		ID:            id,
-		SchemaModel:   ws.ModelId().String(),
-		CreatedAt:     ws.CreatedAt(),
-		UpdatedAt:     ws.UpdatedAt(),
-		PublicVersion: ws.PublicVersion(),
-		LatestVersion: vDoc,
-		Versions:      versionsDoc,
+		ID:     id,
+		Schema: sid,
+		Fields: fieldDoc,
 	}, id
 }
 
@@ -78,36 +63,23 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	mid, err := id.ModelIDFrom(d.SchemaModel)
+	sid, err := id.SchemaIDFrom(d.Schema)
 	if err != nil {
 		return nil, err
 	}
 
-	var versions []*item.Version
-	if d.Versions != nil {
-		for _, v := range d.Versions {
-			fids, err := id.FieldIDListFrom(v.Fields)
-			if err != nil {
-				return nil, err
-			}
-			iv := item.NewVersion(&v.Version, v.Parent, v.Ref, fids)
-			versions = append(versions, iv)
+	var fields []*item.Field
+	if d.Fields != nil {
+		for _, f := range d.Fields {
+			sf := schema.FieldIDFrom(f.SchemaField)
+			itemField := item.NewField(sf, schema.Type(f.ValueType), f.Value)
+			fields = append(fields, itemField)
 		}
 	}
-	lvd := d.LatestVersion
-	fl, err := id.FieldIDListFrom(lvd.Fields)
-	if err != nil {
-		return nil, err
-	}
-	lv := item.NewVersion(&lvd.Version, lvd.Parent, lvd.Ref, fl)
 	return item.New().
 		ID(iid).
-		ModelID(mid).
-		CreatedAt(d.CreatedAt).
-		UpdatedAt(d.UpdatedAt).
-		PublicVersion(d.PublicVersion).
-		LatestVersion(lv).
-		Versions(versions).
+		Schema(sid).
+		Fields(fields).
 		Build()
 }
 

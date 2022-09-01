@@ -1,41 +1,26 @@
 package item
 
-import "time"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
+)
+
+type VersionedItem = version.Value[Item]
 
 type Item struct {
-	id            ID
-	modelId       ModelID
-	createdAt     time.Time
-	updatedAt     time.Time
-	publicVersion string
-	latestVersion *Version
-	versions      []*Version
+	id       ID
+	schemaID schema.ID
+	fields   []*Field
 }
 
 func (i *Item) ID() ID {
 	return i.id
 }
 
-func (i *Item) ModelId() ModelID {
-	return i.modelId
+func (i *Item) Fields() []*Field {
+	return i.fields
 }
 
-func (i *Item) CreatedAt() time.Time {
-	return i.createdAt
-}
-
-func (i *Item) UpdatedAt() time.Time {
-	return i.updatedAt
-}
-
-func (i *Item) PublicVersion() string {
-	return i.publicVersion
-}
-
-func (i *Item) LatestVersion() *Version {
-	return i.latestVersion
-}
-
-func (i *Item) Versions() []*Version {
-	return i.versions
+func (i *Item) Schema() schema.ID {
+	return i.schemaID
 }

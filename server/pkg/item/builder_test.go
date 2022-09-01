@@ -2,16 +2,10 @@ package item
 
 import (
 	"testing"
-	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestBuilder_CreatedAt(t *testing.T) {
-	b, _ := New().NewID().CreatedAt(time.Unix(0, 0)).Build()
-	assert.Equal(t, time.Unix(0, 0), b.CreatedAt())
-}
 
 func TestBuilder_ID(t *testing.T) {
 	iid := NewID()
@@ -19,34 +13,17 @@ func TestBuilder_ID(t *testing.T) {
 	assert.Equal(t, iid, b.id)
 }
 
-func TestBuilder_LatestVersion(t *testing.T) {
-	str := "xxx"
-	v := NewVersion(&str, []string{"hoge"}, []string{"foo"}, id.FieldIDList{})
-	b, _ := New().NewID().LatestVersion(v).Build()
-	assert.Equal(t, v, b.LatestVersion())
+func TestBuilder_SchemaID(t *testing.T) {
+	sid := schema.NewID()
+	b, _ := New().NewID().Schema(sid).Build()
+	assert.Equal(t, sid, b.Schema())
 }
 
-func TestBuilder_ModelID(t *testing.T) {
-	mid := NewModelID()
-	b, _ := New().NewID().ModelID(mid).Build()
-	assert.Equal(t, mid, b.ModelId())
-}
-
-func TestBuilder_PublicVersion(t *testing.T) {
-	b, _ := New().NewID().PublicVersion("xxx").Build()
-	assert.Equal(t, "xxx", b.PublicVersion())
-}
-
-func TestBuilder_UpdatedAt(t *testing.T) {
-	b, _ := New().NewID().UpdatedAt(time.Unix(0, 0)).Build()
-	assert.Equal(t, time.Unix(0, 0), b.UpdatedAt())
-}
-
-func TestBuilder_Versions(t *testing.T) {
-	str := "xxx"
-	v := NewVersion(&str, []string{"hoge"}, []string{"foo"}, id.FieldIDList{})
-	b, _ := New().NewID().Versions([]*Version{v}).Build()
-	assert.Equal(t, []*Version{v}, b.Versions())
+func TestBuilder_Fields(t *testing.T) {
+	sfid := schema.NewFieldID()
+	fs := []*Field{NewField(sfid, schema.TypeBool, true)}
+	b, _ := New().NewID().Fields(fs).Build()
+	assert.Equal(t, fs, b.Fields())
 }
 
 func TestNew(t *testing.T) {
