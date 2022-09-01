@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
   useCreateModelMutation,
@@ -19,8 +19,10 @@ type Params = {
 
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
-  const [fieldModalShown, setFieldModalShown] = useState(false);
+  const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
+  const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const [selectedField, setSelectedField] = useState<Field | null>();
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -59,8 +61,10 @@ export default ({ projectId, modelId }: Params) => {
                   description: field.description,
                   title: field.title,
                   type: field.type,
+                  key: field.key,
                   unique: field.unique,
                   required: field.required,
+                  typeProperty: field.typeProperty,
                 })),
               },
             }
@@ -88,6 +92,7 @@ export default ({ projectId, modelId }: Params) => {
                 description: field.description,
                 title: field.title,
                 type: field.type,
+                key: field.key,
                 unique: field.unique,
                 required: field.required,
               })),
@@ -216,11 +221,24 @@ export default ({ projectId, modelId }: Params) => {
 
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
-  const handleFieldModalClose = useCallback(() => setFieldModalShown(false), []);
+  const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
-  const handleFieldModalOpen = useCallback(() => {
-    if (modelId) setFieldModalShown(true);
+  const handleFieldCreationModalOpen = useCallback(() => {
+    if (modelId) setFieldCreationModalShown(true);
   }, [modelId]);
+
+  const handleFieldUpdateModalClose = useCallback(() => {
+    setSelectedField(null);
+    setFieldUpdateModalShown(false);
+  }, [setSelectedField]);
+
+  const handleFieldUpdateModalOpen = useCallback(
+    (field: Field) => {
+      setSelectedField(field);
+      setFieldUpdateModalShown(true);
+    },
+    [setSelectedField],
+  );
 
   return {
     model,
@@ -228,11 +246,16 @@ export default ({ projectId, modelId }: Params) => {
     modelModalShown,
     handleModelModalOpen,
     handleModelModalClose,
+    handleFieldUpdateModalOpen,
+    handleFieldUpdateModalClose,
     handleModelCreate,
-    fieldModalShown,
-    handleFieldModalOpen,
-    handleFieldModalClose,
+    fieldCreationModalShown,
+    fieldUpdateModalShown,
+    handleFieldCreationModalOpen,
+    handleFieldCreationModalClose,
+    selectedField,
     handleFieldCreate,
+    handleFieldUpdate,
     handleFieldDelete,
     handleModelKeyCheck,
     isKeyAvailable,

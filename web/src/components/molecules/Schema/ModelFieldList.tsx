@@ -11,9 +11,14 @@ export interface Props {
   className?: string;
   fields?: Field[];
   handleFieldDelete: (fieldId: string) => Promise<void>;
+  handleFieldUpdateModalOpen: (field: Field) => void;
 }
 
-const ModelFieldList: React.FC<Props> = ({ fields, handleFieldDelete }) => {
+const ModelFieldList: React.FC<Props> = ({
+  fields,
+  handleFieldDelete,
+  handleFieldUpdateModalOpen,
+}) => {
   return (
     <>
       <FieldStyledList
@@ -28,7 +33,11 @@ const ModelFieldList: React.FC<Props> = ({ fields, handleFieldDelete }) => {
                   onClick={() => handleFieldDelete((item as Field).id)}
                   key="delete"
                 />,
-                <Icon icon="ellipsis" key="edit" />,
+                <Icon
+                  icon="ellipsis"
+                  onClick={() => handleFieldUpdateModalOpen(item as Field)}
+                  key="edit"
+                />,
               ]}>
               <List.Item.Meta
                 avatar={

@@ -13,8 +13,8 @@ import FieldDefaultProps from "@reearth-cms/components/molecules/Schema/FieldMod
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationProps";
 import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
-import { fieldTypes } from "../fieldTypes";
-import { FieldType } from "../types";
+import { fieldTypes } from "../../fieldTypes";
+import { FieldType } from "../../types";
 
 export interface FormValues {
   title: string;
@@ -45,7 +45,7 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const FieldModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
+const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
 
@@ -242,4 +242,4 @@ const StyledIcon = styled(Icon)`
   }
 `;
 
-export default FieldModal;
+export default FieldCreationModal;

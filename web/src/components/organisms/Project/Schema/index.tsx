@@ -11,6 +11,7 @@ import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
+import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
@@ -37,7 +38,7 @@ const ProjectSchema: React.FC = () => {
 
   const addField = (fieldType: FieldType) => {
     setSelectedType(fieldType);
-    handleFieldModalOpen();
+    handleFieldCreationModalOpen();
   };
 
   const {
@@ -55,11 +56,16 @@ const ProjectSchema: React.FC = () => {
     handleModelModalClose,
     handleModelModalOpen,
     modelModalShown,
-    handleFieldModalClose,
-    handleFieldModalOpen,
-    fieldModalShown,
+    handleFieldCreationModalClose,
+    handleFieldCreationModalOpen,
+    handleFieldUpdateModalOpen,
+    handleFieldUpdateModalClose,
+    fieldCreationModalShown,
+    fieldUpdateModalShown,
     handleModelCreate,
     handleFieldCreate,
+    handleFieldUpdate,
+    selectedField,
     handleFieldDelete,
     handleModelKeyCheck,
     isKeyAvailable,
@@ -106,6 +112,7 @@ const ProjectSchema: React.FC = () => {
             <ContentChild>
               <ModelTitle>{model?.name}</ModelTitle>
               <ModelFieldList
+                handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
                 handleFieldDelete={handleFieldDelete}
                 fields={model?.schema.fields}></ModelFieldList>
             </ContentChild>
@@ -130,9 +137,17 @@ const ProjectSchema: React.FC = () => {
       />
       <FieldCreationModal
         selectedType={selectedType}
-        open={fieldModalShown}
-        onClose={handleFieldModalClose}
-        onSubmit={handleFieldCreate}></FieldCreationModal>
+        open={fieldCreationModalShown}
+        onClose={handleFieldCreationModalClose}
+        onSubmit={handleFieldCreate}
+      />
+      <FieldUpdateModal
+        selectedType={selectedType}
+        open={fieldUpdateModalShown}
+        selectedField={selectedField}
+        onClose={handleFieldUpdateModalClose}
+        onSubmit={handleFieldUpdate}
+      />
     </>
   );
 };
