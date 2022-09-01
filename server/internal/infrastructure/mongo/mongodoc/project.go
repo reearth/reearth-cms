@@ -4,10 +4,9 @@ import (
 	"net/url"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type ProjectDocument struct {
@@ -18,27 +17,6 @@ type ProjectDocument struct {
 	Alias       string
 	ImageURL    string
 	Workspace   string
-}
-
-type ProjectConsumer struct {
-	Rows project.List
-}
-
-func (c *ProjectConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc ProjectDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	proj, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	c.Rows = append(c.Rows, proj)
-	return nil
 }
 
 func NewProject(project *project.Project) (*ProjectDocument, string) {
@@ -86,4 +64,10 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Build()
+}
+
+type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]
+
+func NewProjectConsumer() *ProjectConsumer {
+	return NewComsumer[*ProjectDocument, *project.Project]()
 }
