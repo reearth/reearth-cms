@@ -22,7 +22,7 @@ export default ({ projectId, modelId }: Params) => {
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
-  const [selectedField, setSelectedField] = useState<Field | null>();
+  const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
