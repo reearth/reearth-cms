@@ -12,7 +12,7 @@ import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-ap
 
 import { fieldTypes } from "../../fieldTypes";
 import { Field, FieldType } from "../../types";
-import FieldDefaultProps from "../FieldDefaultProps";
+import FieldDefaultInputs from "../FieldDefaultInputs";
 import FieldValidationProps from "../FieldValidationProps";
 
 export interface FormValues {
@@ -158,7 +158,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             <FieldValidationProps selectedType={selectedType}></FieldValidationProps>
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
-            <FieldDefaultProps form={form} selectedType={selectedType}></FieldDefaultProps>
+            <FieldDefaultInputs form={form} selectedType={selectedType}></FieldDefaultInputs>
           </TabPane>
         </Tabs>
       </Form>

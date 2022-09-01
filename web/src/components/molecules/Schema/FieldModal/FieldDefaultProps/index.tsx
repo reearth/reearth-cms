@@ -15,7 +15,7 @@ export interface Props {
   form: FormInstance<any>;
 }
 
-const FieldDefaultProps: React.FC<Props> = ({ selectedType, form }) => {
+const FieldDefaultInputs: React.FC<Props> = ({ selectedType, form }) => {
   const { Option } = Select;
   if (selectedType === "Text") {
     return (
@@ -67,4 +67,4 @@ const FieldDefaultProps: React.FC<Props> = ({ selectedType, form }) => {
   }
 };
 
-export default FieldDefaultProps;
+export default FieldDefaultInputs;
