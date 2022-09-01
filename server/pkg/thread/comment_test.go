@@ -27,14 +27,15 @@ func TestComment_CommentType(t *testing.T) {
 }
 
 func TestComment_SetContent(t *testing.T) {
-	c := "xxx"
-	got := Comment{}
-
-	got.SetContent(c)
-	assert.Equal(t, got.Content(), c)
+	comment := Comment{}
+	comment.SetContent("xxx")
+	assert.Equal(t, "xxx", comment.content)
 }
 
 func TestComment_CreatedAt(t *testing.T) {
 	var got *Comment = nil
 	assert.Equal(t, time.Time{}, got.CreatedAt())
+	got = &Comment{id: NewCommentID()}
+	assert.Equal(t, got.id.Timestamp(), got.CreatedAt())
+
 }

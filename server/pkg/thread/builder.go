@@ -18,6 +18,10 @@ func (b *Builder) Build() (*Thread, error) {
 		return nil, ErrInvalidID
 	}
 
+	if b.th.workspace.IsNil() {
+		return nil, ErrInvalidID
+	}
+
 	return b.th, nil
 }
 

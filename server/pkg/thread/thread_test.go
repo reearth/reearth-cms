@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestThread_ThreadType(t *testing.T) {
+func TestThread_Getters(t *testing.T) {
 	thid := NewID()
 	wid := NewWorkspaceID()
 	c := []*Comment{}
