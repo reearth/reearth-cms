@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import Upload from "antd/lib/upload/Upload";
 import React, { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -8,9 +7,10 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import FieldDefaultProps from "@reearth-cms/components/molecules/Schema/FieldCreationModal/FieldDefaultProps";
+import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldCreationModal/FieldValidationProps";
 import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../fieldTypes";
@@ -48,7 +48,6 @@ const initialValues: FormValues = {
 const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-  const { Option } = Select;
 
   const handleSubmit = useCallback(() => {
     form
@@ -104,62 +103,10 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
     form.resetFields();
     onClose?.(true);
   }, [onClose, form]);
-  let additionalFields = <></>;
-  if (selectedType === "Text") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input />
-        </Form.Item>
-        <Form.Item name="maxLength" label="Set maximum length">
-          <Input type="number" />
-        </Form.Item>
-      </>
-    );
-  }
-  if (selectedType === "TextArea" || selectedType === "MarkdownText") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <TextArea rows={3} showCount />
-        </Form.Item>
-        <Form.Item name="maxLength" label="Set maximum length">
-          <Input type="number" />
-        </Form.Item>
-      </>
-    );
-  }
-  if (selectedType === "Asset") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Upload action="/upload.do" listType="picture-card">
-            <div>
-              <Icon icon="link" />
-              <div style={{ marginTop: 8 }}>Asset</div>
-            </div>
-          </Upload>
-        </Form.Item>
-      </>
-    );
-  }
-  let defaultInput = <></>;
-  if (selectedType === "Select") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Select>
-            {form.getFieldValue("values").map((value: string) => (
-              <Option key={value} value={value}>
-                {value}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </>
-    );
 
-    defaultInput = (
+  let additionalInput = <></>;
+  if (selectedType === "Select") {
+    additionalInput = (
       <>
         <div style={{ marginBottom: "8px" }}>Set Options</div>
         <Form.List
@@ -210,31 +157,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
       </>
     );
   }
-  if (selectedType === "Integer") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item name="min" label="Set minimum value">
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item name="max" label="Set maximum value">
-          <Input type="number" />
-        </Form.Item>
-      </>
-    );
-  }
 
-  if (selectedType === "URL") {
-    additionalFields = (
-      <>
-        <Form.Item name="defaultValue" label="Set default value">
-          <Input />
-        </Form.Item>
-      </>
-    );
-  }
   return (
     <Modal
       title={
@@ -269,12 +192,13 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item requiredMark="optional" name="description" label="Description">
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
-            {defaultInput}
+            {additionalInput}
             <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
               <Checkbox>Support multiple values</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab="Validation" key="validation">
+            <FieldValidationProps selectedType={selectedType}></FieldValidationProps>
             <Form.Item name="required" extra="Prevents saving an entry if this field is empty">
               <Checkbox>Make field required</Checkbox>
             </Form.Item>
@@ -285,7 +209,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
-            {additionalFields}
+            <FieldDefaultProps form={form} selectedType={selectedType}></FieldDefaultProps>
           </TabPane>
         </Tabs>
       </Form>
@@ -302,7 +226,7 @@ const FieldThumbnail = styled.div`
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    color: rgba(0, 0, 0, 0.85);
+    color: #000000d9;
   }
 `;
 
