@@ -3,11 +3,9 @@ package mongodoc
 import (
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	user1 "github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type PasswordResetDocument struct {
@@ -34,28 +32,7 @@ type UserVerificationDoc struct {
 	Verified   bool
 }
 
-type UserConsumer struct {
-	Rows []*user1.User
-}
-
-func (u *UserConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc UserDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	user, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	u.Rows = append(u.Rows, user)
-	return nil
-}
-
-func NewUser(user *user1.User) (*UserDocument, string) {
+func NewUser(user *user.User) (*UserDocument, string) {
 	id := user.ID().String()
 	auths := user.Auths()
 	authsdoc := make([]string, 0, len(auths))
@@ -94,7 +71,7 @@ func NewUser(user *user1.User) (*UserDocument, string) {
 	}, id
 }
 
-func (d *UserDocument) Model() (*user1.User, error) {
+func (d *UserDocument) Model() (*user.User, error) {
 	uid, err := id.UserIDFrom(d.ID)
 	if err != nil {
 		return nil, err
@@ -113,7 +90,7 @@ func (d *UserDocument) Model() (*user1.User, error) {
 		v = user.VerificationFrom(d.Verification.Code, d.Verification.Expiration, d.Verification.Verified)
 	}
 
-	u, err := user1.New().
+	u, err := user.New().
 		ID(uid).
 		Name(d.Name).
 		Email(d.Email).
@@ -132,12 +109,18 @@ func (d *UserDocument) Model() (*user1.User, error) {
 	return u, nil
 }
 
-func (d *PasswordResetDocument) Model() *user1.PasswordReset {
+func (d *PasswordResetDocument) Model() *user.PasswordReset {
 	if d == nil {
 		return nil
 	}
-	return &user1.PasswordReset{
+	return &user.PasswordReset{
 		Token:     d.Token,
 		CreatedAt: d.CreatedAt,
 	}
+}
+
+type UserConsumer = mongox.SliceFuncConsumer[*UserDocument, *user.User]
+
+func NewUserConsumer() *UserConsumer {
+	return NewComsumer[*UserDocument, *user.User]()
 }

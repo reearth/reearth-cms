@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -12,20 +12,11 @@ type FieldTag struct {
 	defaultValue []string
 }
 
-// NewFieldTag
-// TODO: check if its ok to remove this
-func NewFieldTag() *FieldTag {
-	return &FieldTag{
-		values:       nil,
-		defaultValue: nil,
-	}
-}
-
 func FieldTagFrom(values []string, defaultValue []string) (*FieldTag, error) {
 	if len(values) == 0 {
 		return nil, ErrFieldValues
 	}
-	if !util.Subset(values, defaultValue) {
+	if !lo.Every(values, defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
 	return &FieldTag{
@@ -46,4 +37,12 @@ func (f *FieldTag) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		tag: f,
 	}
+}
+
+func (f *FieldTag) Values() []string {
+	return f.values
+}
+
+func (f *FieldTag) DefaultValue() []string {
+	return f.defaultValue
 }

@@ -80,25 +80,83 @@ func TestFieldRichText_TypeProperty(t *testing.T) {
 	}
 }
 
-func TestNewFieldRichText(t *testing.T) {
+func TestFieldRichText_DefaultValue(t *testing.T) {
+	type fields struct {
+		defaultValue *string
+		maxLength    *int
+	}
 	tests := []struct {
-		name string
-		want *FieldRichText
+		name   string
+		fields fields
+		want   *string
 	}{
 		{
-			name: "new",
-			want: &FieldRichText{
+			name: "test nil",
+			fields: fields{
 				defaultValue: nil,
 				maxLength:    nil,
 			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: lo.ToPtr("v"),
+			},
+			want: lo.ToPtr("v"),
 		},
 	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.want, NewFieldRichText())
+			f := &FieldRichText{
+				defaultValue: tt.fields.defaultValue,
+				maxLength:    tt.fields.maxLength,
+			}
+			assert.Equalf(t, tt.want, f.DefaultValue(), "DefaultValue()")
+		})
+	}
+}
+
+func TestFieldRichText_MaxLength(t *testing.T) {
+	type fields struct {
+		defaultValue *string
+		maxLength    *int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *int
+	}{
+		{
+			name: "test nil",
+			fields: fields{
+				defaultValue: nil,
+				maxLength:    nil,
+			},
+			want: nil,
+		},
+		{
+			name: "test",
+			fields: fields{
+				defaultValue: nil,
+				maxLength:    lo.ToPtr(123),
+			},
+			want: lo.ToPtr(123),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			f := &FieldRichText{
+				defaultValue: tt.fields.defaultValue,
+				maxLength:    tt.fields.maxLength,
+			}
+			assert.Equalf(t, tt.want, f.MaxLength(), "MaxLength()")
 		})
 	}
 }

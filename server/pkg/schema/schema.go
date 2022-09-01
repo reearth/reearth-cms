@@ -28,7 +28,14 @@ func (s *Schema) HasField(f FieldID) bool {
 	if s == nil {
 		return false
 	}
-	return lo.SomeBy(s.fields, func(g *Field) bool { return g.ID().Equal(f) })
+	return lo.SomeBy(s.fields, func(g *Field) bool { return g.ID() == f })
+}
+
+func (s *Schema) HasFieldByKey(k string) bool {
+	if s == nil {
+		return false
+	}
+	return lo.SomeBy(s.fields, func(g *Field) bool { return g.Key().String() == k })
 }
 
 func (s *Schema) AddField(f Field) {
@@ -45,7 +52,7 @@ func (s *Schema) Field(fId FieldID) *Field {
 	if s == nil || s.fields == nil {
 		return nil
 	}
-	f, found := lo.Find(s.fields, func(f *Field) bool { return f.id.Equal(fId) })
+	f, found := lo.Find(s.fields, func(f *Field) bool { return f.id == fId })
 	if found {
 		return f
 	}
@@ -65,9 +72,20 @@ func (s *Schema) RemoveField(fid FieldID) {
 	}
 
 	for i, field := range s.fields {
-		if field.id.Equal(fid) {
+		if field.id == fid {
 			s.fields = slices.Delete(s.fields, i, i+1)
 			return
 		}
+	}
+}
+
+func (s *Schema) Clone() *Schema {
+	if s == nil {
+		return nil
+	}
+	return &Schema{
+		id:        s.ID().Clone(),
+		workspace: s.Workspace().Clone(),
+		fields:    s.Fields(),
 	}
 }

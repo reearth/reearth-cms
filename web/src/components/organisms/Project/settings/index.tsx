@@ -98,6 +98,7 @@ const ProjectSettings: React.FC = () => {
             onCollapse={value => setCollapsed(value)}
             style={{ backgroundColor: "#fff" }}>
             <ProjectMenu
+              projectId={projectId}
               defaultSelectedKeys={["settings"]}
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}

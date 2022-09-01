@@ -13,11 +13,9 @@ func (r *Resolver) Model() ModelResolver {
 type modelResolver struct{ *Resolver }
 
 func (m modelResolver) Project(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Project, error) {
-	// TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }
 
 func (m modelResolver) Schema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error) {
-	// TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Schema.Load(obj.SchemaID)
 }
