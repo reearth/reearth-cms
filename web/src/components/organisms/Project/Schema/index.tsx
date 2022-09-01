@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Button } from "antd";
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -10,6 +9,7 @@ import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldCreationModal";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -128,11 +128,11 @@ const ProjectSchema: React.FC = () => {
         onClose={handleModelModalClose}
         onSubmit={handleModelCreate}
       />
-      {/* <FieldCreationModal
+      <FieldCreationModal
         selectedType={selectedType}
         open={fieldModalShown}
         onClose={handleFieldModalClose}
-        onSubmit={handleFieldCreate}></FieldCreationModal> */}
+        onSubmit={handleFieldCreate}></FieldCreationModal>
     </>
   );
 };
