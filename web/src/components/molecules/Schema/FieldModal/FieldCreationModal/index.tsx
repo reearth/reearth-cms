@@ -98,60 +98,6 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
     onClose?.(true);
   }, [onClose, form]);
 
-  let additionalInput = <></>;
-  if (selectedType === "Select") {
-    additionalInput = (
-      <>
-        <div style={{ marginBottom: "8px" }}>Set Options</div>
-        <Form.List
-          name="values"
-          rules={[
-            {
-              validator: async (_, values) => {
-                if (!values || values.length < 1) {
-                  return Promise.reject(new Error("At least 1 option"));
-                }
-              },
-            },
-          ]}>
-          {(fields, { add, remove }, { errors }) => (
-            <>
-              {fields.map((field, _) => (
-                <Form.Item required={false} key={field.key}>
-                  <Form.Item
-                    {...field}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[
-                      {
-                        required: true,
-                        whitespace: true,
-                        message: "Please input value or delete this field.",
-                      },
-                    ]}
-                    noStyle>
-                    <Input
-                      placeholder="Option value"
-                      style={{ width: "80%", marginRight: "8px" }}
-                    />
-                  </Form.Item>
-                  {fields.length > 1 ? (
-                    <Icon icon="minusCircle" onClick={() => remove(field.name)} />
-                  ) : null}
-                </Form.Item>
-              ))}
-              <Form.Item>
-                <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
-                  New
-                </Button>
-                <Form.ErrorList errors={errors} />
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </>
-    );
-  }
-
   return (
     <Modal
       title={
@@ -186,7 +132,56 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item requiredMark="optional" name="description" label="Description">
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
-            {additionalInput}
+            {selectedType === "Select" && (
+              <>
+                <div style={{ marginBottom: "8px" }}>Set Options</div>
+                <Form.List
+                  name="values"
+                  rules={[
+                    {
+                      validator: async (_, values) => {
+                        if (!values || values.length < 1) {
+                          return Promise.reject(new Error("At least 1 option"));
+                        }
+                      },
+                    },
+                  ]}>
+                  {(fields, { add, remove }, { errors }) => (
+                    <>
+                      {fields.map((field, _) => (
+                        <Form.Item required={false} key={field.key}>
+                          <Form.Item
+                            {...field}
+                            validateTrigger={["onChange", "onBlur"]}
+                            rules={[
+                              {
+                                required: true,
+                                whitespace: true,
+                                message: "Please input value or delete this field.",
+                              },
+                            ]}
+                            noStyle>
+                            <Input
+                              placeholder="Option value"
+                              style={{ width: "80%", marginRight: "8px" }}
+                            />
+                          </Form.Item>
+                          {fields.length > 1 ? (
+                            <Icon icon="minusCircle" onClick={() => remove(field.name)} />
+                          ) : null}
+                        </Form.Item>
+                      ))}
+                      <Form.Item>
+                        <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
+                          New
+                        </Button>
+                        <Form.ErrorList errors={errors} />
+                      </Form.Item>
+                    </>
+                  )}
+                </Form.List>
+              </>
+            )}
             <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
               <Checkbox>Support multiple values</Checkbox>
             </Form.Item>
