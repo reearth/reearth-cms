@@ -8,11 +8,11 @@ import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
+import SchemaPage from "@reearth-cms/components/pages/Schema";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
-import SchemaPage from "./components/pages/Schema";
 
 function AppRoutes() {
   const routes = useRoutes([
