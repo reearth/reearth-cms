@@ -113,27 +113,6 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
-func (f *fileRepo) move(ctx context.Context, from, dest string) error {
-	if from == "" || dest == "" || from == dest {
-		return gateway.ErrInvalidFile
-	}
-
-	if destd := path.Dir(dest); destd != "" {
-		if err := f.fs.MkdirAll(destd, 0755); err != nil {
-			return rerror.ErrInternalBy(err)
-		}
-	}
-
-	if err := f.fs.Rename(from, dest); err != nil {
-		if os.IsNotExist(err) {
-			return rerror.ErrNotFound
-		}
-		return rerror.ErrInternalBy(err)
-	}
-
-	return nil
-}
-
 func getFSObjectPath(filename, uuid string) string {
 	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
 	return sanitize.Path(p)
