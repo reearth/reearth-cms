@@ -96,6 +96,7 @@ export default ({ projectId, modelId }: Params) => {
                 key: field.key,
                 unique: field.unique,
                 required: field.required,
+                typeProperty: field.typeProperty,
               })),
             },
           }

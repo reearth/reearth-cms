@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useCallback, useEffect } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -9,12 +8,12 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import FieldDefaultProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultProps";
-import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationProps";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../../fieldTypes";
 import { Field, FieldType } from "../../types";
+import FieldDefaultProps from "../FieldDefaultProps";
+import FieldValidationProps from "../FieldValidationProps";
 
 export interface FormValues {
   fieldId: string;
@@ -56,8 +55,14 @@ const FieldUpdateModal: React.FC<Props> = ({
       title: selectedField?.title,
       description: selectedField?.description,
       key: selectedField?.key,
+      defaultValue:
+        selectedField?.typeProperty.defaultValue ||
+        selectedField?.typeProperty.selectDefaultValue ||
+        selectedField?.typeProperty.integerDefaultValue,
+      min: selectedField?.typeProperty.min,
+      max: selectedField?.typeProperty.max,
+      maxLength: selectedField?.typeProperty.maxLength,
     });
-    console.log(selectedField);
   }, [form, selectedField]);
 
   const handleSubmit = useCallback(() => {
@@ -99,75 +104,23 @@ const FieldUpdateModal: React.FC<Props> = ({
             url: { defaultValue: values.defaultValue },
           };
         }
-        console.log(values);
 
-        await onSubmit?.({ ...values, fieldId: selectedField?.id });
+        await onSubmit?.({
+          ...values,
+          fieldId: selectedField?.id,
+        });
         form.resetFields();
         onClose?.(true);
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType]);
+  }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
     onClose?.(true);
   }, [onClose, form]);
-
-  let additionalInput = <></>;
-  if (selectedType === "Select") {
-    additionalInput = (
-      <>
-        <div style={{ marginBottom: "8px" }}>Set Options</div>
-        <Form.List
-          name="values"
-          rules={[
-            {
-              validator: async (_, values) => {
-                if (!values || values.length < 1) {
-                  return Promise.reject(new Error("At least 1 option"));
-                }
-              },
-            },
-          ]}>
-          {(fields, { add, remove }, { errors }) => (
-            <>
-              {fields.map((field, _) => (
-                <Form.Item required={false} key={field.key}>
-                  <Form.Item
-                    {...field}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[
-                      {
-                        required: true,
-                        whitespace: true,
-                        message: "Please input value or delete this field.",
-                      },
-                    ]}
-                    noStyle>
-                    <Input
-                      placeholder="Option value"
-                      style={{ width: "80%", marginRight: "8px" }}
-                    />
-                  </Form.Item>
-                  {fields.length > 1 ? (
-                    <Icon icon="minusCircle" onClick={() => remove(field.name)} />
-                  ) : null}
-                </Form.Item>
-              ))}
-              <Form.Item>
-                <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
-                  New
-                </Button>
-                <Form.ErrorList errors={errors} />
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </>
-    );
-  }
 
   return (
     <Modal
@@ -203,7 +156,6 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item requiredMark="optional" name="description" label="Description">
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
-            {additionalInput}
             <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
               <Checkbox>Support multiple values</Checkbox>
             </Form.Item>
