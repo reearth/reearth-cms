@@ -9,7 +9,7 @@ export interface Props {
   selectedType: FieldType | null;
 }
 
-const FieldValidationProps: React.FC<Props> = ({ selectedType }) => {
+const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
   if (selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText") {
     return (
       <Form.Item name="maxLength" label="Set maximum length">
@@ -31,4 +31,4 @@ const FieldValidationProps: React.FC<Props> = ({ selectedType }) => {
   return <></>;
 };
 
-export default FieldValidationProps;
+export default FieldValidationInputs;
