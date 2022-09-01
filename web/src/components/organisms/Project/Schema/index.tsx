@@ -108,10 +108,11 @@ const ProjectSchema: React.FC = () => {
               <ModelFieldList
                 handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
                 handleFieldDelete={handleFieldDelete}
-                fields={model?.schema.fields}></ModelFieldList>
+                fields={model?.schema.fields}
+              />
             </ContentChild>
             <FieldListWrapper>
-              <FieldList addField={handleFieldCreationModalOpen}></FieldList>
+              <FieldList addField={handleFieldCreationModalOpen} />
             </FieldListWrapper>
           </PaddedContent>
         </Layout>
