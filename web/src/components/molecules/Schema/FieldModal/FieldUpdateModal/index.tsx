@@ -9,6 +9,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
+import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../../fieldTypes";
@@ -154,7 +155,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
           </TabPane>
           <TabPane tab="Validation" key="validation">
-            <FieldValidationInputs selectedType={selectedType}></FieldValidationInputs>
+            <FieldValidationInputs selectedType={selectedType} />
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
             <FieldDefaultInputs form={form} selectedType={selectedType}></FieldDefaultInputs>
