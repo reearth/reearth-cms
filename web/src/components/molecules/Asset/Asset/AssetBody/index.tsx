@@ -41,10 +41,10 @@ const AssetBody: React.FC<Props> = ({
   handleFullScreen,
 }) => {
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const formattedCreatedAt = dateTimeFormat(asset?.createdAt);
+  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
   // TODO: maybe we need a better way to check for svg files
-  const isSVG = asset?.fileName?.endsWith(".svg") ?? false;
+  const isSVG = !!asset.fileName?.endsWith(".svg");
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
@@ -88,7 +88,7 @@ const AssetBody: React.FC<Props> = ({
     <BodyContainer>
       <BodyWrapper>
         <Card
-          title={asset?.fileName}
+          title={asset.fileName}
           toolbar={
             <PreviewToolbar
               url={url}
@@ -108,12 +108,7 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton
-          type="ghost"
-          filename={asset?.fileName}
-          url={url}
-          displayDefaultIcon={true}
-        />
+        <DownloadButton type="ghost" filename={asset.fileName} url={url} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
@@ -124,7 +119,7 @@ const AssetBody: React.FC<Props> = ({
           />
         </SideBarCard>
         <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title="Created By">{asset?.createdById}</SideBarCard>
+        <SideBarCard title="Created By">{asset.createdById}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );

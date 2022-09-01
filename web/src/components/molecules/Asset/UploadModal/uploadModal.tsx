@@ -5,14 +5,14 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 
-import Tab1 from "./tab1";
+import LocalTab from "./localTab";
 
 const { TabPane } = Tabs;
 
 type Props = {
   visible: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<any>[];
+  fileList: UploadFile<File>[];
   uploading: boolean;
   handleUpload: () => void;
   handleCancel: () => void;
@@ -48,7 +48,7 @@ const UploadModal: React.FC<Props> = ({
       </div>
       <Tabs defaultActiveKey="1" onChange={handleTabChange}>
         <TabPane tab="Local" key="1">
-          <Tab1 uploadProps={uploadProps} />
+          <LocalTab uploadProps={uploadProps} />
         </TabPane>
         <TabPane tab="URL" key="2"></TabPane>
         <TabPane tab="Google Drive" key="3"></TabPane>

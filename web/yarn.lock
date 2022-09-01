@@ -5508,10 +5508,30 @@ ccount@^1.0.0:
   resolved "https://registry.yarnpkg.com/ccount/-/ccount-1.1.0.tgz#246687debb6014735131be8abab2d93898f8d043"
   integrity sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg==
 
-cesium@1.94.0:
-  version "1.94.0"
-  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.94.0.tgz#286ac5c92db46227b510f1626518fee1597e32c5"
-  integrity sha512-BeZ44Xg/RpojzeWt+UwzIm1fu0Yxrjc92EpEMc3lhSqYfuxCcCK5Ao/rAap+wgNxnhEeLCObVyIqPjqpT1qj3w==
+cesium@^1.96.0:
+  version "1.96.0"
+  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.96.0.tgz#72e38afa0289b532741a205bf8e0396eb3e7ef37"
+  integrity sha512-OTkkKpByP+8KQCd8i7EFHmnql8yW9gVS7bxE9DGWdEULinVp/hdt56bd6VtcElTakmWItqpSql1v6r2EoHU35g==
+  dependencies:
+    "@zip.js/zip.js" "^2.3.12"
+    autolinker "^3.14.3"
+    bitmap-sdf "^1.0.3"
+    dompurify "^2.2.2"
+    earcut "^2.2.4"
+    grapheme-splitter "^1.0.4"
+    jsep "^0.3.1"
+    kdbush "^3.0.0"
+    ktx-parse "^0.2.1"
+    lerc "^2.0.0"
+    mersenne-twister "^1.1.0"
+    meshoptimizer "^0.16.1"
+    nosleep.js "^0.9.0"
+    pako "^1.0.4"
+    protobufjs "7.0.0"
+    rbush "^3.0.1"
+    topojson-client "^3.1.0"
+    tween.js "^16.6.0"
+    urijs "^1.19.7"
 
 chai@^4.3.6:
   version "4.3.6"
@@ -15104,10 +15124,10 @@ vinyl@^2.0.0, vinyl@~2.2.1:
     remove-trailing-separator "^1.0.1"
     replace-ext "^1.0.0"
 
-vite-plugin-cesium@^1.2.19:
-  version "1.2.19"
-  resolved "https://registry.yarnpkg.com/vite-plugin-cesium/-/vite-plugin-cesium-1.2.19.tgz#f6ecdbe8bdac11f5ed81c192a2d132382fad7f75"
-  integrity sha512-81XrdS2S9nhMM1DZfd88uIQNnqeKKhY+b5jLuLt0X1yXdTu7uQdPN8/HVVny8AGsbAJakKsIVJhTT0Kv5nIqbg==
+vite-plugin-cesium@^1.2.22:
+  version "1.2.22"
+  resolved "https://registry.yarnpkg.com/vite-plugin-cesium/-/vite-plugin-cesium-1.2.22.tgz#55dc6d7dba6f8c28ee815e0d70359d67ef763694"
+  integrity sha512-OnS+VKNGck4kUu4/67Fdfhz0/zF9mDVNUp9hUWtX19C38O0mJsJy2MH1ev2QcrVLf6VieJ7vCGxkLchdB1n1HQ==
   dependencies:
     fs-extra "^9.1.0"
     rollup-plugin-external-globals "^0.6.1"

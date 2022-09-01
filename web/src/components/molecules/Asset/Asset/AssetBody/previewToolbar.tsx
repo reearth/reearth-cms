@@ -7,7 +7,7 @@ type Props = {
   url: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  isSVG: boolean;
+  isSVG?: boolean;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
