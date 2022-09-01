@@ -29,6 +29,5 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			return err
 		}
 		return c.JSON(http.StatusOK, out)
-		// return c.JSON(http.StatusOK, "OKOK")
 	}
 }

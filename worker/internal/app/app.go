@@ -68,6 +68,7 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 
 	return code, msg
 }
+
 func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
 	return func(err error, c echo.Context) {
 		if c.Response().Committed {
@@ -84,27 +85,3 @@ func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
 		}
 	}
 }
-
-// func decompressHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case "POST":
-// 		func() {
-// 			// g := &gateway.Container{}
-// 			uc := interactor.NewUsecase(nil)
-// 			ctx := context.Background()
-// 			c := rhttp.NewDecompressController(uc)
-// 			var input rhttp.DecompressInput
-// 			_, err := json.Marshal(&input)
-// 			if err != nil {
-// 				panic("not implemented")
-// 			}
-// 			c.Decompress(ctx, input) //TODO: error handle
-// 		}()
-// 	}
-// }
-
-// func Start(debug bool, version string) {
-// 	http.HandleFunc("/", handler)
-// 	http.HandleFunc("/decompress", decompressHandler)
-// 	http.ListenAndServe(":8080", nil)
-// }

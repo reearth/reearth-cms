@@ -55,21 +55,8 @@ func (f *fileRepo) RandomReadAssetByURL(ctx context.Context, url *url.URL) (io.R
 	return f.NewGCSReaderAt(ctx, objectName)
 }
 
-// helpers
-func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return nil, err
-	}
-	bucket := client.Bucket(f.bucketName)
-	return bucket, nil
-}
-
-type GCSReaderAt struct {
-	cache *bufra.BufReaderAt
-}
-
-func (f *fileRepo) UploadAsset(ctx context.Context, name string) (io.WriteCloser, error) {
+// UploadAssetFunc is the function which allows this func's user to generate the function to upload asset to GCS dynamically
+func (f *fileRepo) UploadAssetFunc(ctx context.Context, name string) (io.WriteCloser, error) {
 	if name == "" {
 		return nil, gateway.ErrInvalidFile
 	}
@@ -91,6 +78,11 @@ func (f *fileRepo) UploadAsset(ctx context.Context, name string) (io.WriteCloser
 	return writer, nil
 }
 
+// GCSReaderAt is a struct which implements io.ReadAt interface and internally it has buffer to prevent lot's of IO call
+type GCSReaderAt struct {
+	cache *bufra.BufReaderAt
+}
+
 func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (io.ReaderAt, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
@@ -105,7 +97,7 @@ func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (io.Re
 }
 
 func (g *GCSReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
-	return g.ReadAt(p, off)
+	return g.cache.ReadAt(p, off)
 }
 
 type rawGCSReaderAt struct {
@@ -113,6 +105,7 @@ type rawGCSReaderAt struct {
 	obj *storage.ObjectHandle
 }
 
+// newRawGCSReaderAt implements io.ReadAt but calls IO a lot, should be wrapped by something which uses buffer
 func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io.ReaderAt, int64, error) {
 	if objectName == "" {
 		return nil, 0, rerror.ErrNotFound
@@ -142,60 +135,14 @@ func (g *rawGCSReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
 	return rc.Read(b)
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
-	if filename == "" {
-		return nil, rerror.ErrNotFound
-	}
-
-	bucket, err := f.bucket(ctx)
+// helpers
+func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
+	client, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Errorf(ctx, "gcs: read bucket err: %+v\n", err)
-		return nil, rerror.ErrInternalBy(err)
+		return nil, err
 	}
-
-	reader, err := bucket.Object(filename).NewReader(ctx)
-	if err != nil {
-		if errors.Is(err, storage.ErrObjectNotExist) {
-			return nil, rerror.ErrNotFound
-		}
-		log.Errorf(ctx, "gcs: read err: %+v\n", err)
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	return reader, nil
-}
-
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
-	if filename == "" {
-		return gateway.ErrInvalidFile
-	}
-
-	bucket, err := f.bucket(ctx)
-	if err != nil {
-		log.Errorf(ctx, "gcs: upload bucket err: %+v\n", err)
-		return rerror.ErrInternalBy(err)
-	}
-
-	object := bucket.Object(filename)
-	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
-		log.Errorf(ctx, "gcs: upload delete err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
-	}
-
-	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
-
-	if _, err := io.Copy(writer, content); err != nil {
-		log.Errorf(ctx, "gcs: upload err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
-	}
-
-	if err := writer.Close(); err != nil {
-		log.Errorf(ctx, "gcs: upload close err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
-	}
-
-	return nil
+	bucket := client.Bucket(f.bucketName)
+	return bucket, nil
 }
 
 func getGCSObjectNameFromURL(base, u *url.URL) string {

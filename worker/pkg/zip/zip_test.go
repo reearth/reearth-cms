@@ -3,7 +3,6 @@ package zip
 import (
 	"archive/zip"
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -26,7 +25,7 @@ func createDummyFiles(t *testing.T, fileNames ...string) {
 
 	for _, f := range fileNames {
 		f, err := os.Create(f)
-		defer f.Close()
+		defer f.Close() //nolint:staticcheck
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -117,11 +116,6 @@ func cleanUp() {
 }
 
 func TestNewUnzipper(t *testing.T) {
-	type args struct {
-		ra   io.ReaderAt
-		size int64
-		wFn  func(name string) io.Writer
-	}
 	zf := prepareZip(t, 3)
 	defer cleanUp()
 
@@ -174,8 +168,7 @@ func TestUnzipper_Unzip(t *testing.T) {
 	err = uz.Unzip()
 	assert.NoError(t, err)
 	for k, v := range files {
-		fmt.Printf("expected:%v, actual:%v", string(expectedFiles[k].Bytes()), string(v.Bytes()))
-		assert.Equal(t, string(v.Bytes()), string(expectedFiles[k].Bytes()))
+		assert.Equal(t, v.Bytes(), expectedFiles[k].Bytes())
 	}
 
 }

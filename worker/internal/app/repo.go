@@ -11,13 +11,6 @@ import (
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
 	gateways := &gateway.Container{}
 
-	// File
-	// datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
-	// var fileRepo gateway.File
-	// if conf.GCS.BucketName == "" {
-	// 	log.Infoln("file: local storage is used")
-	// 	fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
-	// } else {
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
 		fileRepo, err := gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
@@ -29,9 +22,6 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gatewa
 		}
 		gateways.File = fileRepo
 	}
-	// if err != nil {
-	// 	log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
-	// }
 
 	return gateways
 }
