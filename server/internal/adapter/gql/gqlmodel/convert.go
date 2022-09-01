@@ -4,10 +4,8 @@ import (
 	"io"
 
 	"github.com/99designs/gqlgen/graphql"
-	(
-	"github.com/reearth/reearthx/usecasex"
-)
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 func RefToIndex(i *int) int {

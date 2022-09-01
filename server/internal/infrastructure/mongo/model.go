@@ -103,7 +103,7 @@ func (r *modelRepo) find(ctx context.Context, filter any) (model.List, error) {
 
 func (r *modelRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewModelConsumer()
-	pageInfo, err := r.client.Paginate(ctx, filter, nil, nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, filter, nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

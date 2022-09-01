@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type Asset struct {
@@ -46,7 +47,7 @@ func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.
 	)
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *string, sort *asset.SortType, p *usecase.Pagination, operator *usecase.Operator) ([]*asset.Asset, *usecase.PageInfo, error) {
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *string, sort *asset.SortType, p *usecasex.Pagination, operator *usecase.Operator) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	pp, err := i.repos.Project.FindByID(ctx, pid)
 	if err != nil {
 		return nil, nil, err
@@ -54,7 +55,7 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *st
 	return Run2(
 		ctx, operator, i.repos,
 		Usecase().WithReadableWorkspaces(pp.Workspace()).Transaction(),
-		func() ([]*asset.Asset, *usecase.PageInfo, error) {
+		func() ([]*asset.Asset, *usecasex.PageInfo, error) {
 			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
 				Sort:       sort,
 				Keyword:    keyword,

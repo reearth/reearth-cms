@@ -3,20 +3,20 @@ package repo
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type AssetFilter struct {
 	Sort       *asset.SortType
 	Keyword    *string
-	Pagination *usecase.Pagination
+	Pagination *usecasex.Pagination
 }
 
 type Asset interface {
 	Filtered(ProjectFilter) Asset
-	FindByProject(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecase.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.AssetID) (*asset.Asset, error)
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
 	Save(context.Context, *asset.Asset) error
