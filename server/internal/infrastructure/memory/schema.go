@@ -33,13 +33,13 @@ func (r *Schema) Filtered(f repo.WorkspaceFilter) repo.Schema {
 	}
 }
 
-func (r *Schema) FindByID(_ context.Context, sId id.SchemaID) (*schema.Schema, error) {
+func (r *Schema) FindByID(_ context.Context, sid id.SchemaID) (*schema.Schema, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	s := r.data.Find(func(k id.SchemaID, s *schema.Schema) bool {
-		return k.Equal(sId) && r.f.CanRead(s.Workspace())
+		return k == sid && r.f.CanRead(s.Workspace())
 	})
 
 	if s != nil {
