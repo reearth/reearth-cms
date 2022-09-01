@@ -29,7 +29,6 @@ const initialValues: FormValues = {
 const ModelCreationModal: React.FC<Props> = ({
   projectId,
   open,
-  isKeyAvailable,
   onClose,
   onSubmit,
   handleModelKeyCheck,
@@ -48,7 +47,7 @@ const ModelCreationModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [handleModelKeyCheck, isKeyAvailable, projectId, form, onClose, onSubmit]);
+  }, [handleModelKeyCheck, projectId, form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
     onClose?.(true);
