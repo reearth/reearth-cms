@@ -1,6 +1,7 @@
 import { ApolloProvider, ApolloClient, ApolloLink, InMemoryCache, HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { createUploadLink } from "apollo-upload-client";
 
 import { useAuth } from "@reearth-cms/auth";
 import { useError } from "@reearth-cms/state";
@@ -28,6 +29,10 @@ const Provider: React.FC<Props> = ({ children }) => {
     };
   });
 
+  const uploadLink = createUploadLink({
+    uri: endpoint,
+  });
+
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (!networkError && !graphQLErrors) return;
     const error = networkError?.message ?? graphQLErrors?.map(e => e.message).join(", ");
@@ -44,7 +49,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const client = new ApolloClient({
     uri: endpoint,
-    link: ApolloLink.from([errorLink, authLink, httpLink]),
+    link: ApolloLink.from([errorLink, authLink, uploadLink, httpLink]),
     cache,
     connectToDevTools: process.env.NODE_ENV === "development",
   });

@@ -14,3 +14,13 @@ export type Workspace = {
 };
 const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
+
+export type NotificationType = "error" | "warning" | "info" | "success";
+
+export type Notification = {
+  type: NotificationType;
+  heading?: string;
+  text: string;
+};
+const notification = atom<Notification | undefined>(undefined);
+export const useNotification = () => useAtom(notification);
