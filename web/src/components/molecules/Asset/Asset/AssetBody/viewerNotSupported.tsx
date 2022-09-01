@@ -9,9 +9,7 @@ const ViewerNotSupported: React.FC = () => {
         {/* TODO: should be replaced with ExclamationCircleTwoTone */}
         <Icon
           icon="exclamationCircle"
-          color="#faad14"
           style={{
-            fontSize: "32px",
             marginBottom: "10px",
           }}
         />
@@ -26,6 +24,7 @@ const ViewerNotSupportedContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 32px;
 `;
 
 const ViewerNotSupportedWrapper = styled.div`
