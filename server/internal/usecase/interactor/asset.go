@@ -128,8 +128,10 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			if uuid := asset.UUID(); uuid != "" {
-				if err := i.gateways.File.DeleteAsset(ctx, uuid); err != nil {
+			uuid := asset.UUID()
+			filename := asset.FileName()
+			if uuid != "" && filename != "" {
+				if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
 					return aid, err
 				}
 			}
