@@ -11,11 +11,13 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import {
+  CreationFieldTypePropertyInput,
+  CreationFiledType,
+} from "@reearth-cms/components/organisms/Project/Schema/hooks";
 
 import { fieldTypes } from "../../fieldTypes";
 import { FieldType } from "../../types";
-
-import { CreationFieldTypePropertyInput, CreationFiledType } from "./types";
 
 export interface FormValues {
   title: string;

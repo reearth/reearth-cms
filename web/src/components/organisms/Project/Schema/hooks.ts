@@ -12,6 +12,9 @@ import {
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
+export { SchemaFiledType as CreationFiledType };
+export type { SchemaFieldTypePropertyInput as CreationFieldTypePropertyInput };
+
 type Params = {
   projectId?: string;
   modelId?: string;
