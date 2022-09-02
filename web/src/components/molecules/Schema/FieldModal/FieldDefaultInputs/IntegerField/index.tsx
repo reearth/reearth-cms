@@ -6,7 +6,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 const IntegerField: React.FC = () => {
   return (
     <Form.Item name="defaultValue" label="Set default value">
-      <Input />
+      <Input type="number" />
     </Form.Item>
   );
 };
