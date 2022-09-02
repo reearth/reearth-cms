@@ -157,7 +157,7 @@ const AssetList: React.FC = () => {
         <DownloadButton
           type="link"
           filename={asset.fileName}
-          url={uuidToURL(asset?.uuid)}
+          url={uuidToURL(asset?.uuid, asset?.fileName)}
           displayDefaultIcon={false}></DownloadButton>
       ),
     },
