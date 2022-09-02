@@ -70,7 +70,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 
 	uuid := newUUID()
 
-	p := getGCSObjectPath(file.Path, uuid)
+	p := getGCSObjectPath(uuid, file.Path)
 	if p == "" {
 		return "", gateway.ErrInvalidFile
 	}
@@ -78,10 +78,15 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 	if err := f.upload(ctx, p, file.Content); err != nil {
 		return "", err
 	}
-	return p, nil
+	return uuid, nil
 }
 
-func (f *fileRepo) DeleteAsset(ctx context.Context, p string) error {
+func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
 	sn := sanitize.Path(p)
 	if sn == "" {
 		return gateway.ErrInvalidFile
@@ -168,7 +173,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-func getGCSObjectPath(filename, uuid string) string {
+func getGCSObjectPath(uuid, filename string) string {
 	p := path.Join(uuid[:2], uuid[2:], filename)
 	return sanitize.Path(p)
 }
