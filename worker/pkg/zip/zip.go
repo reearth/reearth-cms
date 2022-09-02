@@ -37,7 +37,11 @@ func (uz *Unzipper) Unzip() error {
 			if err != nil {
 				return err
 			}
-			_, err = io.Copy(w, rc)
+			_, err = io.CopyN(w, rc, limit)
+			_ = w.Close()
+			if errors.Is(io.EOF, err) {
+				return &LimitError{ Path: f.FileInfo().Name() }
+			}
 			if err != nil {
 				return err
 			}
