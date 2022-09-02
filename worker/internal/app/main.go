@@ -14,7 +14,7 @@ import (
 )
 
 func Start(debug bool, version string) {
-	log.Infof("reearth-cms %s", version)
+	log.Infof("reearth-cms/worker %s", version)
 
 	ctx := context.Background()
 

@@ -15,8 +15,6 @@ type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
 	ServerHost   string
 	Dev          bool
-	Host_Web     string
-	AssetBaseURL string `default:"http://localhost:8080/assets"`
 	GCS          GCSConfig
 }
 

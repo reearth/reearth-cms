@@ -15,8 +15,12 @@ var (
 	ErrFailedToRemoveFile error = errors.New("failed to remove file")
 )
 
+type ReadAtCloser interface {
+	io.ReaderAt
+	io.Closer
+}
+
 type File interface {
-	// ReadAsset(ctx context.Context, name string) (io.ReadCloser, error)
-	RandomReadAssetByURL(ctx context.Context, url *url.URL) (io.ReaderAt, int64, error)
-	UploadAssetFunc(ctx context.Context, name string) (io.WriteCloser, error)
+    Read(ctx context.Context, path string) (io.ReadAtCloser, int64, error)
+	Upload(ctx context.Context, name string) (io.WriteCloser, error)
 }
