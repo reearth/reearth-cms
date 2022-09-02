@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"archive/zip"
 	"context"
 	"io"
 	"net/url"
@@ -24,19 +25,23 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 	}
 
 	// TODO: extract comressed file format and choose the function to decompress it
-	compressedFile, size, err := u.gateways.File.RandomReadAssetByURL(ctx, url)
+	compressedFile, size, err := u.gateways.File.Read(ctx, url.Path)
 	if err != nil {
 		return err
 	}
 
-	uploadFunc := func(name string) (io.Writer, error) {
-		w, err := u.gateways.File.UploadAssetFunc(ctx, name)
+	uploadFunc := func(name string) (io.WriteCloser, error) {
+		w, err := u.gateways.File.Upload(ctx, name)
 		if err != nil {
 			return nil, err
 		}
 		return w, nil
 	}
-	unzipper, err := rzip.NewUnzipper(compressedFile, size, uploadFunc)
+	zr, err := zip.NewReader(compressedFile, size)
+	if err != nil {
+		return err
+	}
+	unzipper, err := rzip.NewUnzipper(zr, uploadFunc)
 	if err != nil {
 		return err
 	}

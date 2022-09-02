@@ -2,19 +2,19 @@ package zip
 
 import (
 	"archive/zip"
+	"errors"
+	"fmt"
 	"io"
 )
 
+const limit = 1024 * 1024 * 1024 * 10 // 10GB
+
 type Unzipper struct {
 	r   *zip.Reader
-	wFn func(name string) (io.Writer, error)
+	wFn func(name string) (io.WriteCloser, error)
 }
 
-func NewUnzipper(ra io.ReaderAt, size int64, wFn func(name string) (io.Writer, error)) (*Unzipper, error) {
-	r, err := zip.NewReader(ra, size)
-	if err != nil {
-		return nil, err
-	}
+func NewUnzipper(r *zip.Reader, wFn func(name string) (io.WriteCloser, error)) (*Unzipper, error) {
 	return &Unzipper{
 		r,
 		wFn,
@@ -40,7 +40,7 @@ func (uz *Unzipper) Unzip() error {
 			_, err = io.CopyN(w, rc, limit)
 			_ = w.Close()
 			if errors.Is(io.EOF, err) {
-				return &LimitError{ Path: f.FileInfo().Name() }
+				return &LimitError{Path: f.FileInfo().Name()}
 			}
 			if err != nil {
 				return err
@@ -49,4 +49,12 @@ func (uz *Unzipper) Unzip() error {
 		}
 	}
 	return nil
+}
+
+type LimitError struct {
+	Path string
+}
+
+func (e *LimitError) Error() string {
+	return fmt.Sprintf("file size limit reached at %s", e.Path)
 }

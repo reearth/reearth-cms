@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"net/url"
 )
 
 var (
@@ -21,6 +20,6 @@ type ReadAtCloser interface {
 }
 
 type File interface {
-    Read(ctx context.Context, path string) (io.ReadAtCloser, int64, error)
+	Read(ctx context.Context, path string) (ReadAtCloser, int64, error)
 	Upload(ctx context.Context, name string) (io.WriteCloser, error)
 }

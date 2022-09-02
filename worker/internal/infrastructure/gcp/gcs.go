@@ -50,13 +50,13 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 	}, nil
 }
 
-func (f *fileRepo) RandomReadAssetByURL(ctx context.Context, url *url.URL) (io.ReaderAt, int64, error) {
-	objectName := getGCSObjectNameFromURL(f.base, url)
+func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, error) {
+	objectName := getGCSObjectNameFromURL(f.base, path)
 	return f.NewGCSReaderAt(ctx, objectName)
 }
 
-// UploadAssetFunc is the function which allows this func's user to generate the function to upload asset to GCS dynamically
-func (f *fileRepo) UploadAssetFunc(ctx context.Context, name string) (io.WriteCloser, error) {
+// Upload is the function which allows this func's user to generate the function to upload asset to GCS dynamically
+func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, error) {
 	if name == "" {
 		return nil, gateway.ErrInvalidFile
 	}
@@ -83,7 +83,7 @@ type GCSReaderAt struct {
 	cache *bufra.BufReaderAt
 }
 
-func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (io.ReaderAt, int64, error) {
+func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
 		log.Errorf(ctx, "gcs: rawGCSReaderAt err: %+v\n", err)
@@ -98,6 +98,10 @@ func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (io.Re
 
 func (g *GCSReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
 	return g.cache.ReadAt(p, off)
+}
+
+func (g *GCSReaderAt) Close() error {
+	return nil
 }
 
 type rawGCSReaderAt struct {
@@ -145,15 +149,15 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
-func getGCSObjectNameFromURL(base, u *url.URL) string {
-	if u == nil {
+func getGCSObjectNameFromURL(base *url.URL, path string) string {
+	if path == "" {
 		return ""
 	}
 	if base == nil {
 		base = &url.URL{}
 	}
-	p := sanitize.Path(strings.TrimPrefix(u.Path, "/"))
-	if p == "" || u.Host != base.Host || u.Scheme != base.Scheme || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
+	p := sanitize.Path(strings.TrimPrefix(path, "/"))
+	if p == "" || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
 		return ""
 	}
 
