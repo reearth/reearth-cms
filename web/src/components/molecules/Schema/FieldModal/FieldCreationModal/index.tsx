@@ -16,8 +16,7 @@ import {
   CreationFiledType,
 } from "@reearth-cms/components/organisms/Project/Schema/hooks";
 
-import { fieldTypes } from "../../fieldTypes";
-import { FieldType } from "../../types";
+import { FieldType, fieldTypes } from "../../types";
 
 export interface FormValues {
   title: string;

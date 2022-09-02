@@ -12,8 +12,7 @@ import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldMo
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 
-import { fieldTypes } from "../../fieldTypes";
-import { Field, FieldType } from "../../types";
+import { Field, FieldType, fieldTypes } from "../../types";
 
 export interface FormValues {
   fieldId: string;
