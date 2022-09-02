@@ -18,6 +18,15 @@ const (
 	fileContent    = "Hello"
 )
 
+// Buffer implements io.ReadAtCloser and io.WriteCloser
+type Buffer struct {
+	bytes.Buffer
+}
+
+func (*Buffer) Close() error {
+	return nil
+}
+
 // createDummyFiles creates dummy files with given filenames
 func createDummyFiles(t *testing.T, fileNames ...string) {
 	t.Helper()
