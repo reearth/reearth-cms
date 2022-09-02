@@ -13,3 +13,8 @@ rules:
       alphabetize:
         order: asc
         caseInsensitive: true
+overrides:
+  - files:
+      - i18next-parser.config.js
+    extends:
+      - reearth/commonjs

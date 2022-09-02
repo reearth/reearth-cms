@@ -41,10 +41,16 @@ const ProjectMenu: React.FC<Props> = ({
   ];
 
   const onClick = (e: any) => {
-    if (e.key === "home") {
-      navigate(`/dashboard/${workspaceId}`);
-    } else if (e.key === "schema") {
-      navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
+    switch (e.key) {
+      case "home":
+        navigate(`/dashboard/${workspaceId}`);
+        break;
+      case "schema":
+        navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
+        break;
+      case "asset":
+        navigate(`/workspaces/${workspaceId}/${projectId}/asset`);
+        break;
     }
   };
 

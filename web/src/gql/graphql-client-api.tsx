@@ -40,12 +40,12 @@ export type Asset = Node & {
   createdById: Scalars['ID'];
   file: AssetFile;
   fileName: Scalars['String'];
-  hash: Scalars['String'];
   id: Scalars['ID'];
   previewType?: Maybe<PreviewType>;
-  project: Project;
+  project?: Maybe<Project>;
   projectId: Scalars['ID'];
   size: Scalars['FileSize'];
+  uuid: Scalars['String'];
 };
 
 export type AssetConnection = {
@@ -78,6 +78,7 @@ export enum AssetSortType {
 }
 
 export type CreateAssetInput = {
+  createdById: Scalars['ID'];
   file: Scalars['Upload'];
   projectId: Scalars['ID'];
 };
@@ -318,6 +319,7 @@ export type Mutation = {
   removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   signup?: Maybe<SignupPayload>;
+  updateAsset?: Maybe<UpdateAssetPayload>;
   updateField?: Maybe<FieldPayload>;
   updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
@@ -418,6 +420,11 @@ export type MutationSignupArgs = {
 };
 
 
+export type MutationUpdateAssetArgs = {
+  input: UpdateAssetInput;
+};
+
+
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
 };
@@ -457,6 +464,7 @@ export type Node = {
 };
 
 export enum NodeType {
+  Asset = 'ASSET',
   Project = 'PROJECT',
   User = 'USER',
   Workspace = 'WORKSPACE'
@@ -534,6 +542,7 @@ export type PublishModelPayload = {
 
 export type Query = {
   __typename?: 'Query';
+  asset: Asset;
   assets: AssetConnection;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
@@ -544,6 +553,11 @@ export type Query = {
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
   searchUser?: Maybe<User>;
+};
+
+
+export type QueryAssetArgs = {
+  assetId: Scalars['ID'];
 };
 
 
@@ -830,6 +844,16 @@ export enum Theme {
   Light = 'LIGHT'
 }
 
+export type UpdateAssetInput = {
+  id: Scalars['ID'];
+  previewType?: InputMaybe<PreviewType>;
+};
+
+export type UpdateAssetPayload = {
+  __typename?: 'UpdateAssetPayload';
+  asset: Asset;
+};
+
 export type UpdateFieldInput = {
   description?: InputMaybe<Scalars['String']>;
   fieldId: Scalars['ID'];
@@ -916,31 +940,6 @@ export type WorkspaceMember = {
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
-export type GetAssetsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  keyword?: InputMaybe<Scalars['String']>;
-  sort?: InputMaybe<AssetSortType>;
-  pagination?: InputMaybe<Pagination>;
-}>;
-
-
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
-
-export type CreateAssetMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  file: Scalars['Upload'];
-}>;
-
-
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, hash: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
-
-export type DeleteAssetMutationVariables = Exact<{
-  assetId: Scalars['ID'];
-}>;
-
-
-export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
-
 export type CreateFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
   type: SchemaFiledType;
@@ -985,7 +984,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, description?: string | null, required: boolean, unique: boolean }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: string | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: number | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: string | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: string | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1180,153 +1179,6 @@ export const WorkspaceFragmentFragmentDoc = gql`
   personal
 }
     `;
-export const GetAssetsDocument = gql`
-    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSortType, $pagination: Pagination) {
-  assets(
-    projectId: $projectId
-    keyword: $keyword
-    sort: $sort
-    pagination: $pagination
-  ) {
-    nodes {
-      id
-      projectId
-      createdAt
-      createdById
-      fileName
-      size
-      previewType
-      file {
-        name
-        size
-        contentType
-        path
-      }
-      hash
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
-    }
-    totalCount
-  }
-}
-    `;
-
-/**
- * __useGetAssetsQuery__
- *
- * To run a query within a React component, call `useGetAssetsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetsQuery({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      keyword: // value for 'keyword'
- *      sort: // value for 'sort'
- *      pagination: // value for 'pagination'
- *   },
- * });
- */
-export function useGetAssetsQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
-      }
-export function useGetAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
-        }
-export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
-export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
-export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
-export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload!) {
-  createAsset(input: {projectId: $projectId, file: $file}) {
-    asset {
-      id
-      projectId
-      createdAt
-      createdById
-      fileName
-      size
-      previewType
-      file {
-        name
-        size
-        contentType
-        path
-      }
-      hash
-    }
-  }
-}
-    `;
-export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation, CreateAssetMutationVariables>;
-
-/**
- * __useCreateAssetMutation__
- *
- * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      file: // value for 'file'
- *   },
- * });
- */
-export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(CreateAssetDocument, options);
-      }
-export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
-export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
-export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
-export const DeleteAssetDocument = gql`
-    mutation DeleteAsset($assetId: ID!) {
-  deleteAsset(input: {assetId: $assetId}) {
-    assetId
-  }
-}
-    `;
-export type DeleteAssetMutationFn = Apollo.MutationFunction<DeleteAssetMutation, DeleteAssetMutationVariables>;
-
-/**
- * __useDeleteAssetMutation__
- *
- * To run a mutation, you first call `useDeleteAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAssetMutation, { data, loading, error }] = useDeleteAssetMutation({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetMutation, DeleteAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAssetMutation, DeleteAssetMutationVariables>(DeleteAssetDocument, options);
-      }
-export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
-export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
-export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
 export const CreateFieldDocument = gql`
     mutation CreateField($modelId: ID!, $type: SchemaFiledType!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   createField(
@@ -1468,9 +1320,39 @@ export const GetModelsDocument = gql`
           id
           type
           title
+          key
           description
           required
           unique
+          typeProperty {
+            ... on SchemaFieldText {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldTextArea {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldMarkdown {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldAsset {
+              assetDefaultValue: defaultValue
+            }
+            ... on SchemaFieldSelect {
+              selectDefaultValue: defaultValue
+              values
+            }
+            ... on SchemaFieldInteger {
+              integerDefaultValue: defaultValue
+              min
+              max
+            }
+            ... on SchemaFieldURL {
+              defaultValue
+            }
+          }
         }
       }
     }
