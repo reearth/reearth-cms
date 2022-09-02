@@ -36,7 +36,7 @@ func (c *Collection) Find(ctx context.Context, filter any, q version.Query, cons
 }
 
 func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.Paginate(ctx, apply(q, filter), p, consumer)
+	return c.client.Paginate(ctx, apply(q, filter), nil, p, consumer)
 }
 
 func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (int64, error) {
@@ -82,7 +82,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 		return err
 	}
 
-	if _, err := c.client.Collection().InsertOne(ctx, &Document[any]{
+	if _, err := c.client.Client().InsertOne(ctx, &Document[any]{
 		Data: replacement,
 		Meta: newmeta,
 	}); err != nil {
@@ -99,7 +99,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if current != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, bson.M{
+		if _, err := c.client.Client().UpdateOne(ctx, bson.M{
 			"id":       id,
 			versionKey: current.Version,
 		}, bson.M{
@@ -110,7 +110,7 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	}
 
 	if dest != nil {
-		if _, err := c.client.Collection().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
+		if _, err := c.client.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
 			"id": id,
 		}), bson.M{
 			"$push": bson.M{refsKey: ref},
@@ -138,14 +138,14 @@ func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
 
 func (c *Collection) ArchiveOne(ctx context.Context, id string, archived bool) error {
 	if !archived {
-		_, err := c.client.Collection().DeleteOne(ctx, bson.M{"id": id, metaKey: true})
+		_, err := c.client.Client().DeleteOne(ctx, bson.M{"id": id, metaKey: true})
 		if err != nil {
 			return rerror.ErrInternalBy(err)
 		}
 		return nil
 	}
 
-	_, err := c.client.Collection().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
+	_, err := c.client.Client().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
 		ID:       id,
 		Meta:     true,
 		Archived: archived,
@@ -161,7 +161,7 @@ func (c *Collection) RemoveOne(ctx context.Context, id string) error {
 }
 
 func (c *Collection) Empty(ctx context.Context) error {
-	return c.client.Collection().Drop(ctx)
+	return c.client.Client().Drop(ctx)
 }
 
 func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []string) error {
@@ -182,7 +182,7 @@ func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []strin
 		)...,
 	)
 
-	if _, err := c.client.Collection().Indexes().CreateMany(ctx, indexes); err != nil {
+	if _, err := c.client.Client().Indexes().CreateMany(ctx, indexes); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
