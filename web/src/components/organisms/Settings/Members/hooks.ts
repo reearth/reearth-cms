@@ -46,7 +46,9 @@ export default ({ workspaceId }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWorkspace, setWorkspace, workspaces, data?.me]);
 
-  const [searchUserQuery, { data: searchUserData }] = useGetUserBySearchLazyQuery();
+  const [searchUserQuery, { data: searchUserData }] = useGetUserBySearchLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   useEffect(() => {
     changeSearchedUser(searchUserData?.searchUser ?? undefined);
