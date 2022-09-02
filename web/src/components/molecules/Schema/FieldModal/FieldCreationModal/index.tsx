@@ -46,7 +46,7 @@ const initialValues: FormValues = {
 const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-
+  const selectValues = Form.useWatch("values", form);
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -196,7 +196,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
-            <FieldDefaultInputs form={form} selectedType={selectedType} />
+            <FieldDefaultInputs selectValues={selectValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>
       </Form>

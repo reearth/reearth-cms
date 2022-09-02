@@ -1,4 +1,3 @@
-import { FormInstance } from "rc-field-form/lib/interface";
 import React from "react";
 
 import { FieldType } from "../../types";
@@ -11,10 +10,10 @@ import TextField from "./TextField";
 
 export interface Props {
   selectedType: FieldType;
-  form: FormInstance<any>;
+  selectValues: string[];
 }
 
-const FieldDefaultInputs: React.FC<Props> = ({ selectedType, form }) => {
+const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectValues }) => {
   return selectedType ? (
     selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <TextAreaField />
@@ -23,7 +22,7 @@ const FieldDefaultInputs: React.FC<Props> = ({ selectedType, form }) => {
     ) : selectedType === "Asset" ? (
       <AssetField />
     ) : selectedType === "Select" ? (
-      <SelectField form={form} />
+      <SelectField selectValues={selectValues} />
     ) : (
       <TextField />
     )
