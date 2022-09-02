@@ -10,14 +10,12 @@ export interface Props {
 }
 
 const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
-  if (selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText") {
-    return (
+  return selectedType ? (
+    selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <Form.Item name="maxLength" label="Set maximum length">
         <Input type="number" />
       </Form.Item>
-    );
-  } else if (selectedType === "Integer") {
-    return (
+    ) : selectedType === "Integer" ? (
       <>
         <Form.Item name="min" label="Set minimum value">
           <Input type="number" />
@@ -26,9 +24,8 @@ const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
           <Input type="number" />
         </Form.Item>
       </>
-    );
-  }
-  return <></>;
+    ) : null
+  ) : null;
 };
 
 export default FieldValidationInputs;
