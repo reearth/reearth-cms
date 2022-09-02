@@ -16,7 +16,7 @@ import (
 
 type schemaRepo struct {
 	client *mongox.ClientCollection
-	f      *repo.WorkspaceFilter
+	f      repo.WorkspaceFilter
 }
 
 func NewSchema(client *mongox.Client) repo.Schema {
@@ -33,13 +33,9 @@ func (r *schemaRepo) init() {
 }
 
 func (r *schemaRepo) Filtered(f repo.WorkspaceFilter) repo.Schema {
-	filter := f
-	if r.f != nil {
-		filter = f.Merge(filter)
-	}
 	return &schemaRepo{
 		client: r.client,
-		f:      &filter,
+		f:      r.f.Merge(f),
 	}
 }
 
@@ -113,15 +109,9 @@ func (r *schemaRepo) find(ctx context.Context, filter any) (schema.List, error) 
 // }
 
 func (r *schemaRepo) readFilter(filter any) any {
-	if r.f == nil {
-		return filter
-	}
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
 func (r *schemaRepo) writeFilter(filter any) any {
-	if r.f == nil {
-		return filter
-	}
 	return applyWorkspaceFilter(filter, r.f.Writable)
 }
