@@ -27,7 +27,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 	// basic middleware
 	logger := rlog.NewEcho()
 	e.Logger = logger
-	e.Use(middleware.Recover(), otelecho.Middleware("reearth-cms"))
+	e.Use(middleware.Recover(), otelecho.Middleware("reearth-cms/worker"))
 
 	api := e.Group("/api")
 
