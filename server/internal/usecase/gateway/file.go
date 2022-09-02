@@ -18,5 +18,5 @@ var (
 type File interface {
 	ReadAsset(context.Context, string) (io.ReadCloser, error)
 	UploadAsset(context.Context, *file.File) (string, error)
-	DeleteAsset(context.Context, string) error
+	DeleteAsset(context.Context, string, string) error
 }

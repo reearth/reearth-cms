@@ -49,7 +49,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 
 	uuid := newUUID()
 
-	p := getFSObjectPath(file.Path, uuid)
+	p := getFSObjectPath(uuid, file.Path)
 	if p == "" {
 		return "", gateway.ErrInvalidFile
 	}
@@ -58,10 +58,15 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 		return "", err
 	}
 
-	return p, nil
+	return uuid, nil
 }
 
-func (f *fileRepo) DeleteAsset(ctx context.Context, p string) error {
+func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
+	p := getFSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
 	sn := sanitize.Path(p)
 
 	if sn == "" {
@@ -113,7 +118,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
-func getFSObjectPath(filename, uuid string) string {
+func getFSObjectPath(uuid, filename string) string {
 	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
 	return sanitize.Path(p)
 }
