@@ -48,7 +48,7 @@ const FieldUpdateModal: React.FC<Props> = ({
 }) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-  const selectValues = Form.useWatch("values", form);
+  const selectedValues = Form.useWatch("values", form);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -211,7 +211,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           </TabPane>
           <TabPane tab="Default value" key="defaultValue">
             <FieldDefaultInputs
-              selectValues={selectValues}
+              selectedValues={selectedValues}
               selectedType={selectedType}></FieldDefaultInputs>
           </TabPane>
         </Tabs>

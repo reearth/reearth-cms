@@ -4,16 +4,16 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 
 export interface Props {
-  selectValues: string[];
+  selectedValues: string[];
 }
 
-const SelectField: React.FC<Props> = ({ selectValues }) => {
+const SelectField: React.FC<Props> = ({ selectedValues }) => {
   const { Option } = Select;
 
   return (
     <Form.Item name="defaultValue" label="Set default value">
       <Select>
-        {selectValues?.map((value: string) => (
+        {selectedValues?.map((value: string) => (
           <Option key={value} value={value}>
             {value}
           </Option>

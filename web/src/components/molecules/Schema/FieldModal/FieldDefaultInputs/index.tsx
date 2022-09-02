@@ -10,10 +10,10 @@ import TextField from "./TextField";
 
 export interface Props {
   selectedType: FieldType;
-  selectValues: string[];
+  selectedValues: string[];
 }
 
-const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectValues }) => {
+const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectedValues }) => {
   return selectedType ? (
     selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <TextAreaField />
@@ -22,7 +22,7 @@ const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectValues }) => 
     ) : selectedType === "Asset" ? (
       <AssetField />
     ) : selectedType === "Select" ? (
-      <SelectField selectValues={selectValues} />
+      <SelectField selectedValues={selectedValues} />
     ) : (
       <TextField />
     )
