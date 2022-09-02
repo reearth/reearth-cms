@@ -34,7 +34,6 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, "pong") })
 
 	t := handler.DecompressHandler()
-	api.GET("/decompress", t)
 	api.POST("/decompress", t)
 
 	return e
