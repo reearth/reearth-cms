@@ -14,7 +14,7 @@ export const fieldTypes: {
     color: "#FF7875",
   },
   MarkdownText: {
-    icon: "markDown",
+    icon: "markdown",
     title: "Markdown text",
     description: "Rich text which supports md style",
     color: "#FF7875",
