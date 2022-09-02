@@ -94,3 +94,13 @@ export type TypeProperty =
       max?: number;
     }
   | any;
+
+export type CreationFieldTypePropertyInput = {
+  asset?: { defaultValue: string };
+  integer?: { defaultValue: number; min: number; max: number };
+  markdownText?: { defaultValue: string; maxLength: number };
+  select?: { defaultValue: string; values: string[] };
+  text?: { defaultValue: string; maxLength: number };
+  textArea?: { defaultValue: string; maxLength: number };
+  url?: { defaultValue: string };
+};

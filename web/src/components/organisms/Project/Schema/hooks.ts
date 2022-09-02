@@ -12,9 +12,6 @@ import {
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
-export { SchemaFiledType as CreationFiledType };
-export type { SchemaFieldTypePropertyInput as CreationFieldTypePropertyInput };
-
 type Params = {
   projectId?: string;
   modelId?: string;
@@ -194,7 +191,7 @@ export default ({ projectId, modelId }: Params) => {
       multiValue: boolean;
       unique: boolean;
       required: boolean;
-      type: SchemaFiledType;
+      type: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId) return;
@@ -207,7 +204,7 @@ export default ({ projectId, modelId }: Params) => {
           multiValue: data.multiValue,
           unique: data.unique,
           required: data.required,
-          type: data.type,
+          type: data.type as SchemaFiledType,
           typeProperty: data.typeProperty,
         },
       });
