@@ -11,10 +11,11 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
-import { SchemaFieldTypePropertyInput, SchemaFiledType } from "@reearth-cms/gql/graphql-client-api";
 
 import { fieldTypes } from "../../fieldTypes";
 import { FieldType } from "../../types";
+
+import { CreationFieldTypePropertyInput, CreationFiledType } from "./types";
 
 export interface FormValues {
   title: string;
@@ -23,8 +24,8 @@ export interface FormValues {
   multiValue: boolean;
   unique: boolean;
   required: boolean;
-  type: SchemaFiledType;
-  typeProperty: SchemaFieldTypePropertyInput;
+  type: CreationFiledType;
+  typeProperty: CreationFieldTypePropertyInput;
 }
 
 export interface Props {
@@ -41,7 +42,7 @@ const initialValues: FormValues = {
   multiValue: false,
   unique: false,
   required: false,
-  type: SchemaFiledType["Text"],
+  type: CreationFiledType["Text"],
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
