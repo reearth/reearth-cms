@@ -9,12 +9,14 @@ import ProjectCreationModal from "@reearth-cms/components/molecules/Common/Proje
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
 import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
+import { useT } from "@reearth-cms/i18n";
 
 import useDashboardHooks from "../Dashboard/hooks";
 
 import useHooks from "./hooks";
 
 const Project: React.FC = () => {
+  const t = useT();
   const { Search } = Input;
   const { workspaceId } = useParams();
 
@@ -47,7 +49,7 @@ const Project: React.FC = () => {
             style={{ width: 264 }}
           />
           <ButtonWrapper>
-            <Button onClick={handleWorkspaceModalOpen}>Create a Workspace</Button>
+            <Button onClick={handleWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
             <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               New Project
             </Button>
