@@ -84,6 +84,10 @@ func (r *queryResolver) Assets(ctx context.Context, teamID gqlmodel.ID, keyword 
 	panic("implement me")
 }
 
+func (r *queryResolver) Asset(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.Asset, error) {
+	panic("implement me")
+}
+
 func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error) {
 	return loaders(ctx).Model.FindByProject(ctx, projectID, first, last, before, after)
 }

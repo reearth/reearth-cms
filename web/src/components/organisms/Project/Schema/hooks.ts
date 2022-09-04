@@ -1,12 +1,15 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
   useCreateModelMutation,
   useCreateFieldMutation,
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
+  useCheckModelKeyAvailabilityLazyQuery,
+  useDeleteFieldMutation,
+  useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -16,10 +19,30 @@ type Params = {
 
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
-  const [fieldModalShown, setFieldModalShown] = useState(false);
+  const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
+  const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
+  const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const [selectedField, setSelectedField] = useState<Field | null>(null);
+  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleModelKeyCheck = useCallback(
+    async (projectId: string, key: string) => {
+      if (!projectId || !key) return false;
+      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+      return response.data ? response.data.checkModelKeyAvailability.available : false;
+    },
+    [CheckModelKeyAvailability],
+  );
+
+  useEffect(() => {
+    setIsKeyAvailable(keyData?.checkModelKeyAvailability.available ?? false);
+  }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "" },
+    variables: { projectId: projectId ?? "", first: 100 },
     skip: !projectId,
   });
 
@@ -39,8 +62,10 @@ export default ({ projectId, modelId }: Params) => {
                   description: field.description,
                   title: field.title,
                   type: field.type,
+                  key: field.key,
                   unique: field.unique,
                   required: field.required,
+                  typeProperty: field.typeProperty,
                 })),
               },
             }
@@ -68,8 +93,10 @@ export default ({ projectId, modelId }: Params) => {
                 description: field.description,
                 title: field.title,
                 type: field.type,
+                key: field.key,
                 unique: field.unique,
                 required: field.required,
+                typeProperty: field.typeProperty,
               })),
             },
           }
@@ -107,6 +134,55 @@ export default ({ projectId, modelId }: Params) => {
     refetchQueries: ["GetModels"],
   });
 
+  const [updateField] = useUpdateFieldMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const [deleteFieldMutation] = useDeleteFieldMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleFieldDelete = useCallback(
+    async (fieldId: string) => {
+      if (!modelId) return;
+      const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
+      if (results.errors) {
+        console.log("errors");
+      }
+    },
+    [modelId, deleteFieldMutation],
+  );
+
+  const handleFieldUpdate = useCallback(
+    async (data: {
+      fieldId: string;
+      title: string;
+      description: string;
+      key: string;
+      typeProperty: SchemaFieldTypePropertyInput;
+    }) => {
+      if (!modelId) return;
+      const field = await updateField({
+        variables: {
+          modelId,
+          fieldId: data.fieldId,
+          title: data.title,
+          description: data.description,
+          key: data.key,
+          typeProperty: data.typeProperty,
+        },
+      });
+      if (field.errors || !field.data?.updateField) {
+        // Show error message
+        setModelModalShown(false);
+        return;
+      }
+
+      setModelModalShown(false);
+    },
+    [modelId, updateField],
+  );
+
   const handleFieldCreate = useCallback(
     async (data: {
       title: string;
@@ -115,7 +191,7 @@ export default ({ projectId, modelId }: Params) => {
       multiValue: boolean;
       unique: boolean;
       required: boolean;
-      type: SchemaFiledType;
+      type: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId) return;
@@ -128,7 +204,7 @@ export default ({ projectId, modelId }: Params) => {
           multiValue: data.multiValue,
           unique: data.unique,
           required: data.required,
-          type: data.type,
+          type: data.type as SchemaFiledType,
           typeProperty: data.typeProperty,
         },
       });
@@ -140,18 +216,36 @@ export default ({ projectId, modelId }: Params) => {
 
       setModelModalShown(false);
     },
-    [createNewModel, projectId, modelId],
+    [modelId, createNewField],
   );
 
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
 
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
-  const handleFieldModalClose = useCallback(() => setFieldModalShown(false), []);
+  const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
-  const handleFieldModalOpen = useCallback(() => {
-    if (modelId) setFieldModalShown(true);
-  }, [modelId]);
+  const handleFieldCreationModalOpen = useCallback(
+    (fieldType: FieldType) => {
+      setSelectedType(fieldType);
+      if (modelId) setFieldCreationModalShown(true);
+    },
+    [modelId],
+  );
+
+  const handleFieldUpdateModalClose = useCallback(() => {
+    setSelectedField(null);
+    setFieldUpdateModalShown(false);
+  }, [setSelectedField]);
+
+  const handleFieldUpdateModalOpen = useCallback(
+    (field: Field) => {
+      setSelectedType(field.type);
+      setSelectedField(field);
+      setFieldUpdateModalShown(true);
+    },
+    [setSelectedField],
+  );
 
   return {
     model,
@@ -159,10 +253,19 @@ export default ({ projectId, modelId }: Params) => {
     modelModalShown,
     handleModelModalOpen,
     handleModelModalClose,
+    handleFieldUpdateModalOpen,
+    handleFieldUpdateModalClose,
     handleModelCreate,
-    fieldModalShown,
-    handleFieldModalOpen,
-    handleFieldModalClose,
+    fieldCreationModalShown,
+    fieldUpdateModalShown,
+    handleFieldCreationModalOpen,
+    handleFieldCreationModalClose,
+    selectedField,
     handleFieldCreate,
+    handleFieldUpdate,
+    handleFieldDelete,
+    handleModelKeyCheck,
+    isKeyAvailable,
+    selectedType,
   };
 };
