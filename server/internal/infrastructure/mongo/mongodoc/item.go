@@ -71,7 +71,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	var fields []*item.Field
 	if d.Fields != nil {
 		for _, f := range d.Fields {
-			sf := schema.FieldIDFrom(f.SchemaField)
+			sf, err := schema.FieldIDFrom(f.SchemaField)
+			if err != nil {
+				return nil, err
+			}
+
 			itemField := item.NewField(sf, schema.Type(f.ValueType), f.Value)
 			fields = append(fields, itemField)
 		}

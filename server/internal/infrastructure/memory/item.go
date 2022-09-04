@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -20,28 +19,6 @@ func NewItem() repo.Item {
 	return &Item{
 		data: &util.SyncMap[item.ID, *item.Item]{},
 	}
-}
-
-func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID) (item.List, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	return rerror.ErrIfNil(r.data.FindAll(func(key id.ItemID, value *item.Item) bool {
-		return value.ModelId() == modelID
-	}), rerror.ErrNotFound)
-}
-
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	res := r.data.FindAll(func(key id.ItemID, value *item.Item) bool {
-		return list.Has(key)
-	})
-	slices.SortFunc(res, func(a, b *item.Item) bool { return a.ID().Compare(b.ID()) < 0 })
-	return res, nil
 }
 
 func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, error) {
@@ -63,17 +40,6 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) SaveAll(ctx context.Context, items item.List) error {
-	if r.err != nil {
-		return r.err
-	}
-
-	for _, t := range items {
-		r.data.Store(t.ID(), t)
-	}
-	return nil
-}
-
 func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err
@@ -83,15 +49,8 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	return nil
 }
 
-func (r *Item) RemoveAll(ctx context.Context, ids id.ItemIDList) error {
-	if r.err != nil {
-		return r.err
-	}
-
-	for _, iid := range ids {
-		r.data.Delete(iid)
-	}
-	return nil
+func (r *Item) Archive(ctx context.Context, itemID id.ItemID) error {
+	return r.Remove(ctx, itemID)
 }
 
 func SetItemError(r repo.Item, err error) {

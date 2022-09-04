@@ -8,9 +8,7 @@ import (
 )
 
 type Item interface {
-	//FindByIDs(context.Context, id.ItemIDList) (item.List, error)
 	FindByID(context.Context, id.ItemID) (*item.Item, error)
 	Save(context.Context, *item.Item) error
-	//SaveAll(context.Context, item.List) error
-
+	Remove(context.Context, id.ItemID) error
 }

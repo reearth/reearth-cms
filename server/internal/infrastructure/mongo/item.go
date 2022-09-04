@@ -29,10 +29,18 @@ func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error
 		return nil, err
 	}
 
-	return c.Result[0].Model(), nil
+	return c.Result[0].Model()
 }
 
 func (i itemRepo) Save(ctx context.Context, item *item.Item) error {
 	doc, id := mongodoc.NewItem(item)
 	return i.client.SaveOne(ctx, id, doc, nil)
+}
+
+func (i itemRepo) Remove(ctx context.Context, id id.ItemID) error {
+	return i.client.RemoveOne(ctx, id.String())
+}
+
+func (i itemRepo) Archive(ctx context.Context, id id.ItemID, b bool) error {
+	return i.client.ArchiveOne(ctx, id.String(), b)
 }
