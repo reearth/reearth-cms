@@ -230,6 +230,37 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 	}
 }
 
+func (t *TypeProperty) UpdateFrom(t2 *TypeProperty) {
+	if t == nil {
+		return
+	}
+	if t.text != nil && t2.text != nil {
+		t.text = FieldTextFrom(t2.text.defaultValue, t2.text.maxLength)
+	} else if t.textArea != nil && t2.textArea != nil {
+		t.textArea = FieldTextAreaFrom(t2.textArea.defaultValue, t2.textArea.maxLength)
+	} else if t.richText != nil && t2.richText != nil {
+		t.richText = FieldRichTextFrom(t2.richText.defaultValue, t2.richText.maxLength)
+	} else if t.markdown != nil && t2.markdown != nil {
+		t.markdown = FieldMarkdownFrom(t2.markdown.defaultValue, t2.markdown.maxLength)
+	} else if t.asset != nil && t2.asset != nil {
+		t.asset = FieldAssetFrom(t2.asset.defaultValue)
+	} else if t.date != nil && t2.date != nil {
+		t.date = FieldDateFrom(t2.date.defaultValue)
+	} else if t.bool != nil && t2.bool != nil {
+		t.bool = FieldBoolFrom(t2.bool.defaultValue)
+	} else if t.selectt != nil && t2.selectt != nil {
+		t.selectt, _ = FieldSelectFrom(t2.selectt.values, t2.selectt.defaultValue)
+	} else if t.tag != nil && t2.tag != nil {
+		t.tag, _ = FieldTagFrom(t2.tag.values, t2.tag.defaultValue)
+	} else if t.integer != nil && t2.integer != nil {
+		t.integer, _ = FieldIntegerFrom(t2.integer.defaultValue, t2.integer.min, t2.integer.max)
+	} else if t.reference != nil && t2.reference != nil {
+		t.reference = FieldReferenceFrom(t2.reference.modelID)
+	} else if t.url != nil && t2.url != nil {
+		t.url, _ = FieldURLFrom(t2.url.defaultValue)
+	}
+}
+
 func (t *TypeProperty) Clone() *TypeProperty {
 	if t == nil {
 		return nil

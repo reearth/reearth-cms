@@ -776,3 +776,98 @@ func TestNewFieldTypePropertyURL(t *testing.T) {
 		})
 	}
 }
+
+func TestTypeProperty_UpdateFrom(t *testing.T) {
+	aId := id.NewAssetID()
+	now := time.Now()
+	mId := id.NewModelID()
+
+	tests := []struct {
+		name string
+		tp   *TypeProperty
+		tp2  *TypeProperty
+		want *TypeProperty
+	}{
+		{
+			name: "Text",
+			tp:   &TypeProperty{text: &FieldText{}},
+			tp2:  NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "TextArea",
+			tp:   &TypeProperty{textArea: &FieldTextArea{}},
+			tp2:  NewFieldTypePropertyTextArea(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyTextArea(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "RichText",
+			tp:   &TypeProperty{richText: &FieldRichText{}},
+			tp2:  NewFieldTypePropertyRichText(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyRichText(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "Markdown",
+			tp:   &TypeProperty{markdown: &FieldMarkdown{}},
+			tp2:  NewFieldTypePropertyMarkdown(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyMarkdown(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "Asset",
+			tp:   &TypeProperty{asset: &FieldAsset{}},
+			tp2:  NewFieldTypePropertyAsset(&aId),
+			want: NewFieldTypePropertyAsset(&aId),
+		},
+		{
+			name: "Date",
+			tp:   &TypeProperty{date: &FieldDate{}},
+			tp2:  NewFieldTypePropertyDate(&now),
+			want: NewFieldTypePropertyDate(&now),
+		},
+		{
+			name: "Bool",
+			tp:   &TypeProperty{bool: &FieldBool{}},
+			tp2:  NewFieldTypePropertyBool(lo.ToPtr(true)),
+			want: NewFieldTypePropertyBool(lo.ToPtr(true)),
+		},
+		{
+			name: "Select",
+			tp:   &TypeProperty{selectt: &FieldSelect{}},
+			tp2:  lo.Must1(NewFieldTypePropertySelect([]string{"v1", "v2"}, lo.ToPtr("v1"))),
+			want: lo.Must1(NewFieldTypePropertySelect([]string{"v1", "v2"}, lo.ToPtr("v1"))),
+		},
+		{
+			name: "Tag",
+			tp:   &TypeProperty{tag: &FieldTag{}},
+			tp2:  lo.Must1(NewFieldTypePropertyTag([]string{"v1", "v2"}, []string{"v1"})),
+			want: lo.Must1(NewFieldTypePropertyTag([]string{"v1", "v2"}, []string{"v1"})),
+		},
+		{
+			name: "Integer",
+			tp:   &TypeProperty{integer: &FieldInteger{}},
+			tp2:  lo.Must1(NewFieldTypePropertyInteger(lo.ToPtr(5), lo.ToPtr(1), lo.ToPtr(10))),
+			want: lo.Must1(NewFieldTypePropertyInteger(lo.ToPtr(5), lo.ToPtr(1), lo.ToPtr(10))),
+		},
+		{
+			name: "Reference",
+			tp:   &TypeProperty{reference: &FieldReference{}},
+			tp2:  NewFieldTypePropertyReference(mId),
+			want: NewFieldTypePropertyReference(mId),
+		},
+		{
+			name: "URL",
+			tp:   &TypeProperty{url: &FieldURL{}},
+			tp2:  lo.Must1(NewFieldTypePropertyURL(lo.ToPtr("https://hugo.com"))),
+			want: lo.Must1(NewFieldTypePropertyURL(lo.ToPtr("https://hugo.com"))),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t1 *testing.T) {
+			t1.Parallel()
+
+			tc.tp.UpdateFrom(tc.tp2)
+			assert.Equal(t1, tc.want, tc.tp)
+		})
+	}
+}
