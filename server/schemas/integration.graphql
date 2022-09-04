@@ -16,7 +16,8 @@ type Integration implements Node {
   iType: IntegrationType!
   developerId: ID!
   developer: User!
-  config: IntegrationConfig # only for a developer of this integration
+  # config is only for a developer of this integration
+  config: IntegrationConfig
   createdAt: DateTime!
   updatedAt: DateTime!
 }

@@ -5,7 +5,7 @@ type Workspace implements Node {
     personal: Boolean!
 }
 
-union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember;
+union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
 
 type WorkspaceUserMember {
     userId: ID!
