@@ -33,7 +33,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		User:        c.User,
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model,
-		Schema:      c.Schema,
+		Schema:      c.Schema.Filtered(workspace),
 	}
 }
 

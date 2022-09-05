@@ -6,8 +6,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type SchemaDocument struct {
@@ -87,27 +87,6 @@ type FieldReferencePropertyDocument struct {
 }
 type FieldURLPropertyDocument struct {
 	DefaultValue *string
-}
-
-type SchemaConsumer struct {
-	Rows schema.List
-}
-
-func (c *SchemaConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc SchemaDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	s, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	c.Rows = append(c.Rows, s)
-	return nil
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -258,4 +237,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		Workspace(wId).
 		Fields(f).
 		Build()
+}
+
+type SchemaConsumer = mongox.SliceFuncConsumer[*SchemaDocument, *schema.Schema]
+
+func NewSchemaConsumer() *SchemaConsumer {
+	return NewComsumer[*SchemaDocument, *schema.Schema]()
 }
