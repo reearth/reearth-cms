@@ -19,7 +19,7 @@ import (
 func TestCollection_FindOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 	vx := version.New()
 
 	type d struct {
@@ -62,7 +62,7 @@ func TestCollection_FindOne(t *testing.T) {
 func TestCollection_Find(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 	vx, vy := version.New(), version.New()
 
 	type d struct {
@@ -138,7 +138,7 @@ func TestCollection_Find(t *testing.T) {
 func TestCollection_Count(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 	vx, vy := version.New(), version.New()
 
 	_, _ = c.InsertMany(ctx, []any{
@@ -197,7 +197,7 @@ func TestCollection_Count(t *testing.T) {
 func TestCollection_Paginate(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 	vx, vy := version.New(), version.New()
 
 	type d struct {
@@ -250,7 +250,7 @@ func TestCollection_Paginate(t *testing.T) {
 func TestCollection_SaveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	type Data struct {
 		ID string
@@ -331,7 +331,7 @@ func TestCollection_SaveOne(t *testing.T) {
 func TestCollection_UpdateRef(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	v1, v2, v3 := version.New(), version.New(), version.New()
 	_, _ = c.InsertMany(ctx, []any{
@@ -370,7 +370,7 @@ func TestCollection_UpdateRef(t *testing.T) {
 func TestCollection_IsArchived(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	_, _ = c.InsertOne(ctx, bson.M{
 		"id":       "xxx",
@@ -403,7 +403,7 @@ func TestCollection_IsArchived(t *testing.T) {
 func TestCollection_ArchiveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 	var metadata MetadataDocument
 
 	assert.NoError(t, col.ArchiveOne(ctx, "xxx", false))
@@ -436,7 +436,7 @@ func TestCollection_ArchiveOne(t *testing.T) {
 func TestCollection_RemoveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	_, _ = c.InsertMany(ctx, []any{
 		bson.M{"id": "xxx", metaKey: true},
@@ -458,7 +458,7 @@ func TestCollection_RemoveOne(t *testing.T) {
 func TestCollection_Empty(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	_, _ = c.InsertMany(ctx, []any{
 		bson.M{"id": "xxx", metaKey: true},
@@ -480,7 +480,7 @@ func TestCollection_Empty(t *testing.T) {
 func TestCollection_Meta(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
-	c := col.Client().Collection()
+	c := col.Client().Client()
 
 	v1, v2, v3 := version.New(), version.New(), version.New()
 	_, _ = c.InsertMany(ctx, []any{

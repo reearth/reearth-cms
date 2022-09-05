@@ -12,12 +12,12 @@ import {
   PreviewTypeSelect,
 } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
-import SVGPreview from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/svgPreview";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
+import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
@@ -43,17 +43,17 @@ const AssetBody: React.FC<Props> = ({
   handleModalCancel,
   handleFullScreen,
 }) => {
-  const { fileName, createdAt, createdBy } = asset;
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const formattedCreatedAt = dateTimeFormat(createdAt);
-  const displayUnzipFileList = selectedPreviewType === PreviewType.ZIP;
+  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
+  const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
+  // TODO: maybe we need a better way to check for svg files
+  const isSVG = !!asset.fileName?.endsWith(".svg");
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
   const renderPreview = () => {
     switch (selectedPreviewType) {
-      case PreviewType.GEO:
-      case PreviewType.ZIP:
+      case PreviewType.Geo:
         return (
           <TilesetPreview
             viewerProps={{
@@ -76,10 +76,12 @@ const AssetBody: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case PreviewType.IMAGE:
-        return <Image src={url} alt="asset-preview"></Image>;
-      case PreviewType.SVG:
-        return <SVGPreview url={url} svgRender={svgRender} />;
+      case PreviewType.Image:
+        return isSVG ? (
+          <SVGPreview url={url} svgRender={svgRender} />
+        ) : (
+          <Image src={url} alt="asset-preview"></Image>
+        );
       default:
         return <ViewerNotSupported />;
     }
@@ -89,12 +91,13 @@ const AssetBody: React.FC<Props> = ({
     <BodyContainer>
       <BodyWrapper>
         <Card
-          title={fileName}
+          title={asset.fileName}
           toolbar={
             <PreviewToolbar
               url={url}
               selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
+              isSVG={isSVG}
               handleCodeSourceClick={handleCodeSourceClick}
               handleRenderClick={handleRenderClick}
               handleFullScreen={handleFullScreen}
@@ -108,18 +111,18 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton type="ghost" filename={fileName} url={url} displayDefaultIcon={true} />
+        <DownloadButton type="ghost" filename={asset.fileName} url={url} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
           <PreviewTypeSelect
-            style={{ width: "60%" }}
+            style={{ width: "75%" }}
             value={selectedPreviewType}
             onTypeChange={handleTypeChange}
           />
         </SideBarCard>
         <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title="Created By">{createdBy?.name}</SideBarCard>
+        <SideBarCard title="Created By">{asset.createdById}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );
@@ -137,7 +140,7 @@ const BodyWrapper = styled.div`
 `;
 
 const Image = styled.img`
-  width: Auto;
+  width: 100%;
   height: 500px;
   object-fit: contain;
 `;

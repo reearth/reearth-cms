@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -16,7 +16,7 @@ func FieldTagFrom(values []string, defaultValue []string) (*FieldTag, error) {
 	if len(values) == 0 {
 		return nil, ErrFieldValues
 	}
-	if !util.Subset(values, defaultValue) {
+	if !lo.Every(values, defaultValue) {
 		return nil, ErrFieldDefaultValue
 	}
 	return &FieldTag{
