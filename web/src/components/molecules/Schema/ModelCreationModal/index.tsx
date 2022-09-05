@@ -73,7 +73,7 @@ const ModelCreationModal: React.FC<Props> = ({
             {
               message: "Key is not valid",
               validator: async (_, value) => {
-                if (!/^[a-zA-Z0-9]+$/.test(value) || value.length < 5) return Promise.reject();
+                if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
                 const isKeyAvailable = await handleModelKeyCheck(projectId ?? "", value);
                 if (isKeyAvailable) {
                   return Promise.resolve();

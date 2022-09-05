@@ -124,7 +124,16 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item
               name="key"
               label="Field Key"
-              rules={[{ required: true, message: "Please input the key of field!" }]}>
+              rules={[
+                { required: true, message: "Please input the key of the field!" },
+                {
+                  message: "Key is not valid",
+                  validator: async (_, value) => {
+                    if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
+                    return Promise.resolve();
+                  },
+                },
+              ]}>
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label="Description">
