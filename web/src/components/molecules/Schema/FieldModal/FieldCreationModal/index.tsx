@@ -28,7 +28,7 @@ export interface FormValues {
 export interface Props {
   open?: boolean;
   selectedType: FieldType;
-  handleFieldKeyUnique: (key: string) => boolean;
+  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
