@@ -31,20 +31,20 @@ export default (assetId?: string) => {
           variables: { id: assetId, previewType },
           refetchQueries: ["GetAsset"],
         });
-        if (result.errors || result.data?.updateAsset) {
+        if (result.errors || !result.data?.updateAsset) {
           setNotification({
             type: "error",
-            text: "Failed to delete one or more assets.",
+            text: "Failed to update.",
           });
         }
         if (result) {
           setNotification({
             type: "info",
-            text: "One or more assets were successfully deleted.",
+            text: "Asset was successfully updated.",
           });
         }
       })(),
-    [updateAssetMutation, assetId, setNotification],
+    [updateAssetMutation, setNotification],
   );
 
   useEffect(() => {
