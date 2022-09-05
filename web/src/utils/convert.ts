@@ -1,6 +1,6 @@
 export const uuidToURL = (uuid: string, filename: string) => {
   // TODO: needs proper implementation
-  const host = window.REEARTH_CONFIG?.host ?? "https://127.0.0.1:8080";
+  const host = window.REEARTH_CONFIG?.host ?? "http://localhost:8080";
   const path = getPathFromUUID(uuid, filename);
   return join(host, path);
 };
