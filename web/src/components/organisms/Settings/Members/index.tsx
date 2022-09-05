@@ -13,6 +13,7 @@ import Table from "@reearth-cms/components/atoms/Table";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
+import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
@@ -45,6 +46,7 @@ const columns = [
 ];
 
 const Members: React.FC = () => {
+  const t = useT();
   const { workspaceId } = useParams();
 
   const { confirm } = Modal;
@@ -72,16 +74,21 @@ const Members: React.FC = () => {
   const handleMemberDelete = useCallback(
     (member: Member) => {
       confirm({
-        title: "Are you sure to remove this member?",
+        title: <>{t("Are you sure to remove this member?")}</>,
         icon: <Icon icon="exclamationCircle" />,
-        content:
-          "Remove this member from workspace means this member will not view any content of this workspace.",
+        content: (
+          <>
+            {t(
+              "Remove this member from workspace means this member will not view any content of this workspace.s",
+            )}
+          </>
+        ),
         onOk() {
           handleMemberRemoveFromWorkspace(member?.userId);
         },
       });
     },
-    [confirm, handleMemberRemoveFromWorkspace],
+    [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
   const dataSource = members?.map(member => ({
@@ -96,10 +103,12 @@ const Members: React.FC = () => {
     role: member.role,
     action: (
       <>
-        {member.userId !== me?.id && <a onClick={() => handleRoleModalOpen(member)}>Change Role</a>}
+        {member.userId !== me?.id && (
+          <a onClick={() => handleRoleModalOpen(member)}>{t("Change Role?")}</a>
+        )}
         {member.role !== "OWNER" && (
           <a style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
-            Remove
+            {t("Remove")}
           </a>
         )}
       </>
@@ -110,17 +119,17 @@ const Members: React.FC = () => {
     <>
       <PaddedContent>
         <MemberPageHeader
-          title="Members"
+          title={t("Members")}
           extra={
             <Button
               type="primary"
               onClick={handleMemberAddModalOpen}
               icon={<Icon icon="userGroupAdd" />}>
-              New Member
+              {t("New Member")}
             </Button>
           }></MemberPageHeader>
         <ActionHeader>
-          <Search placeholder="input search text" allowClear style={{ width: 264 }} />
+          <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
         </ActionHeader>
         <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />;
       </PaddedContent>

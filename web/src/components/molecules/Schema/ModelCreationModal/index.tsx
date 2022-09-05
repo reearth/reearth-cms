@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
@@ -33,6 +34,7 @@ const ModelCreationModal: React.FC<Props> = ({
   onSubmit,
   handleModelKeyCheck,
 }) => {
+  const t = useT();
   const [form] = Form.useForm();
 
   const handleSubmit = useCallback(() => {
@@ -58,20 +60,20 @@ const ModelCreationModal: React.FC<Props> = ({
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
-          label="Model name"
-          rules={[{ required: true, message: "Please input the name of the model!" }]}>
+          label={t("Model name")}
+          rules={[{ required: true, message: <>{t("Please input the name of the model!")}</> }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label="Model description">
+        <Form.Item name="description" label={t("Model description")}>
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="key"
-          label="Model key"
+          label={t("Model key")}
           rules={[
-            { required: true, message: "Please input the key of the model!" },
+            { required: true, message: <>{t("Please input the key of the model!")}</> },
             {
-              message: "Key is not valid",
+              message: <>{t("Key is not valid")}</>,
               validator: async (_, value) => {
                 if (!/^[a-zA-Z0-9]+$/.test(value) || value.length < 5) return Promise.reject();
                 const isKeyAvailable = await handleModelKeyCheck(projectId ?? "", value);

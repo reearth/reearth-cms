@@ -16,6 +16,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import { useT } from "@reearth-cms/i18n";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -27,6 +28,7 @@ export interface FormValues {
 }
 
 const ProjectSettings: React.FC = () => {
+  const t = useT();
   const { confirm } = Modal;
   const [form] = Form.useForm();
   const { projectId, workspaceId } = useParams();
@@ -71,13 +73,13 @@ const ProjectSettings: React.FC = () => {
 
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
-      title: "Are you sure you want to delete this project?",
+      title: <>{t("Are you sure you want to delete this project?")}</>,
       icon: <Icon icon="exclamationCircle" />,
       onOk() {
         handleProjectDelete();
       },
     });
-  }, [confirm, handleProjectDelete]);
+  }, [confirm, handleProjectDelete, t]);
 
   return (
     <>
@@ -108,26 +110,26 @@ const ProjectSettings: React.FC = () => {
             <ProjectSection> {project?.name} </ProjectSection>
             <ProjectSection>
               <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
-                <Form.Item name="name" label="Name">
+                <Form.Item name="name" label={t("Name")}>
                   <Input />
                 </Form.Item>
                 <Form.Item
                   name="description"
-                  label="Description"
-                  extra="Write something here to describe this record.">
+                  label={t("Description")}
+                  extra={t("Write something here to describe this record.")}>
                   <TextArea rows={4} />
                 </Form.Item>
                 <Form.Item>
                   <Button onClick={handleSubmit} type="primary" htmlType="submit">
-                    Save changes
+                    {t("Save changes")}
                   </Button>
                 </Form.Item>
               </Form>
             </ProjectSection>
             <ProjectSection>
-              <Typography style={{ marginBottom: 16 }}>Danger Zone</Typography>
+              <Typography style={{ marginBottom: 16 }}>{t("Danger Zone")}</Typography>
               <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
-                Delete project
+                {t("Delete project")}
               </Button>
             </ProjectSection>
           </PaddedContent>
