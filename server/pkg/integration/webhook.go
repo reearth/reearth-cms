@@ -10,7 +10,7 @@ type Webhook struct {
 	name      string
 	url       *url.URL
 	active    bool
-	event     []*WebhookEvent
+	trigger   WebhookTrigger
 	updatedAt time.Time
 }
 
@@ -24,6 +24,30 @@ func (w *Webhook) Name() string {
 
 func (w *Webhook) SetName(name string) {
 	w.name = name
+}
+
+func (w *Webhook) Url() *url.URL {
+	return w.url
+}
+
+func (w *Webhook) SetUrl(url *url.URL) {
+	w.url = url
+}
+
+func (w *Webhook) Active() bool {
+	return w.active
+}
+
+func (w *Webhook) SetActive(active bool) {
+	w.active = active
+}
+
+func (w *Webhook) Trigger() WebhookTrigger {
+	return w.trigger
+}
+
+func (w *Webhook) SetTrigger(trigger WebhookTrigger) {
+	w.trigger = trigger
 }
 
 func (w *Webhook) UpdatedAt() time.Time {
@@ -55,7 +79,7 @@ func (w *Webhook) Clone() *Webhook {
 		name:      w.name,
 		url:       u,
 		active:    w.active,
-		event:     nil,
+		trigger:   w.trigger,
 		updatedAt: w.updatedAt,
 	}
 }

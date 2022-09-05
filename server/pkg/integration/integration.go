@@ -3,6 +3,8 @@ package integration
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearthx/util"
 )
 
 type Integration struct {
@@ -45,6 +47,38 @@ func (i *Integration) SetType(t Type) {
 	i.iType = t
 }
 
+func (i *Integration) LogoUrl() *url.URL {
+	return i.logoUrl
+}
+
+func (i *Integration) SetLogoUrl(logoUrl *url.URL) {
+	i.logoUrl = logoUrl
+}
+
+func (i *Integration) Token() string {
+	return i.token
+}
+
+func (i *Integration) SetToken(token string) {
+	i.token = token
+}
+
+func (i *Integration) Developer() UserID {
+	return i.developer
+}
+
+func (i *Integration) SetDeveloper(developer UserID) {
+	i.developer = developer
+}
+
+func (i *Integration) Webhook() []*Webhook {
+	return i.webhook
+}
+
+func (i *Integration) SetWebhook(webhook []*Webhook) {
+	i.webhook = webhook
+}
+
 func (i *Integration) UpdatedAt() time.Time {
 	if i.updatedAt.IsZero() {
 		return i.id.Timestamp()
@@ -77,7 +111,7 @@ func (i *Integration) Clone() *Integration {
 		iType:       i.iType,
 		token:       i.token,
 		developer:   i.developer,
-		webhook:     nil,
+		webhook:     util.Map(i.webhook, func(w *Webhook) *Webhook { return w.Clone() }),
 		updatedAt:   i.updatedAt,
 	}
 }
