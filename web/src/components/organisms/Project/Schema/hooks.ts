@@ -34,7 +34,7 @@ export default ({ projectId, modelId }: Params) => {
       const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
       return response.data ? response.data.checkModelKeyAvailability.available : false;
     },
-    [projectId, CheckModelKeyAvailability],
+    [CheckModelKeyAvailability],
   );
 
   useEffect(() => {
@@ -180,7 +180,7 @@ export default ({ projectId, modelId }: Params) => {
 
       setModelModalShown(false);
     },
-    [createNewModel, projectId, modelId],
+    [modelId, updateField],
   );
 
   const handleFieldCreate = useCallback(
@@ -216,7 +216,7 @@ export default ({ projectId, modelId }: Params) => {
 
       setModelModalShown(false);
     },
-    [createNewModel, projectId, modelId],
+    [modelId, createNewField],
   );
 
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
