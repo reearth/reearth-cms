@@ -28,6 +28,7 @@ export interface FormValues {
 export interface Props {
   open?: boolean;
   selectedType: FieldType;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
@@ -43,7 +44,13 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
+const FieldCreationModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  handleFieldKeyUnique,
+  selectedType,
+}) => {
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
@@ -130,7 +137,14 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
                   message: "Key is not valid",
                   validator: async (_, value) => {
                     if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
-                    return Promise.resolve();
+                    const isKeyAvailable = handleFieldKeyUnique(value);
+                    console.log(isKeyAvailable);
+
+                    if (isKeyAvailable) {
+                      return Promise.resolve();
+                    } else {
+                      return Promise.reject();
+                    }
                   },
                 },
               ]}>

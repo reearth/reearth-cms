@@ -27,6 +27,7 @@ export interface Props {
   open?: boolean;
   selectedType: FieldType;
   selectedField?: Field | null;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
@@ -43,6 +44,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
+  handleFieldKeyUnique,
   selectedType,
   selectedField,
 }) => {
@@ -146,7 +148,21 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item
               name="key"
               label="Field Key"
-              rules={[{ required: true, message: "Please input the key of field!" }]}>
+              rules={[
+                { required: true, message: "Please input the key of the field!" },
+                {
+                  message: "Key is not valid",
+                  validator: async (_, value) => {
+                    if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
+                    const isKeyAvailable = handleFieldKeyUnique(value);
+                    if (isKeyAvailable) {
+                      return Promise.resolve();
+                    } else {
+                      return Promise.reject();
+                    }
+                  },
+                },
+              ]}>
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label="Description">

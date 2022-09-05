@@ -108,6 +108,13 @@ export default ({ projectId, modelId }: Params) => {
     refetchQueries: ["GetModels"],
   });
 
+  const handleFieldKeyUnique = useCallback(
+    (key: string): boolean => {
+      return !model?.schema.fields.some(field => field.key === key);
+    },
+    [modelId],
+  );
+
   const handleModelCreate = useCallback(
     async (data: { name: string; description: string; key: string }) => {
       if (!projectId) return;
@@ -256,6 +263,7 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
     handleModelCreate,
+    handleFieldKeyUnique,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     handleFieldCreationModalOpen,
