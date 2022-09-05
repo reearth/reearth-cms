@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
+import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   userId: string;
@@ -18,6 +19,7 @@ export interface Props {
 }
 
 const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) => {
+  const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
 
@@ -47,7 +49,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
   }, [form, onClose]);
 
   return (
-    <Modal title="Role Settings" visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal title={t("Role Settings")} visible={open} onCancel={handleClose} onOk={handleSubmit}>
       <Form
         form={form}
         layout="vertical"
@@ -61,13 +63,13 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
           rules={[
             {
               required: true,
-              message: "Please input the appropriate role for this member!",
+              message: <>{t("Please input the appropriate role for this member!")}</>,
             },
           ]}>
-          <Select placeholder="select role">
-            <Option value="OWNER">Owner</Option>
-            <Option value="WRITER">Writer</Option>
-            <Option value="READER">Reader</Option>
+          <Select placeholder={t("select role")}>
+            <Option value="OWNER">{t("Owner")}</Option>
+            <Option value="WRITER">{t("Writer")}</Option>
+            <Option value="READER">{t("Reader")}</Option>
           </Select>
         </Form.Item>
       </Form>
