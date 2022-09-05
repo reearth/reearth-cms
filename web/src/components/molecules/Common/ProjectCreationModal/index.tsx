@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
@@ -22,6 +23,7 @@ const initialValues: FormValues = {
 };
 
 const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+  const t = useT();
   const [form] = Form.useForm();
 
   const handleSubmit = useCallback(() => {
@@ -45,11 +47,11 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
-          label="Project name"
-          rules={[{ required: true, message: "Please input the name of project!" }]}>
+          label={t("Project name")}
+          rules={[{ required: true, message: <>{t("Please input the name of project!")}</> }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label="Project description">
+        <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />
         </Form.Item>
       </Form>
