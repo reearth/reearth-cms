@@ -42,7 +42,7 @@ type Asset struct {
 	Size        int64        `json:"size"`
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
-	Hash        string       `json:"hash"`
+	UUID        string       `json:"uuid"`
 }
 
 func (Asset) IsNode() {}
@@ -68,8 +68,9 @@ type AssetFile struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID ID             `json:"projectId"`
-	File      graphql.Upload `json:"file"`
+	ProjectID   ID             `json:"projectId"`
+	CreatedByID ID             `json:"createdById"`
+	File        graphql.Upload `json:"file"`
 }
 
 type CreateAssetPayload struct {
@@ -530,6 +531,15 @@ type SignupPayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type UpdateAssetInput struct {
+	ID          ID           `json:"id"`
+	PreviewType *PreviewType `json:"previewType"`
+}
+
+type UpdateAssetPayload struct {
+	Asset *Asset `json:"asset"`
+}
+
 type UpdateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
 	FieldID      ID                            `json:"fieldId"`
@@ -658,12 +668,14 @@ func (e AssetSortType) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
+	NodeTypeAsset     NodeType = "ASSET"
 	NodeTypeUser      NodeType = "USER"
 	NodeTypeWorkspace NodeType = "WORKSPACE"
 	NodeTypeProject   NodeType = "PROJECT"
 )
 
 var AllNodeType = []NodeType{
+	NodeTypeAsset,
 	NodeTypeUser,
 	NodeTypeWorkspace,
 	NodeTypeProject,
@@ -671,7 +683,7 @@ var AllNodeType = []NodeType{
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
+	case NodeTypeAsset, NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
 		return true
 	}
 	return false

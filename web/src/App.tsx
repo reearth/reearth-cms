@@ -10,6 +10,7 @@ import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
+import SchemaPage from "@reearth-cms/components/pages/Schema";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
@@ -30,6 +31,8 @@ function AppRoutes() {
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
+    { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
+    { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
     { path: "*", element: <NotFound /> },
   ]);
   return routes;
