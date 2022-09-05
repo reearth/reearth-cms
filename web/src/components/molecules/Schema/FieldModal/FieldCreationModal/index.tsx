@@ -138,8 +138,6 @@ const FieldCreationModal: React.FC<Props> = ({
                   validator: async (_, value) => {
                     if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value);
-                    console.log(isKeyAvailable);
-
                     if (isKeyAvailable) {
                       return Promise.resolve();
                     } else {
