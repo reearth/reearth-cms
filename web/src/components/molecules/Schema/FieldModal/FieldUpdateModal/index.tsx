@@ -154,7 +154,7 @@ const FieldUpdateModal: React.FC<Props> = ({
                   message: "Key is not valid",
                   validator: async (_, value) => {
                     if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
-                    const isKeyAvailable = handleFieldKeyUnique(value);
+                    const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
                     if (isKeyAvailable) {
                       return Promise.resolve();
                     } else {

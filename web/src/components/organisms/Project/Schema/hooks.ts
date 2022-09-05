@@ -109,8 +109,10 @@ export default ({ projectId, modelId }: Params) => {
   });
 
   const handleFieldKeyUnique = useCallback(
-    (key: string): boolean => {
-      return !model?.schema.fields.some(field => field.key === key);
+    (key: string, fieldId?: string): boolean => {
+      return !model?.schema.fields.some(
+        field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
+      );
     },
     [modelId],
   );
