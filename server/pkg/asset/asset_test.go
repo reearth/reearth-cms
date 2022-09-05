@@ -25,7 +25,7 @@ func TestAsset_AssetType(t *testing.T) {
 		size:        size,
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 		file:        &File{},
-		uuid:        "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge",
+		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -36,7 +36,7 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
-	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge", got.UUID())
+	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 }
 
 func TestAsset_CreatedAt(t *testing.T) {
@@ -60,7 +60,7 @@ func TestAsset_PreviewType(t *testing.T) {
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
-		uuid:      "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge",
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
 	assert.Nil(t, got.PreviewType())
@@ -81,7 +81,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
-		uuid:      "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge",
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
 	pt := lo.ToPtr(PreviewTypeIMAGE)
