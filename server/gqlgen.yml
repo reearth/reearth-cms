@@ -29,9 +29,15 @@ models:
         resolver: true
       integrations:
         resolver: true
-  WorkspaceMember:
+  WorkspaceUserMember:
     fields:
       user:
+        resolver: true
+  WorkspaceIntegrationMember:
+    fields:
+      invitedBy:
+        resolver: true
+      integration:
         resolver: true
   Project:
     fields:
