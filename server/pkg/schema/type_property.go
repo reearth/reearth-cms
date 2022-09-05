@@ -234,31 +234,53 @@ func (t *TypeProperty) UpdateFrom(t2 *TypeProperty) {
 	if t == nil {
 		return
 	}
-	if t.text != nil && t2.text != nil {
-		t.text = FieldTextFrom(t2.text.defaultValue, t2.text.maxLength)
-	} else if t.textArea != nil && t2.textArea != nil {
-		t.textArea = FieldTextAreaFrom(t2.textArea.defaultValue, t2.textArea.maxLength)
-	} else if t.richText != nil && t2.richText != nil {
-		t.richText = FieldRichTextFrom(t2.richText.defaultValue, t2.richText.maxLength)
-	} else if t.markdown != nil && t2.markdown != nil {
-		t.markdown = FieldMarkdownFrom(t2.markdown.defaultValue, t2.markdown.maxLength)
-	} else if t.asset != nil && t2.asset != nil {
-		t.asset = FieldAssetFrom(t2.asset.defaultValue)
-	} else if t.date != nil && t2.date != nil {
-		t.date = FieldDateFrom(t2.date.defaultValue)
-	} else if t.bool != nil && t2.bool != nil {
-		t.bool = FieldBoolFrom(t2.bool.defaultValue)
-	} else if t.selectt != nil && t2.selectt != nil {
-		t.selectt, _ = FieldSelectFrom(t2.selectt.values, t2.selectt.defaultValue)
-	} else if t.tag != nil && t2.tag != nil {
-		t.tag, _ = FieldTagFrom(t2.tag.values, t2.tag.defaultValue)
-	} else if t.integer != nil && t2.integer != nil {
-		t.integer, _ = FieldIntegerFrom(t2.integer.defaultValue, t2.integer.min, t2.integer.max)
-	} else if t.reference != nil && t2.reference != nil {
-		t.reference = FieldReferenceFrom(t2.reference.modelID)
-	} else if t.url != nil && t2.url != nil {
-		t.url, _ = FieldURLFrom(t2.url.defaultValue)
-	}
+
+	t.Match(TypePropertyMatch{
+		Text: func(tf *FieldText) {
+			tf.defaultValue = t2.text.DefaultValue()
+			tf.maxLength = t2.text.MaxLength()
+		},
+		TextArea: func(tf *FieldTextArea) {
+			tf.defaultValue = t2.textArea.DefaultValue()
+			tf.maxLength = t2.textArea.MaxLength()
+		},
+		RichText: func(tf *FieldRichText) {
+			tf.defaultValue = t2.richText.DefaultValue()
+			tf.maxLength = t2.richText.MaxLength()
+		},
+		Markdown: func(tf *FieldMarkdown) {
+			tf.defaultValue = t2.markdown.DefaultValue()
+			tf.maxLength = t2.markdown.MaxLength()
+		},
+		Asset: func(tf *FieldAsset) {
+			tf.defaultValue = t2.asset.DefaultValue()
+		},
+		Date: func(tf *FieldDate) {
+			tf.defaultValue = t2.date.DefaultValue()
+		},
+		Bool: func(tf *FieldBool) {
+			tf.defaultValue = t2.bool.DefaultValue()
+		},
+		Select: func(tf *FieldSelect) {
+			tf.defaultValue = t2.selectt.DefaultValue()
+			tf.values = t2.selectt.Values()
+		},
+		Tag: func(tf *FieldTag) {
+			tf.defaultValue = t2.tag.DefaultValue()
+			tf.values = t2.tag.Values()
+		},
+		Integer: func(tf *FieldInteger) {
+			tf.defaultValue = t2.integer.DefaultValue()
+			tf.min = t2.integer.Min()
+			tf.max = t2.integer.Max()
+		},
+		Reference: func(tf *FieldReference) {
+			tf.modelID = t2.reference.ModelID()
+		},
+		URL: func(tf *FieldURL) {
+			tf.defaultValue = t2.url.DefaultValue()
+		},
+	})
 }
 
 func (t *TypeProperty) Clone() *TypeProperty {
