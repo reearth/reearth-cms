@@ -76,6 +76,8 @@ const WorkspaceMenu: React.FC<Props> = ({
       navigate(`/workspaces/${workspaceId}/members`);
     } else if (e.key === "home") {
       navigate(`/dashboard/${workspaceId}`);
+    } else if (e.key === "integration") {
+      navigate(`/workspaces/${workspaceId}/integration`);
     }
   };
 
