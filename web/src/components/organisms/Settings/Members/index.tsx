@@ -76,12 +76,8 @@ const Members: React.FC = () => {
       confirm({
         title: t("Are you sure to remove this member?"),
         icon: <Icon icon="exclamationCircle" />,
-        content: (
-          <>
-            {t(
-              "Remove this member from workspace means this member will not view any content of this workspace.s",
-            )}
-          </>
+        content: t(
+          "Remove this member from workspace means this member will not view any content of this workspace.",
         ),
         onOk() {
           handleMemberRemoveFromWorkspace(member?.userId);
