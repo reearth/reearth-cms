@@ -9,6 +9,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
@@ -49,6 +50,8 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
+  const { Text, Title } = Typography;
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -107,9 +110,9 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
               icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
             />{" "}
-            <h3>
+            <Title style={{ margin: "0 12px" }} level={5}>
               {t("Create")} {fieldTypes[selectedType].title}
-            </h3>
+            </Title>
           </FieldThumbnail>
         ) : null
       }
@@ -136,7 +139,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
             {selectedType === "Select" && (
               <>
-                <div style={{ marginBottom: "8px" }}>{t("Set Options")}</div>
+                <Text>{t("Set Options")}</Text>
                 <Form.List
                   name="values"
                   rules={[

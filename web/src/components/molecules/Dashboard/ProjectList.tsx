@@ -3,6 +3,7 @@ import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
 import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
 import { useT } from "@reearth-cms/i18n";
@@ -21,6 +22,7 @@ const ProjectList: React.FC<Props> = ({
   handleProjectModalOpen,
 }) => {
   const t = useT();
+  const { Title, Link } = Typography;
 
   return (
     <StyledDashboardBlock className={className}>
@@ -32,7 +34,7 @@ const ProjectList: React.FC<Props> = ({
         </Content>
       ) : (
         <EmptyListWrapper>
-          <Title>{t("No Projects Yet")}</Title>
+          <Title level={5}>{t("No Projects Yet")}</Title>
           <Suggestion>
             {t("Create a new project")}{" "}
             <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
@@ -40,7 +42,7 @@ const ProjectList: React.FC<Props> = ({
             </Button>
           </Suggestion>
           <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            {t("Or read")} <Link href="">{t("how to use Re:Earth CMS")}</Link> {t("first")}
           </Suggestion>
         </EmptyListWrapper>
       )}
@@ -55,13 +57,6 @@ const Suggestion = styled.p`
   font-size: 14px;
   line-height: 22px;
   color: rgba(0, 0, 0, 0.45);
-`;
-
-const Title = styled.h1`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #000;
 `;
 
 const EmptyListWrapper = styled.div`

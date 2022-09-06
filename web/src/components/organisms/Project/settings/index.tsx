@@ -33,6 +33,7 @@ const ProjectSettings: React.FC = () => {
   const [form] = Form.useForm();
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
+  const { Title } = Typography;
 
   const {
     user,
@@ -127,7 +128,7 @@ const ProjectSettings: React.FC = () => {
               </Form>
             </ProjectSection>
             <ProjectSection>
-              <Typography style={{ marginBottom: 16 }}>{t("Danger Zone")}</Typography>
+              <Title level={4}>{t("Danger Zone")}</Title>
               <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
                 {t("Delete project")}
               </Button>

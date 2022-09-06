@@ -10,6 +10,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
 import Table from "@reearth-cms/components/atoms/Table";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
@@ -48,6 +49,7 @@ const columns = [
 const Members: React.FC = () => {
   const t = useT();
   const { workspaceId } = useParams();
+  const { Link } = Typography;
 
   const { confirm } = Modal;
 
@@ -100,12 +102,12 @@ const Members: React.FC = () => {
     action: (
       <>
         {member.userId !== me?.id && (
-          <a onClick={() => handleRoleModalOpen(member)}>{t("Change Role?")}</a>
+          <Link onClick={() => handleRoleModalOpen(member)}>{t("Change Role?")}</Link>
         )}
         {member.role !== "OWNER" && (
-          <a style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
+          <Link style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
             {t("Remove")}
-          </a>
+          </Link>
         )}
       </>
     ),

@@ -9,6 +9,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
@@ -51,6 +52,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
+  const { Title, Text } = Typography;
 
   useEffect(() => {
     form.setFieldsValue({
@@ -129,9 +131,9 @@ const FieldUpdateModal: React.FC<Props> = ({
               icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
             />{" "}
-            <h3>
+            <Title style={{ margin: "0 12px" }} level={5}>
               {t("Update")} {fieldTypes[selectedType].title}
-            </h3>
+            </Title>
           </FieldThumbnail>
         ) : null
       }
@@ -158,7 +160,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
             {selectedType === "Select" && (
               <>
-                <div style={{ marginBottom: "8px" }}>{t("Set Options")}</div>
+                <Text>{t("Set Options")}</Text>
                 <Form.List
                   name="values"
                   rules={[
