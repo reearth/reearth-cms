@@ -43,13 +43,13 @@ const Integration: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <MemberPageHeader
+        <IntegrationPageHeader
           title="Integration"
           extra={
-            <Button type="primary" onClick={() => {}} icon={<Icon icon="userGroupAdd" />}>
-              New Member
+            <Button type="primary" onClick={() => {}} icon={<Icon icon="api" />}>
+              Connect Integration
             </Button>
-          }></MemberPageHeader>
+          }></IntegrationPageHeader>
         <ActionHeader>
           <Search placeholder="input search text" allowClear style={{ width: 264 }} />
         </ActionHeader>
@@ -59,7 +59,7 @@ const Integration: React.FC = () => {
               <Title>No Integration yet</Title>
               <Suggestion>
                 Create a new{" "}
-                <Button onClick={() => {}} type="primary" icon={<Icon icon="plus" />}>
+                <Button onClick={() => {}} type="primary" icon={<Icon icon="api" />}>
                   Connect Integration
                 </Button>
               </Suggestion>
@@ -86,7 +86,7 @@ const ActionHeader = styled(Content)`
   justify-content: space-between;
 `;
 
-const MemberPageHeader = styled(PageHeader)`
+const IntegrationPageHeader = styled(PageHeader)`
   border-bottom: 1px solid #f0f0f0;
 `;
 
