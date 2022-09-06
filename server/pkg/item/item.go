@@ -24,3 +24,7 @@ func (i *Item) Fields() []*Field {
 func (i *Item) Schema() schema.ID {
 	return i.schemaID
 }
+
+func (i *Item) AddField(field *Field) {
+	i.fields = append(i.fields, field)
+}

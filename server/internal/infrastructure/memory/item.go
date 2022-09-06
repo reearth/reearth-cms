@@ -32,7 +32,7 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 	}), rerror.ErrNotFound)
 }
 
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) ([]*item.Item, error) {
+func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}

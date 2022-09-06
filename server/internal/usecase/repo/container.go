@@ -14,6 +14,7 @@ type Container struct {
 	Workspace   Workspace
 	Project     Project
 	Model       Model
+	Item        Item
 	Schema      Schema
 	Transaction usecasex.Transaction
 }

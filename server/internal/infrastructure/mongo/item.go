@@ -21,7 +21,7 @@ func NewItem(client *mongox.Client) repo.Item {
 	return &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
 }
 
-func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) ([]*item.Item, error) {
+func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
 	c := &mongox.SliceConsumer[mongodoc.ItemDocument]{}
 	if err := i.client.FindOne(ctx, bson.M{
 		"id": bson.M{
@@ -43,7 +43,7 @@ func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) ([]*item.Ite
 
 func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
 	c := &mongox.SliceConsumer[mongodoc.ItemDocument]{}
-	if err := i.client.FindOne(ctx, bson.M{
+	if err := i.client.Find(ctx, bson.M{
 		"id": id.String(),
 	}, version.All(), c); err != nil {
 		return nil, err
