@@ -9,7 +9,6 @@ import (
 )
 
 type Model interface {
-	Filtered(filter WorkspaceFilter) Model
 	FindByIDs(context.Context, id.ModelIDList) (model.List, error)
 	FindByID(context.Context, id.ModelID) (*model.Model, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination) (model.List, *usecasex.PageInfo, error)
