@@ -7,14 +7,12 @@ import {
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
-import { useNotification } from "@reearth-cms/state";
 
 export default (assetId?: string) => {
   const [asset, setAsset] = useState<Asset>({} as Asset);
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>(PreviewType.Image);
   useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [, setNotification] = useNotification();
 
   const { data, loading } = useGetAssetQuery({
     variables: {
@@ -32,19 +30,15 @@ export default (assetId?: string) => {
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
-          setNotification({
-            type: "error",
-            text: "Failed to update.",
-          });
+          // TODO: notification
+          alert("Failed to update asset.");
         }
         if (result) {
-          setNotification({
-            type: "info",
-            text: "Asset was successfully updated.",
-          });
+          // TODO: notification
+          alert("Asset was successfully updated.");
         }
       })(),
-    [updateAssetMutation, setNotification],
+    [updateAssetMutation],
   );
 
   useEffect(() => {

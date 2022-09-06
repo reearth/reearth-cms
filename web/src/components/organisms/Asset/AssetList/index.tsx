@@ -49,14 +49,13 @@ const AssetList: React.FC = () => {
   const handleUpload = () => {
     setUploading(true);
     createAssets(fileList)
-      .then(() => {
-        setFileList([]);
-      })
       .catch(error => {
+        // TODO: notification
         console.log(error);
       })
       .finally(() => {
         setUploading(false);
+        setFileList([]);
         hideUploadModal();
       });
   };
@@ -107,7 +106,7 @@ const AssetList: React.FC = () => {
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => handleEdit(asset)}></Button>
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => handleEdit(asset)} />
       ),
     },
     {

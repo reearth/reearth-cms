@@ -15,7 +15,6 @@ import {
   AssetSortType as GQLSortType,
   useGetUserBySearchQuery,
 } from "@reearth-cms/gql/graphql-client-api";
-import { useNotification } from "@reearth-cms/state";
 
 export type AssetNode = NonNullable<Asset>;
 export type AssetUser = Maybe<User>;
@@ -57,12 +56,11 @@ export default (projectId?: string) => {
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
-  const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
+  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
 
-  const [, setNotification] = useNotification();
   const [sort, setSort] = useState<{ type?: AssetSortType; reverse?: boolean }>();
   const [searchTerm, setSearchTerm] = useState<string>();
   const gqlCache = useApolloClient().cache;
@@ -100,7 +98,7 @@ export default (projectId?: string) => {
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
   const createAssets = useCallback(
-    (files: UploadFile<File>[]) =>
+    (files: UploadFile<any>[]) =>
       (async () => {
         if (!projectId || !currentUser?.id) return;
         const results = await Promise.all(
@@ -109,22 +107,18 @@ export default (projectId?: string) => {
               variables: { projectId, createdById: currentUser?.id, file },
             });
             if (result.errors || !result.data?.createAsset) {
-              setNotification({
-                type: "error",
-                text: "Failed to add one or more assets.",
-              });
+              // TODO: notification
+              alert("Failed to add one or more assets.");
             }
           }),
         );
         if (results) {
-          setNotification({
-            type: "success",
-            text: "Successfully added one or more assets.",
-          });
+          // TODO: notification
+          alert("Successfully added one or more assets.");
           await refetch();
         }
       })(),
-    [createAssetMutation, projectId, currentUser?.id],
+    [projectId, currentUser?.id, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -139,22 +133,18 @@ export default (projectId?: string) => {
               refetchQueries: ["GetAssets"],
             });
             if (result.errors || result.data?.deleteAsset) {
-              setNotification({
-                type: "error",
-                text: "Failed to delete one or more assets.",
-              });
+              // TODO: notification
+              alert("Failed to delete one or more assets.");
             }
           }),
         );
         if (results) {
-          setNotification({
-            type: "info",
-            text: "One or more assets were successfully deleted.",
-          });
+          // TODO: notification
+          alert("One or more assets were successfully deleted.");
           selectAsset([]);
         }
       })(),
-    [deleteAssetMutation, projectId, setNotification],
+    [deleteAssetMutation, projectId],
   );
 
   const handleSortChange = useCallback(
