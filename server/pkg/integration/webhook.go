@@ -6,7 +6,7 @@ import (
 )
 
 type Webhook struct {
-	id        ID
+	id        WebhookID
 	name      string
 	url       *url.URL
 	active    bool
@@ -14,7 +14,17 @@ type Webhook struct {
 	updatedAt time.Time
 }
 
-func (w *Webhook) ID() ID {
+type WebhookTrigger struct {
+	OnItemCreate    bool
+	OnItemUpdate    bool
+	OnItemDelete    bool
+	OnAssetUpload   bool
+	OnAssetDeleted  bool
+	OnItemPublish   bool
+	OnItemUnPublish bool
+}
+
+func (w *Webhook) ID() WebhookID {
 	return w.id
 }
 

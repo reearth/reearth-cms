@@ -9,7 +9,6 @@ const (
 )
 
 func TypeFrom(s string) Type {
-
 	switch s {
 	case "public":
 		return TypePublic

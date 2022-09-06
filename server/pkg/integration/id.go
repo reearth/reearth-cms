@@ -5,6 +5,7 @@ import (
 )
 
 type ID = id.IntegrationID
+type WebhookID = id.WebhookID
 type UserID = id.UserID
 type ModelID = id.ModelID
 

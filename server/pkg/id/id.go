@@ -110,3 +110,16 @@ var NewIntegrationID = idx.New[Integration]
 var IntegrationIDFrom = idx.From[Integration]
 var IntegrationIDFromRef = idx.FromRef[Integration]
 var IntegrationIDListFrom = idx.ListFrom[Integration]
+
+type Webhook struct{}
+
+func (Webhook) Type() string { return "webhook" }
+
+type WebhookID = idx.ID[Webhook]
+type WebhookIDList = idx.List[Webhook]
+
+var MustWebhookID = idx.Must[Webhook]
+var NewWebhookID = idx.New[Webhook]
+var WebhookIDFrom = idx.From[Webhook]
+var WebhookIDFromRef = idx.FromRef[Webhook]
+var WebhookIDListFrom = idx.ListFrom[Webhook]
