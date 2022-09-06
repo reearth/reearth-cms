@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -29,6 +30,18 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 	return rerror.ErrIfNil(r.data.Find(func(key id.ItemID, value *item.Item) bool {
 		return key == itemID
 	}), rerror.ErrNotFound)
+}
+
+func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) ([]*item.Item, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	res := r.data.FindAll(func(key id.ItemID, value *item.Item) bool {
+		return list.Has(key)
+	})
+	slices.SortFunc(res, func(a, b *item.Item) bool { return a.ID().Compare(b.ID()) < 0 })
+	return res, nil
 }
 
 func (r *Item) Save(ctx context.Context, t *item.Item) error {

@@ -64,3 +64,24 @@ func TestItem_Save(t *testing.T) {
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
 }
+
+func TestItem_FindByIDs(t *testing.T) {
+	ctx := context.Background()
+	i, _ := item.New().NewID().Build()
+	i2, _ := item.New().NewID().Build()
+	r := &Item{
+		data: &util.SyncMap[id.ItemID, *item.Item]{},
+	}
+	r.data.Store(i.ID(), i)
+	r.data.Store(i2.ID(), i2)
+
+	ids := id.ItemIDList{i.ID()}
+	il := []*item.Item{i}
+	out, err := r.FindByIDs(ctx, ids)
+	assert.NoError(t, err)
+	assert.Equal(t, il, out)
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
+}

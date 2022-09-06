@@ -21,6 +21,26 @@ func NewItem(client *mongox.Client) repo.Item {
 	return &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
 }
 
+func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) ([]*item.Item, error) {
+	c := &mongox.SliceConsumer[mongodoc.ItemDocument]{}
+	if err := i.client.FindOne(ctx, bson.M{
+		"id": bson.M{
+			"$in": ids.Strings(),
+		},
+	}, version.All(), c); err != nil {
+		return nil, err
+	}
+	var res []*item.Item
+	for _, r := range c.Result {
+		it, err := r.Model()
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, it)
+	}
+	return res, nil
+}
+
 func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
 	c := &mongox.SliceConsumer[mongodoc.ItemDocument]{}
 	if err := i.client.FindOne(ctx, bson.M{
