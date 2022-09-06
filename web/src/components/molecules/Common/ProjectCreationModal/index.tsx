@@ -48,7 +48,7 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
         <Form.Item
           name="name"
           label={t("Project name")}
-          rules={[{ required: true, message: <>{t("Please input the name of project!")}</> }]}>
+          rules={[{ required: true, message: t("Please input the name of project!") }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>

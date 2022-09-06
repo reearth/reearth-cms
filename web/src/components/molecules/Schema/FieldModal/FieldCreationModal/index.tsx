@@ -122,15 +122,13 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             <Form.Item
               name="title"
               label={t("Display name")}
-              rules={[
-                { required: true, message: <>{t("Please input the display name of field!")}</> },
-              ]}>
+              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
               <Input />
             </Form.Item>
             <Form.Item
               name="key"
               label={t("Field Key")}
-              rules={[{ required: true, message: <>{t("Please input the key of field!")}</> }]}>
+              rules={[{ required: true, message: t("Please input the key of field!") }]}>
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label={t("Description")}>
@@ -161,7 +159,7 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
                               {
                                 required: true,
                                 whitespace: true,
-                                message: <>{t("Please input value or delete this field.")}</>,
+                                message: t("Please input value or delete this field."),
                               },
                             ]}
                             noStyle>

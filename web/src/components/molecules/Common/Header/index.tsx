@@ -45,7 +45,7 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: <>{t("Personal Account")}</>,
+          label: t("Personal Account"),
           key: "personal-account",
           type: "group",
           children: workspaces
@@ -62,7 +62,7 @@ const Header: React.FC<Props> = ({
             })),
         },
         {
-          label: <>{t("Teams")}</>,
+          label: t("Teams"),
           key: "teams",
           type: "group",
           children: workspaces
@@ -79,7 +79,7 @@ const Header: React.FC<Props> = ({
             })),
         },
         {
-          label: <>{t("new workspace")}</>,
+          label: t("new workspace"),
           key: "new-workspace",
           icon: <Icon icon="userGroupAdd" />,
           onClick: handleModalOpen,
@@ -92,12 +92,12 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: <>{t("Account Settings")}</>,
+          label: t("Account Settings"),
           key: "account-settings",
           icon: <Icon icon="user" />,
         },
         {
-          label: <>{t("Logout")}</>,
+          label: t("Logout"),
           key: "logout",
           icon: <Icon icon="logout" />,
           onClick: logout,

@@ -74,7 +74,7 @@ const Members: React.FC = () => {
   const handleMemberDelete = useCallback(
     (member: Member) => {
       confirm({
-        title: <>{t("Are you sure to remove this member?")}</>,
+        title: t("Are you sure to remove this member?"),
         icon: <Icon icon="exclamationCircle" />,
         content: (
           <>

@@ -45,7 +45,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
           rules={[
             {
               required: true,
-              message: <>{t("Please input the title of the current workspace!")}</>,
+              message: t("Please input the title of the current workspace!"),
             },
           ]}>
           <Input />

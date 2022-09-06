@@ -73,7 +73,7 @@ const ProjectSettings: React.FC = () => {
 
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
-      title: <>{t("Are you sure you want to delete this project?")}</>,
+      title: t("Are you sure you want to delete this project?"),
       icon: <Icon icon="exclamationCircle" />,
       onOk() {
         handleProjectDelete();

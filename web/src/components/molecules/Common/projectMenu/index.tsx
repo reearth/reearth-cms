@@ -31,12 +31,12 @@ const ProjectMenu: React.FC<Props> = ({
   const navigate = useNavigate();
   const items: ItemType[] = [
     {
-      label: <>{t("Accessibility")}</>,
+      label: t("Accessibility"),
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
-      label: <>{t("Settings")}</>,
+      label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
     },

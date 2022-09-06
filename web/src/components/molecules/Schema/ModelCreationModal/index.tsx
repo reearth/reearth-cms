@@ -61,7 +61,7 @@ const ModelCreationModal: React.FC<Props> = ({
         <Form.Item
           name="name"
           label={t("Model name")}
-          rules={[{ required: true, message: <>{t("Please input the name of the model!")}</> }]}>
+          rules={[{ required: true, message: t("Please input the name of the model!") }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Model description")}>
@@ -71,9 +71,9 @@ const ModelCreationModal: React.FC<Props> = ({
           name="key"
           label={t("Model key")}
           rules={[
-            { required: true, message: <>{t("Please input the key of the model!")}</> },
+            { required: true, message: t("Please input the key of the model!") },
             {
-              message: <>{t("Key is not valid")}</>,
+              message: t("Key is not valid"),
               validator: async (_, value) => {
                 if (!/^[a-zA-Z0-9]+$/.test(value) || value.length < 5) return Promise.reject();
                 const isKeyAvailable = await handleModelKeyCheck(projectId ?? "", value);

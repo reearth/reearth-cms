@@ -63,7 +63,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
           rules={[
             {
               required: true,
-              message: <>{t("Please input the appropriate role for this member!")}</>,
+              message: t("Please input the appropriate role for this member!"),
             },
           ]}>
           <Select placeholder={t("select role")}>

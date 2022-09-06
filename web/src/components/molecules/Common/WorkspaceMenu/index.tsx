@@ -31,37 +31,37 @@ const WorkspaceMenu: React.FC<Props> = ({
   const navigate = useNavigate();
   const items: WorkspaceItemType[] = [
     {
-      label: <>{t("Member")}</>,
+      label: t("Member"),
       key: "member",
       icon: <Icon icon="userGroupAdd" />,
       show: "notPersonal" as MenuShowType,
     },
     {
-      label: <>{t("Account")}</>,
+      label: t("Account"),
       key: "account",
       icon: <Icon icon="userGroupAdd" />,
       show: "personal" as MenuShowType,
     },
     {
-      label: <>{t("Integration")}</>,
+      label: t("Integration"),
       key: "integration",
       icon: <Icon icon="api" />,
       show: "both" as MenuShowType,
     },
     {
-      label: <>{t("Role")}</>,
+      label: t("Role"),
       key: "role",
       icon: <Icon icon="userSwitch" />,
       show: "notPersonal" as MenuShowType,
     },
     {
-      label: <>{t("API key")}</>,
+      label: t("API key"),
       key: "api-key",
       icon: <Icon icon="search" />,
       show: "both" as MenuShowType,
     },
     {
-      label: <>{t("Settings")}</>,
+      label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
       show: "notPersonal" as MenuShowType,
