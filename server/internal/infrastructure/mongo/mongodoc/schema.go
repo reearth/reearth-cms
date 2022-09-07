@@ -161,6 +161,8 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Integer: func(fp *schema.FieldInteger) {
 				fd.TypeProperty.Integer = &FieldIntegerPropertyDocument{
 					DefaultValue: fp.DefaultValue(),
+					Min:          fp.Min(),
+					Max:          fp.Max(),
 				}
 			},
 			Reference: func(fp *schema.FieldReference) {
