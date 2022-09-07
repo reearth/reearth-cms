@@ -16,7 +16,6 @@ import (
 type Asset struct {
 	lock sync.Mutex
 	data map[id.AssetID]*asset.Asset
-	f    repo.ProjectFilter
 }
 
 func NewAsset() repo.Asset {
@@ -25,20 +24,12 @@ func NewAsset() repo.Asset {
 	}
 }
 
-func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
-	return &Asset{
-		// note data is shared between the source repo and mutex cannot work well
-		data: r.data,
-		f:    r.f.Merge(f),
-	}
-}
-
 func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
 	d, ok := r.data[id]
-	if ok && r.f.CanRead(d.Project()) {
+	if ok {
 		return d, nil
 	}
 	return &asset.Asset{}, rerror.ErrNotFound
@@ -51,10 +42,8 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	result := []*asset.Asset{}
 	for _, id := range ids {
 		if d, ok := r.data[id]; ok {
-			if r.f.CanRead(d.Project()) {
-				result = append(result, d)
-				continue
-			}
+			result = append(result, d)
+			continue
 		}
 		result = append(result, nil)
 	}
@@ -62,10 +51,6 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 }
 
 func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(id) {
-		return nil, usecasex.EmptyPageInfo(), nil
-	}
-
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -110,10 +95,6 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 }
 
 func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
-	if !r.f.CanWrite(a.Project()) {
-		return repo.ErrOperationDenied
-	}
-
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -122,10 +103,6 @@ func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
 }
 
 func (r *Asset) Update(ctx context.Context, a *asset.Asset) error {
-	if !r.f.CanWrite(a.Project()) {
-		return repo.ErrOperationDenied
-	}
-
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -137,7 +114,8 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	if a, ok := r.data[id]; ok && r.f.CanWrite(a.Project()) {
+	ok := r.data[id]
+	if ok != nil {
 		delete(r.data, id)
 	}
 

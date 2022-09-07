@@ -26,6 +26,7 @@ import {
   FullscreenOutlined,
   MoreOutlined,
   MinusCircleOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -71,4 +72,5 @@ export default {
   link: Link,
   more: MoreOutlined,
   minusCircle: MinusCircleOutlined,
+  delete: DeleteOutlined,
 };

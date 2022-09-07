@@ -29,10 +29,12 @@ func TestFile_UploadAsset(t *testing.T) {
 		Path:    "aaa.txt",
 		Content: io.NopCloser(strings.NewReader("aaa")),
 	})
-	assert.NoError(t, err)
-	assert.Contains(t, u, "aaa.txt")
+	p := getFSObjectPath(u, "aaa.txt")
 
-	uf, _ := fs.Open(u)
+	assert.NoError(t, err)
+	assert.Contains(t, p, "aaa.txt")
+
+	uf, _ := fs.Open(p)
 	c, _ := io.ReadAll(uf)
 	assert.Equal(t, "aaa", string(c))
 }

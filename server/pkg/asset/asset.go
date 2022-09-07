@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+
+	"github.com/reearth/reearthx/util"
 )
 
 type Asset struct {
@@ -50,6 +52,9 @@ func (a *Asset) PreviewType() *PreviewType {
 	if a.previewType == nil {
 		return lo.ToPtr(PreviewType(""))
 	}
+	if a.previewType == nil {
+		return nil
+	}
 	return a.previewType
 }
 
@@ -62,5 +67,5 @@ func (a *Asset) UUID() string {
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
-	a.previewType = p
+	a.previewType = util.CloneRef(p)
 }

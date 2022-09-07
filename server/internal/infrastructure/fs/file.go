@@ -50,9 +50,6 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 	uuid := newUUID()
 
 	p := getFSObjectPath(uuid, file.Path)
-	if p == "" {
-		return "", gateway.ErrInvalidFile
-	}
 
 	if err := f.upload(ctx, p, file.Content); err != nil {
 		return "", err

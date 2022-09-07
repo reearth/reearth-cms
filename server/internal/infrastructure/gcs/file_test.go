@@ -8,9 +8,9 @@ import (
 )
 
 func TestGetGCSObjectPath(t *testing.T) {
-	n := "xxx.yyy"
 	u := "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy", getGCSObjectPath(n, u))
+	n := "xxx.yyy"
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy", getGCSObjectPath(u, n))
 }
 
 func TestGetGCSObjectURL(t *testing.T) {

@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"path"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -78,12 +79,26 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
+			f := &asset.File{}
+			f.SetName(inp.File.Path)
+			f.SetSize(uint64(inp.File.Size))
+			f.SetContentType(inp.File.ContentType)
+
+			var t asset.PreviewType
+			if strings.HasPrefix(inp.File.ContentType, "image/") {
+				t = asset.PreviewTypeIMAGE
+			} else {
+				t = asset.PreviewTypeGEO
+			}
+
 			a, err := asset.New().
 				NewID().
 				Project(inp.ProjectID).
 				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
+				File(f).
+				Type(&t).
 				UUID(uuid).
 				Build()
 			if err != nil {
