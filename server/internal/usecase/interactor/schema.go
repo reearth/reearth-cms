@@ -134,7 +134,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 				return nil, interfaces.ErrFieldNotFound
 			}
 
-			f.TypeProperty().UpdateFrom(&param.TypeProperty)
+			f.SetTypeProperty(&param.TypeProperty)
 
 			if param.Name != nil {
 				f.SetName(*param.Name)
