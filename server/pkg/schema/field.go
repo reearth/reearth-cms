@@ -81,6 +81,13 @@ func (f *Field) TypeProperty() *TypeProperty {
 	return f.typeProperty
 }
 
+func (f *Field) SetTypeProperty(tp *TypeProperty) {
+	if f.typeProperty != nil && tp != nil && f.typeProperty.Type() != tp.Type() {
+		return
+	}
+	f.typeProperty = tp.Clone()
+}
+
 func (f *Field) Clone() *Field {
 	if f == nil {
 		return nil

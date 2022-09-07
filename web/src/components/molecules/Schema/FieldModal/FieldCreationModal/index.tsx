@@ -11,6 +11,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { useT } from "@reearth-cms/i18n";
 
 import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
 
@@ -51,6 +52,7 @@ const FieldCreationModal: React.FC<Props> = ({
   handleFieldKeyUnique,
   selectedType,
 }) => {
+  const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
@@ -112,7 +114,9 @@ const FieldCreationModal: React.FC<Props> = ({
               icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
             />{" "}
-            <h3>Create {fieldTypes[selectedType].title}</h3>
+            <h3>
+              {t("Create")} {fieldTypes[selectedType].title}
+            </h3>
           </FieldThumbnail>
         ) : null
       }
@@ -121,20 +125,20 @@ const FieldCreationModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab="Setting" key="setting">
+          <TabPane tab={t("Setting")} key="setting">
             <Form.Item
               name="title"
-              label="Display name"
-              rules={[{ required: true, message: "Please input the display name of field!" }]}>
+              label={t("Display name")}
+              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
               <Input />
             </Form.Item>
             <Form.Item
               name="key"
               label="Field Key"
               rules={[
-                { required: true, message: "Please input the key of the field!" },
+                { required: true, message: t("Please input the key of the field!") },
                 {
-                  message: "Key is not valid",
+                  message: t("Key is not valid"),
                   validator: async (_, value) => {
                     if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value);
@@ -148,12 +152,12 @@ const FieldCreationModal: React.FC<Props> = ({
               ]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label="Description">
+            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
             {selectedType === "Select" && (
               <>
-                <div style={{ marginBottom: "8px" }}>Set Options</div>
+                <div style={{ marginBottom: "8px" }}>{t("Set Options")}</div>
                 <Form.List
                   name="values"
                   rules={[
@@ -176,12 +180,12 @@ const FieldCreationModal: React.FC<Props> = ({
                               {
                                 required: true,
                                 whitespace: true,
-                                message: "Please input value or delete this field.",
+                                message: t("Please input value or delete this field."),
                               },
                             ]}
                             noStyle>
                             <Input
-                              placeholder="Option value"
+                              placeholder={t("Option value")}
                               style={{ width: "80%", marginRight: "8px" }}
                             />
                           </Form.Item>
@@ -192,7 +196,7 @@ const FieldCreationModal: React.FC<Props> = ({
                       ))}
                       <Form.Item>
                         <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
-                          New
+                          {t("New")}
                         </Button>
                         <Form.ErrorList errors={errors} />
                       </Form.Item>
@@ -201,22 +205,24 @@ const FieldCreationModal: React.FC<Props> = ({
                 </Form.List>
               </>
             )}
-            <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
-              <Checkbox>Support multiple values</Checkbox>
+            <Form.Item
+              name="multiValue"
+              extra={t("Stores a list of values instead of a single value")}>
+              <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab="Validation" key="validation">
             <FieldValidationProps selectedType={selectedType} />
-            <Form.Item name="required" extra="Prevents saving an entry if this field is empty">
-              <Checkbox>Make field required</Checkbox>
+            <Form.Item name="required" extra={t("Prevents saving an entry if this field is empty")}>
+              <Checkbox>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
-              extra="Ensures that a multiple entries can't have the same value for this field">
-              <Checkbox>Set field as unique</Checkbox>
+              extra={t("Ensures that a multiple entries can't have the same value for this field")}>
+              <Checkbox>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Default value" key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue">
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>
