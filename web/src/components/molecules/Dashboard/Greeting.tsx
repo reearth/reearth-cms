@@ -1,8 +1,12 @@
 import styled from "@emotion/styled";
 import React from "react";
 
+import { useT } from "@reearth-cms/i18n";
+
 const Greeting: React.FC = () => {
-  return <DashboardCard>Welcome to Re:Earth CMS !</DashboardCard>;
+  const t = useT();
+
+  return <DashboardCard>{t("Welcome to Re:Earth CMS !")}</DashboardCard>;
 };
 
 const DashboardCard = styled.div`
