@@ -74,6 +74,9 @@ Write something here to describe this record.: このレコードの説明を入
 Save changes: 変更を保存
 Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
+Connect Integration: ''
+No Integration yet: ''
+Create a new: ''
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Change Role?: ロールを変更
