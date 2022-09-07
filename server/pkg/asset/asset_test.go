@@ -60,10 +60,10 @@ func TestAsset_PreviewType(t *testing.T) {
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
-		uuid:      "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge",
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	assert.Nil(t, got.PreviewType())
+	assert.Equal(t, lo.ToPtr(PreviewType("")), got.PreviewType())
 }
 
 func TestAsset_UpdatePreviewType(t *testing.T) {
@@ -81,7 +81,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
-		uuid:      "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge",
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
 	pt := lo.ToPtr(PreviewTypeIMAGE)

@@ -55,7 +55,7 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	}
 
 	if uFilter.Keyword != nil {
-		filter = mongodoc.And(filter, "fileName", bson.M{
+		filter = mongox.And(filter, "fileName", bson.M{
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		})
 	}
@@ -83,15 +83,21 @@ func (r *assetRepo) Delete(ctx context.Context, id id.AssetID) error {
 }
 
 func (r *assetRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"project"})
+	i := r.client.CreateIndex(context.Background(), []string{"project"}, []string{"id"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "asset", i)
 	}
 }
 
 func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	var sortstr *string
+	if sort != nil {
+		sortstr2 := string(*sort)
+		sortstr = &sortstr2
+	}
+
 	var c mongodoc.AssetConsumer
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sortstr, pagination, &c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

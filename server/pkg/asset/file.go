@@ -32,8 +32,8 @@ func (f *File) ContentType() string {
 	return f.contentType
 }
 
-func (f *File) SetContentType(c string) {
-	f.contentType = c
+func (f *File) SetContentType(ct string) {
+	f.contentType = ct
 }
 
 func (f *File) Path() string {

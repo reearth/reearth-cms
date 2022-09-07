@@ -22,7 +22,6 @@ require (
 	github.com/sendgrid/sendgrid-go v3.11.1+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.9.2
-	github.com/spf13/afero v1.9.2
 	github.com/square/mongo-lock v0.0.0-20201208161834-4db518ed7fb2
 	github.com/stretchr/testify v1.8.0
 	github.com/vektah/dataloaden v0.3.0
@@ -85,6 +84,7 @@ require (
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.74.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220405205423-9d709892a2bf // indirect

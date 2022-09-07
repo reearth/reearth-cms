@@ -49,19 +49,21 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 
 	uuid := newUUID()
 
-	p := getFSObjectPath(file.Path, uuid)
-	if p == "" {
-		return "", gateway.ErrInvalidFile
-	}
+	p := getFSObjectPath(uuid, file.Path)
 
 	if err := f.upload(ctx, p, file.Content); err != nil {
 		return "", err
 	}
 
-	return p, nil
+	return uuid, nil
 }
 
-func (f *fileRepo) DeleteAsset(ctx context.Context, p string) error {
+func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
+	p := getFSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
 	sn := sanitize.Path(p)
 
 	if sn == "" {
@@ -113,28 +115,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
-func (f *fileRepo) move(ctx context.Context, from, dest string) error {
-	if from == "" || dest == "" || from == dest {
-		return gateway.ErrInvalidFile
-	}
-
-	if destd := path.Dir(dest); destd != "" {
-		if err := f.fs.MkdirAll(destd, 0755); err != nil {
-			return rerror.ErrInternalBy(err)
-		}
-	}
-
-	if err := f.fs.Rename(from, dest); err != nil {
-		if os.IsNotExist(err) {
-			return rerror.ErrNotFound
-		}
-		return rerror.ErrInternalBy(err)
-	}
-
-	return nil
-}
-
-func getFSObjectPath(filename, uuid string) string {
+func getFSObjectPath(uuid, filename string) string {
 	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
 	return sanitize.Path(p)
 }

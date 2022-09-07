@@ -74,6 +74,13 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		d.File = &asset.File{}
 	}
 
+	f := &asset.File{}
+	f.SetName(d.File.Name())
+	f.SetSize(d.File.Size())
+	f.SetContentType(d.File.ContentType())
+	f.SetPath(d.File.Path())
+	f.SetChildren(d.File.Children()...)
+
 	return asset.New().
 		ID(aid).
 		Project(pid).
@@ -82,7 +89,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
-		File(d.File).
+		File(f).
 		UUID(d.UUID).
 		Build()
 }
