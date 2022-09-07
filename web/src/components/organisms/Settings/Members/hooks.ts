@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetWorkspacesQuery,
-  useAddMemberToWorkspaceMutation,
+  useAddUserToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
   Role,
   useRemoveMemberFromWorkspaceMutation,
@@ -59,18 +59,18 @@ export default ({ workspaceId }: Props) => {
     [searchUserQuery],
   );
 
-  const [addMemberToWorkspaceMutation] = useAddMemberToWorkspaceMutation();
+  const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
 
   const handleMemberAddToWorkspace = useCallback(
     async (userIds: string[]) => {
       const results = await Promise.all(
         userIds.map(async userId => {
           if (!workspaceId) return;
-          const result = await addMemberToWorkspaceMutation({
+          const result = await addUserToWorkspaceMutation({
             variables: { userId, workspaceId, role: Role.Reader },
             refetchQueries: ["GetWorkspaces"],
           });
-          const workspace = result.data?.addMemberToWorkspace?.workspace;
+          const workspace = result.data?.addUserToWorkspace?.workspace;
           if (result.errors || !workspace) {
             // TODO: notification
             return;
@@ -82,7 +82,7 @@ export default ({ workspaceId }: Props) => {
         // TODO: notification
       }
     },
-    [workspaceId, addMemberToWorkspaceMutation, setWorkspace],
+    [workspaceId, addUserToWorkspaceMutation, setWorkspace],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();

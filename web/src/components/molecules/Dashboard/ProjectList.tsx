@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
 import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   className?: string;
@@ -19,6 +20,8 @@ const ProjectList: React.FC<Props> = ({
   workspaceId,
   handleProjectModalOpen,
 }) => {
+  const t = useT();
+
   return (
     <StyledDashboardBlock className={className}>
       {projects?.length ? (
@@ -29,15 +32,15 @@ const ProjectList: React.FC<Props> = ({
         </Content>
       ) : (
         <EmptyListWrapper>
-          <Title>No Projects Yet</Title>
+          <Title>{t("No Projects Yet")}</Title>
           <Suggestion>
-            Create a new project{" "}
+            {t("Create a new project")}{" "}
             <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
-              New Project
+              {t("New Project")}
             </Button>
           </Suggestion>
           <Suggestion>
-            Or read <a href="">how to use Re:Earth CMS</a> first
+            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
           </Suggestion>
         </EmptyListWrapper>
       )}

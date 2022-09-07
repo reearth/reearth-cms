@@ -2,11 +2,13 @@
   "possibleTypes": {
     "Node": [
       "Asset",
+      "Integration",
       "Item",
       "Model",
       "Project",
       "Schema",
       "User",
+      "Webhook",
       "Workspace"
     ],
     "SchemaFieldTypeProperty": [
@@ -22,6 +24,10 @@
       "SchemaFieldText",
       "SchemaFieldTextArea",
       "SchemaFieldURL"
+    ],
+    "WorkspaceMember": [
+      "WorkspaceIntegrationMember",
+      "WorkspaceUserMember"
     ]
   }
 }
