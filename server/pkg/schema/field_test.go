@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -703,4 +704,81 @@ func TestField_Clone(t *testing.T) {
 	s = nil
 	c = s.Clone()
 	assert.Nil(t, c)
+}
+
+func TestField_SetTypeProperty333(t *testing.T) {
+	type fields struct {
+		id           FieldID
+		name         string
+		description  string
+		key          key.Key
+		unique       bool
+		multiValue   bool
+		required     bool
+		updatedAt    time.Time
+		typeProperty *TypeProperty
+	}
+	type args struct {
+		tp *TypeProperty
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := &Field{
+				id:           tt.fields.id,
+				name:         tt.fields.name,
+				description:  tt.fields.description,
+				key:          tt.fields.key,
+				unique:       tt.fields.unique,
+				multiValue:   tt.fields.multiValue,
+				required:     tt.fields.required,
+				updatedAt:    tt.fields.updatedAt,
+				typeProperty: tt.fields.typeProperty,
+			}
+			f.SetTypeProperty(tt.args.tp)
+		})
+	}
+}
+
+func TestField_SetTypeProperty(t *testing.T) {
+	tests := []struct {
+		name string
+		f    *Field
+		tp   *TypeProperty
+		want *TypeProperty
+	}{
+		{
+			name: "empty field",
+			f:    &Field{},
+			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "field with same type",
+			f:    &Field{typeProperty: NewFieldTypePropertyText(lo.ToPtr("test1"), lo.ToPtr(11))},
+			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+		},
+		{
+			name: "field with different type",
+			f:    &Field{typeProperty: NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11))},
+			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			want: NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11)),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t1 *testing.T) {
+			t1.Parallel()
+
+			tc.f.SetTypeProperty(tc.tp)
+			assert.Equal(t1, tc.want, tc.f.typeProperty)
+		})
+	}
 }
