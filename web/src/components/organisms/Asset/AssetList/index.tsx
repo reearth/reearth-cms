@@ -15,6 +15,7 @@ import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListHeader from "@reearth-cms/components/molecules/Asset/AssetList/AssetListHeader";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
+import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { uuidToURL } from "@reearth-cms/utils/convert";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
@@ -65,7 +66,7 @@ const AssetList: React.FC = () => {
     multiple: true,
     directory: false,
     showUploadList: true,
-    accept: "image/*,.zip,.json,.geojson,.topojson,.shapefile,.kml,.czml,.glb",
+    accept: imageFormats + "," + fileFormats,
     listType: "picture",
     onRemove: file => {
       const index = fileList.indexOf(file);

@@ -11,7 +11,6 @@ import {
 export default (assetId?: string) => {
   const [asset, setAsset] = useState<Asset>({} as Asset);
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>(PreviewType.Image);
-  useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const { data, loading } = useGetAssetQuery({
@@ -42,31 +41,30 @@ export default (assetId?: string) => {
   );
 
   useEffect(() => {
-    const asset: Asset = data?.asset as Asset;
-    setAsset(asset);
+    setAsset((data?.asset ?? {}) as Asset);
   }, [data?.asset]);
 
   useEffect(() => {
-    if (asset.previewType) {
-      setSelectedPreviewType(asset?.previewType);
+    if (asset?.previewType) {
+      setSelectedPreviewType(asset.previewType);
     }
   }, [asset?.previewType]);
 
-  const handleTypeChange = (value: PreviewType) => {
+  const handleTypeChange = useCallback((value: PreviewType) => {
     setSelectedPreviewType(value);
-  };
+  }, []);
 
-  const handleFullScreen = () => {
+  const handleFullScreen = useCallback(() => {
     if (selectedPreviewType === PreviewType.Geo) {
       viewerRef?.canvas.requestFullscreen();
     } else {
       setIsModalVisible(true);
     }
-  };
+  }, [selectedPreviewType]);
 
-  const handleModalCancel = () => {
+  const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
-  };
+  }, []);
 
   return {
     asset,
