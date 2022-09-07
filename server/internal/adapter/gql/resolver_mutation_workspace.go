@@ -43,7 +43,7 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 	return &gqlmodel.UpdateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
 }
 
-func (r *mutationResolver) AddMemberToWorkspace(ctx context.Context, input gqlmodel.AddMemberToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error) {
+func (r *mutationResolver) AddUserToWorkspace(ctx context.Context, input gqlmodel.AddUserToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error) {
 	tid, uid, err := gqlmodel.ToID2[id.Workspace, id.User](input.WorkspaceID, input.UserID)
 	if err != nil {
 		return nil, err
@@ -55,6 +55,10 @@ func (r *mutationResolver) AddMemberToWorkspace(ctx context.Context, input gqlmo
 	}
 
 	return &gqlmodel.AddMemberToWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
+}
+
+func (r *mutationResolver) AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error) {
+	panic("implement me")
 }
 
 func (r *mutationResolver) RemoveMemberFromWorkspace(ctx context.Context, input gqlmodel.RemoveMemberFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error) {
