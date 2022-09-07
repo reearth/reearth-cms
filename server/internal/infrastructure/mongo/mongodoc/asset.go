@@ -9,14 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type File struct {
-	Name        string
-	Size        uint64
-	ContentType string
-	Path        string
-	Children    []*File
-}
-
 type AssetDocument struct {
 	ID          string
 	Project     string
@@ -25,7 +17,7 @@ type AssetDocument struct {
 	FileName    string
 	Size        uint64
 	PreviewType string
-	File        *File
+	File        *asset.File
 	UUID        string
 }
 
@@ -79,15 +71,16 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	}
 
 	if d.File == nil {
-		d.File = &File{
-			Name: d.FileName,
-			Size: d.Size,
-		}
+		d.File = &asset.File{}
 	}
-	f, err := asset.NewFile().Name(d.File.Name).Size(d.File.Size).Type(d.File.ContentType).Path(d.File.Path).Build()
-	if err != nil {
-		return nil, err
-	}
+
+	f := &asset.File{}
+	f.SetName(d.File.Name())
+	f.SetSize(d.File.Size())
+	f.SetContentType(d.File.ContentType())
+	f.SetPath(d.File.Path())
+	f.SetChildren(d.File.Children()...)
+
 	return asset.New().
 		ID(aid).
 		Project(pid).
