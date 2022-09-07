@@ -43,7 +43,7 @@ const Project: React.FC = () => {
         <ActionHeader>
           <Search
             onSearch={handleProjectSearch}
-            placeholder="input search text"
+            placeholder={t("input search text")}
             allowClear
             type="text"
             style={{ width: 264 }}
@@ -51,7 +51,7 @@ const Project: React.FC = () => {
           <ButtonWrapper>
             <Button onClick={handleWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
             <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
-              New Project
+              {t("New Project")}
             </Button>
           </ButtonWrapper>
         </ActionHeader>

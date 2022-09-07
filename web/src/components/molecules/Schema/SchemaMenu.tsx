@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   defaultSelectedKeys?: string[];
@@ -24,17 +25,18 @@ const SchemaMenu: React.FC<Props> = ({
   handleModalOpen,
   selectModel,
 }) => {
+  const t = useT();
   const onClick = (e: MenuInfo) => {
     selectModel(e.key);
   };
 
   return (
     <SchemaStyledMenu>
-      <SchemaStyledTitle>Schema</SchemaStyledTitle>
+      <SchemaStyledTitle>{t("Schema")}</SchemaStyledTitle>
       <SchemaAction>
-        <SchemaStyledMenuTitle>Models</SchemaStyledMenuTitle>
+        <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
         <SchemaAddButton onClick={handleModalOpen} icon={<Icon icon="plus" />} type="text">
-          Add
+          {t("Add")}
         </SchemaAddButton>
       </SchemaAction>
       <Menu
