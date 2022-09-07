@@ -12,6 +12,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 import { Field, FieldType, fieldTypes } from "../../types";
 
@@ -46,6 +47,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   selectedType,
   selectedField,
 }) => {
+  const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
@@ -127,7 +129,9 @@ const FieldUpdateModal: React.FC<Props> = ({
               icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
             />{" "}
-            <h3>Update {fieldTypes[selectedType].title}</h3>
+            <h3>
+              {t("Update")} {fieldTypes[selectedType].title}
+            </h3>
           </FieldThumbnail>
         ) : null
       }
@@ -136,25 +140,25 @@ const FieldUpdateModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab="Setting" key="setting">
+          <TabPane tab={t("Setting")} key="setting">
             <Form.Item
               name="title"
-              label="Display name"
-              rules={[{ required: true, message: "Please input the display name of field!" }]}>
+              label={t("Display name")}
+              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
               <Input />
             </Form.Item>
             <Form.Item
               name="key"
-              label="Field Key"
-              rules={[{ required: true, message: "Please input the key of field!" }]}>
+              label={t("Field Key")}
+              rules={[{ required: true, message: t("Please input the key of field!") }]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label="Description">
+            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={100} />
             </Form.Item>
             {selectedType === "Select" && (
               <>
-                <div style={{ marginBottom: "8px" }}>Set Options</div>
+                <div style={{ marginBottom: "8px" }}>{t("Set Options")}</div>
                 <Form.List
                   name="values"
                   rules={[
@@ -177,12 +181,12 @@ const FieldUpdateModal: React.FC<Props> = ({
                               {
                                 required: true,
                                 whitespace: true,
-                                message: "Please input value or delete this field.",
+                                message: t("Please input value or delete this field."),
                               },
                             ]}
                             noStyle>
                             <Input
-                              placeholder="Option value"
+                              placeholder={t("Option value")}
                               style={{ width: "80%", marginRight: "8px" }}
                             />
                           </Form.Item>
@@ -193,7 +197,7 @@ const FieldUpdateModal: React.FC<Props> = ({
                       ))}
                       <Form.Item>
                         <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
-                          New
+                          {t("New")}
                         </Button>
                         <Form.ErrorList errors={errors} />
                       </Form.Item>
@@ -202,14 +206,16 @@ const FieldUpdateModal: React.FC<Props> = ({
                 </Form.List>
               </>
             )}
-            <Form.Item name="multiValue" extra="Stores a list of values instead of a single value">
-              <Checkbox>Support multiple values</Checkbox>
+            <Form.Item
+              name="multiValue"
+              extra={t("Stores a list of values instead of a single value")}>
+              <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Validation" key="validation">
+          <TabPane tab={t("Validation")} key="validation">
             <FieldValidationInputs selectedType={selectedType} />
           </TabPane>
-          <TabPane tab="Default value" key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue">
             <FieldDefaultInputs
               selectedValues={selectedValues}
               selectedType={selectedType}></FieldDefaultInputs>
