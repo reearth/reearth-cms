@@ -1,28 +1,147 @@
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
 
-import ProTable, { ProTableProps } from "@reearth-cms/components/atoms/ProTable";
+import Button from "@reearth-cms/components/atoms/Button";
+import CustomTag from "@reearth-cms/components/atoms/CustomTag";
+import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import ProTable, {
+  ListToolBarProps,
+  ProColumns,
+  OptionConfig,
+  TableRowSelection,
+  TablePaginationConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { uuidToURL } from "@reearth-cms/utils/convert";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
 
-const AssetListTable: React.FC<ProTableProps<Asset, any>> = ({
-  dataSource,
-  columns,
-  search,
-  rowKey,
-  options,
-  pagination,
-  toolbar,
-  rowSelection,
+type AssetListTableProps = {
+  assetList: Asset[];
+  assetsPerPage: number | undefined;
+  handleEdit: (asset: Asset) => void;
+  handleSearchTerm: (term?: string) => void;
+  selection: {
+    selectedRowKeys: never[];
+  };
+  setSelection: Dispatch<
+    SetStateAction<{
+      selectedRowKeys: never[];
+    }>
+  >;
+};
+
+const AssetListTable: React.FC<AssetListTableProps> = ({
+  assetList,
+  assetsPerPage,
+  handleEdit,
+  handleSearchTerm,
+  selection,
+  setSelection,
 }) => {
+  const columns: ProColumns<Asset>[] = [
+    {
+      title: "",
+      render: (_, asset) => (
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => handleEdit(asset)} />
+      ),
+    },
+    {
+      title: () => <Icon icon="message" />,
+      dataIndex: "commentsCount",
+      key: "commentsCount",
+      render: (_, _asset) => <CustomTag value={0} />,
+    },
+    {
+      title: "File",
+      dataIndex: "fileName",
+      key: "fileName",
+      sorter: (a, b) => stringSort(a.fileName, b.fileName),
+    },
+    {
+      title: "Size",
+      dataIndex: "size",
+      key: "size",
+      sorter: (a, b) => numberSort(a.size, b.size),
+      render: (_text, record) => bytesFormat(record.size),
+    },
+    {
+      title: "Preview Type",
+      dataIndex: "previewType",
+      key: "previewType",
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      sorter: (a, b) => dateSort(a.createdAt, b.createdAt),
+      render: (_text, record) => dateTimeFormat(record.createdAt),
+    },
+    {
+      title: "Created By",
+      dataIndex: "createdById",
+      key: "createdById",
+    },
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Action",
+      render: (_, asset) => (
+        <DownloadButton
+          type="link"
+          filename={asset.fileName}
+          url={uuidToURL(asset?.uuid, asset?.fileName)}
+          displayDefaultIcon={false}></DownloadButton>
+      ),
+    },
+  ];
+
+  const options: OptionConfig = {
+    search: true,
+  };
+
+  const pagination: TablePaginationConfig = {
+    pageSize: assetsPerPage,
+    onChange: _page => console.log("implement me"),
+    showSizeChanger: false,
+  };
+
+  const rowSelection: TableRowSelection = {
+    selectedRowKeys: selection.selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys: selectedRowKeys,
+      });
+    },
+  };
+
+  const handleToolbarEvents: ListToolBarProps | undefined = {
+    search: {
+      onSearch: (value: string) => {
+        if (value) {
+          handleSearchTerm(value);
+        } else {
+          handleSearchTerm();
+        }
+      },
+    },
+  };
+
   return (
     <AssetListTableWrapper>
       <ProTable
-        dataSource={dataSource}
+        dataSource={assetList}
         columns={columns}
-        search={search}
-        rowKey={rowKey}
+        search={false}
+        rowKey="id"
         options={options}
         pagination={pagination}
-        toolbar={toolbar}
+        toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
       />
     </AssetListTableWrapper>
