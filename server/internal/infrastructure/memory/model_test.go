@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -61,6 +62,17 @@ func TestMemory_FindByProject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
+
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+		err:  errors.New("test"),
+	}
+
+	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
+	assert.Equal(t, gotErr, errors.New("test"))
+	assert.Nil(t, gotNilModelList)
+	assert.Nil(t, gotNilPageInfo)
 }
 
 func TestMemory_CountByProject(t *testing.T) {
