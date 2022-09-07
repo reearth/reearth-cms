@@ -77,13 +77,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			if err != nil {
 				return nil, err
 			}
-
+			f := &asset.File{}
+			f.SetName(inp.File.Path)
+			f.SetSize(uint64(inp.File.Size))
+			f.SetContentType(inp.File.ContentType)
 			a, err := asset.New().
 				NewID().
 				Project(inp.ProjectID).
 				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
+				File(f).
 				UUID(uuid).
 				Build()
 			if err != nil {
