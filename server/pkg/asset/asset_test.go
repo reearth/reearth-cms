@@ -63,7 +63,7 @@ func TestAsset_PreviewType(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	assert.Equal(t, lo.ToPtr(PreviewType("")), got.PreviewType())
+	assert.Nil(t, got.PreviewType())
 }
 
 func TestAsset_UpdatePreviewType(t *testing.T) {

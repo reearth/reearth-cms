@@ -3,8 +3,6 @@ package asset
 import (
 	"time"
 
-	"github.com/samber/lo"
-
 	"github.com/reearth/reearthx/util"
 )
 
@@ -49,9 +47,6 @@ func (a *Asset) Size() uint64 {
 }
 
 func (a *Asset) PreviewType() *PreviewType {
-	if a.previewType == nil {
-		return lo.ToPtr(PreviewType(""))
-	}
 	if a.previewType == nil {
 		return nil
 	}
