@@ -28,7 +28,7 @@ jobs:
           docker push $IMAGE_GCP
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy reearth-backend \
+          gcloud run deploy reearth-cms-backend \
             --image $IMAGE_GCP \
             --region $GCP_REGION \
             --platform managed \
