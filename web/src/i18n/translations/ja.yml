@@ -1,44 +1,44 @@
-Personal Account: ''
-Teams: ''
-new workspace: ''
-Account Settings: ''
-Logout: ''
-Re:Earth CMS: ''
-Project name: ''
-Please input the name of project!: ''
-Project description: ''
-Accessibility: ''
-Settings: ''
-Workspace name: ''
-Please input the title of the current workspace!: ''
-Member: ''
-Account: ''
-Integration: ''
-Role: ''
-API key: ''
-Welcome to Re:Earth CMS !: ''
-No Projects Yet: ''
-Create a new project: ''
-New Project: ''
-Or read: ''
-how to use Re:Earth CMS: ''
-first: ''
-Add member: ''
-Email address or user name: ''
-Role Settings: ''
-Please input the appropriate role for this member!: ''
-select role: ''
-Owner: ''
-Writer: ''
-Reader: ''
-Add Field: ''
-Create: ''
-Setting: ''
-Display name: ''
-Please input the display name of field!: ''
-Field Key: ''
-Please input the key of field!: ''
-Description: ''
+Personal Account: パーソナルアカウント
+Teams: チーム
+new workspace: 新規ワークスペース
+Account Settings: アカウント設定
+Logout: ログアウト
+Re:Earth CMS: Re:Earth CMS
+Project name: プロジェクト名
+Please input the name of project!: プロジェクト名を入力してください
+Project description: プロジェクト概要
+Accessibility: 公開設定
+Settings: 設定
+Workspace name: ワークスペース名
+Please input the title of the current workspace!: こののワークスペース名を入力してください
+Member: メンバー
+Account: アカウント
+Integration: インテグレーション
+Role: ロール
+API key: APIキー
+Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
+No Projects Yet: プロジェクトがありません
+Create a new project: 新規プロジェクトを作成
+New Project: 新規プロジェクト
+Or read: 読む
+how to use Re:Earth CMS: CMSの使い方
+first: はじめに
+Add member: メンバー追加
+Email address or user name: Emailアドレスもしくはユーザー名
+Role Settings: ロール設定
+Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+select role: ロールを選択
+Owner: オーナー
+Writer: 編集者
+Reader: 閲覧者
+Add Field: フィールドを追加
+Create: 作成
+Setting: 設定
+Display name: 表示名
+Please input the display name of field!: このフィールドの表示名を入力してください
+Field Key: フィールドキー
+Please input the key of field!: このフィールドのキーを入力してください
+Description: 説明
 Set Options: オプションを設定
 Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
 Option value: オプションの値
