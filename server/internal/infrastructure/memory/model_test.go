@@ -63,14 +63,15 @@ func TestMemory_FindByProject(t *testing.T) {
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
 
+	error := errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
-		err:  errors.New("test"),
+		err:  error,
 	}
 
 	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
-	assert.Equal(t, gotErr, errors.New("test"))
+	assert.Equal(t, gotErr, error)
 	assert.Nil(t, gotNilModelList)
 	assert.Nil(t, gotNilPageInfo)
 }
