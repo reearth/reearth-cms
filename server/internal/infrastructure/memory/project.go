@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -35,7 +35,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecase.Pagination) (project.List, *usecase.PageInfo, error) {
+func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -50,13 +50,13 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 		return v.Workspace() == wid
 	})).SortByID()
 
-	var startCursor, endCursor *usecase.Cursor
+	var startCursor, endCursor *usecasex.Cursor
 	if len(result) > 0 {
-		startCursor = lo.ToPtr(usecase.Cursor(result[0].ID().String()))
-		endCursor = lo.ToPtr(usecase.Cursor(result[len(result)-1].ID().String()))
+		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
 	}
 
-	return result, usecase.NewPageInfo(
+	return result, usecasex.NewPageInfo(
 		len(result),
 		startCursor,
 		endCursor,

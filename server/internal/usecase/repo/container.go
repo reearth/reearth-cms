@@ -5,14 +5,17 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type Container struct {
 	Lock        Lock
 	User        User
-	Transaction Transaction
 	Workspace   Workspace
 	Project     Project
+	Model       Model
+	Schema      Schema
+	Transaction usecasex.Transaction
 }
 
 var (
@@ -29,6 +32,8 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		Workspace:   c.Workspace,
 		User:        c.User,
 		Project:     c.Project.Filtered(workspace),
+		Model:       c.Model,
+		Schema:      c.Schema.Filtered(workspace),
 	}
 }
 

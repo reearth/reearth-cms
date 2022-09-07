@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -12,26 +12,6 @@ func (r *Resolver) Query() QueryResolver {
 }
 
 type queryResolver struct{ *Resolver }
-
-func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ModelConnection, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) GetModelFields(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.SchemaField, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CheckFieldKeyAvailability(ctx context.Context, key string) (*gqlmodel.KeyAvailability, error) {
-	// TODO implement me
-	panic("implement me")
-}
 
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	u := getUser(ctx)
@@ -92,7 +72,7 @@ func (r *queryResolver) SearchUser(ctx context.Context, nameOrEmail string) (*gq
 	return loaders(ctx).User.SearchUser(ctx, nameOrEmail)
 }
 
-func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecase.Cursor, before *usecase.Cursor) (*gqlmodel.ProjectConnection, error) {
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ProjectConnection, error) {
 	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, first, last, before, after)
 }
 
@@ -101,5 +81,22 @@ func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*g
 }
 
 func (r *queryResolver) Assets(ctx context.Context, teamID gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	panic("implement me")
+}
+
+func (r *queryResolver) Asset(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.Asset, error) {
+	panic("implement me")
+}
+
+func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error) {
+	return loaders(ctx).Model.FindByProject(ctx, projectID, first, last, before, after)
+}
+
+func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
+	return loaders(ctx).Model.CheckKey(ctx, projectID, key)
+}
+
+func (r *queryResolver) Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	// TODO implement me
 	panic("implement me")
 }

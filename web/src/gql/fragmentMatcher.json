@@ -1,8 +1,27 @@
 {
   "possibleTypes": {
     "Node": [
+      "Asset",
+      "Item",
+      "Model",
+      "Project",
+      "Schema",
       "User",
       "Workspace"
+    ],
+    "SchemaFieldTypeProperty": [
+      "SchemaFieldAsset",
+      "SchemaFieldBool",
+      "SchemaFieldDate",
+      "SchemaFieldInteger",
+      "SchemaFieldMarkdown",
+      "SchemaFieldReference",
+      "SchemaFieldRichText",
+      "SchemaFieldSelect",
+      "SchemaFieldTag",
+      "SchemaFieldText",
+      "SchemaFieldTextArea",
+      "SchemaFieldURL"
     ]
   }
 }

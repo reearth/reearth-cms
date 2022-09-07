@@ -6,13 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 func TestProjectRepo_CountByWorkspace(t *testing.T) {
@@ -590,7 +591,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 
 	type args struct {
 		tid   id.WorkspaceID
-		pInfo *usecase.Pagination
+		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
 		name    string
@@ -624,7 +625,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -636,7 +637,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -649,7 +650,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecase.NewPagination(lo.ToPtr(2), nil, nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -662,7 +663,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -675,7 +676,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecase.NewPagination(nil, lo.ToPtr(1), nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -687,7 +688,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecase.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
 			want:    nil,
 			wantErr: nil,

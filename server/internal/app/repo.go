@@ -4,20 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
-
-	"github.com/reearth/reearth-cms/server/pkg/log"
-
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
+
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
+	"github.com/reearth/reearthx/log"
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container) {
-	repos := &repo.Container{}
 	gateways := &gateway.Container{}
 
 	// Mongo
@@ -31,9 +29,12 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
-	if err := mongorepo.InitRepos(ctx, repos, client, ""); err != nil {
+
+	repos, err := mongorepo.New(ctx, client, "")
+	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
+
 	// Auth0
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 

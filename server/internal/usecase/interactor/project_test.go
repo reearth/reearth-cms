@@ -2,18 +2,20 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
+	"github.com/reearth/reearthx/rerror"
 )
 
 func TestProject_Fetch(t *testing.T) {
@@ -38,11 +40,12 @@ func TestProject_Fetch(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		want    project.List
-		wantErr error
+		name           string
+		seeds          project.List
+		args           args
+		want           project.List
+		mockProjectErr bool
+		wantErr        error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -94,6 +97,11 @@ func TestProject_Fetch(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:           "mock error",
+			wantErr:        errors.New("test"),
+			mockProjectErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -103,6 +111,9 @@ func TestProject_Fetch(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+			}
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
@@ -143,11 +154,12 @@ func TestProject_FindByWorkspace(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		want    project.List
-		wantErr error
+		name           string
+		seeds          project.List
+		args           args
+		want           project.List
+		mockProjectErr bool
+		wantErr        error
 	}{
 		{
 			name:  "Fetch 1 of 2",
@@ -199,6 +211,11 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:           "mock error",
+			wantErr:        errors.New("test"),
+			mockProjectErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -208,6 +225,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+			}
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
@@ -347,11 +367,12 @@ func TestProject_Update(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		want    *project.Project
-		wantErr error
+		name           string
+		seeds          project.List
+		args           args
+		want           *project.Project
+		mockProjectErr bool
+		wantErr        error
 	}{
 		{
 			name:  "update",
@@ -381,6 +402,11 @@ func TestProject_Update(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:           "mock error",
+			wantErr:        errors.New("test"),
+			mockProjectErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -390,6 +416,9 @@ func TestProject_Update(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+			}
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
@@ -506,11 +535,12 @@ func TestProject_Delete(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		want    project.List
-		wantErr error
+		name           string
+		seeds          project.List
+		args           args
+		want           project.List
+		mockProjectErr bool
+		wantErr        error
 	}{
 		{
 			name:  "delete",
@@ -542,6 +572,11 @@ func TestProject_Delete(t *testing.T) {
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
+		{
+			name:           "mock error",
+			wantErr:        errors.New("test"),
+			mockProjectErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -551,6 +586,9 @@ func TestProject_Delete(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+			}
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())

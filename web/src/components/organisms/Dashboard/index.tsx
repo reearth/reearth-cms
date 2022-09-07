@@ -1,11 +1,14 @@
 import styled from "@emotion/styled";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+
+import Content from "@reearth-cms/components/atoms/Content";
+import Header from "@reearth-cms/components/atoms/Header";
+import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
-import Layout, { Content, Header } from "antd/lib/layout/layout";
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
@@ -23,44 +26,40 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
     workspaces,
     currentWorkspace,
     handleWorkspaceCreate,
-    handleModalClose,
-    handleModalOpen,
-    modalShown,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
+    workspaceModalShown,
   } = useHooks(workspaceId);
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
+      <DashboardLayout>
         <MainHeader>
           <MoleculeHeader
-            handleModalOpen={handleModalOpen}
+            handleModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
-          ></MoleculeHeader>
+          />
         </MainHeader>
         <Layout>
           <DashboardSider
             collapsible
             collapsed={collapsed}
-            onCollapse={(value) => setCollapsed(value)}
-          >
+            onCollapse={value => setCollapsed(value)}>
             <WorkspaceMenu
               defaultSelectedKeys={defaultSelectedKeys}
-              isPersonalWorkspace={
-                personalWorkspace?.id === currentWorkspace?.id
-              }
+              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
               inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
-            ></WorkspaceMenu>
+              workspaceId={currentWorkspace?.id}></WorkspaceMenu>
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
-      </Layout>
+      </DashboardLayout>
       <WorkspaceCreationModal
-        open={modalShown}
-        onClose={handleModalClose}
+        open={workspaceModalShown}
+        onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
     </>
@@ -72,6 +71,10 @@ const MainHeader = styled(Header)`
   align-items: center;
   height: 48px;
   line-height: 48px;
+`;
+
+const DashboardLayout = styled(Layout)`
+  min-height: 100vh;
 `;
 
 const DashboardSider = styled(Sider)`

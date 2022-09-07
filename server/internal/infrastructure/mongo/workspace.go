@@ -7,30 +7,31 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/log"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type workspaceRepo struct {
-	client *mongodoc.ClientCollection
+	client *mongox.ClientCollection
 }
 
-func NewWorkspace(client *mongodoc.Client) repo.Workspace {
+func NewWorkspace(client *mongox.Client) repo.Workspace {
 	r := &workspaceRepo{client: client.WithCollection("workspace")}
 	r.init()
 	return r
 }
 
 func (r *workspaceRepo) init() {
-	i := r.client.CreateIndex(context.Background(), nil)
+	i := r.client.CreateIndex(context.Background(), nil, []string{"id"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "workspace", i)
 	}
 }
 
 func (r *workspaceRepo) FindByUser(ctx context.Context, id id.UserID) (user.WorkspaceList, error) {
-	return r.find(ctx, nil, bson.M{
+	return r.find(ctx, bson.M{
 		"members." + strings.Replace(id.String(), ".", "", -1): bson.M{
 			"$exists": true,
 		},
@@ -41,8 +42,7 @@ func (r *workspaceRepo) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	dst := make([]*user.Workspace, 0, len(ids))
-	res, err := r.find(ctx, dst, bson.M{
+	res, err := r.find(ctx, bson.M{
 		"id": bson.M{"$in": ids.Strings()},
 	})
 	if err != nil {
@@ -65,7 +65,7 @@ func (r *workspaceRepo) SaveAll(ctx context.Context, workspaces []*user.Workspac
 		return nil
 	}
 	docs, ids := mongodoc.NewWorkspaces(workspaces)
-	docs2 := make([]interface{}, 0, len(workspaces))
+	docs2 := make([]any, 0, len(workspaces))
 	for _, d := range docs {
 		docs2 = append(docs2, d)
 	}
@@ -85,25 +85,20 @@ func (r *workspaceRepo) RemoveAll(ctx context.Context, ids id.WorkspaceIDList) e
 	})
 }
 
-func (r *workspaceRepo) find(ctx context.Context, dst []*user.Workspace, filter interface{}) (user.WorkspaceList, error) {
-	c := mongodoc.WorkspaceConsumer{
-		Rows: dst,
-	}
-	if err := r.client.Find(ctx, filter, &c); err != nil {
+func (r *workspaceRepo) find(ctx context.Context, filter any) (user.WorkspaceList, error) {
+	c := mongodoc.NewWorkspaceConsumer()
+	if err := r.client.Find(ctx, filter, c); err != nil {
 		return nil, err
 	}
-	return c.Rows, nil
+	return c.Result, nil
 }
 
-func (r *workspaceRepo) findOne(ctx context.Context, filter interface{}) (*user.Workspace, error) {
-	dst := make([]*user.Workspace, 0, 1)
-	c := mongodoc.WorkspaceConsumer{
-		Rows: dst,
-	}
-	if err := r.client.FindOne(ctx, filter, &c); err != nil {
+func (r *workspaceRepo) findOne(ctx context.Context, filter any) (*user.Workspace, error) {
+	c := mongodoc.NewWorkspaceConsumer()
+	if err := r.client.FindOne(ctx, filter, c); err != nil {
 		return nil, err
 	}
-	return c.Rows[0], nil
+	return c.Result[0], nil
 }
 
 func filterWorkspaces(ids []id.WorkspaceID, rows user.WorkspaceList) user.WorkspaceList {

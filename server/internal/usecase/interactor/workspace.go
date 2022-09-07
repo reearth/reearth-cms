@@ -9,11 +9,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type Workspace struct {
 	repos       *repo.Container
-	transaction repo.Transaction
+	transaction usecasex.Transaction
 }
 
 func NewWorkspace(r *repo.Container) interfaces.Workspace {
@@ -139,7 +140,7 @@ func (i *Workspace) RemoveMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u.Equal(operator.User) {
+		if u == operator.User {
 			return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
 		}
 
@@ -170,7 +171,7 @@ func (i *Workspace) UpdateMember(ctx context.Context, id id.WorkspaceID, u id.Us
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u.Equal(operator.User) {
+		if u == operator.User {
 			return nil, interfaces.ErrCannotChangeOwnerRole
 		}
 
@@ -199,6 +200,14 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 		}
 		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
 			return interfaces.ErrOperationDenied
+		}
+
+		projectCount, err := i.repos.Project.CountByWorkspace(ctx, id)
+		if err != nil {
+			return err
+		}
+		if projectCount > 0 {
+			return interfaces.ErrWorkspaceWithProjects
 		}
 
 		err = i.repos.Workspace.Remove(ctx, id)

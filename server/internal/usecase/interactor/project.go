@@ -9,8 +9,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/rerror"
-	"github.com/reearth/reearth-cms/server/pkg/util"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 )
 
 type Project struct {
@@ -35,9 +36,9 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 		})
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecase.Pagination, operator *usecase.Operator) (project.List, *usecase.PageInfo, error) {
+func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(id).Transaction(),
-		func() (project.List, *usecase.PageInfo, error) {
+		func() (project.List, *usecasex.PageInfo, error) {
 			return i.repos.Project.FindByWorkspace(ctx, id, p)
 		})
 }

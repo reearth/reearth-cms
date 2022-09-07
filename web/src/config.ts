@@ -4,21 +4,14 @@ export type Config = {
   auth0Domain?: string;
   auth0Audience?: string;
 };
-declare global {
-  interface Window {
-    REEARTH_CONFIG?: Config;
-  }
-}
 
 const env = import.meta.env;
 
 export const defaultConfig: Config = {
   api: env.REEARTH_CMS_API || "/api",
-  auth0Audience:
-    env.REEARTH_CMS_AUTH0_AUDIENCE || "https://api.test.reearth.dev",
+  auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE || "https://api.test.reearth.dev",
   auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN || "reearth-oss-test.eu.auth0.com",
-  auth0ClientId:
-    env.REEARTH_CMS_AUTH0_CLIENT_ID || "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
+  auth0ClientId: env.REEARTH_CMS_AUTH0_CLIENT_ID || "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
 };
 
 export default async function loadConfig() {
@@ -28,4 +21,24 @@ export default async function loadConfig() {
     ...defaultConfig,
     ...(await (await fetch("/reearth_config.json")).json()),
   };
+}
+
+export function config(): Config | undefined {
+  return window.REEARTH_CONFIG;
+}
+
+export function e2eAccessToken(): string | undefined {
+  return window.REEARTH_E2E_ACCESS_TOKEN;
+}
+
+declare global {
+  interface Window {
+    REEARTH_CONFIG?: {
+      api: string;
+      auth0ClientId?: string;
+      auth0Domain?: string;
+      auth0Audience?: string;
+    };
+    REEARTH_E2E_ACCESS_TOKEN?: string;
+  }
 }

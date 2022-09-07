@@ -1,10 +1,11 @@
-import { CloseOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
+import React, { useCallback, useEffect, useState } from "react";
+
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import React, { useCallback, useEffect, useState } from "react";
 
 export interface FormValues {
   name: string;
@@ -55,7 +56,7 @@ const MemberAddModal: React.FC<Props> = ({
       setMemberName?.(e);
       handleUserSearch?.(e);
     },
-    [setMemberName, handleUserSearch]
+    [setMemberName, handleUserSearch],
   );
 
   initialValues;
@@ -79,7 +80,7 @@ const MemberAddModal: React.FC<Props> = ({
         onClose?.(true);
         form.resetFields();
       })
-      .catch((info) => {
+      .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, onSubmit, searchedUser?.id, onClose]);
@@ -91,19 +92,9 @@ const MemberAddModal: React.FC<Props> = ({
   }, [onClose, changeSearchedUser]);
 
   return (
-    <Modal
-      title="Add member"
-      visible={open}
-      onCancel={handleClose}
-      onOk={handleSubmit}
-    >
+    <Modal title="Add member" visible={open} onCancel={handleClose} onOk={handleSubmit}>
       {open && (
-        <Form
-          title="Search user"
-          form={form}
-          layout="vertical"
-          initialValues={initialValues}
-        >
+        <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label="Email address or user name">
             <Search
               size="large"
@@ -121,15 +112,14 @@ const MemberAddModal: React.FC<Props> = ({
                     color: "#fff",
                     backgroundColor: "#3F3D45",
                     marginRight: "12px",
-                  }}
-                >
+                  }}>
                   {searchedUser.name.charAt(0)}
                 </Avatar>
                 {searchedUser.name}
                 <EmailContent>{searchedUser.email}</EmailContent>
               </div>
               <IconButton onClick={handleMemberRemove}>
-                <CloseOutlined />
+                <Icon icon="close" />
               </IconButton>
             </SearchedUSerResult>
           )}

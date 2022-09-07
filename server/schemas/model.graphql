@@ -1,10 +1,12 @@
 type Model implements Node {
   id: ID!
   projectId: ID!
+  schemaId: ID!
   name: String!
   description: String!
   key: String!
   project: Project!
+  schema: Schema!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -42,6 +44,11 @@ type DeleteModelPayload {
   modelId: ID!
 }
 
+type PublishModelPayload {
+  modelId: ID!
+  status: Boolean!
+}
+
 type ModelConnection {
   edges: [ModelEdge!]!
   nodes: [Model]!
@@ -62,12 +69,12 @@ extend type Query {
     after: Cursor
     before: Cursor
   ): ModelConnection!
-  checkModelKeyAvailability(key: String!): KeyAvailability!
+  checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
 extend type Mutation {
-  createModel(input: CreateModelInput!): ProjectPayload
-  updateModel(input: UpdateModelInput!): ProjectPayload
-  deleteModel(input: DeleteModelInput!): DeleteProjectPayload
-  publishModel(input: PublishModelInput!): DeleteProjectPayload
+  createModel(input: CreateModelInput!): ModelPayload
+  updateModel(input: UpdateModelInput!): ModelPayload
+  deleteModel(input: DeleteModelInput!): DeleteModelPayload
+  publishModel(input: PublishModelInput!): PublishModelPayload
 }

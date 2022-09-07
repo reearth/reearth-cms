@@ -3,9 +3,11 @@ node_modules
 
 /.idea/
 
-/server/.env*
+.env*
 
 /web/.env*
 /web/coverage
 /web/dist
 /web/storybook-static
+
+/server/mongo

@@ -35,7 +35,7 @@ union SchemaFieldTypeProperty =
   SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
-  | SchemaMarkdownText
+  | SchemaFieldMarkdown
   | SchemaFieldAsset
   | SchemaFieldDate
   | SchemaFieldBool
@@ -61,7 +61,7 @@ type SchemaFieldRichText {
   maxLength: Int
 }
 
-type SchemaMarkdownText {
+type SchemaFieldMarkdown {
   defaultValue: String
   maxLength: Int
 }
@@ -85,7 +85,7 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: String
+  defaultValue: [String!]!
 }
 
 type SchemaFieldInteger {
@@ -95,7 +95,7 @@ type SchemaFieldInteger {
 }
 
 type SchemaFieldReference {
-  modelId: ID
+  modelId: ID!
 }
 
 type SchemaFieldURL {
@@ -103,29 +103,102 @@ type SchemaFieldURL {
 }
 
 # Inputs
+
+input SchemaFieldTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldTextAreaInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldRichTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaMarkdownTextInput {
+  defaultValue: String
+  maxLength: Int
+}
+
+input SchemaFieldAssetInput {
+  defaultValue: ID
+}
+
+input SchemaFieldDateInput {
+  defaultValue: DateTime
+}
+
+input SchemaFieldBoolInput {
+  defaultValue: Boolean
+}
+
+input SchemaFieldSelectInput {
+  values: [String!]!
+  defaultValue: String
+}
+
+input SchemaFieldTagInput {
+  values: [String!]!
+  defaultValue: [String!]
+}
+
+input SchemaFieldIntegerInput {
+  defaultValue: Int
+  min: Int
+  max: Int
+}
+
+input SchemaFieldReferenceInput {
+  modelId: ID!
+}
+
+input SchemaFieldURLInput {
+  defaultValue: String
+}
+
+input SchemaFieldTypePropertyInput @onlyOne {
+  text: SchemaFieldTextInput
+  textArea: SchemaFieldTextAreaInput
+  richText: SchemaFieldRichTextInput
+  markdownText: SchemaMarkdownTextInput
+  asset: SchemaFieldAssetInput
+  date: SchemaFieldDateInput
+  bool: SchemaFieldBoolInput
+  select: SchemaFieldSelectInput
+  tag: SchemaFieldTagInput
+  integer: SchemaFieldIntegerInput
+  reference: SchemaFieldReferenceInput
+  url: SchemaFieldURLInput
+}
+
 input CreateFieldInput {
   modelId: ID!
   type: SchemaFiledType!
   title: String!
   description: String
   key: String!
-  isMultiValue: Boolean
-  DefaultValue: Any
-  values: Any # for select field
-  isUnique: Boolean
-  isRequired: Boolean
+  multiValue: Boolean!
+  unique: Boolean!
+  required: Boolean!
+  typeProperty: SchemaFieldTypePropertyInput!
 }
 
 input UpdateFieldInput {
+  modelId: ID!
+  fieldId: ID!
   title: String
   description: String
   key: String
-  isMultiValue: Boolean
-  DefaultValue: Any
-  # TODO: make sure what are the editable fields
+  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  typeProperty: SchemaFieldTypePropertyInput
 }
 
 input DeleteFieldInput {
+  modelId: ID!
   fieldId: ID!
 }
 
@@ -138,10 +211,7 @@ type DeleteFieldPayload {
   fieldId: ID!
 }
 
-extend type Query {
-  getModelFields(modelId: ID!): [SchemaField!]!
-  checkFieldKeyAvailability(key: String!): KeyAvailability!
-}
+# extend type Query {}
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
