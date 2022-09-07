@@ -12,6 +12,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
 
@@ -140,7 +141,7 @@ const FieldCreationModal: React.FC<Props> = ({
                 {
                   message: t("Key is not valid"),
                   validator: async (_, value) => {
-                    if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
+                    if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value);
                     if (isKeyAvailable) {
                       return Promise.resolve();

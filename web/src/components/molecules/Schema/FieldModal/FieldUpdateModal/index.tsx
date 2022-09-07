@@ -13,6 +13,7 @@ import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldMo
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 import { Field, FieldType, fieldTypes } from "../../types";
 
@@ -157,7 +158,7 @@ const FieldUpdateModal: React.FC<Props> = ({
                 {
                   message: t("Key is not valid"),
                   validator: async (_, value) => {
-                    if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
+                    if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
                     if (isKeyAvailable) {
                       return Promise.resolve();

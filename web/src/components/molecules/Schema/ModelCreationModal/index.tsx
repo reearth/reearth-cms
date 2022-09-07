@@ -5,6 +5,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
   name: string;
@@ -75,7 +76,7 @@ const ModelCreationModal: React.FC<Props> = ({
             {
               message: t("Key is not valid"),
               validator: async (_, value) => {
-                if (!/^[a-zA-Z0-9_-]{5,32}$/.test(value)) return Promise.reject();
+                if (!validateKey(value)) return Promise.reject();
                 const isKeyAvailable = await handleModelKeyCheck(projectId ?? "", value);
                 if (isKeyAvailable) {
                   return Promise.resolve();
