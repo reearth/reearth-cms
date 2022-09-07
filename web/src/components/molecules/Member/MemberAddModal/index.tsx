@@ -6,6 +6,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
@@ -47,6 +48,7 @@ const MemberAddModal: React.FC<Props> = ({
   searchedUser,
   changeSearchedUser,
 }) => {
+  const t = useT();
   const { Search } = Input;
   const [form] = Form.useForm();
   const [memberName, setMemberName] = useState("");
@@ -92,10 +94,10 @@ const MemberAddModal: React.FC<Props> = ({
   }, [onClose, changeSearchedUser]);
 
   return (
-    <Modal title="Add member" visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal title={t("Add member")} visible={open} onCancel={handleClose} onOk={handleSubmit}>
       {open && (
         <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
-          <Form.Item name="name" label="Email address or user name">
+          <Form.Item name="name" label={t("Email address or user name")}>
             <Search
               size="large"
               style={{ width: "300px" }}
