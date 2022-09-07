@@ -56,7 +56,7 @@ func (b *Builder) Description(description string) *Builder {
 	return b
 }
 
-func (b *Builder) Type(t Type) Type {
+func (b *Builder) Type(t Type) *Builder {
 	b.i.iType = t
 	return b
 }
