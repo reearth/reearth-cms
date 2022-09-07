@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -26,40 +27,41 @@ const WorkspaceMenu: React.FC<Props> = ({
   workspaceId,
   defaultSelectedKeys,
 }) => {
+  const t = useT();
   const navigate = useNavigate();
   const items: WorkspaceItemType[] = [
     {
-      label: "Member",
+      label: t("Member"),
       key: "member",
       icon: <Icon icon="userGroupAdd" />,
       show: "notPersonal" as MenuShowType,
     },
     {
-      label: "Account",
+      label: t("Account"),
       key: "account",
       icon: <Icon icon="userGroupAdd" />,
       show: "personal" as MenuShowType,
     },
     {
-      label: "Integration",
+      label: t("Integration"),
       key: "integration",
       icon: <Icon icon="api" />,
       show: "both" as MenuShowType,
     },
     {
-      label: "Role",
+      label: t("Role"),
       key: "role",
       icon: <Icon icon="userSwitch" />,
       show: "notPersonal" as MenuShowType,
     },
     {
-      label: "API key",
+      label: t("API key"),
       key: "api-key",
       icon: <Icon icon="search" />,
       show: "both" as MenuShowType,
     },
     {
-      label: "Settings",
+      label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
       show: "notPersonal" as MenuShowType,

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -26,15 +27,16 @@ const ProjectMenu: React.FC<Props> = ({
   projectId,
   defaultSelectedKeys,
 }) => {
+  const t = useT();
   const navigate = useNavigate();
   const items: ItemType[] = [
     {
-      label: "Accessibility",
+      label: t("Accessibility"),
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
-      label: "Settings",
+      label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
     },

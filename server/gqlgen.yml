@@ -11,6 +11,8 @@ schema:
   - ./schemas/schema.graphql
   - ./schemas/field.graphql
   - ./schemas/item.graphql
+  - ./schemas/integration.graphql
+  - ./schemas/integration_webhook.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -25,9 +27,17 @@ models:
         resolver: true
       myWorkspace:
         resolver: true
-  WorkspaceMember:
+      integrations:
+        resolver: true
+  WorkspaceUserMember:
     fields:
       user:
+        resolver: true
+  WorkspaceIntegrationMember:
+    fields:
+      invitedBy:
+        resolver: true
+      integration:
         resolver: true
   Project:
     fields:
@@ -60,6 +70,12 @@ models:
       createdBy:
         resolver: true
       project:
+        resolver: true
+  Integration:
+    fields:
+      developer:
+        resolver: true
+      webhook:
         resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
