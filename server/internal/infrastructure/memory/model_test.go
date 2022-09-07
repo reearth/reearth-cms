@@ -46,7 +46,7 @@ func TestMemory_FindByProject(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 	}
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project().Equal(pId)
+		return m.Project() == pId
 	})).SortByID()
 	var startCursor, endCursor *usecasex.Cursor
 	expectedPageInfo := usecasex.NewPageInfo(
@@ -84,7 +84,7 @@ func TestMemory_FindByKey(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 	}
 	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return m.Key().String() == key && m.Project().Equal(pId)
+		return m.Key().String() == key && m.Project() == pId
 	})
 	got, err := r.FindByKey(ctx, pId, key)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
@@ -99,7 +99,7 @@ func TestMemory_FindByID(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 	}
 	expected := r.data.Find(func(k id.ModelID, m *model.Model) bool {
-		return k.Equal(mId)
+		return k == mId
 	})
 	got, err := r.FindByID(ctx, mId)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
@@ -115,7 +115,7 @@ func TestMemory_FindByIDs(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 	}
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project().Equal(pId)
+		return m.Project() == pId
 	})).SortByID()
 	got, err := r.FindByIDs(ctx, mId)
 	assert.NoError(t, err)
