@@ -4,7 +4,6 @@ import "github.com/reearth/reearth-cms/server/pkg/id"
 
 type ID = id.UserID
 type WorkspaceID = id.WorkspaceID
-type ProjectID = id.ProjectID
 
 var NewID = id.NewUserID
 var NewWorkspaceID = id.NewWorkspaceID
@@ -21,4 +20,3 @@ var WorkspaceIDFromRef = id.WorkspaceIDFromRef
 var ErrInvalidID = id.ErrInvalidID
 
 type WorkspaceIDList = id.WorkspaceIDList
-type ProjectIDList = id.ProjectIDList
