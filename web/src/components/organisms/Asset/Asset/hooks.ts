@@ -30,11 +30,11 @@ export default (assetId?: string) => {
         });
         if (result.errors || !result.data?.updateAsset) {
           // TODO: notification
-          alert("Failed to update asset.");
+          console.log("Failed to update asset.");
         }
         if (result) {
           // TODO: notification
-          alert("Asset was successfully updated.");
+          console.log("Asset was successfully updated.");
         }
       })(),
     [updateAssetMutation],

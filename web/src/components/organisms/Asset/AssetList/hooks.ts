@@ -108,13 +108,13 @@ export default (projectId?: string) => {
             });
             if (result.errors || !result.data?.createAsset) {
               // TODO: notification
-              alert("Failed to add one or more assets.");
+              console.log("Failed to add one or more assets.");
             }
           }),
         );
         if (results) {
           // TODO: notification
-          alert("Successfully added one or more assets.");
+          console.log("Successfully added one or more assets.");
           await refetch();
         }
       })(),
@@ -134,13 +134,13 @@ export default (projectId?: string) => {
             });
             if (result.errors || result.data?.deleteAsset) {
               // TODO: notification
-              alert("Failed to delete one or more assets.");
+              console.log("Failed to delete one or more assets.");
             }
           }),
         );
         if (results) {
           // TODO: notification
-          alert("One or more assets were successfully deleted.");
+          console.log("One or more assets were successfully deleted.");
           selectAsset([]);
         }
       })(),
