@@ -10,9 +10,6 @@ type Operator struct {
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
-	ReadableProjects   user.ProjectIDList
-	WritableProjects   user.ProjectIDList
-	OwningProjects     user.ProjectIDList
 }
 
 func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
@@ -57,48 +54,4 @@ func (o *Operator) IsOwningWorkspace(workspace ...id.WorkspaceID) bool {
 
 func (o *Operator) AddNewWorkspace(workspace id.WorkspaceID) {
 	o.OwningWorkspaces = append(o.OwningWorkspaces, workspace)
-}
-
-func (o *Operator) Projects(r user.Role) []id.ProjectID {
-	if o == nil {
-		return nil
-	}
-	if r == user.RoleReader {
-		return o.ReadableProjects
-	}
-	if r == user.RoleWriter {
-		return o.WritableProjects
-	}
-	if r == user.RoleOwner {
-		return o.OwningProjects
-	}
-	return nil
-}
-
-func (o *Operator) AllReadableProjects() user.ProjectIDList {
-	return append(o.ReadableProjects, o.AllWritableProjects()...)
-}
-
-func (o *Operator) AllWritableProjects() user.ProjectIDList {
-	return append(o.WritableProjects, o.AllOwningProjects()...)
-}
-
-func (o *Operator) AllOwningProjects() user.ProjectIDList {
-	return o.OwningProjects
-}
-
-func (o *Operator) IsReadableProject(Project ...id.ProjectID) bool {
-	return o.AllReadableProjects().Intersect(Project).Len() > 0
-}
-
-func (o *Operator) IsWritableProject(Project ...id.ProjectID) bool {
-	return o.AllWritableProjects().Intersect(Project).Len() > 0
-}
-
-func (o *Operator) IsOwningProject(Project ...id.ProjectID) bool {
-	return o.AllOwningProjects().Intersect(Project).Len() > 0
-}
-
-func (o *Operator) AddNewProject(Project id.ProjectID) {
-	o.OwningProjects = append(o.OwningProjects, Project)
 }
