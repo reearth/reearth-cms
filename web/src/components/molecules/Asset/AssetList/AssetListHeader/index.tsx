@@ -1,18 +1,20 @@
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
 
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
 type Props = {
   title: string;
   subTitle: string;
   fileList: UploadFile<File>[];
   uploading: boolean;
-  uploadProps: UploadProps;
   uploadModalVisibility: boolean;
   displayUploadModal: () => void;
   hideUploadModal: () => void;
   handleUpload: () => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<any>[]>>;
 };
 
 const AssetListHeader: React.FC<Props> = ({
@@ -20,12 +22,32 @@ const AssetListHeader: React.FC<Props> = ({
   subTitle,
   fileList,
   uploading,
-  uploadProps,
   uploadModalVisibility,
   displayUploadModal,
   hideUploadModal,
   handleUpload,
+  setFileList,
 }) => {
+  const uploadProps: UploadProps = {
+    name: "file",
+    multiple: true,
+    directory: false,
+    showUploadList: true,
+    accept: imageFormats + "," + fileFormats,
+    listType: "picture",
+    onRemove: file => {
+      const index = fileList.indexOf(file);
+      const newFileList = fileList.slice();
+      newFileList.splice(index, 1);
+      setFileList(newFileList);
+    },
+    beforeUpload: (_file, files) => {
+      setFileList([...fileList, ...files]);
+      return false;
+    },
+    fileList,
+  };
+
   return (
     <AssetListHeaderWrapper>
       <HeaderTitleWrapper>
