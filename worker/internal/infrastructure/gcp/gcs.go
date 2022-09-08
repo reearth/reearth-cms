@@ -156,7 +156,8 @@ func getGCSObjectNameFromURL(base *url.URL, path string) string {
 	if base == nil {
 		base = &url.URL{}
 	}
-	p := sanitize.Path(strings.TrimPrefix(path, "/"))
+	url := base.JoinPath(path)
+	p := sanitize.Path(strings.TrimPrefix(url.RawPath, "/"))
 	if p == "" || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
 		return ""
 	}
