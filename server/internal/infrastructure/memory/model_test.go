@@ -57,8 +57,8 @@ func TestMemory_FindByProject(t *testing.T) {
 		true,
 		true,
 	)
-	var arg *usecasex.Cursor
-	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
+
+	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
@@ -70,7 +70,7 @@ func TestMemory_FindByProject(t *testing.T) {
 		err:  error,
 	}
 
-	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), lo.ToPtr(1), arg, arg))
+	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
 	assert.Equal(t, gotErr, error)
 	assert.Nil(t, gotNilModelList)
 	assert.Nil(t, gotNilPageInfo)
