@@ -42,10 +42,13 @@ func TestMemory_Filtered(t *testing.T) {
 func TestMemory_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
+	mId := id.NewModelID()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
+
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pId
 	})).SortByID()
@@ -63,15 +66,15 @@ func TestMemory_FindByProject(t *testing.T) {
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
 
-	error := errors.New("test")
+	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
-		err:  error,
+		err:  err,
 	}
 
 	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
-	assert.Equal(t, gotErr, error)
+	assert.Equal(t, gotErr, err)
 	assert.Nil(t, gotNilModelList)
 	assert.Nil(t, gotNilPageInfo)
 }
