@@ -75,12 +75,12 @@ func (b *Builder) Token(token string) *Builder {
 	return b
 }
 
-func (b *Builder) SetDeveloper(developer UserID) *Builder {
+func (b *Builder) Developer(developer UserID) *Builder {
 	b.i.developer = developer
 	return b
 }
 
-func (b *Builder) SetWebhook(webhook []*Webhook) *Builder {
+func (b *Builder) Webhook(webhook []*Webhook) *Builder {
 	b.i.webhook = webhook
 	return b
 }
