@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/url"
 	"path"
-	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -173,34 +172,9 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-func getGCSObjectPath(uuid, filename string) string {
-	p := path.Join(uuid[:2], uuid[2:], filename)
+func getGCSObjectPath(uuid, objectName string) string {
+	p := path.Join(uuid[:2], uuid[2:], objectName)
 	return sanitize.Path(p)
-}
-
-func getGCSObjectURL(base *url.URL, objectName string) *url.URL {
-	if base == nil {
-		return nil
-	}
-
-	b := *base
-	b.Path = path.Join(b.Path, objectName)
-	return &b
-}
-
-func getGCSObjectNameFromURL(base, u *url.URL) string {
-	if u == nil {
-		return ""
-	}
-	if base == nil {
-		base = &url.URL{}
-	}
-	p := sanitize.Path(strings.TrimPrefix(u.Path, "/"))
-	if p == "" || u.Host != base.Host || u.Scheme != base.Scheme {
-		return ""
-	}
-
-	return p
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
