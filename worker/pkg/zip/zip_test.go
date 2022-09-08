@@ -47,10 +47,8 @@ func TestUnzipper_Unzip(t *testing.T) {
 
 	expectedFiles := map[string]*Buffer{"test1.txt": {*bytes.NewBufferString("hello1")}, "test2.txt": {*bytes.NewBufferString("hello2")}}
 
-	var buf1 bytes.Buffer
-	var buf2 bytes.Buffer
 	//map of buffers which will keep unzipped data
-	files := map[string]*Buffer{"test1.txt": {buf1}, "test2.txt": {buf2}}
+	files := map[string]*Buffer{"test1.txt": {bytes.Buffer{}}, "test2.txt": {bytes.Buffer{}}}
 	wFn := func(name string) (io.WriteCloser, error) {
 		return files[name], nil
 	}
