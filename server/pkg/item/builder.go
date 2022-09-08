@@ -1,6 +1,9 @@
 package item
 
-import "github.com/reearth/reearth-cms/server/pkg/schema"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"golang.org/x/exp/slices"
+)
 
 type Builder struct {
 	i *Item
@@ -28,7 +31,7 @@ func (b *Builder) NewID() *Builder {
 }
 
 func (b *Builder) Fields(fs []*Field) *Builder {
-	b.i.fields = fs
+	b.i.fields = slices.Clone(fs)
 	return b
 }
 

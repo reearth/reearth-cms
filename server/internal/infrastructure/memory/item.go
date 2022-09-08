@@ -3,22 +3,22 @@ package memory
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
 	"golang.org/x/exp/slices"
 )
 
 type Item struct {
-	data *util.SyncMap[item.ID, *item.Item]
+	data *memorygit.VersionedSyncMap[item.ID, *item.Item]
 	err  error
 }
 
 func NewItem() repo.Item {
 	return &Item{
-		data: &util.SyncMap[item.ID, *item.Item]{},
+		data: &memorygit.VersionedSyncMap[item.ID, *item.Item]{},
 	}
 }
 
@@ -32,7 +32,7 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 	}), rerror.ErrNotFound)
 }
 
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) ([]*item.Item, error) {
+func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -49,7 +49,7 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 		return r.err
 	}
 
-	r.data.Store(t.ID(), t)
+	r.data.SaveOne(t.ID(), t, nil)
 	return nil
 }
 

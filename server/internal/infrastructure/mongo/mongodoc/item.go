@@ -4,7 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/reearth/reearthx/mongox"
 )
 
 type ItemDocument struct {
@@ -18,25 +18,10 @@ type ItemFieldDoc struct {
 	Value       any
 }
 
-type ItemConsumer struct {
-	Rows item.List
-}
+type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
-func (c *ItemConsumer) Consume(raw bson.Raw) error {
-	if raw == nil {
-		return nil
-	}
-
-	var doc ItemDocument
-	if err := bson.Unmarshal(raw, &doc); err != nil {
-		return err
-	}
-	item, err := doc.Model()
-	if err != nil {
-		return err
-	}
-	c.Rows = append(c.Rows, item)
-	return nil
+func NewItemConsumer() *ItemConsumer {
+	return NewComsumer[*ItemDocument, *item.Item]()
 }
 
 func NewItem(ws *item.Item) (*ItemDocument, string) {

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,9 +16,9 @@ func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
 	r := &Item{
-		data: &util.SyncMap[id.ItemID, *item.Item]{},
+		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
 	}
-	r.data.Store(i.ID(), i)
+	r.data.SaveOne(i.ID(), i, nil)
 	out, err := r.FindByID(ctx, i.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, i, out)
@@ -37,13 +37,13 @@ func TestItem_Remove(t *testing.T) {
 	i, _ := item.New().NewID().Build()
 	i2, _ := item.New().NewID().Build()
 	r := &Item{
-		data: &util.SyncMap[id.ItemID, *item.Item]{},
+		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
 	}
-	r.data.Store(i.ID(), i)
-	r.data.Store(i2.ID(), i2)
+	r.data.SaveOne(i.ID(), i, nil)
+	r.data.SaveOne(i2.ID(), i2, nil)
 
 	_ = r.Remove(ctx, i2.ID())
-	assert.Equal(t, 1, r.data.Len())
+	assert.Equal(t, 1, len(r.data))
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
@@ -55,7 +55,7 @@ func TestItem_Save(t *testing.T) {
 	i, _ := item.New().NewID().Build()
 
 	r := &Item{
-		data: &util.SyncMap[id.ItemID, *item.Item]{},
+		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
 	}
 	_ = r.Save(ctx, i)
 	assert.Equal(t, 1, r.data.Len())
@@ -70,10 +70,10 @@ func TestItem_FindByIDs(t *testing.T) {
 	i, _ := item.New().NewID().Build()
 	i2, _ := item.New().NewID().Build()
 	r := &Item{
-		data: &util.SyncMap[id.ItemID, *item.Item]{},
+		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
 	}
-	r.data.Store(i.ID(), i)
-	r.data.Store(i2.ID(), i2)
+	r.data.SaveOne(i.ID(), i, nil)
+	r.data.SaveOne(i2.ID(), i2, nil)
 
 	ids := id.ItemIDList{i.ID()}
 	il := []*item.Item{i}
