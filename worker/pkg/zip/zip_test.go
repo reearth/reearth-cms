@@ -45,24 +45,27 @@ func TestUnzipper_Unzip(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expectedFiles := map[string]*Buffer{"test1.txt": {*bytes.NewBufferString("hello1")}, "test2.txt": {*bytes.NewBufferString("hello2")}}
+	expectedFiles := map[string][]byte{
+		"test1.txt": []byte("hello1"),
+		"test2.txt": []byte("hello2"),
+	}
 
-	//map of buffers which will keep unzipped data
-	files := map[string]*Buffer{"test1.txt": {bytes.Buffer{}}, "test2.txt": {bytes.Buffer{}}}
-	wFn := func(name string) (io.WriteCloser, error) {
-		return files[name], nil
+	// map of buffers which will keep unzipped data
+	files := map[string]*Buffer{
+		"test1.txt": {bytes.Buffer{}},
+		"test2.txt": {bytes.Buffer{}},
 	}
 
 	r, err := zip.NewReader(zf, fInfo.Size())
 	require.NoError(t, err)
-	uz, err := NewUnzipper(r, wFn)
+	uz, err := NewUnzipper(r,  func(name string) (io.WriteCloser, error) {
+		return files[name], nil
+	})
 	require.NoError(t, err)
 
-	log.Default().Print(expectedFiles, uz)
-	err = uz.Unzip()
-	assert.NoError(t, err)
+	assert.NoError(t, uz.Unzip())
 	for k, v := range files {
-		assert.Equal(t, v.Bytes(), expectedFiles[k].Bytes())
+		assert.Equal(t, v, expectedFiles[k].Bytes())
 	}
 
 }
