@@ -7,8 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -27,9 +27,11 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 		return nil, r.err
 	}
 
-	return rerror.ErrIfNil(r.data.Find(func(key id.ItemID, value *item.Item) bool {
-		return key == itemID
-	}), rerror.ErrNotFound)
+	item, ok := r.data.Load(itemID, version.Latest.OrVersion())
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
 }
 
 func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
@@ -37,11 +39,7 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 		return nil, r.err
 	}
 
-	res := r.data.FindAll(func(key id.ItemID, value *item.Item) bool {
-		return list.Has(key)
-	})
-	slices.SortFunc(res, func(a, b *item.Item) bool { return a.ID().Compare(b.ID()) < 0 })
-	return res, nil
+	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
 }
 
 func (r *Item) Save(ctx context.Context, t *item.Item) error {
@@ -63,7 +61,12 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 }
 
 func (r *Item) Archive(ctx context.Context, itemID id.ItemID) error {
-	return r.Remove(ctx, itemID)
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Archive(itemID, true)
+	return nil
 }
 
 func SetItemError(r repo.Item, err error) {

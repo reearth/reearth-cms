@@ -114,3 +114,7 @@ func (m *VersionedSyncMap[K, V]) FindAll(f func(k K, v *version.Values[V]) bool)
 func (m *VersionedSyncMap[K, V]) CountAll(f func(k K, v *version.Values[V]) bool) int {
 	return m.m.CountAll(f)
 }
+
+func (m *VersionedSyncMap[K, V]) Len() int {
+	return m.m.Len()
+}

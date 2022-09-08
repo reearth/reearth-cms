@@ -43,7 +43,7 @@ func TestItem_Remove(t *testing.T) {
 	r.data.SaveOne(i2.ID(), i2, nil)
 
 	_ = r.Remove(ctx, i2.ID())
-	assert.Equal(t, 1, len(r.data))
+	assert.Equal(t, 1, r.data.Len())
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)

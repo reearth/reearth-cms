@@ -21,28 +21,28 @@ func NewItem(client *mongox.Client) repo.Item {
 	return &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
 }
 
+func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
+	c := mongodoc.NewItemConsumer()
+	if err := i.client.FindOne(ctx, bson.M{
+		"id": id.String(),
+	}, version.Eq(version.Latest.OrVersion()), c); err != nil {
+		return nil, err
+	}
+
+	return c.Result[0], nil
+}
+
 func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
 	c := mongodoc.NewItemConsumer()
 	if err := i.client.Find(ctx, bson.M{
 		"id": bson.M{
 			"$in": ids.Strings(),
 		},
-	}, version.All(), c); err != nil {
+	}, version.Eq(version.Latest.OrVersion()), c); err != nil {
 		return nil, err
 	}
 
 	return c.Result, nil
-}
-
-func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
-	c := mongodoc.NewItemConsumer()
-	if err := i.client.FindOne(ctx, bson.M{
-		"id": id.String(),
-	}, version.All(), c); err != nil {
-		return nil, err
-	}
-
-	return c.Result[0], nil
 }
 
 func (i itemRepo) Save(ctx context.Context, item *item.Item) error {
