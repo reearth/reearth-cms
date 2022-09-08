@@ -1,15 +1,17 @@
 name: ci-server
 on:
   push:
-    branches:
-      - main
+    branches: [main, release]
     paths:
-      - server/**
       - .github/workflows/server.yml
+      - server/**
   pull_request:
     paths:
-      - server/**
       - .github/workflows/server.yml
+      - server/**
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ci:
     name: ci

@@ -1,1 +1,83 @@
-Create a Workspace: Create a Workspace
+Personal Account: パーソナルアカウント
+Teams: チーム
+new workspace: 新規ワークスペース
+Account Settings: アカウント設定
+Logout: ログアウト
+Re:Earth CMS: Re:Earth CMS
+Project name: プロジェクト名
+Please input the name of project!: プロジェクト名を入力してください
+Project description: プロジェクト概要
+Accessibility: 公開設定
+Settings: 設定
+Workspace name: ワークスペース名
+Please input the title of the current workspace!: こののワークスペース名を入力してください
+Member: メンバー
+Account: アカウント
+Integration: インテグレーション
+Role: ロール
+API key: APIキー
+Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
+No Projects Yet: プロジェクトがありません
+Create a new project: 新規プロジェクトを作成
+New Project: 新規プロジェクト
+Or read: 読む
+how to use Re:Earth CMS: CMSの使い方
+first: はじめに
+Add member: メンバー追加
+Email address or user name: Emailアドレスもしくはユーザー名
+Role Settings: ロール設定
+Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+select role: ロールを選択
+Owner: オーナー
+Writer: 編集者
+Reader: 閲覧者
+Add Field: フィールドを追加
+Create: 作成
+Setting: 設定
+Display name: 表示名
+Please input the display name of field!: このフィールドの表示名を入力してください
+Field Key: フィールドキー
+Please input the key of field!: このフィールドのキーを入力してください
+Description: 説明
+Set Options: オプションを設定
+Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
+Option value: オプションの値
+New: 追加
+Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
+Support multiple values: 複数値の設定を許可
+Prevents saving an entry if this field is empty: このフィールドを必須項目とします
+Make field required: このフィールドを必須項目にする
+Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
+Set field as unique: ユニーク制約
+Default value: デフォルト値
+Set default value: デフォルト値を設定
+Asset: アセット
+Update: アップデート
+Validation: バリデーション
+Set maximum length: 最大長
+Set minimum value: 最小値
+Set maximum value: 最大値
+Model name: モデル名
+Please input the name of the model!: このモデル名を入力してください
+Model description: モデル概要
+Model key: モデルキー
+Please input the key of the model!: このモデルのキーを入力してください
+Key is not valid: 無効なキーです
+Schema: スキーマ
+Models: モデル
+Add: 追加
+input search text: 検索
+Create a Workspace: 新規ワークスペース
+Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
+Name: 名前
+Write something here to describe this record.: このレコードの説明を入力してください
+Save changes: 変更を保存
+Danger Zone: 重要操作項目
+Delete project: プロジェクト削除
+Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
+Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+Change Role?: ロールを変更
+Remove: 削除
+Members: メンバー
+New Member: メンバーを追加
+Loading: ローディング中
