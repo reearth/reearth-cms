@@ -3514,6 +3514,7 @@ input WebhookTriggerInput {
 }
 
 input CreateWebhookInput {
+  integrationId: ID!
   name: String!
   url: URL!
   active: Boolean!
@@ -18617,13 +18618,21 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "name", "url", "active", "trigger"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "integrationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "name":
 			var err error
 

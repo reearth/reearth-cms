@@ -129,10 +129,11 @@ type CreateProjectInput struct {
 }
 
 type CreateWebhookInput struct {
-	Name    string               `json:"name"`
-	URL     url.URL              `json:"url"`
-	Active  bool                 `json:"active"`
-	Trigger *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	Name          string               `json:"name"`
+	URL           url.URL              `json:"url"`
+	Active        bool                 `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type CreateWorkspaceInput struct {

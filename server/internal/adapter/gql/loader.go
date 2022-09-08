@@ -15,19 +15,21 @@ const (
 type Loaders struct {
 	usecases interfaces.Container
 	// Asset    *AssetLoader
-	Workspace *WorkspaceLoader
-	User      *UserLoader
-	Project   *ProjectLoader
-	Model     *ModelLoader
-	Schema    *SchemaLoader
+	Workspace   *WorkspaceLoader
+	User        *UserLoader
+	Project     *ProjectLoader
+	Model       *ModelLoader
+	Schema      *SchemaLoader
+	Integration *IntegrationLoader
 }
 
 type DataLoaders struct {
-	Workspace WorkspaceDataLoader
-	User      UserDataLoader
-	Project   ProjectDataLoader
-	Model     ModelDataLoader
-	Schema    SchemaDataLoader
+	Workspace   WorkspaceDataLoader
+	User        UserDataLoader
+	Project     ProjectDataLoader
+	Model       ModelDataLoader
+	Schema      SchemaDataLoader
+	Integration IntegrationDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {

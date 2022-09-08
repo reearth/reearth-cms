@@ -31,6 +31,7 @@ input WebhookTriggerInput {
 }
 
 input CreateWebhookInput {
+  integrationId: ID!
   name: String!
   url: URL!
   active: Boolean!

@@ -21,5 +21,5 @@ func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmo
 }
 
 func (r *meResolver) Integrations(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Integration, error) {
-	panic("implement me")
+	return loaders(ctx).Integration.FindByUser(ctx, obj.ID)
 }
