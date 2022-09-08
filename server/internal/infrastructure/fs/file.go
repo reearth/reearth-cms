@@ -60,10 +60,6 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	p := getFSObjectPath(u, fn)
-	if p == "" {
-		return gateway.ErrInvalidFile
-	}
-
 	sn := sanitize.Path(p)
 
 	if sn == "" {
@@ -115,8 +111,8 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
-func getFSObjectPath(uuid, filename string) string {
-	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
+func getFSObjectPath(uuid, objectName string) string {
+	p := path.Join(assetDir, uuid[:2], uuid[2:], objectName)
 	return sanitize.Path(p)
 }
 
