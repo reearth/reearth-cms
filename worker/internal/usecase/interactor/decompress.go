@@ -46,8 +46,7 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 		return err
 	}
 
-	err = unzipper.Unzip()
-	if err != nil {
+	if err := unzipper.Unzip(); err != nil {
 		return err
 	}
 
