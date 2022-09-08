@@ -42,6 +42,14 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
 }
 
+func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	return r.data.LoadAllVersions(id).All(), nil
+}
+
 func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	if r.err != nil {
 		return r.err
@@ -60,12 +68,12 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	return nil
 }
 
-func (r *Item) Archive(ctx context.Context, itemID id.ItemID) error {
+func (r *Item) Archive(ctx context.Context, itemID id.ItemID, archived bool) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	r.data.Archive(itemID, true)
+	r.data.Archive(itemID, archived)
 	return nil
 }
 

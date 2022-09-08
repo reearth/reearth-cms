@@ -1,9 +1,11 @@
 package mongodoc
 
 import (
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -22,6 +24,20 @@ type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {
 	return NewComsumer[*ItemDocument, *item.Item]()
+}
+
+type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Value[*item.Item]]
+
+func NewVersionedItemConsumer() *VersionedItemConsumer {
+	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Value[*item.Item], error) {
+		item, err := d.Data.Model()
+		if err != nil {
+			return nil, err
+		}
+
+		v := mongogit.ToValue(d.Meta, item)
+		return v, nil
+	})
 }
 
 func NewItem(ws *item.Item) (*ItemDocument, string) {
