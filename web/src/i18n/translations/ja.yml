@@ -36,7 +36,7 @@ Create: 作成
 Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
-Please input the key of the field!: ''
+Please input the key of the field!: このフィールドのキーを入力してください
 Key is not valid: 無効なキーです
 Description: 説明
 Set Options: オプションを設定
