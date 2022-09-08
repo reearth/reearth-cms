@@ -39,6 +39,18 @@ func TestFile_UploadAsset(t *testing.T) {
 	assert.Equal(t, "", u1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 
+	u2, err2 := f.UploadAsset(context.Background(), &file.File{
+		Size: fileSizeLimit + 1,
+	})
+	assert.Equal(t, "", u2)
+	assert.Same(t, gateway.ErrFileTooLarge, err2)
+
+	u3, err3 := f.UploadAsset(context.Background(), &file.File{
+		Content: nil,
+	})
+	assert.Equal(t, "", u3)
+	assert.Error(t, err3)
+
 	uf, _ := fs.Open(p)
 	c, _ := io.ReadAll(uf)
 	assert.Equal(t, "aaa", string(c))

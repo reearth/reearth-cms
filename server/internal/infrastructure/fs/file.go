@@ -90,7 +90,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
-	if filename == "" {
+	if filename == "" || content == nil {
 		return gateway.ErrFailedToUploadFile
 	}
 
