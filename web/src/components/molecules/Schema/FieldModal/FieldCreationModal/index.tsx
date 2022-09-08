@@ -12,6 +12,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
 
@@ -29,6 +30,7 @@ export interface FormValues {
 export interface Props {
   open?: boolean;
   selectedType: FieldType;
+  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
@@ -44,7 +46,13 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selectedType }) => {
+const FieldCreationModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  handleFieldKeyUnique,
+  selectedType,
+}) => {
   const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
@@ -127,8 +135,22 @@ const FieldCreationModal: React.FC<Props> = ({ open, onClose, onSubmit, selected
             </Form.Item>
             <Form.Item
               name="key"
-              label={t("Field Key")}
-              rules={[{ required: true, message: t("Please input the key of field!") }]}>
+              label="Field Key"
+              rules={[
+                { required: true, message: t("Please input the key of the field!") },
+                {
+                  message: t("Key is not valid"),
+                  validator: async (_, value) => {
+                    if (!validateKey(value)) return Promise.reject();
+                    const isKeyAvailable = handleFieldKeyUnique(value);
+                    if (isKeyAvailable) {
+                      return Promise.resolve();
+                    } else {
+                      return Promise.reject();
+                    }
+                  },
+                },
+              ]}>
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label={t("Description")}>
