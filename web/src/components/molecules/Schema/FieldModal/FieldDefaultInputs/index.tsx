@@ -7,6 +7,7 @@ import IntegerField from "./IntegerField";
 import SelectField from "./SelectField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
+import URLField from "./URLField";
 
 export interface Props {
   selectedType: FieldType;
@@ -23,6 +24,8 @@ const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectedValues }) =
       <AssetField />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} />
+    ) : selectedType === "URL" ? (
+      <URLField />
     ) : (
       <TextField />
     )
