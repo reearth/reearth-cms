@@ -40,10 +40,10 @@ func (uz *Unzipper) Unzip() error {
 			_, err = io.CopyN(w, rc, limit)
 			_ = w.Close()
 			if errors.Is(io.EOF, err) {
-				return &LimitError{Path: f.FileInfo().Name()}
+				continue
 			}
 			if err != nil {
-				return err
+				return &LimitError{Path: f.FileInfo().Name()}
 			}
 
 		}
