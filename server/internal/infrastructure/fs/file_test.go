@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -33,6 +34,10 @@ func TestFile_UploadAsset(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Contains(t, p, "aaa.txt")
+
+	u1, err1 := f.UploadAsset(context.Background(), nil)
+	assert.Equal(t, "", u1)
+	assert.Same(t, gateway.ErrInvalidFile, err1)
 
 	uf, _ := fs.Open(p)
 	c, _ := io.ReadAll(uf)
