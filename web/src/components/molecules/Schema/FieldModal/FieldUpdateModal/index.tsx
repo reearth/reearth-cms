@@ -13,6 +13,7 @@ import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldMo
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 import { Field, FieldType, fieldTypes } from "../../types";
 
@@ -28,6 +29,7 @@ export interface Props {
   open?: boolean;
   selectedType: FieldType;
   selectedField?: Field | null;
+  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 }
@@ -44,6 +46,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
+  handleFieldKeyUnique,
   selectedType,
   selectedField,
 }) => {
@@ -149,8 +152,22 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="key"
-              label={t("Field Key")}
-              rules={[{ required: true, message: t("Please input the key of field!") }]}>
+              label="Field Key"
+              rules={[
+                { required: true, message: t("Please input the key of the field!") },
+                {
+                  message: t("Key is not valid"),
+                  validator: async (_, value) => {
+                    if (!validateKey(value)) return Promise.reject();
+                    const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
+                    if (isKeyAvailable) {
+                      return Promise.resolve();
+                    } else {
+                      return Promise.reject();
+                    }
+                  },
+                },
+              ]}>
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label={t("Description")}>
