@@ -15,7 +15,7 @@ import ProTable, {
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { uuidToURL } from "@reearth-cms/utils/convert";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
-import { dateSort, numberSort, stringSort } from "@reearth-cms/utils/sort";
+import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
 type AssetListTableProps = {
   assetList: Asset[];
@@ -57,13 +57,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: "File",
       dataIndex: "fileName",
       key: "fileName",
-      sorter: (a, b) => stringSort(a.fileName, b.fileName),
+      sorter: (a, b) => stringSortCallback(a.fileName, b.fileName),
     },
     {
       title: "Size",
       dataIndex: "size",
       key: "size",
-      sorter: (a, b) => numberSort(a.size, b.size),
+      sorter: (a, b) => numberSortCallback(a.size, b.size),
       render: (_text, record) => bytesFormat(record.size),
     },
     {
@@ -75,7 +75,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => dateSort(a.createdAt, b.createdAt),
+      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {

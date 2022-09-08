@@ -1,9 +1,9 @@
 import moment from "moment";
 
-type SortFunction<T> = (a: T, b: T) => number;
+type SortCallback<T> = (a: T, b: T) => number;
 
-export const dateSort: SortFunction<Date> = (a, b) => moment(a).diff(moment(b));
+export const dateSortCallback: SortCallback<Date> = (a, b) => moment(a).diff(moment(b));
 
-export const numberSort: SortFunction<number> = (a, b) => a - b;
+export const numberSortCallback: SortCallback<number> = (a, b) => a - b;
 
-export const stringSort: SortFunction<string> = (a, b) => a.localeCompare(b);
+export const stringSortCallback: SortCallback<string> = (a, b) => a.localeCompare(b);
