@@ -6,7 +6,7 @@ export type Asset = {
   createdById: string;
   file: AssetFile;
   fileName: string;
-  hash: string;
+  uuid: string;
   id: string;
   previewType?: PreviewType;
   projectId: string;
