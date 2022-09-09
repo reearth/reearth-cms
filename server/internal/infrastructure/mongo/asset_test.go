@@ -72,6 +72,14 @@ func TestAsset_FindByIDs(t *testing.T) {
 	assert.Nil(t, got2)
 }
 
+func TestAsset_NewAsset(t *testing.T) {
+	init := mongotest.Connect(t)
+	client := init(t)
+
+	r := NewAsset(mongox.NewClientWithDatabase(client))
+	assert.NotNil(t, r)
+}
+
 func TestAsset_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	a1 := asset.New().
