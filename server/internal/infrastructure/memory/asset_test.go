@@ -181,7 +181,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 	a2 := asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
 
 	type args struct {
-		tid   id.ProjectID
+		pid   id.ProjectID
 		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
@@ -260,18 +260,73 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 
 			r := NewAsset()
 			ctx := context.Background()
-			for _, p := range tc.seeds {
-				err := r.Save(ctx, p.Clone())
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
 				assert.Nil(t, err)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{})
+			got, _, err := r.FindByProject(ctx, tc.args.pid, repo.AssetFilter{})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAssetRepo_Delete(t *testing.T) {
+	pid1 := id.NewProjectID()
+	id1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		arg     id.AssetID
+		wantErr error
+	}{
+		{
+			name: "Found 1",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			arg:     id1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     id1,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewAsset()
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+
+			err := r.Delete(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Nil(t, err)
+			_, err = r.FindByID(ctx, tc.arg)
+			assert.ErrorIs(t, err, rerror.ErrNotFound)
 		})
 	}
 }
