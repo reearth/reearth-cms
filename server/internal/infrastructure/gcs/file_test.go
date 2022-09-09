@@ -1,30 +1,26 @@
 package gcs
 
 import (
-	"net/url"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetGCSObjectPath(t *testing.T) {
-	u := "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+func TestFile_GetFSObjectPath(t *testing.T) {
+	u := newUUID()
 	n := "xxx.yyy"
-	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy", getGCSObjectPath(u, n))
+	assert.Equal(t, path.Join(u[:2], u[2:], "xxx.yyy"), getGCSObjectPath(u, n))
+
+	u1 := ""
+	n1 := ""
+	assert.Equal(t, "", getGCSObjectPath(u1, n1))
 }
 
-func TestGetGCSObjectURL(t *testing.T) {
-	e, _ := url.Parse("https://hoge.com/xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy")
-	b, _ := url.Parse("https://hoge.com/")
-	assert.Equal(t, e, getGCSObjectURL(b, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy"))
-}
+func TestFile_IsValidUUID(t *testing.T) {
+	u := newUUID()
+	assert.Equal(t, true, IsValidUUID(u))
 
-func TestGetGCSObjectNameFromURL(t *testing.T) {
-	u, _ := url.Parse("https://hoge.com/xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy")
-	b, _ := url.Parse("https://hoge.com")
-	b2, _ := url.Parse("https://hoge2.com")
-	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.yyy", getGCSObjectNameFromURL(b, u))
-	assert.Equal(t, "", getGCSObjectNameFromURL(b2, u))
-	assert.Equal(t, "", getGCSObjectNameFromURL(nil, u))
-	assert.Equal(t, "", getGCSObjectNameFromURL(b, nil))
+	u1 := "xxxxxx"
+	assert.Equal(t, false, IsValidUUID(u1))
 }

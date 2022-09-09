@@ -36,6 +36,10 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadCloser, error) {
+	if filename == "" {
+		return nil, rerror.ErrNotFound
+	}
+
 	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
 }
 
@@ -59,16 +63,13 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
-	p := getFSObjectPath(u, fn)
-	if p == "" {
+	if u == "" || fn == "" {
 		return gateway.ErrInvalidFile
 	}
 
+	p := getFSObjectPath(u, fn)
 	sn := sanitize.Path(p)
 
-	if sn == "" {
-		return gateway.ErrInvalidFile
-	}
 	return f.delete(ctx, sn)
 }
 
@@ -90,7 +91,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
-	if filename == "" {
+	if filename == "" || content == nil {
 		return gateway.ErrFailedToUploadFile
 	}
 
@@ -115,11 +116,6 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	return nil
 }
 
-func getFSObjectPath(uuid, filename string) string {
-	p := path.Join(assetDir, uuid[:2], uuid[2:], filename)
-	return sanitize.Path(p)
-}
-
 func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	if filename == "" {
 		return gateway.ErrFailedToUploadFile
@@ -134,6 +130,20 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
+func getFSObjectPath(uuid, objectName string) string {
+	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+		return ""
+	}
+
+	p := path.Join(assetDir, uuid[:2], uuid[2:], objectName)
+	return sanitize.Path(p)
+}
+
 func newUUID() string {
 	return uuid.New().String()
+}
+
+func IsValidUUID(u string) bool {
+	_, err := uuid.Parse(u)
+	return err == nil
 }
