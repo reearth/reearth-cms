@@ -173,6 +173,10 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getGCSObjectPath(uuid, objectName string) string {
+	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+		return ""
+	}
+
 	p := path.Join(uuid[:2], uuid[2:], objectName)
 	return sanitize.Path(p)
 }
@@ -188,4 +192,9 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 
 func newUUID() string {
 	return uuid.New().String()
+}
+
+func IsValidUUID(u string) bool {
+	_, err := uuid.Parse(u)
+	return err == nil
 }
