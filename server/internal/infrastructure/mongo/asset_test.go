@@ -66,9 +66,9 @@ func TestAsset_FindByIDs(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expected, got)
 
-	ids2 := []idx.ID[id.Asset]{}
-	got2, err2 := repo.FindByIDs(ctx, ids2)
+	got2, err2 := repo.FindByIDs(ctx, nil)
 	assert.NoError(t, err2)
+	assert.Nil(t, err2)
 	assert.Nil(t, got2)
 }
 
