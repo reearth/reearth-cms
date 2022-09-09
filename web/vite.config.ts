@@ -18,6 +18,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       less: {
+        modifyVars: { "font-family": "Roboto", "typography-title-font-weight": 500 },
         javascriptEnabled: true,
       },
     },

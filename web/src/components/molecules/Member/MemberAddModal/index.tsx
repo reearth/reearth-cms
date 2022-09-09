@@ -137,7 +137,6 @@ const IconButton = styled.button`
 `;
 
 const EmailContent = styled.span`
-  font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;

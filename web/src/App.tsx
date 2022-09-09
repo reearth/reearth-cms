@@ -14,7 +14,7 @@ import SchemaPage from "@reearth-cms/components/pages/Schema";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
-import "antd/dist/antd.css";
+import "antd/dist/antd.less";
 
 function AppRoutes() {
   const routes = useRoutes([
