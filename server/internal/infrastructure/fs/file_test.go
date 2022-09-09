@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"testing"
 
@@ -79,19 +79,40 @@ func TestFile_UploadAsset(t *testing.T) {
 }
 
 func TestFile_DeleteAsset(t *testing.T) {
-	UUID := "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-	FileName := "aaa.txt"
-
+	u := newUUID()
+	n := "aaa.txt"
 	fs := mockFs()
 	f, _ := NewFile(fs, "https://example.com/assets")
-
-	err := f.DeleteAsset(context.Background(), UUID, FileName)
-
+	err := f.DeleteAsset(context.Background(), u, n)
 	assert.NoError(t, err)
-	assert.Nil(t, err)
 
-	_, err = fs.Stat(filepath.Join("assets", "xx/xxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/xxx.txt"))
+	_, err = fs.Stat(getFSObjectPath(u, n))
 	assert.ErrorIs(t, err, os.ErrNotExist)
+
+	u1 := ""
+	n1 := ""
+	fs1 := mockFs()
+	f1, _ := NewFile(fs1, "https://example.com/assets")
+	err1 := f1.DeleteAsset(context.Background(), u1, n1)
+	assert.Same(t, gateway.ErrInvalidFile, err1)
+}
+
+func TestFile_GetFSObjectPath(t *testing.T) {
+	u := newUUID()
+	n := "xxx.yyy"
+	assert.Equal(t, path.Join(assetDir, u[:2], u[2:], "xxx.yyy"), getFSObjectPath(u, n))
+
+	u1 := ""
+	n1 := ""
+	assert.Equal(t, "", getFSObjectPath(u1, n1))
+}
+
+func TestFile_IsValidUUID(t *testing.T) {
+	u := newUUID()
+	assert.Equal(t, true, IsValidUUID(u))
+
+	u1 := "xxxxxx"
+	assert.Equal(t, false, IsValidUUID(u1))
 }
 
 func mockFs() afero.Fs {
