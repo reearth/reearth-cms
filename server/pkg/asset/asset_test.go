@@ -88,3 +88,14 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 	got.UpdatePreviewType(pt)
 	assert.Equal(t, pt, got.PreviewType())
 }
+
+func TestAsset_Clone(t *testing.T) {
+	pid := NewProjectID()
+	uid := NewUserID()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+
+	got := a.Clone()
+	assert.Equal(t, a, got)
+	assert.NotSame(t, a, got)
+	assert.Nil(t, (*Asset)(nil).Clone())
+}
