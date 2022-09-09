@@ -36,6 +36,10 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadCloser, error) {
+	if filename == "" {
+		return nil, rerror.ErrNotFound
+	}
+
 	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
 }
 
@@ -59,11 +63,11 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
-	p := getFSObjectPath(u, fn)
-	if p == "" {
+	if u == "" || fn == "" {
 		return gateway.ErrInvalidFile
 	}
 
+	p := getFSObjectPath(u, fn)
 	sn := sanitize.Path(p)
 
 	return f.delete(ctx, sn)

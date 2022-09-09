@@ -35,6 +35,10 @@ func TestFile_ReadAsset(t *testing.T) {
 	assert.Equal(t, "hello", string(c))
 	assert.NoError(t, r.Close())
 
+	r, err = f.ReadAsset(context.Background(), "")
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Nil(t, r)
+
 	r, err = f.ReadAsset(context.Background(), "aaa.txt")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
