@@ -4,105 +4,424 @@ import (
 	"context"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 )
 
-func TestAsset_FindByID(t *testing.T) {
-	expected := asset.New().
-		NewID().
-		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
-		FileName("name").
-		Size(10).
-		UUID("https://reearth.io/").
-		MustBuild()
-
-	init := mongotest.Connect(t)
-	client := init(t)
-
-	repo := NewAsset(mongox.NewClientWithDatabase(client))
-	ctx := context.Background()
-	err := repo.Save(ctx, expected)
-	assert.NoError(t, err)
-
-	got, err := repo.FindByID(ctx, expected.ID())
-	assert.NoError(t, err)
-	assert.Equal(t, expected, got)
-}
-
-func TestAsset_FindByIDs(t *testing.T) {
-	a := asset.New().
-		NewID().
-		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
-		FileName("name").
-		Size(10).
-		UUID("https://reearth.io/").
-		MustBuild()
-
-	expected := []*asset.Asset{
-		a,
+func TestAssetRepo_FindByID(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		arg     id.AssetID
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   []*asset.Asset{},
+			arg:     id.NewAssetID(),
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild(),
+			},
+			arg:     id.NewAssetID(),
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			arg:     id1,
+			want:    a1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     id1,
+			want:    a1,
+			wantErr: nil,
+		},
 	}
 
-	init := mongotest.Connect(t)
-	client := init(t)
+	initDB := mongotest.Connect(t)
 
-	repo := NewAsset(mongox.NewClientWithDatabase(client))
-	ctx := context.Background()
-	err := repo.Save(ctx, a)
-	assert.NoError(t, err)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	ids := []idx.ID[id.Asset]{
-		a.ID(),
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+
+			got, err := r.FindByID(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
 	}
-	got, err := repo.FindByIDs(ctx, ids)
-	assert.NoError(t, err)
-	assert.Equal(t, expected, got)
-
-	got2, err2 := repo.FindByIDs(ctx, nil)
-	assert.NoError(t, err2)
-	assert.Nil(t, err2)
-	assert.Nil(t, got2)
 }
 
-func TestAsset_NewAsset(t *testing.T) {
-	init := mongotest.Connect(t)
-	client := init(t)
+func TestAssetRepo_FindByIDs(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	id2 := id.NewAssetID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
 
-	r := NewAsset(mongox.NewClientWithDatabase(client))
-	assert.NotNil(t, r)
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		arg     id.AssetIDList
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   []*asset.Asset{},
+			arg:     []id.AssetID{},
+			want:    []*asset.Asset{},
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another workspaces",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     []id.AssetID{},
+			want:    []*asset.Asset{},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			arg:     []id.AssetID{id1},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     []id.AssetID{id1},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     []id.AssetID{id1, id2},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a)
+				assert.Nil(t, err)
+			}
+
+			got, err := r.FindByIDs(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }
 
-func TestAsset_FindByProject(t *testing.T) {
-	pid := id.NewProjectID()
-	a1 := asset.New().
-		NewID().
-		Project(pid).
-		CreatedBy(id.NewUserID()).
-		FileName("xxx").
-		Size(10).
-		MustBuild()
+func TestAssetRepo_FindByProject(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	a2 := asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
 
-	expected := []*asset.Asset{}
-	expected = append(expected, a1)
+	type args struct {
+		tid   id.ProjectID
+		pInfo *usecasex.Pagination
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   []*asset.Asset{},
+			args:    args{id.NewProjectID(), nil},
+			want:    []*asset.Asset{},
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another workspaces",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{id.NewProjectID(), nil},
+			want:    []*asset.Asset{},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "get 1st page of 2",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "get last page of 2",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
+			want:    []*asset.Asset{a2},
+			wantErr: nil,
+		},
+	}
 
-	init := mongotest.Connect(t)
-	client := init(t)
+	initDB := mongotest.Connect(t)
 
-	r := NewAsset(mongox.NewClientWithDatabase(client))
-	ctx := context.Background()
-	err1 := r.Save(ctx, a1)
-	assert.NoError(t, err1)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	got, i, err := r.FindByProject(ctx, pid, repo.AssetFilter{})
-	assert.NoError(t, err)
-	assert.NotNil(t, i)
-	assert.Equal(t, expected, got)
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a)
+				assert.Nil(t, err)
+			}
+
+			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{})
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAssetRepo_Delete(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	tests := []struct {
+		name  string
+		seeds []*asset.Asset
+		arg   id.AssetID
+
+		wantErr error
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   []*asset.Asset{},
+			arg:     id.NewAssetID(),
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild(),
+			},
+			arg:     id.NewAssetID(),
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			arg:     id1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			arg:     id1,
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.Nil(t, err)
+			}
+
+			err := r.Delete(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Nil(t, err)
+			_, err = r.FindByID(ctx, tc.arg)
+			assert.ErrorIs(t, err, rerror.ErrNotFound)
+		})
+	}
+}
+
+func TestAssetRepo_Save(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		arg     *asset.Asset
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name: "Saved",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			arg:     a1,
+			want:    a1,
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				if tc.wantErr != nil {
+					assert.ErrorIs(t, err, tc.wantErr)
+					return
+				}
+			}
+
+			err := r.Save(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+		})
+	}
 }
