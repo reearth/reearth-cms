@@ -15,10 +15,9 @@ import (
 func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
-	r := &Item{
-		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
-	}
-	r.data.SaveOne(i.ID(), i, nil)
+	r := NewItem()
+	//v := version.New().OrRef()
+	r.Save(ctx, i)
 	out, err := r.FindByID(ctx, i.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, i, out)

@@ -18,7 +18,7 @@ type Item struct {
 
 func NewItem() repo.Item {
 	return &Item{
-		data: &memorygit.VersionedSyncMap[item.ID, *item.Item]{},
+		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
 	}
 }
 
