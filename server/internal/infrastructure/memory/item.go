@@ -3,22 +3,22 @@ package memory
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
-	data *util.SyncMap[item.ID, *item.Item]
+	data *memorygit.VersionedSyncMap[item.ID, *item.Item]
 	err  error
 }
 
 func NewItem() repo.Item {
 	return &Item{
-		data: &util.SyncMap[item.ID, *item.Item]{},
+		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
 	}
 }
 
@@ -27,9 +27,11 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 		return nil, r.err
 	}
 
-	return rerror.ErrIfNil(r.data.Find(func(key id.ItemID, value *item.Item) bool {
-		return key == itemID
-	}), rerror.ErrNotFound)
+	item, ok := r.data.Load(itemID, version.Latest.OrVersion())
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
 }
 
 func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
@@ -37,11 +39,15 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 		return nil, r.err
 	}
 
-	res := r.data.FindAll(func(key id.ItemID, value *item.Item) bool {
-		return list.Has(key)
-	})
-	slices.SortFunc(res, func(a, b *item.Item) bool { return a.ID().Compare(b.ID()) < 0 })
-	return res, nil
+	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
+}
+
+func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	return r.data.LoadAllVersions(id).All(), nil
 }
 
 func (r *Item) Save(ctx context.Context, t *item.Item) error {
@@ -49,7 +55,7 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 		return r.err
 	}
 
-	r.data.Store(t.ID(), t)
+	r.data.SaveOne(t.ID(), t, nil)
 	return nil
 }
 
@@ -62,8 +68,13 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	return nil
 }
 
-func (r *Item) Archive(ctx context.Context, itemID id.ItemID) error {
-	return r.Remove(ctx, itemID)
+func (r *Item) Archive(ctx context.Context, itemID id.ItemID, archived bool) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Archive(itemID, archived)
+	return nil
 }
 
 func SetItemError(r repo.Item, err error) {

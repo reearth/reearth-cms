@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
@@ -19,6 +20,7 @@ const initialValues: FormValues = {
 };
 
 const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+  const t = useT();
   const [form] = Form.useForm();
 
   const handleSubmit = useCallback(() => {
@@ -39,11 +41,11 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
-          label="Workspace name"
+          label={t("Workspace name")}
           rules={[
             {
               required: true,
-              message: "Please input the title of the current workspace!",
+              message: t("Please input the title of the current workspace!"),
             },
           ]}>
           <Input />

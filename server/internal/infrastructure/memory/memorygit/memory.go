@@ -40,6 +40,17 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res
 	return
 }
 
+func (m *VersionedSyncMap[K, V]) LoadAllVersions(key K) (res *version.Values[V]) {
+	m.Range(func(k K, v *version.Values[V]) bool {
+		if k == key {
+			res = v.Clone()
+			return false
+		}
+		return true
+	})
+	return
+}
+
 func (m *VersionedSyncMap[K, V]) SaveOne(key K, value V, parent *version.VersionOrRef) {
 	found := false
 	m.Range(func(k K, v *version.Values[V]) bool {
@@ -113,4 +124,8 @@ func (m *VersionedSyncMap[K, V]) FindAll(f func(k K, v *version.Values[V]) bool)
 
 func (m *VersionedSyncMap[K, V]) CountAll(f func(k K, v *version.Values[V]) bool) int {
 	return m.m.CountAll(f)
+}
+
+func (m *VersionedSyncMap[K, V]) Len() int {
+	return m.m.Len()
 }
