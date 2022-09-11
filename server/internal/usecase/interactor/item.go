@@ -8,17 +8,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 type Item struct {
 	repos       *repo.Container
 	transaction usecasex.Transaction
-}
-
-func (i Item) RemoveField(ctx context.Context, param interfaces.ItemFieldParam, operator *usecase.Operator) (*item.Item, error) {
-	panic("implement me")
 }
 
 func NewItem(r *repo.Container) interfaces.Item {
@@ -28,7 +24,7 @@ func NewItem(r *repo.Container) interfaces.Item {
 	}
 }
 
-func (i Item) FindByIDs(ctx context.Context, ids []id.ItemID, operator *usecase.Operator) (item.List, error) {
+func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (item.List, error) {
 			return i.repos.Item.FindByIDs(ctx, ids)
@@ -41,7 +37,7 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (*schema.Schema, error) {
+		func() (*item.Item, error) {
 			return it, nil
 		})
 }
@@ -53,8 +49,16 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				NewID().
 				Schema(param.SchemaID)
 
-			if param.Fields != nil && len(param.Fields) > 0 {
-				ib.Fields(param.Fields)
+			if len(param.Fields) > 0 {
+				var fs []*item.Field
+				for _, f := range param.Fields {
+					fs = append(fs, item.NewField(
+						f.SchemaFieldID,
+						f.ValueType,
+						f.Value,
+					))
+				}
+				ib.Fields(fs)
 			}
 
 			it, err := ib.Build()
@@ -70,13 +74,28 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		})
 }
 
-func (i Item) AddField(ctx context.Context, param interfaces.ItemFieldParam, operator *usecase.Operator) (*item.Item, error) {
+func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) ([]*version.Value[*item.Item], error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func() ([]*version.Value[*item.Item], error) {
+			return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+		})
+}
+
+func (i Item) UpdateItem(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
 		obj, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
-		obj.AddField(item.NewField(param.SchemaFieldID, param.ValueType, param.Value))
+		var fs []*item.Field
+		for _, f := range fs {
+			fs = append(fs, item.NewField(
+				f.SchemaFieldID(),
+				f.ValueType(),
+				f.Value(),
+			))
+		}
+		obj.UpdateFields(fs)
 
 		err = i.repos.Item.Save(ctx, obj)
 		if err != nil {

@@ -3,6 +3,7 @@ package item
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"golang.org/x/exp/slices"
 )
 
 type VersionedItem = version.Value[Item]
@@ -18,13 +19,13 @@ func (i *Item) ID() ID {
 }
 
 func (i *Item) Fields() []*Field {
-	return i.fields
+	return slices.Clone(i.fields)
 }
 
 func (i *Item) Schema() schema.ID {
 	return i.schemaID
 }
 
-func (i *Item) AddField(field *Field) {
-	i.fields = append(i.fields, field)
+func (i *Item) UpdateFields(fields []*Field) {
+	i.fields = slices.Clone(fields)
 }
