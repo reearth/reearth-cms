@@ -1,76 +1,304 @@
 package interactor
 
-// import (
-// 	"bytes"
-// 	"context"
-// 	"io"
-// 	"testing"
+import (
+	"bytes"
+	"context"
+	"io"
+	"strings"
+	"testing"
 
-// 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
-// 	"github.com/reearth/reearth-cms/server/internal/usecase"
-// 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-// 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-// 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-// 	"github.com/reearth/reearth-cms/server/pkg/asset"
-// 	"github.com/reearth/reearth-cms/server/pkg/file"
-// 	"github.com/reearth/reearth-cms/server/pkg/id"
-// 	"github.com/reearth/reearthx/usecasex"
-// 	"github.com/samber/lo"
-// 	"github.com/spf13/afero"
-// 	"github.com/stretchr/testify/assert"
-// )
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 
-// func TestAsset_Create(t *testing.T) {
-// 	ctx := context.Background()
-// 	pid := asset.NewProjectID()
-// 	aid := asset.NewID()
-// 	uid := asset.NewUserID()
-// 	newID := asset.NewID
-// 	asset.NewID = func() asset.ID { return aid }
-// 	t.Cleanup(func() { asset.NewID = newID })
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+)
 
-// 	mfs := afero.NewMemMapFs()
-// 	f, _ := fs.NewFile(mfs, "")
-// 	transaction := &usecasex.NopTransaction{}
-// 	repos := &repo.Container{Transaction: transaction}
+func TestAsset_Fetch(t *testing.T) {
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
 
-// 	repos.Transaction = transaction
-// 	uc := &Asset{
-// 		repos: repos,
-// 		gateways: &gateway.Container{
-// 			File: f,
-// 		},
-// 	}
-// 	buf := bytes.NewBufferString("Hello")
-// 	buflen := int64(buf.Len())
-// 	res, _ := uc.Create(ctx, interfaces.CreateAssetParam{
-// 		ProjectID:   pid,
-// 		CreatedByID: uid,
-// 		File: &file.File{
-// 			Content:     io.NopCloser(buf),
-// 			Path:        "hoge.txt",
-// 			ContentType: "",
-// 			Size:        buflen,
-// 		},
-// 	}, &usecase.Operator{
-// 		WritableProjects: id.ProjectIDList{pid},
-// 	})
+	aid1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
 
-// 	want := asset.New().
-// 		ID(aid).
-// 		Project(pid).
-// 		CreatedAt(aid.Timestamp()).
-// 		CreatedBy(uid).
-// 		FileName("hoge.txt").
-// 		Size(uint64(buflen)).
-// 		UUID(res.UUID()).
-// 		Type(asset.PreviewTypeFromRef(lo.ToPtr(""))).
-// 		MustBuild()
+	aid2 := id.NewAssetID()
+	uid2 := id.NewUserID()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid2).Size(1000).MustBuild()
 
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, want, res)
-// 	assert.False(t, transaction.IsCommitted())
-// 	a, err := repos.Asset.FindByID(ctx, aid)
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, want, a)
-// }
+	op := &usecase.Operator{}
+
+	type args struct {
+		ids      []id.AssetID
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "Fetch 1 of 2",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids:      []id.AssetID{aid1},
+				operator: op,
+			},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 2 of 2",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids:      []id.AssetID{aid1, aid2},
+				operator: op,
+			},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 1 of 0",
+			seeds: []*asset.Asset{},
+			args: args{
+				ids:      []id.AssetID{aid1},
+				operator: op,
+			},
+			want:    []*asset.Asset{nil},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 2 of 0",
+			seeds: []*asset.Asset{},
+			args: args{
+				ids:      []id.AssetID{aid1, aid2},
+				operator: op,
+			},
+			want:    []*asset.Asset{nil, nil},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.Fetch(ctx, tc.args.ids, &usecase.Operator{})
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAsset_FindByProject(t *testing.T) {
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
+
+	aid1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+
+	aid2 := id.NewAssetID()
+	uid2 := id.NewUserID()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid2).Size(1000).MustBuild()
+
+	op := &usecase.Operator{}
+
+	type args struct {
+		ids      []id.AssetID
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "Fetch 1 of 2",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids:      []id.AssetID{aid1},
+				operator: op,
+			},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 2 of 2",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids:      []id.AssetID{aid1, aid2},
+				operator: op,
+			},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 1 of 0",
+			seeds: []*asset.Asset{},
+			args: args{
+				ids:      []id.AssetID{aid1},
+				operator: op,
+			},
+			want:    []*asset.Asset{nil},
+			wantErr: nil,
+		},
+		{
+			name:  "Fetch 2 of 0",
+			seeds: []*asset.Asset{},
+			args: args{
+				ids:      []id.AssetID{aid1, aid2},
+				operator: op,
+			},
+			want:    []*asset.Asset{nil, nil},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, p := range tc.seeds {
+				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.Fetch(ctx, tc.args.ids, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAsset_Create(t *testing.T) {
+	pid := id.NewProjectID()
+	uid := id.NewUserID()
+	op := &usecase.Operator{}
+	buf := bytes.NewBufferString("Hello")
+	buflen := int64(buf.Len())
+	var pti asset.PreviewType = asset.PreviewTypeIMAGE
+	var ptg asset.PreviewType = asset.PreviewTypeGEO
+	af := &asset.File{}
+	af.SetName("aaa.txt")
+	af.SetSize(uint64(buflen))
+
+	type args struct {
+		cpp      interfaces.CreateAssetParam
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "Create",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID:   pid,
+					CreatedByID: uid,
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    buflen,
+					},
+				},
+				operator: op,
+			},
+			want: asset.New().
+				NewID().
+				Project(pid).
+				CreatedBy(uid).
+				FileName("aaa.txt").
+				File(af).
+				Size(uint64(buflen)).
+				Type(&ptg).
+				MustBuild(),
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			mfs := afero.NewMemMapFs()
+			f, _ := fs.NewFile(mfs, "")
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, &gateway.Container{
+				File: f,
+			})
+
+			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+
+			if strings.HasPrefix(got.PreviewType().String(), "image/") {
+				assert.Equal(t, &pti, got.PreviewType())
+			} else {
+				assert.Equal(t, &ptg, got.PreviewType())
+			}
+
+			assert.Equal(t, tc.want.Project(), got.Project())
+			assert.Equal(t, tc.want.FileName(), got.FileName())
+			assert.Equal(t, tc.want.Size(), got.Size())
+			assert.Equal(t, tc.want.File(), got.File())
+			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
+
+			dbGot, err := db.Asset.FindByID(ctx, got.ID())
+			assert.Nil(t, err)
+			assert.Equal(t, tc.want.Project(), dbGot.Project())
+			assert.Equal(t, tc.want.FileName(), dbGot.FileName())
+			assert.Equal(t, tc.want.Size(), dbGot.Size())
+			assert.Equal(t, tc.want.File(), dbGot.File())
+			assert.Equal(t, tc.want.PreviewType(), dbGot.PreviewType())
+		})
+	}
+}
