@@ -38,7 +38,7 @@ func TestNewUnzipper(t *testing.T) {
 
 func TestUnzipper_Unzip(t *testing.T) {
 	zf, err := os.Open("testdata/test.zip")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	fInfo, err := zf.Stat()
 	if err != nil {
