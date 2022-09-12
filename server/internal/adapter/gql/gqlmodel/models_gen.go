@@ -110,8 +110,8 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	ModelID ID                `json:"modelId"`
-	Fields  []*ItemFieldInput `json:"fields"`
+	SchemaID ID                `json:"schemaID"`
+	Fields   []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -246,14 +246,9 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID             `json:"id"`
-	ModelID       ID             `json:"modelId"`
-	Model         *Model         `json:"model"`
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	LatestVersion *ItemVersion   `json:"latestVersion"`
-	PublicVersion string         `json:"publicVersion"`
-	Versions      []*ItemVersion `json:"versions"`
+	ID       ID           `json:"id"`
+	SchemaID ID           `json:"schemaID"`
+	Fields   []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}
@@ -272,24 +267,19 @@ type ItemEdge struct {
 }
 
 type ItemField struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldID"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemFieldInput struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldID"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemPayload struct {
 	Item *Item `json:"item"`
-}
-
-type ItemVersion struct {
-	Version string       `json:"version"`
-	Parent  []string     `json:"parent"`
-	Ref     []string     `json:"ref"`
-	Fields  []*ItemField `json:"fields"`
 }
 
 type KeyAvailability struct {
@@ -695,6 +685,13 @@ type User struct {
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
+
+type VersionValue struct {
+	Version ID          `json:"version"`
+	Parents []ID        `json:"parents"`
+	Refs    []*string   `json:"refs"`
+	Value   interface{} `json:"value"`
+}
 
 type Webhook struct {
 	ID        ID              `json:"id"`

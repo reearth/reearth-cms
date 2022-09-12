@@ -1,0 +1,6 @@
+type VersionValue {
+  version: ID!
+  parents: [ID!]
+  refs: [String]
+  value: Any!
+}

@@ -81,7 +81,7 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operato
 		})
 }
 
-func (i Item) UpdateItem(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
+func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
 		obj, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {

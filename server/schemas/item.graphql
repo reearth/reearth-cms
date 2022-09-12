@@ -1,34 +1,24 @@
 type Item implements Node {
   id: ID!
-  modelId: ID!
-  model: Model!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  latestVersion: ItemVersion
-  publicVersion: String!
-  versions: [ItemVersion!]!
-}
-
-type ItemVersion {
-  version: String!
-  parent: [String!]!
-  ref: [String!]!
-  fields: [ItemField!]!
+  schemaID: ID!
+  fields: [ItemField!]
 }
 
 type ItemField {
-  fieldId: ID!
+  schemaFieldID: ID!
+  type: SchemaFiledType!
   value: Any!
 }
 
 # Inputs
 input ItemFieldInput {
-  fieldId: ID!
+  schemaFieldID: ID!
+  type: SchemaFiledType!
   value: Any!
 }
 
 input CreateItemInput {
-  modelId: ID!
+  schemaID: ID!
   fields: [ItemFieldInput!]!
 }
 
@@ -50,26 +40,27 @@ type DeleteItemPayload {
   itemId: ID!
 }
 
-type ItemConnection {
-  edges: [ItemEdge!]!
-  nodes: [Item]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type ItemEdge {
-  cursor: Cursor!
-  node: Item
-}
+#type ItemConnection {
+#  edges: [ItemEdge!]!
+#  nodes: [Item]!
+#  pageInfo: PageInfo!
+#  totalCount: Int!
+#}
+#
+#type ItemEdge {
+#  cursor: Cursor!
+#  node: Item
+#}
 
 extend type Query {
-  items(
-    modelId: ID!
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ItemConnection!
+  #  items(
+  #    schemaID: ID!
+  #    first: Int
+  #    last: Int
+  #    after: Cursor
+  #    before: Cursor
+  #  ): ItemConnection!
+  versionsByItem(itemID: ID!): [VersionValue]
 }
 
 extend type Mutation {
