@@ -69,7 +69,7 @@ func TestUnzipper_Unzip(t *testing.T) {
 		assert.Equal(t, v.Bytes(), expectedFiles[k])
 	}
 
-	//Exception: test if  wFn's error is same as what Unzip returnsn
+	// Exception: test if wFn's error is same as what Unzip returns
 	uz, err = NewUnzipper(r, func(name string) (io.WriteCloser, error) {
 		return nil, errors.New("test")
 	})
