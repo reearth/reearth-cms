@@ -5,10 +5,21 @@ type Workspace implements Node {
     personal: Boolean!
 }
 
-type WorkspaceMember {
+union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
+
+type WorkspaceUserMember {
     userId: ID!
     role: Role!
     user: User
+}
+
+type WorkspaceIntegrationMember {
+    integrationId: ID!
+    role: Role!
+    active: Boolean!
+    invitedById: ID!
+    invitedBy: User
+    integration: Integration
 }
 
 enum Role {
@@ -20,7 +31,6 @@ enum Role {
     OWNER
 }
 
-
 input CreateWorkspaceInput {
     name: String!
 }
@@ -30,9 +40,15 @@ input UpdateWorkspaceInput {
     name: String!
 }
 
-input AddMemberToWorkspaceInput {
+input AddUserToWorkspaceInput {
     workspaceId: ID!
     userId: ID!
+    role: Role!
+}
+
+input AddIntegrationToWorkspaceInput {
+    workspaceId: ID!
+    integrationId: ID!
     role: Role!
 }
 
@@ -81,7 +97,8 @@ extend type Mutation {
     createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
     deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
     updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-    addMemberToWorkspace(input: AddMemberToWorkspaceInput!): AddMemberToWorkspacePayload
+    addUserToWorkspace(input: AddUserToWorkspaceInput!): AddMemberToWorkspacePayload
+    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddMemberToWorkspacePayload
     removeMemberFromWorkspace(input: RemoveMemberFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateMemberOfWorkspace(input: UpdateMemberOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }
