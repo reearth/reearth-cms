@@ -18,6 +18,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/idx"
+	"github.com/reearth/reearthx/rerror"
 )
 
 func TestAsset_Fetch(t *testing.T) {
@@ -299,6 +301,171 @@ func TestAsset_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Size(), dbGot.Size())
 			assert.Equal(t, tc.want.File(), dbGot.File())
 			assert.Equal(t, tc.want.PreviewType(), dbGot.PreviewType())
+		})
+	}
+}
+
+func TestAsset_Update(t *testing.T) {
+	uid := id.NewUserID()
+	var pti asset.PreviewType = asset.PreviewTypeIMAGE
+	var ptg asset.PreviewType = asset.PreviewTypeGEO
+
+	pid1 := id.NewProjectID()
+	aid1 := id.NewAssetID()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).MustBuild()
+	a1Updated := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).Type(&pti).MustBuild()
+
+	pid2 := id.NewProjectID()
+	aid2 := id.NewAssetID()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid).Size(1000).MustBuild()
+
+	op := &usecase.Operator{}
+
+	type args struct {
+		upp      interfaces.UpdateAssetParam
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "update",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     aid1,
+					PreviewType: &pti,
+				},
+				operator: op,
+			},
+			want:    a1Updated,
+			wantErr: nil,
+		},
+		{
+			name:  "update not found",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     idx.ID[id.Asset]{},
+					PreviewType: &ptg,
+				},
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, p := range tc.seeds {
+				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, &gateway.Container{})
+
+			got, err := assetUC.Update(ctx, tc.args.upp, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAsset_Delete(t *testing.T) {
+	uid := id.NewUserID()
+
+	pid1 := id.NewProjectID()
+	aid1 := id.NewAssetID()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).MustBuild()
+
+	pid2 := id.NewProjectID()
+	aid2 := id.NewAssetID()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid).Size(1000).MustBuild()
+
+	op := &usecase.Operator{}
+
+	type args struct {
+		id       id.AssetID
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name         string
+		seeds        []*asset.Asset
+		args         args
+		want         []*asset.Asset
+		mockAssetErr bool
+		wantErr      error
+	}{
+		{
+			name:  "delete",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				id:       aid1,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:  "delete not found",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "delete od",
+			seeds: []*asset.Asset{},
+			args: args{
+				id:       aid2,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, p := range tc.seeds {
+				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, &gateway.Container{})
+
+			id, err := assetUC.Delete(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.Equal(t, tc.args.id, id)
+			assert.NoError(t, err)
+
+			_, err = db.Asset.FindByID(ctx, tc.args.id)
+			assert.Equal(t, rerror.ErrNotFound, err)
 		})
 	}
 }
