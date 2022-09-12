@@ -3,6 +3,8 @@ package asset
 import (
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/reearth/reearthx/util"
 )
 
@@ -48,6 +50,9 @@ func (a *Asset) Size() uint64 {
 
 func (a *Asset) PreviewType() *PreviewType {
 	if a.previewType == nil {
+		return lo.ToPtr(PreviewType(""))
+	}
+	if a.previewType == nil {
 		return nil
 	}
 	return a.previewType
@@ -63,4 +68,22 @@ func (a *Asset) UUID() string {
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
+}
+
+func (a *Asset) Clone() *Asset {
+	if a == nil {
+		return nil
+	}
+
+	return &Asset{
+		id:          a.id.Clone(),
+		project:     a.project.Clone(),
+		createdAt:   a.createdAt,
+		createdBy:   a.createdBy.Clone(),
+		fileName:    a.fileName,
+		size:        a.size,
+		previewType: a.previewType,
+		file:        a.file,
+		uuid:        a.uuid,
+	}
 }

@@ -63,7 +63,7 @@ func TestAsset_PreviewType(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	assert.Nil(t, got.PreviewType())
+	assert.Equal(t, lo.ToPtr(PreviewType("")), got.PreviewType())
 }
 
 func TestAsset_UpdatePreviewType(t *testing.T) {
@@ -87,4 +87,15 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 	pt := lo.ToPtr(PreviewTypeIMAGE)
 	got.UpdatePreviewType(pt)
 	assert.Equal(t, pt, got.PreviewType())
+}
+
+func TestAsset_Clone(t *testing.T) {
+	pid := NewProjectID()
+	uid := NewUserID()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+
+	got := a.Clone()
+	assert.Equal(t, a, got)
+	assert.NotSame(t, a, got)
+	assert.Nil(t, (*Asset)(nil).Clone())
 }
