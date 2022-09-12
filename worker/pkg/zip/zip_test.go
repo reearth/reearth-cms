@@ -56,7 +56,7 @@ func TestUnzipper_Unzip(t *testing.T) {
 		"test2.txt": {bytes.Buffer{}},
 	}
 
-	//Normal Scenario
+	// Normal Scenario
 	r, err := zip.NewReader(zf, fInfo.Size())
 	require.NoError(t, err)
 	uz, err := NewUnzipper(r, func(name string) (io.WriteCloser, error) {
