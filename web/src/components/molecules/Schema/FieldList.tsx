@@ -3,6 +3,7 @@ import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
 import { FieldType } from "./types";
@@ -38,9 +39,10 @@ const data: FieldListItem[] = [
 ];
 
 const FieldList: React.FC<Props> = ({ addField }) => {
+  const t = useT();
   return (
     <>
-      <h1>Add Field</h1>
+      <h1>{t("Add Field")}</h1>
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={data}

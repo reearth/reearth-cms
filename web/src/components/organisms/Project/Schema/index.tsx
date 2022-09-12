@@ -57,6 +57,7 @@ const ProjectSchema: React.FC = () => {
     fieldUpdateModalShown,
     handleModelCreate,
     handleFieldCreate,
+    handleFieldKeyUnique,
     handleFieldUpdate,
     selectedField,
     handleFieldDelete,
@@ -132,6 +133,7 @@ const ProjectSchema: React.FC = () => {
       />
       {selectedType && (
         <FieldCreationModal
+          handleFieldKeyUnique={handleFieldKeyUnique}
           selectedType={selectedType}
           open={fieldCreationModalShown}
           onClose={handleFieldCreationModalClose}
@@ -140,6 +142,7 @@ const ProjectSchema: React.FC = () => {
       )}
       {selectedType && (
         <FieldUpdateModal
+          handleFieldKeyUnique={handleFieldKeyUnique}
           selectedType={selectedType}
           open={fieldUpdateModalShown}
           selectedField={selectedField}
