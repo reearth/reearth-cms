@@ -5,12 +5,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Package",
+      "name": "Debug server",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/server/cmd/reearth-cms",
       "envFile":  "${workspaceFolder}/server/.env"
+    },
+    {
+      "name": "Debug worker",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/worker/cmd/reearth-cms-worker",
+      "envFile":  "${workspaceFolder}/worker/.env"
     }
   ]
 }
