@@ -11,3 +11,5 @@ node_modules
 /web/storybook-static
 
 /server/mongo
+
+/worker/.env*

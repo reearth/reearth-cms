@@ -53,7 +53,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 }
 
 // setClient is intended to be used for testing to inject client from external
-func (t *TaskRunner) setClient(c *cloudtasks.Client) {
+func (t *TaskRunner) setClient(c *cloudtasks.Client) { //nolint:unused
 	t.c = c
 }
 
