@@ -74,6 +74,6 @@ func TestUnzipper_Unzip(t *testing.T) {
 		return nil, errors.New("test")
 	})
 	require.NoError(t, err)
-	assert.Equal(t, uz.Unzip(), errors.New("test"))
+	assert.Equal(t, errors.New("test"), uz.Unzip())
 
 }
