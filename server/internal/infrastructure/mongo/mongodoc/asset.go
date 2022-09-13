@@ -17,8 +17,16 @@ type AssetDocument struct {
 	FileName    string
 	Size        uint64
 	PreviewType string
-	File        *asset.File
+	File        *File
 	UUID        string
+}
+
+type File struct {
+	name        string
+	size        uint64
+	contentType string
+	path        string
+	children    []*File
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -29,6 +37,12 @@ func NewAssetConsumer() *AssetConsumer {
 
 func NewAsset(asset *asset.Asset) (*AssetDocument, string) {
 	aid := asset.ID().String()
+
+	previewType := ""
+	if pt := asset.PreviewType(); pt != nil {
+		previewType = pt.String()
+	}
+
 	return &AssetDocument{
 		ID:          aid,
 		Project:     asset.Project().String(),
@@ -36,7 +50,8 @@ func NewAsset(asset *asset.Asset) (*AssetDocument, string) {
 		CreatedBy:   asset.CreatedBy().String(),
 		FileName:    asset.FileName(),
 		Size:        asset.Size(),
-		PreviewType: asset.PreviewType().String(),
+		PreviewType: previewType,
+		File:        ToFile(asset.File()),
 		UUID:        asset.UUID(),
 	}, aid
 }
@@ -55,17 +70,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 
-	if d.File == nil {
-		d.File = &asset.File{}
-	}
-
-	f := &asset.File{}
-	f.SetName(d.File.Name())
-	f.SetSize(d.File.Size())
-	f.SetContentType(d.File.ContentType())
-	f.SetPath(d.File.Path())
-	f.SetChildren(d.File.Children()...)
-
 	return asset.New().
 		ID(aid).
 		Project(pid).
@@ -74,7 +78,50 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
-		File(f).
+		File(FromFile(d.File)).
 		UUID(d.UUID).
 		Build()
+}
+
+func ToFile(f *asset.File) *File {
+	if f == nil {
+		return nil
+	}
+
+	c := []*File{}
+	if f.Children() != nil && len(f.Children()) > 0 {
+		for _, v := range f.Children() {
+			c = append(c, ToFile(v))
+		}
+	}
+
+	return &File{
+		name:        f.Name(),
+		size:        f.Size(),
+		contentType: f.ContentType(),
+		path:        f.Path(),
+		children:    c,
+	}
+}
+
+func FromFile(f *File) *asset.File {
+	if f == nil {
+		return nil
+	}
+
+	c := []*asset.File{}
+	if f.children != nil && len(f.children) > 0 {
+		for _, v := range f.children {
+			c = append(c, FromFile(v))
+		}
+	}
+
+	af := asset.File{}
+	af.SetName(f.name)
+	af.SetSize(f.size)
+	af.SetContentType(f.contentType)
+	af.SetPath(f.path)
+	af.SetChildren(c...)
+
+	return &af
 }
