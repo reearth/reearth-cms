@@ -105,7 +105,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			name:    "0 count in empty db",
 			seeds:   []*asset.Asset{},
 			arg:     id.AssetIDList{},
-			want:    []*asset.Asset{},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -114,7 +114,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
 			},
 			arg:     id.AssetIDList{},
-			want:    []*asset.Asset{},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -195,7 +195,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			name:    "0 count in empty db",
 			seeds:   []*asset.Asset{},
 			args:    args{id.NewProjectID(), nil},
-			want:    []*asset.Asset{},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -204,7 +204,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
 			},
 			args:    args{id.NewProjectID(), nil},
-			want:    []*asset.Asset{},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
