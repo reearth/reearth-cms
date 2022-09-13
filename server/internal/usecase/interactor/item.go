@@ -42,6 +42,17 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 		})
 }
 
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, operator *usecase.Operator) (item.List, error) {
+	_, err := i.repos.Schema.FindByID(ctx, schemaID)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, error) {
+			return i.repos.Item.FindBySchema(ctx, schemaID)
+		})
+}
+
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *item.Item, err error) {
