@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 type Item struct {
@@ -32,6 +33,21 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 		return nil, rerror.ErrNotFound
 	}
 	return item, nil
+}
+
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.Schema() == schemaID {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res, nil, nil
 }
 
 func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
@@ -79,4 +95,8 @@ func (r *Item) Archive(ctx context.Context, itemID id.ItemID, archived bool) err
 
 func SetItemError(r repo.Item, err error) {
 	r.(*Item).err = err
+}
+
+func (r *Item) Len() int {
+	return r.data.Len()
 }
