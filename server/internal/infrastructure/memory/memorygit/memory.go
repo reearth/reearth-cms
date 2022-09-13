@@ -11,7 +11,9 @@ type VersionedSyncMap[K comparable, V any] struct {
 }
 
 func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
-	return &VersionedSyncMap[K, V]{}
+	return &VersionedSyncMap[K, V]{
+		m: util.SyncMapFrom(map[K]*version.Values[V]{}),
+	}
 }
 
 func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res V, _ bool) {

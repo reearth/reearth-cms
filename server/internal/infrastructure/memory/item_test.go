@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
@@ -16,8 +15,8 @@ func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
 	r := NewItem()
-	//v := version.New().OrRef()
-	r.Save(ctx, i)
+	_ = r.Save(ctx, i)
+
 	out, err := r.FindByID(ctx, i.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, i, out)
@@ -35,14 +34,13 @@ func TestItem_Remove(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
 	i2, _ := item.New().NewID().Build()
-	r := &Item{
-		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
-	}
-	r.data.SaveOne(i.ID(), i, nil)
-	r.data.SaveOne(i2.ID(), i2, nil)
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
 
 	_ = r.Remove(ctx, i2.ID())
-	assert.Equal(t, 1, r.data.Len())
+	data, _ := r.FindByIDs(ctx, id.ItemIDList{i.ID(), i2.ID()})
+	assert.Equal(t, 1, len(data))
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
@@ -53,11 +51,10 @@ func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
 
-	r := &Item{
-		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
-	}
+	r := NewItem()
 	_ = r.Save(ctx, i)
-	assert.Equal(t, 1, r.data.Len())
+	got, _ := r.FindByID(ctx, i.ID())
+	assert.Equal(t, i, got)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
@@ -68,17 +65,50 @@ func TestItem_FindByIDs(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Build()
 	i2, _ := item.New().NewID().Build()
-	r := &Item{
-		data: &memorygit.VersionedSyncMap[id.ItemID, *item.Item]{},
-	}
-	r.data.SaveOne(i.ID(), i, nil)
-	r.data.SaveOne(i2.ID(), i2, nil)
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
 
 	ids := id.ItemIDList{i.ID()}
-	il := []*item.Item{i}
+	il := item.List{i}
 	out, err := r.FindByIDs(ctx, ids)
 	assert.NoError(t, err)
 	assert.Equal(t, il, out)
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
+}
+
+func TestItem_FindAllVersionsByID(t *testing.T) {
+	ctx := context.Background()
+	i, _ := item.New().NewID().Build()
+
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	v, _ := r.FindAllVersionsByID(ctx, i.ID())
+	assert.Equal(t, 1, len(v))
+
+	_ = r.Save(ctx, i)
+	v, _ = r.FindAllVersionsByID(ctx, i.ID())
+	assert.Equal(t, 2, len(v))
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
+}
+
+func TestItem_FindBySchema(t *testing.T) {
+	ctx := context.Background()
+	sid := id.NewSchemaID()
+	i, _ := item.New().NewID().Schema(sid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Build()
+
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
+	got, _ := r.FindBySchema(ctx, sid)
+	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
