@@ -117,7 +117,6 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 		Name               string
 		Input              id.ItemIDList
 		RepoData, Expected item.List
-		WantErr            bool
 	}{
 		{
 			Name:     "must find two items",
@@ -129,7 +128,6 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 			Name:     "must not find any item",
 			Input:    id.ItemIDList{id.NewItemID()},
 			RepoData: item.List{i1, i2},
-			WantErr:  true,
 		},
 	}
 
@@ -151,12 +149,8 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err := repo.FindByIDs(ctx, tc.Input)
-			if tc.WantErr {
-				assert.Equal(tt, err, rerror.ErrNotFound)
-			} else {
-				assert.Equal(tt, tc.Expected, got)
-			}
+			got, _ := repo.FindByIDs(ctx, tc.Input)
+			assert.Equal(tt, tc.Expected, got)
 		})
 	}
 }
@@ -204,7 +198,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err, _ := repo.FindBySchema(ctx, tc.Input, nil)
+			got, _, err := repo.FindBySchema(ctx, tc.Input, nil)
 			if tc.WantErr {
 				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
