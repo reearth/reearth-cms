@@ -10,6 +10,13 @@ type ItemField {
   value: Any!
 }
 
+type VersionedItem {
+  version: ID!
+  parents: [ID!]
+  refs: [String]
+  value: Item!
+}
+
 # Inputs
 input ItemFieldInput {
   schemaFieldID: ID!
@@ -23,12 +30,12 @@ input CreateItemInput {
 }
 
 input UpdateItemInput {
-  itemId: ID!
+  itemID: ID!
   fields: [ItemFieldInput!]!
 }
 
 input DeleteItemInput {
-  itemId: ID!
+  itemID: ID!
 }
 
 # Payloads
@@ -37,30 +44,30 @@ type ItemPayload {
 }
 
 type DeleteItemPayload {
-  itemId: ID!
+  itemID: ID!
 }
 
-#type ItemConnection {
-#  edges: [ItemEdge!]!
-#  nodes: [Item]!
-#  pageInfo: PageInfo!
-#  totalCount: Int!
-#}
-#
-#type ItemEdge {
-#  cursor: Cursor!
-#  node: Item
-#}
+type ItemConnection {
+  edges: [ItemEdge!]!
+  nodes: [Item]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ItemEdge {
+  cursor: Cursor!
+  node: Item
+}
 
 extend type Query {
-  #  items(
-  #    schemaID: ID!
-  #    first: Int
-  #    last: Int
-  #    after: Cursor
-  #    before: Cursor
-  #  ): ItemConnection!
-  versionsByItem(itemID: ID!): [VersionValue]
+  items(
+    schemaID: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ItemConnection!
+  versionsByItem(itemID: ID!): [VersionedItem!]
 }
 
 extend type Mutation {

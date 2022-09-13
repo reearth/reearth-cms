@@ -169,11 +169,11 @@ type DeleteIntegrationPayload struct {
 }
 
 type DeleteItemInput struct {
-	ItemID ID `json:"itemId"`
+	ItemID ID `json:"itemID"`
 }
 
 type DeleteItemPayload struct {
-	ItemID ID `json:"itemId"`
+	ItemID ID `json:"itemID"`
 }
 
 type DeleteMeInput struct {
@@ -620,7 +620,7 @@ type UpdateIntegrationInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID ID                `json:"itemId"`
+	ItemID ID                `json:"itemID"`
 	Fields []*ItemFieldInput `json:"fields"`
 }
 
@@ -686,11 +686,11 @@ type User struct {
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
 
-type VersionValue struct {
-	Version ID          `json:"version"`
-	Parents []ID        `json:"parents"`
-	Refs    []*string   `json:"refs"`
-	Value   interface{} `json:"value"`
+type VersionedItem struct {
+	Version ID        `json:"version"`
+	Parents []ID      `json:"parents"`
+	Refs    []*string `json:"refs"`
+	Value   *Item     `json:"value"`
 }
 
 type Webhook struct {

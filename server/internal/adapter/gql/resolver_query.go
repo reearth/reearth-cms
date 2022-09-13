@@ -96,6 +96,10 @@ func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID
 	return loaders(ctx).Model.CheckKey(ctx, projectID, key)
 }
 
-func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionValue, error) {
+func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
 	panic("implement me")
+}
+
+func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindByWorkspace(ctx, schemaID, first, last, before, after)
 }

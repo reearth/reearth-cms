@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -19,7 +20,6 @@ type ItemLoader struct {
 func NewItemLoader(usecase interfaces.Item) *ItemLoader {
 	return &ItemLoader{usecase: usecase}
 }
-
 func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
 	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
 	if err != nil {
@@ -34,6 +34,52 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	return lo.Map(res, func(m *item.Item, i int) *gqlmodel.Item {
 		return gqlmodel.ToItem(m)
 	}), nil
+}
+
+//func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, []error) {
+//iId, err := gqlmodel.ToID[id.Item](itemID)
+//if err != nil {
+//	return nil, []error{err}
+//}
+//
+//res, err := c.usecase.FindAllVersionsByID(ctx, iId, getOperator(ctx))
+//if err != nil {
+//	return nil, []error{err}
+//}
+//
+//return lo.Map(res, func(m *version.Value[*item.Item], i int) *gqlmodel.VersionedItem {
+//	return gqlmodel.ToVersionedItem(m)
+//}), nil
+//}
+
+func (c *ItemLoader) FindByWorkspace(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	wid, err := gqlmodel.ToID[id.Schema](schemaID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, pi, err := c.usecase.FindBySchema(ctx, wid, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
+	nodes := make([]*gqlmodel.Item, 0, len(res))
+	for _, i := range res {
+		itm := gqlmodel.ToItem(i)
+		edges = append(edges, &gqlmodel.ItemEdge{
+			Node:   itm,
+			Cursor: usecasex.Cursor(itm.ID),
+		})
+		nodes = append(nodes, itm)
+	}
+
+	return &gqlmodel.ItemConnection{
+		Edges:      edges,
+		Nodes:      nodes,
+		PageInfo:   gqlmodel.ToPageInfo(pi),
+		TotalCount: pi.TotalCount,
+	}, nil
 }
 
 // data loader

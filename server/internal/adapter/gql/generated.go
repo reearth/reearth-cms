@@ -326,6 +326,7 @@ type ComplexityRoot struct {
 		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) int
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
+		Items                     func(childComplexity int, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
@@ -445,7 +446,7 @@ type ComplexityRoot struct {
 		Name  func(childComplexity int) int
 	}
 
-	VersionValue struct {
+	VersionedItem struct {
 		Parents func(childComplexity int) int
 		Refs    func(childComplexity int) int
 		Value   func(childComplexity int) int
@@ -565,7 +566,8 @@ type QueryResolver interface {
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
-	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionValue, error)
+	Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
+	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
@@ -792,7 +794,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteIntegrationPayload.IntegrationID(childComplexity), true
 
-	case "DeleteItemPayload.itemId":
+	case "DeleteItemPayload.itemID":
 		if e.complexity.DeleteItemPayload.ItemID == nil {
 			break
 		}
@@ -1831,6 +1833,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CheckProjectAlias(childComplexity, args["alias"].(string)), true
 
+	case "Query.items":
+		if e.complexity.Query.Items == nil {
+			break
+		}
+
+		args, err := ec.field_Query_items_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Items(childComplexity, args["schemaID"].(gqlmodel.ID), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -2239,33 +2253,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Name(childComplexity), true
 
-	case "VersionValue.parents":
-		if e.complexity.VersionValue.Parents == nil {
+	case "VersionedItem.parents":
+		if e.complexity.VersionedItem.Parents == nil {
 			break
 		}
 
-		return e.complexity.VersionValue.Parents(childComplexity), true
+		return e.complexity.VersionedItem.Parents(childComplexity), true
 
-	case "VersionValue.refs":
-		if e.complexity.VersionValue.Refs == nil {
+	case "VersionedItem.refs":
+		if e.complexity.VersionedItem.Refs == nil {
 			break
 		}
 
-		return e.complexity.VersionValue.Refs(childComplexity), true
+		return e.complexity.VersionedItem.Refs(childComplexity), true
 
-	case "VersionValue.value":
-		if e.complexity.VersionValue.Value == nil {
+	case "VersionedItem.value":
+		if e.complexity.VersionedItem.Value == nil {
 			break
 		}
 
-		return e.complexity.VersionValue.Value(childComplexity), true
+		return e.complexity.VersionedItem.Value(childComplexity), true
 
-	case "VersionValue.version":
-		if e.complexity.VersionValue.Version == nil {
+	case "VersionedItem.version":
+		if e.complexity.VersionedItem.Version == nil {
 			break
 		}
 
-		return e.complexity.VersionValue.Version(childComplexity), true
+		return e.complexity.VersionedItem.Version(childComplexity), true
 
 	case "Webhook.active":
 		if e.complexity.Webhook.Active == nil {
@@ -3315,6 +3329,13 @@ type ItemField {
   value: Any!
 }
 
+type VersionedItem {
+  version: ID!
+  parents: [ID!]
+  refs: [String]
+  value: Item!
+}
+
 # Inputs
 input ItemFieldInput {
   schemaFieldID: ID!
@@ -3328,12 +3349,12 @@ input CreateItemInput {
 }
 
 input UpdateItemInput {
-  itemId: ID!
+  itemID: ID!
   fields: [ItemFieldInput!]!
 }
 
 input DeleteItemInput {
-  itemId: ID!
+  itemID: ID!
 }
 
 # Payloads
@@ -3342,7 +3363,7 @@ type ItemPayload {
 }
 
 type DeleteItemPayload {
-  itemId: ID!
+  itemID: ID!
 }
 
 type ItemConnection {
@@ -3358,7 +3379,14 @@ type ItemEdge {
 }
 
 extend type Query {
-  versionsByItem(itemID: ID!): [VersionValue]
+    items(
+      schemaID: ID!
+      first: Int
+      last: Int
+      after: Cursor
+      before: Cursor
+    ): ItemConnection!
+  versionsByItem(itemID: ID!): [VersionedItem!]
 }
 
 extend type Mutation {
@@ -3495,12 +3523,6 @@ extend type Mutation {
   deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/version.graphql", Input: `type VersionValue {
-  version: ID!
-  parents: [ID!]
-  refs: [String]
-  value: Any!
-}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -4111,6 +4133,57 @@ func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Conte
 		}
 	}
 	args["alias"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["schemaID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaID"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["schemaID"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *usecasex.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg3
+	var arg4 *usecasex.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg4, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg4
 	return args, nil
 }
 
@@ -5704,8 +5777,8 @@ func (ec *executionContext) fieldContext_DeleteIntegrationPayload_integrationId(
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteItemPayload_itemId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteItemPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteItemPayload_itemId(ctx, field)
+func (ec *executionContext) _DeleteItemPayload_itemID(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteItemPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteItemPayload_itemID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5735,7 +5808,7 @@ func (ec *executionContext) _DeleteItemPayload_itemId(ctx context.Context, field
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DeleteItemPayload_itemId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DeleteItemPayload_itemID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteItemPayload",
 		Field:      field,
@@ -10193,8 +10266,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteItem(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "itemId":
-				return ec.fieldContext_DeleteItemPayload_itemId(ctx, field)
+			case "itemID":
+				return ec.fieldContext_DeleteItemPayload_itemID(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteItemPayload", field.Name)
 		},
@@ -12255,6 +12328,71 @@ func (ec *executionContext) fieldContext_Query_checkModelKeyAvailability(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_items(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Items(rctx, fc.Args["schemaID"].(gqlmodel.ID), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ItemConnection)
+	fc.Result = res
+	return ec.marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_ItemConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ItemConnection_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ItemConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_ItemConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ItemConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_items_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_versionsByItem(ctx, field)
 	if err != nil {
@@ -12278,9 +12416,9 @@ func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.VersionValue)
+	res := resTmp.([]*gqlmodel.VersionedItem)
 	fc.Result = res
-	return ec.marshalOVersionValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionValue(ctx, field.Selections, res)
+	return ec.marshalOVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_versionsByItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12292,15 +12430,15 @@ func (ec *executionContext) fieldContext_Query_versionsByItem(ctx context.Contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "version":
-				return ec.fieldContext_VersionValue_version(ctx, field)
+				return ec.fieldContext_VersionedItem_version(ctx, field)
 			case "parents":
-				return ec.fieldContext_VersionValue_parents(ctx, field)
+				return ec.fieldContext_VersionedItem_parents(ctx, field)
 			case "refs":
-				return ec.fieldContext_VersionValue_refs(ctx, field)
+				return ec.fieldContext_VersionedItem_refs(ctx, field)
 			case "value":
-				return ec.fieldContext_VersionValue_value(ctx, field)
+				return ec.fieldContext_VersionedItem_value(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type VersionValue", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type VersionedItem", field.Name)
 		},
 	}
 	defer func() {
@@ -14622,8 +14760,8 @@ func (ec *executionContext) fieldContext_User_email(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _VersionValue_version(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionValue) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VersionValue_version(ctx, field)
+func (ec *executionContext) _VersionedItem_version(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionedItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VersionedItem_version(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14653,9 +14791,9 @@ func (ec *executionContext) _VersionValue_version(ctx context.Context, field gra
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VersionValue_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VersionedItem_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VersionValue",
+		Object:     "VersionedItem",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -14666,8 +14804,8 @@ func (ec *executionContext) fieldContext_VersionValue_version(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _VersionValue_parents(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionValue) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VersionValue_parents(ctx, field)
+func (ec *executionContext) _VersionedItem_parents(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionedItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VersionedItem_parents(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14694,9 +14832,9 @@ func (ec *executionContext) _VersionValue_parents(ctx context.Context, field gra
 	return ec.marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VersionValue_parents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VersionedItem_parents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VersionValue",
+		Object:     "VersionedItem",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -14707,8 +14845,8 @@ func (ec *executionContext) fieldContext_VersionValue_parents(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _VersionValue_refs(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionValue) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VersionValue_refs(ctx, field)
+func (ec *executionContext) _VersionedItem_refs(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionedItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VersionedItem_refs(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14735,9 +14873,9 @@ func (ec *executionContext) _VersionValue_refs(ctx context.Context, field graphq
 	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VersionValue_refs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VersionedItem_refs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VersionValue",
+		Object:     "VersionedItem",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -14748,8 +14886,8 @@ func (ec *executionContext) fieldContext_VersionValue_refs(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _VersionValue_value(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionValue) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VersionValue_value(ctx, field)
+func (ec *executionContext) _VersionedItem_value(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.VersionedItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VersionedItem_value(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14774,19 +14912,27 @@ func (ec *executionContext) _VersionValue_value(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(interface{})
+	res := resTmp.(*gqlmodel.Item)
 	fc.Result = res
-	return ec.marshalNAny2interface(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_VersionValue_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VersionValue",
+		Object:     "VersionedItem",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Any does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Item_id(ctx, field)
+			case "schemaID":
+				return ec.fieldContext_Item_schemaID(ctx, field)
+			case "fields":
+				return ec.fieldContext_Item_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
 	}
 	return fc, nil
@@ -18450,17 +18596,17 @@ func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId"}
+	fieldsInOrder := [...]string{"itemID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "itemId":
+		case "itemID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
 			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
@@ -19780,17 +19926,17 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId", "fields"}
+	fieldsInOrder := [...]string{"itemID", "fields"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "itemId":
+		case "itemID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
 			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
@@ -20809,9 +20955,9 @@ func (ec *executionContext) _DeleteItemPayload(ctx context.Context, sel ast.Sele
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteItemPayload")
-		case "itemId":
+		case "itemID":
 
-			out.Values[i] = ec._DeleteItemPayload_itemId(ctx, field, obj)
+			out.Values[i] = ec._DeleteItemPayload_itemID(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -22514,6 +22660,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "items":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_items(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "versionsByItem":
 			field := field
 
@@ -23299,34 +23468,34 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var versionValueImplementors = []string{"VersionValue"}
+var versionedItemImplementors = []string{"VersionedItem"}
 
-func (ec *executionContext) _VersionValue(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.VersionValue) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, versionValueImplementors)
+func (ec *executionContext) _VersionedItem(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.VersionedItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, versionedItemImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VersionValue")
+			out.Values[i] = graphql.MarshalString("VersionedItem")
 		case "version":
 
-			out.Values[i] = ec._VersionValue_version(ctx, field, obj)
+			out.Values[i] = ec._VersionedItem_version(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "parents":
 
-			out.Values[i] = ec._VersionValue_parents(ctx, field, obj)
+			out.Values[i] = ec._VersionedItem_parents(ctx, field, obj)
 
 		case "refs":
 
-			out.Values[i] = ec._VersionValue_refs(ctx, field, obj)
+			out.Values[i] = ec._VersionedItem_refs(ctx, field, obj)
 
 		case "value":
 
-			out.Values[i] = ec._VersionValue_value(ctx, field, obj)
+			out.Values[i] = ec._VersionedItem_value(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -24473,6 +24642,20 @@ func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 	return ec._Item(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNItemConnection2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemConnection) graphql.Marshaler {
+	return ec._ItemConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ItemConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNItemEdge2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ItemEdge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -25172,6 +25355,16 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.VersionedItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VersionedItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWebhook2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Webhook) graphql.Marshaler {
@@ -26348,7 +26541,7 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOVersionValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionValue(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.VersionValue) graphql.Marshaler {
+func (ec *executionContext) marshalOVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.VersionedItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -26375,7 +26568,7 @@ func (ec *executionContext) marshalOVersionValue2ᚕᚖgithubᚗcomᚋreearthᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOVersionValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionValue(ctx, sel, v[i])
+			ret[i] = ec.marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -26386,14 +26579,13 @@ func (ec *executionContext) marshalOVersionValue2ᚕᚖgithubᚗcomᚋreearthᚋ
 	}
 	wg.Wait()
 
-	return ret
-}
-
-func (ec *executionContext) marshalOVersionValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionValue(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.VersionValue) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
 	}
-	return ec._VersionValue(ctx, sel, v)
+
+	return ret
 }
 
 func (ec *executionContext) marshalOWebhookPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WebhookPayload) graphql.Marshaler {
