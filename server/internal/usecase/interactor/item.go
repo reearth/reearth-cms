@@ -42,14 +42,14 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 		})
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, operator *usecase.Operator) (item.List, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
 	_, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (item.List, error) {
-			return i.repos.Item.FindBySchema(ctx, schemaID)
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.FindBySchema(ctx, schemaID, p)
 		})
 }
 
