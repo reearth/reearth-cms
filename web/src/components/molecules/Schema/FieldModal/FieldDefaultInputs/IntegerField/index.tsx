@@ -9,7 +9,7 @@ const IntegerField: React.FC = () => {
 
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
-      <Input />
+      <Input type="number" />
     </Form.Item>
   );
 };
