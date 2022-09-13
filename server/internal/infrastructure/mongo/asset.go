@@ -41,8 +41,7 @@ func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset
 	filter := bson.M{
 		"id": bson.M{"$in": ids.Strings()},
 	}
-	dst := make([]*asset.Asset, 0, len(ids))
-	res, err := r.find(ctx, dst, filter)
+	res, err := r.find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -98,33 +97,28 @@ func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asse
 		sortstr = &sortstr2
 	}
 
-	var c mongodoc.AssetConsumer
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sortstr, pagination, &c)
+	c := mongodoc.NewAssetConsumer()
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sortstr, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
-	return c.Rows, pageInfo, nil
+	return c.Result, pageInfo, nil
 }
 
-func (r *assetRepo) find(ctx context.Context, dst []*asset.Asset, filter interface{}) ([]*asset.Asset, error) {
-	c := mongodoc.AssetConsumer{
-		Rows: dst,
+func (r *assetRepo) find(ctx context.Context, filter interface{}) ([]*asset.Asset, error) {
+	c := mongodoc.NewAssetConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+		return nil, rerror.ErrInternalBy(err)
 	}
-	if err2 := r.client.Find(ctx, r.readFilter(filter), &c); err2 != nil {
-		return nil, rerror.ErrInternalBy(err2)
-	}
-	return c.Rows, nil
+	return c.Result, nil
 }
 
 func (r *assetRepo) findOne(ctx context.Context, filter interface{}) (*asset.Asset, error) {
-	dst := make([]*asset.Asset, 0, 1)
-	c := mongodoc.AssetConsumer{
-		Rows: dst,
-	}
-	if err := r.client.FindOne(ctx, r.readFilter(filter), &c); err != nil {
+	c := mongodoc.NewAssetConsumer()
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
-	return c.Rows[0], nil
+	return c.Result[0], nil
 }
 
 func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
