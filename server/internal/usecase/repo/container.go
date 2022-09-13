@@ -9,6 +9,7 @@ import (
 )
 
 type Container struct {
+	Asset       Asset
 	Lock        Lock
 	User        User
 	Workspace   Workspace
