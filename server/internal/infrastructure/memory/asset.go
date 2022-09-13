@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Asset struct {
@@ -39,10 +38,9 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 		return nil, r.err
 	}
 
-	res := r.data.FindAll(func(key asset.ID, value *asset.Asset) bool {
+	res := asset.List(r.data.FindAll(func(key asset.ID, value *asset.Asset) bool {
 		return ids.Has(key)
-	})
-	slices.SortFunc(res, func(a, b *asset.Asset) bool { return a.ID().Compare(b.ID()) < 0 })
+	})).SortByID()
 	return res, nil
 }
 
