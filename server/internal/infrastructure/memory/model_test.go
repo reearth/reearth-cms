@@ -54,14 +54,14 @@ func TestMemory_FindByProject(t *testing.T) {
 	})).SortByID()
 	var startCursor, endCursor *usecasex.Cursor
 	expectedPageInfo := usecasex.NewPageInfo(
-		0,
+		1,
 		startCursor,
 		endCursor,
 		true,
 		true,
 	)
 
-	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil))
+	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, gotModelList)
 	assert.Equal(t, expectedPageInfo, gotPageInfo)
