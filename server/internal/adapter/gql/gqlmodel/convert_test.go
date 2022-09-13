@@ -57,5 +57,4 @@ func TestConvert_FromFile(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
-
 }
