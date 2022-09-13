@@ -10,6 +10,7 @@ import (
 
 type Item interface {
 	FindByID(context.Context, id.ItemID) (*item.Item, error)
+	FindBySchema(context.Context, id.SchemaID) (item.List, error)
 	FindByIDs(context.Context, id.ItemIDList) (item.List, error)
 	FindAllVersionsByID(context.Context, id.ItemID) ([]*version.Value[*item.Item], error)
 	Save(context.Context, *item.Item) error

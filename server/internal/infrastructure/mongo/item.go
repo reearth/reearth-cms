@@ -32,6 +32,17 @@ func (i itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error
 	return c.Result[0], nil
 }
 
+func (i itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID) (item.List, error) {
+	c := mongodoc.NewItemConsumer()
+	if err := i.client.Find(ctx, bson.M{
+		"schema": schemaID,
+	}, version.Eq(version.Latest.OrVersion()), c); err != nil {
+		return nil, err
+	}
+
+	return c.Result, nil
+}
+
 func (i itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
 	c := mongodoc.NewItemConsumer()
 	if err := i.client.Find(ctx, bson.M{
