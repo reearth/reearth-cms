@@ -52,7 +52,9 @@ func TestMemory_FindByProject(t *testing.T) {
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pId
 	})).SortByID()
-	var startCursor, endCursor *usecasex.Cursor
+
+	startCursor := lo.ToPtr(usecasex.Cursor(expectedModelList[0].ID().String()))
+	endCursor := lo.ToPtr(usecasex.Cursor(expectedModelList[len(expectedModelList)-1].ID().String()))
 	expectedPageInfo := usecasex.NewPageInfo(
 		1,
 		startCursor,
@@ -82,28 +84,56 @@ func TestMemory_FindByProject(t *testing.T) {
 func TestMemory_CountByProject(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
+	mId := id.NewModelID()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
+
 	got, err := r.CountByProject(ctx, pId)
 	assert.NoError(t, err)
+	assert.Equal(t, 1, got)
+
+	err = errors.New("test")
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+		err:  err,
+	}
+	got, gotErr := r.CountByProject(ctx, pId)
+	assert.Equal(t, gotErr, err)
 	assert.Equal(t, 0, got)
 }
 
 func TestMemory_FindByKey(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
+	mId := id.NewModelID()
+
 	key := "id"
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
+
 	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
 		return m.Key().String() == key && m.Project() == pId
 	})
 	got, err := r.FindByKey(ctx, pId, key)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Equal(t, expected, got)
+
+	err = errors.New("test")
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+		err:  err,
+	}
+
+	got, gotErr := r.FindByKey(ctx, pId, key)
+	assert.Equal(t, gotErr, err)
 	assert.Equal(t, expected, got)
 }
 
@@ -120,6 +150,17 @@ func TestMemory_FindByID(t *testing.T) {
 	got, err := r.FindByID(ctx, mId)
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Equal(t, expected, got)
+
+	err = errors.New("test")
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+		err:  err,
+	}
+
+	got, gotErr := r.FindByID(ctx, mId)
+	assert.Equal(t, gotErr, err)
+	assert.Equal(t, expected, got)
 }
 
 func TestMemory_FindByIDs(t *testing.T) {
@@ -135,6 +176,17 @@ func TestMemory_FindByIDs(t *testing.T) {
 	})).SortByID()
 	got, err := r.FindByIDs(ctx, mId)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedModelList, got)
+
+	err = errors.New("test")
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+		err:  err,
+	}
+
+	got, gotErr := r.FindByIDs(ctx, mId)
+	assert.Equal(t, gotErr, err)
 	assert.Equal(t, expectedModelList, got)
 }
 
