@@ -36,21 +36,23 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-//func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, []error) {
-//iId, err := gqlmodel.ToID[id.Item](itemID)
-//if err != nil {
-//	return nil, []error{err}
-//}
-//
-//res, err := c.usecase.FindAllVersionsByID(ctx, iId, getOperator(ctx))
-//if err != nil {
-//	return nil, []error{err}
-//}
-//
-//return lo.Map(res, func(m *version.Value[*item.Item], i int) *gqlmodel.VersionedItem {
-//	return gqlmodel.ToVersionedItem(m)
-//}), nil
-//}
+func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
+	iId, err := gqlmodel.ToID[id.Item](itemID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.usecase.FindAllVersionsByID(ctx, iId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	vis := make([]*gqlmodel.VersionedItem, 0, len(res))
+	for _, t := range res {
+		vis = append(vis, gqlmodel.ToVersionedItem(t))
+	}
+	return vis, nil
+}
 
 func (c *ItemLoader) FindByWorkspace(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
 	wid, err := gqlmodel.ToID[id.Schema](schemaID)

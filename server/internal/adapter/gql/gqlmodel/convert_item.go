@@ -4,6 +4,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/samber/lo"
 )
 
 func ToItem(i *item.Item) *Item {
@@ -27,27 +29,41 @@ func ToItem(i *item.Item) *Item {
 	}
 }
 
-//func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
-//	if v == nil {
-//		return nil
-//	}
-//
-//	//var parents []ID
-//	//for _, p := range v.Parents().Values() {
-//	//	parents = append(parents,IDFromStringRef(string(p)) )
-//	//}
-//	var refs []*string
-//	for _, r := range v.Refs().Values() {
-//		sr := string(r)
-//		refs = append(refs, &sr)
-//	}
-//	return &VersionedItem{
-//		Version: ID(v.Version().String()),
-//		//Parents: parents,
-//		Refs:  refs,
-//		Value: ToItem(v.Value()),
-//	}
-//}
+func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
+	if v == nil {
+		return nil
+	}
+
+	parents := v.Parents()
+	refs := v.Refs()
+	return &VersionedItem{
+		Version: ID(v.Version().String()),
+		Parents: ToVersions(&parents),
+		Refs:    ToRefs(&refs),
+		Value:   ToItem(v.Value()),
+	}
+}
+
+func ToVersions(versions *version.Versions) []ID {
+	if versions == nil {
+		return nil
+	}
+
+	return lo.Map(versions.Values(), func(v version.Version, _ int) ID {
+		return ID(v.String())
+	})
+}
+
+func ToRefs(refs *version.Refs) []*string {
+	if refs == nil {
+		return nil
+	}
+
+	return lo.Map(refs.Values(), func(v version.Ref, _ int) *string {
+		ref := v.String()
+		return &ref
+	})
+}
 
 func ToItemParam(field *ItemFieldInput) (res interfaces.ItemFieldParam) {
 	if field == nil {

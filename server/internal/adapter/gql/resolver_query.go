@@ -97,7 +97,7 @@ func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID
 }
 
 func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
-	panic("implement me")
+	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
 }
 
 func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
