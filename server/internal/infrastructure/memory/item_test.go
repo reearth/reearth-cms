@@ -107,7 +107,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
-	got, _ := r.FindBySchema(ctx, sid)
+	got, _, _ := r.FindBySchema(ctx, sid, nil)
 	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")
