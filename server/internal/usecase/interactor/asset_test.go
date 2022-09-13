@@ -74,7 +74,7 @@ func TestAsset_Fetch(t *testing.T) {
 				ids:      []id.AssetID{aid1},
 				operator: op,
 			},
-			want:    []*asset.Asset{nil},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -84,7 +84,7 @@ func TestAsset_Fetch(t *testing.T) {
 				ids:      []id.AssetID{aid1, aid2},
 				operator: op,
 			},
-			want:    []*asset.Asset{nil, nil},
+			want:    nil,
 			wantErr: nil,
 		},
 	}
@@ -166,7 +166,7 @@ func TestAsset_FindByProject(t *testing.T) {
 				ids:      []id.AssetID{aid1},
 				operator: op,
 			},
-			want:    []*asset.Asset{nil},
+			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -176,7 +176,7 @@ func TestAsset_FindByProject(t *testing.T) {
 				ids:      []id.AssetID{aid1, aid2},
 				operator: op,
 			},
-			want:    []*asset.Asset{nil, nil},
+			want:    nil,
 			wantErr: nil,
 		},
 	}
