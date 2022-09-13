@@ -9,14 +9,13 @@ import (
 func TestFile_FileType(t *testing.T) {
 	c := []*File{}
 	var size uint64 = 15
+	got := File{}
 
-	got := File{
-		name:        "hoge",
-		size:        size,
-		contentType: "xxx",
-		path:        "yyy",
-		children:    c,
-	}
+	got.SetName("hoge")
+	got.SetSize(size)
+	got.SetContentType("xxx")
+	got.SetPath("yyy")
+	got.SetChildren(c...)
 
 	assert.Equal(t, "hoge", got.Name())
 	assert.Equal(t, size, got.Size())
