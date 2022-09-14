@@ -24,7 +24,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 	f := asset.File{}
 	c := []*asset.File{}
 	f.SetChildren(c...)
-	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).File(&f).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -43,7 +43,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: []*asset.Asset{
-				asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).File(&f).MustBuild(),
+				asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id.NewAssetID(),
 			want:    nil,
@@ -62,8 +62,8 @@ func TestAssetRepo_FindByID(t *testing.T) {
 			name: "Found 2",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id1,
 			want:    a1,

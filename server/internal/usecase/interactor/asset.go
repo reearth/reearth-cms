@@ -31,36 +31,24 @@ func (i *Asset) Fetch(ctx context.Context, assets []id.AssetID, operator *usecas
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
-	a, err := i.repos.Asset.FindByID(ctx, aid)
-	if err != nil {
-		return nil, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return nil, err
-	}
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().WithReadableWorkspaces(p.Workspace()).Transaction(),
+		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
 			return i.repos.Asset.FindByID(ctx, aid)
 		},
 	)
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, keyword *string, sort *asset.SortType, p *usecasex.Pagination, operator *usecase.Operator) ([]*asset.Asset, *usecasex.PageInfo, error) {
-	pp, err := i.repos.Project.FindByID(ctx, pid)
-	if err != nil {
-		return nil, nil, err
-	}
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, f interfaces.AssetFilter, o *usecase.Operator) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	return Run2(
-		ctx, operator, i.repos,
-		Usecase().WithReadableWorkspaces(pp.Workspace()).Transaction(),
+		ctx, o, i.repos,
+		Usecase().Transaction(),
 		func() ([]*asset.Asset, *usecasex.PageInfo, error) {
 			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-				Sort:       sort,
-				Keyword:    keyword,
-				Pagination: p,
+				Sort:       f.Sort,
+				Keyword:    f.Keyword,
+				Pagination: f.Pagination,
 			})
 		},
 	)
