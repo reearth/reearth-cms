@@ -54,7 +54,13 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		return nil, err
 	}
 
-	assets, pi, err := c.usecase.FindByProject(ctx, pid, keyword, sort, gqlmodel.ToPagination(pagination), getOperator(ctx))
+	f := interfaces.AssetFilter{
+		Keyword:    keyword,
+		Sort:       sort,
+		Pagination: gqlmodel.ToPagination(pagination),
+	}
+
+	assets, pi, err := c.usecase.FindByProject(ctx, pid, f, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
