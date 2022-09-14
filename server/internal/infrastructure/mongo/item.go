@@ -53,10 +53,10 @@ func (i *itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List,
 	return c.Result, nil
 }
 
-func (i *itemRepo) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
+func (i *itemRepo) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*version.Value[*item.Item], error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := i.client.Find(ctx, bson.M{
-		"id": id.String(),
+		"id": itemID.String(),
 	}, version.All(), c); err != nil {
 		return nil, err
 	}

@@ -165,7 +165,6 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		Name               string
 		Input              id.SchemaID
 		RepoData, Expected item.List
-		WantErr            bool
 	}{
 		{
 			Name:     "must find two items",
@@ -177,7 +176,6 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 			Name:     "must not find any item",
 			Input:    id.NewSchemaID(),
 			RepoData: item.List{i1, i2},
-			WantErr:  true,
 		},
 	}
 
@@ -198,12 +196,8 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, err := repo.FindBySchema(ctx, tc.Input, nil)
-			if tc.WantErr {
-				assert.Equal(tt, err, rerror.ErrNotFound)
-			} else {
-				assert.Equal(tt, tc.Expected, got)
-			}
+			got, _, _ := repo.FindBySchema(ctx, tc.Input, nil)
+			assert.Equal(tt, tc.Expected, got)
 		})
 	}
 }
