@@ -255,6 +255,38 @@ func TestAsset_Create(t *testing.T) {
 				MustBuild(),
 			wantErr: nil,
 		},
+		{
+			name:  "Create invalid file size",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID:   pid,
+					CreatedByID: uid,
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    1024*1024*100 + 1,
+					},
+				},
+				operator: op,
+			},
+			want:    nil,
+			wantErr: gateway.ErrFileTooLarge,
+		},
+		{
+			name:  "Create invalid file size",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID:   pid,
+					CreatedByID: uid,
+					File:        nil,
+				},
+				operator: op,
+			},
+			want:    nil,
+			wantErr: interfaces.ErrFileNotIncluded,
+		},
 	}
 
 	for _, tc := range tests {
