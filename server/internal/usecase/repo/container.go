@@ -15,6 +15,7 @@ type Container struct {
 	Project     Project
 	Model       Model
 	Schema      Schema
+	Integration Integration
 	Transaction usecasex.Transaction
 }
 
