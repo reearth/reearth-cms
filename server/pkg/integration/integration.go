@@ -71,7 +71,7 @@ func (i *Integration) SetDeveloper(developer UserID) {
 	i.developer = developer
 }
 
-func (i *Integration) Webhook() []*Webhook {
+func (i *Integration) Webhooks() []*Webhook {
 	return i.webhook
 }
 

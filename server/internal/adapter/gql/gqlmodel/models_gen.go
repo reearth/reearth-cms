@@ -202,7 +202,8 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteWebhookInput struct {
-	WebhookID ID `json:"webhookId"`
+	IntegrationID ID `json:"integrationId"`
+	WebhookID     ID `json:"webhookId"`
 }
 
 type DeleteWebhookPayload struct {
@@ -672,11 +673,12 @@ type UpdateProjectInput struct {
 }
 
 type UpdateWebhookInput struct {
-	WebhookID ID                   `json:"webhookId"`
-	Name      *string              `json:"name"`
-	URL       *url.URL             `json:"url"`
-	Active    *bool                `json:"active"`
-	Trigger   *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	WebhookID     ID                   `json:"webhookId"`
+	Name          *string              `json:"name"`
+	URL           *url.URL             `json:"url"`
+	Active        *bool                `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type UpdateWorkspaceInput struct {

@@ -978,7 +978,7 @@ func TestIntegration_Webhook(t *testing.T) {
 				webhook:     tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
-			assert.Equalf(t, tt.want, i.Webhook(), "Webhook()")
+			assert.Equalf(t, tt.want, i.Webhooks(), "Webhook()")
 		})
 	}
 }

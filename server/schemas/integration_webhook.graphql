@@ -39,6 +39,7 @@ input CreateWebhookInput {
 }
 
 input UpdateWebhookInput {
+  integrationId: ID!
   webhookId: ID!
   name: String
   url: URL
@@ -47,6 +48,7 @@ input UpdateWebhookInput {
 }
 
 input DeleteWebhookInput {
+  integrationId: ID!
   webhookId: ID!
 }
 

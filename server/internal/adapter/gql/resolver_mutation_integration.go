@@ -101,12 +101,12 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 }
 
 func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error) {
-	wId, err := gqlmodel.ToID[id.Webhook](input.WebhookID)
+	iId, wId, err := gqlmodel.ToID2[id.Integration, id.Webhook](input.IntegrationID, input.WebhookID)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := usecases(ctx).Integration.UpdateWebhook(ctx, wId, interfaces.UpdateWebhookParam{
+	res, err := usecases(ctx).Integration.UpdateWebhook(ctx, iId, wId, interfaces.UpdateWebhookParam{
 		Name:   input.Name,
 		URL:    input.URL,
 		Active: input.Active,
@@ -130,12 +130,12 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 }
 
 func (r *mutationResolver) DeleteWebhook(ctx context.Context, input gqlmodel.DeleteWebhookInput) (*gqlmodel.DeleteWebhookPayload, error) {
-	wId, err := gqlmodel.ToID[id.Webhook](input.WebhookID)
+	iId, wId, err := gqlmodel.ToID2[id.Integration, id.Webhook](input.IntegrationID, input.WebhookID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = usecases(ctx).Integration.DeleteWebhook(ctx, wId, getOperator(ctx))
+	err = usecases(ctx).Integration.DeleteWebhook(ctx, iId, wId, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

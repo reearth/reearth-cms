@@ -21,7 +21,7 @@ func ToIntegration(i *integration.Integration) *Integration {
 		Developer:   nil,
 		Config: &IntegrationConfig{
 			Token:    i.Token(),
-			Webhooks: ToWebhooks(i.Webhook()),
+			Webhooks: ToWebhooks(i.Webhooks()),
 		},
 		CreatedAt: i.ID().Timestamp(),
 		UpdatedAt: i.UpdatedAt(),

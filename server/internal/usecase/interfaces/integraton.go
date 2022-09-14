@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 	"net/url"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -47,10 +46,6 @@ type WebhookTriggerParam struct {
 	OnItemUnPublish bool
 }
 
-var (
-	Err1 error = errors.New("err1")
-)
-
 type Integration interface {
 	FindByIDs(context.Context, []id.IntegrationID, *usecase.Operator) (integration.List, error)
 	FindByUser(context.Context, id.UserID, *usecase.Operator) (integration.List, error)
@@ -59,6 +54,6 @@ type Integration interface {
 	Delete(context.Context, id.IntegrationID, *usecase.Operator) error
 
 	CreateWebhook(context.Context, id.IntegrationID, CreateWebhookParam, *usecase.Operator) (*integration.Webhook, error)
-	UpdateWebhook(context.Context, id.WebhookID, UpdateWebhookParam, *usecase.Operator) (*integration.Webhook, error)
-	DeleteWebhook(context.Context, id.WebhookID, *usecase.Operator) error
+	UpdateWebhook(context.Context, id.IntegrationID, id.WebhookID, UpdateWebhookParam, *usecase.Operator) (*integration.Webhook, error)
+	DeleteWebhook(context.Context, id.IntegrationID, id.WebhookID, *usecase.Operator) error
 }

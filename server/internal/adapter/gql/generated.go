@@ -3522,6 +3522,7 @@ input CreateWebhookInput {
 }
 
 input UpdateWebhookInput {
+  integrationId: ID!
   webhookId: ID!
   name: String
   url: URL
@@ -3530,6 +3531,7 @@ input UpdateWebhookInput {
 }
 
 input DeleteWebhookInput {
+  integrationId: ID!
   webhookId: ID!
 }
 
@@ -18910,13 +18912,21 @@ func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"webhookId"}
+	fieldsInOrder := [...]string{"integrationId", "webhookId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "integrationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "webhookId":
 			var err error
 
@@ -20364,13 +20374,21 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"webhookId", "name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "webhookId", "name", "url", "active", "trigger"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "integrationId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "webhookId":
 			var err error
 
