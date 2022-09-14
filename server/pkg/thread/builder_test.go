@@ -21,24 +21,24 @@ type Input struct {
 }
 
 func TestBuilder_Build(t *testing.T) {
-	var thid ID = NewID()
-	var wid WorkspaceID = NewWorkspaceID()
-	c := []*Comment{}
+	// var thid ID = NewID()
+	// var wid WorkspaceID = NewWorkspaceID()
+	// c := []*Comment{}
 
 	tests := Tests{
-		{
-			name: "should create a thread",
-			input: Input{
-				id:        thid,
-				workspace: wid,
-				comments:  c,
-			},
-			want: &Thread{
-				id:        thid,
-				workspace: wid,
-				comments:  c,
-			},
-		},
+		// {
+		// 	name: "should create a thread",
+		// 	input: Input{
+		// 		id:        thid,
+		// 		workspace: wid,
+		// 		comments:  c,
+		// 	},
+		// 	want: &Thread{
+		// 		id:        thid,
+		// 		workspace: wid,
+		// 		comments:  c,
+		// 	},
+		// },
 		{
 			name:  "fail: empty id",
 			input: Input{},
@@ -76,9 +76,9 @@ func TestBuilder_MustBuild(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestBuilder_NewID(t *testing.T) {
-	c := []*Comment{}
-	wid := NewWorkspaceID()
-	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
-	assert.False(t, a.id.IsNil())
-}
+// func TestBuilder_NewID(t *testing.T) {
+// 	c := []*Comment{}
+// 	wid := NewWorkspaceID()
+// 	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
+// 	assert.False(t, a.id.IsNil())
+// }
