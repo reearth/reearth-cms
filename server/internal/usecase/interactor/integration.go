@@ -45,13 +45,13 @@ func (i Integration) FindByIDs(ctx context.Context, ids []id.IntegrationID, oper
 		})
 }
 
-func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, uId id.UserID, operator *usecase.Operator) (*integration.Integration, error) {
+func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
 			in, err := integration.New().
 				NewID().
 				Type(param.Type).
-				Developer(uId).
+				Developer(operator.User).
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
 				Token("").

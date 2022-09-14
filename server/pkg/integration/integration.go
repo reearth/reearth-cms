@@ -17,7 +17,7 @@ type Integration struct {
 	iType       Type
 	token       string
 	developer   UserID
-	webhook     []*Webhook
+	webhooks    []*Webhook
 	updatedAt   time.Time
 }
 
@@ -74,37 +74,37 @@ func (i *Integration) SetDeveloper(developer UserID) {
 }
 
 func (i *Integration) Webhooks() []*Webhook {
-	return i.webhook
+	return i.webhooks
 }
 
 func (i *Integration) Webhook(wId WebhookID) (*Webhook, bool) {
-	return lo.Find(i.webhook, func(w *Webhook) bool { return w.id == wId })
+	return lo.Find(i.webhooks, func(w *Webhook) bool { return w.id == wId })
 }
 
 func (i *Integration) AddWebhook(w *Webhook) {
-	i.webhook = append(i.webhook, w)
+	i.webhooks = append(i.webhooks, w)
 }
 
 func (i *Integration) UpdateWebhook(wId WebhookID, w *Webhook) bool {
-	_, idx, ok := lo.FindIndexOf(i.webhook, func(w *Webhook) bool { return w.id == wId })
-	if !ok || idx >= len(i.webhook) {
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
 		return false
 	}
-	i.webhook[idx] = w
+	i.webhooks[idx] = w
 	return true
 }
 
 func (i *Integration) DeleteWebhook(wId WebhookID) bool {
-	_, idx, ok := lo.FindIndexOf(i.webhook, func(w *Webhook) bool { return w.id == wId })
-	if !ok || idx >= len(i.webhook) {
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
 		return false
 	}
-	i.webhook = slices.Delete(i.webhook, idx, idx+1)
+	i.webhooks = slices.Delete(i.webhooks, idx, idx+1)
 	return true
 }
 
 func (i *Integration) SetWebhook(webhook []*Webhook) {
-	i.webhook = webhook
+	i.webhooks = webhook
 }
 
 func (i *Integration) UpdatedAt() time.Time {
@@ -139,7 +139,7 @@ func (i *Integration) Clone() *Integration {
 		iType:       i.iType,
 		token:       i.token,
 		developer:   i.developer,
-		webhook:     util.Map(i.webhook, func(w *Webhook) *Webhook { return w.Clone() }),
+		webhooks:    util.Map(i.webhooks, func(w *Webhook) *Webhook { return w.Clone() }),
 		updatedAt:   i.updatedAt,
 	}
 }

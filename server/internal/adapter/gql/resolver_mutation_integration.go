@@ -7,9 +7,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
+	op := getOperator(ctx)
 	res, err := usecases(ctx).Integration.Create(
 		ctx,
 		interfaces.CreateIntegrationParam{
@@ -18,15 +20,14 @@ func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel
 			Type:        integration.TypeFrom(input.Type.String()),
 			Logo:        input.LogoURL,
 		},
-		getUser(ctx).ID(),
-		getOperator(ctx),
+		op,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res),
+		Integration: gqlmodel.ToIntegration(res, op.User),
 	}, nil
 }
 
@@ -35,7 +36,7 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 	if err != nil {
 		return nil, err
 	}
-
+	op := getOperator(ctx)
 	res, err := usecases(ctx).Integration.Update(
 		ctx,
 		iId,
@@ -44,14 +45,14 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 			Description: input.Description,
 			Logo:        input.LogoURL,
 		},
-		getOperator(ctx),
+		op,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res),
+		Integration: gqlmodel.ToIntegration(res, op.User),
 	}, nil
 }
 
@@ -82,13 +83,13 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			OnItemCreate:    FromPtr(input.Trigger.OnItemCreate, false),
-			OnItemUpdate:    FromPtr(input.Trigger.OnItemUpdate, false),
-			OnItemDelete:    FromPtr(input.Trigger.OnItemDelete, false),
-			OnAssetUpload:   FromPtr(input.Trigger.OnAssetUpload, false),
-			OnAssetDeleted:  FromPtr(input.Trigger.OnAssetDeleted, false),
-			OnItemPublish:   FromPtr(input.Trigger.OnItemPublish, false),
-			OnItemUnPublish: FromPtr(input.Trigger.OnItemUnPublish, false),
+			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			OnItemUnPublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {
@@ -111,13 +112,13 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			OnItemCreate:    FromPtr(input.Trigger.OnItemCreate, false),
-			OnItemUpdate:    FromPtr(input.Trigger.OnItemUpdate, false),
-			OnItemDelete:    FromPtr(input.Trigger.OnItemDelete, false),
-			OnAssetUpload:   FromPtr(input.Trigger.OnAssetUpload, false),
-			OnAssetDeleted:  FromPtr(input.Trigger.OnAssetDeleted, false),
-			OnItemPublish:   FromPtr(input.Trigger.OnItemPublish, false),
-			OnItemUnPublish: FromPtr(input.Trigger.OnItemUnPublish, false),
+			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			OnItemUnPublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {
@@ -143,11 +144,4 @@ func (r *mutationResolver) DeleteWebhook(ctx context.Context, input gqlmodel.Del
 	return &gqlmodel.DeleteWebhookPayload{
 		WebhookID: input.WebhookID,
 	}, nil
-}
-
-func FromPtr[T any](pointer *T, defaultValue T) T {
-	if pointer != nil {
-		return *pointer
-	}
-	return defaultValue
 }

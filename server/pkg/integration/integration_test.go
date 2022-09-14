@@ -30,7 +30,7 @@ func TestIntegration_Clone(t *testing.T) {
 				iType:       TypePublic,
 				token:       "token",
 				developer:   uId,
-				webhook: []*Webhook{
+				webhooks: []*Webhook{
 					{
 						id:        wId,
 						name:      "w xyz",
@@ -50,7 +50,7 @@ func TestIntegration_Clone(t *testing.T) {
 				iType:       TypePublic,
 				token:       "token",
 				developer:   uId,
-				webhook: []*Webhook{
+				webhooks: []*Webhook{
 					{
 						id:        wId,
 						name:      "w xyz",
@@ -116,7 +116,7 @@ func TestIntegration_CreatedAt(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.CreatedAt(), "CreatedAt()")
@@ -160,7 +160,7 @@ func TestIntegration_Description(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Description(), "Description()")
@@ -205,7 +205,7 @@ func TestIntegration_Developer(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Developer(), "Developer()")
@@ -250,7 +250,7 @@ func TestIntegration_ID(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.ID(), "ID()")
@@ -294,7 +294,7 @@ func TestIntegration_LogoUrl(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.LogoUrl(), "LogoUrl()")
@@ -338,7 +338,7 @@ func TestIntegration_Name(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Name(), "Name()")
@@ -387,7 +387,7 @@ func TestIntegration_SetDescription(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetDescription(tt.args.description)
@@ -438,7 +438,7 @@ func TestIntegration_SetDeveloper(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetDeveloper(tt.args.developer)
@@ -488,7 +488,7 @@ func TestIntegration_SetLogoUrl(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetLogoUrl(tt.args.logoUrl)
@@ -538,7 +538,7 @@ func TestIntegration_SetName(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetName(tt.args.name)
@@ -588,7 +588,7 @@ func TestIntegration_SetToken(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetToken(tt.args.token)
@@ -638,7 +638,7 @@ func TestIntegration_SetType(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetType(tt.args.t)
@@ -689,7 +689,7 @@ func TestIntegration_SetUpdatedAt(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetUpdatedAt(tt.args.updatedAt)
@@ -761,11 +761,11 @@ func TestIntegration_SetWebhook(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			i.SetWebhook(tt.args.webhook)
-			assert.Equal(t, tt.want, i.webhook)
+			assert.Equal(t, tt.want, i.webhooks)
 		})
 	}
 }
@@ -806,7 +806,7 @@ func TestIntegration_Token(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Token(), "Token()")
@@ -855,7 +855,7 @@ func TestIntegration_Type(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Type(), "Type()")
@@ -906,7 +906,7 @@ func TestIntegration_UpdatedAt(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.UpdatedAt(), "UpdatedAt()")
@@ -975,7 +975,7 @@ func TestIntegration_Webhook(t *testing.T) {
 				iType:       tt.fields.iType,
 				token:       tt.fields.token,
 				developer:   tt.fields.developer,
-				webhook:     tt.fields.webhook,
+				webhooks:    tt.fields.webhook,
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Webhooks(), "Webhook()")
