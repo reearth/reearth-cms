@@ -50,9 +50,6 @@ func (a *Asset) PreviewType() *PreviewType {
 	if a.previewType == nil {
 		return nil
 	}
-	if a.previewType == nil {
-		return nil
-	}
 	return a.previewType
 }
 
