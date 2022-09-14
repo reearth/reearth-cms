@@ -11,19 +11,17 @@ func TestComment_CommentType(t *testing.T) {
 	cid := NewCommentID()
 	uid := NewUserID()
 	c := "xxx"
-	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 
 	got := Comment{
-		id:        cid,
-		author:    uid,
-		content:   c,
-		createdAt: tim,
+		id:      cid,
+		author:  uid,
+		content: c,
 	}
 
 	assert.Equal(t, cid, got.ID())
 	assert.Equal(t, uid, got.Author())
 	assert.Equal(t, c, got.Content())
-	assert.Equal(t, tim, got.CreatedAt())
+	assert.Equal(t, cid.Timestamp(), got.CreatedAt())
 }
 
 func TestComment_SetContent(t *testing.T) {

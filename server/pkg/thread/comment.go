@@ -26,7 +26,7 @@ func (c *Comment) CreatedAt() time.Time {
 		return time.Time{}
 	}
 
-	return c.createdAt
+	return c.id.Timestamp()
 }
 
 func (c *Comment) SetContent(content string) {

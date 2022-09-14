@@ -15,24 +15,28 @@ type Tests []struct {
 }
 
 type Input struct {
-	id       ID
-	comments []*Comment
+	id        ID
+	workspace WorkspaceID
+	comments  []*Comment
 }
 
 func TestBuilder_Build(t *testing.T) {
 	var thid ID = NewID()
+	var wid WorkspaceID = NewWorkspaceID()
 	c := []*Comment{}
 
 	tests := Tests{
 		{
 			name: "should create a thread",
 			input: Input{
-				id:       thid,
-				comments: c,
+				id:        thid,
+				workspace: wid,
+				comments:  c,
 			},
 			want: &Thread{
-				id:       thid,
-				comments: c,
+				id:        thid,
+				workspace: wid,
+				comments:  c,
 			},
 		},
 		{
@@ -47,6 +51,7 @@ func TestBuilder_Build(t *testing.T) {
 			got, err := New().
 				ID(tt.input.id).
 				Comments(tt.input.comments).
+				Workspace(tt.input.workspace).
 				Build()
 			if err != tt.err {
 				assert.Equal(t, tt.want, got)
@@ -73,6 +78,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 
 func TestBuilder_NewID(t *testing.T) {
 	c := []*Comment{}
-	a := New().NewID().Comments(c).MustBuild()
+	wid := NewWorkspaceID()
+	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
 	assert.False(t, a.id.IsNil())
 }
