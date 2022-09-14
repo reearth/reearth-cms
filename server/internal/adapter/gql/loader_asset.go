@@ -20,20 +20,6 @@ func NewAssetLoader(usecase interfaces.Asset) *AssetLoader {
 	return &AssetLoader{usecase: usecase}
 }
 
-func (c *AssetLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	res, err := c.usecase.Fetch(ctx, ids2, getOperator(ctx))
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	return util.Map(res, gqlmodel.ToAsset), nil
-}
-
 func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmodel.Asset, error) {
 	aid, err := gqlmodel.ToID[id.Asset](assetId)
 	if err != nil {
@@ -46,6 +32,20 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 	}
 
 	return gqlmodel.ToAsset(a), nil
+}
+
+func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
+	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	res, err := c.usecase.FindByIDs(ctx, ids2, getOperator(ctx))
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	return util.Map(res, gqlmodel.ToAsset), nil
 }
 
 func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *asset.SortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
@@ -94,7 +94,7 @@ func (c *AssetLoader) DataLoader(ctx context.Context) AssetDataLoader {
 		Wait:     dataLoaderWait,
 		MaxBatch: dataLoaderMaxBatch,
 		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-			return c.Fetch(ctx, keys)
+			return c.FindByIDs(ctx, keys)
 		},
 	})
 }
@@ -109,7 +109,7 @@ type ordinaryAssetLoader struct {
 }
 
 func (l *ordinaryAssetLoader) Load(key gqlmodel.ID) (*gqlmodel.Asset, error) {
-	res, errs := l.c.Fetch(l.ctx, []gqlmodel.ID{key})
+	res, errs := l.c.FindByIDs(l.ctx, []gqlmodel.ID{key})
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
@@ -120,5 +120,5 @@ func (l *ordinaryAssetLoader) Load(key gqlmodel.ID) (*gqlmodel.Asset, error) {
 }
 
 func (l *ordinaryAssetLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-	return l.c.Fetch(l.ctx, keys)
+	return l.c.FindByIDs(l.ctx, keys)
 }
