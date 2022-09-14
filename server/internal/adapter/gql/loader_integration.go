@@ -26,13 +26,14 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, getOperator(ctx))
+	op := getOperator(ctx)
+	res, err := c.usecase.FindByIDs(ctx, sIds, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
 	return lo.Map(res, func(m *integration.Integration, _ int) *gqlmodel.Integration {
-		return gqlmodel.ToIntegration(m)
+		return gqlmodel.ToIntegration(m, op.User)
 	}), nil
 }
 
@@ -42,13 +43,14 @@ func (c *IntegrationLoader) FindByUser(ctx context.Context, uid gqlmodel.ID) ([]
 		return nil, err
 	}
 
-	res, err := c.usecase.FindByUser(ctx, userid, getOperator(ctx))
+	op := getOperator(ctx)
+	res, err := c.usecase.FindByUser(ctx, userid, op)
 	if err != nil {
 		return nil, err
 	}
 	workspaces := make([]*gqlmodel.Integration, 0, len(res))
 	for _, t := range res {
-		workspaces = append(workspaces, gqlmodel.ToIntegration(t))
+		workspaces = append(workspaces, gqlmodel.ToIntegration(t, op.User))
 	}
 	return workspaces, nil
 }

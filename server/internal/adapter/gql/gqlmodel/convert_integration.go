@@ -1,16 +1,24 @@
 package gqlmodel
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
-func ToIntegration(i *integration.Integration) *Integration {
+func ToIntegration(i *integration.Integration, uId id.UserID) *Integration {
 	if i == nil {
 		return nil
 	}
 
+	var c *IntegrationConfig = nil
+	if i.Developer() == uId {
+		c = &IntegrationConfig{
+			Token:    i.Token(),
+			Webhooks: ToWebhooks(i.Webhooks()),
+		}
+	}
 	return &Integration{
 		ID:          IDFrom(i.ID()),
 		Name:        i.Name(),
@@ -19,12 +27,9 @@ func ToIntegration(i *integration.Integration) *Integration {
 		IType:       ToIntegrationType(i.Type()),
 		DeveloperID: IDFrom(i.Developer()),
 		Developer:   nil,
-		Config: &IntegrationConfig{
-			Token:    i.Token(),
-			Webhooks: ToWebhooks(i.Webhooks()),
-		},
-		CreatedAt: i.ID().Timestamp(),
-		UpdatedAt: i.UpdatedAt(),
+		Config:      c,
+		CreatedAt:   i.ID().Timestamp(),
+		UpdatedAt:   i.UpdatedAt(),
 	}
 }
 

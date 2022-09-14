@@ -15,7 +15,7 @@ type Integration struct {
 	iType       Type
 	token       string
 	developer   UserID
-	webhook     []*Webhook
+	webhooks    []*Webhook
 	updatedAt   time.Time
 }
 
@@ -72,11 +72,11 @@ func (i *Integration) SetDeveloper(developer UserID) {
 }
 
 func (i *Integration) Webhooks() []*Webhook {
-	return i.webhook
+	return i.webhooks
 }
 
 func (i *Integration) SetWebhook(webhook []*Webhook) {
-	i.webhook = webhook
+	i.webhooks = webhook
 }
 
 func (i *Integration) UpdatedAt() time.Time {
@@ -111,7 +111,7 @@ func (i *Integration) Clone() *Integration {
 		iType:       i.iType,
 		token:       i.token,
 		developer:   i.developer,
-		webhook:     util.Map(i.webhook, func(w *Webhook) *Webhook { return w.Clone() }),
+		webhooks:    util.Map(i.webhooks, func(w *Webhook) *Webhook { return w.Clone() }),
 		updatedAt:   i.updatedAt,
 	}
 }
