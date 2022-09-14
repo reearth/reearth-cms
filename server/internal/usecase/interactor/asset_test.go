@@ -116,6 +116,106 @@ func TestAsset_Fetch(t *testing.T) {
 	}
 }
 
+func TestAsset_FindByID(t *testing.T) {
+	pid := id.NewProjectID()
+
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
+
+	id1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+
+	op := &usecase.Operator{}
+
+	type args struct {
+		id       id.AssetID
+		operator *usecase.Operator
+	}
+
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "Not found in empty db",
+			seeds: []*asset.Asset{},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: []*asset.Asset{
+				asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
+			},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args: args{
+				id:       id1,
+				operator: op,
+			},
+			want:    a1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args: args{
+				id:       id1,
+				operator: op,
+			},
+			want:    a1,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.FindByID(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 
