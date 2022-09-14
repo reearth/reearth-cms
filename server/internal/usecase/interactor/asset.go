@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"path"
-	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -26,10 +25,6 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	}
 }
 
-func (i *Asset) Fetch(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) ([]*asset.Asset, error) {
-	return i.repos.Asset.FindByIDs(ctx, assets)
-}
-
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
 	return Run1(
 		ctx, operator, i.repos,
@@ -40,15 +35,19 @@ func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.
 	)
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, f interfaces.AssetFilter, o *usecase.Operator) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) (asset.List, error) {
+	return i.repos.Asset.FindByIDs(ctx, assets)
+}
+
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, operator *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
 	return Run2(
-		ctx, o, i.repos,
+		ctx, operator, i.repos,
 		Usecase().Transaction(),
 		func() ([]*asset.Asset, *usecasex.PageInfo, error) {
 			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-				Sort:       f.Sort,
-				Keyword:    f.Keyword,
-				Pagination: f.Pagination,
+				Sort:       filter.Sort,
+				Keyword:    filter.Keyword,
+				Pagination: filter.Pagination,
 			})
 		},
 	)
@@ -72,13 +71,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			f.SetSize(uint64(inp.File.Size))
 			f.SetContentType(inp.File.ContentType)
 
-			var t asset.PreviewType
-			if strings.HasPrefix(inp.File.ContentType, "image/") {
-				t = asset.PreviewTypeIMAGE
-			} else {
-				t = asset.PreviewTypeGEO
-			}
-
 			a, err := asset.New().
 				NewID().
 				Project(inp.ProjectID).
@@ -86,7 +78,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
 				File(f).
-				Type(&t).
+				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
 				Build()
 			if err != nil {
@@ -115,8 +107,11 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 				asset.UpdatePreviewType(inp.PreviewType)
 			}
 
-			err2 := i.repos.Asset.Update(ctx, asset)
-			return asset, err2
+			if err := i.repos.Asset.Save(ctx, asset); err != nil {
+				return nil, err
+			}
+
+			return asset, nil
 		},
 	)
 }

@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
@@ -23,98 +24,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
-
-func TestAsset_Fetch(t *testing.T) {
-	pid1 := id.NewProjectID()
-	pid2 := id.NewProjectID()
-
-	aid1 := id.NewAssetID()
-	uid1 := id.NewUserID()
-	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
-
-	aid2 := id.NewAssetID()
-	uid2 := id.NewUserID()
-	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid2).Size(1000).MustBuild()
-
-	op := &usecase.Operator{}
-
-	type args struct {
-		ids      []id.AssetID
-		operator *usecase.Operator
-	}
-	tests := []struct {
-		name    string
-		seeds   []*asset.Asset
-		args    args
-		want    []*asset.Asset
-		wantErr error
-	}{
-		{
-			name:  "Fetch 1 of 2",
-			seeds: []*asset.Asset{a1, a2},
-			args: args{
-				ids:      []id.AssetID{aid1},
-				operator: op,
-			},
-			want:    []*asset.Asset{a1},
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 2 of 2",
-			seeds: []*asset.Asset{a1, a2},
-			args: args{
-				ids:      []id.AssetID{aid1, aid2},
-				operator: op,
-			},
-			want:    []*asset.Asset{a1, a2},
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 1 of 0",
-			seeds: []*asset.Asset{},
-			args: args{
-				ids:      []id.AssetID{aid1},
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 2 of 0",
-			seeds: []*asset.Asset{},
-			args: args{
-				ids:      []id.AssetID{aid1, aid2},
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-
-			for _, a := range tc.seeds {
-				err := db.Asset.Save(ctx, a.Clone())
-				assert.Nil(t, err)
-			}
-			assetUC := NewAsset(db, nil)
-
-			got, err := assetUC.Fetch(ctx, tc.args.ids, &usecase.Operator{})
-			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
-		})
-	}
-}
 
 func TestAsset_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
@@ -216,6 +125,100 @@ func TestAsset_FindByID(t *testing.T) {
 	}
 }
 
+func TestAsset_FindByIDs(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	id2 := id.NewAssetID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   asset.List
+		arg     id.AssetIDList
+		want    asset.List
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   asset.List{},
+			arg:     []id.AssetID{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another workspaces",
+			seeds: asset.List{
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			arg:     []id.AssetID{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: asset.List{
+				a1,
+			},
+			arg:     []id.AssetID{id1},
+			want:    asset.List{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			arg:     []id.AssetID{id1},
+			want:    asset.List{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: asset.List{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			arg:     []id.AssetID{id1, id2},
+			want:    asset.List{a1, a2},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 
@@ -240,14 +243,14 @@ func TestAsset_FindByProject(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		seeds   []*asset.Asset
+		seeds   asset.List
 		args    args
-		want    []*asset.Asset
+		want    asset.List
 		wantErr error
 	}{
 		{
 			name:  "0 count in empty db",
-			seeds: []*asset.Asset{},
+			seeds: asset.List{},
 			args: args{
 				pid:      id.NewProjectID(),
 				operator: op,
@@ -257,7 +260,7 @@ func TestAsset_FindByProject(t *testing.T) {
 		},
 		{
 			name: "0 count with asset for another projects",
-			seeds: []*asset.Asset{
+			seeds: asset.List{
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
@@ -269,7 +272,7 @@ func TestAsset_FindByProject(t *testing.T) {
 		},
 		{
 			name: "1 count with single asset",
-			seeds: []*asset.Asset{
+			seeds: asset.List{
 				a1,
 			},
 			args: args{
@@ -279,12 +282,12 @@ func TestAsset_FindByProject(t *testing.T) {
 				},
 				operator: op,
 			},
-			want:    []*asset.Asset{a1},
+			want:    asset.List{a1},
 			wantErr: nil,
 		},
 		{
 			name: "1 count with multi assets",
-			seeds: []*asset.Asset{
+			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
@@ -296,12 +299,12 @@ func TestAsset_FindByProject(t *testing.T) {
 				},
 				operator: op,
 			},
-			want:    []*asset.Asset{a1},
+			want:    asset.List{a1},
 			wantErr: nil,
 		},
 		{
 			name: "2 count with multi assets",
-			seeds: []*asset.Asset{
+			seeds: asset.List{
 				a1,
 				a2,
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
@@ -314,7 +317,7 @@ func TestAsset_FindByProject(t *testing.T) {
 				},
 				operator: op,
 			},
-			want:    []*asset.Asset{a1, a2},
+			want:    asset.List{a1, a2},
 			wantErr: nil,
 		},
 	}

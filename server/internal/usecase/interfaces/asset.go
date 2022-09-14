@@ -33,6 +33,7 @@ type UpdateAssetParam struct {
 
 var (
 	ErrCreateAssetFailed error = errors.New("failed to create asset")
+	ErrFileNotIncluded   error = errors.New("file not included")
 )
 
 type AssetFilter struct {
@@ -42,9 +43,9 @@ type AssetFilter struct {
 }
 
 type Asset interface {
-	Fetch(context.Context, []id.AssetID, *usecase.Operator) ([]*asset.Asset, error)
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
-	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) ([]*asset.Asset, *usecasex.PageInfo, error)
+	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
+	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
