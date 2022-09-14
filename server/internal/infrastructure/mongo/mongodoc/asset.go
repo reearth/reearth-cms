@@ -70,6 +70,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 
+	if d.File == nil {
+		d.File = &File{}
+	}
+
 	return asset.New().
 		ID(aid).
 		Project(pid).
