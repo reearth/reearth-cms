@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 )
 
 func TestAsset_Fetch(t *testing.T) {
@@ -115,21 +117,25 @@ func TestAsset_Fetch(t *testing.T) {
 }
 
 func TestAsset_FindByProject(t *testing.T) {
-	pid1 := id.NewProjectID()
-	pid2 := id.NewProjectID()
+	pid := id.NewProjectID()
+
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
 
 	aid1 := id.NewAssetID()
 	uid1 := id.NewUserID()
-	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	a1 := asset.New().ID(aid1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 
 	aid2 := id.NewAssetID()
 	uid2 := id.NewUserID()
-	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid2).Size(1000).MustBuild()
+	a2 := asset.New().ID(aid2).Project(pid).CreatedBy(uid2).Size(1000).File(&f).MustBuild()
 
 	op := &usecase.Operator{}
 
 	type args struct {
-		ids      []id.AssetID
+		pid      id.ProjectID
+		f        interfaces.AssetFilter
 		operator *usecase.Operator
 	}
 	tests := []struct {
@@ -140,43 +146,75 @@ func TestAsset_FindByProject(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:  "Fetch 1 of 2",
-			seeds: []*asset.Asset{a1, a2},
+			name:  "0 count in empty db",
+			seeds: []*asset.Asset{},
 			args: args{
-				ids:      []id.AssetID{aid1},
+				pid:      id.NewProjectID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another projects",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args: args{
+				pid:      id.NewProjectID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil),
+				},
 				operator: op,
 			},
 			want:    []*asset.Asset{a1},
 			wantErr: nil,
 		},
 		{
-			name:  "Fetch 2 of 2",
-			seeds: []*asset.Asset{a1, a2},
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
 			args: args{
-				ids:      []id.AssetID{aid1, aid2},
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil),
+				},
+				operator: op,
+			},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil),
+				},
 				operator: op,
 			},
 			want:    []*asset.Asset{a1, a2},
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 1 of 0",
-			seeds: []*asset.Asset{},
-			args: args{
-				ids:      []id.AssetID{aid1},
-				operator: op,
-			},
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name:  "Fetch 2 of 0",
-			seeds: []*asset.Asset{},
-			args: args{
-				ids:      []id.AssetID{aid1, aid2},
-				operator: op,
-			},
-			want:    nil,
 			wantErr: nil,
 		},
 	}
@@ -189,13 +227,13 @@ func TestAsset_FindByProject(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			for _, p := range tc.seeds {
-				err := db.Asset.Save(ctx, p.Clone())
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
 				assert.Nil(t, err)
 			}
 			assetUC := NewAsset(db, nil)
 
-			got, err := assetUC.Fetch(ctx, tc.args.ids, tc.args.operator)
+			got, _, err := assetUC.FindByProject(ctx, tc.args.pid, tc.args.f, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
