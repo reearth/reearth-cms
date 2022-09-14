@@ -70,10 +70,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 
-	if d.File == nil {
-		d.File = &File{}
-	}
-
 	return asset.New().
 		ID(aid).
 		Project(pid).
@@ -89,7 +85,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 
 func ToFile(f *asset.File) *File {
 	if f == nil {
-		return nil
+		f = &asset.File{}
 	}
 
 	c := []*File{}
@@ -110,7 +106,7 @@ func ToFile(f *asset.File) *File {
 
 func FromFile(f *File) *asset.File {
 	if f == nil {
-		return nil
+		f = &File{}
 	}
 
 	c := []*asset.File{}
