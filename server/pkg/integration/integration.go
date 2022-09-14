@@ -78,28 +78,28 @@ func (i *Integration) Webhooks() []*Webhook {
 }
 
 func (i *Integration) Webhook(wId WebhookID) (*Webhook, bool) {
-	return lo.Find(i.webhook, func(w *Webhook) bool { return w.id == wId })
+	return lo.Find(i.webhooks, func(w *Webhook) bool { return w.id == wId })
 }
 
 func (i *Integration) AddWebhook(w *Webhook) {
-	i.webhook = append(i.webhook, w)
+	i.webhooks = append(i.webhooks, w)
 }
 
 func (i *Integration) UpdateWebhook(wId WebhookID, w *Webhook) bool {
-	_, idx, ok := lo.FindIndexOf(i.webhook, func(w *Webhook) bool { return w.id == wId })
-	if !ok || idx >= len(i.webhook) {
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
 		return false
 	}
-	i.webhook[idx] = w
+	i.webhooks[idx] = w
 	return true
 }
 
 func (i *Integration) DeleteWebhook(wId WebhookID) bool {
-	_, idx, ok := lo.FindIndexOf(i.webhook, func(w *Webhook) bool { return w.id == wId })
-	if !ok || idx >= len(i.webhook) {
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
 		return false
 	}
-	i.webhook = slices.Delete(i.webhook, idx, idx+1)
+	i.webhooks = slices.Delete(i.webhooks, idx, idx+1)
 	return true
 }
 
