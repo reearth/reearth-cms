@@ -79,5 +79,131 @@ func Test_itemRepo_Remove(t *testing.T) {
 	assert.NoError(t, err)
 	got, err := repo.FindByID(ctx, i1.ID())
 	assert.Nil(t, got)
-	assert.Error(t, err)
+	assert.Equal(t, rerror.ErrNotFound, err)
+}
+
+func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
+	id1 := id.NewItemID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	i1, _ := item.New().ID(id1).Fields(fs).Build()
+
+	init := mongotest.Connect(t)
+
+	client := mongox.NewClientWithDatabase(init(t))
+
+	repo := NewItem(client)
+	ctx := context.Background()
+	err := repo.Save(ctx, i1)
+	assert.NoError(t, err)
+	got, err := repo.FindAllVersionsByID(ctx, i1.ID())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(got))
+
+	err = repo.Save(ctx, i1)
+	assert.NoError(t, err)
+	got2, err := repo.FindAllVersionsByID(ctx, i1.ID())
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(got2))
+}
+
+func Test_itemRepo_FindByIDs(t *testing.T) {
+	sid := schema.NewID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	tests := []struct {
+		Name               string
+		Input              id.ItemIDList
+		RepoData, Expected item.List
+	}{
+		{
+			Name:     "must find two items",
+			Input:    id.ItemIDList{i1.ID(), i2.ID()},
+			RepoData: item.List{i1, i2},
+			Expected: item.List{i1, i2},
+		},
+		{
+			Name:     "must not find any item",
+			Input:    id.ItemIDList{id.NewItemID()},
+			RepoData: item.List{i1, i2},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			// @TODO create SaveAll func
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _ := repo.FindByIDs(ctx, tc.Input)
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
+}
+
+func Test_itemRepo_FindBySchema(t *testing.T) {
+	sid := schema.NewID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	tests := []struct {
+		Name               string
+		Input              id.SchemaID
+		RepoData, Expected item.List
+		WantErr            bool
+	}{
+		{
+			Name:     "must find two items",
+			Input:    sid,
+			RepoData: item.List{i1, i2},
+			Expected: item.List{i1, i2},
+		},
+		{
+			Name:     "must not find any item",
+			Input:    id.NewSchemaID(),
+			RepoData: item.List{i1, i2},
+			WantErr:  true,
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _, err := repo.FindBySchema(ctx, tc.Input, nil)
+			if tc.WantErr {
+				assert.Equal(tt, err, rerror.ErrNotFound)
+			} else {
+				assert.Equal(tt, tc.Expected, got)
+			}
+		})
+	}
 }

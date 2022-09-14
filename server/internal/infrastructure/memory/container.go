@@ -9,7 +9,9 @@ import (
 
 func New() *repo.Container {
 	return &repo.Container{
+		Asset:       NewAsset(),
 		Lock:        NewLock(),
+		Item:        NewItem(),
 		User:        NewUser(),
 		Workspace:   NewWorkspace(),
 		Project:     NewProject(),

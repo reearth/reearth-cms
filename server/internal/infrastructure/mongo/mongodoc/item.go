@@ -14,6 +14,7 @@ type ItemDocument struct {
 	Schema string
 	Fields []ItemFieldDoc
 }
+
 type ItemFieldDoc struct {
 	SchemaField string
 	ValueType   string
