@@ -8,6 +8,7 @@ import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import Space from "@reearth-cms/components/atoms/Space";
+import { useT } from "@reearth-cms/i18n";
 import { Workspace } from "@reearth-cms/state";
 
 import type { User } from "./types";
@@ -29,6 +30,7 @@ const Header: React.FC<Props> = ({
   personalWorkspace,
   handleModalOpen,
 }) => {
+  const t = useT();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -43,7 +45,7 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: "Personal Account",
+          label: t("Personal Account"),
           key: "personal-account",
           type: "group",
           children: workspaces
@@ -60,7 +62,7 @@ const Header: React.FC<Props> = ({
             })),
         },
         {
-          label: "Teams",
+          label: t("Teams"),
           key: "teams",
           type: "group",
           children: workspaces
@@ -77,7 +79,7 @@ const Header: React.FC<Props> = ({
             })),
         },
         {
-          label: "new workspace",
+          label: t("new workspace"),
           key: "new-workspace",
           icon: <Icon icon="userGroupAdd" />,
           onClick: handleModalOpen,
@@ -90,12 +92,12 @@ const Header: React.FC<Props> = ({
     <HeaderMenu
       items={[
         {
-          label: "Account Settings",
+          label: t("Account Settings"),
           key: "account-settings",
           icon: <Icon icon="user" />,
         },
         {
-          label: "Logout",
+          label: t("Logout"),
           key: "logout",
           icon: <Icon icon="logout" />,
           onClick: logout,
@@ -106,7 +108,7 @@ const Header: React.FC<Props> = ({
 
   return (
     <>
-      <Logo onClick={() => navigate("/")}>Re:Earth CMS</Logo>
+      <Logo onClick={() => navigate("/")}>{t("Re:Earth CMS")}</Logo>
       <VerticalDivider></VerticalDivider>
       <WorkspaceDropdown overlay={WorkspacesMenu}>
         <a onClick={e => e.preventDefault()}>

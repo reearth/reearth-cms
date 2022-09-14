@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"github.com/reearth/reearthx/util"
 )
 
 type Asset struct {
@@ -13,7 +15,7 @@ type Asset struct {
 	size        uint64
 	previewType *PreviewType
 	file        *File
-	hash        string
+	uuid        string
 	thread      ThreadID
 }
 
@@ -46,6 +48,9 @@ func (a *Asset) Size() uint64 {
 }
 
 func (a *Asset) PreviewType() *PreviewType {
+	if a.previewType == nil {
+		return nil
+	}
 	return a.previewType
 }
 
@@ -53,8 +58,30 @@ func (a *Asset) File() *File {
 	return a.file
 }
 
-func (a *Asset) Hash() string {
-	return a.hash
+func (a *Asset) UUID() string {
+	return a.uuid
+}
+
+func (a *Asset) UpdatePreviewType(p *PreviewType) {
+	a.previewType = util.CloneRef(p)
+}
+
+func (a *Asset) Clone() *Asset {
+	if a == nil {
+		return nil
+	}
+
+	return &Asset{
+		id:          a.id.Clone(),
+		project:     a.project.Clone(),
+		createdAt:   a.createdAt,
+		createdBy:   a.createdBy.Clone(),
+		fileName:    a.fileName,
+		size:        a.size,
+		previewType: a.previewType,
+		file:        a.file,
+		uuid:        a.uuid,
+	}
 }
 
 func (a *Asset) Thread() ThreadID {

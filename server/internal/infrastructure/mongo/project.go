@@ -27,7 +27,7 @@ func NewProject(client *mongox.Client) repo.Project {
 }
 
 func (r *projectRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"alias", "workspace"})
+	i := r.client.CreateIndex(context.Background(), []string{"alias", "workspace"}, []string{"id"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "project", i)
 	}
@@ -56,8 +56,7 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 			"$in": ids.Strings(),
 		},
 	}
-	dst := make(project.List, 0, len(ids))
-	res, err := r.find(ctx, dst, filter)
+	res, err := r.find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -101,34 +100,29 @@ func (r *projectRepo) Remove(ctx context.Context, id id.ProjectID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
-func (r *projectRepo) find(ctx context.Context, dst project.List, filter interface{}) (project.List, error) {
-	c := mongodoc.ProjectConsumer{
-		Rows: dst,
-	}
-	if err := r.client.Find(ctx, r.readFilter(filter), &c); err != nil {
+func (r *projectRepo) find(ctx context.Context, filter any) (project.List, error) {
+	c := mongodoc.NewProjectConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
-	return c.Rows, nil
+	return c.Result, nil
 }
 
-func (r *projectRepo) findOne(ctx context.Context, filter interface{}) (*project.Project, error) {
-	dst := make(project.List, 0, 1)
-	c := mongodoc.ProjectConsumer{
-		Rows: dst,
-	}
-	if err := r.client.FindOne(ctx, r.readFilter(filter), &c); err != nil {
+func (r *projectRepo) findOne(ctx context.Context, filter any) (*project.Project, error) {
+	c := mongodoc.NewProjectConsumer()
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
-	return c.Rows[0], nil
+	return c.Result[0], nil
 }
 
 func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
-	var c mongodoc.ProjectConsumer
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
+	c := mongodoc.NewProjectConsumer()
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
-	return c.Rows, pageInfo, nil
+	return c.Result, pageInfo, nil
 }
 
 func filterProjects(ids []id.ProjectID, rows project.List) project.List {
@@ -144,10 +138,10 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 	return res
 }
 
-func (r *projectRepo) readFilter(filter interface{}) interface{} {
+func (r *projectRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-func (r *projectRepo) writeFilter(filter interface{}) interface{} {
+func (r *projectRepo) writeFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Writable)
 }

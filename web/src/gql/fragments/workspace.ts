@@ -5,13 +5,15 @@ export const workspaceFragment = gql`
     id
     name
     members {
-      user {
-        id
-        name
-        email
+      ... on WorkspaceUserMember {
+        user {
+          id
+          name
+          email
+        }
+        userId
+        role
       }
-      userId
-      role
     }
     personal
   }

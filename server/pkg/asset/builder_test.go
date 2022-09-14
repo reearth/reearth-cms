@@ -24,7 +24,7 @@ type Input struct {
 	size        uint64
 	previewType *PreviewType
 	file        *File
-	hash        string
+	uuid        string
 	thread      ThreadID
 }
 
@@ -49,7 +49,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			want: &Asset{
@@ -61,7 +61,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 		},
@@ -74,7 +74,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			err: ErrNoProjectID,
@@ -88,7 +88,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			err: ErrInvalidID,
@@ -102,7 +102,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			err: ErrNoUser,
@@ -117,7 +117,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        0,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			err: ErrZeroSize,
@@ -132,7 +132,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			want: &Asset{
@@ -144,7 +144,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 		},
@@ -161,7 +161,7 @@ func TestBuilder_Build(t *testing.T) {
 				Size(tt.input.size).
 				Type(tt.input.previewType).
 				File(tt.input.file).
-				Hash(tt.input.hash).
+				UUID(tt.input.uuid).
 				Thread(tt.input.thread).
 				Build()
 			if err != tt.err {
@@ -192,7 +192,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			want: &Asset{
@@ -204,7 +204,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 		},
@@ -219,7 +219,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
 				file:        &f,
-				hash:        "yyy",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			err: ErrInvalidID,
@@ -241,7 +241,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					Type(tt.input.previewType).
 					Size(tt.input.size).
 					File(tt.input.file).
-					Hash(tt.input.hash).
+					UUID(tt.input.uuid).
 					Thread(tt.input.thread).
 					MustBuild()
 			}

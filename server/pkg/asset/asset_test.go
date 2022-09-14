@@ -26,7 +26,7 @@ func TestAsset_Getters(t *testing.T) {
 		size:        size,
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 		file:        &File{},
-		hash:        "yyy",
+		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
 	}
 
@@ -38,7 +38,7 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
-	assert.Equal(t, "yyy", got.Hash())
+	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, thid, got.Thread())
 }
 
@@ -46,4 +46,59 @@ func TestAsset_CreatedAt(t *testing.T) {
 	// if asset is nil Asset.CreatedAt() should be time.Time{}
 	var got *Asset = nil
 	assert.Equal(t, time.Time{}, got.CreatedAt())
+}
+
+func TestAsset_PreviewType(t *testing.T) {
+	aid := NewID()
+	pid := NewProjectID()
+	uid := NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	var size uint64 = 15
+
+	got := Asset{
+		id:        aid,
+		project:   pid,
+		createdAt: tim,
+		createdBy: uid,
+		fileName:  "hoge",
+		size:      size,
+		file:      &File{},
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+	}
+
+	assert.Nil(t, got.PreviewType())
+}
+
+func TestAsset_UpdatePreviewType(t *testing.T) {
+	aid := NewID()
+	pid := NewProjectID()
+	uid := NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	var size uint64 = 15
+
+	got := Asset{
+		id:        aid,
+		project:   pid,
+		createdAt: tim,
+		createdBy: uid,
+		fileName:  "hoge",
+		size:      size,
+		file:      &File{},
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+	}
+
+	pt := lo.ToPtr(PreviewTypeIMAGE)
+	got.UpdatePreviewType(pt)
+	assert.Equal(t, pt, got.PreviewType())
+}
+
+func TestAsset_Clone(t *testing.T) {
+	pid := NewProjectID()
+	uid := NewUserID()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+
+	got := a.Clone()
+	assert.Equal(t, a, got)
+	assert.NotSame(t, a, got)
+	assert.Nil(t, (*Asset)(nil).Clone())
 }
