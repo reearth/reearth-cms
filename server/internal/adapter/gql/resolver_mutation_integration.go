@@ -20,7 +20,6 @@ func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel
 			Type:        integration.TypeFrom(input.Type.String()),
 			Logo:        input.LogoURL,
 		},
-		getUser(ctx).ID(),
 		op,
 	)
 	if err != nil {

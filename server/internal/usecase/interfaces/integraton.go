@@ -49,7 +49,7 @@ type WebhookTriggerParam struct {
 type Integration interface {
 	FindByIDs(context.Context, []id.IntegrationID, *usecase.Operator) (integration.List, error)
 	FindByUser(context.Context, id.UserID, *usecase.Operator) (integration.List, error)
-	Create(context.Context, CreateIntegrationParam, id.UserID, *usecase.Operator) (*integration.Integration, error)
+	Create(context.Context, CreateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Update(context.Context, id.IntegrationID, UpdateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Delete(context.Context, id.IntegrationID, *usecase.Operator) error
 
