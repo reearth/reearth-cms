@@ -7,6 +7,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -110,14 +111,13 @@ func TestMemory_FindByKey(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
 	mId := id.NewModelID()
+	key := key.Random().String()
 
-	key := "id"
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
-
 	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
 		return m.Key().String() == key && m.Project() == pId
 	})
