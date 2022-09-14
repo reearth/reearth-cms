@@ -1,5 +1,23 @@
-import { Asset as GQLAsset } from "@reearth-cms/gql/graphql-client-api";
+import { PreviewType } from "./Asset/AssetBody/previewTypeSelect";
 
-export interface Asset extends GQLAsset {
-  commentsCount?: number;
-}
+export type Asset = {
+  __typename?: "Asset";
+  createdAt: Date;
+  createdById: string;
+  file: AssetFile;
+  fileName: string;
+  uuid: string;
+  id: string;
+  previewType?: PreviewType;
+  projectId: string;
+  size: number;
+};
+
+export type AssetFile = {
+  __typename?: "AssetFile";
+  children?: Array<AssetFile>;
+  contentType?: string;
+  name: string;
+  path: string;
+  size: number;
+};

@@ -9,6 +9,7 @@ import (
 )
 
 type Container struct {
+	Asset       Asset
 	Lock        Lock
 	User        User
 	Workspace   Workspace
@@ -33,7 +34,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		User:        c.User,
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model,
-		Schema:      c.Schema,
+		Schema:      c.Schema.Filtered(workspace),
 	}
 }
 

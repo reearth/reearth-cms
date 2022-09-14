@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -26,25 +27,32 @@ const ProjectMenu: React.FC<Props> = ({
   projectId,
   defaultSelectedKeys,
 }) => {
+  const t = useT();
   const navigate = useNavigate();
   const items: ItemType[] = [
     {
-      label: "Accessibility",
+      label: t("Accessibility"),
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
-      label: "Settings",
+      label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
     },
   ];
 
   const onClick = (e: any) => {
-    if (e.key === "home") {
-      navigate(`/dashboard/${workspaceId}`);
-    } else if (e.key === "schema") {
-      navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
+    switch (e.key) {
+      case "home":
+        navigate(`/dashboard/${workspaceId}`);
+        break;
+      case "schema":
+        navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
+        break;
+      case "asset":
+        navigate(`/workspaces/${workspaceId}/${projectId}/asset`);
+        break;
     }
   };
 

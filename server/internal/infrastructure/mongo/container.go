@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
@@ -22,6 +21,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 
 	client := mongox.NewClient(databaseName, mc)
 	c := &repo.Container{
+		Asset:       NewAsset(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: mongox.NewTransaction(client),
@@ -37,5 +37,5 @@ func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{
 	if ids == nil {
 		return filter
 	}
-	return mongodoc.And(filter, "workspace", bson.M{"$in": ids.Strings()})
+	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
 }

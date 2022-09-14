@@ -1,14 +1,42 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 
-const UploadAsset: React.FC<UploadProps> = ({ ...props }) => {
+import UploadModal from "../UploadModal/uploadModal";
+
+type Props = {
+  uploadProps: UploadProps;
+  fileList: UploadFile<File>[];
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  displayUploadModal: () => void;
+  hideUploadModal: () => void;
+  handleUpload: () => void;
+};
+
+const UploadAsset: React.FC<Props> = ({
+  uploadProps,
+  fileList,
+  uploading,
+  uploadModalVisibility,
+  displayUploadModal,
+  hideUploadModal,
+  handleUpload,
+}) => {
   return (
-    <Upload {...props}>
-      <Button type="primary" icon={<Icon icon="upload" />}>
+    <>
+      <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
         Upload Asset
       </Button>
-    </Upload>
+      <UploadModal
+        uploadProps={uploadProps}
+        fileList={fileList}
+        uploading={uploading}
+        handleUpload={handleUpload}
+        visible={uploadModalVisibility}
+        handleCancel={hideUploadModal}
+      />
+    </>
   );
 };
 
