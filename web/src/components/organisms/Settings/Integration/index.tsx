@@ -43,45 +43,43 @@ const Integration: React.FC = () => {
   const dataSource: [] = [];
 
   return (
-    <>
-      <PaddedContent>
-        <IntegrationPageHeader
-          title={t("Integration")}
-          extra={
-            <Button type="primary" onClick={() => {}} icon={<Icon icon="api" />}>
-              {t("Connect Integration")}
-            </Button>
-          }></IntegrationPageHeader>
-        <ActionHeader>
-          <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
-        </ActionHeader>
-        <ConfigProvider
-          renderEmpty={() => (
-            <EmptyTableWrapper>
-              <Title>{t("No Integration yet")}</Title>
-              <Suggestion>
-                {t("Create a new")}{" "}
-                <Button onClick={() => {}} type="primary" icon={<Icon icon="api" />}>
-                  {t("Connect Integration")}
-                </Button>
-              </Suggestion>
-              <Suggestion>
-                {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
-              </Suggestion>
-            </EmptyTableWrapper>
-          )}>
-          <Table dataSource={dataSource}>
-            {columns.map(column => (
-              <Table.Column
-                key={column.key}
-                title={t(column.title) as string}
-                dataIndex={column.dataIndex}
-              />
-            ))}
-          </Table>
-        </ConfigProvider>
-      </PaddedContent>
-    </>
+    <PaddedContent>
+      <IntegrationPageHeader
+        title={t("Integration")}
+        extra={
+          <Button type="primary" onClick={() => {}} icon={<Icon icon="api" />}>
+            {t("Connect Integration")}
+          </Button>
+        }></IntegrationPageHeader>
+      <ActionHeader>
+        <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
+      </ActionHeader>
+      <ConfigProvider
+        renderEmpty={() => (
+          <EmptyTableWrapper>
+            <Title>{t("No Integration yet")}</Title>
+            <Suggestion>
+              {t("Create a new")}{" "}
+              <Button onClick={() => {}} type="primary" icon={<Icon icon="api" />}>
+                {t("Connect Integration")}
+              </Button>
+            </Suggestion>
+            <Suggestion>
+              {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            </Suggestion>
+          </EmptyTableWrapper>
+        )}>
+        <Table dataSource={dataSource}>
+          {columns.map(column => (
+            <Table.Column
+              key={column.key}
+              title={t(column.title) as string}
+              dataIndex={column.dataIndex}
+            />
+          ))}
+        </Table>
+      </ConfigProvider>
+    </PaddedContent>
   );
 };
 
