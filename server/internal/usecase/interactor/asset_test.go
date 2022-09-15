@@ -20,6 +20,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -348,9 +350,18 @@ func TestAsset_FindByProject(t *testing.T) {
 }
 
 func TestAsset_Create(t *testing.T) {
-	pid := id.NewProjectID()
-	uid := id.NewUserID()
-	op := &usecase.Operator{}
+	mocktime := time.Now()
+	wid1 := id.NewWorkspaceID()
+
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		User:               u.ID(),
+		WritableWorkspaces: []id.WorkspaceID{wid1},
+	}
+
 	buf := bytes.NewBufferString("Hello")
 	buflen := int64(buf.Len())
 	var pti asset.PreviewType = asset.PreviewTypeIMAGE
@@ -375,8 +386,8 @@ func TestAsset_Create(t *testing.T) {
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   pid,
-					CreatedByID: uid,
+					ProjectID:   p1.ID(),
+					CreatedByID: u.ID(),
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
@@ -387,8 +398,8 @@ func TestAsset_Create(t *testing.T) {
 			},
 			want: asset.New().
 				NewID().
-				Project(pid).
-				CreatedBy(uid).
+				Project(p1.ID()).
+				CreatedBy(u.ID()).
 				FileName("aaa.txt").
 				File(af).
 				Size(uint64(buflen)).
@@ -401,8 +412,8 @@ func TestAsset_Create(t *testing.T) {
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   pid,
-					CreatedByID: uid,
+					ProjectID:   p1.ID(),
+					CreatedByID: u.ID(),
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
@@ -415,12 +426,12 @@ func TestAsset_Create(t *testing.T) {
 			wantErr: gateway.ErrFileTooLarge,
 		},
 		{
-			name:  "Create invalid file size",
+			name:  "Create invalid file",
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   pid,
-					CreatedByID: uid,
+					ProjectID:   p1.ID(),
+					CreatedByID: u.ID(),
 					File:        nil,
 				},
 				operator: op,
@@ -439,6 +450,12 @@ func TestAsset_Create(t *testing.T) {
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
 			f, _ := fs.NewFile(mfs, "")
+
+			err := db.User.Save(ctx, u)
+			assert.Nil(t, err)
+
+			err2 := db.Project.Save(ctx, p1.Clone())
+			assert.Nil(t, err2)
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())

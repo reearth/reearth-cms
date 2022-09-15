@@ -57,9 +57,15 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
+
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().Transaction(),
+		Usecase().WithWritableWorkspaces(prj.Workspace()).Transaction(),
 		func() (*asset.Asset, error) {
 			uuid, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {
