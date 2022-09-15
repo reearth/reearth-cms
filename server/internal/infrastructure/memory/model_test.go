@@ -53,7 +53,6 @@ func TestMemory_FindByProject(t *testing.T) {
 	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pId
 	})).SortByID()
-
 	startCursor := lo.ToPtr(usecasex.Cursor(expectedModelList[0].ID().String()))
 	endCursor := lo.ToPtr(usecasex.Cursor(expectedModelList[len(expectedModelList)-1].ID().String()))
 	expectedPageInfo := usecasex.NewPageInfo(
@@ -63,7 +62,6 @@ func TestMemory_FindByProject(t *testing.T) {
 		true,
 		true,
 	)
-
 	gotModelList, gotPageInfo, err := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, gotModelList)
@@ -75,7 +73,6 @@ func TestMemory_FindByProject(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 		err:  err,
 	}
-
 	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
 	assert.Equal(t, gotErr, err)
 	assert.Nil(t, gotNilModelList)
@@ -111,21 +108,27 @@ func TestMemory_FindByKey(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
 	mId := id.NewModelID()
-	key := key.Random().String()
+	key := key.Random()
 
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild())
 	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return m.Key().String() == key && m.Project() == pId
+		return m.Key().String() == key.String() && m.Project() == pId
 	})
-	// pid, key is bad, so I'm getting nil back...
-	// Also, r.data.store is not working properly.
-	got, err := r.FindByKey(ctx, pId, key)
-	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	got, err := r.FindByKey(ctx, pId, key.String())
+	assert.Nil(t, err)
 	assert.Equal(t, expected, got)
+
+	r = &Model{
+		data: &util.SyncMap[id.ModelID, *model.Model]{},
+		f:    repo.WorkspaceFilter{},
+	}
+	got, gotErr := r.FindByKey(ctx, pId, key.String())
+	assert.Equal(t, gotErr, rerror.ErrNotFound)
+	assert.Nil(t, got)
 
 	err = errors.New("test")
 	r = &Model{
@@ -133,24 +136,30 @@ func TestMemory_FindByKey(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 		err:  err,
 	}
-
-	got, gotErr := r.FindByKey(ctx, pId, key)
-	assert.Equal(t, gotErr, err)
-	assert.Equal(t, expected, got)
+	got, gotErr = r.FindByKey(ctx, pId, key.String())
+	assert.Nil(t, got)
+	assert.Equal(t, gotErr, errors.New("test"))
 }
 
 func TestMemory_FindByID(t *testing.T) {
 	ctx := context.Background()
+	pId := id.NewProjectID()
 	mId := id.NewModelID()
+	key := key.Random()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
+	got, err := r.FindByID(ctx, mId)
+	assert.Nil(t, got)
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild())
 	expected := r.data.Find(func(k id.ModelID, m *model.Model) bool {
 		return k == mId
 	})
-	got, err := r.FindByID(ctx, mId)
-	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	got, err = r.FindByID(ctx, mId)
+	assert.Nil(t, err)
 	assert.Equal(t, expected, got)
 
 	err = errors.New("test")
@@ -159,24 +168,27 @@ func TestMemory_FindByID(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 		err:  err,
 	}
-
 	got, gotErr := r.FindByID(ctx, mId)
 	assert.Equal(t, gotErr, err)
-	assert.Equal(t, expected, got)
+	assert.Nil(t, got)
 }
 
 func TestMemory_FindByIDs(t *testing.T) {
 	ctx := context.Background()
 	pId := id.NewProjectID()
-	mId := []id.ModelID{}
+	mId := id.NewModelID()
+	key := key.Random()
+	mIds := id.ModelIDList{}
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
 		f:    repo.WorkspaceFilter{},
 	}
-	expectedModelList := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
-		return m.Project() == pId
+	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild())
+
+	expectedModelList := model.List(r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
+		return mIds.Has(k)
 	})).SortByID()
-	got, err := r.FindByIDs(ctx, mId)
+	got, err := r.FindByIDs(ctx, mIds)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, got)
 
@@ -186,8 +198,7 @@ func TestMemory_FindByIDs(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 		err:  err,
 	}
-
-	got, gotErr := r.FindByIDs(ctx, mId)
+	got, gotErr := r.FindByIDs(ctx, mIds)
 	assert.Equal(t, gotErr, err)
 	assert.Equal(t, expectedModelList, got)
 }
@@ -223,7 +234,6 @@ func TestMemory_Remove(t *testing.T) {
 		f:    repo.WorkspaceFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
-
 	gotErr := r.Remove(ctx, m.ID())
 	assert.ErrorIs(t, gotErr, rerror.ErrNotFound)
 
