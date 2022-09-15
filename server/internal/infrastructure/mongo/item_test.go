@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -86,7 +88,7 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Build()
 
 	init := mongotest.Connect(t)
 
@@ -167,7 +169,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		RepoData, Expected item.List
 	}{
 		{
-			Name:     "must find two items",
+			Name:     "must find two items (first page)",
 			Input:    sid,
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
@@ -196,7 +198,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindBySchema(ctx, tc.Input, nil)
+			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}

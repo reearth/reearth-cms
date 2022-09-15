@@ -35,9 +35,14 @@ func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, erro
 }
 
 func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	return i.paginate(ctx, bson.M{
-		"schema": schemaID,
-	}, pagination)
+	c := mongodoc.NewItemConsumer()
+	if err := i.client.Find(ctx, bson.M{
+		"schema": schemaID.String(),
+	}, version.Eq(version.Latest.OrVersion()), c); err != nil {
+		return nil, nil, err
+	}
+
+	return c.Result, nil, nil
 }
 
 func (i *itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
