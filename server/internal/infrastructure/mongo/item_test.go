@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -86,7 +88,7 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Build()
 
 	init := mongotest.Connect(t)
 
@@ -156,7 +158,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 }
 
 func Test_itemRepo_FindBySchema(t *testing.T) {
-	sid := schema.NewID()
+	sid := id.NewSchemaID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
@@ -165,10 +167,9 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		Name               string
 		Input              id.SchemaID
 		RepoData, Expected item.List
-		WantErr            bool
 	}{
 		{
-			Name:     "must find two items",
+			Name:     "must find two items (first 10)",
 			Input:    sid,
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
@@ -177,7 +178,6 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 			Name:     "must not find any item",
 			Input:    id.NewSchemaID(),
 			RepoData: item.List{i1, i2},
-			WantErr:  true,
 		},
 	}
 
@@ -198,12 +198,8 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, err := repo.FindBySchema(ctx, tc.Input, nil)
-			if tc.WantErr {
-				assert.Equal(tt, err, rerror.ErrNotFound)
-			} else {
-				assert.Equal(tt, tc.Expected, got)
-			}
+			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			assert.Equal(tt, tc.Expected, got)
 		})
 	}
 }
