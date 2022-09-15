@@ -4,6 +4,8 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
+import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import IntegrationPage from "@reearth-cms/components/pages/Integration";
 import MembersPage from "@reearth-cms/components/pages/Members";
@@ -21,6 +23,14 @@ function AppRoutes() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
+    {
+      path: "/workspaces/:workspaceId/:projectId/asset",
+      element: <AssetListPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/:projectId/asset/:assetId",
+      element: <AssetPage />,
+    },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId/integration", element: <IntegrationPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
