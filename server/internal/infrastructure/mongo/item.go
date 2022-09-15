@@ -36,7 +36,7 @@ func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, erro
 
 func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	return i.paginate(ctx, bson.M{
-		"schema": schemaID,
+		"schema": schemaID.String(),
 	}, pagination)
 }
 
@@ -53,10 +53,10 @@ func (i *itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List,
 	return c.Result, nil
 }
 
-func (i *itemRepo) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
+func (i *itemRepo) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*version.Value[*item.Item], error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := i.client.Find(ctx, bson.M{
-		"id": id.String(),
+		"id": itemID.String(),
 	}, version.All(), c); err != nil {
 		return nil, err
 	}
