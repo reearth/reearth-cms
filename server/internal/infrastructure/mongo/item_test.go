@@ -158,7 +158,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 }
 
 func Test_itemRepo_FindBySchema(t *testing.T) {
-	sid := schema.NewID()
+	sid := id.NewSchemaID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
@@ -169,7 +169,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		RepoData, Expected item.List
 	}{
 		{
-			Name:     "must find two items (first page)",
+			Name:     "must find two items (first 10)",
 			Input:    sid,
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
@@ -198,7 +198,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
+			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}
