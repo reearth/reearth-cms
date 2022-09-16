@@ -4,6 +4,7 @@ import React from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/integrationCrad";
+import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   open?: boolean;
@@ -12,18 +13,20 @@ export interface Props {
 }
 
 const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+  const t = useT();
+
   return (
     <Modal
-      title="Connect Integration"
+      title={t("Connect Integration")}
       visible={open}
       onCancel={() => onClose?.()}
       onOk={onSubmit}
       footer={[
         <Button key="back" onClick={() => onClose?.()}>
-          Cancel
+          {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={onSubmit}>
-          Connect
+          {t("Connect")}
         </Button>,
       ]}>
       <ModalContent>
