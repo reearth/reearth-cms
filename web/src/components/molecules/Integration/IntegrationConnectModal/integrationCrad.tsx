@@ -17,7 +17,7 @@ const IntegrationCard: React.FC<Props> = ({ src, selected, title }) => {
 };
 
 const CardWrapper = styled.div<{ selected?: boolean }>`
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 2px 8px #00000026;
   border: 1px solid #f0f0f0;
   padding: 12px;
   min-height: 88px;
