@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -13,26 +13,25 @@ export interface FormValues {
 export interface Props {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onSubmit?: () => Promise<void> | void;
 }
 
 const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
-  const handleSubmit = useCallback(() => {}, [onClose, onSubmit]);
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
 
   return (
     <Modal
-      title="Integration Setting"
+      title={t("Integration Setting")}
       visible={open}
       onCancel={() => onClose?.(true)}
-      onOk={handleSubmit}
+      onOk={onSubmit}
       footer={[
         <Button key="back" onClick={() => onClose?.(true)}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button key="submit" type="primary" onClick={onSubmit}>
           Save
         </Button>,
       ]}>
@@ -47,9 +46,9 @@ const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
             },
           ]}>
           <Select placeholder={t("select role")}>
-            <Option value="OWNER">{t("Owner")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
             <Option value="READER">{t("Reader")}</Option>
+            <Option value="WRITER">{t("Writer")}</Option>
+            <Option value="OWNER">{t("Owner")}</Option>
           </Select>
         </Form.Item>
       </Form>
