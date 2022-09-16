@@ -71,6 +71,15 @@ type Meta struct {
 	Refs    []version.Ref     `json:"__r" bson:"__r"`
 }
 
+func ToValue[T any](m Meta, inner T) *version.Value[T] {
+	return version.NewValue(
+		m.Version,
+		version.NewVersions(m.Parents...),
+		version.NewRefs(m.Refs...),
+		inner,
+	)
+}
+
 func (meta Meta) apply(d any) (any, error) {
 	b, err := bson.Marshal(d)
 	if err != nil {
