@@ -7,7 +7,7 @@ import IntegrationCard from "@reearth-cms/components/molecules/Integration/Integ
 
 export interface Props {
   open?: boolean;
-  onClose?: (refetch?: boolean) => void;
+  onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
 }
 
@@ -16,10 +16,10 @@ const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) =
     <Modal
       title="Connect Integration"
       visible={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={() => onClose?.()}
       onOk={onSubmit}
       footer={[
-        <Button key="back" onClick={() => onClose?.(true)}>
+        <Button key="back" onClick={() => onClose?.()}>
           Cancel
         </Button>,
         <Button key="submit" type="primary" onClick={onSubmit}>
