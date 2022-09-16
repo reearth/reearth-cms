@@ -12,7 +12,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
-  onClose?: (refetch?: boolean) => void;
+  onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
 }
 
@@ -25,10 +25,10 @@ const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
     <Modal
       title={t("Integration Setting")}
       visible={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={() => onClose?.()}
       onOk={onSubmit}
       footer={[
-        <Button key="back" onClick={() => onClose?.(true)}>
+        <Button key="back" onClick={() => onClose?.()}>
           Cancel
         </Button>,
         <Button key="submit" type="primary" onClick={onSubmit}>
