@@ -42,7 +42,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
           rules={[
             {
               required: true,
-              message: t("Please input the appropriate role for this member!"),
+              message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
           <Select placeholder={t("select role")}>

@@ -27,7 +27,7 @@ Connect Integration: ''
 Cancel: ''
 Connect: ''
 Integration Setting: ''
-Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+Please input the appropriate role for this integration!: ''
 select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
@@ -37,6 +37,7 @@ Create a new: ''
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
+Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
 Add Field: フィールドを追加
 Create: 作成
 Setting: 設定
