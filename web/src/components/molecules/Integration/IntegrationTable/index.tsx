@@ -4,8 +4,14 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import ProTable, {
+  ListToolBarProps,
+  ProColumns,
+  OptionConfig,
+  TableRowSelection,
+  TablePaginationConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import Table from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
 const columns = [
@@ -41,11 +47,14 @@ const IntegrationTable: React.FC = () => {
   const dataSource: [] = [];
   const t = useT();
 
+  const handleToolbarEvents: ListToolBarProps | undefined = {
+    search: {
+      onSearch: (value: string) => {},
+    },
+  };
+
   return (
     <>
-      <ActionHeader>
-        <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
-      </ActionHeader>
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
@@ -61,15 +70,12 @@ const IntegrationTable: React.FC = () => {
             </Suggestion>
           </EmptyTableWrapper>
         )}>
-        <Table dataSource={dataSource}>
-          {columns.map(column => (
-            <Table.Column
-              key={column.key}
-              title={t(column.title) as string}
-              dataIndex={column.dataIndex}
-            />
-          ))}
-        </Table>
+        <ProTable
+          dataSource={dataSource}
+          columns={columns}
+          search={false}
+          rowKey="id"
+          toolbar={handleToolbarEvents}></ProTable>
       </ConfigProvider>
     </>
   );
