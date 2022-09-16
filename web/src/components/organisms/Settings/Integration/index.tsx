@@ -9,7 +9,7 @@ const Integration: React.FC = () => {
       <IntegrationHeader handleConnect={() => {}} />
       <IntegrationTable />
       <IntegrationConnectModal open={false} />
-      <IntegrationSettingsModal open={true} />
+      <IntegrationSettingsModal open={false} />
     </>
   );
 };
