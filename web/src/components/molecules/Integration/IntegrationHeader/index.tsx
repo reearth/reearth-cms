@@ -19,7 +19,8 @@ const IntegrationHeader: React.FC<Props> = ({ handleSave }) => {
         <Button type="primary" onClick={handleSave} icon={<Icon icon="api" />}>
           {t("Connect Integration")}
         </Button>
-      }></IntegrationPageHeader>
+      }
+    />
   );
 };
 

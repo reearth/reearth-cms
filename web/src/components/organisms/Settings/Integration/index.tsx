@@ -4,8 +4,8 @@ import IntegrationTable from "@reearth-cms/components/molecules/Integration/Inte
 const Integration: React.FC = () => {
   return (
     <>
-      <IntegrationHeader handleSave={() => {}}></IntegrationHeader>
-      <IntegrationTable></IntegrationTable>
+      <IntegrationHeader handleSave={() => {}} />
+      <IntegrationTable />
     </>
   );
 };
