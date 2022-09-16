@@ -3,8 +3,7 @@ import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
-
-import IntegrationCard from "./integrationCrad";
+import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/integrationCrad";
 
 export interface Props {
   open?: boolean;
