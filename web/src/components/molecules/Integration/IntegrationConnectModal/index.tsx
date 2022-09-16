@@ -4,6 +4,8 @@ import React from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 
+import IntegrationCard from "./integrationCrad";
+
 export interface Props {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
@@ -25,7 +27,9 @@ const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) =
           Connect
         </Button>,
       ]}>
-      <ModalContent></ModalContent>
+      <ModalContent>
+        <IntegrationCard title="Card title" selected={false}></IntegrationCard>
+      </ModalContent>
     </Modal>
   );
 };
