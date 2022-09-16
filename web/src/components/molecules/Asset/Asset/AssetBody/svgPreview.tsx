@@ -7,7 +7,12 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
   const [svgText, setSvgText] = useState("");
 
   const fetchData = useCallback(() => {
-    fetch(url)
+    fetch(url, {
+      method: "get",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
       .then(res => res.text())
       .then(val => {
         setSvgText(val);

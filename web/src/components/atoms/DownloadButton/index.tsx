@@ -19,7 +19,16 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   ...props
 }) => {
   const handleDownload: MouseEventHandler<HTMLElement> | undefined = () => {
-    fileDownload(url, filename);
+    fetch(url, {
+      method: "get",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        fileDownload(blob, filename);
+      });
   };
 
   return (
