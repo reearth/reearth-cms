@@ -2,16 +2,8 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
-import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, {
-  ListToolBarProps,
-  ProColumns,
-  OptionConfig,
-  TableRowSelection,
-  TablePaginationConfig,
-} from "@reearth-cms/components/atoms/ProTable";
-import Search from "@reearth-cms/components/atoms/Search";
+import ProTable, { ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 
 const columns = [
@@ -49,7 +41,7 @@ const IntegrationTable: React.FC = () => {
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
-      onSearch: (value: string) => {},
+      onSearch: _ => {},
     },
   };
 
@@ -80,12 +72,6 @@ const IntegrationTable: React.FC = () => {
     </>
   );
 };
-
-const ActionHeader = styled(Content)`
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-`;
 
 const EmptyTableWrapper = styled.div`
   height: 100%;
