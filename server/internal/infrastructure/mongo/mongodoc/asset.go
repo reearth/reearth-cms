@@ -85,7 +85,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 
 func ToFile(f *asset.File) *File {
 	if f == nil {
-		f = &asset.File{}
+		return nil
 	}
 
 	c := []*File{}
@@ -106,7 +106,7 @@ func ToFile(f *asset.File) *File {
 
 func FromFile(f *File) *asset.File {
 	if f == nil {
-		f = &File{}
+		return nil
 	}
 
 	c := []*asset.File{}
