@@ -49,6 +49,12 @@ const WorkspaceMenu: React.FC<Props> = ({
       show: "both" as MenuShowType,
     },
     {
+      label: t("My Integration"),
+      key: "my-integration",
+      icon: <Icon icon="api" />,
+      show: "both" as MenuShowType,
+    },
+    {
       label: t("Role"),
       key: "role",
       icon: <Icon icon="userSwitch" />,
@@ -78,6 +84,8 @@ const WorkspaceMenu: React.FC<Props> = ({
       navigate(`/workspaces/${workspaceId}/members`);
     } else if (e.key === "home") {
       navigate(`/dashboard/${workspaceId}`);
+    } else if (e.key === "my-integration") {
+      navigate(`/workspaces/${workspaceId}/my-integration`);
     }
   };
 
