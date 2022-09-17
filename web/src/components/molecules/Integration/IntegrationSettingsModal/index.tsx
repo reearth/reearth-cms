@@ -29,10 +29,10 @@ const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
       onOk={onSubmit}
       footer={[
         <Button key="back" onClick={() => onClose?.()}>
-          Cancel
+          {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={onSubmit}>
-          Save
+          {t("Save")}
         </Button>,
       ]}>
       <Form form={form} layout="vertical" initialValues={{}}>
