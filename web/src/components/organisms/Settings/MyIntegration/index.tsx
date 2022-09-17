@@ -5,7 +5,7 @@ const MyIntegration: React.FC = () => {
   return (
     <>
       <MyIntegrationHeader />
-      <IntegrationCreationModal open={true} />
+      <IntegrationCreationModal open={false} />
     </>
   );
 };
