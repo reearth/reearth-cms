@@ -126,6 +126,7 @@ const ContentChild = styled.div`
 const PaddedContent = styled(Content)`
   margin: 16px;
   display: flex;
+  min-height: 100%;
 `;
 
 const FieldListWrapper = styled.div`
