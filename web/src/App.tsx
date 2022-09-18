@@ -9,6 +9,7 @@ import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import MyIntegrationPage from "@reearth-cms/components/pages/MyIntegration";
+import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import SchemaPage from "@reearth-cms/components/pages/Schema";
@@ -16,7 +17,6 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
-import MyIntegrationDetailsPage from "./components/pages/MyIntegrationDetails";
 
 function AppRoutes() {
   const routes = useRoutes([
