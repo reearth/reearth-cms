@@ -6,9 +6,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 
 export interface Props {
   title: string;
+  url: string;
 }
 
-const WebhookCard: React.FC<Props> = ({ title }) => {
+const WebhookCard: React.FC<Props> = ({ title, url }) => {
   return (
     <Card
       style={{ marginTop: 16 }}
@@ -23,7 +24,7 @@ const WebhookCard: React.FC<Props> = ({ title }) => {
           <Icon icon="delete" onClick={() => {}} />
         </>
       }>
-      https://reearth.io/itemchanged
+      {{ url }}
     </Card>
   );
 };

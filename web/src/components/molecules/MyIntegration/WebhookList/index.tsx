@@ -21,8 +21,7 @@ const WebhookList: React.FC<Props> = ({ webhooks }) => {
       </ActionWrapper>
       {webhooks && webhooks.length > 0 ? (
         <ListWrapper>
-          <WebhookCard title="Item_Hook" />
-          <WebhookCard title="Item_Hook" />
+          <WebhookCard title="Item_Hook" url="https://reearth.io/itemchanged" />
         </ListWrapper>
       ) : (
         <EmptyListWrapper>
