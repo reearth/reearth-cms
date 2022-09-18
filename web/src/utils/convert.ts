@@ -1,9 +1,10 @@
 export const uuidToURL = (uuid: string, objectName: string) => {
   // TODO: needs proper implementation
+  if (!uuid || !objectName) return "";
   const storageHost = window.REEARTH_CONFIG?.storageHost ?? "http://localhost:8080";
   const assetBase = window.REEARTH_CONFIG?.assetBase ?? "assets";
   const path = getPathFromUUID(uuid, objectName);
-  if (!path) return;
+  if (!path) return "";
   return joinPath(storageHost, assetBase, path);
 };
 

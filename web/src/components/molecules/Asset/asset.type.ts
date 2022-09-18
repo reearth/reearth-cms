@@ -6,12 +6,12 @@ export type Asset = {
   id: string;
   createdAt: string;
   createdBy: string;
-  file?: AssetFile;
-  fileName?: string;
+  file: AssetFile;
+  fileName: string;
   previewType?: PreviewType;
-  projectId?: string;
-  size?: number;
-  url?: string;
+  projectId: string;
+  size: number;
+  url: string;
 };
 
 export type AssetFile = {

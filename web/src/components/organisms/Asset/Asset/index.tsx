@@ -40,7 +40,6 @@ const Asset: React.FC = () => {
         isModalVisible={isModalVisible}
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}
-        url={url}
       />
     </>
   ) : (
