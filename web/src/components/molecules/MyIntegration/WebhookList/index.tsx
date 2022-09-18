@@ -46,12 +46,11 @@ const ActionWrapper = styled.div`
 `;
 
 const Suggestion = styled.p`
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin: 8px 0;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  color: #00000073;
 `;
 
 const EmptyListWrapper = styled.div`
