@@ -11,6 +11,7 @@ export type Asset = {
   previewType?: PreviewType;
   projectId?: string;
   size?: number;
+  url?: string;
 };
 
 export type AssetFile = {

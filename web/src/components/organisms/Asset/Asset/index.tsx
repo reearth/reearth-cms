@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import AssetHeader from "@reearth-cms/components/molecules/Asset/Asset/AssetHeader";
-import { uuidToURL } from "@reearth-cms/utils/convert";
 
 import useHooks from "./hooks";
 
@@ -18,8 +17,6 @@ const Asset: React.FC = () => {
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
-
-  // const url = uuidToURL(asset?.uuid, asset?.fileName);
 
   const handleSave = async () => {
     if (assetId) {

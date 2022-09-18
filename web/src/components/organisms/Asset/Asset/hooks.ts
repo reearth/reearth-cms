@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
 import { useGetAssetQuery, useUpdateAssetMutation } from "@reearth-cms/gql/graphql-client-api";
+import { uuidToURL } from "@reearth-cms/utils/convert";
 
 export default (assetId?: string) => {
   // const [asset, setAsset] = useState<Asset>({} as Asset);
@@ -26,6 +27,10 @@ export default (assetId?: string) => {
       // previewType: assetData?.previewType,
       projectId: assetData?.projectId,
       size: assetData?.size,
+      url:
+        assetData?.uuid && assetData?.fileName
+          ? uuidToURL(assetData?.uuid, assetData?.fileName)
+          : "",
     };
   }, [rawAsset]);
 
