@@ -29,7 +29,6 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 	if err != nil {
 		return err
 	}
-
 	uploadFunc := func(name string) (io.WriteCloser, error) {
 		w, err := u.gateways.File.Upload(ctx, name)
 		if err != nil {
