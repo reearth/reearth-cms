@@ -1,10 +1,10 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
-import ProjectSchema from "@reearth-cms/components/organisms/Project/Schema";
+import ContentList from "@reearth-cms/components/organisms/Content/ContentList";
 
 const ContentPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <ProjectSchema />
+      <ContentList />
     </AuthenticationRequiredPage>
   );
 };

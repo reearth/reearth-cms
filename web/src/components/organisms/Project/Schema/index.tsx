@@ -12,9 +12,9 @@ import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/Wor
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
-import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
+import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { useT } from "@reearth-cms/i18n";
 
 import useDashboardHooks from "../../Dashboard/hooks";
 
@@ -26,6 +26,7 @@ export interface FormValues {
 }
 
 const ProjectSchema: React.FC = () => {
+  const t = useT();
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -46,24 +47,17 @@ const ProjectSchema: React.FC = () => {
   } = useDashboardHooks(workspaceId);
 
   const {
-    handleModelModalClose,
-    handleModelModalOpen,
-    modelModalShown,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
     fieldCreationModalShown,
     fieldUpdateModalShown,
-    handleModelCreate,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
     selectedField,
     handleFieldDelete,
-    handleModelKeyCheck,
-    isKeyAvailable,
-    models,
     model,
     selectedType,
   } = useHooks({
@@ -98,11 +92,7 @@ const ProjectSchema: React.FC = () => {
           </ProjectSider>
           <PaddedContent>
             <SchemaStyledMenu>
-              <SchemaMenu
-                selectModel={selectModel}
-                defaultSelectedKeys={[model?.id ?? ""]}
-                models={models}
-                handleModalOpen={handleModelModalOpen}></SchemaMenu>
+              <ModelsMenu title={t("Schema")} selectModel={selectModel} />
             </SchemaStyledMenu>
             <ContentChild>
               <ModelTitle>{model?.name}</ModelTitle>
@@ -123,14 +113,7 @@ const ProjectSchema: React.FC = () => {
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
-      <ModelCreationModal
-        isKeyAvailable={isKeyAvailable}
-        projectId={projectId}
-        handleModelKeyCheck={handleModelKeyCheck}
-        open={modelModalShown}
-        onClose={handleModelModalClose}
-        onSubmit={handleModelCreate}
-      />
+
       {selectedType && (
         <FieldCreationModal
           handleFieldKeyUnique={handleFieldKeyUnique}
