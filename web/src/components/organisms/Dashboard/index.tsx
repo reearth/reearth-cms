@@ -7,6 +7,7 @@ import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
@@ -15,10 +16,11 @@ import useHooks from "./hooks";
 type Props = {
   children?: React.ReactNode;
   defaultSelectedKeys?: string[];
+  menuType?: "project" | "workspace";
 };
 
-const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
-  const { workspaceId } = useParams();
+const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
+  const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
     user,
@@ -48,11 +50,21 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
-            <WorkspaceMenu
-              defaultSelectedKeys={defaultSelectedKeys}
-              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
-              inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}></WorkspaceMenu>
+            {projectId && menuType ? (
+              <ProjectMenu
+                projectId={projectId}
+                defaultSelectedKeys={defaultSelectedKeys}
+                inlineCollapsed={collapsed}
+                workspaceId={currentWorkspace?.id}
+              />
+            ) : (
+              <WorkspaceMenu
+                defaultSelectedKeys={defaultSelectedKeys}
+                isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+                inlineCollapsed={collapsed}
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
