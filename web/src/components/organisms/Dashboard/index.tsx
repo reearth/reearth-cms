@@ -106,7 +106,6 @@ const DashboardSider = styled(Sider)`
 
 const PaddedContent = styled(Content)`
   margin: 16px;
-  background-color: #fff;
 `;
 
 export default Dashboard;
