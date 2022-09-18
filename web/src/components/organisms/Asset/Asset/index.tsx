@@ -19,7 +19,7 @@ const Asset: React.FC = () => {
     handleFullScreen,
   } = useHooks(assetId);
 
-  const url = uuidToURL(asset?.uuid, asset?.fileName);
+  // const url = uuidToURL(asset?.uuid, asset?.fileName);
 
   const handleSave = async () => {
     if (assetId) {
