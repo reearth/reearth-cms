@@ -19,13 +19,13 @@ func NewUsecase(g *gateway.Container) *Usecase {
 }
 
 func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
-	url, err := url.Parse(assetURL)
+	aURL, err := url.Parse(assetURL)
 	if err != nil {
 		return err
 	}
 
 	// TODO: extract comressed file format and choose the function to decompress it
-	compressedFile, size, err := u.gateways.File.Read(ctx, url.Path)
+	compressedFile, size, err := u.gateways.File.Read(ctx, aURL.Path)
 	if err != nil {
 		return err
 	}

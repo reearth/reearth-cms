@@ -18,6 +18,7 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
+	assetBasePath    string = "assets.test.cms.reearth.dev" //TODO: fix later
 	cacheSize               = 10 * 1024 * 1024
 )
 
@@ -51,7 +52,7 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 }
 
 func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, error) {
-	objectName := getGCSObjectNameFromURL(f.base, path)
+	objectName := getGCSObjectNameFromURL(assetBasePath, path)
 	return f.NewGCSReaderAt(ctx, objectName)
 }
 
@@ -149,18 +150,12 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
-func getGCSObjectNameFromURL(base *url.URL, path string) string {
+func getGCSObjectNameFromURL(assetBasePath string, path string) string { //TODO: fix later
 	if path == "" {
 		return ""
 	}
-	if base == nil {
-		base = &url.URL{}
-	}
-	url := base.JoinPath(path)
-	p := sanitize.Path(strings.TrimPrefix(url.RawPath, "/"))
-	if p == "" || !strings.HasPrefix(p, gcsAssetBasePath+"/") {
-		return ""
-	}
+
+	p := sanitize.Path(strings.TrimPrefix(path, assetBasePath))
 
 	return p
 }
