@@ -1,0 +1,58 @@
+import styled from "@emotion/styled";
+import React from "react";
+
+export interface Props {
+  src?: string;
+  selected?: boolean;
+  title: string;
+  subTitle: string;
+}
+
+const MyIntegrationCard: React.FC<Props> = ({ src, selected, title, subTitle }) => {
+  return (
+    <CardWrapper selected={selected}>
+      <Card>
+        <CardImg src={src}></CardImg>
+        <CardTitle>{title}</CardTitle>
+        <CardSubTitle>{subTitle}</CardSubTitle>
+      </Card>
+    </CardWrapper>
+  );
+};
+
+const CardWrapper = styled.div<{ selected?: boolean }>`
+  padding: 12px;
+`;
+
+const Card = styled.div<{ selected?: boolean }>`
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0px 2px 8px #00000026;
+  border-radius: 4px;
+`;
+
+const CardImg = styled.img`
+  width: 40px;
+  height: 40px;
+`;
+
+const CardTitle = styled.h5`
+  margin-top: 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #000000d9;
+`;
+
+const CardSubTitle = styled.h6`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  color: #00000073;
+`;
+
+export default MyIntegrationCard;
