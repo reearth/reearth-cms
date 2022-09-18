@@ -7,9 +7,6 @@ const MyIntegrationList: React.FC = () => {
   return (
     <ListWrapper>
       <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-      <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-      <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-      <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
       <IntegrationCreationAction />
     </ListWrapper>
   );

@@ -3,14 +3,13 @@ import React from "react";
 
 export interface Props {
   src?: string;
-  selected?: boolean;
   title: string;
   subTitle: string;
 }
 
-const MyIntegrationCard: React.FC<Props> = ({ src, selected, title, subTitle }) => {
+const MyIntegrationCard: React.FC<Props> = ({ src, title, subTitle }) => {
   return (
-    <CardWrapper selected={selected}>
+    <CardWrapper>
       <Card>
         <CardImg src={src}></CardImg>
         <CardTitle>{title}</CardTitle>
@@ -20,11 +19,11 @@ const MyIntegrationCard: React.FC<Props> = ({ src, selected, title, subTitle }) 
   );
 };
 
-const CardWrapper = styled.div<{ selected?: boolean }>`
+const CardWrapper = styled.div`
   padding: 12px;
 `;
 
-const Card = styled.div<{ selected?: boolean }>`
+const Card = styled.div`
   width: 240px;
   display: flex;
   flex-direction: column;
@@ -34,6 +33,9 @@ const Card = styled.div<{ selected?: boolean }>`
   box-shadow: 0px 2px 8px #00000026;
   border-radius: 4px;
   cursor: pointer;
+  &:hover {
+    background-color: #f5f5f5;
+  }
 `;
 
 const CardImg = styled.img`
