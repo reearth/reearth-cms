@@ -16,6 +16,7 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
+import MyIntegrationDetailsPage from "./components/pages/MyIntegrationDetails";
 
 function AppRoutes() {
   const routes = useRoutes([
@@ -33,6 +34,10 @@ function AppRoutes() {
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId/my-integration", element: <MyIntegrationPage /> },
+    {
+      path: "/workspaces/:workspaceId/my-integration/:integrationId",
+      element: <MyIntegrationDetailsPage />,
+    },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
     { path: "*", element: <NotFound /> },
