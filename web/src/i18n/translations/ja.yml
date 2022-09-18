@@ -14,6 +14,7 @@ Please input the title of the current workspace!: こののワークスペース
 Member: メンバー
 Account: アカウント
 Integration: インテグレーション
+My Integration: ''
 Role: ロール
 API key: APIキー
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
@@ -31,14 +32,36 @@ select role: ロールを選択
 Owner: オーナー
 Writer: 編集者
 Reader: 閲覧者
-Add Field: フィールドを追加
+New Integration: ''
+Cancel: ''
 Create: 作成
+Logo Image: ''
+Integration Name: ''
+Please input the title of the integration!: ''
+Description: 説明
+Integration Token: ''
+Please input the token of the integration!: ''
+Input token: ''
+Save: ''
+Please input the logo of the integration!: ''
+Create new integration: ''
+Name: 名前
+This is your webhook name: ''
+Please input the name of the webhook!: ''
+Url: ''
+Please note that all webhook URLs must start with http://.: ''
+Trigger Event: ''
+Item: ''
+Asset: アセット
+New Webhook: ''
+No Webhook yet: ''
+'Create a new ': ''
+Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
 Please input the key of the field!: このフィールドのキーを入力してください
 Key is not valid: 無効なキーです
-Description: 説明
 Set Options: オプションを設定
 Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
 Option value: オプションの値
@@ -51,7 +74,6 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
-Asset: アセット
 Update: アップデート
 Validation: バリデーション
 Set maximum length: 最大長
@@ -68,7 +90,6 @@ Add: 追加
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
-Name: 名前
 Write something here to describe this record.: このレコードの説明を入力してください
 Save changes: 変更を保存
 Danger Zone: 重要操作項目
