@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-const configPrefix = "reearth"
+const configPrefix = "reearthCmsWorker"
 
 type Config struct {
 	Port       string `default:"8080" envconfig:"PORT"`
@@ -19,7 +19,7 @@ type Config struct {
 }
 
 type GCSConfig struct {
-	BucketName              string
+	BucketName              string `default:"assets.test.cms.reearth.dev" envconfig:"GCS_BUCKET_NAME"` //TODO: fix here later
 	PublicationCacheControl string
 }
 
