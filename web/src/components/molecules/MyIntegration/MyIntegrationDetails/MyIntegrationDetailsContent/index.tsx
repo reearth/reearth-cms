@@ -7,7 +7,7 @@ import WebhookList from "@reearth-cms/components/molecules/MyIntegration/Webhook
 const MyIntegrationDetailsContent: React.FC = () => {
   const { TabPane } = Tabs;
   return (
-    <MyIntegrationTabs defaultActiveKey="1">
+    <MyIntegrationTabs defaultActiveKey="general">
       <TabPane tab="General" key="general">
         <MyIntegrationDetailsForm />
       </TabPane>

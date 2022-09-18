@@ -24,7 +24,7 @@ const WebhookCard: React.FC<Props> = ({ title, url }) => {
           <Icon icon="delete" onClick={() => {}} />
         </>
       }>
-      {{ url }}
+      {url}
     </Card>
   );
 };
