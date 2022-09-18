@@ -25,7 +25,7 @@ const CardWrapper = styled.div<{ selected?: boolean }>`
 `;
 
 const Card = styled.div<{ selected?: boolean }>`
-  min-width: 240px;
+  width: 240px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -33,6 +33,7 @@ const Card = styled.div<{ selected?: boolean }>`
   border: 1px solid #d9d9d9;
   box-shadow: 0px 2px 8px #00000026;
   border-radius: 4px;
+  cursor: pointer;
 `;
 
 const CardImg = styled.img`
