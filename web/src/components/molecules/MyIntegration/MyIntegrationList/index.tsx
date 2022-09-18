@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
-import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/IntegrationCreationAction";
-import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationCard";
+import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/IntegrationCreationAction";
+import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/MyIntegrationCard";
 
 const MyIntegrationList: React.FC = () => {
   return (
