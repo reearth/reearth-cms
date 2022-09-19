@@ -5,13 +5,26 @@ import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegration/M
 import useHooks from "./hooks";
 
 const MyIntegration: React.FC = () => {
-  const { integrations } = useHooks();
+  const {
+    integrations,
+    integrationModalShown,
+    handleIntegrationCreate,
+    handleIntegrationModalOpen,
+    handleIntegrationModalClose,
+  } = useHooks();
 
   return (
     <>
       <MyIntegrationHeader />
-      <MyIntegrationList integrations={integrations} />
-      <IntegrationCreationModal open={false} />
+      <MyIntegrationList
+        integrations={integrations}
+        handleIntegrationModalOpen={handleIntegrationModalOpen}
+      />
+      <IntegrationCreationModal
+        open={integrationModalShown}
+        onClose={handleIntegrationModalClose}
+        onSubmit={handleIntegrationCreate}
+      />
     </>
   );
 };

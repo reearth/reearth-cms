@@ -7,9 +7,10 @@ import { Integration } from "../types";
 
 export interface Props {
   integrations?: Integration[];
+  handleIntegrationModalOpen: () => void;
 }
 
-const MyIntegrationList: React.FC<Props> = ({ integrations }) => {
+const MyIntegrationList: React.FC<Props> = ({ integrations, handleIntegrationModalOpen }) => {
   return (
     <ListWrapper>
       {integrations?.map((integration: Integration) => (
@@ -20,7 +21,7 @@ const MyIntegrationList: React.FC<Props> = ({ integrations }) => {
           logoUrl={integration.logoUrl}
         />
       ))}
-      <IntegrationCreationAction />
+      <IntegrationCreationAction handleIntegrationModalOpen={handleIntegrationModalOpen} />
     </ListWrapper>
   );
 };

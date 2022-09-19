@@ -1194,6 +1194,16 @@ export type DeleteFieldMutationVariables = Exact<{
 
 export type DeleteFieldMutation = { __typename?: 'Mutation', deleteField?: { __typename?: 'DeleteFieldPayload', fieldId: string } | null };
 
+export type CreateIntegrationMutationVariables = Exact<{
+  name: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  logoUrl: Scalars['URL'];
+  type: IntegrationType;
+}>;
+
+
+export type CreateIntegrationMutation = { __typename?: 'Mutation', createIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   first?: InputMaybe<Scalars['Int']>;
@@ -1787,6 +1797,50 @@ export function useDeleteFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteFieldMutationHookResult = ReturnType<typeof useDeleteFieldMutation>;
 export type DeleteFieldMutationResult = Apollo.MutationResult<DeleteFieldMutation>;
 export type DeleteFieldMutationOptions = Apollo.BaseMutationOptions<DeleteFieldMutation, DeleteFieldMutationVariables>;
+export const CreateIntegrationDocument = gql`
+    mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
+  createIntegration(
+    input: {name: $name, description: $description, logoUrl: $logoUrl, type: $type}
+  ) {
+    integration {
+      id
+      name
+      description
+      logoUrl
+      iType
+    }
+  }
+}
+    `;
+export type CreateIntegrationMutationFn = Apollo.MutationFunction<CreateIntegrationMutation, CreateIntegrationMutationVariables>;
+
+/**
+ * __useCreateIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createIntegrationMutation, { data, loading, error }] = useCreateIntegrationMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      description: // value for 'description'
+ *      logoUrl: // value for 'logoUrl'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useCreateIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateIntegrationMutation, CreateIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateIntegrationMutation, CreateIntegrationMutationVariables>(CreateIntegrationDocument, options);
+      }
+export type CreateIntegrationMutationHookResult = ReturnType<typeof useCreateIntegrationMutation>;
+export type CreateIntegrationMutationResult = Apollo.MutationResult<CreateIntegrationMutation>;
+export type CreateIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateIntegrationMutation, CreateIntegrationMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   models(

@@ -1,10 +1,18 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
-import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import {
+  Integration,
+  IntegrationType,
+} from "@reearth-cms/components/molecules/MyIntegration/types";
+import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 
 export default () => {
-  const { data } = useGetMeQuery();
+  const [integrationModalShown, setIntegrationModalShown] = useState(false);
+  const { data, refetch } = useGetMeQuery();
+
+  const [createNewIntegration] = useCreateIntegrationMutation({
+    refetchQueries: ["GetMe"],
+  });
 
   const integrations = useMemo(() => {
     return (data?.me?.integrations ?? [])
@@ -16,14 +24,45 @@ export default () => {
               description: integration.description,
               logoUrl: integration.logoUrl,
               developerId: integration.developerId,
+              iType: integration.iType,
             }
           : undefined,
       )
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
-  console.log(integrations);
+
+  const handleIntegrationCreate = useCallback(
+    async (data: { name: string; description: string; logoUrl: string; type: IntegrationType }) => {
+      const integration = await createNewIntegration({
+        variables: {
+          name: data.name,
+          description: data.description,
+          logoUrl: data.logoUrl,
+          type: data.type,
+        },
+      });
+      if (integration.errors || !integration.data?.createIntegration) {
+        setIntegrationModalShown(false);
+        return;
+      }
+
+      setIntegrationModalShown(false);
+      refetch();
+    },
+    [createNewIntegration, refetch],
+  );
+
+  const handleIntegrationModalClose = useCallback(() => {
+    setIntegrationModalShown(false);
+  }, []);
+
+  const handleIntegrationModalOpen = useCallback(() => setIntegrationModalShown(true), []);
 
   return {
     integrations,
+    integrationModalShown,
+    handleIntegrationCreate,
+    handleIntegrationModalOpen,
+    handleIntegrationModalClose,
   };
 };
