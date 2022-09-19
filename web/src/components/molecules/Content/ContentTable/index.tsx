@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
