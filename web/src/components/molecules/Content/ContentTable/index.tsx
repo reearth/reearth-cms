@@ -1,17 +1,24 @@
 import styled from "@emotion/styled";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, { ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
+import { stringSortCallback } from "@reearth-cms/utils/sort";
 
-const columns = [
+const columns: ProColumns<any>[] = [
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    filters: [],
+    title: "💬",
+    dataIndex: "notification",
+    key: "notification",
+    render: () => <Badge showZero={true} count={2} />,
+  },
+  {
+    title: "Reversion",
+    dataIndex: "reversion",
+    key: "reversion",
   },
   {
     title: "Role",
@@ -19,19 +26,25 @@ const columns = [
     key: "role",
   },
   {
-    title: "Creator",
-    dataIndex: "creator",
-    key: "creator",
-  },
-  {
     title: "State",
     dataIndex: "state",
     key: "state",
   },
   {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
+    title: "Title",
+    dataIndex: "title",
+    key: "title",
+  },
+  {
+    title: "Description",
+    dataIndex: "description",
+    key: "description",
+  },
+  {
+    title: "year",
+    dataIndex: "year",
+    key: "year",
+    sorter: (a, b) => stringSortCallback(a.reversion, b.reversion),
   },
 ];
 
