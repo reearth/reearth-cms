@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Asset, AssetFile, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
 import {
+  Asset as GQLAsset,
   PreviewType as GQLPreviewType,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
-import { uuidToURL } from "@reearth-cms/utils/convert";
+
+import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
@@ -20,21 +22,7 @@ export default (assetId?: string) => {
   });
 
   const asset: Asset = useMemo(() => {
-    const assetData = rawAsset?.asset;
-    return {
-      id: assetData?.id ?? "",
-      fileName: assetData?.fileName ?? "",
-      createdAt: assetData?.createdAt.toString() ?? "",
-      createdBy: assetData?.createdBy?.name ?? "",
-      file: assetData?.file as AssetFile,
-      previewType: assetData?.previewType as PreviewType,
-      projectId: assetData?.projectId ?? "",
-      size: assetData?.size ?? 0,
-      url:
-        assetData?.uuid && assetData?.fileName
-          ? uuidToURL(assetData?.uuid, assetData?.fileName)
-          : "",
-    };
+    return convertAsset(rawAsset?.asset as GQLAsset);
   }, [rawAsset]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();

@@ -13,7 +13,6 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { uuidToURL } from "@reearth-cms/utils/convert";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
@@ -75,13 +74,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
+      sorter: (a, b) => dateSortCallback(new Date(a.createdAt), new Date(b.createdAt)),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
       title: "Created By",
-      dataIndex: "createdById",
-      key: "createdById",
+      dataIndex: "createdBy",
+      key: "createdBy",
     },
     {
       title: "Id",
@@ -94,7 +93,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         <DownloadButton
           type="link"
           filename={asset.fileName}
-          url={uuidToURL(asset?.uuid, asset?.fileName)}
+          url={asset?.url}
           displayDefaultIcon={false}></DownloadButton>
       ),
     },

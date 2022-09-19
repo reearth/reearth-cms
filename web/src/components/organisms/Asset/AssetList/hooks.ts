@@ -4,35 +4,20 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetNode } from "@reearth-cms/components/molecules/Asset/asset.type";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
   Maybe,
   User,
-  GetAssetsQuery,
   useDeleteAssetMutation,
-  AssetSortType as GQLSortType,
   useGetUserBySearchQuery,
+  Asset as GQLAsset,
 } from "@reearth-cms/gql/graphql-client-api";
 
-export type AssetNode = NonNullable<Asset>;
-export type AssetUser = Maybe<User>;
+import { convertAsset } from "../convertAsset";
 
-export type AssetNodes = NonNullable<GetAssetsQuery["assets"]["nodes"][number]>[];
-
-export type AssetSortType = "date" | "name" | "size";
-
-const enumTypeMapper: Partial<Record<GQLSortType, string>> = {
-  [GQLSortType.Date]: "date",
-  [GQLSortType.Name]: "name",
-  [GQLSortType.Size]: "size",
-};
-
-function toGQLEnum(val?: AssetSortType) {
-  if (!val) return;
-  return (Object.keys(enumTypeMapper) as GQLSortType[]).find(k => enumTypeMapper[k] === val);
-}
+import { AssetSortType, toGQLEnum } from "./assetSortType.type";
 
 const assetsPerPage = 20;
 
@@ -181,7 +166,7 @@ export default (projectId?: string) => {
   }, [gqlCache]);
 
   useEffect(() => {
-    const assets = (data?.assets.nodes as AssetNode[]) ?? [];
+    const assets = data?.assets.nodes.map(asset => asset as GQLAsset).map(convertAsset) ?? [];
     setAssetList(assets);
   }, [data?.assets.nodes]);
 
