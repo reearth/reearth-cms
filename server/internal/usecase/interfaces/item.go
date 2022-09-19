@@ -34,6 +34,6 @@ type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) ([]*version.Value[*item.Item], error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (*item.Item, error)
-	UpdateItem(context.Context, UpdateItemParam, *usecase.Operator) (*item.Item, error)
+	Update(context.Context, UpdateItemParam, *usecase.Operator) (*item.Item, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
 }
