@@ -39,11 +39,12 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 	return &Loaders{
 		usecases: *usecases,
 		// Asset:     NewAssetLoader(usecases.Asset),
-		Workspace: NewWorkspaceLoader(usecases.Workspace),
-		User:      NewUserLoader(usecases.User),
-		Project:   NewProjectLoader(usecases.Project),
-		Model:     NewModelLoader(usecases.Model),
-		Schema:    NewSchemaLoader(usecases.Schema),
+		Workspace:   NewWorkspaceLoader(usecases.Workspace),
+		User:        NewUserLoader(usecases.User),
+		Project:     NewProjectLoader(usecases.Project),
+		Model:       NewModelLoader(usecases.Model),
+		Schema:      NewSchemaLoader(usecases.Schema),
+		Integration: NewIntegrationLoader(usecases.Integration),
 	}
 }
 
@@ -57,21 +58,23 @@ func (l Loaders) DataLoadersWith(ctx context.Context, enabled bool) *DataLoaders
 func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
 		// Asset:          l.Asset.DataLoader(ctx),
-		Workspace: l.Workspace.DataLoader(ctx),
-		User:      l.User.DataLoader(ctx),
-		Project:   l.Project.DataLoader(ctx),
-		Model:     l.Model.DataLoader(ctx),
-		Schema:    l.Schema.DataLoader(ctx),
+		Workspace:   l.Workspace.DataLoader(ctx),
+		User:        l.User.DataLoader(ctx),
+		Project:     l.Project.DataLoader(ctx),
+		Model:       l.Model.DataLoader(ctx),
+		Schema:      l.Schema.DataLoader(ctx),
+		Integration: l.Integration.DataLoader(ctx),
 	}
 }
 
 func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
 		// Asset:          l.Asset.OrdinaryDataLoader(ctx),
-		Workspace: l.Workspace.OrdinaryDataLoader(ctx),
-		User:      l.User.OrdinaryDataLoader(ctx),
-		Project:   l.Project.OrdinaryDataLoader(ctx),
-		Model:     l.Model.OrdinaryDataLoader(ctx),
-		Schema:    l.Schema.OrdinaryDataLoader(ctx),
+		Workspace:   l.Workspace.OrdinaryDataLoader(ctx),
+		User:        l.User.OrdinaryDataLoader(ctx),
+		Project:     l.Project.OrdinaryDataLoader(ctx),
+		Model:       l.Model.OrdinaryDataLoader(ctx),
+		Schema:      l.Schema.OrdinaryDataLoader(ctx),
+		Integration: l.Integration.OrdinaryDataLoader(ctx),
 	}
 }
