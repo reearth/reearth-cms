@@ -62,11 +62,11 @@ const ContentTable: React.FC = () => {
     <ConfigProvider
       renderEmpty={() => (
         <EmptyTableWrapper>
-          <Title>{t("No Integration yet")}</Title>
+          <Title>{t("No Items yet")}</Title>
           <Suggestion>
             {t("Create a new")}{" "}
-            <Button onClick={() => {}} type="primary" icon={<Icon icon="api" />}>
-              {t("Connect Integration")}
+            <Button onClick={() => {}} type="primary">
+              {t("New Item")}
             </Button>
           </Suggestion>
           <Suggestion>
