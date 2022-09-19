@@ -13,14 +13,12 @@ import (
 )
 
 type Item struct {
-	repos       *repo.Container
-	transaction usecasex.Transaction
+	repos *repo.Container
 }
 
 func NewItem(r *repo.Container) interfaces.Item {
 	return &Item{
-		repos:       r,
-		transaction: r.Transaction,
+		repos: r,
 	}
 }
 
@@ -99,11 +97,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 		var fs []*item.Field
-		for _, f := range fs {
+		for _, f := range param.Fields {
 			fs = append(fs, item.NewField(
-				f.SchemaFieldID(),
-				f.ValueType(),
-				f.Value(),
+				f.SchemaFieldID,
+				f.ValueType,
+				f.Value,
 			))
 		}
 		obj.UpdateFields(fs)
