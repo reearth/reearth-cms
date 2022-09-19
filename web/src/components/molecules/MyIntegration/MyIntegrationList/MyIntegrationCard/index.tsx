@@ -2,18 +2,18 @@ import styled from "@emotion/styled";
 import React from "react";
 
 export interface Props {
-  src?: string;
+  logoUrl: string;
   title: string;
-  subTitle: string;
+  description: string | null | undefined;
 }
 
-const MyIntegrationCard: React.FC<Props> = ({ src, title, subTitle }) => {
+const MyIntegrationCard: React.FC<Props> = ({ logoUrl, title, description }) => {
   return (
     <CardWrapper>
       <Card>
-        <CardImg src={src}></CardImg>
+        <CardImg src={logoUrl}></CardImg>
         <CardTitle>{title}</CardTitle>
-        <CardSubTitle>{subTitle}</CardSubTitle>
+        <CardSubTitle>{description}</CardSubTitle>
       </Card>
     </CardWrapper>
   );

@@ -36,6 +36,41 @@ export const GET_ME = gql`
         }
       }
       auths
+      integrations {
+        id
+        name
+        description
+        logoUrl
+        iType
+        developerId
+        developer {
+          id
+          name
+          email
+        }
+        config {
+          token
+          webhooks {
+            id
+            name
+            url
+            active
+            trigger {
+              onItemCreate
+              onItemUpdate
+              onItemDelete
+              onItemPublish
+              onItemUnPublish
+              onAssetUpload
+              onAssetDeleted
+            }
+            createdAt
+            updatedAt
+          }
+        }
+        createdAt
+        updatedAt
+      }
     }
   }
 `;

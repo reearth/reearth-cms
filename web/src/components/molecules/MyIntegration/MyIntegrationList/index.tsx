@@ -3,10 +3,23 @@ import styled from "@emotion/styled";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/IntegrationCreationAction";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/MyIntegrationCard";
 
-const MyIntegrationList: React.FC = () => {
+import { Integration } from "../types";
+
+export interface Props {
+  integrations?: Integration[];
+}
+
+const MyIntegrationList: React.FC<Props> = ({ integrations }) => {
   return (
     <ListWrapper>
-      <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+      {integrations?.map((integration: Integration) => (
+        <MyIntegrationCard
+          key={integration.id}
+          title={integration.name}
+          description={integration.description}
+          logoUrl={integration.logoUrl}
+        />
+      ))}
       <IntegrationCreationAction />
     </ListWrapper>
   );
