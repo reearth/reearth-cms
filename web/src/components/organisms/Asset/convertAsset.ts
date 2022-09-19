@@ -1,6 +1,6 @@
 import { Asset, AssetFile, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { Asset as GQLAsset } from "@reearth-cms/gql/graphql-client-api";
-import { uuidToURL } from "@reearth-cms/utils/convert";
+import { uuidToURL } from "@reearth-cms/utils/uuidToURL";
 
 export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset => {
   return {
