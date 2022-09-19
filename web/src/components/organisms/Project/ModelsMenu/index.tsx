@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 
-import ModelsList from "@reearth-cms/components/molecules/Content/ModelsList";
+import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
 import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 
 import useHooks from "./hooks";
