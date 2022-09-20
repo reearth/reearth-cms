@@ -914,7 +914,7 @@ func TestIntegration_UpdatedAt(t *testing.T) {
 	}
 }
 
-func TestIntegration_Webhook(t *testing.T) {
+func TestIntegration_Webhooks(t *testing.T) {
 	wId := id.NewWebhookID()
 	now := time.Now()
 	type fields struct {
@@ -979,6 +979,328 @@ func TestIntegration_Webhook(t *testing.T) {
 				updatedAt:   tt.fields.updatedAt,
 			}
 			assert.Equalf(t, tt.want, i.Webhooks(), "Webhook()")
+		})
+	}
+}
+
+func TestIntegration_Webhook(t *testing.T) {
+	wId := id.NewWebhookID()
+	now := time.Now()
+	type fields struct {
+		id          ID
+		name        string
+		description string
+		logoUrl     *url.URL
+		iType       Type
+		token       string
+		developer   UserID
+		webhooks    []*Webhook
+		updatedAt   time.Time
+	}
+	type args struct {
+		wId WebhookID
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *Webhook
+		want1  bool
+	}{
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args:   args{wId: id.NewWebhookID()},
+			want:   nil,
+			want1:  false,
+		},
+		{
+			name: "test",
+			fields: fields{webhooks: []*Webhook{
+				{
+					id:        wId,
+					name:      "w xyz",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				},
+			}},
+			args: args{wId: wId},
+			want: &Webhook{
+				id:        wId,
+				name:      "w xyz",
+				url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+				active:    true,
+				trigger:   WebhookTrigger{},
+				updatedAt: now,
+			},
+			want1: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &Integration{
+				id:          tt.fields.id,
+				name:        tt.fields.name,
+				description: tt.fields.description,
+				logoUrl:     tt.fields.logoUrl,
+				iType:       tt.fields.iType,
+				token:       tt.fields.token,
+				developer:   tt.fields.developer,
+				webhooks:    tt.fields.webhooks,
+				updatedAt:   tt.fields.updatedAt,
+			}
+			got, got1 := i.Webhook(tt.args.wId)
+			assert.Equalf(t, tt.want, got, "Webhook(%v)", tt.args.wId)
+			assert.Equalf(t, tt.want1, got1, "Webhook(%v)", tt.args.wId)
+		})
+	}
+}
+
+func TestIntegration_AddWebhook(t *testing.T) {
+	wId := id.NewWebhookID()
+	now := time.Now()
+	type fields struct {
+		id          ID
+		name        string
+		description string
+		logoUrl     *url.URL
+		iType       Type
+		token       string
+		developer   UserID
+		webhooks    []*Webhook
+		updatedAt   time.Time
+	}
+	type args struct {
+		w *Webhook
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []*Webhook
+	}{
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args:   args{w: nil},
+			want:   []*Webhook{},
+		},
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args: args{w: &Webhook{
+				id:        wId,
+				name:      "w xyz",
+				url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+				active:    true,
+				trigger:   WebhookTrigger{},
+				updatedAt: now,
+			}},
+			want: []*Webhook{
+				{
+					id:        wId,
+					name:      "w xyz",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &Integration{
+				id:          tt.fields.id,
+				name:        tt.fields.name,
+				description: tt.fields.description,
+				logoUrl:     tt.fields.logoUrl,
+				iType:       tt.fields.iType,
+				token:       tt.fields.token,
+				developer:   tt.fields.developer,
+				webhooks:    tt.fields.webhooks,
+				updatedAt:   tt.fields.updatedAt,
+			}
+			i.AddWebhook(tt.args.w)
+			assert.Equal(t, tt.want, i.webhooks)
+		})
+	}
+}
+
+func TestIntegration_UpdateWebhook(t *testing.T) {
+	wId := id.NewWebhookID()
+	now := time.Now()
+	type fields struct {
+		id          ID
+		name        string
+		description string
+		logoUrl     *url.URL
+		iType       Type
+		token       string
+		developer   UserID
+		webhooks    []*Webhook
+		updatedAt   time.Time
+	}
+	type args struct {
+		wId WebhookID
+		w   *Webhook
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []*Webhook
+		want1  bool
+	}{
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args:   args{wId: id.NewWebhookID(), w: nil},
+			want:   []*Webhook{},
+			want1:  false,
+		},
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args: args{
+				wId: wId,
+				w: &Webhook{
+					id:        wId,
+					name:      "w xyz",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				}},
+			want:  []*Webhook{},
+			want1: false,
+		},
+		{
+			name: "test",
+			fields: fields{webhooks: []*Webhook{
+				{
+					id:        wId,
+					name:      "w xyz",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				},
+			}},
+			args: args{
+				wId: wId,
+				w: &Webhook{
+					id:        wId,
+					name:      "w xyz updated",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				}},
+			want: []*Webhook{
+				{
+					id:        wId,
+					name:      "w xyz updated",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				},
+			},
+			want1: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &Integration{
+				id:          tt.fields.id,
+				name:        tt.fields.name,
+				description: tt.fields.description,
+				logoUrl:     tt.fields.logoUrl,
+				iType:       tt.fields.iType,
+				token:       tt.fields.token,
+				developer:   tt.fields.developer,
+				webhooks:    tt.fields.webhooks,
+				updatedAt:   tt.fields.updatedAt,
+			}
+			assert.Equal(t, tt.want1, i.UpdateWebhook(tt.args.wId, tt.args.w))
+			assert.Equal(t, tt.want, i.webhooks)
+		})
+	}
+}
+
+func TestIntegration_DeleteWebhook(t *testing.T) {
+	wId := id.NewWebhookID()
+	now := time.Now()
+	type fields struct {
+		id          ID
+		name        string
+		description string
+		logoUrl     *url.URL
+		iType       Type
+		token       string
+		developer   UserID
+		webhooks    []*Webhook
+		updatedAt   time.Time
+	}
+	type args struct {
+		wId WebhookID
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []*Webhook
+		want1  bool
+	}{
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args:   args{wId: id.NewWebhookID()},
+			want:   []*Webhook{},
+			want1:  false,
+		},
+		{
+			name:   "test",
+			fields: fields{webhooks: []*Webhook{}},
+			args:   args{wId: wId},
+			want:   []*Webhook{},
+			want1:  false,
+		},
+		{
+			name: "test",
+			fields: fields{webhooks: []*Webhook{
+				{
+					id:        wId,
+					name:      "w xyz",
+					url:       lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test")),
+					active:    true,
+					trigger:   WebhookTrigger{},
+					updatedAt: now,
+				},
+			}},
+			args:  args{wId: wId},
+			want:  []*Webhook{},
+			want1: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			i := &Integration{
+				id:          tt.fields.id,
+				name:        tt.fields.name,
+				description: tt.fields.description,
+				logoUrl:     tt.fields.logoUrl,
+				iType:       tt.fields.iType,
+				token:       tt.fields.token,
+				developer:   tt.fields.developer,
+				webhooks:    tt.fields.webhooks,
+				updatedAt:   tt.fields.updatedAt,
+			}
+			assert.Equal(t, tt.want1, i.DeleteWebhook(tt.args.wId))
+			assert.Equal(t, tt.want, i.webhooks)
 		})
 	}
 }
