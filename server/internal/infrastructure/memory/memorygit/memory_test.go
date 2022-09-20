@@ -194,6 +194,60 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	}
 }
 
+func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
+	vx, vy, vz := version.New(), version.New(), version.New()
+	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
+		map[string]*version.Values[string]{
+			"a": version.MustBeValues(
+				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vy, nil, nil, "B"),
+				version.NewValue(vz, nil, nil, "C"),
+			),
+		},
+	)}
+	tests := []struct {
+		name  string
+		m     *VersionedSyncMap[string, string]
+		input struct {
+			key string
+		}
+		want *version.Values[string]
+	}{
+		{
+			name: "should load by version",
+			m:    vsm,
+			input: struct {
+				key string
+			}{
+				key: "a",
+			},
+			want: version.MustBeValues(
+				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vy, nil, nil, "B"),
+				version.NewValue(vz, nil, nil, "C"),
+			),
+		},
+		{
+			name: "should not load",
+			m:    vsm,
+			input: struct {
+				key string
+			}{
+				key: "d",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := tc.m.LoadAllVersions(tc.input.key)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestVersionedSyncMap_Store(t *testing.T) {
 	vm := &VersionedSyncMap[string, string]{
 		m: util.SyncMapFrom(map[string]*version.Values[string]{}),
