@@ -54,7 +54,7 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindByWorkspace(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
 	wid, err := gqlmodel.ToID[id.Schema](schemaID)
 	if err != nil {
 		return nil, err

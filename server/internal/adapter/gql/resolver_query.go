@@ -101,5 +101,5 @@ func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) 
 }
 
 func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindByWorkspace(ctx, schemaID, first, last, before, after)
+	return loaders(ctx).Item.FindBySchema(ctx, schemaID, first, last, before, after)
 }
