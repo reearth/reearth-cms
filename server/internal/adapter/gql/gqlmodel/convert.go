@@ -2,6 +2,8 @@ package gqlmodel
 
 import (
 	"io"
+	"regexp"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/pkg/file"
@@ -56,8 +58,15 @@ func FromFile(f *graphql.Upload) *file.File {
 	}
 	return &file.File{
 		Content:     io.NopCloser(f.File),
-		Path:        f.Filename,
+		Path:        ToGCNaming(f.Filename),
 		Size:        f.Size,
 		ContentType: f.ContentType,
 	}
+}
+
+func ToGCNaming(s string) string {
+	// TODO: we need a better way to implement google storage naming
+	re := regexp.MustCompile(`[^a-zA-Z0-9-.]`)
+	ss := re.ReplaceAllString(s, "-")
+	return strings.ToLower(ss)
 }
