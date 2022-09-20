@@ -6,15 +6,19 @@ import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
+import useHooks from "./hooks";
+
 const ContentList: React.FC = () => {
   const t = useT();
 
   const navigate = useNavigate();
 
-  const { projectId, workspaceId } = useParams();
-  const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+  const { projectId, workspaceId, schemaID } = useParams();
+  const selectModel = (modelId: string, schemaID?: string) => {
+    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
   };
+
+  const { items } = useHooks({ schemaID });
 
   return (
     <PaddedContent>
@@ -22,7 +26,7 @@ const ContentList: React.FC = () => {
         <ModelsMenu title={t("Content")} selectModel={selectModel} />
       </SchemaStyledMenu>
       <ContentChild>
-        <ContentTable />
+        <ContentTable items={items} />
       </ContentChild>
     </PaddedContent>
   );

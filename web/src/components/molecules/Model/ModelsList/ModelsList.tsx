@@ -17,7 +17,7 @@ export interface Props {
   defaultSelectedKeys?: string[];
   models?: Model[];
   handleModalOpen: () => void;
-  selectModel: (modelId: string) => void;
+  selectModel: (modelId: string, schemaID?: string) => void;
 }
 
 const ModelsList: React.FC<Props> = ({
@@ -29,7 +29,7 @@ const ModelsList: React.FC<Props> = ({
 }) => {
   const t = useT();
   const onClick = (e: MenuInfo) => {
-    selectModel(e.key);
+    selectModel(e.key, models?.find(model => model.id === e.key)?.schema.id);
   };
 
   return (
@@ -45,7 +45,10 @@ const ModelsList: React.FC<Props> = ({
         onClick={onClick}
         defaultSelectedKeys={defaultSelectedKeys}
         mode="inline"
-        items={models?.map(model => ({ label: model.name, key: model.id }))}
+        items={models?.map(model => ({
+          label: model.name,
+          key: model.id,
+        }))}
       />
     </SchemaStyledMenu>
   );

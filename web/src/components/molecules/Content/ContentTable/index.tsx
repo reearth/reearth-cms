@@ -4,15 +4,21 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
-const columns: ProColumns<any>[] = [
+const columns: ProColumns<Item>[] = [
+  {
+    title: "id",
+    dataIndex: "id",
+    key: "id",
+  },
   {
     title: "💬",
     dataIndex: "notification",
     key: "notification",
-    render: () => <Badge showZero={true} count={2} />,
+    render: (_, item) => <Badge showZero={true} count={item.fields?.length} />,
   },
   {
     title: "Reversion",
@@ -47,8 +53,11 @@ const columns: ProColumns<any>[] = [
   },
 ];
 
-const ContentTable: React.FC = () => {
-  const dataSource: [] = [];
+export interface Props {
+  items: Item[];
+}
+
+const ContentTable: React.FC<Props> = ({ items }) => {
   const t = useT();
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -74,7 +83,7 @@ const ContentTable: React.FC = () => {
         </EmptyTableWrapper>
       )}>
       <ProTable
-        dataSource={dataSource}
+        dataSource={items}
         columns={columns}
         search={false}
         rowKey="id"

@@ -7,7 +7,7 @@ import useHooks from "./hooks";
 
 export interface Props {
   title: string;
-  selectModel: (modelId: string) => void;
+  selectModel: (modelId: string, schemaID?: string) => void;
 }
 
 const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {

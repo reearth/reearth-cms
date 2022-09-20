@@ -25,7 +25,10 @@ function AppRoutes() {
     { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/workspaces/:workspaceId/:projectId/content", element: <ContentPage /> },
-    { path: "/workspaces/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
+    {
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/:schemaID",
+      element: <ContentPage />,
+    },
     {
       path: "/workspaces/:workspaceId/:projectId/content/:modelId/details",
       element: <ContentDetailsPage />,
