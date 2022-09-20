@@ -6,17 +6,15 @@ type Props = { url: string; svgRender: boolean };
 const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
   const [svgText, setSvgText] = useState("");
 
-  const fetchData = useCallback(() => {
-    fetch(url, {
-      method: "get",
+  const fetchData = useCallback(async () => {
+    const res = await fetch(url, {
+      method: "GET",
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-    })
-      .then(res => res.text())
-      .then(val => {
-        setSvgText(val);
-      });
+    });
+    const text = await res.text();
+    setSvgText(text);
   }, [url]);
 
   useEffect(() => {

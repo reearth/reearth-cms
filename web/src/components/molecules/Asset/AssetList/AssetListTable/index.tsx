@@ -74,7 +74,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => dateSortCallback(new Date(a.createdAt), new Date(b.createdAt)),
+      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {

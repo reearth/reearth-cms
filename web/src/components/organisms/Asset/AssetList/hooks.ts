@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetNode } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
@@ -13,11 +14,10 @@ import {
   useDeleteAssetMutation,
   useGetUserBySearchQuery,
   Asset as GQLAsset,
+  AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
 
-import { convertAsset } from "../convertAsset";
-
-import { AssetSortType, toGQLEnum } from "./assetSortType.type";
+type AssetSortType = "date" | "name" | "size";
 
 const assetsPerPage = 20;
 
@@ -59,7 +59,7 @@ export default (projectId?: string) => {
     variables: {
       projectId: projectId ?? "",
       pagination: pagination(sort),
-      sort: toGQLEnum(sort?.type),
+      sort: sort?.type as GQLSortType,
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
@@ -151,7 +151,7 @@ export default (projectId?: string) => {
     if (sort || searchTerm) {
       selectAsset([]);
       refetch({
-        sort: toGQLEnum(sort?.type),
+        sort: sort?.type as GQLSortType,
         keyword: searchTerm,
       });
     }

@@ -18,17 +18,15 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   displayDefaultIcon,
   ...props
 }) => {
-  const handleDownload: MouseEventHandler<HTMLElement> | undefined = () => {
-    fetch(url, {
-      method: "get",
+  const handleDownload: MouseEventHandler<HTMLElement> | undefined = async () => {
+    const res = await fetch(url, {
+      method: "GET",
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        fileDownload(blob, filename);
-      });
+    });
+    const blob = await res.blob();
+    fileDownload(blob, filename);
   };
 
   return (
