@@ -15,7 +15,7 @@ const columns: ProColumns<Item & { location: any }>[] = [
     dataIndex: "edit",
     render: (_, item) => {
       return (
-        <Link to={item?.location?.pathname + "/details"}>
+        <Link to={item?.location?.pathname + "/details/" + item.id}>
           <Icon icon="edit" />
         </Link>
       );

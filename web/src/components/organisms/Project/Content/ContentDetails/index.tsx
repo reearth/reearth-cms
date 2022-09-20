@@ -13,7 +13,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const navigate = useNavigate();
-  const { currentModel, handleItemCreate } = useHooks();
+  const { currentModel, handleItemCreate, handleItemUpdate } = useHooks();
 
   const { projectId, workspaceId } = useParams();
   const selectModel = (modelId: string, schemaID?: string) => {
@@ -27,7 +27,11 @@ const ContentDetails: React.FC = () => {
       </SchemaStyledMenu>
       <ContentChild>
         <ContentHeader title={currentModel?.name || "Content list"} />
-        <ContentForm model={currentModel} onSubmit={handleItemCreate} />
+        <ContentForm
+          model={currentModel}
+          onSubmit={handleItemCreate}
+          handleItemUpdate={handleItemUpdate}
+        />
       </ContentChild>
     </PaddedContent>
   );

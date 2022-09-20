@@ -34,6 +34,10 @@ function AppRoutes() {
       element: <ContentDetailsPage />,
     },
     {
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/:schemaID/details/:itemID",
+      element: <ContentDetailsPage />,
+    },
+    {
       path: "/workspaces/:workspaceId/:projectId/asset",
       element: <AssetListPage />,
     },

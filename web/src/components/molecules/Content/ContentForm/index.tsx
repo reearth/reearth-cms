@@ -22,12 +22,20 @@ export interface Props {
       value: string;
     }[];
   }) => Promise<void>;
+  handleItemUpdate: (data: {
+    itemID: string;
+    fields: {
+      schemaFieldID: string;
+      type: FieldType;
+      value: string;
+    }[];
+  }) => Promise<void>;
 }
 
-const ContentForm: React.FC<Props> = ({ model, onSubmit }) => {
+const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const { projectId, workspaceId, schemaID, modelId } = useParams();
+  const { projectId, workspaceId, schemaID, modelId, itemID } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(() => {
@@ -35,22 +43,17 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit }) => {
       .validateFields()
       .then(async values => {
         console.log(values);
-
-        const data: {
-          schemaID: string;
-          fields: { schemaFieldID: string; type: FieldType; value: string }[];
-        } = {
-          schemaID: model?.schema.id as string,
-          fields: [],
-        };
+        const fields: { schemaFieldID: string; type: FieldType; value: string }[] = [];
         for (const [key, value] of Object.entries(values)) {
-          data.fields.push({
+          fields.push({
             value: (value || "") as string,
             schemaFieldID: key,
             type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
           });
         }
-        await onSubmit?.(data);
+        if (!itemID) await onSubmit?.({ schemaID: model?.schema.id as string, fields });
+        else await handleItemUpdate?.({ itemID: itemID as string, fields });
+
         navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
       })
       .catch(info => {
@@ -66,6 +69,7 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit }) => {
     projectId,
     schemaID,
     workspaceId,
+    itemID,
   ]);
 
   return (
@@ -119,10 +123,17 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit }) => {
             </Form.Item>
           ),
         )}
-        {model?.schema.fields && model?.schema.fields.length > 0 ? (
+        {model?.schema.fields && model?.schema.fields.length > 0 && !itemID ? (
           <Form.Item>
             <Button type="primary" htmlType="submit" onClick={handleSubmit}>
               {t("Submit")}
+            </Button>
+          </Form.Item>
+        ) : null}
+        {model?.schema.fields && model?.schema.fields.length > 0 && itemID ? (
+          <Form.Item>
+            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+              {t("Update")}
             </Button>
           </Form.Item>
         ) : null}

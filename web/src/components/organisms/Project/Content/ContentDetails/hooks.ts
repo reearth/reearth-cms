@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { SchemaFiledType, useCreateItemMutation } from "@reearth-cms/gql/graphql-client-api";
+import {
+  SchemaFiledType,
+  useCreateItemMutation,
+  useUpdateItemMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useModel } from "@reearth-cms/state";
 
 export default () => {
@@ -21,7 +25,6 @@ export default () => {
       console.log(data);
 
       if (!data.schemaID) return;
-      console.log("here");
 
       const item = await createNewItem({
         variables: {
@@ -36,9 +39,33 @@ export default () => {
     [createNewItem],
   );
 
+  const [updateItem] = useUpdateItemMutation({
+    refetchQueries: ["GetItems"],
+  });
+
+  const handleItemUpdate = useCallback(
+    async (data: {
+      itemID: string;
+      fields: { schemaFieldID: string; type: FieldType; value: string }[];
+    }) => {
+      if (!data.itemID) return;
+      const item = await updateItem({
+        variables: {
+          itemID: data.itemID,
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+        },
+      });
+      if (item.errors || !item.data?.updateItem) {
+        return;
+      }
+    },
+    [updateItem],
+  );
+
   return {
     currentModel,
     setModel,
     handleItemCreate,
+    handleItemUpdate,
   };
 };
