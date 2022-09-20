@@ -15,6 +15,7 @@ var (
 )
 
 type Container struct {
+	Asset     Asset
 	Workspace Workspace
 	Item      Item
 	User      User
