@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
+import ContentHeader from "@reearth-cms/components/molecules/Content/ContentHeader";
 import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
@@ -26,6 +27,7 @@ const ContentList: React.FC = () => {
         <ModelsMenu title={t("Content")} selectModel={selectModel} />
       </SchemaStyledMenu>
       <ContentChild>
+        <ContentHeader handleAdd={() => {}} />
         <ContentTable items={items} />
       </ContentChild>
     </PaddedContent>
