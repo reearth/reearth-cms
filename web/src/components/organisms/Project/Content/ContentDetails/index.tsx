@@ -11,11 +11,14 @@ import useHooks from "./hooks";
 
 const ContentDetails: React.FC = () => {
   const t = useT();
+  const { projectId, workspaceId, schemaID, itemID } = useParams();
 
   const navigate = useNavigate();
-  const { currentModel, handleItemCreate, handleItemUpdate } = useHooks();
+  const { currentModel, handleItemCreate, handleItemUpdate, initialValues } = useHooks({
+    schemaID,
+    itemID,
+  });
 
-  const { projectId, workspaceId } = useParams();
   const selectModel = (modelId: string, schemaID?: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
   };
@@ -31,6 +34,7 @@ const ContentDetails: React.FC = () => {
           model={currentModel}
           onSubmit={handleItemCreate}
           handleItemUpdate={handleItemUpdate}
+          initialValues={initialValues}
         />
       </ContentChild>
     </PaddedContent>

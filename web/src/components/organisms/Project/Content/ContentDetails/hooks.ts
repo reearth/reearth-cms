@@ -1,14 +1,20 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   SchemaFiledType,
   useCreateItemMutation,
+  useGetItemsQuery,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useModel } from "@reearth-cms/state";
 
-export default () => {
+type Props = {
+  schemaID: string | undefined;
+  itemID: string | undefined;
+};
+
+export default ({ schemaID, itemID }: Props) => {
   const [currentModel, setModel] = useModel();
 
   const [createNewItem] = useCreateItemMutation({
@@ -62,7 +68,22 @@ export default () => {
     [updateItem],
   );
 
+  const { data } = useGetItemsQuery({
+    variables: { schemaID: schemaID ?? "", first: 100 },
+    skip: !schemaID,
+  });
+  const initialValues = useMemo(() => {
+    const itemConst = data?.items.nodes.find(item => item?.id === itemID);
+
+    const initialValuesReturn: any = {};
+    itemConst?.fields?.forEach(field => {
+      initialValuesReturn[field.schemaFieldID] = field.value;
+    });
+    return initialValuesReturn;
+  }, [data?.items.nodes, itemID]);
+
   return {
+    initialValues,
     currentModel,
     setModel,
     handleItemCreate,

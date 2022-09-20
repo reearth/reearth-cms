@@ -13,6 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 import { FieldType, Model } from "../../Schema/types";
 
 export interface Props {
+  initialValues: any;
   model?: Model;
   onSubmit: (data: {
     schemaID: string;
@@ -32,8 +33,11 @@ export interface Props {
   }) => Promise<void>;
 }
 
-const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => {
+const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleItemUpdate }) => {
   const t = useT();
+
+  console.log(initialValues);
+
   const [form] = Form.useForm();
   const { projectId, workspaceId, schemaID, modelId, itemID } = useParams();
   const navigate = useNavigate();
@@ -75,18 +79,42 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => 
 
   return (
     <FormWrapper>
-      <StyledContentForm form={form} layout="vertical" initialValues={{}}>
+      <StyledContentForm form={form} layout="vertical" initialValues={itemID ? initialValues : {}}>
         {model?.schema.fields.map(field =>
           field.type === "TextArea" || field.type === "MarkdownText" ? (
-            <Form.Item name={field.id} label={field.title}>
+            <Form.Item
+              rules={[
+                {
+                  required: true,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={field.title}>
               <TextArea rows={3} showCount />
             </Form.Item>
           ) : field.type === "Integer" ? (
-            <Form.Item name={field.id} label={field.title}>
+            <Form.Item
+              rules={[
+                {
+                  required: true,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={field.title}>
               <Input type="number" />
             </Form.Item>
           ) : field.type === "Asset" ? (
-            <Form.Item name={field.id} label={field.title}>
+            <Form.Item
+              rules={[
+                {
+                  required: true,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={field.title}>
               <Upload action="/upload.do" listType="picture-card">
                 <div>
                   <Icon icon="link" />
@@ -101,6 +129,10 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => 
               name={field.id}
               label={field.title}
               rules={[
+                {
+                  required: true,
+                  message: t("Please input field!"),
+                },
                 {
                   message: "URL is not valid",
                   validator: async (_, value) => {
@@ -119,7 +151,15 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => 
               <Input />
             </Form.Item>
           ) : (
-            <Form.Item name={field.id} label={field.title}>
+            <Form.Item
+              rules={[
+                {
+                  required: true,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={field.title}>
               <Input />
             </Form.Item>
           ),
