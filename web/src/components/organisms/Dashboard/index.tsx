@@ -7,7 +7,7 @@ import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
-import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
