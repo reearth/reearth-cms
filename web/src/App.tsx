@@ -30,7 +30,7 @@ function AppRoutes() {
       element: <ContentPage />,
     },
     {
-      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details",
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/:schemaID/details",
       element: <ContentDetailsPage />,
     },
     {

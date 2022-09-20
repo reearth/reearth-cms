@@ -1,14 +1,26 @@
 import styled from "@emotion/styled";
+import { Link, useLocation } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
-import { stringSortCallback } from "@reearth-cms/utils/sort";
 
-const columns: ProColumns<Item>[] = [
+const columns: ProColumns<Item & { location: any }>[] = [
+  {
+    title: "",
+    dataIndex: "edit",
+    render: (_, item) => {
+      return (
+        <Link to={item?.location?.pathname + "/details"}>
+          <Icon icon="edit" />
+        </Link>
+      );
+    },
+  },
   {
     title: "id",
     dataIndex: "id",
@@ -49,7 +61,6 @@ const columns: ProColumns<Item>[] = [
     title: "year",
     dataIndex: "year",
     key: "year",
-    sorter: (a, b) => stringSortCallback(a.reversion, b.reversion),
   },
 ];
 
@@ -59,6 +70,10 @@ export interface Props {
 
 const ContentTable: React.FC<Props> = ({ items }) => {
   const t = useT();
+  const location = useLocation();
+
+  const renderedItems: (Item & { location: any })[] = items.map(item => ({ ...item, location }));
+  console.log(items);
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
@@ -83,7 +98,7 @@ const ContentTable: React.FC<Props> = ({ items }) => {
         </EmptyTableWrapper>
       )}>
       <ProTable
-        dataSource={items}
+        dataSource={renderedItems}
         columns={columns}
         search={false}
         rowKey="id"
