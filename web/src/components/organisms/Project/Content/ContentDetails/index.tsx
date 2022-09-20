@@ -2,17 +2,22 @@ import styled from "@emotion/styled";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
+import ContentForm from "@reearth-cms/components/molecules/Content/ContentForm";
+import ContentHeader from "@reearth-cms/components/molecules/Content/ContentHeader";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
+
+import useHooks from "./hooks";
 
 const ContentDetails: React.FC = () => {
   const t = useT();
 
   const navigate = useNavigate();
+  const { currentModel, handleItemCreate } = useHooks();
 
   const { projectId, workspaceId } = useParams();
   const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/details`);
+    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
   };
 
   return (
@@ -20,7 +25,10 @@ const ContentDetails: React.FC = () => {
       <SchemaStyledMenu>
         <ModelsMenu title={t("Content")} selectModel={selectModel} />
       </SchemaStyledMenu>
-      <ContentChild></ContentChild>
+      <ContentChild>
+        <ContentHeader title={currentModel?.name || "Content list"} />
+        <ContentForm model={currentModel} onSubmit={handleItemCreate} />
+      </ContentChild>
     </PaddedContent>
   );
 };

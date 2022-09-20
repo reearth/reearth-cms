@@ -14,12 +14,16 @@ const ContentList: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const { projectId, workspaceId, schemaID } = useParams();
+  const { projectId, workspaceId, schemaID, modelId } = useParams();
   const selectModel = (modelId: string, schemaID?: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
   };
 
-  const { items } = useHooks({ schemaID });
+  const handleAddItem = () => {
+    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}/details`);
+  };
+
+  const { items, currentModel } = useHooks({ schemaID });
 
   return (
     <PaddedContent>
@@ -27,8 +31,8 @@ const ContentList: React.FC = () => {
         <ModelsMenu title={t("Content")} selectModel={selectModel} />
       </SchemaStyledMenu>
       <ContentChild>
-        <ContentHeader handleAdd={() => {}} />
-        <ContentTable items={items} />
+        <ContentHeader title={currentModel?.name || "Content list"} handleAdd={handleAddItem} />
+        <ContentTable handleAdd={handleAddItem} items={items} />
       </ContentChild>
     </PaddedContent>
   );

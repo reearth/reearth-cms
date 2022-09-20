@@ -66,14 +66,14 @@ const columns: ProColumns<Item & { location: any }>[] = [
 
 export interface Props {
   items: Item[];
+  handleAdd: () => void;
 }
 
-const ContentTable: React.FC<Props> = ({ items }) => {
+const ContentTable: React.FC<Props> = ({ handleAdd, items }) => {
   const t = useT();
   const location = useLocation();
 
   const renderedItems: (Item & { location: any })[] = items.map(item => ({ ...item, location }));
-  console.log(items);
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
@@ -88,7 +88,7 @@ const ContentTable: React.FC<Props> = ({ items }) => {
           <Title>{t("No Items yet")}</Title>
           <Suggestion>
             {t("Create a new")}{" "}
-            <Button onClick={() => {}} type="primary">
+            <Button onClick={handleAdd} type="primary">
               {t("New Item")}
             </Button>
           </Suggestion>

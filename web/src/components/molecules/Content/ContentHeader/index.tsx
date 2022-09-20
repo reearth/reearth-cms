@@ -6,19 +6,22 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  handleAdd: () => void;
+  handleAdd?: () => void;
+  title: string;
 };
 
-const ContentHeader: React.FC<Props> = ({ handleAdd }) => {
+const ContentHeader: React.FC<Props> = ({ title, handleAdd }) => {
   const t = useT();
 
   return (
     <IntegrationPageHeader
-      title={t("Model Content")}
+      title={title}
       extra={
-        <Button type="primary" onClick={handleAdd} icon={<Icon icon="plus" />}>
-          {t("New Item")}
-        </Button>
+        handleAdd && (
+          <Button type="primary" onClick={handleAdd} icon={<Icon icon="plus" />}>
+            {t("New Item")}
+          </Button>
+        )
       }
     />
   );

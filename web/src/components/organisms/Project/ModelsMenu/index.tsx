@@ -21,7 +21,7 @@ const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {
     handleModelKeyCheck,
     isKeyAvailable,
     models,
-    model,
+    currentModel,
   } = useHooks({
     projectId,
     modelId,
@@ -32,7 +32,7 @@ const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {
       <ModelsList
         title={title}
         selectModel={selectModel}
-        defaultSelectedKeys={[model?.id ?? ""]}
+        defaultSelectedKeys={[currentModel?.id ?? ""]}
         models={models}
         handleModalOpen={handleModelModalOpen}
       />

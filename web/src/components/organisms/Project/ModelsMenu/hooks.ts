@@ -6,6 +6,7 @@ import {
   useCreateModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useModel } from "@reearth-cms/state";
 
 type Params = {
   projectId?: string;
@@ -15,6 +16,7 @@ type Params = {
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const [currentModel, setModel] = useModel();
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -95,6 +97,11 @@ export default ({ projectId, modelId }: Params) => {
     [rawModel],
   );
 
+  useEffect(() => {
+    if (!modelId) return;
+    setModel(model);
+  }, [model, modelId, setModel]);
+
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],
   });
@@ -126,7 +133,7 @@ export default ({ projectId, modelId }: Params) => {
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   return {
-    model,
+    currentModel,
     models,
     modelModalShown,
     handleModelModalOpen,
