@@ -320,8 +320,6 @@ func TestAssetRepo_Delete(t *testing.T) {
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
 	f := asset.File{}
-	c := []*asset.File{}
-	f.SetChildren(c...)
 	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 	tests := []struct {
 		name  string
@@ -397,8 +395,6 @@ func TestAssetRepo_Save(t *testing.T) {
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
 	f := asset.File{}
-	c := []*asset.File{}
-	f.SetChildren(c...)
 	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 	tests := []struct {
 		name    string
