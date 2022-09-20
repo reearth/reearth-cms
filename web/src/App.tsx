@@ -6,7 +6,6 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
 import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
-import ContentPage from "@reearth-cms/components/pages/Content";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import ProjectPage from "@reearth-cms/components/pages/Project";
@@ -16,6 +15,8 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
+import ContentDetailsPage from "./components/pages/Content/ContentDetails";
+import ContentPage from "./components/pages/Content/ContentList";
 
 function AppRoutes() {
   const routes = useRoutes([
@@ -25,6 +26,10 @@ function AppRoutes() {
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/workspaces/:workspaceId/:projectId/content", element: <ContentPage /> },
     { path: "/workspaces/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
+    {
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details",
+      element: <ContentDetailsPage />,
+    },
     {
       path: "/workspaces/:workspaceId/:projectId/asset",
       element: <AssetListPage />,
