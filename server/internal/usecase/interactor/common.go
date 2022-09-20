@@ -15,6 +15,7 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 
 	return interfaces.Container{
 		Workspace: NewWorkspace(r),
+		Item:      NewItem(r),
 		User:      NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
 		Project:   NewProject(r),
 		Model:     NewModel(r),

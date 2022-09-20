@@ -13,6 +13,7 @@ schema:
   - ./schemas/item.graphql
   - ./schemas/integration.graphql
   - ./schemas/integration_webhook.graphql
+  - ./schemas/version.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:

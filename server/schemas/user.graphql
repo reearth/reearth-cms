@@ -14,7 +14,7 @@ type Me {
     auths: [String!]!
     workspaces: [Workspace!]!
     myWorkspace: Workspace!
-    integrations: [Integration!]!
+  integrations: [Integration!]!
 }
 
 input SignupInput {
