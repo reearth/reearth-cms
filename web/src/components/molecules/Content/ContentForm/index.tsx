@@ -70,6 +70,7 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit, handleItemUpdate }) => 
     schemaID,
     workspaceId,
     itemID,
+    handleItemUpdate,
   ]);
 
   return (
