@@ -119,11 +119,13 @@ const ContentForm: React.FC<Props> = ({ model, onSubmit }) => {
             </Form.Item>
           ),
         )}
-        <Form.Item>
-          <Button type="primary" htmlType="submit" onClick={handleSubmit}>
-            {t("Submit")}
-          </Button>
-        </Form.Item>
+        {model?.schema.fields && model?.schema.fields.length > 0 ? (
+          <Form.Item>
+            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+              {t("Submit")}
+            </Button>
+          </Form.Item>
+        ) : null}
       </StyledContentForm>
     </FormWrapper>
   );

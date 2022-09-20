@@ -16,8 +16,8 @@ const ContentDetails: React.FC = () => {
   const { currentModel, handleItemCreate } = useHooks();
 
   const { projectId, workspaceId } = useParams();
-  const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+  const selectModel = (modelId: string, schemaID?: string) => {
+    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
   };
 
   return (
