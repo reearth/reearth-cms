@@ -48,11 +48,11 @@ func (c *IntegrationLoader) FindByUser(ctx context.Context, uid gqlmodel.ID) ([]
 	if err != nil {
 		return nil, err
 	}
-	workspaces := make([]*gqlmodel.Integration, 0, len(res))
-	for _, t := range res {
-		workspaces = append(workspaces, gqlmodel.ToIntegration(t, op.User))
+	integrations := make([]*gqlmodel.Integration, 0, len(res))
+	for _, i := range res {
+		integrations = append(integrations, gqlmodel.ToIntegration(i, op.User))
 	}
-	return workspaces, nil
+	return integrations, nil
 }
 
 // data loaders

@@ -54,7 +54,7 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 			return nil, err
 		}
 
-		if err := workspace.Members().Join(firstUser, user.RoleOwner); err != nil {
+		if err := workspace.Members().JoinUser(firstUser, user.RoleOwner); err != nil {
 			return nil, err
 		}
 
@@ -113,7 +113,7 @@ func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.U
 			return nil, err
 		}
 
-		err = workspace.Members().Join(u, role)
+		err = workspace.Members().JoinUser(u, role)
 		if err != nil {
 			return nil, err
 		}
@@ -127,9 +127,32 @@ func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.U
 	})
 }
 
-func (i *Workspace) AddIntegrationMember(ctx context.Context, id id.WorkspaceID, u id.IntegrationID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID, iId id.IntegrationID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		panic("implement me")
+		workspace, err := i.repos.Workspace.FindByID(ctx, wId)
+		if err != nil {
+			return nil, err
+		}
+		if workspace.Members().GetRole(operator.User) != user.RoleOwner {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		_, err = i.repos.Integration.FindByID(ctx, iId)
+		if err != nil {
+			return nil, err
+		}
+
+		err = workspace.Members().JoinIntegration(iId, role)
+		if err != nil {
+			return nil, err
+		}
+
+		err = i.repos.Workspace.Save(ctx, workspace)
+		if err != nil {
+			return nil, err
+		}
+
+		return workspace, nil
 	})
 }
 

@@ -16,7 +16,7 @@ func TestNewMembersWith(t *testing.T) {
 	uid := NewID()
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
 	assert.NotNil(t, m)
-	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Users())
 	assert.Equal(t, false, m.Fixed())
 }
 
@@ -24,7 +24,7 @@ func TestNewFixedMembersWith(t *testing.T) {
 	uid := NewID()
 	m := NewFixedMembersWith(map[ID]Role{uid: RoleOwner})
 	assert.NotNil(t, m)
-	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Users())
 	assert.Equal(t, true, m.Fixed())
 }
 
@@ -71,7 +71,7 @@ func TestCopyMembers(t *testing.T) {
 
 func TestMembers_Count(t *testing.T) {
 	m := NewMembersWith(map[ID]Role{NewID(): RoleOwner})
-	assert.Equal(t, len(m.Members()), m.Count())
+	assert.Equal(t, len(m.Users()), m.Count())
 }
 
 func TestMembers_GetRole(t *testing.T) {
@@ -132,7 +132,7 @@ func TestMembers_Leave(t *testing.T) {
 func TestMembers_Members(t *testing.T) {
 	uid := NewID()
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
-	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Members())
+	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Users())
 }
 
 func TestMembers_UpdateRole(t *testing.T) {
@@ -238,7 +238,7 @@ func TestMembers_Join(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			err := tt.M.Join(tt.UID, tt.JoinRole)
+			err := tt.M.JoinUser(tt.UID, tt.JoinRole)
 			if tt.err == nil {
 				assert.True(t, tt.M.ContainsUser(tt.UID))
 				assert.Equal(t, tt.ExpectedRole, tt.M.GetRole(tt.UID))

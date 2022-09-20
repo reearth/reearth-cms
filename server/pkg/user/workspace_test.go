@@ -22,7 +22,7 @@ func TestWorkspace_Members(t *testing.T) {
 		NewID(): RoleOwner,
 	}
 	tm := NewWorkspace().NewID().Members(m).MustBuild()
-	assert.Equal(t, m, tm.Members().Members())
+	assert.Equal(t, m, tm.Members().Users())
 }
 
 func TestWorkspace_IsPersonal(t *testing.T) {

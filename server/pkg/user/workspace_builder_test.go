@@ -15,7 +15,7 @@ func TestWorkspaceBuilder_ID(t *testing.T) {
 func TestWorkspaceBuilder_Members(t *testing.T) {
 	m := map[ID]Role{NewID(): RoleOwner}
 	tm := NewWorkspace().NewID().Members(m).MustBuild()
-	assert.Equal(t, m, tm.Members().Members())
+	assert.Equal(t, m, tm.Members().Users())
 }
 
 func TestWorkspaceBuilder_Personal(t *testing.T) {
@@ -62,12 +62,12 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					members: map[ID]Role{uid: RoleOwner},
-					fixed:   true,
+					users: map[ID]Role{uid: RoleOwner},
+					fixed: true,
 				},
 			},
 		}, {
-			Name: "success create workspace with nil members",
+			Name: "success create workspace with nil users",
 			Args: args{
 				ID:   tid,
 				Name: "xxx",
@@ -76,8 +76,8 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					members: map[ID]Role{},
-					fixed:   false,
+					users: map[ID]Role{},
+					fixed: false,
 				},
 			},
 		},
@@ -135,12 +135,12 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					members: map[ID]Role{uid: RoleOwner},
-					fixed:   true,
+					users: map[ID]Role{uid: RoleOwner},
+					fixed: true,
 				},
 			},
 		}, {
-			Name: "success create workspace with nil members",
+			Name: "success create workspace with nil users",
 			Args: args{
 				ID:   tid,
 				Name: "xxx",
@@ -149,8 +149,8 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					members: map[ID]Role{},
-					fixed:   false,
+					users: map[ID]Role{},
+					fixed: false,
 				},
 			},
 		},

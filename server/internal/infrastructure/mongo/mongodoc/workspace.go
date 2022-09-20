@@ -11,26 +11,34 @@ type WorkspaceMemberDocument struct {
 }
 
 type WorkspaceDocument struct {
-	ID       string
-	Name     string
-	Members  map[string]WorkspaceMemberDocument
-	Personal bool
+	ID           string
+	Name         string
+	Members      map[string]WorkspaceMemberDocument
+	Integrations map[string]WorkspaceMemberDocument
+	Personal     bool
 }
 
 func NewWorkspace(ws *user.Workspace) (*WorkspaceDocument, string) {
 	membersDoc := map[string]WorkspaceMemberDocument{}
-	for user, r := range ws.Members().Members() {
-		membersDoc[user.String()] = WorkspaceMemberDocument{
+	for uId, r := range ws.Members().Users() {
+		membersDoc[uId.String()] = WorkspaceMemberDocument{
 			Role: string(r),
 		}
 	}
-	id := ws.ID().String()
+	integrationsDoc := map[string]WorkspaceMemberDocument{}
+	for iId, r := range ws.Members().Integrations() {
+		membersDoc[iId.String()] = WorkspaceMemberDocument{
+			Role: string(r),
+		}
+	}
+	wId := ws.ID().String()
 	return &WorkspaceDocument{
-		ID:       id,
-		Name:     ws.Name(),
-		Members:  membersDoc,
-		Personal: ws.IsPersonal(),
-	}, id
+		ID:           wId,
+		Name:         ws.Name(),
+		Members:      membersDoc,
+		Integrations: integrationsDoc,
+		Personal:     ws.IsPersonal(),
+	}, wId
 }
 
 func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
@@ -49,10 +57,21 @@ func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
 			members[uid] = user.Role(member.Role)
 		}
 	}
+	integrations := map[id.IntegrationID]user.Role{}
+	if d.Integrations != nil {
+		for iId, memberDoc := range d.Members {
+			iId, err := id.IntegrationIDFrom(iId)
+			if err != nil {
+				return nil, err
+			}
+			integrations[iId] = user.Role(memberDoc.Role)
+		}
+	}
 	return user.NewWorkspace().
 		ID(tid).
 		Name(d.Name).
 		Members(members).
+		Integrations(integrations).
 		Personal(d.Personal).
 		Build()
 }
@@ -64,9 +83,9 @@ func NewWorkspaces(workspaces []*user.Workspace) ([]*WorkspaceDocument, []string
 		if d == nil {
 			continue
 		}
-		r, id := NewWorkspace(d)
+		r, wId := NewWorkspace(d)
 		res = append(res, r)
-		ids = append(ids, id)
+		ids = append(ids, wId)
 	}
 	return res, ids
 }
