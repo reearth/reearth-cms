@@ -11,21 +11,10 @@ export const uuidToURL = (uuid: string, objectName: string) => {
 export const getPathFromUUID = (uuid: string, objectName: string) => {
   if (!uuid || !objectName) return "";
 
-  const name = isGCSEnabled() ? toGCNaming(objectName) : objectName;
-  return joinPath(uuid.slice(0, 2), uuid.slice(2), name);
+  return joinPath(uuid.slice(0, 2), uuid.slice(2), objectName);
 };
 
 export const joinPath = (...args: string[]) => {
   // TODO: we need a better way for joining a path
   return args.map(arg => (arg.endsWith("/") ? arg.slice(0, -1) : arg)).join("/");
-};
-
-export const toGCNaming = (objectName: string) => {
-  // TODO: we need a better way for google cloud naming
-  return objectName.toLowerCase().replace(/[^a-zA-Z0-9-.:/]/g, "-");
-};
-
-const isGCSEnabled = () => {
-  // TODO: we need to find a way to check wether the google cloud storage is used or not
-  return true;
 };
