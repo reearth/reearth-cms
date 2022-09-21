@@ -1,20 +1,24 @@
 type ProjectPublicSetting struct {
   id: ID!
-	projectId: ID!
-  publicModelIds: [ID]
-	publicScope: String! # "APIKEY" | "ANYONE"
-	assetPublic: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  projectId: ID!
+  publicProjectIds: [ID]
+  publicScope: String! # "APIKEY" | "ANYONE"
+  assetPublic: Boolean!
 }
 
 # Inputs
 input CreatePublicProjectInput {
-  # modelId: ID!
+  projectId: ID!
+  publicProjectIds: [ID]
+  publicScope: String!
+  assetPublic: Boolean!
 }
 
 input UpdatePublicProjectInput {
-  # modelId: ID!
+  projectId: ID!
+  publicProjectIds: [ID]
+  publicScope: String!
+  assetPublic: Boolean!
 }
 
 input DeletePublicProjectInput {
@@ -30,7 +34,7 @@ type DeletePublicProjectPayload {
   projectId: ID!
 }
 
-# extend type Query {}
+extend type Query {}
 
 extend type Mutation {
   createPublicProjectInput(input: CreatePublicProjectInput!): PublicProjectPayload
