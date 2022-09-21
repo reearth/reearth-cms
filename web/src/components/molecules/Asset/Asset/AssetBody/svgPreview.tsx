@@ -13,6 +13,10 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
         "Access-Control-Allow-Origin": "*",
       },
     });
+    if (res.status !== 200) {
+      setSvgText("Could not display svg");
+      return;
+    }
     const text = await res.text();
     setSvgText(text);
   }, [url]);
