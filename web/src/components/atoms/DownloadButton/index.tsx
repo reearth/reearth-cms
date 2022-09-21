@@ -1,5 +1,5 @@
 import fileDownload from "js-file-download";
-import React, { MouseEventHandler } from "react";
+import React, { MouseEventHandler, useCallback } from "react";
 
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -18,7 +18,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   displayDefaultIcon,
   ...props
 }) => {
-  const handleDownload: MouseEventHandler<HTMLElement> | undefined = async () => {
+  const handleDownload: MouseEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -27,7 +27,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     });
     const blob = await res.blob();
     fileDownload(blob, filename);
-  };
+  }, [filename, url]);
 
   return (
     <Button

@@ -11,7 +11,7 @@ const env = import.meta.env;
 
 export const defaultConfig: Config = {
   api: env.REEARTH_CMS_API || "/api",
-  storageHost: env.REEARTH_CMS_STORAGE_HOST || "/",
+  storageHost: env.REEARTH_CMS_STORAGE_HOST || "http://localhost:8080",
   assetBase: env.REEARTH_CMS_ASSET_BASE || "assets",
   auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE || "https://api.test.reearth.dev",
   auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN || "reearth-oss-test.eu.auth0.com",
