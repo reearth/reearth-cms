@@ -82,6 +82,9 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	var pt5 *asset.PreviewType = nil
 	want5 := (*PreviewType)(nil)
 
+	var pt6 asset.PreviewType = "test"
+	want6 := (*PreviewType)(nil)
+
 	tests := []struct {
 		name string
 		arg  *asset.PreviewType
@@ -111,6 +114,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 			name: "to asset nil",
 			arg:  pt5,
 			want: want5,
+		},
+		{
+			name: "to asset other",
+			arg:  &pt6,
+			want: want6,
 		},
 	}
 
@@ -230,6 +238,9 @@ func TestConvertAsset_AssetSortTypeFrom(t *testing.T) {
 	st4 := (*AssetSortType)(nil)
 	var want4 *asset.SortType = nil
 
+	var st5 AssetSortType = "test"
+	want5 := (*asset.SortType)(nil)
+
 	tests := []struct {
 		name string
 		arg  *AssetSortType
@@ -254,6 +265,11 @@ func TestConvertAsset_AssetSortTypeFrom(t *testing.T) {
 			name: "to sort type nil",
 			arg:  st4,
 			want: want4,
+		},
+		{
+			name: "to sort type other",
+			arg:  &st5,
+			want: want5,
 		},
 	}
 

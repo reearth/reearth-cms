@@ -78,12 +78,12 @@ func ToChildren(c []*asset.File) []*AssetFile {
 	return children
 }
 
-func AssetSortTypeFrom(ast *AssetSortType) *asset.SortType {
-	if ast == nil {
+func AssetSortTypeFrom(a *AssetSortType) *asset.SortType {
+	if a == nil {
 		return nil
 	}
 
-	switch *ast {
+	switch *a {
 	case AssetSortTypeDate:
 		return &asset.SortTypeDate
 	case AssetSortTypeName:
@@ -91,5 +91,5 @@ func AssetSortTypeFrom(ast *AssetSortType) *asset.SortType {
 	case AssetSortTypeSize:
 		return &asset.SortTypeSize
 	}
-	return &asset.SortTypeDate
+	return nil
 }
