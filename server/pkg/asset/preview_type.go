@@ -1,5 +1,11 @@
 package asset
 
+import (
+	"strings"
+
+	"github.com/samber/lo"
+)
+
 type PreviewType string
 
 const (
@@ -43,6 +49,13 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 	}
 
 	return &p2
+}
+
+func PreviewTypeFromContentType(c string) *PreviewType {
+	if strings.HasPrefix(c, "image/") {
+		return lo.ToPtr(PreviewTypeIMAGE)
+	}
+	return lo.ToPtr(PreviewTypeGEO)
 }
 
 func (p PreviewType) String() string {
