@@ -128,6 +128,13 @@ type CreateProjectInput struct {
 	Alias       *string `json:"alias"`
 }
 
+type CreatePublicProjectInput struct {
+	ProjectID        ID     `json:"projectId"`
+	PublicProjectIds []*ID  `json:"publicProjectIds"`
+	PublicScope      string `json:"publicScope"`
+	AssetPublic      bool   `json:"assetPublic"`
+}
+
 type CreateWebhookInput struct {
 	Name    string               `json:"name"`
 	URL     url.URL              `json:"url"`
@@ -197,6 +204,14 @@ type DeleteProjectInput struct {
 }
 
 type DeleteProjectPayload struct {
+	ProjectID ID `json:"projectId"`
+}
+
+type DeletePublicProjectInput struct {
+	ProjectID ID `json:"projectId"`
+}
+
+type DeletePublicProjectPayload struct {
 	ProjectID ID `json:"projectId"`
 }
 
@@ -389,6 +404,18 @@ type ProjectEdge struct {
 
 type ProjectPayload struct {
 	Project *Project `json:"project"`
+}
+
+type ProjectPublicSetting struct {
+	ID               ID     `json:"id"`
+	ProjectID        ID     `json:"projectId"`
+	PublicProjectIds []*ID  `json:"publicProjectIds"`
+	PublicScope      string `json:"publicScope"`
+	AssetPublic      bool   `json:"assetPublic"`
+}
+
+type PublicProjectPayload struct {
+	ProjectPublicSetting *ProjectPublicSetting `json:"projectPublicSetting"`
 }
 
 type PublishModelInput struct {
@@ -668,6 +695,13 @@ type UpdateProjectInput struct {
 	ProjectID   ID      `json:"projectId"`
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
+}
+
+type UpdatePublicProjectInput struct {
+	ProjectID        ID     `json:"projectId"`
+	PublicProjectIds []*ID  `json:"publicProjectIds"`
+	PublicScope      string `json:"publicScope"`
+	AssetPublic      bool   `json:"assetPublic"`
 }
 
 type UpdateWebhookInput struct {

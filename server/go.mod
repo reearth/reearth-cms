@@ -1,6 +1,6 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.19
+go 1.18
 
 require (
 	cloud.google.com/go/storage v1.22.1

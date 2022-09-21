@@ -1,4 +1,4 @@
-type ProjectPublicSetting struct {
+type ProjectPublicSetting {
   id: ID!
   projectId: ID!
   publicProjectIds: [ID]
@@ -34,7 +34,7 @@ type DeletePublicProjectPayload {
   projectId: ID!
 }
 
-extend type Query {}
+# extend type Query {}
 
 extend type Mutation {
   createPublicProjectInput(input: CreatePublicProjectInput!): PublicProjectPayload
