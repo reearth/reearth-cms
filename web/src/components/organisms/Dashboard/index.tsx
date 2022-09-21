@@ -50,6 +50,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
+            Suggested change
             {menuType === "project" ? (
               // eslint-disable-next-line react/jsx-no-useless-fragment
               <>
@@ -62,6 +63,23 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
                   />
                 )}
               </>
+            ) : (
+              <WorkspaceMenu
+                defaultSelectedKeys={defaultSelectedKeys}
+                isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+                inlineCollapsed={collapsed}
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
+            {menuType === "project" ? (
+              projectId && (
+                <ProjectMenu
+                  projectId={projectId}
+                  defaultSelectedKeys={defaultSelectedKeys}
+                  inlineCollapsed={collapsed}
+                  workspaceId={currentWorkspace?.id}
+                />
+              )
             ) : (
               <WorkspaceMenu
                 defaultSelectedKeys={defaultSelectedKeys}
