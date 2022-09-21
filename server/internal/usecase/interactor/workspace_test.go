@@ -788,7 +788,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			}
 			workspaceUC := NewWorkspace(db)
 
-			got, err := workspaceUC.RemoveMember(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
+			got, err := workspaceUC.RemoveUser(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -918,7 +918,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			}
 			workspaceUC := NewWorkspace(db)
 
-			got, err := workspaceUC.UpdateMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			got, err := workspaceUC.UpdateUser(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

@@ -3,6 +3,7 @@ package user
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,10 +75,16 @@ func TestMembers_Count(t *testing.T) {
 	assert.Equal(t, len(m.Users()), m.Count())
 }
 
-func TestMembers_GetRole(t *testing.T) {
+func TestMembers_GetUserRole(t *testing.T) {
 	uid := NewID()
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
-	assert.Equal(t, RoleOwner, m.GetRole(uid))
+	assert.Equal(t, RoleOwner, m.GetUserRole(uid))
+}
+
+func TestMembers_GetIntegrationRole(t *testing.T) {
+	iId := id.NewIntegrationID()
+	m := &Members{integrations: map[IntegrationID]Role{iId: RoleWriter}}
+	assert.Equal(t, RoleWriter, m.GetIntegrationRole(iId))
 }
 
 func TestMembers_IsOnlyOwner(t *testing.T) {
@@ -135,7 +142,7 @@ func TestMembers_Members(t *testing.T) {
 	assert.Equal(t, map[ID]Role{uid: RoleOwner}, m.Users())
 }
 
-func TestMembers_UpdateRole(t *testing.T) {
+func TestMembers_UpdateUserRole(t *testing.T) {
 	uid := NewID()
 
 	tests := []struct {
@@ -181,9 +188,59 @@ func TestMembers_UpdateRole(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			err := tt.M.UpdateRole(tt.UID, tt.NewRole)
+			err := tt.M.UpdateUserRole(tt.UID, tt.NewRole)
 			if tt.err == nil {
-				assert.Equal(t, tt.Expected, tt.M.GetRole(tt.UID))
+				assert.Equal(t, tt.Expected, tt.M.GetUserRole(tt.UID))
+			} else {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}
+
+func TestMembers_UpdateIntegrationRole(t *testing.T) {
+	iId := id.NewIntegrationID()
+
+	tests := []struct {
+		name          string
+		m             *Members
+		iId           IntegrationID
+		newRole, want Role
+		err           error
+	}{
+		{
+			name:    "success role updated",
+			m:       &Members{integrations: map[IntegrationID]Role{iId: RoleWriter}},
+			iId:     iId,
+			newRole: RoleOwner,
+			want:    RoleOwner,
+			err:     nil,
+		},
+		{
+			name:    "nil role",
+			m:       &Members{integrations: map[IntegrationID]Role{iId: RoleWriter}},
+			iId:     iId,
+			newRole: "",
+			want:    RoleWriter,
+			err:     nil,
+		},
+		{
+			name:    "fail user not in the workspace",
+			m:       &Members{integrations: map[IntegrationID]Role{iId: RoleWriter}},
+			iId:     id.NewIntegrationID(),
+			newRole: RoleOwner,
+			err:     ErrTargetUserNotInTheWorkspace,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.m.UpdateIntegrationRole(tt.iId, tt.newRole)
+			if tt.err == nil {
+				assert.Equal(t, tt.want, tt.m.GetIntegrationRole(tt.iId))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
@@ -241,7 +298,7 @@ func TestMembers_Join(t *testing.T) {
 			err := tt.M.JoinUser(tt.UID, tt.JoinRole)
 			if tt.err == nil {
 				assert.True(t, tt.M.ContainsUser(tt.UID))
-				assert.Equal(t, tt.ExpectedRole, tt.M.GetRole(tt.UID))
+				assert.Equal(t, tt.ExpectedRole, tt.M.GetUserRole(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}

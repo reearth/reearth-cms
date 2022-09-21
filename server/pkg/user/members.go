@@ -92,11 +92,15 @@ func (m *Members) Count() int {
 	return len(m.users)
 }
 
-func (m *Members) GetRole(u ID) Role {
+func (m *Members) GetUserRole(u ID) Role {
 	return m.users[u]
 }
 
-func (m *Members) UpdateRole(u ID, role Role) error {
+func (m *Members) GetIntegrationRole(iId IntegrationID) Role {
+	return m.integrations[iId]
+}
+
+func (m *Members) UpdateUserRole(u ID, role Role) error {
 	if m.fixed {
 		return ErrCannotModifyPersonalWorkspace
 	}
@@ -105,6 +109,18 @@ func (m *Members) UpdateRole(u ID, role Role) error {
 	}
 	if _, ok := m.users[u]; ok {
 		m.users[u] = role
+	} else {
+		return ErrTargetUserNotInTheWorkspace
+	}
+	return nil
+}
+
+func (m *Members) UpdateIntegrationRole(iId IntegrationID, role Role) error {
+	if !role.Valid() {
+		return nil
+	}
+	if _, ok := m.integrations[iId]; ok {
+		m.integrations[iId] = role
 	} else {
 		return ErrTargetUserNotInTheWorkspace
 	}

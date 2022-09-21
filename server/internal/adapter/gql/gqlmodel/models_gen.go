@@ -403,9 +403,9 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
-type RemoveMemberFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
+type RemoveIntegrationFromWorkspaceInput struct {
+	WorkspaceID   ID `json:"workspaceId"`
+	IntegrationID ID `json:"integrationId"`
 }
 
 type RemoveMemberFromWorkspacePayload struct {
@@ -414,6 +414,11 @@ type RemoveMemberFromWorkspacePayload struct {
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
+}
+
+type RemoveUserFromWorkspaceInput struct {
+	WorkspaceID ID `json:"workspaceId"`
+	UserID      ID `json:"userId"`
 }
 
 type Schema struct {
@@ -631,6 +636,12 @@ type UpdateIntegrationInput struct {
 	LogoURL       *url.URL `json:"logoUrl"`
 }
 
+type UpdateIntegrationOfWorkspaceInput struct {
+	WorkspaceID   ID   `json:"workspaceId"`
+	IntegrationID ID   `json:"integrationId"`
+	Role          Role `json:"role"`
+}
+
 type UpdateItemInput struct {
 	ItemID ID                `json:"itemId"`
 	Fields []*ItemFieldInput `json:"fields"`
@@ -649,12 +660,6 @@ type UpdateMePayload struct {
 	Me *Me `json:"me"`
 }
 
-type UpdateMemberOfWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
-}
-
 type UpdateMemberOfWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
@@ -670,6 +675,12 @@ type UpdateProjectInput struct {
 	ProjectID   ID      `json:"projectId"`
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
+}
+
+type UpdateUserOfWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
 }
 
 type UpdateWebhookInput struct {
