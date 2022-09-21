@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -7,6 +7,7 @@ import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
@@ -15,10 +16,11 @@ import useHooks from "./hooks";
 type Props = {
   children?: React.ReactNode;
   defaultSelectedKeys?: string[];
+  menuType?: "project" | "workspace";
 };
 
-const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
-  const { workspaceId } = useParams();
+const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
+  const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
     user,
@@ -48,11 +50,23 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys }) => {
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
-            <WorkspaceMenu
-              defaultSelectedKeys={defaultSelectedKeys}
-              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
-              inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}></WorkspaceMenu>
+            {menuType === "project" ? (
+              projectId && (
+                <ProjectMenu
+                  projectId={projectId}
+                  defaultSelectedKeys={defaultSelectedKeys}
+                  inlineCollapsed={collapsed}
+                  workspaceId={currentWorkspace?.id}
+                />
+              )
+            ) : (
+              <WorkspaceMenu
+                defaultSelectedKeys={defaultSelectedKeys}
+                isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+                inlineCollapsed={collapsed}
+                workspaceId={currentWorkspace?.id}
+              />
+            )}
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
         </Layout>
@@ -94,7 +108,6 @@ const DashboardSider = styled(Sider)`
 
 const PaddedContent = styled(Content)`
   margin: 16px;
-  background-color: #fff;
 `;
 
 export default Dashboard;
