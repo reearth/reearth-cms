@@ -15,7 +15,8 @@ var (
 )
 
 type Container struct {
-	Asset     	Asset
+	Asset       Asset
+	Workspace   Workspace
 	User        User
 	Project     Project
 	Model       Model
