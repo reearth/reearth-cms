@@ -5,7 +5,6 @@ package gqlmodel
 import (
 	"fmt"
 	"io"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -16,31 +15,20 @@ import (
 
 type Node interface {
 	IsNode()
-	GetID() ID
 }
 
 type SchemaFieldTypeProperty interface {
 	IsSchemaFieldTypeProperty()
 }
 
-type WorkspaceMember interface {
-	IsWorkspaceMember()
-}
-
-type AddIntegrationToWorkspaceInput struct {
-	WorkspaceID   ID   `json:"workspaceId"`
-	IntegrationID ID   `json:"integrationId"`
-	Role          Role `json:"role"`
+type AddMemberToWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
 }
 
 type AddMemberToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
-}
-
-type AddUserToWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
 }
 
 type Asset struct {
@@ -57,8 +45,7 @@ type Asset struct {
 	UUID        string       `json:"uuid"`
 }
 
-func (Asset) IsNode()        {}
-func (this Asset) GetID() ID { return this.ID }
+func (Asset) IsNode() {}
 
 type AssetConnection struct {
 	Edges      []*AssetEdge `json:"edges"`
@@ -102,13 +89,6 @@ type CreateFieldInput struct {
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
-type CreateIntegrationInput struct {
-	Name        string          `json:"name"`
-	Description *string         `json:"description"`
-	LogoURL     url.URL         `json:"logoUrl"`
-	Type        IntegrationType `json:"type"`
-}
-
 type CreateItemInput struct {
 	ModelID ID                `json:"modelId"`
 	Fields  []*ItemFieldInput `json:"fields"`
@@ -126,13 +106,6 @@ type CreateProjectInput struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	Alias       *string `json:"alias"`
-}
-
-type CreateWebhookInput struct {
-	Name    string               `json:"name"`
-	URL     url.URL              `json:"url"`
-	Active  bool                 `json:"active"`
-	Trigger *WebhookTriggerInput `json:"trigger"`
 }
 
 type CreateWorkspaceInput struct {
@@ -158,14 +131,6 @@ type DeleteFieldInput struct {
 
 type DeleteFieldPayload struct {
 	FieldID ID `json:"fieldId"`
-}
-
-type DeleteIntegrationInput struct {
-	IntegrationID ID `json:"integrationId"`
-}
-
-type DeleteIntegrationPayload struct {
-	IntegrationID ID `json:"integrationId"`
 }
 
 type DeleteItemInput struct {
@@ -200,14 +165,6 @@ type DeleteProjectPayload struct {
 	ProjectID ID `json:"projectId"`
 }
 
-type DeleteWebhookInput struct {
-	WebhookID ID `json:"webhookId"`
-}
-
-type DeleteWebhookPayload struct {
-	WebhookID ID `json:"webhookId"`
-}
-
 type DeleteWorkspaceInput struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
@@ -218,31 +175,6 @@ type DeleteWorkspacePayload struct {
 
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
-}
-
-type Integration struct {
-	ID          ID                 `json:"id"`
-	Name        string             `json:"name"`
-	Description *string            `json:"description"`
-	LogoURL     url.URL            `json:"logoUrl"`
-	IType       IntegrationType    `json:"iType"`
-	DeveloperID ID                 `json:"developerId"`
-	Developer   *User              `json:"developer"`
-	Config      *IntegrationConfig `json:"config"`
-	CreatedAt   time.Time          `json:"createdAt"`
-	UpdatedAt   time.Time          `json:"updatedAt"`
-}
-
-func (Integration) IsNode()        {}
-func (this Integration) GetID() ID { return this.ID }
-
-type IntegrationConfig struct {
-	Token    string     `json:"token"`
-	Webhooks []*Webhook `json:"webhooks"`
-}
-
-type IntegrationPayload struct {
-	Integration *Integration `json:"integration"`
 }
 
 type Item struct {
@@ -256,8 +188,7 @@ type Item struct {
 	Versions      []*ItemVersion `json:"versions"`
 }
 
-func (Item) IsNode()        {}
-func (this Item) GetID() ID { return this.ID }
+func (Item) IsNode() {}
 
 type ItemConnection struct {
 	Edges      []*ItemEdge `json:"edges"`
@@ -298,16 +229,15 @@ type KeyAvailability struct {
 }
 
 type Me struct {
-	ID            ID             `json:"id"`
-	Name          string         `json:"name"`
-	Email         string         `json:"email"`
-	Lang          language.Tag   `json:"lang"`
-	Theme         Theme          `json:"theme"`
-	MyWorkspaceID ID             `json:"myWorkspaceId"`
-	Auths         []string       `json:"auths"`
-	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace"`
-	Integrations  []*Integration `json:"integrations"`
+	ID            ID           `json:"id"`
+	Name          string       `json:"name"`
+	Email         string       `json:"email"`
+	Lang          language.Tag `json:"lang"`
+	Theme         Theme        `json:"theme"`
+	MyWorkspaceID ID           `json:"myWorkspaceId"`
+	Auths         []string     `json:"auths"`
+	Workspaces    []*Workspace `json:"workspaces"`
+	MyWorkspace   *Workspace   `json:"myWorkspace"`
 }
 
 type Model struct {
@@ -323,8 +253,7 @@ type Model struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-func (Model) IsNode()        {}
-func (this Model) GetID() ID { return this.ID }
+func (Model) IsNode() {}
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`
@@ -367,8 +296,7 @@ type Project struct {
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
-func (Project) IsNode()        {}
-func (this Project) GetID() ID { return this.ID }
+func (Project) IsNode() {}
 
 type ProjectAliasAvailability struct {
 	Alias     string `json:"alias"`
@@ -421,8 +349,7 @@ type Schema struct {
 	Project   *Project       `json:"project"`
 }
 
-func (Schema) IsNode()        {}
-func (this Schema) GetID() ID { return this.ID }
+func (Schema) IsNode() {}
 
 type SchemaField struct {
 	ID           ID                      `json:"id"`
@@ -622,13 +549,6 @@ type UpdateFieldInput struct {
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
-type UpdateIntegrationInput struct {
-	IntegrationID ID       `json:"integrationId"`
-	Name          *string  `json:"name"`
-	Description   *string  `json:"description"`
-	LogoURL       *url.URL `json:"logoUrl"`
-}
-
 type UpdateItemInput struct {
 	ItemID ID                `json:"itemId"`
 	Fields []*ItemFieldInput `json:"fields"`
@@ -670,14 +590,6 @@ type UpdateProjectInput struct {
 	Description *string `json:"description"`
 }
 
-type UpdateWebhookInput struct {
-	WebhookID ID                   `json:"webhookId"`
-	Name      *string              `json:"name"`
-	URL       *url.URL             `json:"url"`
-	Active    *bool                `json:"active"`
-	Trigger   *WebhookTriggerInput `json:"trigger"`
-}
-
 type UpdateWorkspaceInput struct {
 	WorkspaceID ID     `json:"workspaceId"`
 	Name        string `json:"name"`
@@ -693,74 +605,22 @@ type User struct {
 	Email string `json:"email"`
 }
 
-func (User) IsNode()        {}
-func (this User) GetID() ID { return this.ID }
-
-type Webhook struct {
-	ID        ID              `json:"id"`
-	Name      string          `json:"name"`
-	URL       url.URL         `json:"url"`
-	Active    bool            `json:"active"`
-	Trigger   *WebhookTrigger `json:"trigger"`
-	CreatedAt time.Time       `json:"createdAt"`
-	UpdatedAt time.Time       `json:"updatedAt"`
-}
-
-func (Webhook) IsNode()        {}
-func (this Webhook) GetID() ID { return this.ID }
-
-type WebhookPayload struct {
-	Webhook *Webhook `json:"webhook"`
-}
-
-type WebhookTrigger struct {
-	OnItemCreate    *bool `json:"onItemCreate"`
-	OnItemUpdate    *bool `json:"onItemUpdate"`
-	OnItemDelete    *bool `json:"onItemDelete"`
-	OnAssetUpload   *bool `json:"onAssetUpload"`
-	OnAssetDeleted  *bool `json:"onAssetDeleted"`
-	OnItemPublish   *bool `json:"onItemPublish"`
-	OnItemUnPublish *bool `json:"onItemUnPublish"`
-}
-
-type WebhookTriggerInput struct {
-	OnItemCreate    *bool `json:"onItemCreate"`
-	OnItemUpdate    *bool `json:"onItemUpdate"`
-	OnItemDelete    *bool `json:"onItemDelete"`
-	OnAssetUpload   *bool `json:"onAssetUpload"`
-	OnAssetDeleted  *bool `json:"onAssetDeleted"`
-	OnItemPublish   *bool `json:"onItemPublish"`
-	OnItemUnPublish *bool `json:"onItemUnPublish"`
-}
+func (User) IsNode() {}
 
 type Workspace struct {
-	ID       ID                `json:"id"`
-	Name     string            `json:"name"`
-	Members  []WorkspaceMember `json:"members"`
-	Personal bool              `json:"personal"`
+	ID       ID                 `json:"id"`
+	Name     string             `json:"name"`
+	Members  []*WorkspaceMember `json:"members"`
+	Personal bool               `json:"personal"`
 }
 
-func (Workspace) IsNode()        {}
-func (this Workspace) GetID() ID { return this.ID }
+func (Workspace) IsNode() {}
 
-type WorkspaceIntegrationMember struct {
-	IntegrationID ID           `json:"integrationId"`
-	Role          Role         `json:"role"`
-	Active        bool         `json:"active"`
-	InvitedByID   ID           `json:"invitedById"`
-	InvitedBy     *User        `json:"invitedBy"`
-	Integration   *Integration `json:"integration"`
-}
-
-func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
-
-type WorkspaceUserMember struct {
+type WorkspaceMember struct {
 	UserID ID    `json:"userId"`
 	Role   Role  `json:"role"`
 	User   *User `json:"user"`
 }
-
-func (WorkspaceUserMember) IsWorkspaceMember() {}
 
 type AssetSortType string
 
@@ -802,47 +662,6 @@ func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AssetSortType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type IntegrationType string
-
-const (
-	IntegrationTypePublic  IntegrationType = "Public"
-	IntegrationTypePrivate IntegrationType = "Private"
-)
-
-var AllIntegrationType = []IntegrationType{
-	IntegrationTypePublic,
-	IntegrationTypePrivate,
-}
-
-func (e IntegrationType) IsValid() bool {
-	switch e {
-	case IntegrationTypePublic, IntegrationTypePrivate:
-		return true
-	}
-	return false
-}
-
-func (e IntegrationType) String() string {
-	return string(e)
-}
-
-func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = IntegrationType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid IntegrationType", str)
-	}
-	return nil
-}
-
-func (e IntegrationType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

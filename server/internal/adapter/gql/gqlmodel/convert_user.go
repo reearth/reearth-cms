@@ -56,10 +56,9 @@ func ToWorkspace(t *user.Workspace) *Workspace {
 	}
 
 	memberMap := t.Members().Members()
-	members := make([]WorkspaceMember, 0, len(memberMap))
+	members := make([]*WorkspaceMember, 0, len(memberMap))
 	for u, r := range memberMap {
-		// TODO: how about the integration member
-		members = append(members, &WorkspaceUserMember{
+		members = append(members, &WorkspaceMember{
 			UserID: IDFrom(u),
 			Role:   ToRole(r),
 		})

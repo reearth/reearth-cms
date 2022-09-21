@@ -19,7 +19,3 @@ func (r *meResolver) MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmod
 func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error) {
 	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
 }
-
-func (r *meResolver) Integrations(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Integration, error) {
-	panic("implement me")
-}

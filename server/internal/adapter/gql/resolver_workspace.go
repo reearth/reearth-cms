@@ -6,26 +6,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 )
 
-func (r *Resolver) WorkspaceUserMember() WorkspaceUserMemberResolver {
-	return &workspaceUserMemberResolver{r}
+func (r *Resolver) WorkspaceMember() WorkspaceMemberResolver {
+	return &workspaceMemberResolver{r}
 }
 
-type workspaceUserMemberResolver struct{ *Resolver }
+type workspaceMemberResolver struct{ *Resolver }
 
-func (w workspaceUserMemberResolver) User(ctx context.Context, obj *gqlmodel.WorkspaceUserMember) (*gqlmodel.User, error) {
+func (r *workspaceMemberResolver) User(ctx context.Context, obj *gqlmodel.WorkspaceMember) (*gqlmodel.User, error) {
 	return dataloaders(ctx).User.Load(obj.UserID)
-}
-
-func (r *Resolver) WorkspaceIntegrationMember() WorkspaceIntegrationMemberResolver {
-	return &workspaceIntegrationMemberResolver{r}
-}
-
-type workspaceIntegrationMemberResolver struct{ *Resolver }
-
-func (w workspaceIntegrationMemberResolver) InvitedBy(ctx context.Context, obj *gqlmodel.WorkspaceIntegrationMember) (*gqlmodel.User, error) {
-	return dataloaders(ctx).User.Load(obj.InvitedByID)
-}
-
-func (w workspaceIntegrationMemberResolver) Integration(ctx context.Context, obj *gqlmodel.WorkspaceIntegrationMember) (*gqlmodel.Integration, error) {
-	panic("implement me")
 }
