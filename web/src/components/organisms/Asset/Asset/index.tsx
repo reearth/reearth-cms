@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
@@ -25,9 +26,10 @@ const Asset: React.FC = () => {
   };
 
   return isLoading ? (
-    <>loading...</>
+    // TODO: need to add a spinner
+    <Wrapper>loading...</Wrapper>
   ) : asset ? (
-    <>
+    <Wrapper>
       <AssetHeader
         title={`Asset/${asset?.fileName}`}
         subTitle="This is a subtitle"
@@ -41,10 +43,15 @@ const Asset: React.FC = () => {
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}
       />
-    </>
+    </Wrapper>
   ) : (
-    <>not found</>
+    <Wrapper>not found</Wrapper>
   );
 };
+
+const Wrapper = styled.div`
+  background-color: white;
+  height: 100%;
+`;
 
 export default Asset;
