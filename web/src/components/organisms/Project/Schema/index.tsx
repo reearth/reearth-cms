@@ -59,7 +59,8 @@ const ProjectSchema: React.FC = () => {
             selectModel={selectModel}
             defaultSelectedKeys={[model?.id ?? ""]}
             models={models}
-            handleModalOpen={handleModelModalOpen}></SchemaMenu>
+            handleModalOpen={handleModelModalOpen}
+          />
         </SchemaStyledMenu>
         <ContentChild>
           <ModelTitle>{model?.name}</ModelTitle>

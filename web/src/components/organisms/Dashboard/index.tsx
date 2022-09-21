@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -50,13 +50,18 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
-            {projectId && menuType ? (
-              <ProjectMenu
-                projectId={projectId}
-                defaultSelectedKeys={defaultSelectedKeys}
-                inlineCollapsed={collapsed}
-                workspaceId={currentWorkspace?.id}
-              />
+            {menuType === "project" ? (
+              // eslint-disable-next-line react/jsx-no-useless-fragment
+              <>
+                {projectId && (
+                  <ProjectMenu
+                    projectId={projectId}
+                    defaultSelectedKeys={defaultSelectedKeys}
+                    inlineCollapsed={collapsed}
+                    workspaceId={currentWorkspace?.id}
+                  />
+                )}
+              </>
             ) : (
               <WorkspaceMenu
                 defaultSelectedKeys={defaultSelectedKeys}
