@@ -18,7 +18,6 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	assetBasePath    string = "assets.test.cms.reearth.dev" //TODO: fix later
 	cacheSize               = 10 * 1024 * 1024
 )
 

@@ -24,6 +24,8 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 		return err
 	}
 
+	// ext := path.Ext(assetURL)
+
 	// TODO: extract comressed file format and choose the function to decompress it
 	compressedFile, size, err := u.gateways.File.Read(ctx, aURL.Path)
 	if err != nil {
