@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetWorkspacesQuery,
   useAddUserToWorkspaceMutation,

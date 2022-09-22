@@ -1,5 +1,7 @@
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import Dashboard from "@reearth-cms/components/molecules/Dashboard";
+import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
+import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
+import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
 
 import useHooks from "./hooks";
 
@@ -7,7 +9,7 @@ export interface Props {
   handleWorkspaceModalOpen?: () => void;
 }
 
-const ProjectList: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
+const Workspace: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
   const {
     handleProjectSearch,
     handleProjectCreate,
@@ -19,12 +21,13 @@ const ProjectList: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
 
   return (
     <>
-      <Dashboard
+      <Greeting />
+      <WorkspaceHeader
         handleProjectSearch={handleProjectSearch}
         handleProjectModalOpen={handleProjectModalOpen}
         handleWorkspaceModalOpen={handleWorkspaceModalOpen}
-        projects={projects}
       />
+      <ProjectList projects={projects} handleProjectModalOpen={handleProjectModalOpen} />
       <ProjectCreationModal
         open={projectModalShown}
         onClose={handleProjectModalClose}
@@ -34,4 +37,4 @@ const ProjectList: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
   );
 };
 
-export default ProjectList;
+export default Workspace;

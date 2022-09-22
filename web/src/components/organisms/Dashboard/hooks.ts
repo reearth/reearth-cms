@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { User } from "@reearth-cms/components/molecules/Dashboard/types";
+import { User } from "@reearth-cms/components/molecules/Workspace/types";
 import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useWorkspace } from "@reearth-cms/state";
 

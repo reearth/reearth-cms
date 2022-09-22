@@ -10,9 +10,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
 import Table from "@reearth-cms/components/atoms/Table";
-import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";

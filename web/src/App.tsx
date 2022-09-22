@@ -6,11 +6,11 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
 import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
-import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import SchemaPage from "@reearth-cms/components/pages/Schema";
+import WorkspacePage from "@reearth-cms/components/pages/Workspace";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
@@ -19,8 +19,8 @@ import "antd/dist/antd.css";
 function AppRoutes() {
   const routes = useRoutes([
     { path: "/", element: <RootPage /> },
-    { path: "/dashboard", element: <DashboardPage /> },
-    { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
+    { path: "/dashboard", element: <WorkspacePage /> },
+    { path: "/dashboard/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     {
       path: "/workspaces/:workspaceId/:projectId/asset",
