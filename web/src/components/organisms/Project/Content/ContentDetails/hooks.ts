@@ -84,6 +84,8 @@ export default ({ schemaID, itemID }: Props) => {
       if (field.type === "Select") {
         defaultValuesReturn[field.id] = field.typeProperty.selectDefaultValue;
       } else if (field.type === "Integer") {
+        console.log(field.typeProperty);
+
         defaultValuesReturn[field.id] = field.typeProperty.integerDefaultValue;
       } else {
         defaultValuesReturn[field.id] = field.typeProperty.defaultValue;

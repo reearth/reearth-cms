@@ -7,6 +7,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
@@ -115,7 +116,11 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={field.title}>
-              <Input type="number" />
+              <InputNumber
+                type="number"
+                min={field.typeProperty.min}
+                max={field.typeProperty.max}
+              />
             </Form.Item>
           ) : field.type === "Asset" ? (
             <Form.Item
