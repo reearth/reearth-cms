@@ -1349,6 +1349,17 @@ export type DeleteMeMutationVariables = Exact<{
 
 export type DeleteMeMutation = { __typename?: 'Mutation', deleteMe?: { __typename?: 'DeleteMePayload', userId: string } | null };
 
+export type CreateWebhookMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+  name: Scalars['String'];
+  url: Scalars['URL'];
+  active: Scalars['Boolean'];
+  trigger: WebhookTriggerInput;
+}>;
+
+
+export type CreateWebhookMutation = { __typename?: 'Mutation', createWebhook?: { __typename?: 'WebhookPayload', webhook: { __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } } } | null };
+
 export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2664,6 +2675,61 @@ export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<Del
 export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
 export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
 export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
+export const CreateWebhookDocument = gql`
+    mutation CreateWebhook($integrationId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!) {
+  createWebhook(
+    input: {integrationId: $integrationId, name: $name, url: $url, active: $active, trigger: $trigger}
+  ) {
+    webhook {
+      id
+      name
+      url
+      active
+      trigger {
+        onItemCreate
+        onItemUpdate
+        onItemDelete
+        onItemPublish
+        onItemUnPublish
+        onAssetUpload
+        onAssetDeleted
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutation, CreateWebhookMutationVariables>;
+
+/**
+ * __useCreateWebhookMutation__
+ *
+ * To run a mutation, you first call `useCreateWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebhookMutation, { data, loading, error }] = useCreateWebhookMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      name: // value for 'name'
+ *      url: // value for 'url'
+ *      active: // value for 'active'
+ *      trigger: // value for 'trigger'
+ *   },
+ * });
+ */
+export function useCreateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(CreateWebhookDocument, options);
+      }
+export type CreateWebhookMutationHookResult = ReturnType<typeof useCreateWebhookMutation>;
+export type CreateWebhookMutationResult = Apollo.MutationResult<CreateWebhookMutation>;
+export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<CreateWebhookMutation, CreateWebhookMutationVariables>;
 export const GetWorkspacesDocument = gql`
     query GetWorkspaces {
   me {

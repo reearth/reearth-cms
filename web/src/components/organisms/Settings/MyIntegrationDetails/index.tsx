@@ -7,7 +7,7 @@ import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
   const { integrationId, workspaceId } = useParams();
-  const { integrations, selectedIntegration, handleIntegrationUpdate } = useHooks({
+  const { selectedIntegration, handleIntegrationUpdate } = useHooks({
     integrationId,
   });
 

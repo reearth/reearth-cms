@@ -5,6 +5,7 @@ import MyIntegrationDetailsForm from "@reearth-cms/components/molecules/MyIntegr
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
 
 import { Integration } from "../../types";
+import WebhookForm from "../../WebhookForm";
 
 export interface Props {
   integration?: Integration;
@@ -23,6 +24,9 @@ const MyIntegrationDetailsContent: React.FC<Props> = ({ integration, handleInteg
       </TabPane>
       <TabPane tab="Webhook" key="webhook">
         <WebhookList />
+      </TabPane>
+      <TabPane tab="Webhook form" key="webhookform">
+        <WebhookForm />
       </TabPane>
     </MyIntegrationTabs>
   );

@@ -21,6 +21,10 @@ export default ({ integrationId }: Params) => {
               logoUrl: integration.logoUrl,
               developerId: integration.developerId,
               iType: integration.iType,
+              config: {
+                token: integration.config?.token,
+                webhooks: integration.config?.webhooks,
+              },
             }
           : undefined,
       )
