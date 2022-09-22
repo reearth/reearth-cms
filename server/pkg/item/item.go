@@ -27,5 +27,8 @@ func (i *Item) Schema() schema.ID {
 }
 
 func (i *Item) UpdateFields(fields []*Field) {
+	if fields == nil {
+		return
+	}
 	i.fields = slices.Clone(fields)
 }

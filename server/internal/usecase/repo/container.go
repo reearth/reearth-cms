@@ -15,8 +15,8 @@ type Container struct {
 	Workspace   Workspace
 	Project     Project
 	Model       Model
-	Item        Item
 	Schema      Schema
+	Item        Item
 	Transaction usecasex.Transaction
 }
 
@@ -29,6 +29,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		return c
 	}
 	return &Container{
+		Asset:       c.Asset,
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,

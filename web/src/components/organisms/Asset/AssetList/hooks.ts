@@ -5,34 +5,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
   Maybe,
   User,
-  GetAssetsQuery,
   useDeleteAssetMutation,
-  AssetSortType as GQLSortType,
   useGetUserBySearchQuery,
+  Asset as GQLAsset,
+  AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
 
-export type AssetNode = NonNullable<Asset>;
-export type AssetUser = Maybe<User>;
-
-export type AssetNodes = NonNullable<GetAssetsQuery["assets"]["nodes"][number]>[];
-
-export type AssetSortType = "date" | "name" | "size";
-
-const enumTypeMapper: Partial<Record<GQLSortType, string>> = {
-  [GQLSortType.Date]: "date",
-  [GQLSortType.Name]: "name",
-  [GQLSortType.Size]: "size",
-};
-
-function toGQLEnum(val?: AssetSortType) {
-  if (!val) return;
-  return (Object.keys(enumTypeMapper) as GQLSortType[]).find(k => enumTypeMapper[k] === val);
-}
+type AssetSortType = "date" | "name" | "size";
 
 const assetsPerPage = 20;
 
@@ -52,7 +37,7 @@ function pagination(
 
 export default (projectId?: string) => {
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<AssetNode[]>([]);
+  const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
@@ -74,7 +59,7 @@ export default (projectId?: string) => {
     variables: {
       projectId: projectId ?? "",
       pagination: pagination(sort),
-      sort: toGQLEnum(sort?.type),
+      sort: sort?.type as GQLSortType,
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
@@ -166,7 +151,7 @@ export default (projectId?: string) => {
     if (sort || searchTerm) {
       selectAsset([]);
       refetch({
-        sort: toGQLEnum(sort?.type),
+        sort: sort?.type as GQLSortType,
         keyword: searchTerm,
       });
     }
@@ -181,7 +166,11 @@ export default (projectId?: string) => {
   }, [gqlCache]);
 
   useEffect(() => {
-    const assets = (data?.assets.nodes as AssetNode[]) ?? [];
+    const assets =
+      (data?.assets.nodes
+        .map(asset => asset as GQLAsset)
+        .map(convertAsset)
+        .filter(asset => !!asset) as Asset[]) ?? [];
     setAssetList(assets);
   }, [data?.assets.nodes]);
 

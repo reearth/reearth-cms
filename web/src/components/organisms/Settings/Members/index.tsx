@@ -123,7 +123,8 @@ const Members: React.FC = () => {
               icon={<Icon icon="userGroupAdd" />}>
               {t("New Member")}
             </Button>
-          }></MemberPageHeader>
+          }
+        />
         <ActionHeader>
           <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
         </ActionHeader>
@@ -133,14 +134,16 @@ const Members: React.FC = () => {
         member={selectedMember}
         open={roleModalShown}
         onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}></MemberRoleModal>
+        onSubmit={handleMemberOfWorkspaceUpdate}
+      />
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         onClose={handleMemberAddModalClose}
         handleUserSearch={handleUserSearch}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAddToWorkspace}></MemberAddModal>
+        onSubmit={handleMemberAddToWorkspace}
+      />
     </>
   );
 };
@@ -148,6 +151,7 @@ const Members: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
+  height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
