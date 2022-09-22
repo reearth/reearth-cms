@@ -81,6 +81,6 @@ func (b *Builder) Developer(developer UserID) *Builder {
 }
 
 func (b *Builder) Webhook(webhook []*Webhook) *Builder {
-	b.i.webhook = webhook
+	b.i.webhooks = webhook
 	return b
 }

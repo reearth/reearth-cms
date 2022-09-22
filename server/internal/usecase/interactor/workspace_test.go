@@ -647,7 +647,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 			}
 			workspaceUC := NewWorkspace(db)
 
-			got, err := workspaceUC.AddMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			got, err := workspaceUC.AddUserMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

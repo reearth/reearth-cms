@@ -95,7 +95,7 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 	})
 }
 
-func (i *Workspace) AddMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
@@ -124,6 +124,12 @@ func (i *Workspace) AddMember(ctx context.Context, id id.WorkspaceID, u id.UserI
 		}
 
 		return workspace, nil
+	})
+}
+
+func (i *Workspace) AddIntegrationMember(ctx context.Context, id id.WorkspaceID, u id.IntegrationID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
+		panic("implement me")
 	})
 }
 

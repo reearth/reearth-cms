@@ -16,6 +16,7 @@ func New() *repo.Container {
 		Project:     NewProject(),
 		Model:       NewModel(),
 		Schema:      NewSchema(),
+		Integration: NewIntegration(),
 		Transaction: &usecasex.NopTransaction{},
 	}
 }
