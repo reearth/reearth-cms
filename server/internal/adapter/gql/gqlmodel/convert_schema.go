@@ -143,3 +143,34 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 	})
 	return
 }
+
+func FromSchemaFieldType(t SchemaFiledType) schema.Type {
+	switch t {
+	case SchemaFiledTypeText:
+		return schema.TypeText
+	case SchemaFiledTypeTextArea:
+		return schema.TypeTextArea
+	case SchemaFiledTypeRichText:
+		return schema.TypeRichText
+	case SchemaFiledTypeMarkdownText:
+		return schema.TypeMarkdown
+	case SchemaFiledTypeAsset:
+		return schema.TypeAsset
+	case SchemaFiledTypeDate:
+		return schema.TypeDate
+	case SchemaFiledTypeBool:
+		return schema.TypeBool
+	case SchemaFiledTypeSelect:
+		return schema.TypeSelect
+	case SchemaFiledTypeTag:
+		return schema.TypeTag
+	case SchemaFiledTypeInteger:
+		return schema.TypeInteger
+	case SchemaFiledTypeReference:
+		return schema.TypeReference
+	case SchemaFiledTypeURL:
+		return schema.TypeURL
+	default:
+		return ""
+	}
+}
