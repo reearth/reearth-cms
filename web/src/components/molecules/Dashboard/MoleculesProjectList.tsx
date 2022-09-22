@@ -14,7 +14,7 @@ export interface Props {
   handleProjectModalOpen: () => void;
 }
 
-const ProjectList: React.FC<Props> = ({
+const MoleculesProjectList: React.FC<Props> = ({
   className,
   projects,
   workspaceId,
@@ -92,4 +92,4 @@ const Content = styled.div`
   align-content: flex-start;
 `;
 
-export default ProjectList;
+export default MoleculesProjectList;

@@ -6,16 +6,17 @@ import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import Greeting from "@reearth-cms/components/molecules/Dashboard/Greeting";
-import ProjectList from "@reearth-cms/components/molecules/Dashboard/ProjectList";
+import MoleculesProjectList from "@reearth-cms/components/molecules/Dashboard/MoleculesProjectList";
 import { useT } from "@reearth-cms/i18n";
-
-import useDashboardHooks from "../Dashboard/hooks";
 
 import useHooks from "./hooks";
 
-const Project: React.FC = () => {
+export interface Props {
+  handleWorkspaceModalOpen?: () => void;
+}
+
+const ProjectList: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
   const t = useT();
   const { Search } = Input;
   const { workspaceId } = useParams();
@@ -28,13 +29,6 @@ const Project: React.FC = () => {
     projectModalShown,
     projects,
   } = useHooks();
-
-  const {
-    handleWorkspaceCreate,
-    handleWorkspaceModalClose,
-    handleWorkspaceModalOpen,
-    workspaceModalShown,
-  } = useDashboardHooks(workspaceId);
 
   return (
     <>
@@ -55,7 +49,7 @@ const Project: React.FC = () => {
             </Button>
           </ButtonWrapper>
         </ActionHeader>
-        <ProjectList
+        <MoleculesProjectList
           projects={projects}
           workspaceId={workspaceId}
           handleProjectModalOpen={handleProjectModalOpen}
@@ -66,11 +60,6 @@ const Project: React.FC = () => {
         onClose={handleProjectModalClose}
         onSubmit={handleProjectCreate}
       />
-      <WorkspaceCreationModal
-        open={workspaceModalShown}
-        onClose={handleWorkspaceModalClose}
-        onSubmit={handleWorkspaceCreate}
-      />
     </>
   );
 };
@@ -78,7 +67,7 @@ const Project: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
-  height: 100%;
+  min-height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
@@ -95,4 +84,4 @@ const ButtonWrapper = styled.div`
   }
 `;
 
-export default Project;
+export default ProjectList;

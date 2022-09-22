@@ -1,12 +1,12 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
 import Dashboard from "@reearth-cms/components/organisms/Dashboard";
-import Project from "@reearth-cms/components/organisms/Project";
+import ProjectList from "@reearth-cms/components/organisms/Project/ProjectList";
 
 const DashboardPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
       <Dashboard defaultSelectedKeys={["home"]}>
-        <Project />
+        <ProjectList />
       </Dashboard>
     </AuthenticationRequiredPage>
   );

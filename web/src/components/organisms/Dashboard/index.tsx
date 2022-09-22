@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import React, { JSXElementConstructor, ReactElement, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -14,7 +14,7 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 import useHooks from "./hooks";
 
 type Props = {
-  children?: React.ReactNode;
+  children: ReactElement<any, string | JSXElementConstructor<any>>;
   defaultSelectedKeys?: string[];
   menuType?: "project" | "workspace";
 };
@@ -68,7 +68,9 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
               />
             )}
           </DashboardSider>
-          <PaddedContent>{children}</PaddedContent>
+          <PaddedContent>
+            {React.cloneElement(children, { handleWorkspaceModalOpen })}
+          </PaddedContent>
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal
