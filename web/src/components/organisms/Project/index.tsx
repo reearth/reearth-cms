@@ -39,7 +39,7 @@ const Project: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <Greeting></Greeting>
+        <Greeting />
         <ActionHeader>
           <Search
             onSearch={handleProjectSearch}
@@ -78,6 +78,7 @@ const Project: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
+  height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
