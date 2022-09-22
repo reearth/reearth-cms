@@ -12,6 +12,7 @@ import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/Wor
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
 import useHooks from "./hooks";
+import ThreadSider from "./threadSider";
 
 type Props = {
   children?: React.ReactNode;
@@ -69,6 +70,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             )}
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
+          <ThreadSider></ThreadSider>
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal
