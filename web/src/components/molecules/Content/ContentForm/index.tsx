@@ -7,6 +7,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
@@ -35,8 +36,7 @@ export interface Props {
 
 const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleItemUpdate }) => {
   const t = useT();
-
-  console.log(initialValues);
+  const { Option } = Select;
 
   const [form] = Form.useForm();
   const { projectId, workspaceId, schemaID, modelId, itemID } = useParams();
@@ -83,21 +83,23 @@ const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleIt
         {model?.schema.fields.map(field =>
           field.type === "TextArea" || field.type === "MarkdownText" ? (
             <Form.Item
+              extra={field.description}
               rules={[
                 {
-                  required: true,
+                  required: field.required,
                   message: t("Please input field!"),
                 },
               ]}
               name={field.id}
               label={field.title}>
-              <TextArea rows={3} showCount />
+              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
+              extra={field.description}
               rules={[
                 {
-                  required: true,
+                  required: field.required,
                   message: t("Please input field!"),
                 },
               ]}
@@ -107,9 +109,10 @@ const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleIt
             </Form.Item>
           ) : field.type === "Asset" ? (
             <Form.Item
+              extra={field.description}
               rules={[
                 {
-                  required: true,
+                  required: field.required,
                   message: t("Please input field!"),
                 },
               ]}
@@ -123,14 +126,23 @@ const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleIt
               </Upload>
             </Form.Item>
           ) : field.type === "Select" ? (
-            <></> // <SelectField selectedValues={selectedValues} />
+            <Form.Item extra={field.description} name={field.id} label={field.title}>
+              <Select>
+                {field.typeProperty?.values?.map((value: string) => (
+                  <Option key={value} value={value}>
+                    {value}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
           ) : field.type === "URL" ? (
             <Form.Item
+              extra={field.description}
               name={field.id}
               label={field.title}
               rules={[
                 {
-                  required: true,
+                  required: field.required,
                   message: t("Please input field!"),
                 },
                 {
@@ -148,19 +160,20 @@ const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleIt
                   },
                 },
               ]}>
-              <Input />
+              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ) : (
             <Form.Item
+              extra={field.description}
               rules={[
                 {
-                  required: true,
+                  required: field.required,
                   message: t("Please input field!"),
                 },
               ]}
               name={field.id}
               label={field.title}>
-              <Input />
+              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ),
         )}
