@@ -32,7 +32,7 @@ const ContentList: React.FC = () => {
       </SchemaStyledMenu>
       <ContentChild>
         <ContentHeader title={currentModel?.name || "Content list"} handleAdd={handleAddItem} />
-        <ContentTable handleAdd={handleAddItem} items={items} />
+        <ContentTable items={items} />
       </ContentChild>
     </PaddedContent>
   );
@@ -42,6 +42,7 @@ const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
   display: flex;
+  min-height: 100%;
 `;
 
 const SchemaStyledMenu = styled.div`
