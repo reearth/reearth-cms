@@ -17,7 +17,7 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
 type AssetListTableProps = {
-  assetList: (Asset | undefined)[];
+  assetList: Asset[];
   assetsPerPage: number | undefined;
   handleEdit: (asset: Asset) => void;
   handleSearchTerm: (term?: string) => void;

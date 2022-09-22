@@ -37,7 +37,7 @@ function pagination(
 
 export default (projectId?: string) => {
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<(Asset | undefined)[]>([]);
+  const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
@@ -166,8 +166,12 @@ export default (projectId?: string) => {
   }, [gqlCache]);
 
   useEffect(() => {
-    const assets = data?.assets.nodes.map(asset => asset as GQLAsset).map(convertAsset) ?? [];
-    setAssetList(assets);
+    const assets =
+      data?.assets.nodes
+        .map(asset => asset as GQLAsset)
+        .map(convertAsset)
+        .filter(asset => !!asset) ?? [];
+    setAssetList(assets as Asset[]);
   }, [data?.assets.nodes]);
 
   return {
