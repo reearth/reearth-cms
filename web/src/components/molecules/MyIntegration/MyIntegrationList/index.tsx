@@ -19,6 +19,7 @@ const MyIntegrationList: React.FC<Props> = ({ integrations, handleIntegrationMod
           title={integration.name}
           description={integration.description}
           logoUrl={integration.logoUrl}
+          id={integration.id}
         />
       ))}
       <IntegrationCreationAction handleIntegrationModalOpen={handleIntegrationModalOpen} />
