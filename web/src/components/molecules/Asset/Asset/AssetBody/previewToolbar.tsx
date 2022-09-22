@@ -26,7 +26,7 @@ const PreviewToolbar: React.FC<Props> = ({
 }) => {
   return (
     <>
-      {selectedPreviewType === PreviewType.Image && isSVG && (
+      {selectedPreviewType === "IMAGE" && isSVG && (
         <>
           <Button onClick={handleCodeSourceClick}>Source Code</Button>
           <Button onClick={handleRenderClick}>Render</Button>
