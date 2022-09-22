@@ -5,6 +5,7 @@ import { useState } from "react";
 import Sider from "@reearth-cms/components/atoms/Sider";
 
 import CommentContainer from "./comment";
+import ReplyEditor from "./replyEditor";
 
 type Props = {};
 
@@ -12,7 +13,11 @@ const ThreadSider: React.FC<Props> = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <StyledThreadSider collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+    <StyledThreadSider
+      collapsible
+      collapsed={collapsed}
+      width={300}
+      onCollapse={value => setCollapsed(value)}>
       {collapsed ? (
         <div
           style={{
@@ -26,8 +31,14 @@ const ThreadSider: React.FC<Props> = () => {
       ) : (
         <div style={{ padding: "12px" }}>
           <h1 style={{ fontSize: "18px" }}>Comments</h1>
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}>
             <CommentContainer />
+            <ReplyEditor />
           </div>
         </div>
       )}
@@ -47,6 +58,7 @@ const StyledThreadSider = styled(Sider)`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    height: 100%;
   }
 `;
 
