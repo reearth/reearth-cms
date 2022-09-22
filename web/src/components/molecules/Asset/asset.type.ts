@@ -21,5 +21,3 @@ export type AssetFile = {
   path: string;
   size: number;
 };
-
-export type AssetNode = NonNullable<Asset>;

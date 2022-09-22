@@ -21,7 +21,7 @@ export default (assetId?: string) => {
     },
   });
 
-  const asset: Asset = useMemo(() => {
+  const asset: Asset | undefined = useMemo(() => {
     return convertAsset(rawAsset?.asset as GQLAsset);
   }, [rawAsset]);
 

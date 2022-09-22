@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetNode } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
@@ -37,7 +37,7 @@ function pagination(
 
 export default (projectId?: string) => {
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<AssetNode[]>([]);
+  const [assetList, setAssetList] = useState<(Asset | undefined)[]>([]);
   const [selection, setSelection] = useState({
     selectedRowKeys: [],
   });
