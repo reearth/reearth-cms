@@ -208,6 +208,7 @@ const ContentForm: React.FC<Props> = ({
 
 const FormWrapper = styled.div`
   display: flex;
+  padding-top: 16px;
 `;
 
 const StyledContentForm = styled(Form)`
