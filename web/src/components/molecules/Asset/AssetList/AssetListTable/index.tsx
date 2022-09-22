@@ -87,6 +87,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: "Id",
       dataIndex: "id",
       key: "id",
+      hideInTable: true,
     },
     {
       title: "Action",
