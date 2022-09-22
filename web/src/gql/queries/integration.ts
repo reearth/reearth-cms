@@ -20,3 +20,29 @@ export const CREATE_INTEGRATION = gql`
     }
   }
 `;
+
+export const UPDATE_INTEGRATION = gql`
+  mutation UpdateIntegration(
+    $integrationId: ID!
+    $name: String!
+    $description: String
+    $logoUrl: URL!
+  ) {
+    updateIntegration(
+      input: {
+        integrationId: $integrationId
+        name: $name
+        description: $description
+        logoUrl: $logoUrl
+      }
+    ) {
+      integration {
+        id
+        name
+        description
+        logoUrl
+        iType
+      }
+    }
+  }
+`;

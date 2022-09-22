@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -9,12 +11,31 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationDetailsForm: React.FC = () => {
+import { Integration } from "../../types";
+
+export interface Props {
+  integration?: Integration;
+  handleIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+}
+
+const MyIntegrationDetailsForm: React.FC<Props> = ({ integration, handleIntegrationUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async values => {
+        values.logoUrl = "some";
+        await handleIntegrationUpdate?.(values);
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, handleIntegrationUpdate]);
+
   return (
-    <Form form={form} layout="vertical" requiredMark="optional" initialValues={{}}>
+    <Form form={form} layout="vertical" requiredMark="optional" initialValues={integration}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -31,19 +52,11 @@ const MyIntegrationDetailsForm: React.FC = () => {
           <Form.Item name="description" label={t("Description")}>
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
-          <Form.Item
-            name="token"
-            label={t("Integration Token")}
-            rules={[
-              {
-                required: true,
-                message: t("Please input the token of the integration!"),
-              },
-            ]}>
+          <Form.Item name="token" label={t("Integration Token")}>
             <Input.Password placeholder={t("Input token")} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
               {t("Save")}
             </Button>
           </Form.Item>

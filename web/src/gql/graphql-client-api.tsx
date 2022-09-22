@@ -1204,6 +1204,16 @@ export type CreateIntegrationMutationVariables = Exact<{
 
 export type CreateIntegrationMutation = { __typename?: 'Mutation', createIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
 
+export type UpdateIntegrationMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+  name: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  logoUrl: Scalars['URL'];
+}>;
+
+
+export type UpdateIntegrationMutation = { __typename?: 'Mutation', updateIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   first?: InputMaybe<Scalars['Int']>;
@@ -1841,6 +1851,50 @@ export function useCreateIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type CreateIntegrationMutationHookResult = ReturnType<typeof useCreateIntegrationMutation>;
 export type CreateIntegrationMutationResult = Apollo.MutationResult<CreateIntegrationMutation>;
 export type CreateIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateIntegrationMutation, CreateIntegrationMutationVariables>;
+export const UpdateIntegrationDocument = gql`
+    mutation UpdateIntegration($integrationId: ID!, $name: String!, $description: String, $logoUrl: URL!) {
+  updateIntegration(
+    input: {integrationId: $integrationId, name: $name, description: $description, logoUrl: $logoUrl}
+  ) {
+    integration {
+      id
+      name
+      description
+      logoUrl
+      iType
+    }
+  }
+}
+    `;
+export type UpdateIntegrationMutationFn = Apollo.MutationFunction<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
+
+/**
+ * __useUpdateIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIntegrationMutation, { data, loading, error }] = useUpdateIntegrationMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      name: // value for 'name'
+ *      description: // value for 'description'
+ *      logoUrl: // value for 'logoUrl'
+ *   },
+ * });
+ */
+export function useUpdateIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>(UpdateIntegrationDocument, options);
+      }
+export type UpdateIntegrationMutationHookResult = ReturnType<typeof useUpdateIntegrationMutation>;
+export type UpdateIntegrationMutationResult = Apollo.MutationResult<UpdateIntegrationMutation>;
+export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   models(
