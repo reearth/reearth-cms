@@ -167,11 +167,11 @@ export default (projectId?: string) => {
 
   useEffect(() => {
     const assets =
-      data?.assets.nodes
+      (data?.assets.nodes
         .map(asset => asset as GQLAsset)
         .map(convertAsset)
-        .filter(asset => !!asset) ?? [];
-    setAssetList(assets as Asset[]);
+        .filter(asset => !!asset) as Asset[]) ?? [];
+    setAssetList(assets);
   }, [data?.assets.nodes]);
 
   return {
