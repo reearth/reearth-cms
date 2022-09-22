@@ -18,6 +18,7 @@ type Container struct {
 	Asset     Asset
 	Workspace Workspace
 	User      User
+	Item      Item
 	Project   Project
 	Model     Model
 	Schema    Schema
