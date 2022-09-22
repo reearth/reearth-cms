@@ -15,6 +15,7 @@ import { FieldType, Model } from "../../Schema/types";
 
 export interface Props {
   initialValues: any;
+  defaultValues: any;
   model?: Model;
   onSubmit: (data: {
     schemaID: string;
@@ -34,7 +35,13 @@ export interface Props {
   }) => Promise<void>;
 }
 
-const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleItemUpdate }) => {
+const ContentForm: React.FC<Props> = ({
+  model,
+  initialValues,
+  defaultValues,
+  onSubmit,
+  handleItemUpdate,
+}) => {
   const t = useT();
   const { Option } = Select;
 
@@ -79,7 +86,10 @@ const ContentForm: React.FC<Props> = ({ model, initialValues, onSubmit, handleIt
 
   return (
     <FormWrapper>
-      <StyledContentForm form={form} layout="vertical" initialValues={itemID ? initialValues : {}}>
+      <StyledContentForm
+        form={form}
+        layout="vertical"
+        initialValues={itemID ? initialValues : defaultValues}>
         {model?.schema.fields.map(field =>
           field.type === "TextArea" || field.type === "MarkdownText" ? (
             <Form.Item

@@ -14,10 +14,11 @@ const ContentDetails: React.FC = () => {
   const { projectId, workspaceId, schemaID, itemID } = useParams();
 
   const navigate = useNavigate();
-  const { currentModel, handleItemCreate, handleItemUpdate, initialValues } = useHooks({
-    schemaID,
-    itemID,
-  });
+  const { currentModel, handleItemCreate, handleItemUpdate, initialValues, defaultValues } =
+    useHooks({
+      schemaID,
+      itemID,
+    });
 
   const selectModel = (modelId: string, schemaID?: string) => {
     navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/${schemaID}`);
@@ -35,6 +36,7 @@ const ContentDetails: React.FC = () => {
           onSubmit={handleItemCreate}
           handleItemUpdate={handleItemUpdate}
           initialValues={initialValues}
+          defaultValues={defaultValues}
         />
       </ContentChild>
     </PaddedContent>

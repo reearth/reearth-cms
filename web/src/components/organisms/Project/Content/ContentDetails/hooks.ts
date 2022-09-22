@@ -26,10 +26,6 @@ export default ({ schemaID, itemID }: Props) => {
       schemaID: string;
       fields: { schemaFieldID: string; type: FieldType; value: string }[];
     }) => {
-      console.log("dd");
-
-      console.log(data);
-
       if (!data.schemaID) return;
 
       const item = await createNewItem({
@@ -82,8 +78,23 @@ export default ({ schemaID, itemID }: Props) => {
     return initialValuesReturn;
   }, [data?.items.nodes, itemID]);
 
+  const defaultValues = useMemo(() => {
+    const defaultValuesReturn: any = {};
+    currentModel?.schema.fields.forEach(field => {
+      if (field.type === "Select") {
+        defaultValuesReturn[field.id] = field.typeProperty.selectDefaultValue;
+      } else if (field.type === "Integer") {
+        defaultValuesReturn[field.id] = field.typeProperty.integerDefaultValue;
+      } else {
+        defaultValuesReturn[field.id] = field.typeProperty.defaultValue;
+      }
+    });
+    return defaultValuesReturn;
+  }, [currentModel?.schema.fields]);
+
   return {
     initialValues,
+    defaultValues,
     currentModel,
     setModel,
     handleItemCreate,
