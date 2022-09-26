@@ -6,9 +6,9 @@ import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/Workspa
 
 import useHooks from "./hooks";
 
-export interface Props {
+export type Props = {
   handleWorkspaceModalOpen?: () => void;
-}
+};
 
 const Workspace: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
   const {
