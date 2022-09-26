@@ -30,7 +30,7 @@ const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) =
         </Button>,
       ]}>
       <ModalContent>
-        <IntegrationCard title="Card title" selected={false}></IntegrationCard>
+        <IntegrationCard title="Card title" selected={false} />
       </ModalContent>
     </Modal>
   );

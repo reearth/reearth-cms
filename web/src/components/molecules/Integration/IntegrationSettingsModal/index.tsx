@@ -6,9 +6,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
-}
+};
 
 export interface Props {
   open?: boolean;

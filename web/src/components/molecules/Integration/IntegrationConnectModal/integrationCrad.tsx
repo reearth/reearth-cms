@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
 import React from "react";
 
-export interface Props {
+export type Props = {
   src?: string;
   selected?: boolean;
   title: string;
-}
+};
 
 const IntegrationCard: React.FC<Props> = ({ src, selected, title }) => {
   return (
     <CardWrapper selected={selected}>
-      <CardImg src={src}></CardImg>
+      <CardImg src={src} />
       <CardTitle>{title}</CardTitle>
     </CardWrapper>
   );
