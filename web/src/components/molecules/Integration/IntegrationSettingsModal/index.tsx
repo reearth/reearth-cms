@@ -10,11 +10,11 @@ export type FormValues = {
   name: string;
 };
 
-export interface Props {
+export type Props = {
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
-}
+};
 
 const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
