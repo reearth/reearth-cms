@@ -1,28 +1,33 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
 import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
+import WebhookForm from "@reearth-cms/components/molecules/MyIntegration/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
-import { Integration } from "@reearth-cms/gql/graphql-client-api";
 
-import WebhookForm from "../WebhookForm";
+import { Integration } from "../types";
 
 export type Props = {
-  integration?: Integration;
+  integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
 };
 
-const MyIntegrationContent: React.FC = () => {
+const MyIntegrationContent: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
   const { tab, workspaceId, integrationId } = useParams();
   const isFormEdit = location.pathname.includes("/webhooks/edit");
   const navigate = useNavigate();
 
+  const handleIntegrationNavigation = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/my-integration`);
+  }, [navigate, workspaceId]);
+
   const { TabPane } = Tabs;
   return (
     <MyIntegrationWrapper>
-      <MyIntegrationHeader title="My Integration / Robot Red" />
+      <MyIntegrationHeader title={integration.name} onBack={handleIntegrationNavigation} />
       <MyIntegrationTabs
         defaultActiveKey="integration"
         activeKey={tab}

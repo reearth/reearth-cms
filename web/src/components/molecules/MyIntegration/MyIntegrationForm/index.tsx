@@ -14,7 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 import { Integration } from "../types";
 
 export type Props = {
-  integration?: Integration;
+  integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
 };
 const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
@@ -34,7 +34,7 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
   }, [form, onIntegrationUpdate]);
 
   return (
-    <Form form={form} layout="vertical" requiredMark="optional" initialValues={integration}>
+    <Form form={form} layout="vertical" initialValues={integration}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -51,16 +51,8 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
           <Form.Item name="description" label={t("Description")}>
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
-          <Form.Item
-            name="token"
-            label={t("Integration Token")}
-            rules={[
-              {
-                required: true,
-                message: t("Please input the token of the integration!"),
-              },
-            ]}>
-            <Input.Password placeholder={t("Input token")} />
+          <Form.Item label={t("Integration Token")}>
+            <Input.Password value={integration.config.token} disabled />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" onClick={handleSubmit}>
