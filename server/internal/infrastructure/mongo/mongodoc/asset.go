@@ -35,25 +35,32 @@ func NewAssetConsumer() *AssetConsumer {
 	return NewComsumer[*AssetDocument, *asset.Asset]()
 }
 
-func NewAsset(asset *asset.Asset) (*AssetDocument, string) {
-	aid := asset.ID().String()
+func NewAsset(a *asset.Asset) (*AssetDocument, string) {
+	aid := a.ID().String()
 
 	previewType := ""
-	if pt := asset.PreviewType(); pt != nil {
+	if pt := a.PreviewType(); pt != nil {
 		previewType = pt.String()
 	}
 
-	return &AssetDocument{
+	var file *asset.File
+	if f := a.File(); f != nil {
+		file = f
+	}
+
+	ad, id := &AssetDocument{
 		ID:          aid,
-		Project:     asset.Project().String(),
-		CreatedAt:   asset.CreatedAt(),
-		CreatedBy:   asset.CreatedBy().String(),
-		FileName:    asset.FileName(),
-		Size:        asset.Size(),
+		Project:     a.Project().String(),
+		CreatedAt:   a.CreatedAt(),
+		CreatedBy:   a.CreatedBy().String(),
+		FileName:    a.FileName(),
+		Size:        a.Size(),
 		PreviewType: previewType,
-		File:        ToFile(asset.File()),
-		UUID:        asset.UUID(),
+		File:        ToFile(file),
+		UUID:        a.UUID(),
 	}, aid
+
+	return ad, id
 }
 
 func (d *AssetDocument) Model() (*asset.Asset, error) {

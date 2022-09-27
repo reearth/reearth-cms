@@ -14,7 +14,11 @@ export const GET_ASSETS = gql`
           id
           projectId
           createdAt
-          createdById
+          createdBy {
+            id
+            name
+            email
+          }
           fileName
           size
           previewType
@@ -31,7 +35,11 @@ export const GET_ASSETS = gql`
         id
         projectId
         createdAt
-        createdById
+        createdBy {
+          id
+          name
+          email
+        }
         fileName
         size
         previewType
@@ -60,7 +68,11 @@ export const GET_ASSET = gql`
       id
       projectId
       createdAt
-      createdById
+      createdBy {
+        id
+        name
+        email
+      }
       fileName
       size
       previewType
