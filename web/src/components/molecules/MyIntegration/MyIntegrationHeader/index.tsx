@@ -4,10 +4,11 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 
 export type Props = {
   title: string;
+  onBack?: () => void;
 };
 
-const MyIntegrationHeader: React.FC<Props> = ({ title }) => {
-  return <IntegrationPageHeader onBack={undefined} title={title} />;
+const MyIntegrationHeader: React.FC<Props> = ({ title, onBack }) => {
+  return <IntegrationPageHeader onBack={onBack} title={title} />;
 };
 
 const IntegrationPageHeader = styled(PageHeader)`
