@@ -27,23 +27,24 @@ func TestNewFile(t *testing.T) {
 
 func TestFile_ReadAsset(t *testing.T) {
 	f, _ := NewFile(mockFs(), "")
+	u := "5130c89f-8f67-4766-b127-49ee6796d464"
 
-	r, err := f.ReadAsset(context.Background(), "xxx.txt")
+	r, err := f.ReadAsset(context.Background(), u, "xxx.txt")
 	assert.NoError(t, err)
 	c, err := io.ReadAll(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "hello", string(c))
 	assert.NoError(t, r.Close())
 
-	r, err = f.ReadAsset(context.Background(), "")
+	r, err = f.ReadAsset(context.Background(), u, "")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 
-	r, err = f.ReadAsset(context.Background(), "aaa.txt")
+	r, err = f.ReadAsset(context.Background(), u, "aaa.txt")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 
-	r, err = f.ReadAsset(context.Background(), "../published/s.json")
+	r, err = f.ReadAsset(context.Background(), u, "../published/s.json")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 }
@@ -121,9 +122,9 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/xxx.txt":           "hello",
-		"plugins/aaa~1.0.0/foo.js": "bar",
-		"published/s.json":         "{}",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt": "hello",
+		"plugins/aaa~1.0.0/foo.js":                             "bar",
+		"published/s.json":                                     "{}",
 	}
 
 	fs := afero.NewMemMapFs()

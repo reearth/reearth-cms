@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
@@ -35,12 +34,15 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadCloser, error) {
-	if filename == "" {
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
+	if u == "" || fn == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
+	p := getFSObjectPath(u, fn)
+	sn := sanitize.Path(p)
+
+	return f.read(ctx, sn)
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {

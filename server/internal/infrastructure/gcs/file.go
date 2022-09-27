@@ -51,8 +51,13 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, name string) (io.ReadCloser, error) {
-	sn := sanitize.Path(name)
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return nil, rerror.ErrNotFound
+	}
+
+	sn := sanitize.Path(p)
 	if sn == "" {
 		return nil, rerror.ErrNotFound
 	}
