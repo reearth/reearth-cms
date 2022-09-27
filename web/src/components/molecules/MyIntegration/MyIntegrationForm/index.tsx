@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -9,12 +11,30 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationForm: React.FC = () => {
+import { Integration } from "../types";
+
+export type Props = {
+  integration?: Integration;
+  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+};
+const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async values => {
+        values.logoUrl = "some";
+        await onIntegrationUpdate?.(values);
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, onIntegrationUpdate]);
+
   return (
-    <Form form={form} layout="vertical" requiredMark="optional" initialValues={{}}>
+    <Form form={form} layout="vertical" requiredMark="optional" initialValues={integration}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -43,7 +63,7 @@ const MyIntegrationForm: React.FC = () => {
             <Input.Password placeholder={t("Input token")} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
               {t("Save")}
             </Button>
           </Form.Item>

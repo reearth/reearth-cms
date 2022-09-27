@@ -5,8 +5,14 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
 import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
+import { Integration } from "@reearth-cms/gql/graphql-client-api";
 
 import WebhookForm from "../WebhookForm";
+
+export type Props = {
+  integration?: Integration;
+  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+};
 
 const MyIntegrationContent: React.FC = () => {
   const { tab, workspaceId, integrationId } = useParams();
@@ -24,7 +30,7 @@ const MyIntegrationContent: React.FC = () => {
           navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
         }}>
         <TabPane tab="General" key="integration">
-          <MyIntegrationForm />
+          <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
           {isFormEdit ? <WebhookForm /> : <WebhookList />}

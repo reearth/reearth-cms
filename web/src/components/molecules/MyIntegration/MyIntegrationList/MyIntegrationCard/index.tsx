@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Integration } from "../../types";
 
@@ -7,9 +9,16 @@ export type Props = {
 };
 
 const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleCardNavigation = useCallback(() => {
+    navigate(`${location.pathname}/${integration.id}`);
+  }, [navigate, location, integration.id]);
+
   return (
     <CardWrapper>
-      <Card>
+      <Card onClick={handleCardNavigation}>
         <CardImg src={integration.logoUrl} />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
