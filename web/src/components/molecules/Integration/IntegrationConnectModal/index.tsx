@@ -5,11 +5,11 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+export type Props = {
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
-}
+};
 
 const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
