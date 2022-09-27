@@ -10,6 +10,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import { useT } from "@reearth-cms/i18n";
 
+// TODO: will be changed when when hooks are added
 const options = [
   { label: "Create", value: "Create" },
   { label: "Update", value: "Update" },
@@ -77,10 +78,10 @@ const WebhookForm: React.FC = () => {
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
             <Form.Item label={t("Item")}>
-              <Checkbox.Group options={options} defaultValue={["Apple"]} onChange={() => {}} />
+              <Checkbox.Group options={options} onChange={() => {}} />
             </Form.Item>
             <Form.Item label={t("Asset")}>
-              <Checkbox.Group options={options} defaultValue={["Apple"]} onChange={() => {}} />
+              <Checkbox.Group options={options} onChange={() => {}} />
             </Form.Item>
           </Col>
         </Row>
