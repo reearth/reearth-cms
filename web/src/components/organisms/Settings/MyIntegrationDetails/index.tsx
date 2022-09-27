@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 
 import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationContent";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 
 import useHooks from "./hooks";
 
@@ -11,12 +10,12 @@ const MyIntegrationDetails: React.FC = () => {
     integrationId,
   });
 
-  return (
+  return selectedIntegration ? (
     <MyIntegrationContent
-      integration={selectedIntegration as Integration}
+      integration={selectedIntegration}
       onIntegrationUpdate={handleIntegrationUpdate}
     />
-  );
+  ) : null;
 };
 
 export default MyIntegrationDetails;
