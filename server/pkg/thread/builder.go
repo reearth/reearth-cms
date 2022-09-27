@@ -1,7 +1,6 @@
 package thread
 
 import (
-	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,14 +18,18 @@ func (b *Builder) Build() (*Thread, error) {
 	}
 
 	if b.th.workspace.IsNil() {
-		return nil, ErrInvalidID
+		return nil, ErrNoWorkspaceID
 	}
 
 	return b.th, nil
 }
 
 func (b *Builder) MustBuild() *Thread {
-	return lo.Must(b.Build())
+	th, err := b.Build()
+	if err != nil {
+		panic(err)
+	}
+	return th
 }
 
 func (b *Builder) ID(id ID) *Builder {

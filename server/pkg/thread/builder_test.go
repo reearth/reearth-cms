@@ -3,7 +3,6 @@ package thread
 import (
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,24 +20,24 @@ type Input struct {
 }
 
 func TestBuilder_Build(t *testing.T) {
-	// var thid ID = NewID()
-	// var wid WorkspaceID = NewWorkspaceID()
-	// c := []*Comment{}
+	var thid ID = NewID()
+	var wid WorkspaceID = NewWorkspaceID()
+	c := []*Comment{}
 
 	tests := Tests{
-		// {
-		// 	name: "should create a thread",
-		// 	input: Input{
-		// 		id:        thid,
-		// 		workspace: wid,
-		// 		comments:  c,
-		// 	},
-		// 	want: &Thread{
-		// 		id:        thid,
-		// 		workspace: wid,
-		// 		comments:  c,
-		// 	},
-		// },
+		{
+			name: "should create a thread",
+			input: Input{
+				id:        thid,
+				workspace: wid,
+				comments:  c,
+			},
+			want: &Thread{
+				id:        thid,
+				workspace: wid,
+				comments:  c,
+			},
+		},
 		{
 			name:  "fail: empty id",
 			input: Input{},
@@ -64,21 +63,63 @@ func TestBuilder_MustBuild(t *testing.T) {
 	thid := NewID()
 	wid := NewWorkspaceID()
 	c := []*Comment{}
-	got := New().
-		ID(thid).
-		Comments(c).
-		Workspace(wid).
-		MustBuild()
-	want := lo.Must(New().
-		ID(thid).
-		Comments(c).Workspace(wid).Build())
 
-	assert.Equal(t, want, got)
+	tests := Tests{
+		{
+			name: "should create a thread",
+			input: Input{
+				id:        thid,
+				workspace: wid,
+				comments:  c,
+			},
+			want: &Thread{
+				id:        thid,
+				workspace: wid,
+				comments:  c,
+			},
+		},
+		{
+			name: "fail: empty id",
+			input: Input{
+				workspace: wid,
+				comments:  c,
+			},
+			err: ErrInvalidID,
+		},
+		{
+			name: "fail: empty workspace id",
+			input: Input{
+				id:       thid,
+				comments: c,
+			},
+			err: ErrNoWorkspaceID,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			build := func() *Thread {
+				t.Helper()
+				return New().
+					ID(tt.input.id).
+					Comments(tt.input.comments).
+					Workspace(tt.input.workspace).
+					MustBuild()
+			}
+			if tt.err != nil {
+				assert.PanicsWithValue(t, tt.err, func() { _ = build() })
+			} else {
+				assert.Equal(t, tt.want, build())
+			}
+		})
+	}
 }
 
-// func TestBuilder_NewID(t *testing.T) {
-// 	c := []*Comment{}
-// 	wid := NewWorkspaceID()
-// 	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
-// 	assert.False(t, a.id.IsNil())
-// }
+func TestBuilder_NewID(t *testing.T) {
+	c := []*Comment{}
+	wid := NewWorkspaceID()
+	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
+	assert.False(t, a.id.IsNil())
+}
