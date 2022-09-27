@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -50,7 +51,7 @@ const AssetList: React.FC = () => {
   };
 
   return (
-    <>
+    <Wrapper>
       <AssetListHeader
         title="Asset"
         subTitle="This is a subtitle"
@@ -70,8 +71,13 @@ const AssetList: React.FC = () => {
         selection={selection}
         setSelection={setSelection}
       />
-    </>
+    </Wrapper>
   );
 };
+
+const Wrapper = styled.div`
+  background-color: white;
+  height: 100%;
+`;
 
 export default AssetList;

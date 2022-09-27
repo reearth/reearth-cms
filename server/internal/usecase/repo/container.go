@@ -16,6 +16,7 @@ type Container struct {
 	Project     Project
 	Model       Model
 	Schema      Schema
+	Item        Item
 	Integration Integration
 	Transaction usecasex.Transaction
 }
@@ -34,6 +35,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
+		Item:        c.Item,
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model,
 		Schema:      c.Schema.Filtered(workspace),
