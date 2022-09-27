@@ -41,13 +41,16 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	_, err := i.repos.Schema.FindByID(ctx, schemaID)
+	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
+	sf := s.Fields()
+	sfids := id.FieldIDListFrom(sf)
 	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (item.List, *usecasex.PageInfo, error) {
-			return i.repos.Item.FindBySchema(ctx, schemaID, p)
+			res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
+			return res.Filtered(sfids), page, err
 		})
 }
 

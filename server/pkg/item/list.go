@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"golang.org/x/exp/slices"
 )
 
@@ -12,4 +13,15 @@ func (l List) SortByID() List {
 		return a.ID().Compare(b.ID()) < 0
 	})
 	return m
+}
+
+func (l List) Filtered(lids id.FieldIDList) List {
+	var res List
+
+	for _, i := range l {
+		fi := i.Filtered(lids)
+		res = append(res, fi)
+	}
+
+	return res
 }

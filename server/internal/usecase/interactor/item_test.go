@@ -112,7 +112,8 @@ func TestItem_FindBySchema(t *testing.T) {
 	id3 := id.NewItemID()
 	i3, _ := item.New().ID(id3).Schema(sid2).Build()
 	wid := id.NewWorkspaceID()
-	s1 := schema.New().ID(sid1).Workspace(wid).MustBuild()
+
+	s1 := schema.New().ID(sid1).Workspace(wid).Fields(schema.FieldList{}).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(wid).MustBuild()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()

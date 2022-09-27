@@ -1,8 +1,10 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -31,4 +33,26 @@ func (i *Item) UpdateFields(fields []*Field) {
 		return
 	}
 	i.fields = slices.Clone(fields)
+}
+
+func (i *Item) Filtered(list id.FieldIDList) *Item {
+	if i == nil || list == nil {
+		return nil
+	}
+
+	var res []*Field
+	for _, f := range i.fields {
+		_, ok := lo.Find(list, func(fid schema.FieldID) bool {
+			return f.schemaFieldID == fid
+		})
+		if ok {
+			res = append(res, f)
+		}
+	}
+
+	return &Item{
+		id:       i.id.Clone(),
+		schemaID: i.schemaID.Clone(),
+		fields:   res,
+	}
 }
