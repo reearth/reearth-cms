@@ -6,38 +6,38 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 
-const columns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    filters: [],
-  },
-  {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
-  },
-  {
-    title: "Creator",
-    dataIndex: "creator",
-    key: "creator",
-  },
-  {
-    title: "State",
-    dataIndex: "state",
-    key: "state",
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
-  },
-];
-
 const IntegrationTable: React.FC = () => {
   const dataSource: [] = [];
   const t = useT();
+
+  const columns = [
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      filters: [],
+    },
+    {
+      title: t("Role"),
+      dataIndex: "role",
+      key: "role",
+    },
+    {
+      title: t("Creator"),
+      dataIndex: "creator",
+      key: "creator",
+    },
+    {
+      title: t("State"),
+      dataIndex: "state",
+      key: "state",
+    },
+    {
+      title: t("Action"),
+      dataIndex: "action",
+      key: "action",
+    },
+  ];
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {

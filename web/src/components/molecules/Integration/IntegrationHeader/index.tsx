@@ -6,17 +6,17 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  handleConnect: () => void;
+  onConnect: () => void;
 };
 
-const IntegrationHeader: React.FC<Props> = ({ handleConnect }) => {
+const IntegrationHeader: React.FC<Props> = ({ onConnect }) => {
   const t = useT();
 
   return (
     <IntegrationPageHeader
       title={t("Integration")}
       extra={
-        <Button type="primary" onClick={handleConnect} icon={<Icon icon="api" />}>
+        <Button type="primary" onClick={onConnect} icon={<Icon icon="api" />}>
           {t("Connect Integration")}
         </Button>
       }

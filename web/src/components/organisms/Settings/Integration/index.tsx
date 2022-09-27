@@ -6,7 +6,7 @@ import IntegrationTable from "@reearth-cms/components/molecules/Integration/Inte
 const Integration: React.FC = () => {
   return (
     <>
-      <IntegrationHeader handleConnect={() => {}} />
+      <IntegrationHeader onConnect={() => {}} />
       <IntegrationTable />
       <IntegrationConnectModal open={false} />
       <IntegrationSettingsModal open={false} />

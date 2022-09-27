@@ -1,9 +1,8 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/integrationCrad";
+import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/integrationCard";
 import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
