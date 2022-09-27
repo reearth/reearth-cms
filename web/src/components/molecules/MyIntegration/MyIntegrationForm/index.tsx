@@ -52,7 +52,7 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
           <Form.Item label={t("Integration Token")}>
-            <Input.Password value={integration.config.token} disabled />
+            <Input.Password value={integration.config.token} contentEditable={false} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" onClick={handleSubmit}>
