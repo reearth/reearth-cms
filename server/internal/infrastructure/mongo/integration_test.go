@@ -273,8 +273,10 @@ func TestIntegrationRepo_Save(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
+			assert.Nil(t, err)
 
 			got, err := r.FindByID(ctx, tc.arg.ID())
+			assert.Nil(t, err)
 			assert.Equal(t, tc.arg, got)
 		})
 	}
