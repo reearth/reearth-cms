@@ -147,7 +147,7 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 		Size:        int64(1000),
 		ContentType: lo.ToPtr("image/jpg"),
 		Path:        "/",
-		Children:    ToChildren(f1.Children()),
+		Children:    lo.Map(c, func(a *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
 	}
 
 	var f2 *asset.File = nil
@@ -179,50 +179,6 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
-}
-
-func TestConvertAsset_ToChildren(t *testing.T) {
-	f1 := &asset.File{}
-	c := []*asset.File{}
-	f1.SetName("aaa.jpg")
-	f1.SetSize(1000)
-	f1.SetContentType("image/jpg")
-	f1.SetPath("/")
-	f1.SetChildren(c...)
-
-	c1 := []*asset.File{f1}
-	want1 := []*AssetFile{ToAssetFile(f1)}
-
-	var c2 []*asset.File = nil
-	var want2 []*AssetFile = nil
-
-	tests := []struct {
-		name string
-		arg  []*asset.File
-		want []*AssetFile
-	}{
-		{
-			name: "to children valid",
-			arg:  c1,
-			want: want1,
-		},
-		{
-			name: "to children nil file",
-			arg:  c2,
-			want: want2,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := ToChildren(c1)
-			assert.Equal(t, want1, got)
-		})
-	}
-
 }
 
 func TestConvertAsset_AssetSortTypeFrom(t *testing.T) {

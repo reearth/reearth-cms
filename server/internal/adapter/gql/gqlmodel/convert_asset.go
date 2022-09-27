@@ -62,20 +62,8 @@ func ToAssetFile(a *asset.File) *AssetFile {
 		Size:        int64(a.Size()),
 		ContentType: lo.ToPtr(a.ContentType()),
 		Path:        a.Path(),
-		Children:    ToChildren(a.Children()),
+		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
 	}
-}
-
-func ToChildren(c []*asset.File) []*AssetFile {
-	if c == nil {
-		return nil
-	}
-
-	var children []*AssetFile
-	for _, a := range c {
-		children = append(children, ToAssetFile(a))
-	}
-	return children
 }
 
 func AssetSortTypeFrom(a *AssetSortType) *asset.SortType {
