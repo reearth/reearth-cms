@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
 
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationHeader: React.FC = () => {
-  const t = useT();
+export type Props = {
+  title: string;
+};
 
-  return <IntegrationPageHeader title={t("My Integration")} />;
+const MyIntegrationHeader: React.FC<Props> = ({ title }) => {
+  return <IntegrationPageHeader onBack={undefined} title={title} />;
 };
 
 const IntegrationPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #f0f0f0;
   background: #fff;
 `;
 export default MyIntegrationHeader;

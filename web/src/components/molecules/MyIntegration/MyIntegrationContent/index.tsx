@@ -1,15 +1,15 @@
 import styled from "@emotion/styled";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationDetailsForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationDetails/MyIntegrationDetailsForm";
+import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
 
-const MyIntegrationDetailsContent: React.FC = () => {
+const MyIntegrationContent: React.FC = () => {
   const { TabPane } = Tabs;
   return (
     <MyIntegrationTabs defaultActiveKey="general">
       <TabPane tab="General" key="general">
-        <MyIntegrationDetailsForm />
+        <MyIntegrationForm />
       </TabPane>
       <TabPane tab="Webhook" key="webhook">
         <WebhookList />
@@ -19,7 +19,8 @@ const MyIntegrationDetailsContent: React.FC = () => {
 };
 
 const MyIntegrationTabs = styled(Tabs)`
+  background-color: #fff;
   padding: 0 24px;
 `;
 
-export default MyIntegrationDetailsContent;
+export default MyIntegrationContent;

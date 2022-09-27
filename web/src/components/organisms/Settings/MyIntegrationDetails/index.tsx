@@ -1,11 +1,11 @@
-import MyIntegrationDetailsContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationDetails/MyIntegrationDetailsContent";
-import MyIntegrationDetailsHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationDetails/MyIntegrationDetailsHeader";
+import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationContent";
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
 
 const MyIntegrationDetails: React.FC = () => {
   return (
     <>
-      <MyIntegrationDetailsHeader title="My Integration / Robot Red" />
-      <MyIntegrationDetailsContent />
+      <MyIntegrationHeader title="My Integration / Robot Red" />
+      <MyIntegrationContent />
     </>
   );
 };
