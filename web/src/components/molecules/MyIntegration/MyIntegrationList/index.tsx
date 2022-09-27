@@ -14,6 +14,11 @@ const MyIntegrationList: React.FC = () => {
       <MyIntegrationHeader title={t("My Integration")} />
       <ListWrapper>
         <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
+        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
         <IntegrationCreationAction />
       </ListWrapper>
     </Wrapper>
