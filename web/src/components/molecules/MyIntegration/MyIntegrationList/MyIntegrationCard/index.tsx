@@ -1,18 +1,18 @@
 import styled from "@emotion/styled";
 
+import { Integration } from "../../types";
+
 export type Props = {
-  src?: string;
-  title: string;
-  subTitle: string;
+  integration: Integration;
 };
 
-const MyIntegrationCard: React.FC<Props> = ({ src, title, subTitle }) => {
+const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
   return (
     <CardWrapper>
       <Card>
-        <CardImg src={src} />
-        <CardTitle>{title}</CardTitle>
-        <CardSubTitle>{subTitle}</CardSubTitle>
+        <CardImg src={integration.logoUrl} />
+        <CardTitle>{integration.name}</CardTitle>
+        <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>
     </CardWrapper>
   );

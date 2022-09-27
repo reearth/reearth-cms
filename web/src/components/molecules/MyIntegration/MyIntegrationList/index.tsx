@@ -8,23 +8,20 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   integrations?: Integration[];
-  handleIntegrationModalOpen: () => void;
+  onIntegrationModalOpen: () => void;
 };
 
-const MyIntegrationList: React.FC = () => {
+const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOpen }) => {
   const t = useT();
 
   return (
     <Wrapper>
       <MyIntegrationHeader title={t("My Integration")} />
       <ListWrapper>
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <IntegrationCreationAction />
+        {integrations?.map((integration: Integration) => (
+          <MyIntegrationCard key={integration.id} integration={integration} />
+        ))}
+        <IntegrationCreationAction onIntegrationModalOpen={onIntegrationModalOpen} />
       </ListWrapper>
     </Wrapper>
   );

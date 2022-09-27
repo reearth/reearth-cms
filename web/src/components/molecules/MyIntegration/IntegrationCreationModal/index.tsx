@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -7,31 +9,63 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
+import { IntegrationType } from "../types";
+
 export type Props = {
   open?: boolean;
-  onClose?: () => void;
-  onSubmit?: () => Promise<void> | void;
+  onClose?: (refetch?: boolean) => void;
+  onSubmit?: (values: FormValues) => Promise<void> | void;
+};
+
+export type FormValues = {
+  name: string;
+  description: string;
+  logoUrl: string;
+  type: IntegrationType;
+};
+
+const initialValues: FormValues = {
+  name: "",
+  description: "",
+  logoUrl: "",
+  type: IntegrationType.Public,
 };
 
 const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async values => {
+        // TODO: when assets upload is ready to use
+        values.logoUrl = "_";
+        values.type = IntegrationType.Public;
+        await onSubmit?.(values);
+        onClose?.(true);
+        form.resetFields();
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, onClose, onSubmit]);
+
   return (
     <Modal
       visible={open}
       onCancel={() => onClose?.()}
-      onOk={onSubmit}
+      onOk={handleSubmit}
       title={t("New Integration")}
       footer={[
         <Button key="back" onClick={() => onClose?.()}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={onSubmit}>
+        <Button key="submit" type="primary" onClick={handleSubmit}>
           {t("Create")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical" initialValues={{}}>
+      <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item label={t("Logo Image")}>
           <Upload maxCount={1} listType="picture-card">
             <Icon icon="plus" />

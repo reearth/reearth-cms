@@ -3,12 +3,16 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-const IntegrationCreationAction: React.FC = () => {
+export type Props = {
+  onIntegrationModalOpen: () => void;
+};
+
+const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) => {
   const t = useT();
 
   return (
     <CardWrapper>
-      <Card>
+      <Card onClick={onIntegrationModalOpen}>
         <Icon icon="plus" style={{ fontSize: 36 }} />
         <CardTitle>{t("Create new integration")}</CardTitle>
       </Card>

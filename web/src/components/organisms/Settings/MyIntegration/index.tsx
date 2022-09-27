@@ -16,9 +16,13 @@ const MyIntegration: React.FC = () => {
     <>
       <MyIntegrationList
         integrations={integrations}
-        handleIntegrationModalOpen={handleIntegrationModalOpen}
+        onIntegrationModalOpen={handleIntegrationModalOpen}
       />
-      <IntegrationCreationModal open={false} />
+      <IntegrationCreationModal
+        open={integrationModalShown}
+        onClose={handleIntegrationModalClose}
+        onSubmit={handleIntegrationCreate}
+      />
     </>
   );
 };
