@@ -1,5 +1,4 @@
 import { Switch } from "antd";
-import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
