@@ -5,9 +5,11 @@ import ProjectSchema from "@reearth-cms/components/organisms/Project/Schema";
 const SchemaPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["schema"]} menuType="project">
-        <ProjectSchema />
-      </Dashboard>
+      <Dashboard
+        defaultSelectedKeys={["schema"]}
+        menuType="project"
+        InnerComponent={ProjectSchema}
+      />
     </AuthenticationRequiredPage>
   );
 };

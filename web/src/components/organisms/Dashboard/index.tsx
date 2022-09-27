@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { JSXElementConstructor, ReactElement, useState, cloneElement } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -13,13 +13,17 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 
 import useHooks from "./hooks";
 
+type InnerProps = {
+  onWorkspaceModalOpen?: () => void;
+};
+
 type Props = {
-  children: ReactElement<any, string | JSXElementConstructor<any>>;
+  InnerComponent: React.FC<InnerProps>;
   defaultSelectedKeys?: string[];
   menuType?: "project" | "workspace";
 };
 
-const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
+const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, menuType }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -68,7 +72,9 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
               />
             )}
           </DashboardSider>
-          <PaddedContent>{cloneElement(children, { handleWorkspaceModalOpen })}</PaddedContent>
+          <PaddedContent>
+            <InnerComponent onWorkspaceModalOpen={handleWorkspaceModalOpen} />
+          </PaddedContent>
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal

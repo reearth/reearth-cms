@@ -4,9 +4,7 @@ import Dashboard from "@reearth-cms/components/organisms/Dashboard";
 
 const AssetPage: React.FC = () => (
   <AuthenticationRequiredPage>
-    <Dashboard defaultSelectedKeys={["assets"]} menuType="project">
-      <Asset />
-    </Dashboard>
+    <Dashboard defaultSelectedKeys={["assets"]} menuType="project" InnerComponent={Asset} />
   </AuthenticationRequiredPage>
 );
 

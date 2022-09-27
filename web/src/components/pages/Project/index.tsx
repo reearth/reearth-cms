@@ -5,9 +5,11 @@ import ProjectSettings from "@reearth-cms/components/organisms/Project/settings"
 const ProjectPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["settings"]} menuType="project">
-        <ProjectSettings />
-      </Dashboard>
+      <Dashboard
+        defaultSelectedKeys={["home"]}
+        menuType="project"
+        InnerComponent={ProjectSettings}
+      />
     </AuthenticationRequiredPage>
   );
 };
