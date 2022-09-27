@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
 
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/IntegrationCreationAction";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/MyIntegrationCard";
 import { useT } from "@reearth-cms/i18n";
-
-import MyIntegrationHeader from "../MyIntegrationHeader";
 
 const MyIntegrationList: React.FC = () => {
   const t = useT();
@@ -13,11 +12,6 @@ const MyIntegrationList: React.FC = () => {
     <Wrapper>
       <MyIntegrationHeader title={t("My Integration")} />
       <ListWrapper>
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
-        <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
         <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
         <IntegrationCreationAction />
       </ListWrapper>
