@@ -7,11 +7,11 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+export type Props = {
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
-}
+};
 
 const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();

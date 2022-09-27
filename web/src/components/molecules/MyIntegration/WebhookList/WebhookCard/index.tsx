@@ -4,10 +4,10 @@ import React from "react";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-export interface Props {
+export type Props = {
   title: string;
   url: string;
-}
+};
 
 const WebhookCard: React.FC<Props> = ({ title, url }) => {
   return (

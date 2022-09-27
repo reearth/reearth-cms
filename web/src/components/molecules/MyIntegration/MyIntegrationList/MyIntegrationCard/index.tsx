@@ -1,17 +1,17 @@
 import styled from "@emotion/styled";
 import React from "react";
 
-export interface Props {
+export type Props = {
   src?: string;
   title: string;
   subTitle: string;
-}
+};
 
 const MyIntegrationCard: React.FC<Props> = ({ src, title, subTitle }) => {
   return (
     <CardWrapper>
       <Card>
-        <CardImg src={src}></CardImg>
+        <CardImg src={src} />
         <CardTitle>{title}</CardTitle>
         <CardSubTitle>{subTitle}</CardSubTitle>
       </Card>

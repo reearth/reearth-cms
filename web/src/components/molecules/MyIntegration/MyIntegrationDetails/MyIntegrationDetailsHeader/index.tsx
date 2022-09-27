@@ -1,8 +1,8 @@
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 
-export interface Props {
+export type Props = {
   title: string;
-}
+};
 
 const MyIntegrationDetailsHeader: React.FC<Props> = ({ title }) => {
   return <PageHeader onBack={() => null} title={title} />;

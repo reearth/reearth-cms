@@ -6,9 +6,9 @@ import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
-export interface Props {
+export type Props = {
   webhooks?: any[];
-}
+};
 
 const WebhookList: React.FC<Props> = ({ webhooks }) => {
   const t = useT();
