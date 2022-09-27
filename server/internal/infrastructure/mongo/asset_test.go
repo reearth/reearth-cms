@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,10 @@ func TestAssetRepo_FindByID(t *testing.T) {
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).MustBuild()
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -39,7 +43,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: []*asset.Asset{
-				asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild(),
+				asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id.NewAssetID(),
 			want:    nil,
@@ -58,8 +62,8 @@ func TestAssetRepo_FindByID(t *testing.T) {
 			name: "Found 2",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id1,
 			want:    a1,
@@ -99,8 +103,11 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).MustBuild()
-	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).MustBuild()
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -119,7 +126,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with asset for another workspaces",
 			seeds: []*asset.Asset{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -138,8 +145,8 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			name: "1 count with multi assets",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    []*asset.Asset{a1},
@@ -150,8 +157,8 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			seeds: []*asset.Asset{
 				a1,
 				a2,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    []*asset.Asset{a1, a2},
@@ -187,11 +194,14 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 }
 
 func TestAssetRepo_FindByProject(t *testing.T) {
-	// pid1 := id.NewProjectID()
-	// uid1 := id.NewUserID()
-	// tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	// a1 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).MustBuild()
-	// a2 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).MustBuild()
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	f := asset.File{}
+	c := []*asset.File{}
+	f.SetChildren(c...)
+	a1 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 
 	type args struct {
 		tid   id.ProjectID
@@ -214,68 +224,68 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 		{
 			name: "0 count with asset for another projects",
 			seeds: []*asset.Asset{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args:    args{id.NewProjectID(), nil},
 			want:    nil,
 			wantErr: nil,
 		},
-		// {
-		// 	name: "1 count with single asset",
-		// 	seeds: []*asset.Asset{
-		// 		a1,
-		// 	},
-		// 	args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
-		// 	want:    []*asset.Asset{a1},
-		// 	wantErr: nil,
-		// },
-		// {
-		// 	name: "1 count with multi assets",
-		// 	seeds: []*asset.Asset{
-		// 		a1,
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 	},
-		// 	args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
-		// 	want:    []*asset.Asset{a1},
-		// 	wantErr: nil,
-		// },
-		// {
-		// 	name: "2 count with multi assets",
-		// 	seeds: []*asset.Asset{
-		// 		a1,
-		// 		a2,
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 	},
-		// 	args:    args{pid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
-		// 	want:    []*asset.Asset{a1, a2},
-		// 	wantErr: nil,
-		// },
-		// {
-		// 	name: "get 1st page of 2",
-		// 	seeds: []*asset.Asset{
-		// 		a1,
-		// 		a2,
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 	},
-		// 	args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
-		// 	want:    []*asset.Asset{a1},
-		// 	wantErr: nil,
-		// },
-		// {
-		// 	name: "get last page of 2",
-		// 	seeds: []*asset.Asset{
-		// 		a1,
-		// 		a2,
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 		asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-		// 	},
-		// 	args:    args{pid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
-		// 	want:    []*asset.Asset{a2},
-		// 	wantErr: nil,
-		// },
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "get 1st page of 2",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "get last page of 2",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
+			want:    []*asset.Asset{a2},
+			wantErr: nil,
+		},
 	}
 
 	initDB := mongotest.Connect(t)
@@ -294,7 +304,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{})
+			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{Pagination: tc.args.pInfo})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -309,7 +319,8 @@ func TestAssetRepo_Delete(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	f := asset.File{}
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 	tests := []struct {
 		name  string
 		seeds []*asset.Asset
@@ -326,7 +337,7 @@ func TestAssetRepo_Delete(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: []*asset.Asset{
-				asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).MustBuild(),
+				asset.New().NewID().Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id.NewAssetID(),
 			wantErr: rerror.ErrNotFound,
@@ -343,8 +354,8 @@ func TestAssetRepo_Delete(t *testing.T) {
 			name: "Found 2",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     id1,
 			wantErr: nil,
@@ -383,7 +394,8 @@ func TestAssetRepo_Save(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	f := asset.File{}
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   []*asset.Asset
