@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -11,11 +13,18 @@ export type Props = {
 };
 
 const WebhookList: React.FC<Props> = ({ webhooks }) => {
+  const { workspaceId, integrationId } = useParams();
+  const navigate = useNavigate();
   const t = useT();
+
+  const handleWebhookFormNavigation = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks/form`);
+  }, [navigate, workspaceId, integrationId]);
+
   return (
     <>
       <ActionWrapper>
-        <Button onClick={() => {}} type="primary" icon={<Icon icon="plus" />}>
+        <Button onClick={handleWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
@@ -28,7 +37,10 @@ const WebhookList: React.FC<Props> = ({ webhooks }) => {
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
             {t("Create a new ")}
-            <Button onClick={() => {}} type="primary" icon={<Icon icon="plus" />}>
+            <Button
+              onClick={handleWebhookFormNavigation}
+              type="primary"
+              icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
           </Suggestion>

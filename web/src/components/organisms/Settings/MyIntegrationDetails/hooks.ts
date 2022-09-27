@@ -1,7 +1,11 @@
 import { useCallback, useMemo } from "react";
 
-import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
-import { useGetMeQuery, useUpdateIntegrationMutation } from "@reearth-cms/gql/graphql-client-api";
+import { Integration, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import {
+  useCreateWebhookMutation,
+  useGetMeQuery,
+  useUpdateIntegrationMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
   integrationId?: string;
@@ -52,9 +56,33 @@ export default ({ integrationId }: Params) => {
     [integrationId, updateIntegrationMutation],
   );
 
+  const [createNewWebhook] = useCreateWebhookMutation({
+    refetchQueries: ["GetWebhooks"],
+  });
+
+  const handleWebhookCreate = useCallback(
+    async (data: { name: string; url: string; active: boolean; trigger: WebhookTrigger }) => {
+      if (!integrationId) return;
+      const webhook = await createNewWebhook({
+        variables: {
+          integrationId,
+          name: data.name,
+          url: data.url,
+          active: data.active,
+          trigger: data.trigger,
+        },
+      });
+      if (webhook.errors || !webhook.data?.createWebhook) {
+        return;
+      }
+    },
+    [createNewWebhook, integrationId],
+  );
+
   return {
     integrations,
     selectedIntegration,
     handleIntegrationUpdate,
+    handleWebhookCreate,
   };
 };

@@ -8,16 +8,26 @@ import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegration/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
 
-import { Integration } from "../types";
+import { Integration, WebhookTrigger } from "../types";
 
 export type Props = {
   integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  onWebhookCreate: (data: {
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
 };
 
-const MyIntegrationContent: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
+const MyIntegrationContent: React.FC<Props> = ({
+  integration,
+  onIntegrationUpdate,
+  onWebhookCreate,
+}) => {
   const { tab, workspaceId, integrationId } = useParams();
-  const isFormEdit = location.pathname.includes("/webhooks/edit");
+  const isWebhookForm = location.pathname.includes("/webhooks/form");
   const navigate = useNavigate();
 
   const handleIntegrationNavigation = useCallback(() => {
@@ -38,7 +48,7 @@ const MyIntegrationContent: React.FC<Props> = ({ integration, onIntegrationUpdat
           <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
-          {isFormEdit ? <WebhookForm /> : <WebhookList />}
+          {isWebhookForm ? <WebhookForm onWebhookCreate={onWebhookCreate} /> : <WebhookList />}
         </TabPane>
         <TabPane tab="Logs" key="logs" />
       </MyIntegrationTabs>

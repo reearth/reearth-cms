@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -10,6 +11,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import { useT } from "@reearth-cms/i18n";
 
+import { WebhookTrigger } from "../types";
+
 const options = [
   { label: "Create", value: "Create" },
   { label: "Update", value: "Update" },
@@ -17,9 +20,30 @@ const options = [
   { label: "Accessed by API", value: "Accessed by API" },
 ];
 
-const WebhookForm: React.FC = () => {
+export type Props = {
+  onWebhookCreate: (data: {
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
+};
+
+const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
   const t = useT();
   const [form] = Form.useForm();
+
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async values => {
+        await onWebhookCreate?.(values);
+        form.resetFields();
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, onWebhookCreate]);
 
   return (
     <>
@@ -66,7 +90,7 @@ const WebhookForm: React.FC = () => {
               <Input />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" onClick={handleSubmit}>
                 {t("Save")}
               </Button>
             </Form.Item>
@@ -77,10 +101,10 @@ const WebhookForm: React.FC = () => {
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
             <Form.Item label={t("Item")}>
-              <Checkbox.Group options={options} defaultValue={["Apple"]} onChange={() => {}} />
+              <Checkbox.Group options={options} onChange={() => {}} />
             </Form.Item>
             <Form.Item label={t("Asset")}>
-              <Checkbox.Group options={options} defaultValue={["Apple"]} onChange={() => {}} />
+              <Checkbox.Group options={options} onChange={() => {}} />
             </Form.Item>
           </Col>
         </Row>
