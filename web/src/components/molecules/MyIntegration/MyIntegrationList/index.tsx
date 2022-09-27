@@ -1,10 +1,15 @@
 import styled from "@emotion/styled";
 
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/IntegrationCreationAction";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/MyIntegrationCard";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 import { useT } from "@reearth-cms/i18n";
 
-import MyIntegrationHeader from "../MyIntegrationHeader";
+export type Props = {
+  integrations?: Integration[];
+  handleIntegrationModalOpen: () => void;
+};
 
 const MyIntegrationList: React.FC = () => {
   const t = useT();
