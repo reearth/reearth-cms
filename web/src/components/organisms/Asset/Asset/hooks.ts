@@ -1,23 +1,29 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
 import {
-  PreviewType,
+  Asset as GQLAsset,
+  PreviewType as GQLPreviewType,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
+import { convertAsset } from "../convertAsset";
+
 export default (assetId?: string) => {
-  const [asset, setAsset] = useState<Asset>({} as Asset);
-  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>(PreviewType.Image);
+  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-  const { data, loading } = useGetAssetQuery({
+  const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: assetId ?? "",
     },
   });
+
+  const asset: Asset | undefined = useMemo(() => {
+    return convertAsset(rawAsset?.asset as GQLAsset);
+  }, [rawAsset]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
   const updateAsset = useCallback(
@@ -25,7 +31,7 @@ export default (assetId?: string) => {
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
@@ -41,10 +47,6 @@ export default (assetId?: string) => {
   );
 
   useEffect(() => {
-    setAsset((data?.asset ?? {}) as Asset);
-  }, [data?.asset]);
-
-  useEffect(() => {
     if (asset?.previewType) {
       setSelectedPreviewType(asset.previewType);
     }
@@ -55,7 +57,7 @@ export default (assetId?: string) => {
   }, []);
 
   const handleFullScreen = useCallback(() => {
-    if (selectedPreviewType === PreviewType.Geo) {
+    if (selectedPreviewType === "GEO") {
       viewerRef?.canvas.requestFullscreen();
     } else {
       setIsModalVisible(true);
