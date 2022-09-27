@@ -36,10 +36,13 @@ func serveFiles(
 	}
 
 	ec.GET(
-		"/assets/:filename",
+		"/assets/:uuid1/:uuid2/:filename",
 		fileHandler(func(ctx echo.Context) (io.Reader, string, error) {
 			filename := ctx.Param("filename")
-			r, err := repo.ReadAsset(ctx.Request().Context(), filename)
+			uuid1 := ctx.Param("uuid1")
+			uuid2 := ctx.Param("uuid2")
+			uuid := uuid1 + uuid2
+			r, err := repo.ReadAsset(ctx.Request().Context(), uuid, filename)
 			return r, filename, err
 		}),
 	)
