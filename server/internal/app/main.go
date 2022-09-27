@@ -51,7 +51,7 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 		port = "8080"
 	}
 
-	host := cfg.Config.ServerHost
+	host := cfg.Config.Host
 	if host == "" {
 		if cfg.Debug {
 			host = "localhost"

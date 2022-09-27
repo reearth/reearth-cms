@@ -22,6 +22,10 @@ type fileRepo struct {
 
 func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	var b *url.URL
+	if urlBase == "" {
+		urlBase = "http://localhost:8080/assets"
+	}
+
 	var err error
 	b, err = url.Parse(urlBase)
 	if err != nil {

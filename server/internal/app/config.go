@@ -15,7 +15,7 @@ const configPrefix = "reearth_cms"
 
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
-	ServerHost   string
+	Host         string
 	Dev          bool
 	Host_Web     string
 	GraphQL      GraphQLConfig
@@ -26,7 +26,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
-	AssetBaseURL string `default:"http://localhost:8080/assets"`
+	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
