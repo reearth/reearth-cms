@@ -1,5 +1,3 @@
-import React from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";

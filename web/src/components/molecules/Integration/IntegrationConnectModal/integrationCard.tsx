@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 export type Props = {
   src?: string;
