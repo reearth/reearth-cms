@@ -82,10 +82,16 @@ func (i *Integration) Webhook(wId WebhookID) (*Webhook, bool) {
 }
 
 func (i *Integration) AddWebhook(w *Webhook) {
+	if w == nil {
+		return
+	}
 	i.webhooks = append(i.webhooks, w)
 }
 
 func (i *Integration) UpdateWebhook(wId WebhookID, w *Webhook) bool {
+	if w == nil {
+		return false
+	}
 	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
 	if !ok || idx >= len(i.webhooks) {
 		return false

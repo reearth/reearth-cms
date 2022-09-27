@@ -27,6 +27,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 		Transaction: mongox.NewTransaction(client),
 		Lock:        lock,
 		Project:     NewProject(client),
+		Item:        NewItem(client),
 		Model:       NewModel(client),
 		Schema:      NewSchema(client),
 		Integration: NewIntegration(client),
