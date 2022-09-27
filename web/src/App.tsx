@@ -38,6 +38,14 @@ function AppRoutes() {
       path: "/workspaces/:workspaceId/my-integration/:integrationId",
       element: <MyIntegrationDetailsPage />,
     },
+    {
+      path: "/workspaces/:workspaceId/my-integration/:integrationId/:tab",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/my-integration/:integrationId/:tab/edit",
+      element: <MyIntegrationDetailsPage />,
+    },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
     { path: "*", element: <NotFound /> },

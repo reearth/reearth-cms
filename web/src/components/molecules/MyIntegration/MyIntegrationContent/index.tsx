@@ -1,22 +1,35 @@
 import styled from "@emotion/styled";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
 import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
 
+import WebhookForm from "../WebhookForm";
+
 const MyIntegrationContent: React.FC = () => {
+  const { tab, workspaceId, integrationId } = useParams();
+  const isFormEdit = location.pathname.includes("/webhooks/edit");
+  const navigate = useNavigate();
+
   const { TabPane } = Tabs;
   return (
     <MyIntegrationWrapper>
       <MyIntegrationHeader title="My Integration / Robot Red" />
-      <MyIntegrationTabs defaultActiveKey="general">
-        <TabPane tab="General" key="general">
+      <MyIntegrationTabs
+        defaultActiveKey="integration"
+        activeKey={tab}
+        onChange={key => {
+          navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
+        }}>
+        <TabPane tab="General" key="integration">
           <MyIntegrationForm />
         </TabPane>
-        <TabPane tab="Webhook" key="webhook">
-          <WebhookList />
+        <TabPane tab="Webhook" key="webhooks">
+          {isFormEdit ? <WebhookForm /> : <WebhookList />}
         </TabPane>
+        <TabPane tab="Logs" key="logs" />
       </MyIntegrationTabs>
     </MyIntegrationWrapper>
   );
