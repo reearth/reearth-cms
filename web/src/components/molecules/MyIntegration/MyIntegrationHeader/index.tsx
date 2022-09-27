@@ -11,5 +11,6 @@ const MyIntegrationHeader: React.FC = () => {
 
 const IntegrationPageHeader = styled(PageHeader)`
   border-bottom: 1px solid #f0f0f0;
+  background: #fff;
 `;
 export default MyIntegrationHeader;
