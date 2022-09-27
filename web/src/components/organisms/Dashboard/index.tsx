@@ -20,10 +20,10 @@ type InnerProps = {
 type Props = {
   InnerComponent: React.FC<InnerProps>;
   defaultSelectedKeys?: string[];
-  menuType?: "project" | "workspace";
+  Sidebar: typeof WorkspaceMenu | typeof ProjectMenu;
 };
 
-const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, menuType }) => {
+const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, Sidebar }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -54,7 +54,14 @@ const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, menuT
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
-            {menuType === "project" ? (
+            <Sidebar
+              projectId={projectId}
+              defaultSelectedKeys={defaultSelectedKeys}
+              inlineCollapsed={collapsed}
+              workspaceId={currentWorkspace?.id}
+              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+            />
+            {/* {menuType === "project" ? (
               projectId && (
                 <ProjectMenu
                   projectId={projectId}
@@ -70,7 +77,7 @@ const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, menuT
                 inlineCollapsed={collapsed}
                 workspaceId={currentWorkspace?.id}
               />
-            )}
+            )} */}
           </DashboardSider>
           <PaddedContent>
             <InnerComponent onWorkspaceModalOpen={handleWorkspaceModalOpen} />
