@@ -7,10 +7,10 @@ import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/Workspa
 import useHooks from "./hooks";
 
 export type Props = {
-  handleWorkspaceModalOpen?: () => void;
+  onWorkspaceModalOpen?: () => void;
 };
 
-const Workspace: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
+const Workspace: React.FC<Props> = ({ onWorkspaceModalOpen }) => {
   const {
     handleProjectSearch,
     handleProjectCreate,
@@ -24,9 +24,9 @@ const Workspace: React.FC<Props> = ({ handleWorkspaceModalOpen }) => {
     <WorkspaceWrapper>
       <Greeting />
       <WorkspaceHeader
-        handleProjectSearch={handleProjectSearch}
-        handleProjectModalOpen={handleProjectModalOpen}
-        handleWorkspaceModalOpen={handleWorkspaceModalOpen}
+        onProjectSearch={handleProjectSearch}
+        onProjectModalOpen={handleProjectModalOpen}
+        onWorkspaceModalOpen={onWorkspaceModalOpen}
       />
       <ProjectList projects={projects} handleProjectModalOpen={handleProjectModalOpen} />
       <ProjectCreationModal

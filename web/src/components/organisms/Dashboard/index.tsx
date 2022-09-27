@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { JSXElementConstructor, ReactElement, useState } from "react";
+import { JSXElementConstructor, ReactElement, useState, cloneElement } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -68,9 +68,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
               />
             )}
           </DashboardSider>
-          <PaddedContent>
-            {React.cloneElement(children, { handleWorkspaceModalOpen })}
-          </PaddedContent>
+          <PaddedContent>{cloneElement(children, { handleWorkspaceModalOpen })}</PaddedContent>
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal

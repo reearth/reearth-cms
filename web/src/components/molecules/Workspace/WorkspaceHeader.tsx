@@ -7,15 +7,15 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  handleProjectSearch: (value: string) => void;
-  handleProjectModalOpen: () => void;
-  handleWorkspaceModalOpen?: () => void;
+  onProjectSearch: (value: string) => void;
+  onProjectModalOpen: () => void;
+  onWorkspaceModalOpen?: () => void;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({
-  handleProjectSearch,
-  handleProjectModalOpen,
-  handleWorkspaceModalOpen,
+  onProjectSearch,
+  onProjectModalOpen,
+  onWorkspaceModalOpen,
 }) => {
   const t = useT();
   const { Search } = Input;
@@ -23,15 +23,15 @@ const WorkspaceHeader: React.FC<Props> = ({
   return (
     <ActionHeader>
       <Search
-        onSearch={handleProjectSearch}
+        onSearch={onProjectSearch}
         placeholder={t("input search text")}
         allowClear
         type="text"
         style={{ width: 264 }}
       />
       <ButtonWrapper>
-        <Button onClick={handleWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
-        <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+        <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
+        <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
           {t("New Project")}
         </Button>
       </ButtonWrapper>
