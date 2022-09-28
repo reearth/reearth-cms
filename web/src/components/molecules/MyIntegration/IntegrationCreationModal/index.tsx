@@ -13,7 +13,7 @@ import { IntegrationType } from "../types";
 
 export type Props = {
   open?: boolean;
-  onClose?: (refetch?: boolean) => void;
+  onClose: () => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
 };
 
@@ -38,12 +38,12 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async values => {
+      .then(async (values: FormValues) => {
         // TODO: when assets upload is ready to use
         values.logoUrl = "_";
-        values.type = IntegrationType.Public;
+        values.type = IntegrationType.Private;
         await onSubmit?.(values);
-        onClose?.(true);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
@@ -51,14 +51,19 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
       });
   }, [form, onClose, onSubmit]);
 
+  const handleClose = useCallback(() => {
+    form.resetFields();
+    onClose();
+  }, [onClose, form]);
+
   return (
     <Modal
       visible={open}
-      onCancel={() => onClose?.()}
+      onCancel={handleClose}
       onOk={handleSubmit}
       title={t("New Integration")}
       footer={[
-        <Button key="back" onClick={() => onClose?.()}>
+        <Button key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={handleSubmit}>
