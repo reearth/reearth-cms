@@ -3,18 +3,19 @@ import { Switch } from "antd";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
+import { Webhook } from "../../types";
+
 export type Props = {
-  title: string;
-  url: string;
+  webhook: Webhook;
 };
 
-const WebhookCard: React.FC<Props> = ({ title, url }) => {
+const WebhookCard: React.FC<Props> = ({ webhook }) => {
   return (
     <Card
       style={{ marginTop: 16 }}
       title={
         <>
-          {title} <Switch checkedChildren="ON" unCheckedChildren="OFF" defaultChecked />
+          {webhook.name} <Switch checkedChildren="ON" unCheckedChildren="OFF" defaultChecked />
         </>
       }
       extra={
@@ -23,7 +24,7 @@ const WebhookCard: React.FC<Props> = ({ title, url }) => {
           <Icon icon="delete" onClick={() => {}} />
         </>
       }>
-      {url}
+      {webhook.url}
     </Card>
   );
 };

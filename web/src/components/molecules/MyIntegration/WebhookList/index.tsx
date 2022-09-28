@@ -6,10 +6,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
+import { Webhook } from "../types";
+
 import WebhookCard from "./WebhookCard";
 
 export type Props = {
-  webhooks?: any[];
+  webhooks?: Webhook[];
 };
 
 const WebhookList: React.FC<Props> = ({ webhooks }) => {
@@ -30,7 +32,9 @@ const WebhookList: React.FC<Props> = ({ webhooks }) => {
       </ActionWrapper>
       {webhooks && webhooks.length > 0 ? (
         <ListWrapper>
-          <WebhookCard title="Item_Hook" url="https://reearth.io/itemchanged" />
+          {webhooks.map(webhook => (
+            <WebhookCard key={webhook.id} webhook={webhook} />
+          ))}
         </ListWrapper>
       ) : (
         <EmptyListWrapper>

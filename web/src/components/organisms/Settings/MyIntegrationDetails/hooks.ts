@@ -57,7 +57,7 @@ export default ({ integrationId }: Params) => {
   );
 
   const [createNewWebhook] = useCreateWebhookMutation({
-    refetchQueries: ["GetWebhooks"],
+    refetchQueries: ["GetMe"],
   });
 
   const handleWebhookCreate = useCallback(

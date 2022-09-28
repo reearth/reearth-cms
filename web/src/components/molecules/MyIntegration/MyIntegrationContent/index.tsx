@@ -48,7 +48,11 @@ const MyIntegrationContent: React.FC<Props> = ({
           <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
-          {isWebhookForm ? <WebhookForm onWebhookCreate={onWebhookCreate} /> : <WebhookList />}
+          {isWebhookForm ? (
+            <WebhookForm onWebhookCreate={onWebhookCreate} />
+          ) : (
+            <WebhookList webhooks={integration.config.webhooks} />
+          )}
         </TabPane>
         <TabPane tab="Logs" key="logs" />
       </MyIntegrationTabs>
