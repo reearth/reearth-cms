@@ -14,6 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 import { WebhookTrigger } from "../types";
 
 export type Props = {
+  onBack?: () => void;
   webhookInitialValues?: any;
   onWebhookCreate: (data: {
     name: string;
@@ -34,6 +35,7 @@ const WebhookForm: React.FC<Props> = ({
   onWebhookCreate,
   onWebhookUpdate,
   webhookInitialValues,
+  onBack,
 }) => {
   const t = useT();
 
@@ -87,7 +89,7 @@ const WebhookForm: React.FC<Props> = ({
 
   return (
     <>
-      <Icon icon="arrowLeft" onClick={() => {}} />
+      <Icon icon="arrowLeft" onClick={onBack} />
       <StyledForm form={form} layout="vertical" initialValues={webhookInitialValues}>
         <Row gutter={32}>
           <Col span={11}>

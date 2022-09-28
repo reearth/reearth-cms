@@ -46,6 +46,10 @@ const MyIntegrationContent: React.FC<Props> = ({
     navigate(`/workspaces/${workspaceId}/my-integration`);
   }, [navigate, workspaceId]);
 
+  const handleWebhookFormNavigation = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks`);
+  }, [navigate, workspaceId]);
+
   const { TabPane } = Tabs;
   return (
     <MyIntegrationWrapper>
@@ -62,6 +66,7 @@ const MyIntegrationContent: React.FC<Props> = ({
         <TabPane tab="Webhook" key="webhooks">
           {isWebhookForm ? (
             <WebhookForm
+              onBack={handleWebhookFormNavigation}
               onWebhookCreate={onWebhookCreate}
               onWebhookUpdate={onWebhookUpdate}
               webhookInitialValues={webhookInitialValues}
@@ -74,7 +79,6 @@ const MyIntegrationContent: React.FC<Props> = ({
             />
           )}
         </TabPane>
-        <TabPane tab="Logs" key="logs" />
       </MyIntegrationTabs>
     </MyIntegrationWrapper>
   );
