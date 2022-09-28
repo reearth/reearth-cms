@@ -62,8 +62,9 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users: map[ID]Role{uid: RoleOwner},
-					fixed: true,
+					users:        map[ID]Role{uid: RoleOwner},
+					integrations: map[IntegrationID]Role{},
+					fixed:        true,
 				},
 			},
 		}, {
@@ -76,8 +77,9 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users: map[ID]Role{},
-					fixed: false,
+					users:        map[ID]Role{},
+					integrations: map[IntegrationID]Role{},
+					fixed:        false,
 				},
 			},
 		},
@@ -135,8 +137,9 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users: map[ID]Role{uid: RoleOwner},
-					fixed: true,
+					users:        map[ID]Role{uid: RoleOwner},
+					integrations: map[IntegrationID]Role{},
+					fixed:        true,
 				},
 			},
 		}, {
@@ -149,8 +152,9 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users: map[ID]Role{},
-					fixed: false,
+					users:        map[ID]Role{},
+					integrations: map[IntegrationID]Role{},
+					fixed:        false,
 				},
 			},
 		},
