@@ -60,31 +60,25 @@ const WebhookForm: React.FC<Props> = ({
     form
       .validateFields()
       .then(async values => {
+        const trigger: WebhookTrigger = ((values.trigger as string[]) ?? []).reduce(
+          (ac, a) => ({ ...ac, [a]: true }),
+          {},
+        ) as WebhookTrigger;
+
         // TODO: refactor
         values.active = false;
-        const trigger: WebhookTrigger = {
-          onAssetDeleted: values.assetTriggers.includes("onAssetDeleted"),
-          onAssetUpload: values.assetTriggers.includes("onAssetUpload"),
-          onItemCreate: values.itemTriggers.includes("onItemCreate"),
-          onItemUpdate: values.itemTriggers.includes("onItemUpdate"),
-          onItemDelete: values.itemTriggers.includes("onItemDelete"),
-          onItemPublish: values.itemTriggers.includes("onItemPublish"),
-          onItemUnPublish: values.itemTriggers.includes("onItemUnPublish"),
-        };
-        values.trigger = trigger;
-        if (webhookInitialValues.id) {
-          console.log({ ...values, webhookId: webhookInitialValues.id });
-
-          await onWebhookUpdate({ ...values, webhookId: webhookInitialValues.id });
+        if (webhookInitialValues?.id) {
+          await onWebhookUpdate({ ...values, webhookId: webhookInitialValues.id, trigger });
+          onBack?.();
         } else {
-          await onWebhookCreate?.(values);
+          await onWebhookCreate?.({ ...values, trigger });
           form.resetFields();
         }
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onWebhookCreate, onWebhookUpdate, webhookInitialValues]);
+  }, [form, onWebhookCreate, onWebhookUpdate, onBack, webhookInitialValues]);
 
   return (
     <>
@@ -135,18 +129,44 @@ const WebhookForm: React.FC<Props> = ({
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
-            <Form.Item name="itemTriggers" label={t("Item")}>
-              <Checkbox.Group options={itemOptions} />
+            <Form.Item name="trigger">
+              <Checkbox.Group>
+                <CheckboxLabel>{t("Item")}</CheckboxLabel>
+                <Row>
+                  {itemOptions.map((item, index) => (
+                    <Col key={index}>
+                      <Checkbox value={item.value}>{item.label}</Checkbox>
+                    </Col>
+                  ))}
+                </Row>
+                <CheckboxLabel>{t("Asset")}</CheckboxLabel>
+                <Row>
+                  {assetOptions.map((item, index) => (
+                    <Col key={index}>
+                      <Checkbox value={item.value}>{item.label}</Checkbox>
+                    </Col>
+                  ))}
+                </Row>
+              </Checkbox.Group>
             </Form.Item>
-            <Form.Item name="assetTriggers" label={t("Asset")}>
-              <Checkbox.Group options={assetOptions} />
-            </Form.Item>
+            {/* <Form.Item name="assetTriggers" label={t("Asset")}>
+              <Checkbox.Group onChange={handleCheckboxChange} options={assetOptions} />
+            </Form.Item> */}
           </Col>
         </Row>
       </StyledForm>
     </>
   );
 };
+
+const CheckboxLabel = styled.p`
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #000000d9;
+`;
 
 const StyledForm = styled(Form)`
   margin-top: 36px;

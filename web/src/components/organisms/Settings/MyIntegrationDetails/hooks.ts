@@ -23,37 +23,13 @@ export default ({ integrationId, webhookId }: Params) => {
 
   const webhookInitialValues = useMemo(() => {
     if (!selectedIntegration || !selectedIntegration.config.webhooks || !webhookId) return;
-    const initialValues: any = {
-      ...selectedIntegration.config.webhooks.find(webhook => webhook.id === webhookId),
-      itemTriggers: [],
-      assetTriggers: [],
-    };
-    if (initialValues?.trigger.onItemCreate) {
-      initialValues.itemTriggers.push("onItemCreate");
-    }
-    if (initialValues?.trigger.onItemUpdate) {
-      initialValues.itemTriggers.push("onItemUpdate");
-    }
-    if (initialValues?.trigger.onItemCreate) {
-      initialValues.itemTriggers.push("onItemDelete");
-    }
-    if (initialValues?.trigger.onItemCreate) {
-      initialValues.itemTriggers.push("onItemDelete");
-    }
-    if (initialValues?.trigger.onItemPublish) {
-      initialValues.itemTriggers.push("onItemPublish");
-    }
-    if (initialValues?.trigger.onItemUnPublish) {
-      initialValues.itemTriggers.push("onItemUnPublish");
-    }
-
-    if (initialValues?.trigger.onAssetDeleted) {
-      initialValues.assetTriggers.push("onAssetDeleted");
-    }
-    if (initialValues?.trigger.onAssetUpload) {
-      initialValues.assetTriggers.push("onAssetUpload");
-    }
-    return initialValues;
+    const selectedWebhook = selectedIntegration.config.webhooks.find(
+      webhook => webhook.id === webhookId,
+    );
+    if (!selectedWebhook) return {};
+    const trigger: string[] = [];
+    Object.entries(selectedWebhook?.trigger).forEach(([key, value]) => value && trigger.push(key));
+    return { ...selectedWebhook, trigger };
   }, [selectedIntegration, webhookId]);
 
   const [updateIntegrationMutation] = useUpdateIntegrationMutation();
