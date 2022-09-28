@@ -80,6 +80,10 @@ models:
         resolver: true
       webhook:
         resolver: true
+  Thread:
+    fields:
+      workspace:
+        resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
   FileSize:
