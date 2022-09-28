@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import Checkbox, { CheckboxOptionType } from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -12,13 +12,6 @@ import Row from "@reearth-cms/components/atoms/Row";
 import { useT } from "@reearth-cms/i18n";
 
 import { WebhookTrigger } from "../types";
-
-const options = [
-  { label: "Create", value: "Create" },
-  { label: "Update", value: "Update" },
-  { label: "Delete", value: "Delete" },
-  { label: "Accessed by API", value: "Accessed by API" },
-];
 
 export type Props = {
   onWebhookCreate: (data: {
@@ -32,6 +25,16 @@ export type Props = {
 const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
   const t = useT();
   const [form] = Form.useForm();
+
+  const options: CheckboxOptionType[] = [
+    { label: t("Create"), value: "Create" },
+    { label: t("Update"), value: "Update" },
+    { label: t("Delete"), value: "Delete" },
+    { label: t("Accessed by API"), value: "Accessed by API" },
+  ];
+
+  const urlRegex =
+    /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
 
   const handleSubmit = useCallback(() => {
     form
@@ -74,15 +77,9 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
                   message: t("Please input the name of the webhook!"),
                 },
                 {
-                  message: "URL is not valid",
+                  message: t("URL is not valid"),
                   validator: async (_, value) => {
-                    if (
-                      !/^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(
-                        value,
-                      ) &&
-                      value.length > 0
-                    )
-                      return Promise.reject();
+                    if (!urlRegex.test(value) && value.length > 0) return Promise.reject();
 
                     return Promise.resolve();
                   },
