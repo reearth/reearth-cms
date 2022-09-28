@@ -1,7 +1,7 @@
-name: server-deploy-test
+name: deploy-test
 on:
   workflow_run:
-    workflows: [server_build, web]
+    workflows: [server-build, ci-web]
     types: [completed]
     branches: [main]
 concurrency:

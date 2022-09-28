@@ -6,10 +6,12 @@ on:
     paths:
       - web/**
       - .github/workflows/web.yml
+      - .github/workflows/deploy_test.yml
   pull_request:
     paths:
       - web/**
       - .github/workflows/web.yml
+      - .github/workflows/deploy_test.yml
 jobs:
   ci:
     name: ci
