@@ -48,7 +48,7 @@ const MyIntegrationContent: React.FC<Props> = ({
 
   const handleWebhookFormNavigation = useCallback(() => {
     navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks`);
-  }, [navigate, workspaceId]);
+  }, [navigate, workspaceId, integrationId]);
 
   const { TabPane } = Tabs;
   return (
