@@ -6,16 +6,23 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-import { Webhook } from "../types";
+import { Webhook, WebhookTrigger } from "../types";
 
 import WebhookCard from "./WebhookCard";
 
 export type Props = {
   webhooks?: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
+  onWebhookUpdate: (data: {
+    webhookId: string;
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
 };
 
-const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete }) => {
+const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpdate }) => {
   const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
   const t = useT();
@@ -34,7 +41,12 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete }) => {
       {webhooks && webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
-            <WebhookCard key={webhook.id} webhook={webhook} onWebhookDelete={onWebhookDelete} />
+            <WebhookCard
+              key={webhook.id}
+              webhook={webhook}
+              onWebhookDelete={onWebhookDelete}
+              onWebhookUpdate={onWebhookUpdate}
+            />
           ))}
         </ListWrapper>
       ) : (
