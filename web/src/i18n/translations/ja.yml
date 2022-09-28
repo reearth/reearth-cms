@@ -45,11 +45,15 @@ Input token: ''
 Save: ''
 Please input the logo of the integration!: ''
 Create new integration: ''
+Update: アップデート
+Delete: ''
+Accessed by API: ''
 Name: 名前
 This is your webhook name: ''
 Please input the name of the webhook!: ''
 Url: ''
 Please note that all webhook URLs must start with http://.: ''
+URL is not valid: ''
 Trigger Event: ''
 Item: ''
 Asset: アセット
@@ -74,7 +78,6 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
-Update: アップデート
 Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
