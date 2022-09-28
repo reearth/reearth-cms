@@ -27,11 +27,14 @@ jobs:
         # The tag name should be retrieved lazily, as tagging may be delayed.
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-          TAG=$(git tag --points-at HEAD)
-          if [[ ! -z "$TAG" ]]; then
-            echo "::set-output name=new_tag::$TAG"
-            echo "::set-output name=new_tag_short::${TAG#v}"
-          fi
+          if [[ "$BRANCH" = "release" ]]; then
+            TAG=$(git tag --points-at HEAD)
+            if [[ ! -z "$TAG" ]]; then
+              echo "::set-output name=new_tag::$TAG"
+              echo "::set-output name=new_tag_short::${TAG#v}"
+            fi
+          else
+            echo "::set-output name=name::nightly"
       - name: Show info
         env:
           SHA_SHORT: ${{ steps.info.outputs.sha_short }}
