@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
 
-import { Integration, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import integrationHook from "@reearth-cms/components/organisms/Settings/MyIntegration/hooks";
 import {
   useCreateWebhookMutation,
-  useGetMeQuery,
   useUpdateIntegrationMutation,
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
@@ -15,28 +15,7 @@ type Params = {
 };
 
 export default ({ integrationId, webhookId }: Params) => {
-  const { data } = useGetMeQuery();
-
-  const integrations = useMemo(() => {
-    return (data?.me?.integrations ?? [])
-      .map<Integration | undefined>(integration =>
-        integration
-          ? {
-              id: integration.id,
-              name: integration.name,
-              description: integration.description,
-              logoUrl: integration.logoUrl,
-              developerId: integration.developerId,
-              iType: integration.iType,
-              config: {
-                token: integration.config?.token,
-                webhooks: integration.config?.webhooks,
-              },
-            }
-          : undefined,
-      )
-      .filter((integration): integration is Integration => !!integration);
-  }, [data?.me?.integrations]);
+  const { integrations } = integrationHook();
 
   const selectedIntegration = useMemo(() => {
     return integrations.find(integration => integration.id === integrationId);
