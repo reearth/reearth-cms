@@ -12,6 +12,7 @@ import { Integration, WebhookTrigger } from "../types";
 
 export type Props = {
   integration: Integration;
+  webhookInitialValues?: any;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onWebhookCreate: (data: {
     name: string;
@@ -31,6 +32,7 @@ export type Props = {
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
+  webhookInitialValues,
   onIntegrationUpdate,
   onWebhookCreate,
   onWebhookDelete,
@@ -59,7 +61,11 @@ const MyIntegrationContent: React.FC<Props> = ({
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
           {isWebhookForm ? (
-            <WebhookForm onWebhookCreate={onWebhookCreate} />
+            <WebhookForm
+              onWebhookCreate={onWebhookCreate}
+              onWebhookUpdate={onWebhookUpdate}
+              webhookInitialValues={webhookInitialValues}
+            />
           ) : (
             <WebhookList
               webhooks={integration.config.webhooks}

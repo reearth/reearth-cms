@@ -11,9 +11,10 @@ import {
 
 type Params = {
   integrationId?: string;
+  webhookId?: string;
 };
 
-export default ({ integrationId }: Params) => {
+export default ({ integrationId, webhookId }: Params) => {
   const { data } = useGetMeQuery();
 
   const integrations = useMemo(() => {
@@ -40,6 +41,41 @@ export default ({ integrationId }: Params) => {
   const selectedIntegration = useMemo(() => {
     return integrations.find(integration => integration.id === integrationId);
   }, [integrations, integrationId]);
+
+  const webhookInitialValues = useMemo(() => {
+    if (!selectedIntegration || !selectedIntegration.config.webhooks || !webhookId) return;
+    const initialValues: any = {
+      ...selectedIntegration.config.webhooks.find(webhook => webhook.id === webhookId),
+      itemTriggers: [],
+      assetTriggers: [],
+    };
+    if (initialValues?.trigger.onItemCreate) {
+      initialValues.itemTriggers.push("onItemCreate");
+    }
+    if (initialValues?.trigger.onItemUpdate) {
+      initialValues.itemTriggers.push("onItemUpdate");
+    }
+    if (initialValues?.trigger.onItemCreate) {
+      initialValues.itemTriggers.push("onItemDelete");
+    }
+    if (initialValues?.trigger.onItemCreate) {
+      initialValues.itemTriggers.push("onItemDelete");
+    }
+    if (initialValues?.trigger.onItemPublish) {
+      initialValues.itemTriggers.push("onItemPublish");
+    }
+    if (initialValues?.trigger.onItemUnPublish) {
+      initialValues.itemTriggers.push("onItemUnPublish");
+    }
+
+    if (initialValues?.trigger.onAssetDeleted) {
+      initialValues.assetTriggers.push("onAssetDeleted");
+    }
+    if (initialValues?.trigger.onAssetUpload) {
+      initialValues.assetTriggers.push("onAssetUpload");
+    }
+    return initialValues;
+  }, [selectedIntegration, webhookId]);
 
   const [updateIntegrationMutation] = useUpdateIntegrationMutation();
 
@@ -134,6 +170,7 @@ export default ({ integrationId }: Params) => {
   return {
     integrations,
     selectedIntegration,
+    webhookInitialValues,
     handleIntegrationUpdate,
     handleWebhookCreate,
     handleWebhookDelete,

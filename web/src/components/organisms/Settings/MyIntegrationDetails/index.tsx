@@ -5,20 +5,23 @@ import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegratio
 import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
-  const { integrationId } = useParams();
+  const { integrationId, webhookId } = useParams();
   const {
     selectedIntegration,
+    webhookInitialValues,
     handleIntegrationUpdate,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
   } = useHooks({
     integrationId,
+    webhookId,
   });
 
   return selectedIntegration ? (
     <MyIntegrationContent
       integration={selectedIntegration}
+      webhookInitialValues={webhookInitialValues}
       onIntegrationUpdate={handleIntegrationUpdate}
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}

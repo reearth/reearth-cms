@@ -14,7 +14,15 @@ import { useT } from "@reearth-cms/i18n";
 import { WebhookTrigger } from "../types";
 
 export type Props = {
+  webhookInitialValues?: any;
   onWebhookCreate: (data: {
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
+  onWebhookUpdate: (data: {
+    webhookId: string;
     name: string;
     url: string;
     active: boolean;
@@ -22,8 +30,13 @@ export type Props = {
   }) => Promise<void>;
 };
 
-const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
+const WebhookForm: React.FC<Props> = ({
+  onWebhookCreate,
+  onWebhookUpdate,
+  webhookInitialValues,
+}) => {
   const t = useT();
+
   const [form] = Form.useForm();
 
   const itemOptions: CheckboxOptionType[] = [
@@ -51,25 +64,31 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
         const trigger: WebhookTrigger = {
           onAssetDeleted: values.assetTriggers.includes("onAssetDeleted"),
           onAssetUpload: values.assetTriggers.includes("onAssetUpload"),
-          onItemCreate: values.assetTriggers.includes("onItemCreate"),
-          onItemUpdate: values.assetTriggers.includes("onItemUpdate"),
-          onItemDelete: values.assetTriggers.includes("onItemDelete"),
-          onItemPublish: values.assetTriggers.includes("onItemPublish"),
-          onItemUnPublish: values.assetTriggers.includes("onItemUnPublish"),
+          onItemCreate: values.itemTriggers.includes("onItemCreate"),
+          onItemUpdate: values.itemTriggers.includes("onItemUpdate"),
+          onItemDelete: values.itemTriggers.includes("onItemDelete"),
+          onItemPublish: values.itemTriggers.includes("onItemPublish"),
+          onItemUnPublish: values.itemTriggers.includes("onItemUnPublish"),
         };
         values.trigger = trigger;
-        await onWebhookCreate?.(values);
-        form.resetFields();
+        if (webhookInitialValues.id) {
+          console.log({ ...values, webhookId: webhookInitialValues.id });
+
+          await onWebhookUpdate({ ...values, webhookId: webhookInitialValues.id });
+        } else {
+          await onWebhookCreate?.(values);
+          form.resetFields();
+        }
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onWebhookCreate]);
+  }, [form, onWebhookCreate, onWebhookUpdate, webhookInitialValues]);
 
   return (
     <>
       <Icon icon="arrowLeft" onClick={() => {}} />
-      <StyledForm form={form} layout="vertical" initialValues={{}}>
+      <StyledForm form={form} layout="vertical" initialValues={webhookInitialValues}>
         <Row gutter={32}>
           <Col span={11}>
             <Form.Item
