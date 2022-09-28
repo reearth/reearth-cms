@@ -3,8 +3,7 @@ import { useCallback } from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
-
-import { Webhook, WebhookTrigger } from "../../types";
+import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
 
 export type Props = {
   webhook: Webhook;

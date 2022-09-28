@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Integration } from "../../types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 
 export type Props = {
   integration: Integration;

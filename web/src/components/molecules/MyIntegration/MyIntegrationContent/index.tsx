@@ -5,10 +5,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
 import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
+import { Integration, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegration/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
-
-import { Integration, WebhookTrigger } from "../types";
 
 export type Props = {
   integration: Integration;

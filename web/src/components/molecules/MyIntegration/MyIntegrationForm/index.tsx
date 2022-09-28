@@ -9,9 +9,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 import { useT } from "@reearth-cms/i18n";
-
-import { Integration } from "../types";
 
 export type Props = {
   integration: Integration;
