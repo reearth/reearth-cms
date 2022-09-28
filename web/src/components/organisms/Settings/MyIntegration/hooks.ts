@@ -8,7 +8,7 @@ import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/gr
 
 export default () => {
   const [integrationModalShown, setIntegrationModalShown] = useState(false);
-  const { data, refetch } = useGetMeQuery();
+  const { data } = useGetMeQuery();
 
   const [createNewIntegration] = useCreateIntegrationMutation({
     refetchQueries: ["GetMe"],
@@ -51,9 +51,8 @@ export default () => {
       }
 
       setIntegrationModalShown(false);
-      refetch();
     },
-    [createNewIntegration, refetch],
+    [createNewIntegration],
   );
 
   const handleIntegrationModalClose = useCallback(() => {
