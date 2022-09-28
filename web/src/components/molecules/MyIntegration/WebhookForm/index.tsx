@@ -26,11 +26,17 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
   const t = useT();
   const [form] = Form.useForm();
 
-  const options: CheckboxOptionType[] = [
-    { label: t("Create"), value: "Create" },
-    { label: t("Update"), value: "Update" },
-    { label: t("Delete"), value: "Delete" },
-    { label: t("Accessed by API"), value: "Accessed by API" },
+  const itemOptions: CheckboxOptionType[] = [
+    { label: t("Create"), value: "onItemCreate" },
+    { label: t("Update"), value: "onItemUpdate" },
+    { label: t("Delete"), value: "onItemDelete" },
+    { label: t("Publish"), value: "onItemPublish" },
+    { label: t("Unpublish"), value: "onItemUnPublish" },
+  ];
+
+  const assetOptions: CheckboxOptionType[] = [
+    { label: t("Upload"), value: "onAssetUpload" },
+    { label: t("Delete"), value: "onAssetDeleted" },
   ];
 
   const urlRegex =
@@ -40,7 +46,18 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
     form
       .validateFields()
       .then(async values => {
+        // TODO: refactor
         values.active = true;
+        const trigger: WebhookTrigger = {
+          onAssetDeleted: values.assetTriggers.includes("onAssetDeleted"),
+          onAssetUpload: values.assetTriggers.includes("onAssetUpload"),
+          onItemCreate: values.assetTriggers.includes("onItemCreate"),
+          onItemUpdate: values.assetTriggers.includes("onItemUpdate"),
+          onItemDelete: values.assetTriggers.includes("onItemDelete"),
+          onItemPublish: values.assetTriggers.includes("onItemPublish"),
+          onItemUnPublish: values.assetTriggers.includes("onItemUnPublish"),
+        };
+        values.trigger = trigger;
         await onWebhookCreate?.(values);
         form.resetFields();
       })
@@ -98,11 +115,11 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
-            <Form.Item label={t("Item")}>
-              <Checkbox.Group options={options} onChange={() => {}} />
+            <Form.Item name="itemTriggers" label={t("Item")}>
+              <Checkbox.Group options={itemOptions} />
             </Form.Item>
-            <Form.Item label={t("Asset")}>
-              <Checkbox.Group options={options} onChange={() => {}} />
+            <Form.Item name="assetTriggers" label={t("Asset")}>
+              <Checkbox.Group options={assetOptions} />
             </Form.Item>
           </Col>
         </Row>
