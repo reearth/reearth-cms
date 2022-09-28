@@ -24,7 +24,8 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
     form
       .validateFields()
       .then(async values => {
-        values.logoUrl = "some";
+        // TODO: when assets upload is ready to use
+        values.logoUrl = "_";
         await onIntegrationUpdate?.(values);
       })
       .catch(info => {
