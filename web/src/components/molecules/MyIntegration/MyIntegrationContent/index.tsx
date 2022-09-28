@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
@@ -12,6 +10,8 @@ import WebhookList from "@reearth-cms/components/molecules/MyIntegration/Webhook
 export type Props = {
   integration: Integration;
   webhookInitialValues?: any;
+  activeTab?: string;
+  showWebhookForm: boolean;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onWebhookCreate: (data: {
     name: string;
@@ -27,45 +27,39 @@ export type Props = {
     active: boolean;
     trigger: WebhookTrigger;
   }) => Promise<void>;
+  onIntegrationHeaderBack: () => void;
+  onWebhookFormHeaderBack: () => void;
+  onTabChange: (key: string) => void;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
+  activeTab,
+  showWebhookForm,
   onIntegrationUpdate,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
+  onIntegrationHeaderBack,
+  onWebhookFormHeaderBack,
+  onTabChange,
 }) => {
-  const { tab, workspaceId, integrationId } = useParams();
-  const isWebhookForm = location.pathname.includes("/webhooks/form");
-  const navigate = useNavigate();
-
-  const handleIntegrationNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/my-integration`);
-  }, [navigate, workspaceId]);
-
-  const handleWebhookFormNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks`);
-  }, [navigate, workspaceId, integrationId]);
-
   const { TabPane } = Tabs;
   return (
     <MyIntegrationWrapper>
-      <MyIntegrationHeader title={integration.name} onBack={handleIntegrationNavigation} />
+      <MyIntegrationHeader title={integration.name} onBack={onIntegrationHeaderBack} />
       <MyIntegrationTabs
         defaultActiveKey="integration"
-        activeKey={tab}
-        onChange={key => {
-          navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
-        }}>
+        activeKey={activeTab}
+        onChange={onTabChange}>
         <TabPane tab="General" key="integration">
           <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
-          {isWebhookForm ? (
+          {showWebhookForm ? (
             <WebhookForm
-              onBack={handleWebhookFormNavigation}
+              onBack={onWebhookFormHeaderBack}
               onWebhookCreate={onWebhookCreate}
               onWebhookUpdate={onWebhookUpdate}
               webhookInitialValues={webhookInitialValues}

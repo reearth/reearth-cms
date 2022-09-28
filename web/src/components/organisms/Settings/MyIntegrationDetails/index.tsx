@@ -1,11 +1,30 @@
-import { useParams } from "react-router-dom";
+import { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationContent";
 
 import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
-  const { integrationId, webhookId } = useParams();
+  const { tab, workspaceId, integrationId, webhookId } = useParams();
+  const showWebhookForm = location.pathname.includes("/webhooks/form");
+  const navigate = useNavigate();
+
+  const handleIntegrationHeaderBack = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/my-integration`);
+  }, [navigate, workspaceId]);
+
+  const handleWebhookFormHeaderBack = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks`);
+  }, [navigate, workspaceId, integrationId]);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
+    },
+    [navigate, workspaceId, integrationId],
+  );
+
   const {
     selectedIntegration,
     webhookInitialValues,
@@ -26,6 +45,11 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
+      onIntegrationHeaderBack={handleIntegrationHeaderBack}
+      onWebhookFormHeaderBack={handleWebhookFormHeaderBack}
+      onTabChange={handleTabChange}
+      activeTab={tab}
+      showWebhookForm={showWebhookForm}
     />
   ) : null;
 };
