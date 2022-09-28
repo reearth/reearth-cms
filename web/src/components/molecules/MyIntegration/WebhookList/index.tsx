@@ -12,9 +12,10 @@ import WebhookCard from "./WebhookCard";
 
 export type Props = {
   webhooks?: Webhook[];
+  onWebhookDelete: (webhookId: string) => Promise<void>;
 };
 
-const WebhookList: React.FC<Props> = ({ webhooks }) => {
+const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete }) => {
   const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
   const t = useT();
@@ -33,7 +34,7 @@ const WebhookList: React.FC<Props> = ({ webhooks }) => {
       {webhooks && webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
-            <WebhookCard key={webhook.id} webhook={webhook} />
+            <WebhookCard key={webhook.id} webhook={webhook} onWebhookDelete={onWebhookDelete} />
           ))}
         </ListWrapper>
       ) : (

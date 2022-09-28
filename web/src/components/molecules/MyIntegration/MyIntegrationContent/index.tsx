@@ -19,12 +19,14 @@ export type Props = {
     active: boolean;
     trigger: WebhookTrigger;
   }) => Promise<void>;
+  onWebhookDelete: (webhookId: string) => Promise<void>;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   onIntegrationUpdate,
   onWebhookCreate,
+  onWebhookDelete,
 }) => {
   const { tab, workspaceId, integrationId } = useParams();
   const isWebhookForm = location.pathname.includes("/webhooks/form");
@@ -51,7 +53,7 @@ const MyIntegrationContent: React.FC<Props> = ({
           {isWebhookForm ? (
             <WebhookForm onWebhookCreate={onWebhookCreate} />
           ) : (
-            <WebhookList webhooks={integration.config.webhooks} />
+            <WebhookList webhooks={integration.config.webhooks} onWebhookDelete={onWebhookDelete} />
           )}
         </TabPane>
         <TabPane tab="Logs" key="logs" />

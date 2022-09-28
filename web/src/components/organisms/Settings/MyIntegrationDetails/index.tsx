@@ -6,15 +6,17 @@ import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
   const { integrationId } = useParams();
-  const { selectedIntegration, handleIntegrationUpdate, handleWebhookCreate } = useHooks({
-    integrationId,
-  });
+  const { selectedIntegration, handleIntegrationUpdate, handleWebhookCreate, handleWebhookDelete } =
+    useHooks({
+      integrationId,
+    });
 
   return selectedIntegration ? (
     <MyIntegrationContent
       integration={selectedIntegration}
       onIntegrationUpdate={handleIntegrationUpdate}
       onWebhookCreate={handleWebhookCreate}
+      onWebhookDelete={handleWebhookDelete}
     />
   ) : null;
 };

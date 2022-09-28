@@ -5,6 +5,7 @@ import {
   useCreateWebhookMutation,
   useGetMeQuery,
   useUpdateIntegrationMutation,
+  useDeleteWebhookMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -79,10 +80,31 @@ export default ({ integrationId }: Params) => {
     [createNewWebhook, integrationId],
   );
 
+  const [deleteWebhook] = useDeleteWebhookMutation({
+    refetchQueries: ["GetMe"],
+  });
+
+  const handleWebhookDelete = useCallback(
+    async (webhookId: string) => {
+      if (!integrationId) return;
+      const webhook = await deleteWebhook({
+        variables: {
+          integrationId,
+          webhookId: webhookId,
+        },
+      });
+      if (webhook.errors || !webhook.data?.deleteWebhook) {
+        return;
+      }
+    },
+    [deleteWebhook, integrationId],
+  );
+
   return {
     integrations,
     selectedIntegration,
     handleIntegrationUpdate,
     handleWebhookCreate,
+    handleWebhookDelete,
   };
 };
