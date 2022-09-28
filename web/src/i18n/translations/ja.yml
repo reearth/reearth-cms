@@ -51,14 +51,26 @@ New Project: 新規プロジェクト
 Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
+Connect Integration: インテグレーションを連携
+Cancel: キャンセル
+Connect: 連携
+Integration Setting: インテグレーション設定
+Save: 保存
+Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
+select role: ロールを選択
+Reader: 閲覧者
+Writer: 編集者
+Owner: オーナー
+Name: 名前
+Creator: 作成者
+State: ステート
+Action: アクション
+No Integration yet: まだインテグレーションはありません
+Create a new: 新規作成
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-select role: ロールを選択
-Owner: オーナー
-Writer: 編集者
-Reader: 閲覧者
 Add Field: フィールドを追加
 Create: 作成
 Setting: 設定
@@ -96,7 +108,6 @@ Add: 追加
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
-Name: 名前
 Write something here to describe this record.: このレコードの説明を入力してください
 Save changes: 変更を保存
 Danger Zone: 重要操作項目
