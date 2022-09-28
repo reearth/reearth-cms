@@ -37,6 +37,7 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
     form
       .validateFields()
       .then(async values => {
+        values.active = true;
         await onWebhookCreate?.(values);
         form.resetFields();
       })
