@@ -16,9 +16,15 @@ export type Props = {
     active: boolean;
     trigger: WebhookTrigger;
   }) => Promise<void>;
+  onWebhookSettings: (webhookId: string) => void;
 };
 
-const WebhookCard: React.FC<Props> = ({ webhook, onWebhookDelete, onWebhookUpdate }) => {
+const WebhookCard: React.FC<Props> = ({
+  webhook,
+  onWebhookDelete,
+  onWebhookUpdate,
+  onWebhookSettings,
+}) => {
   const handleWebhookDelete = useCallback(() => {
     onWebhookDelete(webhook.id);
   }, [onWebhookDelete, webhook.id]);
@@ -46,7 +52,7 @@ const WebhookCard: React.FC<Props> = ({ webhook, onWebhookDelete, onWebhookUpdat
       }
       extra={
         <>
-          <Icon icon="settings" onClick={() => {}} />
+          <Icon icon="settings" onClick={() => onWebhookSettings(webhook.id)} />
           <Icon icon="delete" onClick={handleWebhookDelete} />
         </>
       }>

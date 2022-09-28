@@ -47,7 +47,7 @@ const WebhookForm: React.FC<Props> = ({ onWebhookCreate }) => {
       .validateFields()
       .then(async values => {
         // TODO: refactor
-        values.active = true;
+        values.active = false;
         const trigger: WebhookTrigger = {
           onAssetDeleted: values.assetTriggers.includes("onAssetDeleted"),
           onAssetUpload: values.assetTriggers.includes("onAssetUpload"),

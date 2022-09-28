@@ -31,6 +31,15 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpda
     navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks/form`);
   }, [navigate, workspaceId, integrationId]);
 
+  const handleWebhookEditNavigation = useCallback(
+    (webhookId: string) => {
+      navigate(
+        `/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks/form/${webhookId}`,
+      );
+    },
+    [navigate, workspaceId, integrationId],
+  );
+
   return (
     <>
       <ActionWrapper>
@@ -46,6 +55,7 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpda
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
+              onWebhookSettings={handleWebhookEditNavigation}
             />
           ))}
         </ListWrapper>
