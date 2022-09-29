@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -7,14 +9,32 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationsForm: React.FC = () => {
+export type Props = {
+  integration: Integration;
+  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+};
+const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const handleSubmit = useCallback(() => {
+    form
+      .validateFields()
+      .then(async values => {
+        // TODO: when assets upload is ready to use
+        values.logoUrl = "_";
+        await onIntegrationUpdate?.(values);
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [form, onIntegrationUpdate]);
+
   return (
-    <Form form={form} layout="vertical" requiredMark="optional" initialValues={{}}>
+    <Form form={form} layout="vertical" initialValues={integration}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -31,19 +51,11 @@ const MyIntegrationsForm: React.FC = () => {
           <Form.Item name="description" label={t("Description")}>
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
-          <Form.Item
-            name="token"
-            label={t("Integration Token")}
-            rules={[
-              {
-                required: true,
-                message: t("Please input the token of the integration!"),
-              },
-            ]}>
-            <Input.Password placeholder={t("Input token")} />
+          <Form.Item label={t("Integration Token")}>
+            <Input.Password value={integration.config.token} contentEditable={false} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
               {t("Save")}
             </Button>
           </Form.Item>
@@ -70,4 +82,4 @@ const MyIntegrationsForm: React.FC = () => {
   );
 };
 
-export default MyIntegrationsForm;
+export default MyIntegrationForm;

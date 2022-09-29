@@ -1,18 +1,27 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 
 export type Props = {
-  src?: string;
-  title: string;
-  subTitle: string;
+  integration: Integration;
 };
 
-const MyIntegrationsCard: React.FC<Props> = ({ src, title, subTitle }) => {
+const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleCardNavigation = useCallback(() => {
+    navigate(`${location.pathname}/${integration.id}`);
+  }, [navigate, location, integration.id]);
+
   return (
     <CardWrapper>
-      <Card>
-        <CardImg src={src} />
-        <CardTitle>{title}</CardTitle>
-        <CardSubTitle>{subTitle}</CardSubTitle>
+      <Card onClick={handleCardNavigation}>
+        <CardImg src={integration.logoUrl} />
+        <CardTitle>{integration.name}</CardTitle>
+        <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>
     </CardWrapper>
   );
@@ -58,4 +67,4 @@ const CardSubTitle = styled.h6`
   color: #00000073;
 `;
 
-export default MyIntegrationsCard;
+export default MyIntegrationCard;

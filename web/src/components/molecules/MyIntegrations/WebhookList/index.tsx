@@ -1,34 +1,72 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
 import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
 export type Props = {
-  webhooks?: any[];
+  webhooks?: Webhook[];
+  onWebhookDelete: (webhookId: string) => Promise<void>;
+  onWebhookUpdate: (data: {
+    webhookId: string;
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
 };
 
-const WebhookList: React.FC<Props> = ({ webhooks }) => {
+const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpdate }) => {
+  const { workspaceId, integrationId } = useParams();
+  const navigate = useNavigate();
   const t = useT();
+
+  const handleWebhookFormNavigation = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
+  }, [navigate, workspaceId, integrationId]);
+
+  const handleWebhookEditNavigation = useCallback(
+    (webhookId: string) => {
+      navigate(
+        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
+      );
+    },
+    [navigate, workspaceId, integrationId],
+  );
+
   return (
     <>
       <ActionWrapper>
-        <Button onClick={() => {}} type="primary" icon={<Icon icon="plus" />}>
+        <Button onClick={handleWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
       {webhooks && webhooks.length > 0 ? (
         <ListWrapper>
-          <WebhookCard title="Item_Hook" url="https://reearth.io/itemchanged" />
+          {webhooks.map(webhook => (
+            <WebhookCard
+              key={webhook.id}
+              webhook={webhook}
+              onWebhookDelete={onWebhookDelete}
+              onWebhookUpdate={onWebhookUpdate}
+              onWebhookSettings={handleWebhookEditNavigation}
+            />
+          ))}
         </ListWrapper>
       ) : (
         <EmptyListWrapper>
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
             {t("Create a new ")}
-            <Button onClick={() => {}} type="primary" icon={<Icon icon="plus" />}>
+            <Button
+              onClick={handleWebhookFormNavigation}
+              type="primary"
+              icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
           </Suggestion>

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHook from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
   useCreateWebhookMutation,

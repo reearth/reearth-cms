@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   Integration,
   IntegrationType,
-} from "@reearth-cms/components/molecules/MyIntegration/types";
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 
 export default () => {
