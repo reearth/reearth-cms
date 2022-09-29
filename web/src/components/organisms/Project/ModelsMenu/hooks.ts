@@ -5,6 +5,7 @@ import {
   useGetModelsQuery,
   useCreateModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
+  Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 
 type Params = {
@@ -37,31 +38,29 @@ export default ({ projectId, modelId }: Params) => {
     skip: !projectId,
   });
 
+  const fromModel = (model: GQLModel) => ({
+    id: model.id,
+    description: model.description,
+    name: model.name,
+    key: model.key,
+    schema: {
+      id: model.schema?.id,
+      fields: model.schema?.fields.map(field => ({
+        id: field.id,
+        description: field.description,
+        title: field.title,
+        type: field.type,
+        key: field.key,
+        unique: field.unique,
+        required: field.required,
+        typeProperty: field.typeProperty,
+      })),
+    },
+  });
+
   const models = useMemo(() => {
     return (data?.models.nodes ?? [])
-      .map<Model | undefined>(model =>
-        model
-          ? {
-              id: model.id,
-              description: model.description,
-              name: model.name,
-              key: model.key,
-              schema: {
-                id: model.schema.id,
-                fields: model.schema.fields.map(field => ({
-                  id: field.id,
-                  description: field.description,
-                  title: field.title,
-                  type: field.type,
-                  key: field.key,
-                  unique: field.unique,
-                  required: field.required,
-                  typeProperty: field.typeProperty,
-                })),
-              },
-            }
-          : undefined,
-      )
+      .map<Model | undefined>(model => (model ? fromModel(model as GQLModel) : undefined))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
@@ -71,28 +70,7 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   const model = useMemo<Model | undefined>(
-    () =>
-      rawModel?.id
-        ? {
-            id: rawModel.id,
-            description: rawModel.description,
-            name: rawModel.name,
-            key: rawModel.key,
-            schema: {
-              id: rawModel.schema.id,
-              fields: rawModel.schema.fields.map(field => ({
-                id: field.id,
-                description: field.description,
-                title: field.title,
-                type: field.type,
-                key: field.key,
-                unique: field.unique,
-                required: field.required,
-                typeProperty: field.typeProperty,
-              })),
-            },
-          }
-        : undefined,
+    () => (rawModel?.id ? fromModel(rawModel as GQLModel) : undefined),
     [rawModel],
   );
 
