@@ -3,15 +3,17 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
+import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
+  integrations: Integration[];
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
 };
 
-const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
   const t = useT();
 
   return (
@@ -29,7 +31,9 @@ const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) =
         </Button>,
       ]}>
       <ModalContent>
-        <IntegrationCard title="Card title" selected={false} />
+        {integrations.map(integration => (
+          <IntegrationCard key={integration.id} integration={integration} />
+        ))}
       </ModalContent>
     </Modal>
   );

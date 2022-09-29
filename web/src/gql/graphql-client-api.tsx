@@ -134,6 +134,7 @@ export type CreateProjectInput = {
 
 export type CreateWebhookInput = {
   active: Scalars['Boolean'];
+  integrationId: Scalars['ID'];
   name: Scalars['String'];
   trigger: WebhookTriggerInput;
   url: Scalars['URL'];
@@ -213,6 +214,7 @@ export type DeleteProjectPayload = {
 };
 
 export type DeleteWebhookInput = {
+  integrationId: Scalars['ID'];
   webhookId: Scalars['ID'];
 };
 
@@ -1026,6 +1028,7 @@ export type UpdateProjectInput = {
 
 export type UpdateWebhookInput = {
   active?: InputMaybe<Scalars['Boolean']>;
+  integrationId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
   trigger?: InputMaybe<WebhookTriggerInput>;
   url?: InputMaybe<Scalars['URL']>;
@@ -1112,6 +1115,8 @@ export type WorkspaceUserMember = {
   user?: Maybe<User>;
   userId: Scalars['ID'];
 };
+
+export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null };
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
@@ -1290,7 +1295,7 @@ export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __type
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
+export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null }> } | null };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1379,6 +1384,43 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = { __typename?: 'Mutation', createWorkspace?: { __typename?: 'CreateWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
+export const IntegrationFragmentFragmentDoc = gql`
+    fragment integrationFragment on Integration {
+  id
+  name
+  description
+  logoUrl
+  iType
+  developerId
+  developer {
+    id
+    name
+    email
+  }
+  config {
+    token
+    webhooks {
+      id
+      name
+      url
+      active
+      trigger {
+        onItemCreate
+        onItemUpdate
+        onItemDelete
+        onItemPublish
+        onItemUnPublish
+        onAssetUpload
+        onAssetDeleted
+      }
+      createdAt
+      updatedAt
+    }
+  }
+  createdAt
+  updatedAt
+}
+    `;
 export const WorkspaceFragmentFragmentDoc = gql`
     fragment WorkspaceFragment on Workspace {
   id
@@ -2301,12 +2343,28 @@ export const GetMeDocument = gql`
           userId
           role
         }
+        ... on WorkspaceIntegrationMember {
+          integration {
+            ...integrationFragment
+          }
+          integrationRole: role
+          active
+          invitedBy {
+            id
+            name
+            email
+          }
+          invitedById
+        }
       }
     }
     auths
+    integrations {
+      ...integrationFragment
+    }
   }
 }
-    `;
+    ${IntegrationFragmentFragmentDoc}`;
 
 /**
  * __useGetMeQuery__

@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
 
+import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+
 export type Props = {
-  src?: string;
-  selected?: boolean;
-  title: string;
+  integration: Integration;
 };
 
-const IntegrationCard: React.FC<Props> = ({ src, selected, title }) => {
+const IntegrationCard: React.FC<Props> = ({ integration }) => {
   return (
-    <CardWrapper selected={selected}>
-      <CardImg src={src} />
-      <CardTitle>{title}</CardTitle>
+    <CardWrapper selected={false}>
+      <CardImg src={integration.logoUrl} />
+      <CardTitle>{integration.name}</CardTitle>
     </CardWrapper>
   );
 };

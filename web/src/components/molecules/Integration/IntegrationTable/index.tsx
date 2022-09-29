@@ -3,14 +3,26 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, { ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, {
+  ListToolBarProps,
+  ProColumns,
+  OptionConfig,
+  TableRowSelection,
+  TablePaginationConfig,
+} from "@reearth-cms/components/atoms/ProTable";
+import IntegrationHeader from "@reearth-cms/components/molecules/Integration/IntegrationHeader";
+import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-const IntegrationTable: React.FC = () => {
-  const dataSource: [] = [];
+export type Props = {
+  integrations: Integration[];
+  onIntegrationConnectModalOpen: () => void;
+};
+
+const IntegrationTable: React.FC<Props> = ({ integrations, onIntegrationConnectModalOpen }) => {
   const t = useT();
 
-  const columns = [
+  const columns: ProColumns<Integration>[] = [
     {
       title: t("Name"),
       dataIndex: "name",
@@ -19,7 +31,7 @@ const IntegrationTable: React.FC = () => {
     },
     {
       title: t("Role"),
-      dataIndex: "role",
+      dataIndex: "integrationRole",
       key: "role",
     },
     {
@@ -46,31 +58,42 @@ const IntegrationTable: React.FC = () => {
   };
 
   return (
-    <ConfigProvider
-      renderEmpty={() => (
-        <EmptyTableWrapper>
-          <Title>{t("No Integration yet")}</Title>
-          <Suggestion>
-            {t("Create a new")}{" "}
-            <Button onClick={() => {}} type="primary" icon={<Icon icon="api" />}>
-              {t("Connect Integration")}
-            </Button>
-          </Suggestion>
-          <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
-          </Suggestion>
-        </EmptyTableWrapper>
-      )}>
-      <ProTable
-        dataSource={dataSource}
-        columns={columns}
-        search={false}
-        rowKey="id"
-        toolbar={handleToolbarEvents}
-      />
-    </ConfigProvider>
+    <Wrapper>
+      <IntegrationHeader onConnect={onIntegrationConnectModalOpen} />
+      <ConfigProvider
+        renderEmpty={() => (
+          <EmptyTableWrapper>
+            <Title>{t("No Integration yet")}</Title>
+            <Suggestion>
+              {t("Create a new")}{" "}
+              <Button
+                onClick={onIntegrationConnectModalOpen}
+                type="primary"
+                icon={<Icon icon="api" />}>
+                {t("Connect Integration")}
+              </Button>
+            </Suggestion>
+            <Suggestion>
+              {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            </Suggestion>
+          </EmptyTableWrapper>
+        )}>
+        <ProTable
+          dataSource={integrations}
+          columns={columns}
+          search={false}
+          rowKey="id"
+          toolbar={handleToolbarEvents}
+        />
+      </ConfigProvider>
+    </Wrapper>
   );
 };
+
+const Wrapper = styled.div`
+  min-height: 100%;
+  background-color: #fff;
+`;
 
 const EmptyTableWrapper = styled.div`
   height: 100%;
