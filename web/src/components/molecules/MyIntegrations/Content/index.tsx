@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
+import MyIntegrationsForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
 import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegrations/Header";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
@@ -23,7 +23,7 @@ const MyIntegrationsContent: React.FC = () => {
           navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
         }}>
         <TabPane tab="General" key="integration">
-          <MyIntegrationForm />
+          <MyIntegrationsForm />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
           {isFormEdit ? <WebhookForm /> : <WebhookList />}

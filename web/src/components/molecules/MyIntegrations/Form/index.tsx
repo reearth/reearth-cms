@@ -9,7 +9,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationForm: React.FC = () => {
+const MyIntegrationsForm: React.FC = () => {
   const t = useT();
   const [form] = Form.useForm();
 
@@ -70,4 +70,4 @@ const MyIntegrationForm: React.FC = () => {
   );
 };
 
-export default MyIntegrationForm;
+export default MyIntegrationsForm;
