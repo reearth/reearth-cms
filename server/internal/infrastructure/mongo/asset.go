@@ -19,12 +19,20 @@ import (
 
 type assetRepo struct {
 	client *mongox.ClientCollection
+	f      repo.ProjectFilter
 }
 
 func NewAsset(client *mongox.Client) repo.Asset {
 	r := &assetRepo{client: client.WithCollection("asset")}
 	r.init()
 	return r
+}
+
+func (r *assetRepo) Filtered(f repo.ProjectFilter) repo.Asset {
+	return &assetRepo{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
 }
 
 func (r *assetRepo) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
