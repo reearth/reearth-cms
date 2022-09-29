@@ -8,11 +8,11 @@ import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
+import ThreadSider from "@reearth-cms/components/molecules/Common/ThreadSider";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
 import useHooks from "./hooks";
-import ThreadSider from "./threadSider";
 
 type Props = {
   children?: React.ReactNode;
@@ -23,6 +23,8 @@ type Props = {
 const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
+  const [threadVisibility, setThreadVisibility] = useState(true);
+
   const {
     user,
     personalWorkspace,
@@ -70,7 +72,12 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             )}
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
-          <ThreadSider></ThreadSider>
+          <ThreadSider
+            collapsible
+            collapsed={!threadVisibility}
+            width={300}
+            onCollapse={value => setThreadVisibility(!value)}
+          />
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal

@@ -17,12 +17,20 @@ type EditorProps = {
   value: any;
 };
 
+const comment = {
+  author: "Han Solo",
+  avatarUrl: "https://joeschmoe.io/api/v1/random",
+  content:
+    "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
+  createdAt: "2016-11-22 11:22:33",
+};
+
 const CommentList: React.FC<CommentListProps> = ({ comments }) => (
   <List
     dataSource={comments}
     header={`${comments.length} ${comments.length > 1 ? "replies" : "reply"}`}
     itemLayout="horizontal"
-    renderItem={() => <CommentContainer />}
+    renderItem={() => <CommentContainer comment={comment} />}
   />
 );
 
