@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import type { MenuInfo } from "rc-menu/lib/interface";
-import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
