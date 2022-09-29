@@ -12,9 +12,14 @@ const (
 	PreviewTypeMODEL3D PreviewType = "MODEL3D"
 )
 
-func ToAsset(a *asset.Asset) *Asset {
+func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	if a == nil {
 		return nil
+	}
+
+	var url string
+	if urlResolver != nil {
+		url = urlResolver(a)
 	}
 
 	return &Asset{
@@ -27,6 +32,7 @@ func ToAsset(a *asset.Asset) *Asset {
 		PreviewType: ToPreviewType(a.PreviewType()),
 		File:        ToAssetFile(a.File()),
 		UUID:        a.UUID(),
+		URL:         url,
 	}
 }
 

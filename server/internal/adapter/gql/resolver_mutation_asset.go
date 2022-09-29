@@ -18,7 +18,8 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	res, err := usecases(ctx).Asset.Create(ctx, interfaces.CreateAssetParam{
+	uc := usecases(ctx).Asset
+	res, err := uc.Create(ctx, interfaces.CreateAssetParam{
 		ProjectID:   pid,
 		CreatedByID: uid,
 		File:        gqlmodel.FromFile(&input.File),
@@ -27,7 +28,9 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	return &gqlmodel.CreateAssetPayload{Asset: gqlmodel.ToAsset(res)}, nil
+	return &gqlmodel.CreateAssetPayload{
+		Asset: gqlmodel.ToAsset(res, uc.GetURL),
+	}, nil
 }
 
 func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.UpdateAssetInput) (*gqlmodel.UpdateAssetPayload, error) {
@@ -38,7 +41,8 @@ func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.Updat
 
 	pt := (*asset.PreviewType)(input.PreviewType)
 
-	res, err2 := usecases(ctx).Asset.Update(ctx, interfaces.UpdateAssetParam{
+	uc := usecases(ctx).Asset
+	res, err2 := uc.Update(ctx, interfaces.UpdateAssetParam{
 		AssetID:     aid,
 		PreviewType: pt,
 	}, getOperator(ctx))
@@ -46,7 +50,9 @@ func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.Updat
 		return nil, err2
 	}
 
-	return &gqlmodel.UpdateAssetPayload{Asset: gqlmodel.ToAsset(res)}, nil
+	return &gqlmodel.UpdateAssetPayload{
+		Asset: gqlmodel.ToAsset(res, uc.GetURL),
+	}, nil
 }
 
 func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error) {

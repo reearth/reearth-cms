@@ -33,6 +33,7 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 		PreviewType: ToPreviewType(&pti),
 		File:        ToAssetFile(f),
 		UUID:        uuid,
+		URL:         "xxx",
 	}
 
 	var a2 *asset.Asset = nil
@@ -60,7 +61,10 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := ToAsset(tc.arg)
+			resolver := func(_ *asset.Asset) string {
+				return "xxx"
+			}
+			got := ToAsset(tc.arg, resolver)
 			assert.Equal(t, tc.want, got)
 		})
 	}

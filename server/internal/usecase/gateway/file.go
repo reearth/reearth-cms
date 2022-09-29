@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 )
 
@@ -19,4 +20,5 @@ type File interface {
 	ReadAsset(context.Context, string, string) (io.ReadCloser, error)
 	UploadAsset(context.Context, *file.File) (string, error)
 	DeleteAsset(context.Context, string, string) error
+	GetURL(*asset.Asset) string
 }

@@ -16,17 +16,17 @@ import (
 )
 
 func TestNewFile(t *testing.T) {
-	f, err := NewFile(mockFs(), "")
+	f, err := NewFile(mockFs(), "", "")
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
 
-	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
+	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk", "")
 	assert.Equal(t, err, invalidBaseURLErr)
 	assert.Nil(t, f1)
 }
 
 func TestFile_ReadAsset(t *testing.T) {
-	f, _ := NewFile(mockFs(), "")
+	f, _ := NewFile(mockFs(), "", "")
 	u := "5130c89f-8f67-4766-b127-49ee6796d464"
 
 	r, err := f.ReadAsset(context.Background(), u, "xxx.txt")
@@ -51,7 +51,7 @@ func TestFile_ReadAsset(t *testing.T) {
 
 func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", "")
 
 	u, err := f.UploadAsset(context.Background(), &file.File{
 		Path:    "aaa.txt",
@@ -87,7 +87,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u := newUUID()
 	n := "aaa.txt"
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", "")
 	err := f.DeleteAsset(context.Background(), u, n)
 	assert.NoError(t, err)
 
@@ -97,7 +97,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u1 := ""
 	n1 := ""
 	fs1 := mockFs()
-	f1, _ := NewFile(fs1, "https://example.com/assets")
+	f1, _ := NewFile(fs1, "https://example.com/assets", "")
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }

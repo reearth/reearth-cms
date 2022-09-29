@@ -44,10 +44,10 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	if conf.GCS.BucketName == "" {
 		log.Infoln("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
-		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
+		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL, conf.Host)
 	} else {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
-		fileRepo, err = gcs.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+		fileRepo, err = gcs.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.Host)
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}

@@ -7,11 +7,14 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"regexp"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -26,9 +29,10 @@ type fileRepo struct {
 	bucketName   string
 	base         *url.URL
 	cacheControl string
+	host         string
 }
 
-func NewFile(bucketName, base string, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, base, cacheControl, host string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
@@ -48,6 +52,7 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 		bucketName:   bucketName,
 		base:         u,
 		cacheControl: cacheControl,
+		host:         host,
 	}, nil
 }
 
@@ -74,10 +79,13 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 
 	uuid := newUUID()
 
+	// あああああ.png
 	p := getGCSObjectPath(uuid, file.Path)
 	if p == "" {
 		return "", gateway.ErrInvalidFile
 	}
+
+	// uuid1/uuid2/_____.png
 
 	if err := f.upload(ctx, p, file.Content); err != nil {
 		return "", err
@@ -96,6 +104,12 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 		return gateway.ErrInvalidFile
 	}
 	return f.delete(ctx, sn)
+}
+
+func (r *fileRepo) GetURL(a *asset.Asset) string {
+	uuid := a.UUID()
+	url, _ := url.JoinPath(r.host, uuid[:2], uuid[2:], fileName(a.FileName()))
+	return url
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
@@ -182,8 +196,7 @@ func getGCSObjectPath(uuid, objectName string) string {
 		return ""
 	}
 
-	p := path.Join(uuid[:2], uuid[2:], objectName)
-	return sanitize.Path(p)
+	return path.Join(uuid[:2], uuid[2:], fileName(objectName))
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
@@ -202,4 +215,11 @@ func newUUID() string {
 func IsValidUUID(u string) bool {
 	_, err := uuid.Parse(u)
 	return err == nil
+}
+
+var re = regexp.MustCompile(`[^a-zA-Z0-9-.]`)
+
+func fileName(s string) string {
+	ss := re.ReplaceAllString(s, "-")
+	return strings.ToLower(ss)
 }
