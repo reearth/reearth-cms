@@ -1,0 +1,71 @@
+name: deploy-test
+on:
+  workflow_run:
+    workflows: [server-build, ci-web]
+    types: [completed]
+    branches: [main]
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+env:
+  IMAGE: reearth/reearth-cms:nightly
+  IMAGE_NAME: us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/reearth-cms:nightly
+  GCP_REGION: us-central1
+  GCS_DEST: gs://cms.test.reearth.dev
+
+jobs:
+  show_info: #TODO: Delete this job later
+    name: show info
+    runs-on: ubuntu-latest
+    steps:
+      - name: show
+        run: echo ${{ github.event.workflow_run.name }}
+  deploy_web:
+    name: Deploy web to test env
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: get latest web artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{ secrets.GPT }}
+          workflow: web.yml
+          workflow_conclusion: success
+          branch: main
+          name: reearth-cms-web
+          check_artifacts: true
+          search_artifacts: true
+      - name: Extract
+        run: tar -xvf reearth-cms-web.tar.gz
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Deploy
+        run: gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr reearth-cms-web/ $GCS_DEST
+
+  deploy_server:
+    name: Deploy server to test env
+    runs-on: ubuntu-latest
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure'
+    steps:
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Configure docker
+        run: gcloud auth configure-docker --quiet
+      - name: docker push
+        run: |
+          docker pull $IMAGE
+          docker tag $IMAGE $IMAGE_GCP
+          docker push $IMAGE_GCP
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy reearth-cms-backend \
+            --image $IMAGE_GCP \
+            --region $GCP_REGION \
+            --platform managed \
+            --quiet
