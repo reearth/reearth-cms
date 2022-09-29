@@ -32,34 +32,34 @@ select role: ロールを選択
 Owner: オーナー
 Writer: 編集者
 Reader: 閲覧者
-New Integration: ''
-Cancel: ''
+New Integration: 新規インテグレーション
+Cancel: キャンセル
 Create: 作成
-Logo Image: ''
-Integration Name: ''
-Please input the title of the integration!: ''
+Logo Image: ロゴ画像
+Integration Name: インテグレーション名
+Please input the title of the integration!: インテグレーションの名前を入力してください
 Description: 説明
-Integration Token: ''
-Please input the token of the integration!: ''
-Input token: ''
-Save: ''
-Please input the logo of the integration!: ''
-Create new integration: ''
+Integration Token: インテグレーショントークン
+Please input the token of the integration!: インテグレーションのトークンを入力してください
+Input token: トークンを入力
+Save: 保存
+Please input the logo of the integration!: インテグレーションのロゴを設定してください
+Create new integration: 新規インテグレーション作成
 Update: アップデート
-Delete: ''
-Accessed by API: ''
+Delete: 削除
+Accessed by API: API経由でアクセス
 Name: 名前
-This is your webhook name: ''
-Please input the name of the webhook!: ''
-Url: ''
-Please note that all webhook URLs must start with http://.: ''
-URL is not valid: ''
-Trigger Event: ''
-Item: ''
+This is your webhook name: Webhookの名前です
+Please input the name of the webhook!: Webhookの名前を入力してください
+Url: URL
+Please note that all webhook URLs must start with http://.: WebhookのURLがhttp://で始まることを確認してください
+URL is not valid: 無効なURLです
+Trigger Event: イベント
+Item: アイテム
 Asset: アセット
-New Webhook: ''
-No Webhook yet: ''
-'Create a new ': ''
+New Webhook: 新規Webhook
+No Webhook yet: Webhookはまだありません
+'Create a new ': 新規作成
 Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
