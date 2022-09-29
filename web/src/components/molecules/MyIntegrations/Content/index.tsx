@@ -32,6 +32,8 @@ export type Props = {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookFormHeaderBack: () => void;
+  onWebhookFormNavigation: () => void;
+  onWebhookEditNavigation: (webhookId: string) => void;
   onTabChange: (key: string) => void;
 };
 
@@ -46,6 +48,8 @@ const MyIntegrationContent: React.FC<Props> = ({
   onWebhookUpdate,
   onIntegrationHeaderBack,
   onWebhookFormHeaderBack,
+  onWebhookFormNavigation,
+  onWebhookEditNavigation,
   onTabChange,
 }) => {
   const { TabPane } = Tabs;
@@ -72,6 +76,8 @@ const MyIntegrationContent: React.FC<Props> = ({
               webhooks={integration.config.webhooks}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
+              onWebhookFormNavigation={onWebhookFormNavigation}
+              onWebhookEditNavigation={onWebhookEditNavigation}
             />
           )}
         </TabPane>

@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -19,30 +17,23 @@ export type Props = {
     active: boolean;
     trigger: WebhookTrigger;
   }) => Promise<void>;
+  onWebhookFormNavigation: () => void;
+  onWebhookEditNavigation: (webhookId: string) => void;
 };
 
-const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpdate }) => {
-  const { workspaceId, integrationId } = useParams();
-  const navigate = useNavigate();
+const WebhookList: React.FC<Props> = ({
+  webhooks,
+  onWebhookDelete,
+  onWebhookUpdate,
+  onWebhookFormNavigation,
+  onWebhookEditNavigation,
+}) => {
   const t = useT();
-
-  const handleWebhookFormNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
-  }, [navigate, workspaceId, integrationId]);
-
-  const handleWebhookEditNavigation = useCallback(
-    (webhookId: string) => {
-      navigate(
-        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
-      );
-    },
-    [navigate, workspaceId, integrationId],
-  );
 
   return (
     <>
       <ActionWrapper>
-        <Button onClick={handleWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
+        <Button onClick={onWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
@@ -54,7 +45,7 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpda
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
-              onWebhookSettings={handleWebhookEditNavigation}
+              onWebhookSettings={onWebhookEditNavigation}
             />
           ))}
         </ListWrapper>
@@ -63,10 +54,7 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpda
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
             {t("Create a new ")}
-            <Button
-              onClick={handleWebhookFormNavigation}
-              type="primary"
-              icon={<Icon icon="plus" />}>
+            <Button onClick={onWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
           </Suggestion>

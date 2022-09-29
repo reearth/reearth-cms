@@ -25,6 +25,19 @@ const MyIntegrationDetails: React.FC = () => {
     [navigate, workspaceId, integrationId],
   );
 
+  const handleWebhookFormNavigation = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
+  }, [navigate, workspaceId, integrationId]);
+
+  const handleWebhookEditNavigation = useCallback(
+    (webhookId: string) => {
+      navigate(
+        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
+      );
+    },
+    [navigate, workspaceId, integrationId],
+  );
+
   const {
     selectedIntegration,
     webhookInitialValues,
@@ -47,6 +60,8 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookUpdate={handleWebhookUpdate}
       onIntegrationHeaderBack={handleIntegrationHeaderBack}
       onWebhookFormHeaderBack={handleWebhookFormHeaderBack}
+      onWebhookFormNavigation={handleWebhookFormNavigation}
+      onWebhookEditNavigation={handleWebhookEditNavigation}
       onTabChange={handleTabChange}
       activeTab={tab}
       showWebhookForm={showWebhookForm}
