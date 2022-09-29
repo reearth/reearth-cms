@@ -12,6 +12,7 @@ type Project implements Node {
   workspace: Workspace
   createdAt: DateTime!
   updatedAt: DateTime!
+  publicSettings: ProjectPublicSetting
 }
 
 # Inputs

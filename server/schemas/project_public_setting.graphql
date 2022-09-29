@@ -1,28 +1,16 @@
-type ProjectPublicSetting {
-  id: ID!
+enum ProjectPublicSetting {
   projectId: ID!
-  publicProjectIds: [ID]
+  publicModelIds: [ID]!
   publicScope: String! # "APIKEY" | "ANYONE"
   assetPublic: Boolean!
 }
 
 # Inputs
-input CreatePublicProjectInput {
-  projectId: ID!
-  publicProjectIds: [ID]
-  publicScope: String!
-  assetPublic: Boolean!
-}
-
 input UpdatePublicProjectInput {
   projectId: ID!
-  publicProjectIds: [ID]
+  publicModelIds: [ID]!
   publicScope: String!
   assetPublic: Boolean!
-}
-
-input DeletePublicProjectInput {
-  projectId: ID!
 }
 
 # Payloads
@@ -30,14 +18,8 @@ type PublicProjectPayload {
   projectPublicSetting: ProjectPublicSetting!
 }
 
-type DeletePublicProjectPayload {
-  projectId: ID!
-}
-
 # extend type Query {}
 
 extend type Mutation {
-  createPublicProjectInput(input: CreatePublicProjectInput!): PublicProjectPayload
   updatePublicProjectInput(input: UpdatePublicProjectInput!): PublicProjectPayload
-  deletePublicProjectInput(input: DeletePublicProjectInput!): DeletePublicProjectPayload
 }
