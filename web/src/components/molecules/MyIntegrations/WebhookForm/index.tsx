@@ -9,7 +9,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
-import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {

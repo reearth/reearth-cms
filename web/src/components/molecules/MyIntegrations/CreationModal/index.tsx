@@ -7,7 +7,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Upload from "@reearth-cms/components/atoms/Upload";
-import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegration/types";
+import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {

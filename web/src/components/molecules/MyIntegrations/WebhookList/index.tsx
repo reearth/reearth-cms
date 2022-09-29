@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
+import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
