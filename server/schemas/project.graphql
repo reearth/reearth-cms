@@ -4,10 +4,10 @@ type ProjectAliasAvailability {
 }
 
 enum ProjectPublicSetting {
-  projectId: ID!
-  publicModelIds: [ID]!
-  publicScope: String! # "APIKEY" | "ANYONE"
-  assetPublic: Boolean!
+  ProjectId
+  PublicModelIds
+  PublicScope
+  AssetPublic
 }
 
 type Project implements Node {
