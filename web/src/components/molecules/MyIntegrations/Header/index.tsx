@@ -8,7 +8,7 @@ export type Props = {
   onBack?: () => void;
 };
 
-const MyIntegrationHeader: React.FC<Props> = ({ title, backgroundColor, onBack }) => {
+const MyIntegrationsHeader: React.FC<Props> = ({ title, backgroundColor, onBack }) => {
   return <IntegrationPageHeader onBack={onBack} title={title} backgroundColor={backgroundColor} />;
 };
 
@@ -16,4 +16,4 @@ const IntegrationPageHeader = styled(PageHeader)<{ backgroundColor?: string }>`
   background: ${({ backgroundColor }) => backgroundColor || "unset"};
 `;
 
-export default MyIntegrationHeader;
+export default MyIntegrationsHeader;

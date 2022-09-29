@@ -1,5 +1,5 @@
-import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegrations/IntegrationCreationModal";
-import MyIntegrationsList from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationsList";
+import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
+import MyIntegrationsList from "@reearth-cms/components/molecules/MyIntegrations/List";
 
 const MyIntegrations: React.FC = () => {
   return (

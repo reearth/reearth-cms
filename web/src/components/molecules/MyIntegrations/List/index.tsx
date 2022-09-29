@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 
-import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationHeader";
-import IntegrationsCreationAction from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationsList/IntegrationsCreationAction";
-import MyIntegrationsCard from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationsList/MyIntegrationsCard";
+import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegrations/Header";
+import MyIntegrationsCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
+import IntegrationsCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { useT } from "@reearth-cms/i18n";
 
 const MyIntegrationsList: React.FC = () => {
@@ -10,7 +10,7 @@ const MyIntegrationsList: React.FC = () => {
 
   return (
     <Wrapper>
-      <MyIntegrationHeader title={t("My Integrations")} />
+      <MyIntegrationsHeader title={t("My Integrations")} />
       <ListWrapper>
         <MyIntegrationsCard title="Robot Red" subTitle="Internal integration" />
         <IntegrationsCreationAction />
