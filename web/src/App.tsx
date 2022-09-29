@@ -33,17 +33,17 @@ function AppRoutes() {
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
-    { path: "/workspaces/:workspaceId/my-integration", element: <MyIntegrationPage /> },
+    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationPage /> },
     {
-      path: "/workspaces/:workspaceId/my-integration/:integrationId",
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId",
       element: <MyIntegrationDetailsPage />,
     },
     {
-      path: "/workspaces/:workspaceId/my-integration/:integrationId/:tab",
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab",
       element: <MyIntegrationDetailsPage />,
     },
     {
-      path: "/workspaces/:workspaceId/my-integration/:integrationId/:tab/edit",
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/edit",
       element: <MyIntegrationDetailsPage />,
     },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },

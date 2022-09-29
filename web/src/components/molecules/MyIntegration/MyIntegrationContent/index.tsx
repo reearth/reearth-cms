@@ -20,7 +20,7 @@ const MyIntegrationContent: React.FC = () => {
         defaultActiveKey="integration"
         activeKey={tab}
         onChange={key => {
-          navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
+          navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
         }}>
         <TabPane tab="General" key="integration">
           <MyIntegrationForm />
