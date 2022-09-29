@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-const IntegrationCreationAction: React.FC = () => {
+const IntegrationsCreationAction: React.FC = () => {
   const t = useT();
 
   return (
@@ -46,4 +46,4 @@ const CardTitle = styled.p`
   line-height: 22px;
 `;
 
-export default IntegrationCreationAction;
+export default IntegrationsCreationAction;

@@ -6,7 +6,7 @@ export type Props = {
   subTitle: string;
 };
 
-const MyIntegrationCard: React.FC<Props> = ({ src, title, subTitle }) => {
+const MyIntegrationsCard: React.FC<Props> = ({ src, title, subTitle }) => {
   return (
     <CardWrapper>
       <Card>
@@ -58,4 +58,4 @@ const CardSubTitle = styled.h6`
   color: #00000073;
 `;
 
-export default MyIntegrationCard;
+export default MyIntegrationsCard;

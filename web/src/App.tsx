@@ -9,7 +9,7 @@ import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import MembersPage from "@reearth-cms/components/pages/Members";
 import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
-import MyIntegrationPage from "@reearth-cms/components/pages/MyIntegrations";
+import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import SchemaPage from "@reearth-cms/components/pages/Schema";
@@ -33,7 +33,7 @@ function AppRoutes() {
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
-    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationPage /> },
+    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
     {
       path: "/workspaces/:workspaceId/myIntegrations/:integrationId",
       element: <MyIntegrationDetailsPage />,

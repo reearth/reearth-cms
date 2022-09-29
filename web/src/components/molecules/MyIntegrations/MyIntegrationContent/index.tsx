@@ -2,10 +2,10 @@ import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
-import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
-import WebhookForm from "@reearth-cms/components/molecules/MyIntegration/WebhookForm";
-import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";
+import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationForm";
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationHeader";
+import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
+import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
 
 const MyIntegrationContent: React.FC = () => {
   const { tab, workspaceId, integrationId } = useParams();

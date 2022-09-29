@@ -1,4 +1,4 @@
-import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationContent";
+import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegrations/MyIntegrationContent";
 
 const MyIntegrationDetails: React.FC = () => {
   return <MyIntegrationContent />;
