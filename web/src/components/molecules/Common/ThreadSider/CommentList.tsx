@@ -1,7 +1,9 @@
-import { Comment, List } from "antd";
+import { List } from "antd";
+
+import Comment from "./Comment";
 
 type CommentListProps = {
-  comments: any[];
+  comments: CommentItem[];
 };
 
 type CommentItem = {

@@ -1,21 +1,49 @@
 import { MessageOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import { SiderProps } from "antd";
+import { useState } from "react";
 
 import Sider from "@reearth-cms/components/atoms/Sider";
 import { useT } from "@reearth-cms/i18n";
 
-import CommentContainer from "./comment";
-import ReplyEditor from "./replyEditor";
+import Thread from "./Thread";
 
 const ThreadSider: React.FC<SiderProps> = ({ ...props }) => {
   const t = useT();
-  const comment = {
-    author: "Han Solo",
-    avatarUrl: "https://joeschmoe.io/api/v1/random",
-    content:
-      "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-    createdAt: "2016-11-22 11:22:33",
+
+  const [comments, setComments] = useState<any>([
+    {
+      author: "Nour Balaha",
+      avatar: "https://joeschmoe.io/api/v1/random",
+      content: "How are you doing?",
+      datetime: "2022-09-28 11:22:33",
+    },
+  ]);
+  const [submitting, setSubmitting] = useState(false);
+  const [value, setValue] = useState("");
+
+  const handleSubmit = () => {
+    if (!value) return;
+
+    const createdAt = new Date().toLocaleString();
+    const author = "Nour Balaha";
+    const comment = {
+      author: author,
+      avatar: "https://joeschmoe.io/api/v1/random",
+      content: value,
+      datetime: createdAt,
+    };
+
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setValue("");
+      setComments([...comments, comment]);
+    }, 1000);
+  };
+
+  const handleChange = (e: any) => {
+    setValue(e.target.value);
   };
 
   return (
@@ -28,8 +56,14 @@ const ThreadSider: React.FC<SiderProps> = ({ ...props }) => {
         <NotCollapsedSider>
           <SiderTitle>{t("Comments")}</SiderTitle>
           <CommentsContainer>
-            <CommentContainer comment={comment} />
-            <ReplyEditor />
+            <Thread
+              comments={comments}
+              avatar="https://joeschmoe.io/api/v1/random"
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+              value={value}
+            />
           </CommentsContainer>
         </NotCollapsedSider>
       )}

@@ -1,24 +1,23 @@
-import { Avatar, Comment, Tooltip } from "antd";
+import { Avatar, Comment as AntDComment, CommentProps, Tooltip } from "antd";
 import moment from "moment";
 
-type Props = {
-  comment: any;
-};
+const Comment: React.FC<CommentProps> = ({ author, avatar, content, datetime }) => {
+  const fromNow = moment(datetime?.toString()).fromNow();
 
-const CommentContainer: React.FC<Props> = ({ comment }) => {
-  const fromNow = moment(comment.datetime).fromNow();
   return (
-    <Comment
-      author={<a>{comment.author}</a>}
-      avatar={<Avatar src={comment.avatarUrl} alt="avatar" />}
-      content={<p>{comment.content}</p>}
+    <AntDComment
+      author={<a>{author}</a>}
+      avatar={<Avatar src={avatar} alt="avatar" />}
+      content={<>{content}</>}
       datetime={
-        <Tooltip title={comment.datetime}>
-          <span>{fromNow}</span>
-        </Tooltip>
+        datetime && (
+          <Tooltip title={datetime}>
+            <span>{fromNow}</span>
+          </Tooltip>
+        )
       }
     />
   );
 };
 
-export default CommentContainer;
+export default Comment;

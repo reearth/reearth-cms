@@ -1,5 +1,7 @@
 import { Button, Form, Input } from "antd";
 
+const { TextArea } = Input;
+
 type EditorProps = {
   onChange: any;
   onSubmit: any;
