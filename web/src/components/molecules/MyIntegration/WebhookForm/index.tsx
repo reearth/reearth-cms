@@ -149,9 +149,6 @@ const WebhookForm: React.FC<Props> = ({
                 </Row>
               </Checkbox.Group>
             </Form.Item>
-            {/* <Form.Item name="assetTriggers" label={t("Asset")}>
-              <Checkbox.Group onChange={handleCheckboxChange} options={assetOptions} />
-            </Form.Item> */}
           </Col>
         </Row>
       </StyledForm>
