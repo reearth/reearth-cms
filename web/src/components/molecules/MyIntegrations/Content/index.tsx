@@ -7,7 +7,7 @@ import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegratio
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
 
-const MyIntegrationContent: React.FC = () => {
+const MyIntegrationsContent: React.FC = () => {
   const { tab, workspaceId, integrationId } = useParams();
   const isFormEdit = location.pathname.includes("/webhooks/edit");
   const navigate = useNavigate();
@@ -43,4 +43,4 @@ const MyIntegrationTabs = styled(Tabs)`
   padding: 0 24px;
 `;
 
-export default MyIntegrationContent;
+export default MyIntegrationsContent;

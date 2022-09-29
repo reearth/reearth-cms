@@ -1,7 +1,7 @@
-import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegrations/Content";
+import MyIntegrationsContent from "@reearth-cms/components/molecules/MyIntegrations/Content";
 
 const MyIntegrationDetails: React.FC = () => {
-  return <MyIntegrationContent />;
+  return <MyIntegrationsContent />;
 };
 
 export default MyIntegrationDetails;
