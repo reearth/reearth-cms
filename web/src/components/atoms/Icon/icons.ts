@@ -27,6 +27,7 @@ import {
   MoreOutlined,
   MinusCircleOutlined,
   DeleteOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -73,4 +74,5 @@ export default {
   more: MoreOutlined,
   minusCircle: MinusCircleOutlined,
   delete: DeleteOutlined,
+  arrowLeft: ArrowLeftOutlined,
 };
