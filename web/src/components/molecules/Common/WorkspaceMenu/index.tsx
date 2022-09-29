@@ -86,6 +86,8 @@ const WorkspaceMenu: React.FC<Props> = ({
       navigate(`/dashboard/${workspaceId}`);
     } else if (e.key === "my-integration") {
       navigate(`/workspaces/${workspaceId}/myIntegrations`);
+    } else if (e.key === "integration") {
+      navigate(`/workspaces/${workspaceId}/integration`);
     }
   };
 

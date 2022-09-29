@@ -4,10 +4,14 @@ on:
     branches: [main, release]
     paths:
       - .github/workflows/server.yml
+      - .github/workflows/server_build.yml
+      - .github/workflows/deploy_test.yml
       - server/**
   pull_request:
     paths:
       - .github/workflows/server.yml
+      - .github/workflows/server_build.yml
+      - .github/workflows/deploy_test.yml
       - server/**
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -24,16 +24,28 @@ New Project: 新規プロジェクト
 Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
+Connect Integration: インテグレーションを連携
+Cancel: キャンセル
+Connect: 連携
+Integration Setting: インテグレーション設定
+Save: 保存
+Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
+select role: ロールを選択
+Reader: 閲覧者
+Writer: 編集者
+Owner: オーナー
+Name: 名前
+Creator: 作成者
+State: ステート
+Action: アクション
+No Integration yet: まだインテグレーションはありません
+Create a new: 新規作成
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-select role: ロールを選択
-Owner: オーナー
-Writer: 編集者
-Reader: 閲覧者
 New Integration: 新規インテグレーション
-Cancel: キャンセル
+Add Field: フィールドを追加
 Create: 作成
 Logo Image: ロゴ画像
 Integration Name: インテグレーション名
@@ -42,13 +54,11 @@ Description: 説明
 Integration Token: インテグレーショントークン
 Please input the token of the integration!: インテグレーションのトークンを入力してください
 Input token: トークンを入力
-Save: 保存
 Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
 Accessed by API: API経由でアクセス
-Name: 名前
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
 Url: URL
@@ -60,7 +70,6 @@ Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
-Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
