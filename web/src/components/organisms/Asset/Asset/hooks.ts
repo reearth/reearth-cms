@@ -8,10 +8,12 @@ import {
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
+  const t = useT();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -36,14 +38,14 @@ export default (assetId?: string) => {
         });
         if (result.errors || !result.data?.updateAsset) {
           // TODO: notification
-          console.log("Failed to update asset.");
+          console.log(t("Failed to update asset."));
         }
         if (result) {
           // TODO: notification
-          console.log("Asset was successfully updated.");
+          console.log(t("Asset was successfully updated."));
         }
       })(),
-    [updateAssetMutation],
+    [t, updateAssetMutation],
   );
 
   useEffect(() => {
