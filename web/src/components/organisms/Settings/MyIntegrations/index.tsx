@@ -1,5 +1,5 @@
-import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegration/IntegrationCreationModal";
-import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList";
+import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegration/CreationModal";
+import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegration/List";
 
 import useHooks from "./hooks";
 

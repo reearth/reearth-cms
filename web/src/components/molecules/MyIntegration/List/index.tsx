@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 
-import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
-import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/IntegrationCreationAction";
-import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationList/MyIntegrationCard";
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/Header";
+import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegration/List/Card";
+import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegration/List/CreationAction";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegration/types";
 import { useT } from "@reearth-cms/i18n";
 

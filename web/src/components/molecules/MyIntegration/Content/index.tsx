@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
 
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationForm";
-import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationHeader";
+import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegration/Form";
+import MyIntegrationHeader from "@reearth-cms/components/molecules/MyIntegration/Header";
 import { Integration, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegration/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegration/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegration/WebhookList";

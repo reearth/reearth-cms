@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/MyIntegrationContent";
+import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegration/Content";
 
 import useHooks from "./hooks";
 
