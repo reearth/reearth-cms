@@ -27,13 +27,13 @@ const WebhookList: React.FC<Props> = ({ webhooks, onWebhookDelete, onWebhookUpda
   const t = useT();
 
   const handleWebhookFormNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks/form`);
+    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
   }, [navigate, workspaceId, integrationId]);
 
   const handleWebhookEditNavigation = useCallback(
     (webhookId: string) => {
       navigate(
-        `/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks/form/${webhookId}`,
+        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
       );
     },
     [navigate, workspaceId, integrationId],

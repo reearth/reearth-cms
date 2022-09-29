@@ -11,16 +11,16 @@ const MyIntegrationDetails: React.FC = () => {
   const navigate = useNavigate();
 
   const handleIntegrationHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/my-integration`);
+    navigate(`/workspaces/${workspaceId}/myIntegration`);
   }, [navigate, workspaceId]);
 
   const handleWebhookFormHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/webhooks`);
+    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks`);
   }, [navigate, workspaceId, integrationId]);
 
   const handleTabChange = useCallback(
     (key: string) => {
-      navigate(`/workspaces/${workspaceId}/my-integration/${integrationId}/${key}`);
+      navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
     },
     [navigate, workspaceId, integrationId],
   );
