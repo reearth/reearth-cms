@@ -49,7 +49,7 @@ const WorkspaceMenu: React.FC<Props> = ({
       show: "both" as MenuShowType,
     },
     {
-      label: t("My Integration"),
+      label: t("My Integrations"),
       key: "my-integration",
       icon: <Icon icon="api" />,
       show: "both" as MenuShowType,

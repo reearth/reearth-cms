@@ -14,4 +14,5 @@ const MyIntegrationHeader: React.FC<Props> = ({ title, onBack }) => {
 const IntegrationPageHeader = styled(PageHeader)`
   background: #fff;
 `;
+
 export default MyIntegrationHeader;

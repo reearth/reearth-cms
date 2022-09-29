@@ -10,7 +10,7 @@ const MyIntegrationList: React.FC = () => {
 
   return (
     <Wrapper>
-      <MyIntegrationHeader title={t("My Integration")} />
+      <MyIntegrationHeader title={t("My Integrations")} />
       <ListWrapper>
         <MyIntegrationCard title="Robot Red" subTitle="Internal integration" />
         <IntegrationCreationAction />
