@@ -7,16 +7,16 @@ import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
+export type FormValues = {
   title: string;
   description: string;
-}
+};
 
-export interface Props {
+export type Props = {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
-}
+};
 
 const initialValues: FormValues = {
   title: "",
@@ -28,17 +28,15 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const [form] = Form.useForm();
   const { Option } = Select;
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        await onSubmit?.(values);
-        onClose?.(true);
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await onSubmit?.(values);
+      onClose?.(true);
+      form.resetFields();
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {

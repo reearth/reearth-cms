@@ -66,9 +66,10 @@ export default ({ projectId, modelId }: Params) => {
   }, [data?.models.nodes]);
 
   const rawModel = useMemo(
-    () => data?.models.nodes.find((p: any) => p?.id === modelId),
+    () => data?.models.nodes.find(node => node?.id === modelId),
     [data, modelId],
   );
+
   const model = useMemo<Model | undefined>(
     () =>
       rawModel?.id
