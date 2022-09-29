@@ -9,6 +9,8 @@ import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import IntegrationPage from "@reearth-cms/components/pages/Integration";
 import MembersPage from "@reearth-cms/components/pages/Members";
+import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
+import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import SchemaPage from "@reearth-cms/components/pages/Schema";
@@ -32,6 +34,19 @@ function AppRoutes() {
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
+    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/edit",
+      element: <MyIntegrationDetailsPage />,
+    },
     { path: "/workspaces/:workspaceId/integration", element: <IntegrationPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
