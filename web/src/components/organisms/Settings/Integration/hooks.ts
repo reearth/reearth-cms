@@ -3,9 +3,12 @@ import { useCallback, useMemo, useState } from "react";
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 
-export default () => {
+export default (workspaceId?: string) => {
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const { data } = useGetMeQuery();
+
+  const workspaces = data?.me?.workspaces;
+  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
 
   const integrations = useMemo(() => {
     return (data?.me?.integrations ?? [])
@@ -27,6 +30,28 @@ export default () => {
       )
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
+
+  //   const workspaceIntegrations = useMemo(() => {
+  //     return (workspace?.members ?? [])
+  //       .map<Integration | undefined>(member =>
+  //         member
+  //           ? {
+  //               id: member.integration.id,
+  //               name: member.integration.name,
+  //               description: member.integration.description,
+  //               logoUrl: member.integration.logoUrl,
+  //               developerId: member.integration.developerId,
+  //               iType: member.integration.iType,
+  //               config: {
+  //                 token: member.integration.config?.token,
+  //                 webhooks: member.integration.config?.webhooks,
+  //               },
+  //             }
+  //           : undefined,
+  //       )
+  //       .filter((integration): integration is Integration => !!integration);
+  //   }, [workspace]);
+
   const handleIntegrationConnectModalClose = useCallback(() => {
     setIntegrationConnectModalShown(false);
   }, []);
