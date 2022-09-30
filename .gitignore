@@ -2,6 +2,7 @@ node_modules
 *.log
 
 /.idea/
+/.vscode/launch.json
 
 .env*
 
@@ -11,5 +12,6 @@ node_modules
 /web/storybook-static
 
 /server/mongo
+/server/data
 
 /worker/.env*

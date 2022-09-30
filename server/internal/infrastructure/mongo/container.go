@@ -21,11 +21,13 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 
 	client := mongox.NewClient(databaseName, mc)
 	c := &repo.Container{
+		Asset:       NewAsset(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: mongox.NewTransaction(client),
 		Lock:        lock,
 		Project:     NewProject(client),
+		Item:        NewItem(client),
 		Model:       NewModel(client),
 		Schema:      NewSchema(client),
 	}

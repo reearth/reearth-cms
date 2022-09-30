@@ -15,6 +15,8 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
+const databaseName = "reearth-cms"
+
 func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container) {
 	gateways := &gateway.Container{}
 
@@ -30,7 +32,7 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, "")
+	repos, err := mongorepo.New(ctx, client, databaseName)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}

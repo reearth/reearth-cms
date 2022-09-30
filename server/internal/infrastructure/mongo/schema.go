@@ -99,15 +99,6 @@ func (r *schemaRepo) find(ctx context.Context, filter any) (schema.List, error) 
 	return c.Result, nil
 }
 
-// func (r *schemaRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (schema.List, *usecasex.PageInfo, error) {
-//  c := mongodoc.NewSchemaConsumer()
-// 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), pagination, &c)
-// 	if err != nil {
-// 		return nil, nil, rerror.ErrInternalBy(err)
-// 	}
-// 	return c.Rows, pageInfo, nil
-// }
-
 func (r *schemaRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }

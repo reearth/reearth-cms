@@ -9,12 +9,14 @@ import (
 )
 
 type Container struct {
+	Asset       Asset
 	Lock        Lock
 	User        User
 	Workspace   Workspace
 	Project     Project
 	Model       Model
 	Schema      Schema
+	Item        Item
 	Transaction usecasex.Transaction
 }
 
@@ -27,10 +29,12 @@ func (c *Container) Filtered(workspace WorkspaceFilter) *Container {
 		return c
 	}
 	return &Container{
+		Asset:       c.Asset,
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
+		Item:        c.Item,
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model,
 		Schema:      c.Schema.Filtered(workspace),

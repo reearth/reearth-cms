@@ -21,7 +21,6 @@ import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
-  url: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
   handleModalCancel: () => void;
@@ -36,7 +35,6 @@ export let viewerRef: Viewer | undefined;
 
 const AssetBody: React.FC<Props> = ({
   asset,
-  url,
   selectedPreviewType,
   handleTypeChange,
   isModalVisible,
@@ -45,7 +43,7 @@ const AssetBody: React.FC<Props> = ({
 }) => {
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-  const displayUnzipFileList = selectedPreviewType !== PreviewType.Image;
+  const displayUnzipFileList = selectedPreviewType !== "IMAGE";
   // TODO: maybe we need a better way to check for svg files
   const isSVG = !!asset.fileName?.endsWith(".svg");
   const getViewer = (viewer: Viewer | undefined) => {
@@ -53,7 +51,7 @@ const AssetBody: React.FC<Props> = ({
   };
   const renderPreview = () => {
     switch (selectedPreviewType) {
-      case PreviewType.Geo:
+      case "GEO":
         return (
           <TilesetPreview
             viewerProps={{
@@ -71,16 +69,16 @@ const AssetBody: React.FC<Props> = ({
               geocoder: false,
             }}
             tilesetProps={{
-              url: url,
+              url: asset.url,
             }}
             onGetViewer={getViewer}
           />
         );
-      case PreviewType.Image:
+      case "IMAGE":
         return isSVG ? (
-          <SVGPreview url={url} svgRender={svgRender} />
+          <SVGPreview url={asset.url} svgRender={svgRender} />
         ) : (
-          <Image src={url} alt="asset-preview"></Image>
+          <Image src={asset.url} alt="asset-preview"></Image>
         );
       default:
         return <ViewerNotSupported />;
@@ -94,7 +92,7 @@ const AssetBody: React.FC<Props> = ({
           title={asset.fileName}
           toolbar={
             <PreviewToolbar
-              url={url}
+              url={asset.url}
               selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
               isSVG={isSVG}
@@ -111,7 +109,7 @@ const AssetBody: React.FC<Props> = ({
             <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
           </Card>
         )}
-        <DownloadButton type="ghost" filename={asset.fileName} url={url} displayDefaultIcon />
+        <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title="Asset Type">
@@ -122,7 +120,7 @@ const AssetBody: React.FC<Props> = ({
           />
         </SideBarCard>
         <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title="Created By">{asset.createdById}</SideBarCard>
+        <SideBarCard title="Created By">{asset.createdBy}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );

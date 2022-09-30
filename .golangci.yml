@@ -1,4 +1,4 @@
 linters:
   enable-all: false
 run:
-  go: "1.19"
+  timeout: 5m
