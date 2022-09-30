@@ -3,7 +3,7 @@ package gcp
 import "fmt"
 
 type Config struct {
-	cloudTasks *CloudTasksConfig
+	cloudTasks *CloudTasksConfig //nolint:unused
 }
 
 type CloudTasksConfig struct {
