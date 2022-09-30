@@ -4,13 +4,13 @@ import (
 	"archive/zip"
 	"context"
 	"io"
-	"log"
 	"net/url"
 	"path"
 	"strings"
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	rzip "github.com/reearth/reearth-cms/worker/pkg/zip"
+	"github.com/reearth/reearthx/log"
 )
 
 type Usecase struct {
@@ -21,19 +21,12 @@ func NewUsecase(g *gateway.Container) *Usecase {
 	return &Usecase{gateways: g}
 }
 
-// var (
-// 	ErrUnsupportedExtension = errors.New("unsupported compressed extension type")
-// )
-
 type DecompressableExt string
 
+// MEMO: modify here when we support other compression format
 const (
 	Zip = DecompressableExt("zip")
 )
-
-func (de DecompressableExt) toString() string {
-	return string(de)
-}
 
 func FromString(ext string) DecompressableExt {
 	switch ext {
@@ -50,20 +43,21 @@ func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
 		return err
 	}
 
-	rawExt := path.Ext(aURL.Path)
-	ext := FromString(strings.TrimPrefix(rawExt, "."))
+	rawExt := strings.TrimPrefix(path.Ext(aURL.Path), ".")
+	ext := FromString(rawExt)
+	fileName := strings.TrimPrefix(strings.TrimSuffix(aURL.Path, "."+rawExt), "/")
+
 	if ext == "" {
-		log.Default().Printf("file wasn't decompressed since it's not supported extension type") //TODO: fix here
+		log.Infof("decompress: file wasn't decompressed since it's not supported extension type")
 		return nil
 	}
 
-	// TODO: extract comressed file format and choose the function to decompress it
 	compressedFile, size, err := u.gateways.File.Read(ctx, aURL.Path)
 	if err != nil {
 		return err
 	}
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, name)
+		w, err := u.gateways.File.Upload(ctx, fileName+name)
 		if err != nil {
 			return nil, err
 		}
