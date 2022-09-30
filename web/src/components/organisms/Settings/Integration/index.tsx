@@ -11,6 +11,7 @@ const Integration: React.FC = () => {
 
   const {
     integrations,
+    workspaceIntegrations,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     integrationConnectModalShown,
@@ -18,7 +19,7 @@ const Integration: React.FC = () => {
   return (
     <>
       <IntegrationTable
-        integrations={integrations}
+        integrations={workspaceIntegrations}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
       />
       <IntegrationConnectModal
