@@ -10,6 +10,7 @@ concurrency:
 env:
   IMAGE: reearth/reearth-cms:nightly
   IMAGE_NAME: us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/reearth-cms:nightly
+  IMAGE_GCP: us.gcr.io/reearth-oss/reearth-cms:nightly
   GCP_REGION: us-central1
   GCS_DEST: gs://cms.test.reearth.dev
 
