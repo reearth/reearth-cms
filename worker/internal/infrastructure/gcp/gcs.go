@@ -120,7 +120,7 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io
 		log.Errorf(ctx, "gcs: read bucket err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
-	obj := bucket.Object("ec/test.zip")
+	obj := bucket.Object(objectName)
 	// obj := bucket.Object(objectName)
 	attr, err := obj.Attrs(ctx)
 	if err != nil {
@@ -155,7 +155,7 @@ func getGCSObjectNameFromURL(assetBasePath string, path string) string { //TODO:
 		return ""
 	}
 
-	p := sanitize.Path(strings.TrimPrefix(path, "/"+assetBasePath))
+	p := sanitize.Path(strings.TrimPrefix(path, "/"+assetBasePath+"/"))
 
 	return p
 }

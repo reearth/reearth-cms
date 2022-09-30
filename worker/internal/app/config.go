@@ -19,8 +19,8 @@ type Config struct {
 }
 
 type GCSConfig struct {
-	BucketName              string `default:"assets.test.cms.reearth.dev" envconfig:"GCS_BUCKET_NAME"` //TODO: fix here later
-	AssetBaseURL            string `default:"https://assets.test.cms.reearth.dev" envconfig:"GCS_ASSET_BASE_URL"`
+	BucketName              string `default:"asset.cms.test.reearth.dev" envconfig:"GCS_BUCKET_NAME"` //TODO: fix here later
+	AssetBaseURL            string `default:"https://asset.cms.test.reearth.dev" envconfig:"GCS_ASSET_BASE_URL"`
 	PublicationCacheControl string
 }
 
