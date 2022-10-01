@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+import {
+  Integration,
+  IntegrationMember,
+} from "@reearth-cms/components/molecules/Integration/types";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
@@ -37,14 +40,19 @@ export default (workspaceId?: string) => {
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
-  const workspaceIntegrations = useMemo(() => {
+  const workspaceIntegrationMembers = useMemo(() => {
     return (workspace?.members ?? [])
-      .map<Integration | undefined>(member =>
+      .map<IntegrationMember | undefined>(member =>
         member && member.__typename === "WorkspaceIntegrationMember"
-          ? fromIntegration(member)
+          ? {
+              active: member.active,
+              integration: fromIntegration(member.integration),
+              integrationRole: member.integrationRole,
+              invitedById: member.invitedById,
+            }
           : undefined,
       )
-      .filter((integration): integration is Integration => !!integration);
+      .filter((integration): integration is IntegrationMember => !!integration);
   }, [workspace]);
 
   const handleIntegrationConnectModalClose = useCallback(() => {
@@ -79,7 +87,7 @@ export default (workspaceId?: string) => {
 
   return {
     integrations,
-    workspaceIntegrations,
+    workspaceIntegrationMembers,
     selectedConnectionModalIntegration,
     handleConnectionModalIntegrationSelect,
     handleIntegrationConnectModalClose,

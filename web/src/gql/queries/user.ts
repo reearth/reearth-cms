@@ -27,11 +27,6 @@ export const GET_ME = gql`
         name
         members {
           ... on WorkspaceUserMember {
-            user {
-              id
-              name
-              email
-            }
             userId
             role
           }
@@ -41,11 +36,6 @@ export const GET_ME = gql`
             }
             integrationRole: role
             active
-            invitedBy {
-              id
-              name
-              email
-            }
             invitedById
           }
         }

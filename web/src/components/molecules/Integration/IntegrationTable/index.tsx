@@ -6,28 +6,45 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, {
   ListToolBarProps,
   ProColumns,
-  OptionConfig,
-  TableRowSelection,
-  TablePaginationConfig,
+  // OptionConfig,
+  // TableRowSelection,
+  // TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import IntegrationHeader from "@reearth-cms/components/molecules/Integration/IntegrationHeader";
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  integrations: Integration[];
+  integrationMembers: IntegrationMember[];
   onIntegrationConnectModalOpen: () => void;
 };
 
-const IntegrationTable: React.FC<Props> = ({ integrations, onIntegrationConnectModalOpen }) => {
+const IntegrationTable: React.FC<Props> = ({
+  integrationMembers,
+  onIntegrationConnectModalOpen,
+}) => {
+  console.log(integrationMembers);
+
   const t = useT();
 
-  const columns: ProColumns<Integration>[] = [
+  const columns: ProColumns<IntegrationMember>[] = [
     {
       title: t("Name"),
-      dataIndex: "name",
+      dataIndex: ["integration", "name"],
       key: "name",
       filters: [],
+    },
+    {
+      title: t("State"),
+      key: "state",
+      render: (_, integrationMember) => (
+        <Switch
+          checked={integrationMember.active}
+          checkedChildren={t("ON")}
+          unCheckedChildren={t("OFF")}
+        />
+      ),
     },
     {
       title: t("Role"),
@@ -38,11 +55,6 @@ const IntegrationTable: React.FC<Props> = ({ integrations, onIntegrationConnectM
       title: t("Creator"),
       dataIndex: "creator",
       key: "creator",
-    },
-    {
-      title: t("State"),
-      dataIndex: "state",
-      key: "state",
     },
     {
       title: t("Action"),
@@ -79,7 +91,7 @@ const IntegrationTable: React.FC<Props> = ({ integrations, onIntegrationConnectM
           </EmptyTableWrapper>
         )}>
         <ProTable
-          dataSource={integrations}
+          dataSource={integrationMembers}
           columns={columns}
           search={false}
           rowKey="id"
