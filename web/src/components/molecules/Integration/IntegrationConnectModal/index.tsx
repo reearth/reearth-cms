@@ -8,22 +8,31 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   integrations: Integration[];
+  selectedIntegration?: Integration;
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
+  onConnectionModalIntegrationSelect: (integration: Integration) => void;
 };
 
-const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
+const IntegrationConnectModal: React.FC<Props> = ({
+  integrations,
+  selectedIntegration,
+  open,
+  onClose,
+  onSubmit,
+  onConnectionModalIntegrationSelect,
+}) => {
   const t = useT();
 
   return (
     <Modal
       title={t("Connect Integration")}
       visible={open}
-      onCancel={() => onClose?.()}
+      onCancel={onClose}
       onOk={onSubmit}
       footer={[
-        <Button key="back" onClick={() => onClose?.()}>
+        <Button key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={onSubmit}>
@@ -32,7 +41,12 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
       ]}>
       <ModalContent>
         {integrations.map(integration => (
-          <IntegrationCard key={integration.id} integration={integration} />
+          <IntegrationCard
+            onIntegrationSelect={onConnectionModalIntegrationSelect}
+            key={integration.id}
+            integration={integration}
+            selectedIntegration={integration.id === selectedIntegration?.id}
+          />
         ))}
       </ModalContent>
     </Modal>

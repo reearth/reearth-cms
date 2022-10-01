@@ -12,6 +12,9 @@ const Integration: React.FC = () => {
   const {
     integrations,
     workspaceIntegrations,
+    selectedConnectionModalIntegration,
+    handleConnectionModalIntegrationSelect,
+    handleIntegrationConnect,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     integrationConnectModalShown,
@@ -23,7 +26,10 @@ const Integration: React.FC = () => {
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
       />
       <IntegrationConnectModal
+        selectedIntegration={selectedConnectionModalIntegration}
+        onConnectionModalIntegrationSelect={handleConnectionModalIntegrationSelect}
         integrations={integrations}
+        onSubmit={handleIntegrationConnect}
         open={integrationConnectModalShown}
         onClose={handleIntegrationConnectModalClose}
       />

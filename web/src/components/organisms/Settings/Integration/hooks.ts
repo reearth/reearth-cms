@@ -1,9 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
-import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import {
+  useGetMeQuery,
+  useAddIntegrationToWorkspaceMutation,
+  Role,
+} from "@reearth-cms/gql/graphql-client-api";
 
 export default (workspaceId?: string) => {
+  const [selectedConnectionModalIntegration, SetSelectedConnectionModalIntegration] =
+    useState<Integration>();
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const { data } = useGetMeQuery();
 
@@ -49,11 +55,36 @@ export default (workspaceId?: string) => {
     () => setIntegrationConnectModalShown(true),
     [],
   );
+
+  const handleConnectionModalIntegrationSelect = useCallback((integration: Integration) => {
+    SetSelectedConnectionModalIntegration(integration);
+  }, []);
+
+  const [addIntegrationToWorkspaceMutation] = useAddIntegrationToWorkspaceMutation();
+
+  const handleIntegrationConnect = useCallback(async () => {
+    if (!selectedConnectionModalIntegration || !workspaceId) return;
+    const integration = await addIntegrationToWorkspaceMutation({
+      variables: {
+        integrationId: selectedConnectionModalIntegration.id,
+        workspaceId,
+        role: Role.Reader,
+      },
+    });
+    if (integration.errors || !integration.data?.addIntegrationToWorkspace) {
+      setIntegrationConnectModalShown(false);
+    }
+    setIntegrationConnectModalShown(false);
+  }, [addIntegrationToWorkspaceMutation, selectedConnectionModalIntegration, workspaceId]);
+
   return {
     integrations,
     workspaceIntegrations,
+    selectedConnectionModalIntegration,
+    handleConnectionModalIntegrationSelect,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
+    handleIntegrationConnect,
     integrationConnectModalShown,
   };
 };
