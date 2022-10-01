@@ -27,7 +27,7 @@ func NewWorkspace(ws *user.Workspace) (*WorkspaceDocument, string) {
 	}
 	integrationsDoc := map[string]WorkspaceMemberDocument{}
 	for iId, r := range ws.Members().Integrations() {
-		membersDoc[iId.String()] = WorkspaceMemberDocument{
+		integrationsDoc[iId.String()] = WorkspaceMemberDocument{
 			Role: string(r),
 		}
 	}
