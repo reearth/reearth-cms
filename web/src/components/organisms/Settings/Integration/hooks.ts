@@ -43,7 +43,7 @@ export default (workspaceId?: string) => {
   const workspaceIntegrationMembers = useMemo(() => {
     return (workspace?.members ?? [])
       .map<IntegrationMember | undefined>(member =>
-        member && member.__typename === "WorkspaceIntegrationMember"
+        member && member.__typename === "WorkspaceIntegrationMember" && member.integration
           ? {
               active: member.active,
               integration: fromIntegration(member.integration),

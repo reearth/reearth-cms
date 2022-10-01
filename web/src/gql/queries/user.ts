@@ -27,6 +27,11 @@ export const GET_ME = gql`
         name
         members {
           ... on WorkspaceUserMember {
+            user {
+              id
+              name
+              email
+            }
             userId
             role
           }
