@@ -34,9 +34,10 @@ Reader: 閲覧者
 Writer: 編集者
 Owner: オーナー
 Name: 名前
-Creator: 作成者
 State: ステート
-Action: アクション
+'ON': ''
+'OFF': ''
+Creator: 作成者
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
 Add member: メンバー追加
