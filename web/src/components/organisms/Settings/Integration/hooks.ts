@@ -8,14 +8,16 @@ import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role,
+  useUpdateIntegrationOfWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export default (workspaceId?: string) => {
   const [selectedConnectionModalIntegration, SetSelectedConnectionModalIntegration] =
     useState<Integration>();
+  const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
-  const { data } = useGetMeQuery();
+  const { data, refetch } = useGetMeQuery();
 
   const workspaces = data?.me?.workspaces;
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
@@ -58,22 +60,25 @@ export default (workspaceId?: string) => {
   }, [workspace]);
 
   const handleIntegrationConnectModalClose = useCallback(() => {
+    SetSelectedConnectionModalIntegration(undefined);
     setIntegrationConnectModalShown(false);
   }, []);
 
-  const handleIntegrationConnectModalOpen = useCallback(
-    () => setIntegrationConnectModalShown(true),
-    [],
-  );
+  const handleIntegrationConnectModalOpen = useCallback(() => {
+    SetSelectedConnectionModalIntegration(undefined);
+    setIntegrationConnectModalShown(true);
+  }, []);
 
   const handleIntegrationSettingsModalClose = useCallback(() => {
     setIntegrationSettingsModalShown(false);
   }, []);
 
-  const handleIntegrationSettingsModalOpen = useCallback(
-    () => setIntegrationSettingsModalShown(true),
-    [],
-  );
+  const handleIntegrationSettingsModalOpen = useCallback((integrationMember: IntegrationMember) => {
+    console.log(integrationMember);
+
+    SetSelectedIntegrationMember(integrationMember);
+    setIntegrationSettingsModalShown(true);
+  }, []);
 
   const handleConnectionModalIntegrationSelect = useCallback((integration: Integration) => {
     SetSelectedConnectionModalIntegration(integration);
@@ -94,7 +99,29 @@ export default (workspaceId?: string) => {
       setIntegrationConnectModalShown(false);
     }
     setIntegrationConnectModalShown(false);
-  }, [addIntegrationToWorkspaceMutation, selectedConnectionModalIntegration, workspaceId]);
+    refetch();
+  }, [addIntegrationToWorkspaceMutation, selectedConnectionModalIntegration, workspaceId, refetch]);
+
+  const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
+
+  const handleUpdateIntegration = useCallback(
+    async (role: string) => {
+      if (!workspaceId || !selectedIntegrationMember) return;
+      const integration = await updateIntegrationToWorkspaceMutation({
+        variables: {
+          integrationId: selectedIntegrationMember?.integration.id,
+          workspaceId,
+          role: role as Role,
+        },
+      });
+      if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
+        setIntegrationConnectModalShown(false);
+      }
+      setIntegrationConnectModalShown(false);
+      refetch();
+    },
+    [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch],
+  );
 
   return {
     integrations,
@@ -106,8 +133,10 @@ export default (workspaceId?: string) => {
     handleIntegrationConnect,
     integrationConnectModalShown,
 
+    handleUpdateIntegration,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
+    selectedIntegrationMember,
   };
 };

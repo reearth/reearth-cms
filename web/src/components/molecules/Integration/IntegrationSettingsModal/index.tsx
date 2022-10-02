@@ -1,39 +1,62 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type FormValues = {
-  name: string;
+  role: string;
 };
 
 export type Props = {
+  selectedIntegrationMember?: IntegrationMember;
   open?: boolean;
   onClose?: () => void;
-  onSubmit?: () => Promise<void> | void;
+  onSubmit?: (role: string) => Promise<void> | void;
 };
 
-const IntegrationSettingsModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const IntegrationSettingsModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  selectedIntegrationMember,
+}) => {
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
 
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await onSubmit?.(values.role);
+      onClose?.();
+      form.resetFields();
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
+  }, [form, onClose, onSubmit]);
+
   return (
     <Modal
-      title={t("Integration Setting")}
+      title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
       visible={open}
       onCancel={() => onClose?.()}
-      onOk={onSubmit}
+      onOk={handleSubmit}
       footer={[
         <Button key="back" onClick={() => onClose?.()}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={onSubmit}>
+        <Button key="submit" type="primary" onClick={handleSubmit}>
           {t("Save")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical" initialValues={{}}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{ role: selectedIntegrationMember?.integrationRole }}>
         <Form.Item
           name="role"
           label="Role"

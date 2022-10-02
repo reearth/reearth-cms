@@ -21,6 +21,8 @@ const Integration: React.FC = () => {
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
+    handleUpdateIntegration,
+    selectedIntegrationMember,
   } = useHooks(workspaceId);
   return (
     <>
@@ -31,13 +33,15 @@ const Integration: React.FC = () => {
       />
       <IntegrationConnectModal
         selectedIntegration={selectedConnectionModalIntegration}
-        onConnectionModalIntegrationSelect={handleConnectionModalIntegrationSelect}
+        onIntegrationSelect={handleConnectionModalIntegrationSelect}
         integrations={integrations}
         onSubmit={handleIntegrationConnect}
         open={integrationConnectModalShown}
         onClose={handleIntegrationConnectModalClose}
       />
       <IntegrationSettingsModal
+        selectedIntegrationMember={selectedIntegrationMember}
+        onSubmit={handleUpdateIntegration}
         open={integrationSettingsModalShown}
         onClose={handleIntegrationSettingsModalClose}
       />

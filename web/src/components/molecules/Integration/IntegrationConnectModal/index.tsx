@@ -12,7 +12,7 @@ export type Props = {
   open?: boolean;
   onClose?: () => void;
   onSubmit?: () => Promise<void> | void;
-  onConnectionModalIntegrationSelect: (integration: Integration) => void;
+  onIntegrationSelect: (integration: Integration) => void;
 };
 
 const IntegrationConnectModal: React.FC<Props> = ({
@@ -21,7 +21,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
-  onConnectionModalIntegrationSelect,
+  onIntegrationSelect,
 }) => {
   const t = useT();
 
@@ -42,7 +42,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
       <ModalContent>
         {integrations.map(integration => (
           <IntegrationCard
-            onIntegrationSelect={onConnectionModalIntegrationSelect}
+            onIntegrationSelect={onIntegrationSelect}
             key={integration.id}
             integration={integration}
             selectedIntegration={integration.id === selectedIntegration?.id}

@@ -18,7 +18,7 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   integrationMembers: IntegrationMember[];
   onIntegrationConnectModalOpen: () => void;
-  onIntegrationSettingsModalOpen: () => void;
+  onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
 };
 
 const IntegrationTable: React.FC<Props> = ({
@@ -58,10 +58,10 @@ const IntegrationTable: React.FC<Props> = ({
     },
     {
       key: "action",
-      render: () => (
+      render: (_, integrationMember) => (
         <Icon
           style={{ color: "#1890FF", fontSize: "18px" }}
-          onClick={onIntegrationSettingsModalOpen}
+          onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
           icon="settings"
         />
       ),
@@ -101,6 +101,7 @@ const IntegrationTable: React.FC<Props> = ({
           search={false}
           rowKey="id"
           toolbar={handleToolbarEvents}
+          pagination={false}
         />
       </ConfigProvider>
     </Wrapper>
