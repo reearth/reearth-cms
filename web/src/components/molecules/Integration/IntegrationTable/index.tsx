@@ -18,12 +18,14 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   integrationMembers: IntegrationMember[];
   onIntegrationConnectModalOpen: () => void;
+  onSearchTerm: (term?: string) => void;
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
 };
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,
   onIntegrationConnectModalOpen,
+  onSearchTerm,
   onIntegrationSettingsModalOpen,
 }) => {
   const t = useT();
@@ -70,7 +72,13 @@ const IntegrationTable: React.FC<Props> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
-      onSearch: _ => {},
+      onSearch: (value: string) => {
+        if (value) {
+          onSearchTerm(value);
+        } else {
+          onSearchTerm();
+        }
+      },
     },
   };
 

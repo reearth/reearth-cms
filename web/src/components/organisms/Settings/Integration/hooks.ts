@@ -17,6 +17,7 @@ export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>();
   const { data, refetch } = useGetMeQuery();
 
   const workspaces = data?.me?.workspaces;
@@ -56,8 +57,12 @@ export default (workspaceId?: string) => {
             }
           : undefined,
       )
-      .filter((integration): integration is IntegrationMember => !!integration);
-  }, [workspace]);
+      .filter(
+        (integrationMember): integrationMember is IntegrationMember =>
+          !!integrationMember &&
+          integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
+      );
+  }, [workspace, searchTerm]);
 
   const handleIntegrationConnectModalClose = useCallback(() => {
     SetSelectedConnectionModalIntegration(undefined);
@@ -123,6 +128,10 @@ export default (workspaceId?: string) => {
     [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch],
   );
 
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term);
+  }, []);
+
   return {
     integrations,
     workspaceIntegrationMembers,
@@ -132,11 +141,11 @@ export default (workspaceId?: string) => {
     handleIntegrationConnectModalOpen,
     handleIntegrationConnect,
     integrationConnectModalShown,
-
     handleUpdateIntegration,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
     selectedIntegrationMember,
+    handleSearchTerm,
   };
 };

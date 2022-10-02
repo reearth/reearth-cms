@@ -23,10 +23,12 @@ const Integration: React.FC = () => {
     integrationSettingsModalShown,
     handleUpdateIntegration,
     selectedIntegrationMember,
+    handleSearchTerm,
   } = useHooks(workspaceId);
   return (
     <>
       <IntegrationTable
+        onSearchTerm={handleSearchTerm}
         onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
         integrationMembers={workspaceIntegrationMembers}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
