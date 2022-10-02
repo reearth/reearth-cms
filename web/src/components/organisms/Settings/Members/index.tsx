@@ -53,7 +53,6 @@ const Members: React.FC = () => {
 
   const {
     me,
-    currentWorkspace,
     searchedUser,
     changeSearchedUser,
     handleUserSearch,
@@ -67,9 +66,8 @@ const Members: React.FC = () => {
     handleMemberAddModalClose,
     handleMemberAddModalOpen,
     MemberAddModalShown,
+    workspaceUserMembers,
   } = useHooks({ workspaceId });
-
-  const members = currentWorkspace?.members;
 
   const handleMemberDelete = useCallback(
     (member: Member) => {
@@ -87,7 +85,7 @@ const Members: React.FC = () => {
     [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
-  const dataSource = members?.map(member => ({
+  const dataSource = workspaceUserMembers.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
@@ -58,6 +58,20 @@ export default ({ workspaceId }: Props) => {
     (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
     [searchUserQuery],
   );
+
+  const workspaceUserMembers = useMemo((): Member[] => {
+    return (currentWorkspace?.members ?? [])
+      .map<Member | undefined>(member =>
+        member && member.__typename === "WorkspaceUserMember" && member.user
+          ? {
+              userId: member.userId,
+              user: member.user,
+              role: member.role,
+            }
+          : undefined,
+      )
+      .filter((user): user is Member => !!user);
+  }, [currentWorkspace]);
 
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
 
@@ -169,5 +183,6 @@ export default ({ workspaceId }: Props) => {
     selectedMember,
     roleModalShown,
     loading,
+    workspaceUserMembers,
   };
 };

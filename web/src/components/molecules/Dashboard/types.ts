@@ -10,9 +10,11 @@ export type User = {
 
 export type Member = {
   userId: string;
+  role: any;
   user: {
-    id?: string;
-    name?: string;
+    id: string;
+    name: string;
+    email: string;
   };
 };
 
