@@ -53,7 +53,7 @@ const IntegrationTable: React.FC<Props> = ({
     },
     {
       title: t("Creator"),
-      dataIndex: "creator",
+      dataIndex: ["integration", "developer", "name"],
       key: "creator",
     },
     {

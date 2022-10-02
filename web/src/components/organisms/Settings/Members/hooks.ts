@@ -101,7 +101,7 @@ export default ({ workspaceId }: Props) => {
             }[role],
           },
         });
-        const workspace = results.data?.updateMemberOfWorkspace?.workspace;
+        const workspace = results.data?.updateUserOfWorkspace?.workspace;
         if (workspace) {
           setWorkspace(workspace);
         }
@@ -119,7 +119,7 @@ export default ({ workspaceId }: Props) => {
         variables: { workspaceId, userId },
         refetchQueries: ["GetWorkspaces"],
       });
-      const workspace = result.data?.removeMemberFromWorkspace?.workspace;
+      const workspace = result.data?.removeUserFromWorkspace?.workspace;
       if (result.errors || !workspace) {
         // TODO: notification
         return;

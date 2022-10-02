@@ -11,11 +11,18 @@ export type Integration = {
   description?: string | null;
   logoUrl: string;
   developerId: string;
+  developer: Developer;
   iType: IntegrationType;
   config: {
     token?: string;
     webhooks?: Webhook[];
   };
+};
+
+export type Developer = {
+  id: string;
+  name: string;
+  email: string;
 };
 
 export enum IntegrationType {

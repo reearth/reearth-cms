@@ -25,6 +25,7 @@ export default (workspaceId?: string) => {
     description: integration.description,
     logoUrl: integration.logoUrl,
     developerId: integration.developerId,
+    developer: integration.developer,
     iType: integration.iType,
     config: {
       token: integration.config?.token,
