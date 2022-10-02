@@ -45,7 +45,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
             onIntegrationSelect={onIntegrationSelect}
             key={integration.id}
             integration={integration}
-            selectedIntegration={integration.id === selectedIntegration?.id}
+            integrationSelected={integration.id === selectedIntegration?.id}
           />
         ))}
       </ModalContent>

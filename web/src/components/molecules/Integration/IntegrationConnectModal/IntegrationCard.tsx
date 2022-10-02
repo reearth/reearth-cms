@@ -5,13 +5,13 @@ import { Integration } from "@reearth-cms/components/molecules/Integration/types
 
 export type Props = {
   integration: Integration;
-  selectedIntegration: boolean;
+  integrationSelected: boolean;
   onIntegrationSelect: (integration: Integration) => void;
 };
 
 const IntegrationCard: React.FC<Props> = ({
   integration,
-  selectedIntegration,
+  integrationSelected,
   onIntegrationSelect,
 }) => {
   const handleIntegrationSelect = useCallback(() => {
@@ -19,14 +19,14 @@ const IntegrationCard: React.FC<Props> = ({
   }, [integration, onIntegrationSelect]);
 
   return (
-    <CardWrapper onClick={handleIntegrationSelect} selected={selectedIntegration}>
+    <CardWrapper onClick={handleIntegrationSelect} isSelected={integrationSelected}>
       <CardImg src={integration.logoUrl} />
       <CardTitle>{integration.name}</CardTitle>
     </CardWrapper>
   );
 };
 
-const CardWrapper = styled.div<{ selected?: boolean }>`
+const CardWrapper = styled.div<{ isSelected?: boolean }>`
   cursor: pointer;
   box-shadow: 0px 2px 8px #00000026;
   border: 1px solid #f0f0f0;
@@ -34,7 +34,7 @@ const CardWrapper = styled.div<{ selected?: boolean }>`
   min-height: 88px;
   display: flex;
   align-items: center;
-  background-color: ${({ selected }) => (selected ? "#E6F7FF" : "#FFF")};
+  background-color: ${({ isSelected }) => (isSelected ? "#E6F7FF" : "#FFF")};
   margin-bottom: 10px;
 `;
 
