@@ -3,13 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, {
-  ListToolBarProps,
-  ProColumns,
-  // OptionConfig,
-  // TableRowSelection,
-  // TablePaginationConfig,
-} from "@reearth-cms/components/atoms/ProTable";
+import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import IntegrationHeader from "@reearth-cms/components/molecules/Integration/IntegrationHeader";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";

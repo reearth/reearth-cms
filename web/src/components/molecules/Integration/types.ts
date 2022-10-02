@@ -1,9 +1,11 @@
 export type IntegrationMember = {
   integration: Integration;
-  integrationRole: "WRITER" | "READER" | "OWNER";
+  integrationRole: Role;
   invitedById: string;
   active: boolean;
 };
+
+export type Role = "WRITER" | "READER" | "OWNER";
 
 export type Integration = {
   id: string;

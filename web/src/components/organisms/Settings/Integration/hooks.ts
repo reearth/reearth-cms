@@ -3,11 +3,12 @@ import { useCallback, useMemo, useState } from "react";
 import {
   Integration,
   IntegrationMember,
+  Role,
 } from "@reearth-cms/components/molecules/Integration/types";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
-  Role,
+  Role as GQLRole,
   useUpdateIntegrationOfWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
@@ -97,7 +98,7 @@ export default (workspaceId?: string) => {
       variables: {
         integrationId: selectedConnectionModalIntegration.id,
         workspaceId,
-        role: Role.Reader,
+        role: GQLRole.Reader,
       },
     });
     if (integration.errors || !integration.data?.addIntegrationToWorkspace) {
@@ -110,13 +111,13 @@ export default (workspaceId?: string) => {
   const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
 
   const handleUpdateIntegration = useCallback(
-    async (role: string) => {
+    async (role: Role) => {
       if (!workspaceId || !selectedIntegrationMember) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
           integrationId: selectedIntegrationMember?.integration.id,
           workspaceId,
-          role: role as Role,
+          role: role as GQLRole,
         },
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {

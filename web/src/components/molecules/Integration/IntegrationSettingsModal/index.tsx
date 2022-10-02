@@ -4,18 +4,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type FormValues = {
-  role: string;
+  role: Role;
 };
 
 export type Props = {
   selectedIntegrationMember?: IntegrationMember;
   open?: boolean;
   onClose?: () => void;
-  onSubmit?: (role: string) => Promise<void> | void;
+  onSubmit?: (role: Role) => Promise<void> | void;
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
