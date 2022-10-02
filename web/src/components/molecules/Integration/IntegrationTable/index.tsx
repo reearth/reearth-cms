@@ -18,14 +18,14 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   integrationMembers: IntegrationMember[];
   onIntegrationConnectModalOpen: () => void;
+  onIntegrationSettingsModalOpen: () => void;
 };
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,
   onIntegrationConnectModalOpen,
+  onIntegrationSettingsModalOpen,
 }) => {
-  console.log(integrationMembers);
-
   const t = useT();
 
   const columns: ProColumns<IntegrationMember>[] = [
@@ -57,9 +57,14 @@ const IntegrationTable: React.FC<Props> = ({
       key: "creator",
     },
     {
-      title: t("Action"),
-      dataIndex: "action",
       key: "action",
+      render: () => (
+        <Icon
+          style={{ color: "#1890FF", fontSize: "18px" }}
+          onClick={onIntegrationSettingsModalOpen}
+          icon="settings"
+        />
+      ),
     },
   ];
 

@@ -14,6 +14,7 @@ export default (workspaceId?: string) => {
   const [selectedConnectionModalIntegration, SetSelectedConnectionModalIntegration] =
     useState<Integration>();
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
+  const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
   const { data } = useGetMeQuery();
 
   const workspaces = data?.me?.workspaces;
@@ -65,6 +66,15 @@ export default (workspaceId?: string) => {
     [],
   );
 
+  const handleIntegrationSettingsModalClose = useCallback(() => {
+    setIntegrationSettingsModalShown(false);
+  }, []);
+
+  const handleIntegrationSettingsModalOpen = useCallback(
+    () => setIntegrationSettingsModalShown(true),
+    [],
+  );
+
   const handleConnectionModalIntegrationSelect = useCallback((integration: Integration) => {
     SetSelectedConnectionModalIntegration(integration);
   }, []);
@@ -95,5 +105,9 @@ export default (workspaceId?: string) => {
     handleIntegrationConnectModalOpen,
     handleIntegrationConnect,
     integrationConnectModalShown,
+
+    handleIntegrationSettingsModalClose,
+    handleIntegrationSettingsModalOpen,
+    integrationSettingsModalShown,
   };
 };

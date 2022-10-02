@@ -18,10 +18,14 @@ const Integration: React.FC = () => {
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     integrationConnectModalShown,
+    handleIntegrationSettingsModalClose,
+    handleIntegrationSettingsModalOpen,
+    integrationSettingsModalShown,
   } = useHooks(workspaceId);
   return (
     <>
       <IntegrationTable
+        onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
         integrationMembers={workspaceIntegrationMembers}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
       />
@@ -33,7 +37,10 @@ const Integration: React.FC = () => {
         open={integrationConnectModalShown}
         onClose={handleIntegrationConnectModalClose}
       />
-      <IntegrationSettingsModal open={false} />
+      <IntegrationSettingsModal
+        open={integrationSettingsModalShown}
+        onClose={handleIntegrationSettingsModalClose}
+      />
     </>
   );
 };
