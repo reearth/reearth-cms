@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegrations/Header";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import MyIntegrationsCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
 import IntegrationsCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { useT } from "@reearth-cms/i18n";
@@ -10,7 +10,7 @@ const MyIntegrationsList: React.FC = () => {
 
   return (
     <Wrapper>
-      <MyIntegrationsHeader title={t("My Integrations")} />
+      <PageHeader title={t("My Integrations")} />
       <ListWrapper>
         <MyIntegrationsCard title="Robot Red" subTitle="Internal integration" />
         <IntegrationsCreationAction />

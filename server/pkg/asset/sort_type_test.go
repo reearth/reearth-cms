@@ -47,8 +47,8 @@ func TestCheck(t *testing.T) {
 		Expected bool
 	}{
 		{
-			Name:     "check id",
-			Input:    SortType("id"),
+			Name:     "check date",
+			Input:    SortType("date"),
 			Expected: true,
 		},
 		{
