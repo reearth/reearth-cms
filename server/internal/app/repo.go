@@ -19,7 +19,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-const databaseName = "reearth-cms"
+const databaseName = "reearth_cms"
 
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container) {
 	gateways := &gateway.Container{}
