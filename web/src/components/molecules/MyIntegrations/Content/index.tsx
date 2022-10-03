@@ -53,6 +53,7 @@ const MyIntegrationContent: React.FC<Props> = ({
   onTabChange,
 }) => {
   const { TabPane } = Tabs;
+
   return (
     <MyIntegrationWrapper>
       <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
