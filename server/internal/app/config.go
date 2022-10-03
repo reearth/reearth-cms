@@ -16,6 +16,7 @@ const configPrefix = "REEARTH_CMS"
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
 	ServerHost   string
+	Host         string `default:"http://localhost:8080"`
 	Dev          bool
 	Host_Web     string
 	GraphQL      GraphQLConfig
@@ -25,6 +26,8 @@ type Config struct {
 	SMTP         SMTPConfig
 	SendGrid     SendGridConfig
 	SignupSecret string
+	GCS          GCSConfig
+	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
@@ -69,6 +72,11 @@ type SMTPConfig struct {
 	SMTPUsername string
 	Email        string
 	Password     string
+}
+
+type GCSConfig struct {
+	BucketName              string
+	PublicationCacheControl string
 }
 
 func (c Config) Auths() (res []AuthConfig) {
