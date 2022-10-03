@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
@@ -77,6 +78,14 @@ const IntegrationTable: React.FC<Props> = ({
 
   return (
     <Wrapper>
+      <PageHeader
+        title={t("Integration")}
+        extra={
+          <Button type="primary" onClick={onIntegrationConnectModalOpen} icon={<Icon icon="api" />}>
+            {t("Connect Integration")}
+          </Button>
+        }
+      />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
