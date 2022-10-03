@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
+import notification from "@reearth-cms/components/atoms/Notification";
 import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import {
   useGetWorkspacesQuery,
@@ -10,6 +11,7 @@ import {
   Workspace,
   useGetUserBySearchLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
@@ -23,6 +25,7 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const t = useT();
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -72,7 +75,10 @@ export default ({ workspaceId }: Props) => {
           });
           const workspace = result.data?.addUserToWorkspace?.workspace;
           if (result.errors || !workspace) {
-            // TODO: notification
+            notification.error({
+              message: t("Error"),
+              description: t("Failed to add one or more members."),
+            });
             return;
           }
           setWorkspace(workspace);
@@ -82,7 +88,7 @@ export default ({ workspaceId }: Props) => {
         // TODO: notification
       }
     },
-    [workspaceId, addUserToWorkspaceMutation, setWorkspace],
+    [workspaceId, addUserToWorkspaceMutation, setWorkspace, t],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
