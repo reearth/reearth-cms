@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { Switch } from "antd";
 import { useCallback } from "react";
 
@@ -40,7 +41,7 @@ const WebhookCard: React.FC<Props> = ({
       style={{ marginTop: 16 }}
       title={
         <>
-          {webhook.name}{" "}
+          <WebhookTitle>{webhook.name}</WebhookTitle>
           <Switch
             checkedChildren="ON"
             unCheckedChildren="OFF"
@@ -59,5 +60,10 @@ const WebhookCard: React.FC<Props> = ({
     </Card>
   );
 };
+
+const WebhookTitle = styled.span`
+  display: inline-block;
+  margin-right: 8px;
+`;
 
 export default WebhookCard;

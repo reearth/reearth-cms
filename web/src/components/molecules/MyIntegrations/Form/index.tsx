@@ -20,17 +20,15 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
   const t = useT();
   const [form] = Form.useForm();
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        // TODO: when assets upload is ready to use
-        values.logoUrl = "_";
-        await onIntegrationUpdate?.(values);
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      // TODO: when assets upload is ready to use
+      values.logoUrl = "_";
+      await onIntegrationUpdate?.(values);
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
   }, [form, onIntegrationUpdate]);
 
   return (
