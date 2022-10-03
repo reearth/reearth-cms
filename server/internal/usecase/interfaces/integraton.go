@@ -43,12 +43,12 @@ type WebhookTriggerParam struct {
 	OnAssetUpload   bool
 	OnAssetDeleted  bool
 	OnItemPublish   bool
-	OnItemUnPublish bool
+	OnItemUnpublish bool
 }
 
 type Integration interface {
-	FindByIDs(context.Context, []id.IntegrationID, *usecase.Operator) (integration.List, error)
-	FindByUser(context.Context, id.UserID, *usecase.Operator) (integration.List, error)
+	FindByIDs(context.Context, id.IntegrationIDList, *usecase.Operator) (integration.List, error)
+	FindByMe(context.Context, *usecase.Operator) (integration.List, error)
 	Create(context.Context, CreateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Update(context.Context, id.IntegrationID, UpdateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Delete(context.Context, id.IntegrationID, *usecase.Operator) error

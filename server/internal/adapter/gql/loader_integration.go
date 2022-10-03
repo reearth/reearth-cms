@@ -37,14 +37,9 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 	}), nil
 }
 
-func (c *IntegrationLoader) FindByUser(ctx context.Context, uid gqlmodel.ID) ([]*gqlmodel.Integration, error) {
-	userid, err := gqlmodel.ToID[id.User](uid)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integration, error) {
 	op := getOperator(ctx)
-	res, err := c.usecase.FindByUser(ctx, userid, op)
+	res, err := c.usecase.FindByMe(ctx, op)
 	if err != nil {
 		return nil, err
 	}

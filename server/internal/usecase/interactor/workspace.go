@@ -76,7 +76,7 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -104,7 +104,7 @@ func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.U
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -133,7 +133,7 @@ func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -142,7 +142,7 @@ func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID
 			return nil, err
 		}
 
-		err = workspace.Members().JoinIntegration(iId, role)
+		err = workspace.Members().AddIntegration(iId, role)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func (i *Workspace) RemoveUser(ctx context.Context, id id.WorkspaceID, u id.User
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -193,11 +193,11 @@ func (i *Workspace) RemoveIntegration(ctx context.Context, wId id.WorkspaceID, i
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		err = workspace.Members().LeaveIntegration(iId)
+		err = workspace.Members().DeleteIntegration(iId)
 		if err != nil {
 			return nil, err
 		}
@@ -220,7 +220,7 @@ func (i *Workspace) UpdateUser(ctx context.Context, id id.WorkspaceID, u id.User
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -248,7 +248,7 @@ func (i *Workspace) UpdateIntegration(ctx context.Context, wId id.WorkspaceID, i
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 		err = workspace.Members().UpdateIntegrationRole(iId, role)
@@ -274,7 +274,7 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 		if workspace.IsPersonal() {
 			return user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().GetUserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
 			return interfaces.ErrOperationDenied
 		}
 

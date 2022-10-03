@@ -38,7 +38,7 @@ type WebhookTriggerDocument struct {
 	OnAssetUpload   bool
 	OnAssetDeleted  bool
 	OnItemPublish   bool
-	OnItemUnPublish bool
+	OnItemUnpublish bool
 }
 
 func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
@@ -51,7 +51,7 @@ func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 			OnAssetUpload:   w.Trigger().OnAssetUpload,
 			OnAssetDeleted:  w.Trigger().OnAssetDeleted,
 			OnItemPublish:   w.Trigger().OnItemPublish,
-			OnItemUnPublish: w.Trigger().OnItemUnPublish,
+			OnItemUnpublish: w.Trigger().OnItemUnPublish,
 		}
 		return WebhookDocument{
 			ID:        w.ID().String(),
@@ -107,7 +107,7 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 			OnAssetUpload:   d.Trigger.OnAssetUpload,
 			OnAssetDeleted:  d.Trigger.OnAssetDeleted,
 			OnItemPublish:   d.Trigger.OnItemPublish,
-			OnItemUnPublish: d.Trigger.OnItemUnPublish,
+			OnItemUnPublish: d.Trigger.OnItemUnpublish,
 		}
 
 		m, err := integration.NewWebhookBuilder().

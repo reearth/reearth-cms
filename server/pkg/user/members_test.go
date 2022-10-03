@@ -66,7 +66,7 @@ func TestMembers_ContainsUser(t *testing.T) {
 func TestCopyMembers(t *testing.T) {
 	uid := NewID()
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
-	m2 := CopyMembers(m)
+	m2 := m.Clone()
 	assert.Equal(t, m, m2)
 }
 
@@ -78,13 +78,13 @@ func TestMembers_Count(t *testing.T) {
 func TestMembers_GetUserRole(t *testing.T) {
 	uid := NewID()
 	m := NewMembersWith(map[ID]Role{uid: RoleOwner})
-	assert.Equal(t, RoleOwner, m.GetUserRole(uid))
+	assert.Equal(t, RoleOwner, m.UserRole(uid))
 }
 
 func TestMembers_GetIntegrationRole(t *testing.T) {
 	iId := id.NewIntegrationID()
 	m := &Members{integrations: map[IntegrationID]Role{iId: RoleWriter}}
-	assert.Equal(t, RoleWriter, m.GetIntegrationRole(iId))
+	assert.Equal(t, RoleWriter, m.IntegrationRole(iId))
 }
 
 func TestMembers_IsOnlyOwner(t *testing.T) {
@@ -190,7 +190,7 @@ func TestMembers_UpdateUserRole(t *testing.T) {
 			t.Parallel()
 			err := tt.M.UpdateUserRole(tt.UID, tt.NewRole)
 			if tt.err == nil {
-				assert.Equal(t, tt.Expected, tt.M.GetUserRole(tt.UID))
+				assert.Equal(t, tt.Expected, tt.M.UserRole(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
@@ -240,7 +240,7 @@ func TestMembers_UpdateIntegrationRole(t *testing.T) {
 
 			err := tt.m.UpdateIntegrationRole(tt.iId, tt.newRole)
 			if tt.err == nil {
-				assert.Equal(t, tt.want, tt.m.GetIntegrationRole(tt.iId))
+				assert.Equal(t, tt.want, tt.m.IntegrationRole(tt.iId))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
@@ -298,7 +298,7 @@ func TestMembers_Join(t *testing.T) {
 			err := tt.M.JoinUser(tt.UID, tt.JoinRole)
 			if tt.err == nil {
 				assert.True(t, tt.M.ContainsUser(tt.UID))
-				assert.Equal(t, tt.ExpectedRole, tt.M.GetUserRole(tt.UID))
+				assert.Equal(t, tt.ExpectedRole, tt.M.UserRole(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}

@@ -25,10 +25,10 @@ func NewIntegration(r *repo.Container) interfaces.Integration {
 	}
 }
 
-func (i Integration) FindByUser(ctx context.Context, uId id.UserID, operator *usecase.Operator) (integration.List, error) {
+func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
-			in, err := i.repos.Integration.FindByUser(ctx, uId)
+			in, err := i.repos.Integration.FindByUser(ctx, operator.User)
 			if err != nil {
 				return nil, err
 			}
@@ -36,7 +36,7 @@ func (i Integration) FindByUser(ctx context.Context, uId id.UserID, operator *us
 		})
 }
 
-func (i Integration) FindByIDs(ctx context.Context, ids []id.IntegrationID, operator *usecase.Operator) (integration.List, error) {
+func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) (integration.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
 			in, err := i.repos.Integration.FindByIDs(ctx, ids)
@@ -141,7 +141,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				OnAssetUpload:   param.Trigger.OnAssetUpload,
 				OnAssetDeleted:  param.Trigger.OnAssetDeleted,
 				OnItemPublish:   param.Trigger.OnItemPublish,
-				OnItemUnPublish: param.Trigger.OnItemUnPublish,
+				OnItemUnPublish: param.Trigger.OnItemUnpublish,
 			}
 			w, err := integration.NewWebhookBuilder().
 				NewID().
@@ -203,7 +203,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 					OnAssetUpload:   param.Trigger.OnAssetUpload,
 					OnAssetDeleted:  param.Trigger.OnAssetDeleted,
 					OnItemPublish:   param.Trigger.OnItemPublish,
-					OnItemUnPublish: param.Trigger.OnItemUnPublish,
+					OnItemUnPublish: param.Trigger.OnItemUnpublish,
 				}
 				w.SetTrigger(t)
 			}

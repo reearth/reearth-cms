@@ -3,6 +3,8 @@ package user
 import (
 	"errors"
 	"sort"
+
+	"golang.org/x/exp/maps"
 )
 
 var (
@@ -12,6 +14,11 @@ var (
 	ErrInvalidName                   = errors.New("invalid workspace name")
 )
 
+type MemberOptions struct {
+	Role      Role
+	Active    bool
+	InvitedBy ID
+}
 type Members struct {
 	users        map[ID]Role
 	integrations map[IntegrationID]Role
@@ -36,47 +43,37 @@ func NewFixedMembers(u ID) *Members {
 }
 
 func NewMembersWith(users map[ID]Role) *Members {
-	m := NewMembers()
-	for k, v := range users {
-		m.users[k] = v
+	m := &Members{
+		users:        maps.Clone(users),
+		integrations: map[IntegrationID]Role{},
 	}
 	return m
 }
 
 func NewFixedMembersWith(users map[ID]Role) *Members {
 	m := &Members{
-		users:        map[ID]Role{},
+		users:        maps.Clone(users),
 		integrations: map[IntegrationID]Role{},
 		fixed:        true,
 	}
-	for k, v := range users {
-		m.users[k] = v
-	}
 	return m
 }
 
-func CopyMembers(members *Members) *Members {
-	m := NewMembersWith(members.users)
-	for k, v := range members.integrations {
-		m.integrations[k] = v
+func (m *Members) Clone() *Members {
+	c := &Members{
+		users:        maps.Clone(m.users),
+		integrations: maps.Clone(m.integrations),
+		fixed:        m.fixed,
 	}
-	return m
+	return c
 }
 
 func (m *Members) Users() map[ID]Role {
-	users := make(map[ID]Role)
-	for k, v := range m.users {
-		users[k] = v
-	}
-	return users
+	return maps.Clone(m.users)
 }
 
 func (m *Members) Integrations() map[IntegrationID]Role {
-	integrations := make(map[IntegrationID]Role)
-	for k, v := range m.integrations {
-		integrations[k] = v
-	}
-	return integrations
+	return maps.Clone(m.integrations)
 }
 
 func (m *Members) ContainsUser(u ID) bool {
@@ -92,11 +89,11 @@ func (m *Members) Count() int {
 	return len(m.users)
 }
 
-func (m *Members) GetUserRole(u ID) Role {
+func (m *Members) UserRole(u ID) Role {
 	return m.users[u]
 }
 
-func (m *Members) GetIntegrationRole(iId IntegrationID) Role {
+func (m *Members) IntegrationRole(iId IntegrationID) Role {
 	return m.integrations[iId]
 }
 
@@ -141,7 +138,7 @@ func (m *Members) JoinUser(u ID, role Role) error {
 	return nil
 }
 
-func (m *Members) JoinIntegration(iId IntegrationID, role Role) error {
+func (m *Members) AddIntegration(iId IntegrationID, role Role) error {
 	if _, ok := m.integrations[iId]; ok {
 		return ErrUserAlreadyJoined
 	}
@@ -164,7 +161,7 @@ func (m *Members) Leave(u ID) error {
 	return nil
 }
 
-func (m *Members) LeaveIntegration(iId IntegrationID) error {
+func (m *Members) DeleteIntegration(iId IntegrationID) error {
 	if _, ok := m.integrations[iId]; ok {
 		delete(m.integrations, iId)
 	} else {

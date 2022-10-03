@@ -20,6 +20,6 @@ func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmo
 	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
 }
 
-func (r *meResolver) Integrations(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Integration, error) {
-	return loaders(ctx).Integration.FindByUser(ctx, obj.ID)
+func (r *meResolver) Integrations(ctx context.Context, _ *gqlmodel.Me) ([]*gqlmodel.Integration, error) {
+	return loaders(ctx).Integration.FindByMe(ctx)
 }
