@@ -11,7 +11,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-const configPrefix = "reearth"
+const configPrefix = "REEARTH_CMS"
 
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`

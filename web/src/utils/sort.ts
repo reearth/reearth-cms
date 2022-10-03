@@ -2,7 +2,7 @@ import moment from "moment";
 
 type SortCallback<T> = (a: T, b: T) => number;
 
-export const dateSortCallback: SortCallback<Date> = (a, b) => moment(a).diff(moment(b));
+export const dateSortCallback: SortCallback<Date | string> = (a, b) => moment(a).diff(moment(b));
 
 export const numberSortCallback: SortCallback<number> = (a, b) => a - b;
 
