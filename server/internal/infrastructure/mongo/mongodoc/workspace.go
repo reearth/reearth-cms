@@ -59,7 +59,7 @@ func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
 	}
 	integrations := map[id.IntegrationID]user.Role{}
 	if d.Integrations != nil {
-		for iId, memberDoc := range d.Members {
+		for iId, memberDoc := range d.Integrations {
 			iId, err := id.IntegrationIDFrom(iId)
 			if err != nil {
 				return nil, err
