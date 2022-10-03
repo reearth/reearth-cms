@@ -68,6 +68,10 @@ func ToWorkspace(t *user.Workspace) *Workspace {
 		members = append(members, &WorkspaceIntegrationMember{
 			IntegrationID: IDFrom(i),
 			Role:          ToRole(r),
+			Active:        true,
+			InvitedByID:   IDFrom(t.Members().UsersByRole(user.RoleOwner)[0]),
+			InvitedBy:     nil,
+			Integration:   nil,
 		})
 	}
 
