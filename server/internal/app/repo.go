@@ -21,7 +21,7 @@ import (
 
 const databaseName = "reearth-cms"
 
-func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container) {
+func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container) {
 	gateways := &gateway.Container{}
 
 	// Mongo
