@@ -5,7 +5,6 @@ import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import IntegrationHeader from "@reearth-cms/components/molecules/Integration/IntegrationHeader";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -78,7 +77,6 @@ const IntegrationTable: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      <IntegrationHeader onConnect={onIntegrationConnectModalOpen} />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
