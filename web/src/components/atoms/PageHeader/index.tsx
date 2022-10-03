@@ -3,7 +3,7 @@ import { PageHeader, PageHeaderProps } from "antd";
 
 export type Props = PageHeaderProps;
 
-const Header: React.FC<Props> = ({ ...props }) => {
+const Header: React.FC<Props> = props => {
   return <StyledPageHeader {...props} />;
 };
 
