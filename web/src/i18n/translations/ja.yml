@@ -72,17 +72,14 @@ Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
 New Integration: 新規インテグレーション
-Create: 作成
 Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
-Description: 説明
 Integration Token: インテグレーショントークン
 Please input the token of the integration!: インテグレーションのトークンを入力してください
 Input token: トークンを入力
 Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
-Update: アップデート
 Delete: 削除
 Accessed by API: API経由でアクセス
 This is your webhook name: Webhookの名前です
@@ -92,16 +89,17 @@ Please note that all webhook URLs must start with http://.: WebhookのURLがhttp
 URL is not valid: 無効なURLです
 Trigger Event: イベント
 Item: アイテム
-Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
 Add Field: フィールドを追加
+Create: 作成
 Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
 Please input the key of the field!: このフィールドのキーを入力してください
 Key is not valid: 無効なキーです
+Description: 説明
 Set Options: オプションを設定
 Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
 Option value: オプションの値
@@ -114,6 +112,8 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
+Asset: アセット
+Update: アップデート
 Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
