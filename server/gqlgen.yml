@@ -13,6 +13,7 @@ schema:
   - ./schemas/item.graphql
   - ./schemas/integration.graphql
   - ./schemas/integration_webhook.graphql
+  - ./schemas/thread.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -75,11 +76,17 @@ models:
         resolver: true
       project:
         resolver: true
+      thread:
+        resolver: true
   Integration:
     fields:
       developer:
         resolver: true
       webhook:
+        resolver: true
+  Thread:
+    fields:
+      workspace:
         resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
