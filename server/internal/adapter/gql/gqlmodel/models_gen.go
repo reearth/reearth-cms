@@ -103,7 +103,6 @@ type CreateAssetPayload struct {
 
 type CreateCommentInput struct {
 	ThreadID ID     `json:"threadId"`
-	AuthorID ID     `json:"authorId"`
 	Content  string `json:"content"`
 }
 

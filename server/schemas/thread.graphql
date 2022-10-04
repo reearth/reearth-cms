@@ -15,7 +15,6 @@ type Comment {
 
 input CreateCommentInput {
   threadId: ID!
-  authorId: ID!
   content: String!
 }
 

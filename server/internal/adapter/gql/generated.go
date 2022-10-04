@@ -3756,7 +3756,6 @@ type Comment {
 
 input CreateCommentInput {
   threadId: ID!
-  authorId: ID!
   content: String!
 }
 
@@ -19512,7 +19511,7 @@ func (ec *executionContext) unmarshalInputCreateCommentInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"threadId", "authorId", "content"}
+	fieldsInOrder := [...]string{"threadId", "content"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19524,14 +19523,6 @@ func (ec *executionContext) unmarshalInputCreateCommentInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
 			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "authorId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorId"))
-			it.AuthorID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
