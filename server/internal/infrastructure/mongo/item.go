@@ -2,6 +2,8 @@ package mongo
 
 import (
 	"context"
+	"fmt"
+	"regexp"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
@@ -13,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type itemRepo struct {
@@ -37,6 +40,14 @@ func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, erro
 func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	return i.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
+	}, pagination)
+}
+
+func (i *itemRepo) FindByFieldValue(ctx context.Context, keyword string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	return i.paginate(ctx, bson.M{
+		"fields.value": bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(keyword)), Options: "i"},
+		},
 	}, pagination)
 }
 

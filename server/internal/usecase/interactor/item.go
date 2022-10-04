@@ -128,3 +128,10 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 			return nil
 		})
 }
+
+func (i Item) FindByFieldValue(ctx context.Context, s string, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.FindByFieldValue(ctx, s, p)
+		})
+}
