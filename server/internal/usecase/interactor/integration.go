@@ -2,8 +2,6 @@ package interactor
 
 import (
 	"context"
-	"crypto/rand"
-	"math/big"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -50,17 +48,13 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
-			token, err := randomString(43)
-			if err != nil {
-				return nil, err
-			}
 			in, err := integration.New().
 				NewID().
 				Type(param.Type).
 				Developer(operator.User).
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
-				Token("secret_" + token).
+				RandomToken().
 				LogoUrl(&param.Logo).
 				Build()
 			if err != nil {
@@ -245,18 +239,4 @@ func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wI
 
 			return nil
 		})
-}
-
-func randomString(n int) (string, error) {
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	result := make([]byte, n)
-	for i := 0; i < n; i++ {
-		randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
-		if err != nil {
-			return "", err
-		}
-		result[i] = letters[randIndex.Int64()]
-	}
-
-	return string(result), nil
 }

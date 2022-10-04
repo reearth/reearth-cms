@@ -18,23 +18,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testSuite() (now time.Time, op *usecase.Operator, uri *url.URL, uId id.UserID, iId1, iId2 id.IntegrationID, i1, i2 *integration.Integration) {
-	now = time.Now().Truncate(time.Millisecond).UTC()
+type testData struct {
+	Now        time.Time
+	Op         *usecase.Operator
+	Uri        *url.URL
+	UId        id.UserID
+	IId1, IId2 id.IntegrationID
+	I1, I2     *integration.Integration
+}
+
+func testSuite() testData {
+	now := time.Now().Truncate(time.Millisecond).UTC()
 	wid := id.NewWorkspaceID()
-	uId = id.NewUserID()
+	uId := id.NewUserID()
 	u := user.New().ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op = &usecase.Operator{
+	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
 	}
-	uri = lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test"))
-	iId1 = id.NewIntegrationID()
-	iId2 = id.NewIntegrationID()
-	i1 = integration.New().ID(iId1).Name("i1").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
-	i2 = integration.New().ID(iId2).Name("i2").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
-	return
+	uri := lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test"))
+	iId1 := id.NewIntegrationID()
+	iId2 := id.NewIntegrationID()
+	i1 := integration.New().ID(iId1).Name("i1").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
+	i2 := integration.New().ID(iId2).Name("i2").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
+	return testData{
+		Now:  now,
+		Op:   op,
+		Uri:  uri,
+		UId:  uId,
+		IId1: iId1,
+		IId2: iId2,
+		I1:   i1,
+		I2:   i2,
+	}
 }
 
 func assertIntegrationEq(t *testing.T, expected, got *integration.Integration) {
@@ -76,7 +94,8 @@ func assertWebhookEq(t *testing.T, expected, got *integration.Webhook) {
 }
 
 func TestIntegration_Create(t *testing.T) {
-	now, op, uri, _, _, _, i1, _ := testSuite()
+	ts := testSuite()
+	now, op, uri, i1 := ts.Now, ts.Op, ts.Uri, ts.I1
 
 	tests := []struct {
 		name    string
@@ -132,7 +151,8 @@ func TestIntegration_Create(t *testing.T) {
 }
 
 func TestIntegration_Update(t *testing.T) {
-	now, op, _, _, iId1, _, i1, _ := testSuite()
+	ts := testSuite()
+	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	type args struct {
 		id     integration.ID
@@ -194,7 +214,8 @@ func TestIntegration_Update(t *testing.T) {
 }
 
 func TestIntegration_Delete(t *testing.T) {
-	now, op, _, _, iId1, _, i1, i2 := testSuite()
+	ts := testSuite()
+	now, op, iId1, i1, i2 := ts.Now, ts.Op, ts.IId1, ts.I1, ts.I2
 
 	tests := []struct {
 		name    string
@@ -240,7 +261,8 @@ func TestIntegration_Delete(t *testing.T) {
 }
 
 func TestIntegration_FindByIDs(t *testing.T) {
-	now, op, _, _, iId1, _, i1, _ := testSuite()
+	ts := testSuite()
+	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	tests := []struct {
 		name    string
@@ -290,7 +312,8 @@ func TestIntegration_FindByIDs(t *testing.T) {
 }
 
 func TestIntegration_FindByUser(t *testing.T) {
-	now, op, _, _, iId1, _, i1, _ := testSuite()
+	ts := testSuite()
+	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	tests := []struct {
 		name    string
@@ -340,7 +363,8 @@ func TestIntegration_FindByUser(t *testing.T) {
 }
 
 func TestIntegration_CreateWebhook(t *testing.T) {
-	now, op, uri, _, iId1, _, i1, _ := testSuite()
+	ts := testSuite()
+	now, op, uri, iId1, i1 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.I1
 
 	type args struct {
 		id     integration.ID
@@ -397,7 +421,8 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 }
 
 func TestIntegration_UpdateWebhook(t *testing.T) {
-	now, op, uri, _, iId1, iId2, i1, i2 := testSuite()
+	ts := testSuite()
+	now, op, uri, iId1, iId2, i1, i2 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.IId2, ts.I1, ts.I2
 
 	wId := id.NewWebhookID()
 	i2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
@@ -488,7 +513,8 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 }
 
 func TestIntegration_DeleteWebhook(t *testing.T) {
-	now, op, uri, _, iId1, iId2, i1, i2 := testSuite()
+	ts := testSuite()
+	now, op, uri, iId1, iId2, i1, i2 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.IId2, ts.I1, ts.I2
 
 	wId := id.NewWebhookID()
 	i2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
