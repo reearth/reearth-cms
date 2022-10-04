@@ -15,14 +15,14 @@ export interface Props {
   title: string;
   defaultSelectedKeys?: string[];
   models?: Model[];
-  handleModalOpen: () => void;
+  onModalOpen: () => void;
   selectModel: (modelId: string) => void;
 }
 
 const ModelsList: React.FC<Props> = ({
   defaultSelectedKeys,
   models,
-  handleModalOpen,
+  onModalOpen,
   selectModel,
   title,
 }) => {
@@ -36,7 +36,7 @@ const ModelsList: React.FC<Props> = ({
       <SchemaStyledTitle>{title}</SchemaStyledTitle>
       <SchemaAction>
         <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
-        <SchemaAddButton onClick={handleModalOpen} icon={<Icon icon="plus" />} type="text">
+        <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
           {t("Add")}
         </SchemaAddButton>
       </SchemaAction>

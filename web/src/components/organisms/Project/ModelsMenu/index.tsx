@@ -34,12 +34,12 @@ const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {
         selectModel={selectModel}
         defaultSelectedKeys={[model?.id ?? ""]}
         models={models}
-        handleModalOpen={handleModelModalOpen}
+        onModalOpen={handleModelModalOpen}
       />
       <ModelCreationModal
         isKeyAvailable={isKeyAvailable}
         projectId={projectId}
-        handleModelKeyCheck={handleModelKeyCheck}
+        onModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
         onClose={handleModelModalClose}
         onSubmit={handleModelCreate}
