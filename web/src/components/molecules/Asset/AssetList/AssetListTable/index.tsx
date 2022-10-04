@@ -13,6 +13,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
@@ -39,6 +40,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   selection,
   setSelection,
 }) => {
+  const t = useT();
   const columns: ProColumns<Asset>[] = [
     {
       title: "",
@@ -53,43 +55,43 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       render: (_, _asset) => <CustomTag value={0} />,
     },
     {
-      title: "File",
+      title: t("File"),
       dataIndex: "fileName",
       key: "fileName",
       sorter: (a, b) => stringSortCallback(a.fileName, b.fileName),
     },
     {
-      title: "Size",
+      title: t("Size"),
       dataIndex: "size",
       key: "size",
       sorter: (a, b) => numberSortCallback(a.size, b.size),
       render: (_text, record) => bytesFormat(record.size),
     },
     {
-      title: "Preview Type",
+      title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
     },
     {
-      title: "Created At",
+      title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
-      title: "Created By",
+      title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
     },
     {
-      title: "Id",
+      title: t("ID"),
       dataIndex: "id",
       key: "id",
       hideInTable: true,
     },
     {
-      title: "Action",
+      title: t("Action"),
       render: (_, asset) => (
         <DownloadButton
           type="link"

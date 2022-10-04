@@ -6,11 +6,11 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
@@ -19,10 +19,15 @@ import (
 type fileRepo struct {
 	fs      afero.Fs
 	urlBase *url.URL
+	host    string
 }
 
-func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
+func NewFile(fs afero.Fs, urlBase, host string) (gateway.File, error) {
 	var b *url.URL
+	if urlBase == "" {
+		urlBase = "http://localhost:8080/assets"
+	}
+
 	var err error
 	b, err = url.Parse(urlBase)
 	if err != nil {
@@ -35,12 +40,15 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, filename string) (io.ReadCloser, error) {
-	if filename == "" {
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
+	if u == "" || fn == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	return f.read(ctx, filepath.Join(assetDir, sanitize.Path(filename)))
+	p := getFSObjectPath(u, fn)
+	sn := sanitize.Path(p)
+
+	return f.read(ctx, sn)
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
@@ -71,6 +79,12 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	sn := sanitize.Path(p)
 
 	return f.delete(ctx, sn)
+}
+
+func (f *fileRepo) GetURL(a *asset.Asset) string {
+	uuid := a.UUID()
+	url, _ := url.JoinPath(f.host, uuid[:2], uuid[2:], url.PathEscape(a.FileName()))
+	return url
 }
 
 // helpers

@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	SortTypeID   = SortType("id")
+	SortTypeDate = SortType("date")
 	SortTypeName = SortType("name")
 	SortTypeSize = SortType("size")
 
@@ -17,7 +17,7 @@ type SortType string
 
 func check(role SortType) bool {
 	switch role {
-	case SortTypeID:
+	case SortTypeDate:
 		return true
 	case SortTypeName:
 		return true
