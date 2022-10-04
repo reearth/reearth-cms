@@ -1,6 +1,7 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { useT } from "@reearth-cms/i18n";
 
 import UploadModal from "../UploadModal/uploadModal";
 
@@ -23,10 +24,11 @@ const UploadAsset: React.FC<Props> = ({
   hideUploadModal,
   handleUpload,
 }) => {
+  const t = useT();
   return (
     <>
       <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
-        Upload Asset
+        {t("Upload Asset")}
       </Button>
       <UploadModal
         uploadProps={uploadProps}
