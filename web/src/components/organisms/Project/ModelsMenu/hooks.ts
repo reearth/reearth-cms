@@ -13,6 +13,26 @@ type Params = {
   modelId?: string;
 };
 
+const fromModel = (model: GQLModel) => ({
+  id: model.id,
+  description: model.description,
+  name: model.name,
+  key: model.key,
+  schema: {
+    id: model.schema?.id,
+    fields: model.schema?.fields.map(field => ({
+      id: field.id,
+      description: field.description,
+      title: field.title,
+      type: field.type,
+      key: field.key,
+      unique: field.unique,
+      required: field.required,
+      typeProperty: field.typeProperty,
+    })),
+  },
+});
+
 export default ({ projectId, modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
@@ -36,26 +56,6 @@ export default ({ projectId, modelId }: Params) => {
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
     skip: !projectId,
-  });
-
-  const fromModel = (model: GQLModel) => ({
-    id: model.id,
-    description: model.description,
-    name: model.name,
-    key: model.key,
-    schema: {
-      id: model.schema?.id,
-      fields: model.schema?.fields.map(field => ({
-        id: field.id,
-        description: field.description,
-        title: field.title,
-        type: field.type,
-        key: field.key,
-        unique: field.unique,
-        required: field.required,
-        typeProperty: field.typeProperty,
-      })),
-    },
   });
 
   const models = useMemo(() => {
