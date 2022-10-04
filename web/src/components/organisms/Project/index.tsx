@@ -78,7 +78,7 @@ const Project: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
-  height: 100%;
+  min-height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
