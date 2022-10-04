@@ -12,6 +12,7 @@ import cesium from "vite-plugin-cesium";
 export default defineConfig({
   server: {
     port: 3000,
+    open: true,
   },
   envPrefix: "REEARTH_CMS_",
   plugins: [react(), yaml(), cesium()],

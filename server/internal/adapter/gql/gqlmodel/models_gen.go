@@ -55,6 +55,7 @@ type Asset struct {
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
 	UUID        string       `json:"uuid"`
+	URL         string       `json:"url"`
 }
 
 func (Asset) IsNode()        {}

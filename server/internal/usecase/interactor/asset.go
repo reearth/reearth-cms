@@ -53,6 +53,10 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	)
 }
 
+func (i *Asset) GetURL(a *asset.Asset) string {
+	return i.gateways.File.GetURL(a)
+}
+
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
