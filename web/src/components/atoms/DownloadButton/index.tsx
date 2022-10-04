@@ -3,6 +3,7 @@ import React, { MouseEventHandler, useCallback } from "react";
 
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { useT } from "@reearth-cms/i18n";
 
 type DownloadButtonProps = {
   title?: string;
@@ -18,6 +19,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   displayDefaultIcon,
   ...props
 }) => {
+  const t = useT();
   const handleDownload: MouseEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const res = await fetch(url, {
       method: "GET",
@@ -35,7 +37,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
       onClick={handleDownload}
       disabled={!url}
       {...props}>
-      {title ?? "Download"}
+      {title ?? t("Download")}
     </Button>
   );
 };
