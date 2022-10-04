@@ -59,8 +59,8 @@ export default ({ projectId, modelId }: Params) => {
   });
 
   const models = useMemo(() => {
-    return (data?.models.nodes ?? [])
-      .map<Model | undefined>(model => (model ? fromModel(model as GQLModel) : undefined))
+    return data?.models.nodes
+      ?.map<Model | undefined>(model => (model ? fromModel(model as GQLModel) : undefined))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
