@@ -57,6 +57,7 @@ type Asset struct {
 	UUID        string       `json:"uuid"`
 	Thread      *Thread      `json:"thread"`
 	ThreadID    ID           `json:"threadId"`
+	URL         string       `json:"url"`
 }
 
 func (Asset) IsNode()        {}

@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 		Size        func(childComplexity int) int
 		Thread      func(childComplexity int) int
 		ThreadID    func(childComplexity int) int
+		URL         func(childComplexity int) int
 		UUID        func(childComplexity int) int
 	}
 
@@ -737,6 +738,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.ThreadID(childComplexity), true
+
+	case "Asset.url":
+		if e.complexity.Asset.URL == nil {
+			break
+		}
+
+		return e.complexity.Asset.URL(childComplexity), true
 
 	case "Asset.uuid":
 		if e.complexity.Asset.UUID == nil {
@@ -2885,6 +2893,7 @@ schema {
   uuid: String!
   thread: Thread
   threadId: ID!
+  url: String!
 }
 
 type AssetFile {
@@ -2961,7 +2970,8 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
     id: ID!
     name: String!
@@ -5352,6 +5362,50 @@ func (ec *executionContext) fieldContext_Asset_threadId(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetConnection_edges(ctx, field)
 	if err != nil {
@@ -5467,6 +5521,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_thread(ctx, field)
 			case "threadId":
 				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -5678,6 +5734,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_thread(ctx, field)
 			case "threadId":
 				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -6201,6 +6259,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_thread(ctx, field)
 			case "threadId":
 				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -13181,6 +13241,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_thread(ctx, field)
 			case "threadId":
 				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -15895,6 +15957,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_thread(ctx, field)
 			case "threadId":
 				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -22125,6 +22189,13 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 		case "threadId":
 
 			out.Values[i] = ec._Asset_threadId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "url":
+
+			out.Values[i] = ec._Asset_url(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

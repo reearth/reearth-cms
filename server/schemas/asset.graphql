@@ -12,6 +12,7 @@ type Asset implements Node {
   uuid: String!
   thread: Thread
   threadId: ID!
+  url: String!
 }
 
 type AssetFile {

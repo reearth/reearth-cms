@@ -16,41 +16,42 @@ import (
 )
 
 func TestNewFile(t *testing.T) {
-	f, err := NewFile(mockFs(), "")
+	f, err := NewFile(mockFs(), "", "")
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
 
-	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
+	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk", "")
 	assert.Equal(t, err, invalidBaseURLErr)
 	assert.Nil(t, f1)
 }
 
 func TestFile_ReadAsset(t *testing.T) {
-	f, _ := NewFile(mockFs(), "")
+	f, _ := NewFile(mockFs(), "", "")
+	u := "5130c89f-8f67-4766-b127-49ee6796d464"
 
-	r, err := f.ReadAsset(context.Background(), "xxx.txt")
+	r, err := f.ReadAsset(context.Background(), u, "xxx.txt")
 	assert.NoError(t, err)
 	c, err := io.ReadAll(r)
 	assert.NoError(t, err)
 	assert.Equal(t, "hello", string(c))
 	assert.NoError(t, r.Close())
 
-	r, err = f.ReadAsset(context.Background(), "")
+	r, err = f.ReadAsset(context.Background(), u, "")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 
-	r, err = f.ReadAsset(context.Background(), "aaa.txt")
+	r, err = f.ReadAsset(context.Background(), u, "aaa.txt")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 
-	r, err = f.ReadAsset(context.Background(), "../published/s.json")
+	r, err = f.ReadAsset(context.Background(), u, "../published/s.json")
 	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	assert.Nil(t, r)
 }
 
 func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", "")
 
 	u, err := f.UploadAsset(context.Background(), &file.File{
 		Path:    "aaa.txt",
@@ -86,7 +87,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u := newUUID()
 	n := "aaa.txt"
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", "")
 	err := f.DeleteAsset(context.Background(), u, n)
 	assert.NoError(t, err)
 
@@ -96,7 +97,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u1 := ""
 	n1 := ""
 	fs1 := mockFs()
-	f1, _ := NewFile(fs1, "https://example.com/assets")
+	f1, _ := NewFile(fs1, "https://example.com/assets", "")
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
@@ -121,9 +122,9 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/xxx.txt":           "hello",
-		"plugins/aaa~1.0.0/foo.js": "bar",
-		"published/s.json":         "{}",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt": "hello",
+		"plugins/aaa~1.0.0/foo.js":                             "bar",
+		"published/s.json":                                     "{}",
 	}
 
 	fs := afero.NewMemMapFs()
