@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -12,15 +13,17 @@ const ContentList: React.FC = () => {
   const navigate = useNavigate();
 
   const { projectId, workspaceId } = useParams();
-  const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
-  };
+
+  const selectModel = useCallback(
+    (modelId: string) => {
+      navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
 
   return (
     <PaddedContent>
-      <SchemaStyledMenu>
-        <ModelsMenu title={t("Content")} selectModel={selectModel} />
-      </SchemaStyledMenu>
+      <StyledModelsMenu title={t("Content")} selectModel={selectModel} />
       <ContentChild>
         <ContentTable />
       </ContentChild>
@@ -32,11 +35,11 @@ const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
   display: flex;
+  min-height: 100%;
 `;
 
-const SchemaStyledMenu = styled.div`
+const StyledModelsMenu = styled(ModelsMenu)`
   width: 200px;
-  max-width: 200px;
 `;
 
 const ContentChild = styled.div`

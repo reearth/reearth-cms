@@ -48,7 +48,7 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
         <Form.Item
           name="title"
           label={t("Title")}
-          rules={[{ required: true, message: t("Please input the title of request!") }]}>
+          rules={[{ required: true, message: t("Please input the title of your request!") }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Description")}>
@@ -60,7 +60,7 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
           rules={[
             {
               required: true,
-              message: t("Please select the reviewer!"),
+              message: t("Please select a reviewer!"),
             },
           ]}>
           <Select placeholder={t("Reviewer")}>

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -22,9 +22,13 @@ const ProjectSchema: React.FC = () => {
   const navigate = useNavigate();
 
   const { projectId, workspaceId, modelId } = useParams();
-  const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
-  };
+
+  const selectModel = useCallback(
+    (modelId: string) => {
+      navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
 
   const {
     handleFieldCreationModalClose,
