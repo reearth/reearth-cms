@@ -114,7 +114,7 @@ const Members: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <MemberPageHeader
+        <PageHeader
           title={t("Members")}
           extra={
             <Button
@@ -155,13 +155,10 @@ const PaddedContent = styled(Content)`
 `;
 
 const ActionHeader = styled(Content)`
+  border-top: 1px solid #f0f0f0;
   padding: 16px;
   display: flex;
   justify-content: space-between;
-`;
-
-const MemberPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #f0f0f0;
 `;
 
 export default Members;

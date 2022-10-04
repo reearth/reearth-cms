@@ -1,6 +1,10 @@
 package gqlmodel
 
 import (
+	"io"
+
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -43,5 +47,17 @@ func ToPagination(pagination *Pagination) *usecasex.Pagination {
 		After:  pagination.After,
 		First:  pagination.First,
 		Last:   pagination.Last,
+	}
+}
+
+func FromFile(f *graphql.Upload) *file.File {
+	if f == nil {
+		return nil
+	}
+	return &file.File{
+		Content:     io.NopCloser(f.File),
+		Path:        f.Filename,
+		Size:        f.Size,
+		ContentType: f.ContentType,
 	}
 }
