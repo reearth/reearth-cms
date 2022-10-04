@@ -52,9 +52,7 @@ const ProjectSchema: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <SchemaStyledMenu>
-          <ModelsMenu title={t("Models")} selectModel={selectModel} />
-        </SchemaStyledMenu>
+        <StyledModelsMenu title={t("Models")} selectModel={selectModel} />
         <ContentChild>
           <ModelTitle>{model?.name}</ModelTitle>
           <ModelFieldList
@@ -98,9 +96,8 @@ const ModelTitle = styled.h1`
   margin: 24px 0;
 `;
 
-const SchemaStyledMenu = styled.div`
+const StyledModelsMenu = styled(ModelsMenu)`
   width: 200px;
-  max-width: 200px;
 `;
 
 const ContentChild = styled.div`
