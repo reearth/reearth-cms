@@ -91,7 +91,6 @@ export default ({ projectId, modelId }: Params) => {
       });
       if (model.errors || !model.data?.createModel) {
         // Show error message
-        setModelModalShown(false);
         return;
       }
 
