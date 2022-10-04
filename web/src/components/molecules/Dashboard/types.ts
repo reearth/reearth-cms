@@ -10,13 +10,15 @@ export type User = {
 
 export type Member = {
   userId: string;
-  role: any;
+  role: Role;
   user: {
     id: string;
     name: string;
     email: string;
   };
 };
+
+export type Role = "WRITER" | "READER" | "OWNER";
 
 export type Workspace = {
   id?: string;
