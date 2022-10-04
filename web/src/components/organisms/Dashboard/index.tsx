@@ -11,6 +11,7 @@ import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import ThreadSider from "@reearth-cms/components/molecules/Common/ThreadSider";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import { useSelectedMenuKey } from "@reearth-cms/state";
 
 import useHooks from "./hooks";
 
@@ -24,7 +25,9 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const [threadVisibility, setThreadVisibility] = useState(true);
+  const [selectedMenuKey, _] = useSelectedMenuKey();
 
+  const displayThread = menuType === "project" && selectedMenuKey === "asset";
   const {
     user,
     personalWorkspace,
@@ -72,12 +75,14 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             )}
           </DashboardSider>
           <PaddedContent>{children}</PaddedContent>
-          <ThreadSider
-            collapsible
-            collapsed={!threadVisibility}
-            width={300}
-            onCollapse={value => setThreadVisibility(!value)}
-          />
+          {displayThread && (
+            <ThreadSider
+              collapsible
+              collapsed={!threadVisibility}
+              width={300}
+              onCollapse={value => setThreadVisibility(!value)}
+            />
+          )}
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal

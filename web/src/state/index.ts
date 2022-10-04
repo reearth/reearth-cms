@@ -14,3 +14,7 @@ export type Workspace = {
 };
 const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
+
+type MenuKey = "home" | "schema" | "settings" | "asset" | "Accessibility" | "Settings";
+const selectedMenuKey = atom<MenuKey | undefined>(undefined);
+export const useSelectedMenuKey = () => useAtom(selectedMenuKey);
