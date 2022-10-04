@@ -30,7 +30,7 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   useEffect(() => {
-    setIsKeyAvailable(keyData?.checkModelKeyAvailability.available ?? false);
+    setIsKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
   }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
