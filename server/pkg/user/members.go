@@ -110,7 +110,7 @@ func (m *Members) UpdateUserRole(u ID, role Role) error {
 	if _, ok := m.users[u]; !ok {
 		return ErrTargetUserNotInTheWorkspace
 	}
-	mm, _ := m.users[u]
+	mm := m.users[u]
 	mm.Role = role
 	m.users[u] = mm
 	return nil
@@ -123,7 +123,7 @@ func (m *Members) UpdateIntegrationRole(iId IntegrationID, role Role) error {
 	if _, ok := m.integrations[iId]; !ok {
 		return ErrTargetUserNotInTheWorkspace
 	}
-	mm, _ := m.integrations[iId]
+	mm := m.integrations[iId]
 	mm.Role = role
 	m.integrations[iId] = mm
 	return nil
