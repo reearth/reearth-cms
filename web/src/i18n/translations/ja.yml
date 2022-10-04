@@ -126,12 +126,6 @@ Please input the key of the model!: このモデルのキーを入力してく�
 Schema: スキーマ
 Models: モデル
 Add: 追加
-Failed to update asset.: ''
-Asset was successfully updated.: ''
-Failed to add one or more assets.: ''
-Successfully added one or more assets.: ''
-Failed to delete one or more assets.: ''
-One or more assets were successfully deleted.: ''
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
