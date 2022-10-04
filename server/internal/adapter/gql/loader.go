@@ -13,13 +13,14 @@ const (
 )
 
 type Loaders struct {
-	usecases    interfaces.Container
-	Asset       *AssetLoader
-	Workspace   *WorkspaceLoader
-	User        *UserLoader
-	Project     *ProjectLoader
-	Model       *ModelLoader
-	Schema      *SchemaLoader
+	usecases  interfaces.Container
+	Asset     *AssetLoader
+	Workspace *WorkspaceLoader
+	User      *UserLoader
+	Project   *ProjectLoader
+	Model     *ModelLoader
+	Schema    *SchemaLoader
+	// Thread    *ThreadLoader
 	Integration *IntegrationLoader
 }
 
@@ -31,6 +32,7 @@ type DataLoaders struct {
 	Model       ModelDataLoader
 	Schema      SchemaDataLoader
 	Integration IntegrationDataLoader
+	Thread      ThreadDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {
@@ -46,6 +48,7 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Model:       NewModelLoader(usecases.Model),
 		Schema:      NewSchemaLoader(usecases.Schema),
 		Integration: NewIntegrationLoader(usecases.Integration),
+		// Thread:    NewThreadLoader(usecases.Thread),
 	}
 }
 
@@ -65,6 +68,7 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		Model:       l.Model.DataLoader(ctx),
 		Schema:      l.Schema.DataLoader(ctx),
 		Integration: l.Integration.DataLoader(ctx),
+		// Thread:    l.Thread.DataLoader(ctx),
 	}
 }
 
@@ -77,5 +81,6 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		Model:       l.Model.OrdinaryDataLoader(ctx),
 		Schema:      l.Schema.OrdinaryDataLoader(ctx),
 		Integration: l.Integration.OrdinaryDataLoader(ctx),
+		// Thread:    l.Thread.OrdinaryDataLoader(ctx),
 	}
 }
