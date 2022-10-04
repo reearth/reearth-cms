@@ -277,7 +277,7 @@ type ComplexityRoot struct {
 		AddIntegrationToWorkspace      func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
 		AddUserToWorkspace             func(childComplexity int, input gqlmodel.AddUserToWorkspaceInput) int
 		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
-		CreateComment             func(childComplexity int, input gqlmodel.CreateCommentInput) int
+		CreateComment                  func(childComplexity int, input gqlmodel.CreateCommentInput) int
 		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
 		CreateItem                     func(childComplexity int, input gqlmodel.CreateItemInput) int
@@ -286,7 +286,7 @@ type ComplexityRoot struct {
 		CreateWebhook                  func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
 		DeleteAsset                    func(childComplexity int, input gqlmodel.DeleteAssetInput) int
-		DeleteComment             func(childComplexity int, input gqlmodel.DeleteCommentInput) int
+		DeleteComment                  func(childComplexity int, input gqlmodel.DeleteCommentInput) int
 		DeleteField                    func(childComplexity int, input gqlmodel.DeleteFieldInput) int
 		DeleteIntegration              func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
 		DeleteItem                     func(childComplexity int, input gqlmodel.DeleteItemInput) int
@@ -301,7 +301,7 @@ type ComplexityRoot struct {
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
 		Signup                         func(childComplexity int, input gqlmodel.SignupInput) int
 		UpdateAsset                    func(childComplexity int, input gqlmodel.UpdateAssetInput) int
-		UpdateComment             func(childComplexity int, input gqlmodel.UpdateCommentInput) int
+		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
 		UpdateIntegration              func(childComplexity int, input gqlmodel.UpdateIntegrationInput) int
 		UpdateIntegrationOfWorkspace   func(childComplexity int, input gqlmodel.UpdateIntegrationOfWorkspaceInput) int
