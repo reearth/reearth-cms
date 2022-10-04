@@ -107,6 +107,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				Name(*param.Name).
 				Description(*param.Description).
 				Key(key.New(*param.Key)).
+				Options(param.Unique, param.MultiValue, param.Required).
 				Build()
 			if err != nil {
 				return nil, err
