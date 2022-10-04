@@ -1,9 +1,12 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
+import { useT } from "@reearth-cms/i18n";
+
 type Props = { url: string; svgRender: boolean };
 
 const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
+  const t = useT();
   const [svgText, setSvgText] = useState("");
 
   const fetchData = useCallback(async () => {
@@ -14,12 +17,12 @@ const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
       },
     });
     if (res.status !== 200) {
-      setSvgText("Could not display svg");
+      setSvgText(t("Could not display svg"));
       return;
     }
     const text = await res.text();
     setSvgText(text);
-  }, [url]);
+  }, [url, t]);
 
   useEffect(() => {
     fetchData();

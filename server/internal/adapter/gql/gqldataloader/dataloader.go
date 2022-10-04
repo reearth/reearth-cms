@@ -8,3 +8,4 @@ package gqldataloader
 //go:generate go run github.com/vektah/dataloaden SchemaLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Schema
 //go:generate go run github.com/vektah/dataloaden FieldLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaField
 //go:generate go run github.com/vektah/dataloaden IntegrationLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Integration
+//go:generate go run github.com/vektah/dataloaden ThreadLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Thread

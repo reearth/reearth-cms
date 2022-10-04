@@ -55,6 +55,8 @@ type Asset struct {
 	PreviewType *PreviewType `json:"previewType"`
 	File        *AssetFile   `json:"file"`
 	UUID        string       `json:"uuid"`
+	Thread      *Thread      `json:"thread"`
+	ThreadID    ID           `json:"threadId"`
 	URL         string       `json:"url"`
 }
 
@@ -81,6 +83,14 @@ type AssetFile struct {
 	Children    []*AssetFile `json:"children"`
 }
 
+type Comment struct {
+	ID        ID        `json:"id"`
+	Author    *User     `json:"author"`
+	AuthorID  ID        `json:"authorId"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type CreateAssetInput struct {
 	ProjectID   ID             `json:"projectId"`
 	CreatedByID ID             `json:"createdById"`
@@ -89,6 +99,15 @@ type CreateAssetInput struct {
 
 type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type CreateCommentInput struct {
+	ThreadID ID     `json:"threadId"`
+	Content  string `json:"content"`
+}
+
+type CreateCommentPayload struct {
+	Comment *Comment `json:"comment"`
 }
 
 type CreateFieldInput struct {
@@ -151,6 +170,15 @@ type DeleteAssetInput struct {
 
 type DeleteAssetPayload struct {
 	AssetID ID `json:"assetId"`
+}
+
+type DeleteCommentInput struct {
+	ThreadID  ID `json:"threadId"`
+	CommentID ID `json:"commentId"`
+}
+
+type DeleteCommentPayload struct {
+	CommentID ID `json:"commentId"`
 }
 
 type DeleteFieldInput struct {
@@ -607,6 +635,13 @@ type SignupPayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type Thread struct {
+	ID          ID         `json:"id"`
+	Workspace   *Workspace `json:"workspace"`
+	WorkspaceID ID         `json:"workspaceId"`
+	Comments    []*Comment `json:"comments"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType"`
@@ -614,6 +649,16 @@ type UpdateAssetInput struct {
 
 type UpdateAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type UpdateCommentInput struct {
+	ThreadID  ID     `json:"threadId"`
+	CommentID ID     `json:"commentId"`
+	Content   string `json:"content"`
+}
+
+type UpdateCommentPayload struct {
+	Comment *Comment `json:"comment"`
 }
 
 type UpdateFieldInput struct {
