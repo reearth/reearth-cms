@@ -85,7 +85,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "createdBy",
     },
     {
-      title: t("Id"),
+      title: t("ID"),
       dataIndex: "id",
       key: "id",
     },
