@@ -233,6 +233,7 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Project     func(childComplexity int) int
 		ProjectID   func(childComplexity int) int
+		Public      func(childComplexity int) int
 		Schema      func(childComplexity int) int
 		SchemaID    func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
@@ -286,7 +287,6 @@ type ComplexityRoot struct {
 		UpdateMemberOfWorkspace   func(childComplexity int, input gqlmodel.UpdateMemberOfWorkspaceInput) int
 		UpdateModel               func(childComplexity int, input gqlmodel.UpdateModelInput) int
 		UpdateProject             func(childComplexity int, input gqlmodel.UpdateProjectInput) int
-		UpdatePublicProjectInput  func(childComplexity int, input gqlmodel.UpdatePublicProjectInput) int
 		UpdateWebhook             func(childComplexity int, input gqlmodel.UpdateWebhookInput) int
 		UpdateWorkspace           func(childComplexity int, input gqlmodel.UpdateWorkspaceInput) int
 	}
@@ -299,15 +299,15 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
-		Alias          func(childComplexity int) int
-		CreatedAt      func(childComplexity int) int
-		Description    func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Name           func(childComplexity int) int
-		PublicSettings func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
-		Workspace      func(childComplexity int) int
-		WorkspaceID    func(childComplexity int) int
+		Alias       func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Publication func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		Workspace   func(childComplexity int) int
+		WorkspaceID func(childComplexity int) int
 	}
 
 	ProjectAliasAvailability struct {
@@ -331,8 +331,9 @@ type ComplexityRoot struct {
 		Project func(childComplexity int) int
 	}
 
-	PublicProjectPayload struct {
-		ProjectPublicSetting func(childComplexity int) int
+	ProjectPublication struct {
+		AssetPublic func(childComplexity int) int
+		Scope       func(childComplexity int) int
 	}
 
 	PublishModelPayload struct {
@@ -551,7 +552,6 @@ type MutationResolver interface {
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
 	UpdateProject(ctx context.Context, input gqlmodel.UpdateProjectInput) (*gqlmodel.ProjectPayload, error)
 	DeleteProject(ctx context.Context, input gqlmodel.DeleteProjectInput) (*gqlmodel.DeleteProjectPayload, error)
-	UpdatePublicProjectInput(ctx context.Context, input gqlmodel.UpdatePublicProjectInput) (*gqlmodel.PublicProjectPayload, error)
 	CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
@@ -1237,6 +1237,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Model.ProjectID(childComplexity), true
 
+	case "Model.public":
+		if e.complexity.Model.Public == nil {
+			break
+		}
+
+		return e.complexity.Model.Public(childComplexity), true
+
 	case "Model.schema":
 		if e.complexity.Model.Schema == nil {
 			break
@@ -1679,18 +1686,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateProject(childComplexity, args["input"].(gqlmodel.UpdateProjectInput)), true
 
-	case "Mutation.updatePublicProjectInput":
-		if e.complexity.Mutation.UpdatePublicProjectInput == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updatePublicProjectInput_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdatePublicProjectInput(childComplexity, args["input"].(gqlmodel.UpdatePublicProjectInput)), true
-
 	case "Mutation.updateWebhook":
 		if e.complexity.Mutation.UpdateWebhook == nil {
 			break
@@ -1778,12 +1773,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Name(childComplexity), true
 
-	case "Project.publicSettings":
-		if e.complexity.Project.PublicSettings == nil {
+	case "Project.publication":
+		if e.complexity.Project.Publication == nil {
 			break
 		}
 
-		return e.complexity.Project.PublicSettings(childComplexity), true
+		return e.complexity.Project.Publication(childComplexity), true
 
 	case "Project.updatedAt":
 		if e.complexity.Project.UpdatedAt == nil {
@@ -1869,12 +1864,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPayload.Project(childComplexity), true
 
-	case "PublicProjectPayload.projectPublicSetting":
-		if e.complexity.PublicProjectPayload.ProjectPublicSetting == nil {
+	case "ProjectPublication.assetPublic":
+		if e.complexity.ProjectPublication.AssetPublic == nil {
 			break
 		}
 
-		return e.complexity.PublicProjectPayload.ProjectPublicSetting(childComplexity), true
+		return e.complexity.ProjectPublication.AssetPublic(childComplexity), true
+
+	case "ProjectPublication.scope":
+		if e.complexity.ProjectPublication.Scope == nil {
+			break
+		}
+
+		return e.complexity.ProjectPublication.Scope(childComplexity), true
 
 	case "PublishModelPayload.modelId":
 		if e.complexity.PublishModelPayload.ModelID == nil {
@@ -2596,7 +2598,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateMemberOfWorkspaceInput,
 		ec.unmarshalInputUpdateModelInput,
 		ec.unmarshalInputUpdateProjectInput,
-		ec.unmarshalInputUpdatePublicProjectInput,
+		ec.unmarshalInputUpdateProjectPublicationInput,
 		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkspaceInput,
 		ec.unmarshalInputWebhookTriggerInput,
@@ -3004,11 +3006,15 @@ extend type Mutation {
   available: Boolean!
 }
 
-enum ProjectPublicSetting {
-  ProjectId
-  PublicModelIds
-  PublicScope
-  AssetPublic
+enum ProjectPublicationScope {
+  PUBLIC
+  LIMITED
+  PRIVATE
+}
+
+type ProjectPublication {
+  scope: ProjectPublicationScope!
+  assetPublic: Boolean!
 }
 
 type Project implements Node {
@@ -3020,7 +3026,7 @@ type Project implements Node {
   workspace: Workspace
   createdAt: DateTime!
   updatedAt: DateTime!
-  publicSettings: ProjectPublicSetting
+  publication: ProjectPublication
 }
 
 # Inputs
@@ -3031,25 +3037,23 @@ input CreateProjectInput {
   alias: String
 }
 
+input UpdateProjectPublicationInput {
+  scope: ProjectPublicationScope
+  assetPublic: Boolean
+}
+
 input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  publication: UpdateProjectPublicationInput
 }
 
 input DeleteProjectInput {
   projectId: ID!
 }
 
-input UpdatePublicProjectInput {
-  projectId: ID!
-  publicModelIds: [ID]!
-  publicScope: String!
-  assetPublic: Boolean!
-}
-
 # Payload
-
 type ProjectPayload {
   project: Project!
 }
@@ -3070,10 +3074,6 @@ type ProjectEdge {
   node: Project
 }
 
-type PublicProjectPayload {
-  projectPublicSetting: ProjectPublicSetting!
-}
-
 extend type Query {
   projects(
     workspaceId: ID!
@@ -3089,7 +3089,6 @@ extend type Mutation {
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
-  updatePublicProjectInput(input: UpdatePublicProjectInput!): PublicProjectPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/model.graphql", Input: `type Model implements Node {
@@ -3101,6 +3100,7 @@ extend type Mutation {
   key: String!
   project: Project!
   schema: Schema!
+  public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -4085,21 +4085,6 @@ func (ec *executionContext) field_Mutation_updateProject_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updatePublicProjectInput_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 gqlmodel.UpdatePublicProjectInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdatePublicProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicProjectInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_updateWebhook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4645,8 +4630,8 @@ func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -7016,6 +7001,8 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -8798,8 +8785,8 @@ func (ec *executionContext) fieldContext_Model_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -8856,6 +8843,50 @@ func (ec *executionContext) fieldContext_Model_schema(ctx context.Context, field
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Model_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Model_public(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Public, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Model_public(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9054,6 +9085,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -9259,6 +9292,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -9325,6 +9360,8 @@ func (ec *executionContext) fieldContext_ModelPayload_model(ctx context.Context,
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -10284,62 +10321,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteProject(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteProject_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updatePublicProjectInput(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updatePublicProjectInput(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePublicProjectInput(rctx, fc.Args["input"].(gqlmodel.UpdatePublicProjectInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.PublicProjectPayload)
-	fc.Result = res
-	return ec.marshalOPublicProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicProjectPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updatePublicProjectInput(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "projectPublicSetting":
-				return ec.fieldContext_PublicProjectPayload_projectPublicSetting(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PublicProjectPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updatePublicProjectInput_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -11773,8 +11754,8 @@ func (ec *executionContext) fieldContext_Project_updatedAt(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Project_publicSettings(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Project_publicSettings(ctx, field)
+func (ec *executionContext) _Project_publication(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_publication(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -11787,7 +11768,7 @@ func (ec *executionContext) _Project_publicSettings(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PublicSettings, nil
+		return obj.Publication, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11796,19 +11777,25 @@ func (ec *executionContext) _Project_publicSettings(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ProjectPublicSetting)
+	res := resTmp.(*gqlmodel.ProjectPublication)
 	fc.Result = res
-	return ec.marshalOProjectPublicSetting2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx, field.Selections, res)
+	return ec.marshalOProjectPublication2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublication(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Project_publicSettings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Project_publication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Project",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPublicSetting does not have child fields")
+			switch field.Name {
+			case "scope":
+				return ec.fieldContext_ProjectPublication_scope(ctx, field)
+			case "assetPublic":
+				return ec.fieldContext_ProjectPublication_assetPublic(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectPublication", field.Name)
 		},
 	}
 	return fc, nil
@@ -12007,8 +11994,8 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(ctx context.Con
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -12210,8 +12197,8 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(ctx context.Context, f
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -12274,8 +12261,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(ctx context.Cont
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -12283,8 +12270,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _PublicProjectPayload_projectPublicSetting(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublicProjectPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PublicProjectPayload_projectPublicSetting(ctx, field)
+func (ec *executionContext) _ProjectPublication_scope(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPublication_scope(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12297,7 +12284,7 @@ func (ec *executionContext) _PublicProjectPayload_projectPublicSetting(ctx conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ProjectPublicSetting, nil
+		return obj.Scope, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12309,19 +12296,63 @@ func (ec *executionContext) _PublicProjectPayload_projectPublicSetting(ctx conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ProjectPublicSetting)
+	res := resTmp.(gqlmodel.ProjectPublicationScope)
 	fc.Result = res
-	return ec.marshalNProjectPublicSetting2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx, field.Selections, res)
+	return ec.marshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PublicProjectPayload_projectPublicSetting(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProjectPublication_scope(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PublicProjectPayload",
+		Object:     "ProjectPublication",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPublicSetting does not have child fields")
+			return nil, errors.New("field of type ProjectPublicationScope does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectPublication_assetPublic(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPublication_assetPublic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetPublic, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPublication_assetPublic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPublication",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13506,8 +13537,8 @@ func (ec *executionContext) fieldContext_Schema_project(ctx context.Context, fie
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publicSettings":
-				return ec.fieldContext_Project_publicSettings(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -13658,6 +13689,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -20597,7 +20630,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "publication"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20628,47 +20661,39 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "publication":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
+			it.Publication, err = ec.unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdatePublicProjectInput(ctx context.Context, obj interface{}) (gqlmodel.UpdatePublicProjectInput, error) {
-	var it gqlmodel.UpdatePublicProjectInput
+func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateProjectPublicationInput, error) {
+	var it gqlmodel.UpdateProjectPublicationInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "publicModelIds", "publicScope", "assetPublic"}
+	fieldsInOrder := [...]string{"scope", "assetPublic"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "projectId":
+		case "scope":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publicModelIds":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publicModelIds"))
-			it.PublicModelIds, err = ec.unmarshalNID2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publicScope":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publicScope"))
-			it.PublicScope, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
+			it.Scope, err = ec.unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20676,7 +20701,7 @@ func (ec *executionContext) unmarshalInputUpdatePublicProjectInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetPublic"))
-			it.AssetPublic, err = ec.unmarshalNBoolean2bool(ctx, v)
+			it.AssetPublic, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22382,6 +22407,13 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "public":
+
+			out.Values[i] = ec._Model_public(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "createdAt":
 
 			out.Values[i] = ec._Model_createdAt(ctx, field, obj)
@@ -22637,12 +22669,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_deleteProject(ctx, field)
 			})
 
-		case "updatePublicProjectInput":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updatePublicProjectInput(ctx, field)
-			})
-
 		case "createModel":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -22869,9 +22895,9 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "publicSettings":
+		case "publication":
 
-			out.Values[i] = ec._Project_publicSettings(ctx, field, obj)
+			out.Values[i] = ec._Project_publication(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -23028,19 +23054,26 @@ func (ec *executionContext) _ProjectPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var publicProjectPayloadImplementors = []string{"PublicProjectPayload"}
+var projectPublicationImplementors = []string{"ProjectPublication"}
 
-func (ec *executionContext) _PublicProjectPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublicProjectPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, publicProjectPayloadImplementors)
+func (ec *executionContext) _ProjectPublication(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ProjectPublication) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, projectPublicationImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PublicProjectPayload")
-		case "projectPublicSetting":
+			out.Values[i] = graphql.MarshalString("ProjectPublication")
+		case "scope":
 
-			out.Values[i] = ec._PublicProjectPayload_projectPublicSetting(ctx, field, obj)
+			out.Values[i] = ec._ProjectPublication_scope(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "assetPublic":
+
+			out.Values[i] = ec._ProjectPublication_assetPublic(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -25123,32 +25156,6 @@ func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
-func (ec *executionContext) unmarshalNID2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) ([]*gqlmodel.ID, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*gqlmodel.ID, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNID2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ID) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -25825,13 +25832,13 @@ func (ec *executionContext) marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._ProjectEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNProjectPublicSetting2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx context.Context, v interface{}) (gqlmodel.ProjectPublicSetting, error) {
-	var res gqlmodel.ProjectPublicSetting
+func (ec *executionContext) unmarshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v interface{}) (gqlmodel.ProjectPublicationScope, error) {
+	var res gqlmodel.ProjectPublicationScope
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNProjectPublicSetting2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ProjectPublicSetting) graphql.Marshaler {
+func (ec *executionContext) marshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ProjectPublicationScope) graphql.Marshaler {
 	return v
 }
 
@@ -26057,11 +26064,6 @@ func (ec *executionContext) unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋ
 
 func (ec *executionContext) unmarshalNUpdateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectInput(ctx context.Context, v interface{}) (gqlmodel.UpdateProjectInput, error) {
 	res, err := ec.unmarshalInputUpdateProjectInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdatePublicProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicProjectInput(ctx context.Context, v interface{}) (gqlmodel.UpdatePublicProjectInput, error) {
-	res, err := ec.unmarshalInputUpdatePublicProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -26915,27 +26917,27 @@ func (ec *executionContext) marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._ProjectPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOProjectPublicSetting2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx context.Context, v interface{}) (*gqlmodel.ProjectPublicSetting, error) {
+func (ec *executionContext) marshalOProjectPublication2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublication(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPublication) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ProjectPublication(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v interface{}) (*gqlmodel.ProjectPublicationScope, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(gqlmodel.ProjectPublicSetting)
+	var res = new(gqlmodel.ProjectPublicationScope)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOProjectPublicSetting2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicSetting(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPublicSetting) graphql.Marshaler {
+func (ec *executionContext) marshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPublicationScope) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
-}
-
-func (ec *executionContext) marshalOPublicProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicProjectPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublicProjectPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PublicProjectPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelPayload) graphql.Marshaler {
@@ -27175,6 +27177,14 @@ func (ec *executionContext) marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._UpdateMemberOfWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx context.Context, v interface{}) (*gqlmodel.UpdateProjectPublicationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateProjectPublicationInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUpdateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UpdateWorkspacePayload) graphql.Marshaler {

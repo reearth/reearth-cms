@@ -320,6 +320,7 @@ type Model struct {
 	Key         string    `json:"key"`
 	Project     *Project  `json:"project"`
 	Schema      *Schema   `json:"schema"`
+	Public      bool      `json:"public"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -358,15 +359,15 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID             ID                    `json:"id"`
-	Name           string                `json:"name"`
-	Description    string                `json:"description"`
-	Alias          string                `json:"alias"`
-	WorkspaceID    ID                    `json:"workspaceId"`
-	Workspace      *Workspace            `json:"workspace"`
-	CreatedAt      time.Time             `json:"createdAt"`
-	UpdatedAt      time.Time             `json:"updatedAt"`
-	PublicSettings *ProjectPublicSetting `json:"publicSettings"`
+	ID          ID                  `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Alias       string              `json:"alias"`
+	WorkspaceID ID                  `json:"workspaceId"`
+	Workspace   *Workspace          `json:"workspace"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	UpdatedAt   time.Time           `json:"updatedAt"`
+	Publication *ProjectPublication `json:"publication"`
 }
 
 func (Project) IsNode()        {}
@@ -393,8 +394,9 @@ type ProjectPayload struct {
 	Project *Project `json:"project"`
 }
 
-type PublicProjectPayload struct {
-	ProjectPublicSetting ProjectPublicSetting `json:"projectPublicSetting"`
+type ProjectPublication struct {
+	Scope       ProjectPublicationScope `json:"scope"`
+	AssetPublic bool                    `json:"assetPublic"`
 }
 
 type PublishModelInput struct {
@@ -671,16 +673,15 @@ type UpdateModelInput struct {
 }
 
 type UpdateProjectInput struct {
-	ProjectID   ID      `json:"projectId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
+	ProjectID   ID                             `json:"projectId"`
+	Name        *string                        `json:"name"`
+	Description *string                        `json:"description"`
+	Publication *UpdateProjectPublicationInput `json:"publication"`
 }
 
-type UpdatePublicProjectInput struct {
-	ProjectID      ID     `json:"projectId"`
-	PublicModelIds []*ID  `json:"publicModelIds"`
-	PublicScope    string `json:"publicScope"`
-	AssetPublic    bool   `json:"assetPublic"`
+type UpdateProjectPublicationInput struct {
+	Scope       *ProjectPublicationScope `json:"scope"`
+	AssetPublic *bool                    `json:"assetPublic"`
 }
 
 type UpdateWebhookInput struct {
@@ -949,48 +950,46 @@ func (e PreviewType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type ProjectPublicSetting string
+type ProjectPublicationScope string
 
 const (
-	ProjectPublicSettingProjectID      ProjectPublicSetting = "ProjectId"
-	ProjectPublicSettingPublicModelIds ProjectPublicSetting = "PublicModelIds"
-	ProjectPublicSettingPublicScope    ProjectPublicSetting = "PublicScope"
-	ProjectPublicSettingAssetPublic    ProjectPublicSetting = "AssetPublic"
+	ProjectPublicationScopePublic  ProjectPublicationScope = "PUBLIC"
+	ProjectPublicationScopeLimited ProjectPublicationScope = "LIMITED"
+	ProjectPublicationScopePrivate ProjectPublicationScope = "PRIVATE"
 )
 
-var AllProjectPublicSetting = []ProjectPublicSetting{
-	ProjectPublicSettingProjectID,
-	ProjectPublicSettingPublicModelIds,
-	ProjectPublicSettingPublicScope,
-	ProjectPublicSettingAssetPublic,
+var AllProjectPublicationScope = []ProjectPublicationScope{
+	ProjectPublicationScopePublic,
+	ProjectPublicationScopeLimited,
+	ProjectPublicationScopePrivate,
 }
 
-func (e ProjectPublicSetting) IsValid() bool {
+func (e ProjectPublicationScope) IsValid() bool {
 	switch e {
-	case ProjectPublicSettingProjectID, ProjectPublicSettingPublicModelIds, ProjectPublicSettingPublicScope, ProjectPublicSettingAssetPublic:
+	case ProjectPublicationScopePublic, ProjectPublicationScopeLimited, ProjectPublicationScopePrivate:
 		return true
 	}
 	return false
 }
 
-func (e ProjectPublicSetting) String() string {
+func (e ProjectPublicationScope) String() string {
 	return string(e)
 }
 
-func (e *ProjectPublicSetting) UnmarshalGQL(v interface{}) error {
+func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ProjectPublicSetting(str)
+	*e = ProjectPublicationScope(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ProjectPublicSetting", str)
+		return fmt.Errorf("%s is not a valid ProjectPublicationScope", str)
 	}
 	return nil
 }
 
-func (e ProjectPublicSetting) MarshalGQL(w io.Writer) {
+func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

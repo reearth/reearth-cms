@@ -3,11 +3,15 @@ type ProjectAliasAvailability {
   available: Boolean!
 }
 
-enum ProjectPublicSetting {
-  ProjectId
-  PublicModelIds
-  PublicScope
-  AssetPublic
+enum ProjectPublicationScope {
+  PUBLIC
+  LIMITED
+  PRIVATE
+}
+
+type ProjectPublication {
+  scope: ProjectPublicationScope!
+  assetPublic: Boolean!
 }
 
 type Project implements Node {
@@ -19,7 +23,7 @@ type Project implements Node {
   workspace: Workspace
   createdAt: DateTime!
   updatedAt: DateTime!
-  publicSettings: ProjectPublicSetting
+  publication: ProjectPublication
 }
 
 # Inputs
@@ -30,25 +34,23 @@ input CreateProjectInput {
   alias: String
 }
 
+input UpdateProjectPublicationInput {
+  scope: ProjectPublicationScope
+  assetPublic: Boolean
+}
+
 input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  publication: UpdateProjectPublicationInput
 }
 
 input DeleteProjectInput {
   projectId: ID!
 }
 
-input UpdatePublicProjectInput {
-  projectId: ID!
-  publicModelIds: [ID]!
-  publicScope: String!
-  assetPublic: Boolean!
-}
-
 # Payload
-
 type ProjectPayload {
   project: Project!
 }
@@ -69,10 +71,6 @@ type ProjectEdge {
   node: Project
 }
 
-type PublicProjectPayload {
-  projectPublicSetting: ProjectPublicSetting!
-}
-
 extend type Query {
   projects(
     workspaceId: ID!
@@ -88,5 +86,4 @@ extend type Mutation {
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
-  updatePublicProjectInput(input: UpdatePublicProjectInput!): PublicProjectPayload
 }
