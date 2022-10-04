@@ -16,7 +16,6 @@ import {
   Asset as GQLAsset,
   AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
-import { useT } from "@reearth-cms/i18n";
 
 type AssetSortType = "date" | "name" | "size";
 
@@ -37,7 +36,6 @@ function pagination(
 }
 
 export default (projectId?: string) => {
-  const t = useT();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState({
@@ -95,17 +93,17 @@ export default (projectId?: string) => {
             });
             if (result.errors || !result.data?.createAsset) {
               // TODO: notification
-              console.log(t("Failed to add one or more assets."));
+              // console.log("Failed to add one or more assets.");
             }
           }),
         );
         if (results) {
           // TODO: notification
-          console.log(t("Successfully added one or more assets."));
+          // console.log("Successfully added one or more assets.");
           await refetch();
         }
       })(),
-    [projectId, currentUser?.id, createAssetMutation, t, refetch],
+    [projectId, currentUser?.id, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -121,17 +119,17 @@ export default (projectId?: string) => {
             });
             if (result.errors || result.data?.deleteAsset) {
               // TODO: notification
-              console.log(t("Failed to delete one or more assets."));
+              // console.log("Failed to delete one or more assets.");
             }
           }),
         );
         if (results) {
           // TODO: notification
-          console.log(t("One or more assets were successfully deleted."));
+          // console.log("One or more assets were successfully deleted.");
           selectAsset([]);
         }
       })(),
-    [deleteAssetMutation, projectId, t],
+    [deleteAssetMutation, projectId],
   );
 
   const handleSortChange = useCallback(
