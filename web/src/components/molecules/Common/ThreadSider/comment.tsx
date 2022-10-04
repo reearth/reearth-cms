@@ -1,5 +1,8 @@
-import { Avatar, Comment as AntDComment, CommentProps, Tooltip } from "antd";
 import moment from "moment";
+
+import Avatar from "@reearth-cms/components/atoms/Avatar";
+import AntDComment, { CommentProps } from "@reearth-cms/components/atoms/Comment";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 
 const Comment: React.FC<CommentProps> = ({ author, avatar, content, datetime }) => {
   const fromNow = moment(datetime?.toString()).fromNow();

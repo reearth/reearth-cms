@@ -1,9 +1,8 @@
-import { MessageOutlined } from "@ant-design/icons";
 import styled from "@emotion/styled";
-import { SiderProps } from "antd";
 import { useState } from "react";
 
-import Sider from "@reearth-cms/components/atoms/Sider";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Sider, { SiderProps } from "@reearth-cms/components/atoms/Sider";
 import { useT } from "@reearth-cms/i18n";
 
 import Thread from "./Thread";
@@ -50,7 +49,7 @@ const ThreadSider: React.FC<SiderProps> = ({ ...props }) => {
     <StyledSider {...props}>
       {props.collapsed ? (
         <CollapsedSider>
-          <MessageOutlined />
+          <Icon icon="message" />
         </CollapsedSider>
       ) : (
         <NotCollapsedSider>

@@ -1,4 +1,4 @@
-import { Avatar } from "antd";
+import Avatar from "@reearth-cms/components/atoms/Avatar";
 
 import Comment from "./Comment";
 import { CommentList } from "./CommentList";

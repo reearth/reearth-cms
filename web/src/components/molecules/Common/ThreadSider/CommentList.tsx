@@ -1,4 +1,4 @@
-import { List } from "antd";
+import List from "@reearth-cms/components/atoms/List";
 
 import Comment from "./Comment";
 

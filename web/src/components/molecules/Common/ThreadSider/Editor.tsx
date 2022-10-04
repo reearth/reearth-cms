@@ -1,4 +1,6 @@
-import { Button, Form, Input } from "antd";
+import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
+import Input from "@reearth-cms/components/atoms/Input";
 
 const { TextArea } = Input;
 
