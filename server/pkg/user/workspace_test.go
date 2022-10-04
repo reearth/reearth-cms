@@ -18,8 +18,8 @@ func TestWorkspace_Name(t *testing.T) {
 }
 
 func TestWorkspace_Members(t *testing.T) {
-	m := map[ID]Role{
-		NewID(): RoleOwner,
+	m := map[ID]Member{
+		NewID(): {Role: RoleOwner},
 	}
 	tm := NewWorkspace().NewID().Members(m).MustBuild()
 	assert.Equal(t, m, tm.Members().Users())

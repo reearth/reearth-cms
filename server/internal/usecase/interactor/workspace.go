@@ -54,7 +54,7 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 			return nil, err
 		}
 
-		if err := workspace.Members().JoinUser(firstUser, user.RoleOwner); err != nil {
+		if err := workspace.Members().JoinUser(firstUser, user.RoleOwner, operator.User); err != nil {
 			return nil, err
 		}
 
@@ -113,7 +113,7 @@ func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.U
 			return nil, err
 		}
 
-		err = workspace.Members().JoinUser(u, role)
+		err = workspace.Members().JoinUser(u, role, operator.User)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID
 			return nil, err
 		}
 
-		err = workspace.Members().AddIntegration(iId, role)
+		err = workspace.Members().AddIntegration(iId, role, operator.User)
 		if err != nil {
 			return nil, err
 		}

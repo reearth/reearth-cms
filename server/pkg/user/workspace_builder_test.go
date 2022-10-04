@@ -13,7 +13,7 @@ func TestWorkspaceBuilder_ID(t *testing.T) {
 }
 
 func TestWorkspaceBuilder_Members(t *testing.T) {
-	m := map[ID]Role{NewID(): RoleOwner}
+	m := map[ID]Member{NewID(): {Role: RoleOwner}}
 	tm := NewWorkspace().NewID().Members(m).MustBuild()
 	assert.Equal(t, m, tm.Members().Users())
 }
@@ -41,7 +41,7 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 		ID       WorkspaceID
 		Name     string
 		Personal bool
-		Members  map[ID]Role
+		Members  map[ID]Member
 	}
 
 	tests := []struct {
@@ -56,14 +56,14 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				ID:       tid,
 				Name:     "xxx",
 				Personal: true,
-				Members:  map[ID]Role{uid: RoleOwner},
+				Members:  map[ID]Member{uid: {Role: RoleOwner}},
 			},
 			Expected: &Workspace{
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users:        map[ID]Role{uid: RoleOwner},
-					integrations: map[IntegrationID]Role{},
+					users:        map[ID]Member{uid: {Role: RoleOwner}},
+					integrations: map[IntegrationID]Member{},
 					fixed:        true,
 				},
 			},
@@ -77,8 +77,8 @@ func TestWorkspaceBuilder_Build(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users:        map[ID]Role{},
-					integrations: map[IntegrationID]Role{},
+					users:        map[ID]Member{},
+					integrations: map[IntegrationID]Member{},
 					fixed:        false,
 				},
 			},
@@ -116,7 +116,7 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 		ID       WorkspaceID
 		Name     string
 		Personal bool
-		Members  map[ID]Role
+		Members  map[ID]Member
 	}
 
 	tests := []struct {
@@ -131,14 +131,14 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				ID:       tid,
 				Name:     "xxx",
 				Personal: true,
-				Members:  map[ID]Role{uid: RoleOwner},
+				Members:  map[ID]Member{uid: {Role: RoleOwner}},
 			},
 			Expected: &Workspace{
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users:        map[ID]Role{uid: RoleOwner},
-					integrations: map[IntegrationID]Role{},
+					users:        map[ID]Member{uid: {Role: RoleOwner}},
+					integrations: map[IntegrationID]Member{},
 					fixed:        true,
 				},
 			},
@@ -152,8 +152,8 @@ func TestWorkspaceBuilder_MustBuild(t *testing.T) {
 				id:   tid,
 				name: "xxx",
 				members: &Members{
-					users:        map[ID]Role{},
-					integrations: map[IntegrationID]Role{},
+					users:        map[ID]Member{},
+					integrations: map[IntegrationID]Member{},
 					fixed:        false,
 				},
 			},

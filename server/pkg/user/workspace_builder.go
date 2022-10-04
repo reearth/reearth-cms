@@ -2,8 +2,8 @@ package user
 
 type WorkspaceBuilder struct {
 	t            *Workspace
-	members      map[ID]Role
-	integrations map[IntegrationID]Role
+	members      map[ID]Member
+	integrations map[IntegrationID]Member
 	personal     bool
 }
 
@@ -50,12 +50,12 @@ func (b *WorkspaceBuilder) Name(name string) *WorkspaceBuilder {
 	return b
 }
 
-func (b *WorkspaceBuilder) Members(members map[ID]Role) *WorkspaceBuilder {
+func (b *WorkspaceBuilder) Members(members map[ID]Member) *WorkspaceBuilder {
 	b.members = members
 	return b
 }
 
-func (b *WorkspaceBuilder) Integrations(integrations map[IntegrationID]Role) *WorkspaceBuilder {
+func (b *WorkspaceBuilder) Integrations(integrations map[IntegrationID]Member) *WorkspaceBuilder {
 	b.integrations = integrations
 	return b
 }

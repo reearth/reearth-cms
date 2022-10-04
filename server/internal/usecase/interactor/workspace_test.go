@@ -158,7 +158,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 func TestWorkspace_FindByUser(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).MustBuild()
 
@@ -255,12 +255,12 @@ func TestWorkspace_FindByUser(t *testing.T) {
 func TestWorkspace_Update(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
-	w1Updated := user.NewWorkspace().ID(id1).Name("WW1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
+	w1Updated := user.NewWorkspace().ID(id1).Name("WW1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).Name("W2").MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -367,18 +367,18 @@ func TestWorkspace_Update(t *testing.T) {
 func TestWorkspace_Remove(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).Name("W2").MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 	id4 := id.NewWorkspaceID()
-	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 	id5 := id.NewWorkspaceID()
-	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	p := project.New().NewID().Workspace(id5).MustBuild()
 	id6 := id.NewWorkspaceID()
-	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	p2 := project.New().NewID().Workspace(id6).MustBuild()
 
 	op := &usecase.Operator{
@@ -539,11 +539,11 @@ func TestWorkspace_Remove(t *testing.T) {
 func TestWorkspace_AddMember(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
 	u := user.New().NewID().Email("a@b.c").MustBuild()
 
@@ -583,7 +583,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: rerror.ErrNotFound,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Add",
@@ -601,7 +601,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader, InvitedBy: userID}}),
 		},
 		{
 			name:       "Add to personal workspace",
@@ -619,7 +619,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:             "mock error",
@@ -670,13 +670,13 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 	userID := id.NewUserID()
 	u := user.New().NewID().Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 	id4 := id.NewWorkspaceID()
-	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -711,7 +711,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrTargetUserNotInTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove",
@@ -727,7 +727,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove personal workspace",
@@ -743,7 +743,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove single member",
@@ -759,7 +759,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: interfaces.ErrOwnerCannotLeaveTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:             "mock error",
@@ -811,11 +811,11 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 	userID := id.NewUserID()
 	u := user.New().NewID().Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -853,7 +853,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrTargetUserNotInTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Update",
@@ -871,7 +871,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleWriter}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleWriter}}),
 		},
 		{
 			name:       "Update personal workspace",
@@ -889,7 +889,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:             "mock error",

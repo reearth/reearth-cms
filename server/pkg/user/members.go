@@ -14,46 +14,53 @@ var (
 	ErrInvalidName                   = errors.New("invalid workspace name")
 )
 
-type MemberOptions struct {
+type Member struct {
 	Role      Role
-	Active    bool
+	Disabled  bool
 	InvitedBy ID
 }
+
 type Members struct {
-	users        map[ID]Role
-	integrations map[IntegrationID]Role
+	users        map[ID]Member
+	integrations map[IntegrationID]Member
 	fixed        bool
 }
 
 func NewMembers() *Members {
 	m := &Members{
-		users:        map[ID]Role{},
-		integrations: map[IntegrationID]Role{},
+		users:        map[ID]Member{},
+		integrations: map[IntegrationID]Member{},
 	}
 	return m
 }
 
 func NewFixedMembers(u ID) *Members {
 	m := &Members{
-		users:        map[ID]Role{u: RoleOwner},
-		integrations: map[IntegrationID]Role{},
+		users: map[ID]Member{
+			u: {
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: u,
+			},
+		},
+		integrations: map[IntegrationID]Member{},
 		fixed:        true,
 	}
 	return m
 }
 
-func NewMembersWith(users map[ID]Role) *Members {
+func NewMembersWith(users map[ID]Member) *Members {
 	m := &Members{
 		users:        maps.Clone(users),
-		integrations: map[IntegrationID]Role{},
+		integrations: map[IntegrationID]Member{},
 	}
 	return m
 }
 
-func NewFixedMembersWith(users map[ID]Role) *Members {
+func NewFixedMembersWith(users map[ID]Member) *Members {
 	m := &Members{
 		users:        maps.Clone(users),
-		integrations: map[IntegrationID]Role{},
+		integrations: map[IntegrationID]Member{},
 		fixed:        true,
 	}
 	return m
@@ -68,21 +75,17 @@ func (m *Members) Clone() *Members {
 	return c
 }
 
-func (m *Members) Users() map[ID]Role {
+func (m *Members) Users() map[ID]Member {
 	return maps.Clone(m.users)
 }
 
-func (m *Members) Integrations() map[IntegrationID]Role {
+func (m *Members) Integrations() map[IntegrationID]Member {
 	return maps.Clone(m.integrations)
 }
 
 func (m *Members) ContainsUser(u ID) bool {
-	for k := range m.users {
-		if k == u {
-			return true
-		}
-	}
-	return false
+	_, ok := m.users[u]
+	return ok
 }
 
 func (m *Members) Count() int {
@@ -90,11 +93,11 @@ func (m *Members) Count() int {
 }
 
 func (m *Members) UserRole(u ID) Role {
-	return m.users[u]
+	return m.users[u].Role
 }
 
 func (m *Members) IntegrationRole(iId IntegrationID) Role {
-	return m.integrations[iId]
+	return m.integrations[iId].Role
 }
 
 func (m *Members) UpdateUserRole(u ID, role Role) error {
@@ -104,11 +107,12 @@ func (m *Members) UpdateUserRole(u ID, role Role) error {
 	if role == Role("") {
 		return nil
 	}
-	if _, ok := m.users[u]; ok {
-		m.users[u] = role
-	} else {
+	if _, ok := m.users[u]; !ok {
 		return ErrTargetUserNotInTheWorkspace
 	}
+	mm, _ := m.users[u]
+	mm.Role = role
+	m.users[u] = mm
 	return nil
 }
 
@@ -116,15 +120,16 @@ func (m *Members) UpdateIntegrationRole(iId IntegrationID, role Role) error {
 	if !role.Valid() {
 		return nil
 	}
-	if _, ok := m.integrations[iId]; ok {
-		m.integrations[iId] = role
-	} else {
+	if _, ok := m.integrations[iId]; !ok {
 		return ErrTargetUserNotInTheWorkspace
 	}
+	mm, _ := m.integrations[iId]
+	mm.Role = role
+	m.integrations[iId] = mm
 	return nil
 }
 
-func (m *Members) JoinUser(u ID, role Role) error {
+func (m *Members) JoinUser(u ID, role Role, i ID) error {
 	if m.fixed {
 		return ErrCannotModifyPersonalWorkspace
 	}
@@ -134,18 +139,26 @@ func (m *Members) JoinUser(u ID, role Role) error {
 	if role == Role("") {
 		role = RoleReader
 	}
-	m.users[u] = role
+	m.users[u] = Member{
+		Role:      role,
+		Disabled:  false,
+		InvitedBy: i,
+	}
 	return nil
 }
 
-func (m *Members) AddIntegration(iId IntegrationID, role Role) error {
+func (m *Members) AddIntegration(iId IntegrationID, role Role, i ID) error {
 	if _, ok := m.integrations[iId]; ok {
 		return ErrUserAlreadyJoined
 	}
 	if role == Role("") {
 		role = RoleReader
 	}
-	m.integrations[iId] = role
+	m.integrations[iId] = Member{
+		Role:      role,
+		Disabled:  false,
+		InvitedBy: i,
+	}
 	return nil
 }
 
@@ -172,8 +185,8 @@ func (m *Members) DeleteIntegration(iId IntegrationID) error {
 
 func (m *Members) UsersByRole(role Role) []ID {
 	users := make([]ID, 0, len(m.users))
-	for u, r := range m.users {
-		if r == role {
+	for u, m := range m.users {
+		if m.Role == role {
 			users = append(users, u)
 		}
 	}
@@ -186,7 +199,7 @@ func (m *Members) UsersByRole(role Role) []ID {
 }
 
 func (m *Members) IsOnlyOwner(u ID) bool {
-	return len(m.UsersByRole(RoleOwner)) == 1 && m.users[u] == RoleOwner
+	return len(m.UsersByRole(RoleOwner)) == 1 && m.users[u].Role == RoleOwner
 }
 
 func (m *Members) Fixed() bool {
