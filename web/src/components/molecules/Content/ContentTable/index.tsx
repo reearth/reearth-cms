@@ -1,10 +1,14 @@
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 
+import { Item } from "../types";
+
 const columns: ProColumns<any>[] = [];
 
-const ContentTable: React.FC = () => {
-  const dataSource: [] = [];
+export type Props = {
+  items?: Item[];
+};
 
+const ContentTable: React.FC<Props> = ({ items }) => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: _ => {},
@@ -13,7 +17,7 @@ const ContentTable: React.FC = () => {
 
   return (
     <ProTable
-      dataSource={dataSource}
+      dataSource={items}
       columns={columns}
       search={false}
       rowKey="id"

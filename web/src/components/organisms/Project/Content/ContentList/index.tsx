@@ -7,8 +7,12 @@ import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
+import useHooks from "./hooks";
+
 const ContentList: React.FC = () => {
   const t = useT();
+
+  const { items } = useHooks();
 
   const navigate = useNavigate();
 
@@ -25,7 +29,7 @@ const ContentList: React.FC = () => {
     <PaddedContent>
       <StyledModelsMenu title={t("Content")} selectModel={selectModel} />
       <ContentChild>
-        <ContentTable />
+        <ContentTable items={items} />
       </ContentChild>
     </PaddedContent>
   );
