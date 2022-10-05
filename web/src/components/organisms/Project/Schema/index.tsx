@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
-import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import SchemaMenu from "@reearth-cms/components/molecules/Schema/SchemaMenu";
+import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
@@ -18,32 +18,30 @@ export interface FormValues {
 }
 
 const ProjectSchema: React.FC = () => {
+  const t = useT();
   const navigate = useNavigate();
 
   const { projectId, workspaceId, modelId } = useParams();
-  const selectModel = (modelId: string) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
-  };
+
+  const selectModel = useCallback(
+    (modelId: string) => {
+      navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
 
   const {
-    handleModelModalClose,
-    handleModelModalOpen,
-    modelModalShown,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
     fieldCreationModalShown,
     fieldUpdateModalShown,
-    handleModelCreate,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
     selectedField,
     handleFieldDelete,
-    handleModelKeyCheck,
-    isKeyAvailable,
-    models,
     model,
     selectedType,
   } = useHooks({
@@ -54,14 +52,7 @@ const ProjectSchema: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <SchemaStyledMenu>
-          <SchemaMenu
-            selectModel={selectModel}
-            defaultSelectedKeys={[model?.id ?? ""]}
-            models={models}
-            handleModalOpen={handleModelModalOpen}
-          />
-        </SchemaStyledMenu>
+        <StyledModelsMenu title={t("Models")} selectModel={selectModel} />
         <ContentChild>
           <ModelTitle>{model?.name}</ModelTitle>
           <ModelFieldList
@@ -74,14 +65,6 @@ const ProjectSchema: React.FC = () => {
           <FieldList addField={handleFieldCreationModalOpen} />
         </FieldListWrapper>
       </PaddedContent>
-      <ModelCreationModal
-        isKeyAvailable={isKeyAvailable}
-        projectId={projectId}
-        handleModelKeyCheck={handleModelKeyCheck}
-        open={modelModalShown}
-        onClose={handleModelModalClose}
-        onSubmit={handleModelCreate}
-      />
       {selectedType && (
         <FieldCreationModal
           handleFieldKeyUnique={handleFieldKeyUnique}
@@ -113,9 +96,8 @@ const ModelTitle = styled.h1`
   margin: 24px 0;
 `;
 
-const SchemaStyledMenu = styled.div`
+const StyledModelsMenu = styled(ModelsMenu)`
   width: 200px;
-  max-width: 200px;
 `;
 
 const ContentChild = styled.div`
