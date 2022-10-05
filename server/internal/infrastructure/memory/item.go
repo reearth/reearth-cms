@@ -17,10 +17,6 @@ type Item struct {
 	err  error
 }
 
-func (r *Item) FindByFieldValue(ctx context.Context, s string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	panic("implement me")
-}
-
 func NewItem() repo.Item {
 	return &Item{
 		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
@@ -103,4 +99,19 @@ func SetItemError(r repo.Item, err error) {
 
 func (r *Item) Len() int {
 	return r.data.Len()
+}
+
+func (r *Item) FindByFieldValue(ctx context.Context, s string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.FindFieldByValue(s) {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res, nil, nil
 }
