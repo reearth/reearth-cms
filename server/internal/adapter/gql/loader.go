@@ -21,6 +21,7 @@ type Loaders struct {
 	Project   *ProjectLoader
 	Model     *ModelLoader
 	Schema    *SchemaLoader
+	// Thread    *ThreadLoader
 }
 
 type DataLoaders struct {
@@ -31,6 +32,7 @@ type DataLoaders struct {
 	Item      ItemDataLoader
 	Model     ModelDataLoader
 	Schema    SchemaDataLoader
+	Thread    ThreadDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {
@@ -46,6 +48,7 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Item:      NewItemLoader(usecases.Item),
 		Model:     NewModelLoader(usecases.Model),
 		Schema:    NewSchemaLoader(usecases.Schema),
+		// Thread:    NewThreadLoader(usecases.Thread),
 	}
 }
 
@@ -65,6 +68,7 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		Item:      l.Item.DataLoader(ctx),
 		Model:     l.Model.DataLoader(ctx),
 		Schema:    l.Schema.DataLoader(ctx),
+		// Thread:    l.Thread.DataLoader(ctx),
 	}
 }
 
@@ -77,5 +81,6 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		Model:     l.Model.OrdinaryDataLoader(ctx),
 		Item:      l.Item.OrdinaryDataLoader(ctx),
 		Schema:    l.Schema.OrdinaryDataLoader(ctx),
+		// Thread:    l.Thread.OrdinaryDataLoader(ctx),
 	}
 }
