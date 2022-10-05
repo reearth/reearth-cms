@@ -33,9 +33,7 @@ func TestComment_SetContent(t *testing.T) {
 }
 
 func TestComment_CreatedAt(t *testing.T) {
-	var got *Comment = nil
-	assert.Equal(t, time.Time{}, got.CreatedAt())
-	got = &Comment{id: NewCommentID()}
+	got := &Comment{id: NewCommentID()}
 	assert.Equal(t, got.id.Timestamp(), got.CreatedAt())
 	mocknow := time.Now().Truncate(time.Millisecond)
 	got = &Comment{id: NewCommentID(), createdAt: mocknow}

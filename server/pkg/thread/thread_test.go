@@ -26,7 +26,7 @@ func TestThread_Comments(t *testing.T) {
 	var got *Thread = nil
 	assert.Nil(t, got.Comments())
 
-	c := []*Comment{}
+	c := []*Comment{{id: NewCommentID()}}
 	got = &Thread{
 		comments: c,
 	}

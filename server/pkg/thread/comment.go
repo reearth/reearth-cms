@@ -22,10 +22,6 @@ func (c *Comment) Content() string {
 }
 
 func (c *Comment) CreatedAt() time.Time {
-	if c == nil {
-		return time.Time{}
-	}
-
 	return c.id.Timestamp()
 }
 
