@@ -47,6 +47,13 @@ Integration: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
+New Request: ''
+Title: ''
+Please input the title of your request!: ''
+Description: 説明
+Please select a reviewer!: ''
+Reviewer: ''
+Owner: オーナー
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
@@ -61,22 +68,22 @@ Please input the appropriate role for this integration!: このインテグレ�
 select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
-Owner: オーナー
 Name: 名前
 Creator: 作成者
 State: ステート
 No Integration yet: まだインテグレーションはありません
-Create a new: 新規作成
+Create a new: ''
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+Models: モデル
+Add: 追加
 New Integration: 新規インテグレーション
 Create: 作成
 Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
-Description: 説明
 Integration Token: インテグレーショントークン
 Please input the token of the integration!: インテグレーションのトークンを入力してください
 Input token: トークンを入力
@@ -123,9 +130,7 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
-Schema: スキーマ
-Models: モデル
-Add: 追加
+Content: ''
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？

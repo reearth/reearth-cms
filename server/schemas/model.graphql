@@ -7,6 +7,7 @@ type Model implements Node {
   key: String!
   project: Project!
   schema: Schema!
+  public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
