@@ -114,7 +114,7 @@ export default ({ projectId, modelId }: Params) => {
         field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
       );
     },
-    [modelId],
+    [model?.schema.fields],
   );
 
   const handleModelCreate = useCallback(

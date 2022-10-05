@@ -80,7 +80,7 @@ const AssetBody: React.FC<Props> = ({
         return isSVG ? (
           <SVGPreview url={asset.url} svgRender={svgRender} />
         ) : (
-          <Image src={asset.url} alt="asset-preview"></Image>
+          <Image src={asset.url} alt="asset-preview" />
         );
       default:
         return <ViewerNotSupported />;
@@ -108,7 +108,7 @@ const AssetBody: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && (
           <Card title={t("Unzip File")}>
-            <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
+            <UnzipFileList style={{ minHeight: "400px" }} />
           </Card>
         )}
         <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />

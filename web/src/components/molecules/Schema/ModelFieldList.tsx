@@ -24,34 +24,32 @@ const ModelFieldList: React.FC<Props> = ({
       itemLayout="horizontal"
       dataSource={fields}
       renderItem={item => (
-        <>
-          <List.Item
-            actions={[
-              <Icon
-                icon="delete"
-                onClick={() => handleFieldDelete((item as Field).id)}
-                key="delete"
-              />,
-              <Icon
-                icon="ellipsis"
-                onClick={() => handleFieldUpdateModalOpen(item as Field)}
-                key="edit"
-              />,
-            ]}>
-            <List.Item.Meta
-              avatar={
-                <FieldThumbnail>
-                  <StyledIcon
-                    icon={fieldTypes[(item as Field).type].icon}
-                    color={fieldTypes[(item as Field).type].color}
-                  />
-                  <h3>{(item as Field).type}</h3>
-                </FieldThumbnail>
-              }
-              title={`${(item as Field).title}${(item as Field).required ? " *" : ""}`}
-            />
-          </List.Item>
-        </>
+        <List.Item
+          actions={[
+            <Icon
+              icon="delete"
+              onClick={() => handleFieldDelete((item as Field).id)}
+              key="delete"
+            />,
+            <Icon
+              icon="ellipsis"
+              onClick={() => handleFieldUpdateModalOpen(item as Field)}
+              key="edit"
+            />,
+          ]}>
+          <List.Item.Meta
+            avatar={
+              <FieldThumbnail>
+                <StyledIcon
+                  icon={fieldTypes[(item as Field).type].icon}
+                  color={fieldTypes[(item as Field).type].color}
+                />
+                <h3>{(item as Field).type}</h3>
+              </FieldThumbnail>
+            }
+            title={`${(item as Field).title}${(item as Field).required ? " *" : ""}`}
+          />
+        </List.Item>
       )}
     />
   );

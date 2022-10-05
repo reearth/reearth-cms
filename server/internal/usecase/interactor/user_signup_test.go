@@ -69,7 +69,7 @@ func TestUser_Signup(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
@@ -158,7 +158,7 @@ func TestUser_Signup(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
@@ -197,7 +197,7 @@ func TestUser_Signup(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: "NAME"}},
@@ -357,7 +357,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantError: nil,
@@ -387,7 +387,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("name").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantError: nil,
@@ -418,7 +418,7 @@ func TestUser_SignupOIDC(t *testing.T) {
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("name").
-				Members(map[id.UserID]user.Role{uid: user.RoleOwner}).
+				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
 				Personal(true).
 				MustBuild(),
 			wantError: nil,
