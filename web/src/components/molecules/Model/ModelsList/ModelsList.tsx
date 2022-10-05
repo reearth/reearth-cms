@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import type { MenuInfo } from "rc-menu/lib/interface";
-import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,17 +12,19 @@ export interface Props {
 }
 
 export interface Props {
+  title: string;
   defaultSelectedKeys?: string[];
   models?: Model[];
-  handleModalOpen: () => void;
+  onModalOpen: () => void;
   selectModel: (modelId: string) => void;
 }
 
-const SchemaMenu: React.FC<Props> = ({
+const ModelsList: React.FC<Props> = ({
   defaultSelectedKeys,
   models,
-  handleModalOpen,
+  onModalOpen,
   selectModel,
+  title,
 }) => {
   const t = useT();
   const onClick = (e: MenuInfo) => {
@@ -32,10 +33,10 @@ const SchemaMenu: React.FC<Props> = ({
 
   return (
     <SchemaStyledMenu>
-      <SchemaStyledTitle>{t("Schema")}</SchemaStyledTitle>
+      <SchemaStyledTitle>{title}</SchemaStyledTitle>
       <SchemaAction>
         <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
-        <SchemaAddButton onClick={handleModalOpen} icon={<Icon icon="plus" />} type="text">
+        <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
           {t("Add")}
         </SchemaAddButton>
       </SchemaAction>
@@ -83,4 +84,4 @@ const SchemaStyledMenu = styled.div`
   border-right: 1px solid #f0f0f0;
 `;
 
-export default SchemaMenu;
+export default ModelsList;
