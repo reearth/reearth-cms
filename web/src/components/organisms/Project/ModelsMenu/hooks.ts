@@ -64,8 +64,8 @@ export default ({ projectId, modelId }: Params) => {
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
-  const rawModel = useMemo<GQLModel | undefined>(
-    () => (data?.models.nodes as GQLModel[])?.find((node: GQLModel) => node.id === modelId),
+  const rawModel = useMemo(
+    () => data?.models.nodes?.find(node => node?.id === modelId),
     [data, modelId],
   );
 
