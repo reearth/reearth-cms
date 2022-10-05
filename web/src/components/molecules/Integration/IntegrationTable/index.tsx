@@ -10,7 +10,7 @@ import { IntegrationMember } from "@reearth-cms/components/molecules/Integration
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  integrationMembers: IntegrationMember[];
+  integrationMembers?: IntegrationMember[];
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;

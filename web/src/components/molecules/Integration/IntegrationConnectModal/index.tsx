@@ -7,7 +7,7 @@ import { Integration } from "@reearth-cms/components/molecules/Integration/types
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  integrations: Integration[];
+  integrations?: Integration[];
   selectedIntegration?: Integration;
   open?: boolean;
   onClose?: () => void;
@@ -40,7 +40,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
         </Button>,
       ]}>
       <ModalContent>
-        {integrations.map(integration => (
+        {integrations?.map(integration => (
           <IntegrationCard
             onIntegrationSelect={onIntegrationSelect}
             key={integration.id}
