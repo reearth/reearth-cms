@@ -4,28 +4,144 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
-	panic("implement me")
+	op := getOperator(ctx)
+	res, err := usecases(ctx).Integration.Create(
+		ctx,
+		interfaces.CreateIntegrationParam{
+			Name:        input.Name,
+			Description: input.Description,
+			Type:        integration.TypeFrom(input.Type.String()),
+			Logo:        input.LogoURL,
+		},
+		op,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.IntegrationPayload{
+		Integration: gqlmodel.ToIntegration(res, op.User),
+	}, nil
 }
 
 func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
-	panic("implement me")
+	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
+	if err != nil {
+		return nil, err
+	}
+	op := getOperator(ctx)
+	res, err := usecases(ctx).Integration.Update(
+		ctx,
+		iId,
+		interfaces.UpdateIntegrationParam{
+			Name:        input.Name,
+			Description: input.Description,
+			Logo:        input.LogoURL,
+		},
+		op,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.IntegrationPayload{
+		Integration: gqlmodel.ToIntegration(res, op.User),
+	}, nil
 }
 
 func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error) {
-	panic("implement me")
+	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.Delete(ctx, iId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.DeleteIntegrationPayload{
+		IntegrationID: input.IntegrationID,
+	}, nil
 }
 
 func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error) {
-	panic("implement me")
+	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := usecases(ctx).Integration.CreateWebhook(ctx, iId, interfaces.CreateWebhookParam{
+		Name:   input.Name,
+		URL:    input.URL,
+		Active: input.Active,
+		Trigger: &interfaces.WebhookTriggerParam{
+			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+		},
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.WebhookPayload{
+		Webhook: gqlmodel.ToWebhook(res),
+	}, nil
 }
 
 func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error) {
-	panic("implement me")
+	iId, wId, err := gqlmodel.ToID2[id.Integration, id.Webhook](input.IntegrationID, input.WebhookID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := usecases(ctx).Integration.UpdateWebhook(ctx, iId, wId, interfaces.UpdateWebhookParam{
+		Name:   input.Name,
+		URL:    input.URL,
+		Active: input.Active,
+		Trigger: &interfaces.WebhookTriggerParam{
+			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+		},
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.WebhookPayload{
+		Webhook: gqlmodel.ToWebhook(res),
+	}, nil
 }
 
 func (r *mutationResolver) DeleteWebhook(ctx context.Context, input gqlmodel.DeleteWebhookInput) (*gqlmodel.DeleteWebhookPayload, error) {
-	panic("implement me")
+	iId, wId, err := gqlmodel.ToID2[id.Integration, id.Webhook](input.IntegrationID, input.WebhookID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.DeleteWebhook(ctx, iId, wId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.DeleteWebhookPayload{
+		WebhookID: input.WebhookID,
+	}, nil
 }
