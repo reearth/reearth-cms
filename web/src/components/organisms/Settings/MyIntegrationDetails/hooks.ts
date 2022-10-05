@@ -117,6 +117,7 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.updateWebhook) {
+        // TODO: Add notification error
         return;
       }
     },
