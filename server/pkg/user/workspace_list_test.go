@@ -26,16 +26,16 @@ func TestWorkspaceList_FilterByUserRole(t *testing.T) {
 	t1 := &Workspace{
 		id: tid1,
 		members: &Members{
-			members: map[ID]Role{
-				uid: RoleReader,
+			users: map[ID]Member{
+				uid: {Role: RoleReader},
 			},
 		},
 	}
 	t2 := &Workspace{
 		id: tid2,
 		members: &Members{
-			members: map[ID]Role{
-				uid: RoleOwner,
+			users: map[ID]Member{
+				uid: {Role: RoleOwner},
 			},
 		},
 	}
@@ -53,16 +53,16 @@ func TestWorkspaceList_FilterByUserRoleIncluding(t *testing.T) {
 	t1 := &Workspace{
 		id: tid1,
 		members: &Members{
-			members: map[ID]Role{
-				uid: RoleReader,
+			users: map[ID]Member{
+				uid: {Role: RoleReader},
 			},
 		},
 	}
 	t2 := &Workspace{
 		id: tid2,
 		members: &Members{
-			members: map[ID]Role{
-				uid: RoleOwner,
+			users: map[ID]Member{
+				uid: {Role: RoleOwner},
 			},
 		},
 	}
