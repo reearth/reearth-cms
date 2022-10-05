@@ -47,23 +47,20 @@ Integration: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
-No Items yet: ''
-Create a new: ''
-New Item: ''
-Or read: 読む
-how to use Re:Earth CMS: CMSの使い方
-first: はじめに
 New Request: ''
 Title: ''
-Please input the title of request!: ''
+Please input the title of your request!: ''
 Description: 説明
-Please select the reviewer!: ''
+Please select a reviewer!: ''
 Reviewer: ''
 Owner: オーナー
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
+Or read: 読む
+how to use Re:Earth CMS: CMSの使い方
+first: はじめに
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -75,6 +72,7 @@ Name: 名前
 Creator: 作成者
 State: ステート
 No Integration yet: まだインテグレーションはありません
+Create a new: ''
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
