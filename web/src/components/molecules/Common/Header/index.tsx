@@ -109,7 +109,7 @@ const Header: React.FC<Props> = ({
   return (
     <>
       <Logo onClick={() => navigate("/")}>{t("Re:Earth CMS")}</Logo>
-      <VerticalDivider></VerticalDivider>
+      <VerticalDivider />
       <WorkspaceDropdown overlay={WorkspacesMenu}>
         <a onClick={e => e.preventDefault()}>
           <Space>
@@ -118,7 +118,7 @@ const Header: React.FC<Props> = ({
           </Space>
         </a>
       </WorkspaceDropdown>
-      <Spacer></Spacer>
+      <Spacer />
       <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>{user.name.charAt(0)}</Avatar>
       <AccountDropdown overlay={menu}>
         <a onClick={e => e.preventDefault()}>
