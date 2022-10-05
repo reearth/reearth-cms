@@ -203,3 +203,54 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		})
 	}
 }
+
+func Test_itemRepo_FindByFieldValue(t *testing.T) {
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	i1, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Build()
+	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Build()
+	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Build()
+	tests := []struct {
+		Name               string
+		Input              string
+		RepoData, Expected item.List
+	}{
+		{
+			Name:     "must find two items (first 10)",
+			Input:    "foo",
+			RepoData: item.List{i1, i2, i3},
+			Expected: item.List{i1, i2},
+		},
+		{
+			Name:     "must find one item",
+			Input:    "hoge",
+			RepoData: item.List{i1, i2, i3},
+			Expected: item.List{i3},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _, _ := repo.FindByFieldValue(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
+}
