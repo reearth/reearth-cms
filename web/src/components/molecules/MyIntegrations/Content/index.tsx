@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationsForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
-import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegrations/Header";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
 
@@ -15,7 +15,7 @@ const MyIntegrationsContent: React.FC = () => {
   const { TabPane } = Tabs;
   return (
     <MyIntegrationWrapper>
-      <MyIntegrationsHeader title="My Integration / Robot Red" />
+      <PageHeader title="My Integration / Robot Red" />
       <MyIntegrationTabs
         defaultActiveKey="integration"
         activeKey={tab}
