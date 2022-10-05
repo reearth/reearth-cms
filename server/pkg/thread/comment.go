@@ -1,11 +1,16 @@
 package thread
 
-import "time"
+import (
+	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
+)
 
 type Comment struct {
-	id      CommentID
-	author  UserID
-	content string
+	id        CommentID
+	author    UserID
+	content   string
+	createdAt time.Time
 }
 
 func (c *Comment) ID() CommentID {
@@ -24,6 +29,18 @@ func (c *Comment) CreatedAt() time.Time {
 	return c.id.Timestamp()
 }
 
+func (c *Comment) SetID(id id.CommentID) {
+	c.id = id
+}
+
+func (c *Comment) SetAuthor(author id.UserID) {
+	c.author = author
+}
+
 func (c *Comment) SetContent(content string) {
 	c.content = content
+}
+
+func (c *Comment) SetCreatedAt(createdAt time.Time) {
+	c.createdAt = createdAt
 }
