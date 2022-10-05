@@ -20,15 +20,19 @@ type Loaders struct {
 	Project   *ProjectLoader
 	Model     *ModelLoader
 	Schema    *SchemaLoader
+	// Thread    *ThreadLoader
+	Integration *IntegrationLoader
 }
 
 type DataLoaders struct {
-	Asset     AssetDataLoader
-	Workspace WorkspaceDataLoader
-	User      UserDataLoader
-	Project   ProjectDataLoader
-	Model     ModelDataLoader
-	Schema    SchemaDataLoader
+	Asset       AssetDataLoader
+	Workspace   WorkspaceDataLoader
+	User        UserDataLoader
+	Project     ProjectDataLoader
+	Model       ModelDataLoader
+	Schema      SchemaDataLoader
+	Integration IntegrationDataLoader
+	Thread      ThreadDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {
@@ -36,13 +40,15 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		return nil
 	}
 	return &Loaders{
-		usecases:  *usecases,
-		Asset:     NewAssetLoader(usecases.Asset),
-		Workspace: NewWorkspaceLoader(usecases.Workspace),
-		User:      NewUserLoader(usecases.User),
-		Project:   NewProjectLoader(usecases.Project),
-		Model:     NewModelLoader(usecases.Model),
-		Schema:    NewSchemaLoader(usecases.Schema),
+		usecases:    *usecases,
+		Asset:       NewAssetLoader(usecases.Asset),
+		Workspace:   NewWorkspaceLoader(usecases.Workspace),
+		User:        NewUserLoader(usecases.User),
+		Project:     NewProjectLoader(usecases.Project),
+		Model:       NewModelLoader(usecases.Model),
+		Schema:      NewSchemaLoader(usecases.Schema),
+		Integration: NewIntegrationLoader(usecases.Integration),
+		// Thread:    NewThreadLoader(usecases.Thread),
 	}
 }
 
@@ -55,22 +61,26 @@ func (l Loaders) DataLoadersWith(ctx context.Context, enabled bool) *DataLoaders
 
 func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
-		Asset:     l.Asset.DataLoader(ctx),
-		Workspace: l.Workspace.DataLoader(ctx),
-		User:      l.User.DataLoader(ctx),
-		Project:   l.Project.DataLoader(ctx),
-		Model:     l.Model.DataLoader(ctx),
-		Schema:    l.Schema.DataLoader(ctx),
+		Asset:       l.Asset.DataLoader(ctx),
+		Workspace:   l.Workspace.DataLoader(ctx),
+		User:        l.User.DataLoader(ctx),
+		Project:     l.Project.DataLoader(ctx),
+		Model:       l.Model.DataLoader(ctx),
+		Schema:      l.Schema.DataLoader(ctx),
+		Integration: l.Integration.DataLoader(ctx),
+		// Thread:    l.Thread.DataLoader(ctx),
 	}
 }
 
 func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
-		Asset:     l.Asset.OrdinaryDataLoader(ctx),
-		Workspace: l.Workspace.OrdinaryDataLoader(ctx),
-		User:      l.User.OrdinaryDataLoader(ctx),
-		Project:   l.Project.OrdinaryDataLoader(ctx),
-		Model:     l.Model.OrdinaryDataLoader(ctx),
-		Schema:    l.Schema.OrdinaryDataLoader(ctx),
+		Asset:       l.Asset.OrdinaryDataLoader(ctx),
+		Workspace:   l.Workspace.OrdinaryDataLoader(ctx),
+		User:        l.User.OrdinaryDataLoader(ctx),
+		Project:     l.Project.OrdinaryDataLoader(ctx),
+		Model:       l.Model.OrdinaryDataLoader(ctx),
+		Schema:      l.Schema.OrdinaryDataLoader(ctx),
+		Integration: l.Integration.OrdinaryDataLoader(ctx),
+		// Thread:    l.Thread.OrdinaryDataLoader(ctx),
 	}
 }

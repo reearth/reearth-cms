@@ -62,12 +62,12 @@ type fieldLoaderBatch struct {
 	done    chan struct{}
 }
 
-// Load a Field by key, batching and caching will be applied automatically
+// Load a SchemaField by key, batching and caching will be applied automatically
 func (l *FieldLoader) Load(key gqlmodel.ID) (*gqlmodel.SchemaField, error) {
 	return l.LoadThunk(key)()
 }
 
-// LoadThunk returns a function that when called will block waiting for a Field.
+// LoadThunk returns a function that when called will block waiting for a SchemaField.
 // This method should be used if you want one goroutine to make requests to many
 // different data loaders without blocking until the thunk is called.
 func (l *FieldLoader) LoadThunk(key gqlmodel.ID) func() (*gqlmodel.SchemaField, error) {
@@ -120,15 +120,15 @@ func (l *FieldLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []er
 		results[i] = l.LoadThunk(key)
 	}
 
-	fields := make([]*gqlmodel.SchemaField, len(keys))
+	schemaFields := make([]*gqlmodel.SchemaField, len(keys))
 	errors := make([]error, len(keys))
 	for i, thunk := range results {
-		fields[i], errors[i] = thunk()
+		schemaFields[i], errors[i] = thunk()
 	}
-	return fields, errors
+	return schemaFields, errors
 }
 
-// LoadAllThunk returns a function that when called will block waiting for a Fields.
+// LoadAllThunk returns a function that when called will block waiting for a SchemaFields.
 // This method should be used if you want one goroutine to make requests to many
 // different data loaders without blocking until the thunk is called.
 func (l *FieldLoader) LoadAllThunk(keys []gqlmodel.ID) func() ([]*gqlmodel.SchemaField, []error) {
@@ -137,12 +137,12 @@ func (l *FieldLoader) LoadAllThunk(keys []gqlmodel.ID) func() ([]*gqlmodel.Schem
 		results[i] = l.LoadThunk(key)
 	}
 	return func() ([]*gqlmodel.SchemaField, []error) {
-		fields := make([]*gqlmodel.SchemaField, len(keys))
+		schemaFields := make([]*gqlmodel.SchemaField, len(keys))
 		errors := make([]error, len(keys))
 		for i, thunk := range results {
-			fields[i], errors[i] = thunk()
+			schemaFields[i], errors[i] = thunk()
 		}
-		return fields, errors
+		return schemaFields, errors
 	}
 }
 

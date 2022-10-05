@@ -24,8 +24,8 @@ var (
 
 type Role string
 
-func checkRole(role Role) bool {
-	switch role {
+func (r Role) Valid() bool {
+	switch r {
 	case RoleOwner:
 		return true
 	case RoleWriter:
@@ -39,7 +39,7 @@ func checkRole(role Role) bool {
 func RoleFromString(r string) (Role, error) {
 	role := Role(strings.ToLower(r))
 
-	if checkRole(role) {
+	if role.Valid() {
 		return role, nil
 	}
 	return role, ErrInvalidRole
