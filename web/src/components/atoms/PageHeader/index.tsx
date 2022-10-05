@@ -1,3 +1,14 @@
-import { PageHeader } from "antd";
+import styled from "@emotion/styled";
+import { PageHeader, PageHeaderProps } from "antd";
 
-export default PageHeader;
+export type Props = PageHeaderProps;
+
+const Header: React.FC<Props> = props => {
+  return <StyledPageHeader {...props} />;
+};
+
+const StyledPageHeader = styled(PageHeader)`
+  background-color: "#FFF";
+`;
+
+export default Header;

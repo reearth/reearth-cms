@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { useT } from "@reearth-cms/i18n";
 
 import LocalTab from "./localTab";
 
@@ -26,6 +27,7 @@ const UploadModal: React.FC<Props> = ({
   handleUpload,
   handleCancel,
 }) => {
+  const t = useT();
   const handleTabChange = (key: string) => {
     // needs implementation
     console.log(key);
@@ -44,25 +46,25 @@ const UploadModal: React.FC<Props> = ({
         paddingBottom: "80px",
       }}>
       <div>
-        <h2>Asset Uploader</h2>
+        <h2>{t("Asset Uploader")}</h2>
       </div>
       <Tabs defaultActiveKey="1" onChange={handleTabChange}>
-        <TabPane tab="Local" key="1">
+        <TabPane tab={t("Local")} key="1">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        <TabPane tab="URL" key="2"></TabPane>
-        <TabPane tab="Google Drive" key="3"></TabPane>
+        <TabPane tab={t("URL")} key="2"></TabPane>
+        <TabPane tab={t("Google Drive")} key="3"></TabPane>
       </Tabs>
       <Footer>
         <CancelButton type="default" onClick={handleCancel}>
-          Cancel
+          {t("Cancel")}
         </CancelButton>
         <Button
           type="primary"
           onClick={handleUpload}
           disabled={fileList && fileList?.length === 0}
           loading={uploading}>
-          {uploading ? "Uploading" : "Upload"}
+          {uploading ? t("Uploading") : t("Upload")}
         </Button>
       </Footer>
     </Modal>
