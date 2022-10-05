@@ -47,7 +47,11 @@ function AppRoutes() {
       element: <MyIntegrationDetailsPage />,
     },
     {
-      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/edit",
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form/:webhookId",
       element: <MyIntegrationDetailsPage />,
     },
     { path: "/workspaces/:workspaceId/integration", element: <IntegrationPage /> },
