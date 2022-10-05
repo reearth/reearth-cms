@@ -3,10 +3,9 @@ package thread
 import "time"
 
 type Comment struct {
-	id        CommentID
-	author    UserID
-	content   string
-	createdAt time.Time
+	id      CommentID
+	author  UserID
+	content string
 }
 
 func (c *Comment) ID() CommentID {

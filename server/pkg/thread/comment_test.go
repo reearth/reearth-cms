@@ -14,10 +14,9 @@ func TestComment_CommentType(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond)
 
 	got := Comment{
-		id:        cid,
-		author:    uid,
-		content:   c,
-		createdAt: mocknow,
+		id:      cid,
+		author:  uid,
+		content: c,
 	}
 
 	assert.Equal(t, cid, got.ID())
@@ -36,6 +35,6 @@ func TestComment_CreatedAt(t *testing.T) {
 	got := &Comment{id: NewCommentID()}
 	assert.Equal(t, got.id.Timestamp(), got.CreatedAt())
 	mocknow := time.Now().Truncate(time.Millisecond)
-	got = &Comment{id: NewCommentID(), createdAt: mocknow}
-	assert.Equal(t, got.createdAt, got.CreatedAt())
+	got = &Comment{id: NewCommentID()}
+	assert.Equal(t, mocknow, got.CreatedAt())
 }
