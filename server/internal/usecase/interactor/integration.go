@@ -54,7 +54,7 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 				Developer(operator.User).
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
-				RandomToken().
+				GenerateToken().
 				LogoUrl(&param.Logo).
 				Build()
 			if err != nil {

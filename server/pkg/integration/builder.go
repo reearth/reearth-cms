@@ -70,7 +70,7 @@ func (b *Builder) LogoUrl(logoURL *url.URL) *Builder {
 	return b
 }
 
-func (b *Builder) RandomToken() *Builder {
+func (b *Builder) GenerateToken() *Builder {
 	b.i.RandomToken()
 	return b
 }

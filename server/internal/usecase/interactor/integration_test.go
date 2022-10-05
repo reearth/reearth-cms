@@ -95,7 +95,6 @@ func assertWebhookEq(t *testing.T, expected, got *integration.Webhook) {
 
 func TestIntegration_Create(t *testing.T) {
 	ts := testSuite()
-	now, op, uri, i1 := ts.Now, ts.Op, ts.Uri, ts.I1
 
 	tests := []struct {
 		name    string
@@ -111,9 +110,9 @@ func TestIntegration_Create(t *testing.T) {
 				Name:        "i1",
 				Description: nil,
 				Type:        integration.TypePrivate,
-				Logo:        *uri,
+				Logo:        *ts.Uri,
 			},
-			want:    i1,
+			want:    ts.I1,
 			wantErr: nil,
 		},
 	}
@@ -124,7 +123,7 @@ func TestIntegration_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -133,7 +132,7 @@ func TestIntegration_Create(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.Create(ctx, tt.args, op)
+			got, err := i.Create(ctx, tt.args, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -152,7 +151,6 @@ func TestIntegration_Create(t *testing.T) {
 
 func TestIntegration_Update(t *testing.T) {
 	ts := testSuite()
-	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	type args struct {
 		id     integration.ID
@@ -167,16 +165,16 @@ func TestIntegration_Update(t *testing.T) {
 	}{
 		{
 			name:  "update",
-			seeds: []*integration.Integration{i1},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
-				id: iId1,
+				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
 					Name:        nil,
 					Description: nil,
 					Logo:        nil,
 				},
 			},
-			want:    i1,
+			want:    ts.I1,
 			wantErr: nil,
 		},
 	}
@@ -187,7 +185,7 @@ func TestIntegration_Update(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -196,7 +194,7 @@ func TestIntegration_Update(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.Update(ctx, tt.args.id, tt.args.params, op)
+			got, err := i.Update(ctx, tt.args.id, tt.args.params, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -215,7 +213,6 @@ func TestIntegration_Update(t *testing.T) {
 
 func TestIntegration_Delete(t *testing.T) {
 	ts := testSuite()
-	now, op, iId1, i1, i2 := ts.Now, ts.Op, ts.IId1, ts.I1, ts.I2
 
 	tests := []struct {
 		name    string
@@ -225,8 +222,8 @@ func TestIntegration_Delete(t *testing.T) {
 	}{
 		{
 			name:    "delete",
-			seeds:   []*integration.Integration{i1, i2},
-			args:    iId1,
+			seeds:   []*integration.Integration{ts.I1, ts.I2},
+			args:    ts.IId1,
 			wantErr: nil,
 		},
 	}
@@ -237,7 +234,7 @@ func TestIntegration_Delete(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -246,7 +243,7 @@ func TestIntegration_Delete(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			err := i.Delete(ctx, tt.args, op)
+			err := i.Delete(ctx, tt.args, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -262,7 +259,6 @@ func TestIntegration_Delete(t *testing.T) {
 
 func TestIntegration_FindByIDs(t *testing.T) {
 	ts := testSuite()
-	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	tests := []struct {
 		name    string
@@ -273,9 +269,9 @@ func TestIntegration_FindByIDs(t *testing.T) {
 	}{
 		{
 			name:    "test",
-			seeds:   []*integration.Integration{i1},
-			args:    []integration.ID{iId1},
-			want:    []*integration.Integration{i1},
+			seeds:   []*integration.Integration{ts.I1},
+			args:    []integration.ID{ts.IId1},
+			want:    []*integration.Integration{ts.I1},
 			wantErr: nil,
 		},
 	}
@@ -286,7 +282,7 @@ func TestIntegration_FindByIDs(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -295,7 +291,7 @@ func TestIntegration_FindByIDs(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.FindByIDs(ctx, tt.args, op)
+			got, err := i.FindByIDs(ctx, tt.args, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -313,7 +309,6 @@ func TestIntegration_FindByIDs(t *testing.T) {
 
 func TestIntegration_FindByUser(t *testing.T) {
 	ts := testSuite()
-	now, op, iId1, i1 := ts.Now, ts.Op, ts.IId1, ts.I1
 
 	tests := []struct {
 		name    string
@@ -324,9 +319,9 @@ func TestIntegration_FindByUser(t *testing.T) {
 	}{
 		{
 			name:    "test",
-			seeds:   []*integration.Integration{i1},
-			args:    []integration.ID{iId1},
-			want:    []*integration.Integration{i1},
+			seeds:   []*integration.Integration{ts.I1},
+			args:    []integration.ID{ts.IId1},
+			want:    []*integration.Integration{ts.I1},
 			wantErr: nil,
 		},
 	}
@@ -337,7 +332,7 @@ func TestIntegration_FindByUser(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -346,7 +341,7 @@ func TestIntegration_FindByUser(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.FindByIDs(ctx, tt.args, op)
+			got, err := i.FindByIDs(ctx, tt.args, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -364,7 +359,6 @@ func TestIntegration_FindByUser(t *testing.T) {
 
 func TestIntegration_CreateWebhook(t *testing.T) {
 	ts := testSuite()
-	now, op, uri, iId1, i1 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.I1
 
 	type args struct {
 		id     integration.ID
@@ -379,17 +373,17 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 	}{
 		{
 			name:  "create",
-			seeds: []*integration.Integration{i1},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
-				id: iId1,
+				id: ts.IId1,
 				params: interfaces.CreateWebhookParam{
 					Name:    "w1",
-					URL:     *uri,
+					URL:     *ts.Uri,
 					Active:  true,
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).MustBuild(),
 			wantErr: nil,
 		},
 	}
@@ -400,7 +394,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -409,7 +403,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.CreateWebhook(ctx, tt.args.id, tt.args.params, op)
+			got, err := i.CreateWebhook(ctx, tt.args.id, tt.args.params, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -422,10 +416,9 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 
 func TestIntegration_UpdateWebhook(t *testing.T) {
 	ts := testSuite()
-	now, op, uri, iId1, iId2, i1, i2 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.IId2, ts.I1, ts.I2
 
 	wId := id.NewWebhookID()
-	i2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID
@@ -440,28 +433,28 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 	}{
 		{
 			name:  "create",
-			seeds: []*integration.Integration{i2},
+			seeds: []*integration.Integration{ts.I2},
 			args: args{
-				iId: iId2,
+				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).MustBuild(),
 			wantErr: nil,
 		},
 		{
 			name:  "update item not found",
 			seeds: []*integration.Integration{},
 			args: args{
-				iId: iId1,
+				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
@@ -471,12 +464,12 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 		},
 		{
 			name:  "update item not found",
-			seeds: []*integration.Integration{i1},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
-				iId: iId1,
+				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
@@ -492,7 +485,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -501,7 +494,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.UpdateWebhook(ctx, tt.args.iId, tt.args.wId, tt.args.params, op)
+			got, err := i.UpdateWebhook(ctx, tt.args.iId, tt.args.wId, tt.args.params, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -514,10 +507,9 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 
 func TestIntegration_DeleteWebhook(t *testing.T) {
 	ts := testSuite()
-	now, op, uri, iId1, iId2, i1, i2 := ts.Now, ts.Op, ts.Uri, ts.IId1, ts.IId2, ts.I1, ts.I2
 
 	wId := id.NewWebhookID()
-	i2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
+	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
 	type args struct {
 		iId    integration.ID
 		wId    integration.WebhookID
@@ -532,28 +524,28 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 	}{
 		{
 			name:  "create",
-			seeds: []*integration.Integration{i2},
+			seeds: []*integration.Integration{ts.I2},
 			args: args{
-				iId: iId2,
+				iId: ts.IId2,
 				wId: wId,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).MustBuild(),
 			wantErr: nil,
 		},
 		{
 			name:  "update item not found",
 			seeds: []*integration.Integration{},
 			args: args{
-				iId: iId1,
+				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
@@ -563,12 +555,12 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 		},
 		{
 			name:  "update item not found",
-			seeds: []*integration.Integration{i1},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
-				iId: iId1,
+				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
 					Name:    lo.ToPtr("w1"),
-					URL:     uri,
+					URL:     ts.Uri,
 					Active:  lo.ToPtr(true),
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
@@ -584,7 +576,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, now)
+			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
 				assert.Nil(t, err)
@@ -593,7 +585,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			err := i.DeleteWebhook(ctx, tt.args.iId, tt.args.wId, op)
+			err := i.DeleteWebhook(ctx, tt.args.iId, tt.args.wId, ts.Op)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
