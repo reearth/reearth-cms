@@ -15,7 +15,3 @@ type projectResolver struct{ *Resolver }
 func (r *projectResolver) Workspace(ctx context.Context, obj *gqlmodel.Project) (*gqlmodel.Workspace, error) {
 	return dataloaders(ctx).Workspace.Load(obj.WorkspaceID)
 }
-
-func (r *projectResolver) Publication(ctx context.Context) (string, error) {
-	panic("not implemented")
-}

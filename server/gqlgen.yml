@@ -44,10 +44,6 @@ models:
     fields:
       workspace:
         resolver: true
-  ProjectPublicSetting:
-    fields:
-      publication:
-        resolver: true
   Item:
     fields:
       model:
