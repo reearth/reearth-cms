@@ -350,6 +350,7 @@ type Model struct {
 	Key         string    `json:"key"`
 	Project     *Project  `json:"project"`
 	Schema      *Schema   `json:"schema"`
+	Public      bool      `json:"public"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -388,14 +389,15 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID          ID         `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Alias       string     `json:"alias"`
-	WorkspaceID ID         `json:"workspaceId"`
-	Workspace   *Workspace `json:"workspace"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	ID          ID                  `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Alias       string              `json:"alias"`
+	WorkspaceID ID                  `json:"workspaceId"`
+	Workspace   *Workspace          `json:"workspace"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	UpdatedAt   time.Time           `json:"updatedAt"`
+	Publication *ProjectPublication `json:"publication"`
 }
 
 func (Project) IsNode()        {}
@@ -420,6 +422,11 @@ type ProjectEdge struct {
 
 type ProjectPayload struct {
 	Project *Project `json:"project"`
+}
+
+type ProjectPublication struct {
+	Scope       ProjectPublicationScope `json:"scope"`
+	AssetPublic bool                    `json:"assetPublic"`
 }
 
 type PublishModelInput struct {
@@ -718,9 +725,15 @@ type UpdateModelInput struct {
 }
 
 type UpdateProjectInput struct {
-	ProjectID   ID      `json:"projectId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
+	ProjectID   ID                             `json:"projectId"`
+	Name        *string                        `json:"name"`
+	Description *string                        `json:"description"`
+	Publication *UpdateProjectPublicationInput `json:"publication"`
+}
+
+type UpdateProjectPublicationInput struct {
+	Scope       *ProjectPublicationScope `json:"scope"`
+	AssetPublic *bool                    `json:"assetPublic"`
 }
 
 type UpdateUserOfWorkspaceInput struct {
@@ -993,6 +1006,49 @@ func (e *PreviewType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e PreviewType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ProjectPublicationScope string
+
+const (
+	ProjectPublicationScopePublic  ProjectPublicationScope = "PUBLIC"
+	ProjectPublicationScopeLimited ProjectPublicationScope = "LIMITED"
+	ProjectPublicationScopePrivate ProjectPublicationScope = "PRIVATE"
+)
+
+var AllProjectPublicationScope = []ProjectPublicationScope{
+	ProjectPublicationScopePublic,
+	ProjectPublicationScopeLimited,
+	ProjectPublicationScopePrivate,
+}
+
+func (e ProjectPublicationScope) IsValid() bool {
+	switch e {
+	case ProjectPublicationScopePublic, ProjectPublicationScopeLimited, ProjectPublicationScopePrivate:
+		return true
+	}
+	return false
+}
+
+func (e ProjectPublicationScope) String() string {
+	return string(e)
+}
+
+func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProjectPublicationScope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProjectPublicationScope", str)
+	}
+	return nil
+}
+
+func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
