@@ -98,6 +98,9 @@ func (f *Field) Clone() *Field {
 		name:         f.name,
 		description:  f.description,
 		key:          f.key,
+		unique:       f.unique,
+		multiValue:   f.multiValue,
+		required:     f.required,
 		updatedAt:    f.updatedAt,
 		typeProperty: f.typeProperty.Clone(),
 	}

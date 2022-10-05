@@ -3,6 +3,8 @@ package integration
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 type WebhookBuilder struct {
@@ -29,6 +31,11 @@ func (b *WebhookBuilder) MustBuild() *Webhook {
 		panic(err)
 	}
 	return r
+}
+
+func (b *WebhookBuilder) NewID() *WebhookBuilder {
+	b.w.id = id.NewWebhookID()
+	return b
 }
 
 func (b *WebhookBuilder) ID(wId WebhookID) *WebhookBuilder {

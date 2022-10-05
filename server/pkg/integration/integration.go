@@ -1,10 +1,14 @@
 package integration
 
 import (
+	"crypto/rand"
+	"math/big"
 	"net/url"
 	"time"
 
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 type Integration struct {
@@ -15,7 +19,7 @@ type Integration struct {
 	iType       Type
 	token       string
 	developer   UserID
-	webhook     []*Webhook
+	webhooks    []*Webhook
 	updatedAt   time.Time
 }
 
@@ -63,6 +67,14 @@ func (i *Integration) SetToken(token string) {
 	i.token = token
 }
 
+func (i *Integration) RandomToken() {
+	t, err := randomString(43)
+	if err != nil {
+		return
+	}
+	i.token = "secret_" + t
+}
+
 func (i *Integration) Developer() UserID {
 	return i.developer
 }
@@ -71,12 +83,44 @@ func (i *Integration) SetDeveloper(developer UserID) {
 	i.developer = developer
 }
 
-func (i *Integration) Webhook() []*Webhook {
-	return i.webhook
+func (i *Integration) Webhooks() []*Webhook {
+	return i.webhooks
+}
+
+func (i *Integration) Webhook(wId WebhookID) (*Webhook, bool) {
+	return lo.Find(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+}
+
+func (i *Integration) AddWebhook(w *Webhook) {
+	if w == nil {
+		return
+	}
+	i.webhooks = append(i.webhooks, w)
+}
+
+func (i *Integration) UpdateWebhook(wId WebhookID, w *Webhook) bool {
+	if w == nil {
+		return false
+	}
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
+		return false
+	}
+	i.webhooks[idx] = w
+	return true
+}
+
+func (i *Integration) DeleteWebhook(wId WebhookID) bool {
+	_, idx, ok := lo.FindIndexOf(i.webhooks, func(w *Webhook) bool { return w.id == wId })
+	if !ok || idx >= len(i.webhooks) {
+		return false
+	}
+	i.webhooks = slices.Delete(i.webhooks, idx, idx+1)
+	return true
 }
 
 func (i *Integration) SetWebhook(webhook []*Webhook) {
-	i.webhook = webhook
+	i.webhooks = webhook
 }
 
 func (i *Integration) UpdatedAt() time.Time {
@@ -111,7 +155,21 @@ func (i *Integration) Clone() *Integration {
 		iType:       i.iType,
 		token:       i.token,
 		developer:   i.developer,
-		webhook:     util.Map(i.webhook, func(w *Webhook) *Webhook { return w.Clone() }),
+		webhooks:    util.Map(i.webhooks, func(w *Webhook) *Webhook { return w.Clone() }),
 		updatedAt:   i.updatedAt,
 	}
+}
+
+func randomString(n int) (string, error) {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	result := make([]byte, n)
+	for i := 0; i < n; i++ {
+		randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		result[i] = letters[randIndex.Int64()]
+	}
+
+	return string(result), nil
 }

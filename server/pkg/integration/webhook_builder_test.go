@@ -353,3 +353,31 @@ func TestWebhookBuilder_Url(t *testing.T) {
 		})
 	}
 }
+
+func TestWebhookBuilder_NewID(t *testing.T) {
+	type fields struct {
+		w *Webhook
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name:   "test",
+			fields: fields{w: &Webhook{}},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := &WebhookBuilder{
+				w: tt.fields.w,
+			}
+			b.NewID()
+			assert.False(t, b.w.id.IsNil())
+			assert.False(t, b.w.id.IsEmpty())
+		})
+	}
+}

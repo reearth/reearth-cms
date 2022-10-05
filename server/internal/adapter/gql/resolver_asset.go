@@ -19,3 +19,7 @@ func (r *assetResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gq
 func (r *assetResolver) Project(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Project, error) {
 	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }
+
+func (r *assetResolver) Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error) {
+	return dataloaders(ctx).Thread.Load(obj.ThreadID)
+}
