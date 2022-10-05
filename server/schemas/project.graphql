@@ -3,6 +3,17 @@ type ProjectAliasAvailability {
   available: Boolean!
 }
 
+enum ProjectPublicationScope {
+  PUBLIC
+  LIMITED
+  PRIVATE
+}
+
+type ProjectPublication {
+  scope: ProjectPublicationScope!
+  assetPublic: Boolean!
+}
+
 type Project implements Node {
   id: ID!
   name: String!
@@ -12,6 +23,7 @@ type Project implements Node {
   workspace: Workspace
   createdAt: DateTime!
   updatedAt: DateTime!
+  publication: ProjectPublication
 }
 
 # Inputs
@@ -22,10 +34,16 @@ input CreateProjectInput {
   alias: String
 }
 
+input UpdateProjectPublicationInput {
+  scope: ProjectPublicationScope
+  assetPublic: Boolean
+}
+
 input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  publication: UpdateProjectPublicationInput
 }
 
 input DeleteProjectInput {
@@ -33,7 +51,6 @@ input DeleteProjectInput {
 }
 
 # Payload
-
 type ProjectPayload {
   project: Project!
 }
