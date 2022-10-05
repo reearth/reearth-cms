@@ -11,13 +11,13 @@ GEO3D: ''
 MODEL3D/GLB: ''
 Could not display svg: ''
 Not supported: ''
-Save: 保存
+Save: ''
 File: ''
 Size: ''
 Preview Type: ''
 Created At: ''
 ID: ''
-Action: アクション
+Action: ''
 Upload Asset: ''
 Click or drag files to this area to upload: ''
 Single or multiple file upload is supported: ''
@@ -25,123 +25,122 @@ Asset Uploader: ''
 Local: ''
 URL: ''
 Google Drive: ''
-Cancel: キャンセル
+Cancel: ''
 Uploading: ''
 Upload: ''
-Personal Account: パーソナルアカウント
-Teams: チーム
-new workspace: 新規ワークスペース
-Account Settings: アカウント設定
-Logout: ログアウト
-Re:Earth CMS: Re:Earth CMS
-Project name: プロジェクト名
-Please input the name of project!: プロジェクト名を入力してください
-Project description: プロジェクト概要
-Accessibility: 公開設定
-Settings: 設定
-Workspace name: ワークスペース名
-Please input the title of the current workspace!: こののワークスペース名を入力してください
-Member: メンバー
-Account: アカウント
-Integration: インテグレーション
+Personal Account: ''
+Teams: ''
+new workspace: ''
+Account Settings: ''
+Logout: ''
+Re:Earth CMS: ''
+Project name: ''
+Please input the name of project!: ''
+Project description: ''
+Accessibility: ''
+Settings: ''
+Workspace name: ''
+Please input the title of the current workspace!: ''
+Member: ''
+Account: ''
+Integration: ''
 My Integrations: ''
-Role: ロール
-API key: APIキー
+Role: ''
+API key: ''
 New Request: ''
 Title: ''
 Please input the title of your request!: ''
-Description: 説明
+Description: ''
 Please select a reviewer!: ''
 Reviewer: ''
-Owner: オーナー
-Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-No Projects Yet: プロジェクトがありません
-Create a new project: 新規プロジェクトを作成
-New Project: 新規プロジェクト
-Or read: 読む
-how to use Re:Earth CMS: CMSの使い方
-first: はじめに
-Connect Integration: インテグレーションを連携
-Connect: 連携
-Integration Setting: インテグレーション設定
-Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
-select role: ロールを選択
-Reader: 閲覧者
-Writer: 編集者
-Name: 名前
-Creator: 作成者
-State: ステート
-No Integration yet: まだインテグレーションはありません
+Owner: ''
+Welcome to Re:Earth CMS !: ''
+No Projects Yet: ''
+Create a new project: ''
+New Project: ''
+Or read: ''
+how to use Re:Earth CMS: ''
+first: ''
+Connect Integration: ''
+Connect: ''
+Integration Setting: ''
+Please input the appropriate role for this integration!: ''
+select role: ''
+Reader: ''
+Writer: ''
+Name: ''
+Creator: ''
+State: ''
+No Integration yet: ''
 Create a new: ''
-Add member: メンバー追加
-Email address or user name: Emailアドレスもしくはユーザー名
-Role Settings: ロール設定
-Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-Models: モデル
-Add: 追加
-New Integration: 新規インテグレーション
-Create: 作成
-Logo Image: ロゴ画像
-Integration Name: インテグレーション名
-Please input the title of the integration!: インテグレーションの名前を入力してください
-Integration Token: インテグレーショントークン
-Please input the logo of the integration!: インテグレーションのロゴを設定してください
-Create new integration: 新規インテグレーション作成
-Update: アップデート
-Delete: 削除
+Add member: ''
+Email address or user name: ''
+Role Settings: ''
+Please input the appropriate role for this member!: ''
+Models: ''
+Add: ''
+New Integration: ''
+Create: ''
+Logo Image: ''
+Integration Name: ''
+Please input the title of the integration!: ''
+Integration Token: ''
+Please input the logo of the integration!: ''
+Create new integration: ''
+Update: ''
+Delete: ''
 Publish: ''
 Unpublish: ''
-Upload: ''
-This is your webhook name: Webhookの名前です
-Please input the name of the webhook!: Webhookの名前を入力してください
-Url: URL
-Please note that all webhook URLs must start with http://.: WebhookのURLがhttp://で始まることを確認してください
-URL is not valid: 無効なURLです
-Trigger Event: イベント
-Item: アイテム
-Asset: アセット
-New Webhook: 新規Webhook
-No Webhook yet: Webhookはまだありません
-'Create a new ': 新規作成
-Add Field: フィールドを追加
-Setting: 設定
-Display name: 表示名
-Please input the display name of field!: このフィールドの表示名を入力してください
-Please input the key of the field!: このフィールドのキーを入力してください
-Key is not valid: 無効なキーです
-Set Options: オプションを設定
-Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
-Option value: オプションの値
-New: 追加
-Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
-Support multiple values: 複数値の設定を許可
-Prevents saving an entry if this field is empty: このフィールドを必須項目とします
-Make field required: このフィールドを必須項目にする
-Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
-Set field as unique: ユニーク制約
-Default value: デフォルト値
-Set default value: デフォルト値を設定
-Validation: バリデーション
-Set maximum length: 最大長
-Set minimum value: 最小値
-Set maximum value: 最大値
-Model name: モデル名
-Please input the name of the model!: このモデル名を入力してください
-Model description: モデル概要
-Model key: モデルキー
-Please input the key of the model!: このモデルのキーを入力してください
+This is your webhook name: ''
+Please input the name of the webhook!: ''
+Url: ''
+Please note that all webhook URLs must start with http://.: ''
+URL is not valid: ''
+Trigger Event: ''
+Item: ''
+Asset: ''
+New Webhook: ''
+No Webhook yet: ''
+'Create a new ': ''
+Add Field: ''
+Setting: ''
+Display name: ''
+Please input the display name of field!: ''
+Please input the key of the field!: ''
+Key is not valid: ''
+Set Options: ''
+Please input value or delete this field.: ''
+Option value: ''
+New: ''
+Stores a list of values instead of a single value: ''
+Support multiple values: ''
+Prevents saving an entry if this field is empty: ''
+Make field required: ''
+Ensures that a multiple entries can't have the same value for this field: ''
+Set field as unique: ''
+Default value: ''
+Set default value: ''
+Validation: ''
+Set maximum length: ''
+Set minimum value: ''
+Set maximum value: ''
+Model name: ''
+Please input the name of the model!: ''
+Model description: ''
+Model key: ''
+Please input the key of the model!: ''
 Content: ''
-input search text: 検索
-Create a Workspace: 新規ワークスペース
-Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
-Write something here to describe this record.: このレコードの説明を入力してください
-Save changes: 変更を保存
-Danger Zone: 重要操作項目
-Delete project: プロジェクト削除
-Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
-Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Change Role?: ロールを変更
-Remove: 削除
-Members: メンバー
-New Member: メンバーを追加
-Loading: ローディング中
+input search text: ''
+Create a Workspace: ''
+Are you sure you want to delete this project?: ''
+Write something here to describe this record.: ''
+Save changes: ''
+Danger Zone: ''
+Delete project: ''
+Are you sure to remove this member?: ''
+Remove this member from workspace means this member will not view any content of this workspace.: ''
+Change Role?: ''
+Remove: ''
+Members: ''
+New Member: ''
+Loading: ''
