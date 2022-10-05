@@ -9,6 +9,7 @@ import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
+  Integration as GQLIntegration,
   useUpdateIntegrationOfWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 
@@ -21,10 +22,10 @@ export default (workspaceId?: string) => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const { data, refetch } = useGetMeQuery();
 
-  const workspaces = data?.me?.workspaces;
+  const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
 
-  const fromIntegration = (integration: any) => ({
+  const fromIntegration = (integration: GQLIntegration) => ({
     id: integration.id,
     name: integration.name,
     description: integration.description,
@@ -39,16 +40,14 @@ export default (workspaceId?: string) => {
   });
 
   const integrations = useMemo(() => {
-    return (data?.me?.integrations ?? [])
-      .map<Integration | undefined>(integration =>
-        integration ? fromIntegration(integration) : undefined,
-      )
+    return data?.me?.integrations
+      ?.map<Integration | undefined>(integration => fromIntegration(integration))
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
   const workspaceIntegrationMembers = useMemo(() => {
-    return (workspace?.members ?? [])
-      .map<IntegrationMember | undefined>(member =>
+    return workspace?.members
+      ?.map<IntegrationMember | undefined>(member =>
         member && member.__typename === "WorkspaceIntegrationMember" && member.integration
           ? {
               active: member.active,
@@ -80,8 +79,6 @@ export default (workspaceId?: string) => {
   }, []);
 
   const handleIntegrationSettingsModalOpen = useCallback((integrationMember: IntegrationMember) => {
-    console.log(integrationMember);
-
     SetSelectedIntegrationMember(integrationMember);
     setIntegrationSettingsModalShown(true);
   }, []);
@@ -102,7 +99,8 @@ export default (workspaceId?: string) => {
       },
     });
     if (integration.errors || !integration.data?.addIntegrationToWorkspace) {
-      setIntegrationConnectModalShown(false);
+      // TODO: Add notification error
+      return;
     }
     setIntegrationConnectModalShown(false);
     refetch();
@@ -121,7 +119,8 @@ export default (workspaceId?: string) => {
         },
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
-        setIntegrationConnectModalShown(false);
+        // TODO: Add notification error
+        return;
       }
       setIntegrationConnectModalShown(false);
       refetch();

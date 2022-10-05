@@ -67,11 +67,7 @@ const IntegrationTable: React.FC<Props> = ({
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
+        onSearchTerm(value);
       },
     },
   };
