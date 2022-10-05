@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import integrationsHook from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
+import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
   useCreateWebhookMutation,
   useUpdateIntegrationMutation,
@@ -15,7 +15,7 @@ type Params = {
 };
 
 export default ({ integrationId, webhookId }: Params) => {
-  const { integrations } = integrationsHook();
+  const { integrations } = integrationHooks();
 
   const selectedIntegration = useMemo(() => {
     return integrations?.find(integration => integration.id === integrationId);
