@@ -8,24 +8,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-func RefToIndex(i *int) int {
-	if i == nil {
-		return -1
-	}
-	return *i
-}
-
-func RefToString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-func BoolToRef(b bool) *bool {
-	return &b
-}
-
 func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
 	if p == nil {
 		return &PageInfo{}
