@@ -46,7 +46,7 @@ models:
         resolver: true
   ProjectPublicSetting:
     fields:
-      project:
+      publication:
         resolver: true
   Item:
     fields:
