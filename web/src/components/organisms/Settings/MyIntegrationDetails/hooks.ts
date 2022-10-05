@@ -87,6 +87,7 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.deleteWebhook) {
+        // TODO: Add notification error
         return;
       }
     },
