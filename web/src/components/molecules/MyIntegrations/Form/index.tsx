@@ -16,6 +16,7 @@ export type Props = {
   integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
 };
+
 const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();

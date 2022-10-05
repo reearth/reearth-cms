@@ -15,8 +15,8 @@ export default () => {
   });
 
   const integrations = useMemo(() => {
-    return (data?.me?.integrations ?? [])
-      .map<Integration | undefined>(integration =>
+    return data?.me?.integrations
+      ?.map<Integration | undefined>(integration =>
         integration
           ? {
               id: integration.id,

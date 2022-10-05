@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import integrationHook from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
+import integrationsHook from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
   useCreateWebhookMutation,
   useUpdateIntegrationMutation,
@@ -15,14 +15,14 @@ type Params = {
 };
 
 export default ({ integrationId, webhookId }: Params) => {
-  const { integrations } = integrationHook();
+  const { integrations } = integrationsHook();
 
   const selectedIntegration = useMemo(() => {
-    return integrations.find(integration => integration.id === integrationId);
+    return integrations?.find(integration => integration.id === integrationId);
   }, [integrations, integrationId]);
 
   const webhookInitialValues = useMemo(() => {
-    if (!selectedIntegration || !selectedIntegration.config.webhooks || !webhookId) return;
+    if (!selectedIntegration || !selectedIntegration.config.webhooks || !webhookId) return {};
     const selectedWebhook = selectedIntegration.config.webhooks.find(
       webhook => webhook.id === webhookId,
     );
@@ -66,6 +66,7 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.createWebhook) {
+        // TODO: add notification error
         return;
       }
     },
