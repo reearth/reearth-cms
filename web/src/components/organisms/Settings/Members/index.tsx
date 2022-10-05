@@ -85,7 +85,7 @@ const Members: React.FC = () => {
     [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
-  const dataSource = workspaceUserMembers.map(member => ({
+  const dataSource = workspaceUserMembers?.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (

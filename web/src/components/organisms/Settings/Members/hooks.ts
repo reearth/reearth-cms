@@ -59,9 +59,9 @@ export default ({ workspaceId }: Props) => {
     [searchUserQuery],
   );
 
-  const workspaceUserMembers = useMemo((): Member[] => {
-    return (currentWorkspace?.members ?? [])
-      .map<Member | undefined>(member =>
+  const workspaceUserMembers = useMemo((): Member[] | undefined => {
+    return currentWorkspace?.members
+      ?.map<Member | undefined>(member =>
         member && member.__typename === "WorkspaceUserMember" && member.user
           ? {
               userId: member.userId,
