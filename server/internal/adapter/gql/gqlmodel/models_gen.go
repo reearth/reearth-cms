@@ -149,10 +149,11 @@ type CreateProjectInput struct {
 }
 
 type CreateWebhookInput struct {
-	Name    string               `json:"name"`
-	URL     url.URL              `json:"url"`
-	Active  bool                 `json:"active"`
-	Trigger *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	Name          string               `json:"name"`
+	URL           url.URL              `json:"url"`
+	Active        bool                 `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type CreateWorkspaceInput struct {
@@ -230,7 +231,8 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteWebhookInput struct {
-	WebhookID ID `json:"webhookId"`
+	IntegrationID ID `json:"integrationId"`
+	WebhookID     ID `json:"webhookId"`
 }
 
 type DeleteWebhookPayload struct {
@@ -437,9 +439,9 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
-type RemoveMemberFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
+type RemoveIntegrationFromWorkspaceInput struct {
+	WorkspaceID   ID `json:"workspaceId"`
+	IntegrationID ID `json:"integrationId"`
 }
 
 type RemoveMemberFromWorkspacePayload struct {
@@ -448,6 +450,11 @@ type RemoveMemberFromWorkspacePayload struct {
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
+}
+
+type RemoveUserFromWorkspaceInput struct {
+	WorkspaceID ID `json:"workspaceId"`
+	UserID      ID `json:"userId"`
 }
 
 type Schema struct {
@@ -682,6 +689,12 @@ type UpdateIntegrationInput struct {
 	LogoURL       *url.URL `json:"logoUrl"`
 }
 
+type UpdateIntegrationOfWorkspaceInput struct {
+	WorkspaceID   ID   `json:"workspaceId"`
+	IntegrationID ID   `json:"integrationId"`
+	Role          Role `json:"role"`
+}
+
 type UpdateItemInput struct {
 	ItemID ID                `json:"itemId"`
 	Fields []*ItemFieldInput `json:"fields"`
@@ -698,12 +711,6 @@ type UpdateMeInput struct {
 
 type UpdateMePayload struct {
 	Me *Me `json:"me"`
-}
-
-type UpdateMemberOfWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
 }
 
 type UpdateMemberOfWorkspacePayload struct {
@@ -729,12 +736,19 @@ type UpdateProjectPublicationInput struct {
 	AssetPublic *bool                    `json:"assetPublic"`
 }
 
+type UpdateUserOfWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
+}
+
 type UpdateWebhookInput struct {
-	WebhookID ID                   `json:"webhookId"`
-	Name      *string              `json:"name"`
-	URL       *url.URL             `json:"url"`
-	Active    *bool                `json:"active"`
-	Trigger   *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	WebhookID     ID                   `json:"webhookId"`
+	Name          *string              `json:"name"`
+	URL           *url.URL             `json:"url"`
+	Active        *bool                `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type UpdateWorkspaceInput struct {

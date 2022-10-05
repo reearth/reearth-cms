@@ -55,13 +55,23 @@ func ToWorkspace(t *user.Workspace) *Workspace {
 		return nil
 	}
 
-	memberMap := t.Members().Members()
-	members := make([]WorkspaceMember, 0, len(memberMap))
-	for u, r := range memberMap {
-		// TODO: how about the integration member
+	usersMap := t.Members().Users()
+	integrationsMap := t.Members().Integrations()
+	members := make([]WorkspaceMember, 0, len(usersMap)+len(integrationsMap))
+	for u, m := range usersMap {
 		members = append(members, &WorkspaceUserMember{
 			UserID: IDFrom(u),
-			Role:   ToRole(r),
+			Role:   ToRole(m.Role),
+		})
+	}
+	for i, m := range integrationsMap {
+		members = append(members, &WorkspaceIntegrationMember{
+			IntegrationID: IDFrom(i),
+			Role:          ToRole(m.Role),
+			Active:        !m.Disabled,
+			InvitedByID:   IDFrom(m.InvitedBy),
+			InvitedBy:     nil,
+			Integration:   nil,
 		})
 	}
 
