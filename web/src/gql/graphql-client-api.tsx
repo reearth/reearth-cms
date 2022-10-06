@@ -51,6 +51,9 @@ export type Asset = Node & {
   project?: Maybe<Project>;
   projectId: Scalars['ID'];
   size: Scalars['FileSize'];
+  thread?: Maybe<Thread>;
+  threadId: Scalars['ID'];
+  url: Scalars['String'];
   uuid: Scalars['String'];
 };
 
@@ -83,6 +86,15 @@ export enum AssetSortType {
   Size = 'SIZE'
 }
 
+export type Comment = {
+  __typename?: 'Comment';
+  author?: Maybe<User>;
+  authorId: Scalars['ID'];
+  content: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
+};
+
 export type CreateAssetInput = {
   createdById: Scalars['ID'];
   file: Scalars['Upload'];
@@ -92,6 +104,16 @@ export type CreateAssetInput = {
 export type CreateAssetPayload = {
   __typename?: 'CreateAssetPayload';
   asset: Asset;
+};
+
+export type CreateCommentInput = {
+  content: Scalars['String'];
+  threadId: Scalars['ID'];
+};
+
+export type CreateCommentPayload = {
+  __typename?: 'CreateCommentPayload';
+  comment: Comment;
 };
 
 export type CreateFieldInput = {
@@ -134,6 +156,7 @@ export type CreateProjectInput = {
 
 export type CreateWebhookInput = {
   active: Scalars['Boolean'];
+  integrationId: Scalars['ID'];
   name: Scalars['String'];
   trigger: WebhookTriggerInput;
   url: Scalars['URL'];
@@ -155,6 +178,16 @@ export type DeleteAssetInput = {
 export type DeleteAssetPayload = {
   __typename?: 'DeleteAssetPayload';
   assetId: Scalars['ID'];
+};
+
+export type DeleteCommentInput = {
+  commentId: Scalars['ID'];
+  threadId: Scalars['ID'];
+};
+
+export type DeleteCommentPayload = {
+  __typename?: 'DeleteCommentPayload';
+  commentId: Scalars['ID'];
 };
 
 export type DeleteFieldInput = {
@@ -213,6 +246,7 @@ export type DeleteProjectPayload = {
 };
 
 export type DeleteWebhookInput = {
+  integrationId: Scalars['ID'];
   webhookId: Scalars['ID'];
 };
 
@@ -333,6 +367,7 @@ export type Model = Node & {
   name: Scalars['String'];
   project: Project;
   projectId: Scalars['ID'];
+  public: Scalars['Boolean'];
   schema: Schema;
   schemaId: Scalars['ID'];
   updatedAt: Scalars['DateTime'];
@@ -362,6 +397,7 @@ export type Mutation = {
   addIntegrationToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
   addUserToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
   createAsset?: Maybe<CreateAssetPayload>;
+  createComment?: Maybe<CreateCommentPayload>;
   createField?: Maybe<FieldPayload>;
   createIntegration?: Maybe<IntegrationPayload>;
   createItem?: Maybe<ItemPayload>;
@@ -370,6 +406,7 @@ export type Mutation = {
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
+  deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
@@ -379,17 +416,20 @@ export type Mutation = {
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishModel?: Maybe<PublishModelPayload>;
-  removeMemberFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
+  removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
+  removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   signup?: Maybe<SignupPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
+  updateComment?: Maybe<UpdateCommentPayload>;
   updateField?: Maybe<FieldPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
+  updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
-  updateMemberOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateModel?: Maybe<ModelPayload>;
   updateProject?: Maybe<ProjectPayload>;
+  updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
 };
@@ -407,6 +447,11 @@ export type MutationAddUserToWorkspaceArgs = {
 
 export type MutationCreateAssetArgs = {
   input: CreateAssetInput;
+};
+
+
+export type MutationCreateCommentArgs = {
+  input: CreateCommentInput;
 };
 
 
@@ -447,6 +492,11 @@ export type MutationCreateWorkspaceArgs = {
 
 export type MutationDeleteAssetArgs = {
   input: DeleteAssetInput;
+};
+
+
+export type MutationDeleteCommentArgs = {
+  input: DeleteCommentInput;
 };
 
 
@@ -495,13 +545,18 @@ export type MutationPublishModelArgs = {
 };
 
 
-export type MutationRemoveMemberFromWorkspaceArgs = {
-  input: RemoveMemberFromWorkspaceInput;
+export type MutationRemoveIntegrationFromWorkspaceArgs = {
+  input: RemoveIntegrationFromWorkspaceInput;
 };
 
 
 export type MutationRemoveMyAuthArgs = {
   input: RemoveMyAuthInput;
+};
+
+
+export type MutationRemoveUserFromWorkspaceArgs = {
+  input: RemoveUserFromWorkspaceInput;
 };
 
 
@@ -515,6 +570,11 @@ export type MutationUpdateAssetArgs = {
 };
 
 
+export type MutationUpdateCommentArgs = {
+  input: UpdateCommentInput;
+};
+
+
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
 };
@@ -522,6 +582,11 @@ export type MutationUpdateFieldArgs = {
 
 export type MutationUpdateIntegrationArgs = {
   input: UpdateIntegrationInput;
+};
+
+
+export type MutationUpdateIntegrationOfWorkspaceArgs = {
+  input: UpdateIntegrationOfWorkspaceInput;
 };
 
 
@@ -535,11 +600,6 @@ export type MutationUpdateMeArgs = {
 };
 
 
-export type MutationUpdateMemberOfWorkspaceArgs = {
-  input: UpdateMemberOfWorkspaceInput;
-};
-
-
 export type MutationUpdateModelArgs = {
   input: UpdateModelInput;
 };
@@ -547,6 +607,11 @@ export type MutationUpdateModelArgs = {
 
 export type MutationUpdateProjectArgs = {
   input: UpdateProjectInput;
+};
+
+
+export type MutationUpdateUserOfWorkspaceArgs = {
+  input: UpdateUserOfWorkspaceInput;
 };
 
 
@@ -599,6 +664,7 @@ export type Project = Node & {
   description: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  publication?: Maybe<ProjectPublication>;
   updatedAt: Scalars['DateTime'];
   workspace?: Maybe<Workspace>;
   workspaceId: Scalars['ID'];
@@ -628,6 +694,18 @@ export type ProjectPayload = {
   __typename?: 'ProjectPayload';
   project: Project;
 };
+
+export type ProjectPublication = {
+  __typename?: 'ProjectPublication';
+  assetPublic: Scalars['Boolean'];
+  scope: ProjectPublicationScope;
+};
+
+export enum ProjectPublicationScope {
+  Limited = 'LIMITED',
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
 
 export type PublishModelInput = {
   modelId: Scalars['ID'];
@@ -729,8 +807,8 @@ export type QueryVersionsByItemArgs = {
   itemID: Scalars['ID'];
 };
 
-export type RemoveMemberFromWorkspaceInput = {
-  userId: Scalars['ID'];
+export type RemoveIntegrationFromWorkspaceInput = {
+  integrationId: Scalars['ID'];
   workspaceId: Scalars['ID'];
 };
 
@@ -741,6 +819,11 @@ export type RemoveMemberFromWorkspacePayload = {
 
 export type RemoveMyAuthInput = {
   auth: Scalars['String'];
+};
+
+export type RemoveUserFromWorkspaceInput = {
+  userId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
 };
 
 export enum Role {
@@ -950,6 +1033,14 @@ export enum Theme {
   Light = 'LIGHT'
 }
 
+export type Thread = {
+  __typename?: 'Thread';
+  comments: Array<Comment>;
+  id: Scalars['ID'];
+  workspace?: Maybe<Workspace>;
+  workspaceId: Scalars['ID'];
+};
+
 export type UpdateAssetInput = {
   id: Scalars['ID'];
   previewType?: InputMaybe<PreviewType>;
@@ -958,6 +1049,17 @@ export type UpdateAssetInput = {
 export type UpdateAssetPayload = {
   __typename?: 'UpdateAssetPayload';
   asset: Asset;
+};
+
+export type UpdateCommentInput = {
+  commentId: Scalars['ID'];
+  content: Scalars['String'];
+  threadId: Scalars['ID'];
+};
+
+export type UpdateCommentPayload = {
+  __typename?: 'UpdateCommentPayload';
+  comment: Comment;
 };
 
 export type UpdateFieldInput = {
@@ -974,6 +1076,12 @@ export type UpdateIntegrationInput = {
   integrationId: Scalars['ID'];
   logoUrl?: InputMaybe<Scalars['URL']>;
   name?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateIntegrationOfWorkspaceInput = {
+  integrationId: Scalars['ID'];
+  role: Role;
+  workspaceId: Scalars['ID'];
 };
 
 export type UpdateItemInput = {
@@ -995,12 +1103,6 @@ export type UpdateMePayload = {
   me: Me;
 };
 
-export type UpdateMemberOfWorkspaceInput = {
-  role: Role;
-  userId: Scalars['ID'];
-  workspaceId: Scalars['ID'];
-};
-
 export type UpdateMemberOfWorkspacePayload = {
   __typename?: 'UpdateMemberOfWorkspacePayload';
   workspace: Workspace;
@@ -1017,10 +1119,23 @@ export type UpdateProjectInput = {
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
+  publication?: InputMaybe<UpdateProjectPublicationInput>;
+};
+
+export type UpdateProjectPublicationInput = {
+  assetPublic?: InputMaybe<Scalars['Boolean']>;
+  scope?: InputMaybe<ProjectPublicationScope>;
+};
+
+export type UpdateUserOfWorkspaceInput = {
+  role: Role;
+  userId: Scalars['ID'];
+  workspaceId: Scalars['ID'];
 };
 
 export type UpdateWebhookInput = {
   active?: InputMaybe<Scalars['Boolean']>;
+  integrationId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
   trigger?: InputMaybe<WebhookTriggerInput>;
   url?: InputMaybe<Scalars['URL']>;
@@ -1347,7 +1462,7 @@ export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __type
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
+export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null }> } | null };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1382,6 +1497,37 @@ export type DeleteMeMutationVariables = Exact<{
 
 
 export type DeleteMeMutation = { __typename?: 'Mutation', deleteMe?: { __typename?: 'DeleteMePayload', userId: string } | null };
+
+export type CreateWebhookMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+  name: Scalars['String'];
+  url: Scalars['URL'];
+  active: Scalars['Boolean'];
+  trigger: WebhookTriggerInput;
+}>;
+
+
+export type CreateWebhookMutation = { __typename?: 'Mutation', createWebhook?: { __typename?: 'WebhookPayload', webhook: { __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } } } | null };
+
+export type UpdateWebhookMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+  webhookId: Scalars['ID'];
+  name: Scalars['String'];
+  url: Scalars['URL'];
+  active: Scalars['Boolean'];
+  trigger: WebhookTriggerInput;
+}>;
+
+
+export type UpdateWebhookMutation = { __typename?: 'Mutation', updateWebhook?: { __typename?: 'WebhookPayload', webhook: { __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } } } | null };
+
+export type DeleteWebhookMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+  webhookId: Scalars['ID'];
+}>;
+
+
+export type DeleteWebhookMutation = { __typename?: 'Mutation', deleteWebhook?: { __typename?: 'DeleteWebhookPayload', webhookId: string } | null };
 
 export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1419,7 +1565,7 @@ export type UpdateMemberOfWorkspaceMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMemberOfWorkspaceMutation = { __typename?: 'Mutation', updateMemberOfWorkspace?: { __typename?: 'UpdateMemberOfWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type UpdateMemberOfWorkspaceMutation = { __typename?: 'Mutation', updateUserOfWorkspace?: { __typename?: 'UpdateMemberOfWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
 export type RemoveMemberFromWorkspaceMutationVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -1427,7 +1573,33 @@ export type RemoveMemberFromWorkspaceMutationVariables = Exact<{
 }>;
 
 
-export type RemoveMemberFromWorkspaceMutation = { __typename?: 'Mutation', removeMemberFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type RemoveMemberFromWorkspaceMutation = { __typename?: 'Mutation', removeUserFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+
+export type AddIntegrationToWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['ID'];
+  integrationId: Scalars['ID'];
+  role: Role;
+}>;
+
+
+export type AddIntegrationToWorkspaceMutation = { __typename?: 'Mutation', addIntegrationToWorkspace?: { __typename?: 'AddMemberToWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+
+export type UpdateIntegrationOfWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['ID'];
+  integrationId: Scalars['ID'];
+  role: Role;
+}>;
+
+
+export type UpdateIntegrationOfWorkspaceMutation = { __typename?: 'Mutation', updateIntegrationOfWorkspace?: { __typename?: 'UpdateMemberOfWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+
+export type RemoveIntegrationFromWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['ID'];
+  integrationId: Scalars['ID'];
+}>;
+
+
+export type RemoveIntegrationFromWorkspaceMutation = { __typename?: 'Mutation', removeIntegrationFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember' } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
 export type CreateWorkspaceMutationVariables = Exact<{
   name: Scalars['String'];
@@ -2619,6 +2791,41 @@ export const GetMeDocument = gql`
       }
     }
     auths
+    integrations {
+      id
+      name
+      description
+      logoUrl
+      iType
+      developerId
+      developer {
+        id
+        name
+        email
+      }
+      config {
+        token
+        webhooks {
+          id
+          name
+          url
+          active
+          trigger {
+            onItemCreate
+            onItemUpdate
+            onItemDelete
+            onItemPublish
+            onItemUnPublish
+            onAssetUpload
+            onAssetDeleted
+          }
+          createdAt
+          updatedAt
+        }
+      }
+      createdAt
+      updatedAt
+    }
   }
 }
     `;
@@ -2845,6 +3052,151 @@ export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<Del
 export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
 export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
 export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
+export const CreateWebhookDocument = gql`
+    mutation CreateWebhook($integrationId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!) {
+  createWebhook(
+    input: {integrationId: $integrationId, name: $name, url: $url, active: $active, trigger: $trigger}
+  ) {
+    webhook {
+      id
+      name
+      url
+      active
+      trigger {
+        onItemCreate
+        onItemUpdate
+        onItemDelete
+        onItemPublish
+        onItemUnPublish
+        onAssetUpload
+        onAssetDeleted
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutation, CreateWebhookMutationVariables>;
+
+/**
+ * __useCreateWebhookMutation__
+ *
+ * To run a mutation, you first call `useCreateWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebhookMutation, { data, loading, error }] = useCreateWebhookMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      name: // value for 'name'
+ *      url: // value for 'url'
+ *      active: // value for 'active'
+ *      trigger: // value for 'trigger'
+ *   },
+ * });
+ */
+export function useCreateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(CreateWebhookDocument, options);
+      }
+export type CreateWebhookMutationHookResult = ReturnType<typeof useCreateWebhookMutation>;
+export type CreateWebhookMutationResult = Apollo.MutationResult<CreateWebhookMutation>;
+export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<CreateWebhookMutation, CreateWebhookMutationVariables>;
+export const UpdateWebhookDocument = gql`
+    mutation UpdateWebhook($integrationId: ID!, $webhookId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!) {
+  updateWebhook(
+    input: {integrationId: $integrationId, webhookId: $webhookId, name: $name, url: $url, active: $active, trigger: $trigger}
+  ) {
+    webhook {
+      id
+      name
+      url
+      active
+      trigger {
+        onItemCreate
+        onItemUpdate
+        onItemDelete
+        onItemPublish
+        onItemUnPublish
+        onAssetUpload
+        onAssetDeleted
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+export type UpdateWebhookMutationFn = Apollo.MutationFunction<UpdateWebhookMutation, UpdateWebhookMutationVariables>;
+
+/**
+ * __useUpdateWebhookMutation__
+ *
+ * To run a mutation, you first call `useUpdateWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateWebhookMutation, { data, loading, error }] = useUpdateWebhookMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      webhookId: // value for 'webhookId'
+ *      name: // value for 'name'
+ *      url: // value for 'url'
+ *      active: // value for 'active'
+ *      trigger: // value for 'trigger'
+ *   },
+ * });
+ */
+export function useUpdateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<UpdateWebhookMutation, UpdateWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateWebhookMutation, UpdateWebhookMutationVariables>(UpdateWebhookDocument, options);
+      }
+export type UpdateWebhookMutationHookResult = ReturnType<typeof useUpdateWebhookMutation>;
+export type UpdateWebhookMutationResult = Apollo.MutationResult<UpdateWebhookMutation>;
+export type UpdateWebhookMutationOptions = Apollo.BaseMutationOptions<UpdateWebhookMutation, UpdateWebhookMutationVariables>;
+export const DeleteWebhookDocument = gql`
+    mutation DeleteWebhook($integrationId: ID!, $webhookId: ID!) {
+  deleteWebhook(input: {integrationId: $integrationId, webhookId: $webhookId}) {
+    webhookId
+  }
+}
+    `;
+export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+
+/**
+ * __useDeleteWebhookMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebhookMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebhookMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebhookMutation, { data, loading, error }] = useDeleteWebhookMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      webhookId: // value for 'webhookId'
+ *   },
+ * });
+ */
+export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
+      }
+export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
+export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
+export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
 export const GetWorkspacesDocument = gql`
     query GetWorkspaces {
   me {
@@ -3000,7 +3352,7 @@ export type AddUserToWorkspaceMutationResult = Apollo.MutationResult<AddUserToWo
 export type AddUserToWorkspaceMutationOptions = Apollo.BaseMutationOptions<AddUserToWorkspaceMutation, AddUserToWorkspaceMutationVariables>;
 export const UpdateMemberOfWorkspaceDocument = gql`
     mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-  updateMemberOfWorkspace(
+  updateUserOfWorkspace(
     input: {workspaceId: $workspaceId, userId: $userId, role: $role}
   ) {
     workspace {
@@ -3040,7 +3392,7 @@ export type UpdateMemberOfWorkspaceMutationResult = Apollo.MutationResult<Update
 export type UpdateMemberOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
 export const RemoveMemberFromWorkspaceDocument = gql`
     mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-  removeMemberFromWorkspace(input: {workspaceId: $workspaceId, userId: $userId}) {
+  removeUserFromWorkspace(input: {workspaceId: $workspaceId, userId: $userId}) {
     workspace {
       id
       ...WorkspaceFragment
@@ -3075,6 +3427,125 @@ export function useRemoveMemberFromWorkspaceMutation(baseOptions?: Apollo.Mutati
 export type RemoveMemberFromWorkspaceMutationHookResult = ReturnType<typeof useRemoveMemberFromWorkspaceMutation>;
 export type RemoveMemberFromWorkspaceMutationResult = Apollo.MutationResult<RemoveMemberFromWorkspaceMutation>;
 export type RemoveMemberFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>;
+export const AddIntegrationToWorkspaceDocument = gql`
+    mutation AddIntegrationToWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+  addIntegrationToWorkspace(
+    input: {workspaceId: $workspaceId, integrationId: $integrationId, role: $role}
+  ) {
+    workspace {
+      id
+      ...WorkspaceFragment
+    }
+  }
+}
+    ${WorkspaceFragmentFragmentDoc}`;
+export type AddIntegrationToWorkspaceMutationFn = Apollo.MutationFunction<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>;
+
+/**
+ * __useAddIntegrationToWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useAddIntegrationToWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddIntegrationToWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addIntegrationToWorkspaceMutation, { data, loading, error }] = useAddIntegrationToWorkspaceMutation({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *      integrationId: // value for 'integrationId'
+ *      role: // value for 'role'
+ *   },
+ * });
+ */
+export function useAddIntegrationToWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>(AddIntegrationToWorkspaceDocument, options);
+      }
+export type AddIntegrationToWorkspaceMutationHookResult = ReturnType<typeof useAddIntegrationToWorkspaceMutation>;
+export type AddIntegrationToWorkspaceMutationResult = Apollo.MutationResult<AddIntegrationToWorkspaceMutation>;
+export type AddIntegrationToWorkspaceMutationOptions = Apollo.BaseMutationOptions<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>;
+export const UpdateIntegrationOfWorkspaceDocument = gql`
+    mutation UpdateIntegrationOfWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+  updateIntegrationOfWorkspace(
+    input: {workspaceId: $workspaceId, integrationId: $integrationId, role: $role}
+  ) {
+    workspace {
+      id
+      ...WorkspaceFragment
+    }
+  }
+}
+    ${WorkspaceFragmentFragmentDoc}`;
+export type UpdateIntegrationOfWorkspaceMutationFn = Apollo.MutationFunction<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>;
+
+/**
+ * __useUpdateIntegrationOfWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useUpdateIntegrationOfWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIntegrationOfWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIntegrationOfWorkspaceMutation, { data, loading, error }] = useUpdateIntegrationOfWorkspaceMutation({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *      integrationId: // value for 'integrationId'
+ *      role: // value for 'role'
+ *   },
+ * });
+ */
+export function useUpdateIntegrationOfWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>(UpdateIntegrationOfWorkspaceDocument, options);
+      }
+export type UpdateIntegrationOfWorkspaceMutationHookResult = ReturnType<typeof useUpdateIntegrationOfWorkspaceMutation>;
+export type UpdateIntegrationOfWorkspaceMutationResult = Apollo.MutationResult<UpdateIntegrationOfWorkspaceMutation>;
+export type UpdateIntegrationOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>;
+export const RemoveIntegrationFromWorkspaceDocument = gql`
+    mutation RemoveIntegrationFromWorkspace($workspaceId: ID!, $integrationId: ID!) {
+  removeIntegrationFromWorkspace(
+    input: {workspaceId: $workspaceId, integrationId: $integrationId}
+  ) {
+    workspace {
+      id
+      ...WorkspaceFragment
+    }
+  }
+}
+    ${WorkspaceFragmentFragmentDoc}`;
+export type RemoveIntegrationFromWorkspaceMutationFn = Apollo.MutationFunction<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>;
+
+/**
+ * __useRemoveIntegrationFromWorkspaceMutation__
+ *
+ * To run a mutation, you first call `useRemoveIntegrationFromWorkspaceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveIntegrationFromWorkspaceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeIntegrationFromWorkspaceMutation, { data, loading, error }] = useRemoveIntegrationFromWorkspaceMutation({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useRemoveIntegrationFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>(RemoveIntegrationFromWorkspaceDocument, options);
+      }
+export type RemoveIntegrationFromWorkspaceMutationHookResult = ReturnType<typeof useRemoveIntegrationFromWorkspaceMutation>;
+export type RemoveIntegrationFromWorkspaceMutationResult = Apollo.MutationResult<RemoveIntegrationFromWorkspaceMutation>;
+export type RemoveIntegrationFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>;
 export const CreateWorkspaceDocument = gql`
     mutation CreateWorkspace($name: String!) {
   createWorkspace(input: {name: $name}) {

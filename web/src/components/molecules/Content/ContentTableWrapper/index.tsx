@@ -13,16 +13,14 @@ const ContentTableWrapper: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   modelName,
-}) => {
-  return (
-    <>
-      <PageHeader title={modelName} />
-      <ContentTable
-        contentTableFields={contentTableFields}
-        contentTableColumns={contentTableColumns}
-      />
-    </>
-  );
-};
+}) => (
+  <>
+    <PageHeader title={modelName} />
+    <ContentTable
+      contentTableFields={contentTableFields}
+      contentTableColumns={contentTableColumns}
+    />
+  </>
+);
 
 export default ContentTableWrapper;
