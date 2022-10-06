@@ -137,7 +137,7 @@ export type CreateIntegrationInput = {
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
-  modelId: Scalars['ID'];
+  schemaID: Scalars['ID'];
 };
 
 export type CreateModelInput = {
@@ -210,12 +210,12 @@ export type DeleteIntegrationPayload = {
 };
 
 export type DeleteItemInput = {
-  itemId: Scalars['ID'];
+  itemID: Scalars['ID'];
 };
 
 export type DeleteItemPayload = {
   __typename?: 'DeleteItemPayload';
-  itemId: Scalars['ID'];
+  itemID: Scalars['ID'];
 };
 
 export type DeleteMeInput = {
@@ -301,14 +301,9 @@ export enum IntegrationType {
 
 export type Item = Node & {
   __typename?: 'Item';
-  createdAt: Scalars['DateTime'];
+  fields?: Maybe<Array<ItemField>>;
   id: Scalars['ID'];
-  latestVersion?: Maybe<ItemVersion>;
-  model: Model;
-  modelId: Scalars['ID'];
-  publicVersion: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
-  versions: Array<ItemVersion>;
+  schemaID: Scalars['ID'];
 };
 
 export type ItemConnection = {
@@ -327,26 +322,20 @@ export type ItemEdge = {
 
 export type ItemField = {
   __typename?: 'ItemField';
-  fieldId: Scalars['ID'];
+  schemaFieldID: Scalars['ID'];
+  type: SchemaFiledType;
   value: Scalars['Any'];
 };
 
 export type ItemFieldInput = {
-  fieldId: Scalars['ID'];
+  schemaFieldID: Scalars['ID'];
+  type: SchemaFiledType;
   value: Scalars['Any'];
 };
 
 export type ItemPayload = {
   __typename?: 'ItemPayload';
   item: Item;
-};
-
-export type ItemVersion = {
-  __typename?: 'ItemVersion';
-  fields: Array<ItemField>;
-  parent: Array<Scalars['String']>;
-  ref: Array<Scalars['String']>;
-  version: Scalars['String'];
 };
 
 export type KeyAvailability = {
@@ -742,6 +731,7 @@ export type Query = {
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
   searchUser?: Maybe<User>;
+  versionsByItem?: Maybe<Array<VersionedItem>>;
 };
 
 
@@ -774,7 +764,7 @@ export type QueryItemsArgs = {
   before?: InputMaybe<Scalars['Cursor']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  modelId: Scalars['ID'];
+  schemaID: Scalars['ID'];
 };
 
 
@@ -810,6 +800,11 @@ export type QueryProjectsArgs = {
 
 export type QuerySearchUserArgs = {
   nameOrEmail: Scalars['String'];
+};
+
+
+export type QueryVersionsByItemArgs = {
+  itemID: Scalars['ID'];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
@@ -1091,7 +1086,7 @@ export type UpdateIntegrationOfWorkspaceInput = {
 
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
-  itemId: Scalars['ID'];
+  itemID: Scalars['ID'];
 };
 
 export type UpdateMeInput = {
@@ -1162,6 +1157,14 @@ export type User = Node & {
   email: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
+};
+
+export type VersionedItem = {
+  __typename?: 'VersionedItem';
+  parents?: Maybe<Array<Scalars['ID']>>;
+  refs?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value: Item;
+  version: Scalars['ID'];
 };
 
 export type Webhook = Node & {
@@ -1327,6 +1330,40 @@ export type UpdateIntegrationMutationVariables = Exact<{
 
 
 export type UpdateIntegrationMutation = { __typename?: 'Mutation', updateIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+
+export type GetItemsQueryVariables = Exact<{
+  schemaID: Scalars['ID'];
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', schemaFieldID: string, type: SchemaFiledType, value: any }> | null } | null> } };
+
+export type CreateItemMutationVariables = Exact<{
+  schemaID: Scalars['ID'];
+  fields: Array<ItemFieldInput> | ItemFieldInput;
+}>;
+
+
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldID: string }> | null } } | null };
+
+export type DeleteItemMutationVariables = Exact<{
+  itemID: Scalars['ID'];
+}>;
+
+
+export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typename?: 'DeleteItemPayload', itemID: string } | null };
+
+export type UpdateItemMutationVariables = Exact<{
+  itemID: Scalars['ID'];
+  fields: Array<ItemFieldInput> | ItemFieldInput;
+}>;
+
+
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldID: string }> | null } } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2128,6 +2165,176 @@ export function useUpdateIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateIntegrationMutationHookResult = ReturnType<typeof useUpdateIntegrationMutation>;
 export type UpdateIntegrationMutationResult = Apollo.MutationResult<UpdateIntegrationMutation>;
 export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
+export const GetItemsDocument = gql`
+    query GetItems($schemaID: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+  items(
+    schemaID: $schemaID
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+  ) {
+    nodes {
+      id
+      schemaID
+      fields {
+        schemaFieldID
+        type
+        value
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetItemsQuery__
+ *
+ * To run a query within a React component, call `useGetItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetItemsQuery({
+ *   variables: {
+ *      schemaID: // value for 'schemaID'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *   },
+ * });
+ */
+export function useGetItemsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+      }
+export function useGetItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+        }
+export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
+export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
+export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
+export const CreateItemDocument = gql`
+    mutation CreateItem($schemaID: ID!, $fields: [ItemFieldInput!]!) {
+  createItem(input: {schemaID: $schemaID, fields: $fields}) {
+    item {
+      id
+      schemaID
+      fields {
+        value
+        type
+        schemaFieldID
+      }
+    }
+  }
+}
+    `;
+export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, CreateItemMutationVariables>;
+
+/**
+ * __useCreateItemMutation__
+ *
+ * To run a mutation, you first call `useCreateItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createItemMutation, { data, loading, error }] = useCreateItemMutation({
+ *   variables: {
+ *      schemaID: // value for 'schemaID'
+ *      fields: // value for 'fields'
+ *   },
+ * });
+ */
+export function useCreateItemMutation(baseOptions?: Apollo.MutationHookOptions<CreateItemMutation, CreateItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateItemMutation, CreateItemMutationVariables>(CreateItemDocument, options);
+      }
+export type CreateItemMutationHookResult = ReturnType<typeof useCreateItemMutation>;
+export type CreateItemMutationResult = Apollo.MutationResult<CreateItemMutation>;
+export type CreateItemMutationOptions = Apollo.BaseMutationOptions<CreateItemMutation, CreateItemMutationVariables>;
+export const DeleteItemDocument = gql`
+    mutation DeleteItem($itemID: ID!) {
+  deleteItem(input: {itemID: $itemID}) {
+    itemID
+  }
+}
+    `;
+export type DeleteItemMutationFn = Apollo.MutationFunction<DeleteItemMutation, DeleteItemMutationVariables>;
+
+/**
+ * __useDeleteItemMutation__
+ *
+ * To run a mutation, you first call `useDeleteItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteItemMutation, { data, loading, error }] = useDeleteItemMutation({
+ *   variables: {
+ *      itemID: // value for 'itemID'
+ *   },
+ * });
+ */
+export function useDeleteItemMutation(baseOptions?: Apollo.MutationHookOptions<DeleteItemMutation, DeleteItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteItemMutation, DeleteItemMutationVariables>(DeleteItemDocument, options);
+      }
+export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutation>;
+export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
+export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
+export const UpdateItemDocument = gql`
+    mutation UpdateItem($itemID: ID!, $fields: [ItemFieldInput!]!) {
+  updateItem(input: {itemID: $itemID, fields: $fields}) {
+    item {
+      id
+      schemaID
+      fields {
+        value
+        type
+        schemaFieldID
+      }
+    }
+  }
+}
+    `;
+export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, UpdateItemMutationVariables>;
+
+/**
+ * __useUpdateItemMutation__
+ *
+ * To run a mutation, you first call `useUpdateItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateItemMutation, { data, loading, error }] = useUpdateItemMutation({
+ *   variables: {
+ *      itemID: // value for 'itemID'
+ *      fields: // value for 'fields'
+ *   },
+ * });
+ */
+export function useUpdateItemMutation(baseOptions?: Apollo.MutationHookOptions<UpdateItemMutation, UpdateItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateItemMutation, UpdateItemMutationVariables>(UpdateItemDocument, options);
+      }
+export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutation>;
+export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
+export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   models(
