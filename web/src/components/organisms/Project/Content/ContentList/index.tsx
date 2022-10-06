@@ -14,7 +14,7 @@ const ContentList: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const { projectId, workspaceId } = useParams();
+  const { projectId, workspaceId, modelId } = useParams();
 
   const selectModel = useCallback(
     (modelId: string) => {
@@ -23,9 +23,14 @@ const ContentList: React.FC = () => {
     [navigate, workspaceId, projectId],
   );
 
+  const handleItemAdd = useCallback(() => {
+    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/details`);
+  }, [navigate, workspaceId, projectId, modelId]);
+
   return (
     <ContentListMolecule
-      modelName={currentModel?.name}
+      onItemAdd={handleItemAdd}
+      model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
       modelsMenu={<ModelsMenu title={t("Content")} selectModel={selectModel} />}

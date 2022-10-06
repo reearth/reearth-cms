@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+
+import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 
@@ -13,15 +16,25 @@ const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns
     },
   };
 
-  return (
+  return contentTableColumns ? (
     <ProTable
       dataSource={contentTableFields}
-      columns={contentTableColumns}
+      columns={[
+        {
+          title: "actions",
+          render: (_, contentField) => (
+            <Link to={"./details/" + contentField.id}>
+              <Icon icon="edit" />
+            </Link>
+          ),
+        },
+        ...contentTableColumns,
+      ]}
       search={false}
       rowKey="id"
       toolbar={handleToolbarEvents}
     />
-  );
+  ) : null;
 };
 
 export default ContentTable;
