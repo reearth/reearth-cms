@@ -1,30 +1,19 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
 
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 
 export type Props = {
   integration: Integration;
   integrationSelected: boolean;
-  onIntegrationSelect: (integration: Integration) => void;
+  onClick: () => void;
 };
 
-const IntegrationCard: React.FC<Props> = ({
-  integration,
-  integrationSelected,
-  onIntegrationSelect,
-}) => {
-  const handleIntegrationSelect = useCallback(() => {
-    onIntegrationSelect(integration);
-  }, [integration, onIntegrationSelect]);
-
-  return (
-    <CardWrapper onClick={handleIntegrationSelect} isSelected={integrationSelected}>
-      <CardImg src={integration.logoUrl} />
-      <CardTitle>{integration.name}</CardTitle>
-    </CardWrapper>
-  );
-};
+const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, onClick }) => (
+  <CardWrapper onClick={onClick} isSelected={integrationSelected}>
+    <CardImg src={integration.logoUrl} />
+    <CardTitle>{integration.name}</CardTitle>
+  </CardWrapper>
+);
 
 const CardWrapper = styled.div<{ isSelected?: boolean }>`
   cursor: pointer;

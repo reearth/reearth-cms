@@ -14,8 +14,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 
 export default (workspaceId?: string) => {
-  const [selectedConnectionModalIntegration, SetSelectedConnectionModalIntegration] =
-    useState<Integration>();
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
@@ -65,12 +63,10 @@ export default (workspaceId?: string) => {
   }, [workspace, searchTerm]);
 
   const handleIntegrationConnectModalClose = useCallback(() => {
-    SetSelectedConnectionModalIntegration(undefined);
     setIntegrationConnectModalShown(false);
   }, []);
 
   const handleIntegrationConnectModalOpen = useCallback(() => {
-    SetSelectedConnectionModalIntegration(undefined);
     setIntegrationConnectModalShown(true);
   }, []);
 
@@ -83,28 +79,27 @@ export default (workspaceId?: string) => {
     setIntegrationSettingsModalShown(true);
   }, []);
 
-  const handleConnectionModalIntegrationSelect = useCallback((integration: Integration) => {
-    SetSelectedConnectionModalIntegration(integration);
-  }, []);
-
   const [addIntegrationToWorkspaceMutation] = useAddIntegrationToWorkspaceMutation();
 
-  const handleIntegrationConnect = useCallback(async () => {
-    if (!selectedConnectionModalIntegration || !workspaceId) return;
-    const integration = await addIntegrationToWorkspaceMutation({
-      variables: {
-        integrationId: selectedConnectionModalIntegration.id,
-        workspaceId,
-        role: GQLRole.Reader,
-      },
-    });
-    if (integration.errors || !integration.data?.addIntegrationToWorkspace) {
-      // TODO: Add notification error
-      return;
-    }
-    setIntegrationConnectModalShown(false);
-    refetch();
-  }, [addIntegrationToWorkspaceMutation, selectedConnectionModalIntegration, workspaceId, refetch]);
+  const handleIntegrationConnect = useCallback(
+    async (integration?: Integration) => {
+      if (!integration || !workspaceId) return;
+      const integrationResponse = await addIntegrationToWorkspaceMutation({
+        variables: {
+          integrationId: integration.id,
+          workspaceId,
+          role: GQLRole.Reader,
+        },
+      });
+      if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
+        // TODO: Add notification error
+        return;
+      }
+      setIntegrationConnectModalShown(false);
+      refetch();
+    },
+    [addIntegrationToWorkspaceMutation, workspaceId, refetch],
+  );
 
   const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
 
@@ -135,8 +130,6 @@ export default (workspaceId?: string) => {
   return {
     integrations,
     workspaceIntegrationMembers,
-    selectedConnectionModalIntegration,
-    handleConnectionModalIntegrationSelect,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     handleIntegrationConnect,
