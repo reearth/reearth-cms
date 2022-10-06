@@ -1,35 +1,57 @@
 import styled from "@emotion/styled";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
+import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
+  integrations?: Integration[];
   open?: boolean;
-  onClose?: () => void;
-  onSubmit?: () => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (integration?: Integration) => Promise<void> | void;
 };
 
-const IntegrationConnectModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
   const t = useT();
+  const [selectedIntegration, SetSelectedIntegration] = useState<Integration | undefined>();
+
+  const handleIntegrationSelect = useCallback(
+    (integration: Integration) => {
+      SetSelectedIntegration(integration);
+    },
+    [SetSelectedIntegration],
+  );
+
+  const handleClose = useCallback(() => {
+    SetSelectedIntegration(undefined);
+    onClose();
+  }, [SetSelectedIntegration, onClose]);
 
   return (
     <Modal
       title={t("Connect Integration")}
       visible={open}
-      onCancel={() => onClose?.()}
-      onOk={onSubmit}
+      onCancel={handleClose}
       footer={[
-        <Button key="back" onClick={() => onClose?.()}>
+        <Button key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={onSubmit}>
+        <Button key="submit" type="primary" onClick={() => onSubmit(selectedIntegration)}>
           {t("Connect")}
         </Button>,
       ]}>
       <ModalContent>
-        <IntegrationCard title="Card title" selected={false} />
+        {integrations?.map(integration => (
+          <IntegrationCard
+            onClick={() => handleIntegrationSelect(integration)}
+            key={integration.id}
+            integration={integration}
+            integrationSelected={integration.id === selectedIntegration?.id}
+          />
+        ))}
       </ModalContent>
     </Modal>
   );

@@ -88,3 +88,8 @@ func (b *Builder) UUID(uuid string) *Builder {
 	b.a.uuid = uuid
 	return b
 }
+
+func (b *Builder) Thread(th ThreadID) *Builder {
+	b.a.thread = th
+	return b
+}

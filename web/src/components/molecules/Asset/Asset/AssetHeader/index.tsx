@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   title: string;
@@ -9,13 +10,14 @@ type Props = {
 };
 
 const AssetHeader: React.FC<Props> = ({ title, subTitle, handleSave }) => {
+  const t = useT();
   return (
     <AssetHeaderWrapper>
       <HeaderTitleWrapper>
         <HeaderTitle>{title}</HeaderTitle>
         <HeaderSubTitle>{subTitle}</HeaderSubTitle>
       </HeaderTitleWrapper>
-      <Button onClick={handleSave}>Save</Button>
+      <Button onClick={handleSave}>{t("Save")}</Button>
     </AssetHeaderWrapper>
   );
 };

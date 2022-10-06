@@ -70,6 +70,11 @@ func (b *Builder) LogoUrl(logoURL *url.URL) *Builder {
 	return b
 }
 
+func (b *Builder) GenerateToken() *Builder {
+	b.i.RandomToken()
+	return b
+}
+
 func (b *Builder) Token(token string) *Builder {
 	b.i.token = token
 	return b
@@ -81,6 +86,6 @@ func (b *Builder) Developer(developer UserID) *Builder {
 }
 
 func (b *Builder) Webhook(webhook []*Webhook) *Builder {
-	b.i.webhook = webhook
+	b.i.webhooks = webhook
 	return b
 }

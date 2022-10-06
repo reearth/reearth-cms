@@ -52,7 +52,7 @@ func Init(p InitParams) (*User, *Workspace, error) {
 	t, err := NewWorkspace().
 		ID(*p.WorkspaceID).
 		Name(p.Name).
-		Members(map[ID]Role{u.ID(): RoleOwner}).
+		Members(map[ID]Member{u.ID(): {Role: RoleOwner, Disabled: false, InvitedBy: u.ID()}}).
 		Personal(true).
 		Build()
 	if err != nil {
