@@ -10,17 +10,17 @@ export type Props = {
   modelName?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ProColumns<ContentTableField>[];
-  children: React.ReactNode;
+  modelsMenu: React.ReactNode;
 };
 
-const ContentTableWrapper: React.FC<Props> = ({
+const ContentListMolecule: React.FC<Props> = ({
   modelName,
   contentTableFields,
   contentTableColumns,
-  children,
+  modelsMenu: ModelsMenu,
 }) => (
   <PaddedContent>
-    <LeftPaneWrapper>{children}</LeftPaneWrapper>
+    <LeftPaneWrapper>{ModelsMenu}</LeftPaneWrapper>
     <ContentChild>
       <PageHeader title={modelName} />
       <StyledContentTable
@@ -54,4 +54,4 @@ const ContentChild = styled.div`
   padding: 24px;
 `;
 
-export default ContentTableWrapper;
+export default ContentListMolecule;
