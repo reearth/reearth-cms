@@ -79,3 +79,8 @@ func (b *Builder) Workspace(team WorkspaceID) *Builder {
 	b.p.workspaceID = team
 	return b
 }
+
+func (b *Builder) Publication(publication *Publication) *Builder {
+	b.p.publication = publication
+	return b
+}
