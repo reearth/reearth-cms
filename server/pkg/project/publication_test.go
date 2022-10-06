@@ -25,6 +25,15 @@ func TestNewPublication(t *testing.T) {
 	}, NewPublication("", true))
 }
 
+func TestPublication_Scope(t *testing.T) {
+	assert.Equal(t, PublicationScopePrivate, (&Publication{}).Scope())
+	assert.Equal(t, PublicationScopePublic, (&Publication{scope: PublicationScopePublic}).Scope())
+}
+
+func TestPublication_AssetPublic(t *testing.T) {
+	assert.True(t, (&Publication{assetPublic: true}).AssetPublic())
+}
+
 func TestPublication_SetScope(t *testing.T) {
 	p := &Publication{
 		scope: PublicationScopePublic,

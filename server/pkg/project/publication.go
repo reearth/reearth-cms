@@ -20,6 +20,17 @@ func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
 	return p
 }
 
+func (p *Publication) Scope() PublicationScope {
+	if p.scope == "" {
+		return PublicationScopePrivate
+	}
+	return p.scope
+}
+
+func (p *Publication) AssetPublic() bool {
+	return p.assetPublic
+}
+
 func (p *Publication) SetScope(scope PublicationScope) {
 	if scope != PublicationScopePrivate && scope != PublicationScopeLimited && scope != PublicationScopePublic {
 		scope = PublicationScopePrivate
