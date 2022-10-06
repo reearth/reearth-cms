@@ -12,7 +12,7 @@ export default () => {
     skip: !currentModel?.schema.id,
   });
 
-  const contentTableFields = useMemo((): ContentTableField[] | undefined => {
+  const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.items.nodes
       ?.map(item =>
         item
@@ -28,7 +28,7 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.items.nodes]);
 
-  const contentTableColumns = useMemo((): ProColumns<Item>[] | undefined => {
+  const contentTableColumns: ProColumns<Item>[] | undefined = useMemo(() => {
     return currentModel?.schema.fields.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],
