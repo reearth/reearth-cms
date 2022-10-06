@@ -76,6 +76,14 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
 }
 
+func (r *assetRepo) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
+	return r.client.UpdateMany(ctx, bson.M{
+		"project": from.String(),
+	}, bson.M{
+		"project": to.String(),
+	})
+}
+
 func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
 	if !r.f.CanWrite(asset.Project()) {
 		return repo.ErrOperationDenied
