@@ -214,11 +214,18 @@ func TestModel_Public(t *testing.T) {
 		want  bool
 	}{
 		{
-			name: "test",
+			name: "set public true",
 			model: Model{
 				public: true,
 			},
 			want: true,
+		},
+		{
+			name: "set public false",
+			model: Model{
+				public: false,
+			},
+			want: false,
 		},
 	}
 	for _, tt := range tests {
@@ -374,7 +381,7 @@ func TestModel_SetPublic(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test",
+			name: "set public true",
 			args: args{
 				public: true,
 			},
@@ -383,7 +390,7 @@ func TestModel_SetPublic(t *testing.T) {
 			},
 		},
 		{
-			name: "test",
+			name: "set public faalse",
 			args: args{
 				public: false,
 			},
