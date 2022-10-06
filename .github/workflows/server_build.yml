@@ -25,6 +25,8 @@ jobs:
       - name: Get info
         id: info
         # The tag name should be retrieved lazily, as tagging may be delayed.
+        env:
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
           if [[ "$BRANCH" = "release" ]]; then
@@ -35,6 +37,7 @@ jobs:
             fi
           else
             echo "::set-output name=name::nightly"
+          fi
       - name: Show info
         env:
           SHA_SHORT: ${{ steps.info.outputs.sha_short }}

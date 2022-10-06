@@ -449,7 +449,7 @@ func TestAsset_Create(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
-			f, _ := fs.NewFile(mfs, "")
+			f, _ := fs.NewFile(mfs, "", "")
 
 			err := db.User.Save(ctx, u)
 			assert.Nil(t, err)
@@ -658,4 +658,21 @@ func TestAsset_Delete(t *testing.T) {
 			assert.Equal(t, rerror.ErrNotFound, err)
 		})
 	}
+}
+
+type file2 struct {
+	gateway.File
+}
+
+func (f *file2) GetURL(*asset.Asset) string {
+	return "xxx"
+}
+
+func TestAsset_GetURL(t *testing.T) {
+	uc := &Asset{
+		gateways: &gateway.Container{
+			File: &file2{},
+		},
+	}
+	assert.Equal(t, "xxx", uc.GetURL(nil))
 }

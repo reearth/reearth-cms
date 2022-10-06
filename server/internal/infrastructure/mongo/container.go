@@ -30,6 +30,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 		Item:        NewItem(client),
 		Model:       NewModel(client),
 		Schema:      NewSchema(client),
+		Integration: NewIntegration(client),
 	}
 	return c, nil
 }

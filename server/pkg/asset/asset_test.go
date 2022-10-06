@@ -8,10 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAsset_AssetType(t *testing.T) {
+func TestAsset_Getters(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
+	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("IMAGE"))
@@ -26,6 +27,7 @@ func TestAsset_AssetType(t *testing.T) {
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
 		file:        &File{},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		thread:      thid,
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -37,6 +39,7 @@ func TestAsset_AssetType(t *testing.T) {
 	assert.Equal(t, wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
+	assert.Equal(t, thid, got.Thread())
 }
 
 func TestAsset_CreatedAt(t *testing.T) {
