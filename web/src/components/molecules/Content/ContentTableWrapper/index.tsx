@@ -4,12 +4,12 @@ import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable";
-import { Item, ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 
 export type Props = {
   modelName?: string;
   contentTableFields?: ContentTableField[];
-  contentTableColumns?: ProColumns<Item>[];
+  contentTableColumns?: ProColumns<ContentTableField>[];
   children: React.ReactNode;
 };
 

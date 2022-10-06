@@ -28,7 +28,7 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.items.nodes]);
 
-  const contentTableColumns: ProColumns<Item>[] | undefined = useMemo(() => {
+  const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     return currentModel?.schema.fields.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],

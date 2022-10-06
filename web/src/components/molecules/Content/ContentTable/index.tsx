@@ -1,9 +1,9 @@
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import { Item } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 
 export type Props = {
-  contentTableFields?: any[];
-  contentTableColumns?: ProColumns<Item>[];
+  contentTableFields?: ContentTableField[];
+  contentTableColumns?: ProColumns<ContentTableField>[];
 };
 
 const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns }) => {
