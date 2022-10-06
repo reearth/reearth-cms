@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
-import { Item } from "@reearth-cms/components/molecules/Content/types";
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { useGetItemsQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useModel } from "@reearth-cms/state";
 
@@ -11,21 +12,33 @@ export default () => {
     skip: !currentModel?.schema.id,
   });
 
-  const items = useMemo(() => {
+  const contentTableFields = useMemo((): ContentTableField[] | undefined => {
     return data?.items.nodes
-      ?.map<Item | undefined>(item =>
+      ?.map(item =>
         item
           ? {
-              id: item.id,
-              schemaID: item.schemaID,
-              fields: item.fields,
+              ...item,
+              fields: item?.fields?.reduce(
+                (obj, field) => Object.assign(obj, { [field.schemaFieldID]: field.value }),
+                {},
+              ),
             }
           : undefined,
       )
-      .filter((item): item is Item => !!item);
+      .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.items.nodes]);
 
+  const contentTableColumns = useMemo((): ProColumns<Item>[] | undefined => {
+    return currentModel?.schema.fields.map(field => ({
+      title: field.title,
+      dataIndex: ["fields", field.id],
+      key: field.id,
+    }));
+  }, [currentModel?.schema.fields]);
+
   return {
-    items,
+    currentModel,
+    contentTableFields,
+    contentTableColumns,
   };
 };

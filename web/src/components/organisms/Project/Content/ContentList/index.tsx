@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
-import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable";
+import ContentTableWrapper from "@reearth-cms/components/molecules/Content/ContentTableWrapper";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -12,7 +12,7 @@ import useHooks from "./hooks";
 const ContentList: React.FC = () => {
   const t = useT();
 
-  const { items } = useHooks();
+  const { currentModel, contentTableFields, contentTableColumns } = useHooks();
 
   const navigate = useNavigate();
 
@@ -29,7 +29,11 @@ const ContentList: React.FC = () => {
     <PaddedContent>
       <StyledModelsMenu title={t("Content")} selectModel={selectModel} />
       <ContentChild>
-        <ContentTable items={items} />
+        <ContentTableWrapper
+          modelName={currentModel?.name}
+          contentTableFields={contentTableFields}
+          contentTableColumns={contentTableColumns}
+        />
       </ContentChild>
     </PaddedContent>
   );

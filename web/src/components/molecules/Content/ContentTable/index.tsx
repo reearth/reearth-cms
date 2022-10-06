@@ -1,14 +1,12 @@
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
-
-import { Item } from "../types";
-
-const columns: ProColumns<any>[] = [];
+import { Item } from "@reearth-cms/components/molecules/Content/types";
 
 export type Props = {
-  items?: Item[];
+  contentTableFields?: any[];
+  contentTableColumns?: ProColumns<Item>[];
 };
 
-const ContentTable: React.FC<Props> = ({ items }) => {
+const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns }) => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: _ => {},
@@ -17,8 +15,8 @@ const ContentTable: React.FC<Props> = ({ items }) => {
 
   return (
     <ProTable
-      dataSource={items}
-      columns={columns}
+      dataSource={contentTableFields}
+      columns={contentTableColumns}
       search={false}
       rowKey="id"
       toolbar={handleToolbarEvents}
