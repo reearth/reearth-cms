@@ -21,6 +21,7 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
   const handleIntegrationSelect = useCallback(
     (integration: Integration) => {
       SetSelectedIntegration(integration);
+      
     },
     [SetSelectedIntegration],
   );
