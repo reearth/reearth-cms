@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import ContentTableWrapper from "@reearth-cms/components/molecules/Content/ContentTableWrapper";
+import ContentListMolecule from "@reearth-cms/components/molecules/Content/ContentListMolecule";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -24,12 +24,12 @@ const ContentList: React.FC = () => {
   );
 
   return (
-    <ContentTableWrapper
+    <ContentListMolecule
       modelName={currentModel?.name}
       contentTableFields={contentTableFields}
-      contentTableColumns={contentTableColumns}>
-      <ModelsMenu title={t("Content")} selectModel={selectModel} />
-    </ContentTableWrapper>
+      contentTableColumns={contentTableColumns}
+      modelsMenu={<ModelsMenu title={t("Content")} selectModel={selectModel} />}
+    />
   );
 };
 
