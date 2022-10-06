@@ -57,6 +57,10 @@ func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset
 }
 
 func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
 	var filter interface{} = bson.M{
 		"project": id.String(),
 	}
@@ -73,6 +77,9 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 }
 
 func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
+	if !r.f.CanWrite(asset.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, id := mongodoc.NewAsset(asset)
 	return r.client.SaveOne(ctx, id, doc)
 }
@@ -145,9 +152,9 @@ func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
 }
 
 func (r *assetRepo) readFilter(filter interface{}) interface{} {
-	return filter
+	return applyProjectFilter(filter, r.f.Readable)
 }
 
 func (r *assetRepo) writeFilter(filter interface{}) interface{} {
-	return filter
+	return applyProjectFilter(filter, r.f.Writable)
 }

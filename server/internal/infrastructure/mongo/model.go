@@ -16,12 +16,20 @@ import (
 
 type modelRepo struct {
 	client *mongox.ClientCollection
+	f      repo.ProjectFilter
 }
 
 func NewModel(client *mongox.Client) repo.Model {
 	r := &modelRepo{client: client.WithCollection("model")}
 	r.init()
 	return r
+}
+
+func (r *modelRepo) Filtered(f repo.ProjectFilter) repo.Model {
+	return &modelRepo{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
 }
 
 func (r *modelRepo) init() {
