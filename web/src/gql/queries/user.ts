@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { integrationFragment } from "@reearth-cms/gql/fragments";
+
 export const GET_USER_BY_SEARCH = gql`
   query GetUserBySearch($nameOrEmail: String!) {
     searchUser(nameOrEmail: $nameOrEmail) {
@@ -33,46 +35,23 @@ export const GET_ME = gql`
             userId
             role
           }
+          ... on WorkspaceIntegrationMember {
+            integration {
+              ...integrationFragment
+            }
+            integrationRole: role
+            active
+            invitedById
+          }
         }
       }
       auths
       integrations {
-        id
-        name
-        description
-        logoUrl
-        iType
-        developerId
-        developer {
-          id
-          name
-          email
-        }
-        config {
-          token
-          webhooks {
-            id
-            name
-            url
-            active
-            trigger {
-              onItemCreate
-              onItemUpdate
-              onItemDelete
-              onItemPublish
-              onItemUnPublish
-              onAssetUpload
-              onAssetDeleted
-            }
-            createdAt
-            updatedAt
-          }
-        }
-        createdAt
-        updatedAt
+        ...integrationFragment
       }
     }
   }
+  ${integrationFragment}
 `;
 
 export const GET_PROFILE = gql`
