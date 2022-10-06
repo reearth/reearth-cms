@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import { useGetItemsQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useModel } from "@reearth-cms/state";
 
