@@ -39,25 +39,22 @@ const ContentForm: React.FC<Props> = ({
 
   const [form] = Form.useForm();
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        console.log(values);
-        const fields: { schemaFieldID: string; type: FieldType; value: string }[] = [];
-        for (const [key, value] of Object.entries(values)) {
-          fields.push({
-            value: (value || "") as string,
-            schemaFieldID: key,
-            type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
-          });
-        }
-        if (!itemID) await onItemCreate?.({ schemaID: model?.schema.id as string, fields });
-        else await onItemUpdate?.({ itemID: itemID as string, fields });
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      const fields: { schemaFieldID: string; type: FieldType; value: string }[] = [];
+      for (const [key, value] of Object.entries(values)) {
+        fields.push({
+          value: (value || "") as string,
+          schemaFieldID: key,
+          type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
+        });
+      }
+      if (!itemID) await onItemCreate?.({ schemaID: model?.schema.id as string, fields });
+      else await onItemUpdate?.({ itemID: itemID as string, fields });
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
   }, [form, model?.schema.fields, model?.schema.id, itemID, onItemCreate, onItemUpdate]);
 
   return (
