@@ -18,6 +18,7 @@ input CreateModelInput {
   name: String
   description: String
   key: String
+  public: Boolean!
 }
 
 input UpdateModelInput {
@@ -25,6 +26,7 @@ input UpdateModelInput {
   name: String
   description: String
   key: String
+  public: Boolean!
 }
 
 input DeleteModelInput {

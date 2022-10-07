@@ -13,13 +13,12 @@ func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	var m *interfaces.CreateModelParam
 	res, err := usecases(ctx).Model.Create(ctx, interfaces.CreateModelParam{
 		ProjectId:   pId,
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
-		Public:      m.Public,
+		Public:      &input.Public,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -36,13 +35,12 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	var m *interfaces.UpdateModelParam
 	res, err := usecases(ctx).Model.Update(ctx, interfaces.UpdateModelParam{
 		ModelId:     mId,
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
-		Public:      m.Public,
+		Public:      &input.Public,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

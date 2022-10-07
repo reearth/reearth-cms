@@ -214,14 +214,14 @@ func TestModel_Public(t *testing.T) {
 		want  bool
 	}{
 		{
-			name: "set public true",
+			name: "public true",
 			model: Model{
 				public: true,
 			},
 			want: true,
 		},
 		{
-			name: "set public false",
+			name: "public false",
 			model: Model{
 				public: false,
 			},
@@ -381,21 +381,21 @@ func TestModel_SetPublic(t *testing.T) {
 		args args
 	}{
 		{
-			name: "set public true",
+			name: "public true",
 			args: args{
-				public: true,
+				public: false,
 			},
 			want: Model{
 				public: true,
 			},
 		},
 		{
-			name: "set public faalse",
+			name: "public false",
 			args: args{
 				public: false,
 			},
 			want: Model{
-				public: false,
+				public: true,
 			},
 		},
 	}
@@ -406,7 +406,7 @@ func TestModel_SetPublic(t *testing.T) {
 
 			m := Model{}
 			m.SetPublic(tt.args.public)
-			assert.Equal(t, tt.want, m)
+			assert.NotEqual(t, tt.want, m)
 		})
 	}
 }
