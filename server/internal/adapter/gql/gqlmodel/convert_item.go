@@ -34,35 +34,18 @@ func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
 		return nil
 	}
 
-	parents := v.Parents()
-	refs := v.Refs()
+	parents := lo.Map(v.Parents().Values(), func(v version.Version, _ int) string {
+		return v.String()
+	})
+	refs := lo.Map(v.Refs().Values(), func(v version.Ref, _ int) string {
+		return v.String()
+	})
 	return &VersionedItem{
-		Version: ID(v.Version().String()),
-		Parents: ToVersions(&parents),
-		Refs:    ToRefs(&refs),
+		Version: v.Version().String(),
+		Parents: parents,
+		Refs:    refs,
 		Value:   ToItem(v.Value()),
 	}
-}
-
-func ToVersions(versions *version.Versions) []ID {
-	if versions == nil {
-		return nil
-	}
-
-	return lo.Map(versions.Values(), func(v version.Version, _ int) ID {
-		return ID(v.String())
-	})
-}
-
-func ToRefs(refs *version.Refs) []*string {
-	if refs == nil {
-		return nil
-	}
-
-	return lo.Map(refs.Values(), func(v version.Ref, _ int) *string {
-		ref := v.String()
-		return &ref
-	})
 }
 
 func ToItemParam(field *ItemFieldInput) (res interfaces.ItemFieldParam) {

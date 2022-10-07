@@ -89,33 +89,6 @@ func TestToItemParam(t *testing.T) {
 	}
 }
 
-func TestToRefs(t *testing.T) {
-	ref := "xxx"
-	refs := version.NewRefs("xxx")
-	tests := []struct {
-		name string
-		args *version.Refs
-		want []*string
-	}{
-		{
-			name: "success",
-			args: &refs,
-			want: []*string{&ref},
-		},
-		{
-			name: "should return nil",
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
-			got := ToRefs(tc.args)
-			assert.Equal(tt, tc.want, got)
-		})
-	}
-}
-
 func TestToVersionedItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
@@ -134,9 +107,9 @@ func TestToVersionedItem(t *testing.T) {
 			name: "success",
 			args: &vv,
 			want: &VersionedItem{
-				Version: ID(vv.Version().String()),
-				Parents: []ID{ID(vy.String())},
-				Refs:    []*string{&ref},
+				Version: vv.Version().String(),
+				Parents: []string{vy.String()},
+				Refs:    []string{ref},
 				Value:   ToItem(vv.Value()),
 			},
 		},
@@ -147,33 +120,6 @@ func TestToVersionedItem(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			got := ToVersionedItem(tc.args)
-			assert.Equal(tt, tc.want, got)
-		})
-	}
-}
-
-func TestToVersions(t *testing.T) {
-	vx, vy := version.New(), version.New()
-	vs := version.NewVersions(vy, vx)
-	tests := []struct {
-		name string
-		args *version.Versions
-		want []ID
-	}{
-		{
-			name: "success",
-			args: &vs,
-			want: []ID{ID(vy.String()), ID(vx.String())},
-		},
-		{
-			name: "should return nil",
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
-			got := ToVersions(tc.args)
 			assert.Equal(tt, tc.want, got)
 		})
 	}

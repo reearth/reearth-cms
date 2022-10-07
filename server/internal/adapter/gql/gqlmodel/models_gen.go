@@ -130,7 +130,7 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	SchemaID ID                `json:"schemaID"`
+	SchemaID ID                `json:"schemaId"`
 	Fields   []*ItemFieldInput `json:"fields"`
 }
 
@@ -199,11 +199,11 @@ type DeleteIntegrationPayload struct {
 }
 
 type DeleteItemInput struct {
-	ItemID ID `json:"itemID"`
+	ItemID ID `json:"itemId"`
 }
 
 type DeleteItemPayload struct {
-	ItemID ID `json:"itemID"`
+	ItemID ID `json:"itemId"`
 }
 
 type DeleteMeInput struct {
@@ -278,7 +278,7 @@ type IntegrationPayload struct {
 
 type Item struct {
 	ID       ID           `json:"id"`
-	SchemaID ID           `json:"schemaID"`
+	SchemaID ID           `json:"schemaId"`
 	Fields   []*ItemField `json:"fields"`
 }
 
@@ -298,13 +298,13 @@ type ItemEdge struct {
 }
 
 type ItemField struct {
-	SchemaFieldID ID              `json:"schemaFieldID"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
 	Type          SchemaFiledType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
 
 type ItemFieldInput struct {
-	SchemaFieldID ID              `json:"schemaFieldID"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
 	Type          SchemaFiledType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
@@ -686,7 +686,7 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID ID                `json:"itemID"`
+	ItemID ID                `json:"itemId"`
 	Fields []*ItemFieldInput `json:"fields"`
 }
 
@@ -760,10 +760,10 @@ func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
 
 type VersionedItem struct {
-	Version ID        `json:"version"`
-	Parents []ID      `json:"parents"`
-	Refs    []*string `json:"refs"`
-	Value   *Item     `json:"value"`
+	Version string   `json:"version"`
+	Parents []string `json:"parents"`
+	Refs    []string `json:"refs"`
+	Value   *Item    `json:"value"`
 }
 
 type Webhook struct {

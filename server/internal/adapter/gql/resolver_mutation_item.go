@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/util"
 )
 
 func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error) {
@@ -13,13 +14,9 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
-	var fp []interfaces.ItemFieldParam
-	for _, f := range input.Fields {
-		fp = append(fp, gqlmodel.ToItemParam(f))
-	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
-		Fields:   fp,
+		Fields:   util.Map(input.Fields, gqlmodel.ToItemParam),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -35,13 +32,9 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	if err != nil {
 		return nil, err
 	}
-	var fp []interfaces.ItemFieldParam
-	for _, f := range input.Fields {
-		fp = append(fp, gqlmodel.ToItemParam(f))
-	}
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: iid,
-		Fields: fp,
+		Fields: util.Map(input.Fields, gqlmodel.ToItemParam),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

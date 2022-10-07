@@ -1,41 +1,41 @@
 type Item implements Node {
   id: ID!
-  schemaID: ID!
+  schemaId: ID!
   fields: [ItemField!]
 }
 
 type ItemField {
-  schemaFieldID: ID!
+  schemaFieldId: ID!
   type: SchemaFiledType!
   value: Any!
 }
 
 type VersionedItem {
-  version: ID!
-  parents: [ID!]
-  refs: [String]
+  version: String!
+  parents: [String!]
+  refs: [String!]!
   value: Item!
 }
 
 # Inputs
 input ItemFieldInput {
-  schemaFieldID: ID!
+  schemaFieldId: ID!
   type: SchemaFiledType!
   value: Any!
 }
 
 input CreateItemInput {
-  schemaID: ID!
+  schemaId: ID!
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
-  itemID: ID!
+  itemId: ID!
   fields: [ItemFieldInput!]!
 }
 
 input DeleteItemInput {
-  itemID: ID!
+  itemId: ID!
 }
 
 # Payloads
@@ -44,7 +44,7 @@ type ItemPayload {
 }
 
 type DeleteItemPayload {
-  itemID: ID!
+  itemId: ID!
 }
 
 type ItemConnection {
@@ -61,13 +61,13 @@ type ItemEdge {
 
 extend type Query {
   items(
-    schemaID: ID!
+    schemaId: ID!
     first: Int
     last: Int
     after: Cursor
     before: Cursor
   ): ItemConnection!
-  versionsByItem(itemID: ID!): [VersionedItem!]
+  versionsByItem(itemId: ID!): [VersionedItem!]!
 }
 
 extend type Mutation {
