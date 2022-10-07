@@ -1,6 +1,6 @@
 import List from "@reearth-cms/components/atoms/List";
 
-import Comment from "./Comment";
+import Comment from "./CommentComponent";
 
 type CommentListProps = {
   comments: CommentItem[];
