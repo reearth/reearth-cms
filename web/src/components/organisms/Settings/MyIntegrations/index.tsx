@@ -1,11 +1,28 @@
 import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
-import MyIntegrationsList from "@reearth-cms/components/molecules/MyIntegrations/List";
+import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegrations/List";
+
+import useHooks from "./hooks";
 
 const MyIntegrations: React.FC = () => {
+  const {
+    integrations,
+    integrationModalShown,
+    handleIntegrationCreate,
+    handleIntegrationModalOpen,
+    handleIntegrationModalClose,
+  } = useHooks();
+
   return (
     <>
-      <MyIntegrationsList />
-      <IntegrationCreationModal open={false} />
+      <MyIntegrationList
+        integrations={integrations}
+        onIntegrationModalOpen={handleIntegrationModalOpen}
+      />
+      <IntegrationCreationModal
+        open={integrationModalShown}
+        onClose={handleIntegrationModalClose}
+        onSubmit={handleIntegrationCreate}
+      />
     </>
   );
 };

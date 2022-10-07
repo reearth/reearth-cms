@@ -7,6 +7,7 @@ import {
   useCheckModelKeyAvailabilityLazyQuery,
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useModel } from "@reearth-cms/state";
 
 type Params = {
   projectId?: string;
@@ -34,6 +35,7 @@ const fromModel = (model: GQLModel) => ({
 });
 
 export default ({ projectId, modelId }: Params) => {
+  const [currentModel, setCurrentModel] = useModel();
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
@@ -73,6 +75,11 @@ export default ({ projectId, modelId }: Params) => {
     () => (rawModel?.id ? fromModel(rawModel as GQLModel) : undefined),
     [rawModel],
   );
+
+  useEffect(() => {
+    if (!model || model.id === currentModel?.id) return;
+    setCurrentModel(model);
+  }, [model, currentModel, setCurrentModel]);
 
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],
