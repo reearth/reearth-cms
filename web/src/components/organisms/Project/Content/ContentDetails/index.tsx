@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/ContentDetailsMolecule";
+import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/ContentDetails";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -15,27 +15,27 @@ const ContentDetails: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const selectModel = useCallback(
+  const handleNavigateToModel = useCallback(
     (modelId: string) => {
       navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
 
-  const handleNvigateBack = useCallback(() => {
+  const handleNavigateBack = useCallback(() => {
     navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
   }, [navigate, workspaceId, projectId, modelId]);
 
   return (
     <ContentDetailsMolecule
-      onBack={handleNvigateBack}
+      onBack={handleNavigateBack}
       itemId={itemId}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
       initialFormValues={initialFormValues}
       defaultFormValues={defaultFormValues}
       model={currentModel}
-      modelsMenu={<ModelsMenu title={t("Content")} selectModel={selectModel} />}
+      modelsMenu={<ModelsMenu title={t("Content")} selectModel={handleNavigateToModel} />}
     />
   );
 };

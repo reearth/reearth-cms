@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import Upload from "antd/lib/upload/Upload";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,6 +9,7 @@ import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Upload from "@reearth-cms/components/atoms/Upload";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";

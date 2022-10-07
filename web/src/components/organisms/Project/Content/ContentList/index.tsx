@@ -23,13 +23,13 @@ const ContentList: React.FC = () => {
     [navigate, workspaceId, projectId],
   );
 
-  const handleItemAdd = useCallback(() => {
+  const handleNavigateToItemForm = useCallback(() => {
     navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/details`);
   }, [navigate, workspaceId, projectId, modelId]);
 
   return (
     <ContentListMolecule
-      onItemAdd={handleItemAdd}
+      onItemAdd={handleNavigateToItemForm}
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}

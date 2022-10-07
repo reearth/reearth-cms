@@ -25,8 +25,6 @@ export default ({ itemId: itemID }: Props) => {
       schemaID: string;
       fields: { schemaFieldID: string; type: FieldType; value: string }[];
     }) => {
-      if (!data.schemaID) return;
-
       const item = await createNewItem({
         variables: {
           schemaID: data.schemaID,
@@ -34,6 +32,7 @@ export default ({ itemId: itemID }: Props) => {
         },
       });
       if (item.errors || !item.data?.createItem) {
+        // TODO: notification
         return;
       }
     },
@@ -49,7 +48,6 @@ export default ({ itemId: itemID }: Props) => {
       itemID: string;
       fields: { schemaFieldID: string; type: FieldType; value: string }[];
     }) => {
-      if (!data.itemID) return;
       const item = await updateItem({
         variables: {
           itemID: data.itemID,
@@ -57,6 +55,7 @@ export default ({ itemId: itemID }: Props) => {
         },
       });
       if (item.errors || !item.data?.updateItem) {
+        // TODO: notification
         return;
       }
     },
