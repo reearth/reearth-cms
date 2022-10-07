@@ -1,6 +1,6 @@
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 
-import Comment from "./CommentComponent";
+import Comment from "./Comment";
 import { CommentList } from "./CommentList";
 import { Editor } from "./Editor";
 
