@@ -69,8 +69,10 @@ select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
 Name: 名前
-Creator: 作成者
 State: ステート
+'ON': ''
+'OFF': ''
+Creator: 作成者
 No Integration yet: まだインテグレーションはありません
 Create a new: ''
 Add member: メンバー追加
@@ -85,13 +87,12 @@ Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Integration Token: インテグレーショントークン
-Please input the token of the integration!: インテグレーションのトークンを入力してください
-Input token: トークンを入力
 Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
-Accessed by API: API経由でアクセス
+Publish: ''
+Unpublish: ''
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
 Url: URL
