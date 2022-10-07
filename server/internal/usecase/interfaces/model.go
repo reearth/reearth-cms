@@ -23,7 +23,7 @@ type UpdateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
-	Public      *bool
+	Public      bool
 }
 
 var (

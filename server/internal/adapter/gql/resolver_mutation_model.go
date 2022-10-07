@@ -40,7 +40,7 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
-		Public:      &input.Public,
+		Public:      input.Public,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
