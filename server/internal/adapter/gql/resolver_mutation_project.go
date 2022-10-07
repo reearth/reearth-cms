@@ -6,6 +6,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error) {
@@ -33,10 +35,23 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		return nil, err
 	}
 
+	var pub *interfaces.UpdateProjectPublicationParam
+	if input.Publication != nil {
+		var scope *project.PublicationScope
+		if input.Publication.Scope != nil {
+			scope = lo.ToPtr(gqlmodel.FromProjectPublicationScope(*input.Publication.Scope))
+		}
+		pub = &interfaces.UpdateProjectPublicationParam{
+			Scope:       scope,
+			AssetPublic: input.Publication.AssetPublic,
+		}
+	}
+
 	res, err := usecases(ctx).Project.Update(ctx, interfaces.UpdateProjectParam{
 		ID:          pid,
 		Name:        input.Name,
 		Description: input.Description,
+		Publication: pub,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
