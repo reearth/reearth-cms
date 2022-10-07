@@ -18,7 +18,7 @@ func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.Creat
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
-		Public:      &input.Public,
+		Public:      false,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

@@ -18,7 +18,6 @@ input CreateModelInput {
   name: String
   description: String
   key: String
-  public: Boolean!
 }
 
 input UpdateModelInput {
