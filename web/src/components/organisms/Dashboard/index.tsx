@@ -42,7 +42,7 @@ const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, Sideb
       <DashboardLayout>
         <MainHeader>
           <MoleculeHeader
-            handleModalOpen={handleWorkspaceModalOpen}
+            onModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
