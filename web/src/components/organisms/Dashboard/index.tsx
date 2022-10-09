@@ -61,23 +61,6 @@ const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, Sideb
               workspaceId={currentWorkspace?.id}
               isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
             />
-            {/* {menuType === "project" ? (
-              projectId && (
-                <ProjectMenu
-                  projectId={projectId}
-                  defaultSelectedKeys={defaultSelectedKeys}
-                  inlineCollapsed={collapsed}
-                  workspaceId={currentWorkspace?.id}
-                />
-              )
-            ) : (
-              <WorkspaceMenu
-                defaultSelectedKeys={defaultSelectedKeys}
-                isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
-                inlineCollapsed={collapsed}
-                workspaceId={currentWorkspace?.id}
-              />
-            )} */}
           </DashboardSider>
           <PaddedContent>
             <InnerComponent onWorkspaceModalOpen={handleWorkspaceModalOpen} />
