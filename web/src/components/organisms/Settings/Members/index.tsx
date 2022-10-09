@@ -53,7 +53,6 @@ const Members: React.FC = () => {
 
   const {
     me,
-    currentWorkspace,
     searchedUser,
     changeSearchedUser,
     handleUserSearch,
@@ -67,9 +66,8 @@ const Members: React.FC = () => {
     handleMemberAddModalClose,
     handleMemberAddModalOpen,
     MemberAddModalShown,
+    workspaceUserMembers,
   } = useHooks({ workspaceId });
-
-  const members = currentWorkspace?.members;
 
   const handleMemberDelete = useCallback(
     (member: Member) => {
@@ -87,7 +85,7 @@ const Members: React.FC = () => {
     [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
-  const dataSource = members?.map(member => ({
+  const dataSource = workspaceUserMembers?.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (
@@ -114,7 +112,7 @@ const Members: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <MemberPageHeader
+        <PageHeader
           title={t("Members")}
           extra={
             <Button
@@ -151,17 +149,14 @@ const Members: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
-  height: 100%;
+  min-height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
+  border-top: 1px solid #f0f0f0;
   padding: 16px;
   display: flex;
   justify-content: space-between;
-`;
-
-const MemberPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #f0f0f0;
 `;
 
 export default Members;

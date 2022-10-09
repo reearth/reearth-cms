@@ -6,7 +6,11 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
 import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
+import ContentPage from "@reearth-cms/components/pages/Content";
+import IntegrationPage from "@reearth-cms/components/pages/Integration";
 import MembersPage from "@reearth-cms/components/pages/Members";
+import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
+import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import SchemaPage from "@reearth-cms/components/pages/Schema";
@@ -22,6 +26,8 @@ function AppRoutes() {
     { path: "/dashboard", element: <WorkspacePage /> },
     { path: "/dashboard/:workspaceId", element: <WorkspacePage /> },
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
+    { path: "/workspaces/:workspaceId/:projectId/content", element: <ContentPage /> },
+    { path: "/workspaces/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
     {
       path: "/workspaces/:workspaceId/:projectId/asset",
       element: <AssetListPage />,
@@ -31,6 +37,24 @@ function AppRoutes() {
       element: <AssetPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
+    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form",
+      element: <MyIntegrationDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form/:webhookId",
+      element: <MyIntegrationDetailsPage />,
+    },
+    { path: "/workspaces/:workspaceId/integration", element: <IntegrationPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
     { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
     { path: "*", element: <NotFound /> },

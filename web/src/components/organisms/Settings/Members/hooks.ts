@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
@@ -59,6 +59,20 @@ export default ({ workspaceId }: Props) => {
     [searchUserQuery],
   );
 
+  const workspaceUserMembers = useMemo((): Member[] | undefined => {
+    return currentWorkspace?.members
+      ?.map<Member | undefined>(member =>
+        member && member.__typename === "WorkspaceUserMember" && member.user
+          ? {
+              userId: member.userId,
+              user: member.user,
+              role: member.role,
+            }
+          : undefined,
+      )
+      .filter((user): user is Member => !!user);
+  }, [currentWorkspace]);
+
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
 
   const handleMemberAddToWorkspace = useCallback(
@@ -101,7 +115,7 @@ export default ({ workspaceId }: Props) => {
             }[role],
           },
         });
-        const workspace = results.data?.updateMemberOfWorkspace?.workspace;
+        const workspace = results.data?.updateUserOfWorkspace?.workspace;
         if (workspace) {
           setWorkspace(workspace);
         }
@@ -119,7 +133,7 @@ export default ({ workspaceId }: Props) => {
         variables: { workspaceId, userId },
         refetchQueries: ["GetWorkspaces"],
       });
-      const workspace = result.data?.removeMemberFromWorkspace?.workspace;
+      const workspace = result.data?.removeUserFromWorkspace?.workspace;
       if (result.errors || !workspace) {
         // TODO: notification
         return;
@@ -169,5 +183,6 @@ export default ({ workspaceId }: Props) => {
     selectedMember,
     roleModalShown,
     loading,
+    workspaceUserMembers,
   };
 };

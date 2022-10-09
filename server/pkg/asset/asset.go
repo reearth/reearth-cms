@@ -16,6 +16,7 @@ type Asset struct {
 	previewType *PreviewType
 	file        *File
 	uuid        string
+	thread      ThreadID
 }
 
 func (a *Asset) ID() ID {
@@ -81,4 +82,8 @@ func (a *Asset) Clone() *Asset {
 		file:        a.file,
 		uuid:        a.uuid,
 	}
+}
+
+func (a *Asset) Thread() ThreadID {
+	return a.thread
 }
