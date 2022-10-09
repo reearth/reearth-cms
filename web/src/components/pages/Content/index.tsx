@@ -1,15 +1,16 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import Dashboard from "@reearth-cms/components/organisms/Dashboard";
 import ContentList from "@reearth-cms/components/organisms/Project/Content/ContentList";
 
-const ContentPage: React.FC = () => {
-  return (
-    <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["content"]} menuType="project">
-        <ContentList />
-      </Dashboard>
-    </AuthenticationRequiredPage>
-  );
-};
+const ContentPage: React.FC = () => (
+  <AuthenticationRequiredPage>
+    <Dashboard
+      defaultSelectedKeys={["content"]}
+      InnerComponent={ContentList}
+      Sidebar={ProjectMenu}
+    />
+  </AuthenticationRequiredPage>
+);
 
 export default ContentPage;
