@@ -1,13 +1,16 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
+import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import Dashboard from "@reearth-cms/components/organisms/Dashboard";
 import Members from "@reearth-cms/components/organisms/Settings/Members";
 
 const MembersPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["member"]}>
-        <Members />
-      </Dashboard>
+      <Dashboard
+        defaultSelectedKeys={["member"]}
+        InnerComponent={Members}
+        Sidebar={WorkspaceMenu}
+      />
     </AuthenticationRequiredPage>
   );
 };

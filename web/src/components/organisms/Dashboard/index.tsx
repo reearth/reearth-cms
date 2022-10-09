@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { JSXElementConstructor, ReactElement, useState, cloneElement } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
@@ -13,13 +13,17 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 
 import useHooks from "./hooks";
 
-type Props = {
-  children: ReactElement<any, string | JSXElementConstructor<any>>;
-  defaultSelectedKeys?: string[];
-  menuType?: "project" | "workspace";
+type InnerProps = {
+  onWorkspaceModalOpen?: () => void;
 };
 
-const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
+type Props = {
+  InnerComponent: React.FC<InnerProps>;
+  defaultSelectedKeys?: string[];
+  Sidebar: typeof WorkspaceMenu | typeof ProjectMenu;
+};
+
+const Dashboard: React.FC<Props> = ({ InnerComponent, defaultSelectedKeys, Sidebar }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -50,7 +54,14 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
             collapsible
             collapsed={collapsed}
             onCollapse={value => setCollapsed(value)}>
-            {menuType === "project" ? (
+            <Sidebar
+              projectId={projectId}
+              defaultSelectedKeys={defaultSelectedKeys}
+              inlineCollapsed={collapsed}
+              workspaceId={currentWorkspace?.id}
+              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+            />
+            {/* {menuType === "project" ? (
               projectId && (
                 <ProjectMenu
                   projectId={projectId}
@@ -66,9 +77,11 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
                 inlineCollapsed={collapsed}
                 workspaceId={currentWorkspace?.id}
               />
-            )}
+            )} */}
           </DashboardSider>
-          <PaddedContent>{cloneElement(children, { handleWorkspaceModalOpen })}</PaddedContent>
+          <PaddedContent>
+            <InnerComponent onWorkspaceModalOpen={handleWorkspaceModalOpen} />
+          </PaddedContent>
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal
