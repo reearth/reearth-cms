@@ -722,6 +722,7 @@ type UpdateModelInput struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	Key         *string `json:"key"`
+	Public      bool    `json:"public"`
 }
 
 type UpdateProjectInput struct {

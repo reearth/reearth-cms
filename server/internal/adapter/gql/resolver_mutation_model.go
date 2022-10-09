@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error) {
@@ -13,12 +14,12 @@ func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-
 	res, err := usecases(ctx).Model.Create(ctx, interfaces.CreateModelParam{
 		ProjectId:   pId,
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
+		Public:      nil,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -40,6 +41,7 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,
+		Public:      lo.ToPtr(input.Public),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

@@ -129,10 +129,12 @@ func TestProject_UpdateAlias(t *testing.T) {
 }
 
 func TestProject_Clone(t *testing.T) {
-	p := New().NewID().Name("a").MustBuild()
+	pub := &Publication{}
+	p := New().NewID().Name("a").Publication(pub).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)
 	assert.NotSame(t, p, got)
+	assert.NotSame(t, p, got.publication)
 	assert.Nil(t, (*Project)(nil).Clone())
 }

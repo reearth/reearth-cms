@@ -22,6 +22,7 @@ type Project struct {
 	alias       string
 	imageURL    *url.URL
 	updatedAt   time.Time
+	publication *Publication
 }
 
 func (p *Project) ID() ID {
@@ -61,6 +62,10 @@ func (p *Project) CreatedAt() time.Time {
 	return p.id.Timestamp()
 }
 
+func (p *Project) Publication() *Publication {
+	return p.publication
+}
+
 func (p *Project) SetUpdatedAt(updatedAt time.Time) {
 	p.updatedAt = updatedAt
 }
@@ -73,6 +78,10 @@ func (p *Project) SetImageURL(imageURL *url.URL) {
 		imageURL2 := *imageURL
 		p.imageURL = &imageURL2
 	}
+}
+
+func (p *Project) SetPublication(publication *Publication) {
+	p.publication = publication
 }
 
 func (p *Project) UpdateName(name string) {
@@ -109,6 +118,7 @@ func (p *Project) Clone() *Project {
 		alias:       p.alias,
 		imageURL:    util.CopyURL(p.imageURL),
 		updatedAt:   p.updatedAt,
+		publication: p.publication.Clone(),
 	}
 }
 
