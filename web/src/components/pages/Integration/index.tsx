@@ -8,8 +8,8 @@ const WorkspacePage: React.FC = () => {
     <AuthenticationRequiredPage>
       <Dashboard
         defaultSelectedKeys={["integration"]}
-        InnerComponent={Integration}
-        Sidebar={WorkspaceMenu}
+        child={Integration}
+        sidebar={WorkspaceMenu}
       />
     </AuthenticationRequiredPage>
   );

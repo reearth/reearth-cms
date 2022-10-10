@@ -7,8 +7,8 @@ const ContentPage: React.FC = () => (
   <AuthenticationRequiredPage>
     <Dashboard
       defaultSelectedKeys={["content"]}
-      InnerComponent={ContentList}
-      Sidebar={ProjectMenu}
+      child={ContentList}
+      sidebar={ProjectMenu}
     />
   </AuthenticationRequiredPage>
 );

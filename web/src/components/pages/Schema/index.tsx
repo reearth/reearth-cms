@@ -8,8 +8,8 @@ const SchemaPage: React.FC = () => {
     <AuthenticationRequiredPage>
       <Dashboard
         defaultSelectedKeys={["schema"]}
-        InnerComponent={ProjectSchema}
-        Sidebar={ProjectMenu}
+        child={ProjectSchema}
+        sidebar={ProjectMenu}
       />
     </AuthenticationRequiredPage>
   );

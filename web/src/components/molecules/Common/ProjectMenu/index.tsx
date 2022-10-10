@@ -6,12 +6,12 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+export type Props = {
   inlineCollapsed: boolean;
   workspaceId?: string;
   projectId?: string;
   defaultSelectedKeys?: string[];
-}
+};
 
 const topItems: ItemType[] = [
   { label: "Overview", key: "home", icon: <Icon icon="dashboard" /> },

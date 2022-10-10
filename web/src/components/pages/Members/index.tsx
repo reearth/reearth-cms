@@ -8,8 +8,8 @@ const MembersPage: React.FC = () => {
     <AuthenticationRequiredPage>
       <Dashboard
         defaultSelectedKeys={["member"]}
-        InnerComponent={Members}
-        Sidebar={WorkspaceMenu}
+        child={Members}
+        sidebar={WorkspaceMenu}
       />
     </AuthenticationRequiredPage>
   );

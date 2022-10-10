@@ -6,11 +6,7 @@ import Workspace from "@reearth-cms/components/organisms/Workspace";
 const WorkspacePage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard
-        defaultSelectedKeys={["home"]}
-        InnerComponent={Workspace}
-        Sidebar={WorkspaceMenu}
-      />
+      <Dashboard defaultSelectedKeys={["home"]} child={Workspace} sidebar={WorkspaceMenu} />
     </AuthenticationRequiredPage>
   );
 };
