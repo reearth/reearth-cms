@@ -56,26 +56,28 @@ func TestFieldBuilder_Build(t *testing.T) {
 			name: "pass",
 			builder: &FieldBuilder{
 				f: &Field{
-					id:           fId,
-					name:         "f",
-					description:  "d",
-					key:          key.New("k123456"),
-					unique:       false,
-					multiValue:   false,
-					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					id:               fId,
+					name:             "f",
+					description:      "d",
+					key:              key.New("k123456"),
+					unique:           false,
+					multiValue:       false,
+					required:         false,
+					overrideRequired: false,
+					typeProperty:     NewFieldTypePropertyText(nil, nil),
 				},
 				err: nil,
 			},
 			want: &Field{
-				id:           fId,
-				name:         "f",
-				description:  "d",
-				key:          key.New("k123456"),
-				unique:       false,
-				multiValue:   false,
-				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				id:               fId,
+				name:             "f",
+				description:      "d",
+				key:              key.New("k123456"),
+				unique:           false,
+				multiValue:       false,
+				required:         false,
+				overrideRequired: false,
+				typeProperty:     NewFieldTypePropertyText(nil, nil),
 			},
 			wantErr: nil,
 		},
@@ -140,26 +142,28 @@ func TestFieldBuilder_MustBuild(t *testing.T) {
 			name: "pass",
 			builder: &FieldBuilder{
 				f: &Field{
-					id:           fId,
-					name:         "f",
-					description:  "d",
-					key:          key.New("k123456"),
-					unique:       false,
-					multiValue:   false,
-					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					id:               fId,
+					name:             "f",
+					description:      "d",
+					key:              key.New("k123456"),
+					unique:           false,
+					multiValue:       false,
+					required:         false,
+					overrideRequired: false,
+					typeProperty:     NewFieldTypePropertyText(nil, nil),
 				},
 				err: nil,
 			},
 			want: &Field{
-				id:           fId,
-				name:         "f",
-				description:  "d",
-				key:          key.New("k123456"),
-				unique:       false,
-				multiValue:   false,
-				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				id:               fId,
+				name:             "f",
+				description:      "d",
+				key:              key.New("k123456"),
+				unique:           false,
+				multiValue:       false,
+				required:         false,
+				overrideRequired: false,
+				typeProperty:     NewFieldTypePropertyText(nil, nil),
 			},
 			wantErr: nil,
 		},
@@ -1088,6 +1092,48 @@ func TestFieldBuilder_Name(t *testing.T) {
 				err: tt.fields.err,
 			}
 			assert.Equal(t, tt.want, b.Name(tt.args.name), "Name(%v)", tt.args.name)
+		})
+	}
+}
+
+func TestFieldBuilder_OverrideRequired(t *testing.T) {
+	type fields struct {
+		f   *Field
+		err error
+	}
+	type args struct {
+		overrideReq bool
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *FieldBuilder
+	}{
+		{
+			name: "test",
+			fields: fields{
+				f:   &Field{},
+				err: nil,
+			},
+			args: args{
+				overrideReq: true,
+			},
+			want: &FieldBuilder{
+				f:   &Field{overrideRequired: true},
+				err: nil,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			b := &FieldBuilder{
+				f:   tt.fields.f,
+				err: tt.fields.err,
+			}
+			assert.Equal(t, tt.want, b.OverrideRequired(tt.args.overrideReq))
 		})
 	}
 }

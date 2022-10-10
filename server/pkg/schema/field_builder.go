@@ -173,6 +173,11 @@ func (b *FieldBuilder) Name(name string) *FieldBuilder {
 	return b
 }
 
+func (b *FieldBuilder) OverrideRequired(o bool) *FieldBuilder {
+	b.f.overrideRequired = o
+	return b
+}
+
 func (b *FieldBuilder) Description(description string) *FieldBuilder {
 	b.f.description = description
 	return b

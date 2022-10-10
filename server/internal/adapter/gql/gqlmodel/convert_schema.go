@@ -25,17 +25,18 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 
 	return &SchemaField{
-		ID:           IDFrom(sf.ID()),
-		Type:         ToSchemaFieldType(sf.Type()),
-		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty()),
-		Key:          sf.Key().String(),
-		Title:        sf.Name(),
-		Description:  lo.ToPtr(sf.Description()),
-		MultiValue:   sf.MultiValue(),
-		Unique:       sf.Unique(),
-		Required:     sf.Required(),
-		CreatedAt:    sf.CreatedAt(),
-		UpdatedAt:    sf.UpdatedAt(),
+		ID:               IDFrom(sf.ID()),
+		Type:             ToSchemaFieldType(sf.Type()),
+		TypeProperty:     ToSchemaFieldTypeProperty(sf.TypeProperty()),
+		Key:              sf.Key().String(),
+		Title:            sf.Name(),
+		Description:      lo.ToPtr(sf.Description()),
+		MultiValue:       sf.MultiValue(),
+		Unique:           sf.Unique(),
+		Required:         sf.Required(),
+		OverrideRequired: sf.OverrideRequired(),
+		CreatedAt:        sf.CreatedAt(),
+		UpdatedAt:        sf.UpdatedAt(),
 	}
 }
 

@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -9,7 +10,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Schema struct {
@@ -50,6 +54,17 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 	if err != nil {
 		return nil, err
 	}
+
+	// override the required field if the schema has items
+	var overrideReq bool
+	il, _, err := i.repos.Item.FindBySchema(ctx, s.ID(), usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	if len(il) > 0 {
+		overrideReq = true
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
 		func() (*schema.Field, error) {
 			var fb *schema.FieldBuilder
@@ -108,6 +123,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				Description(*param.Description).
 				Key(key.New(*param.Key)).
 				Options(param.Unique, param.MultiValue, param.Required).
+				OverrideRequired(overrideReq).
 				Build()
 			if err != nil {
 				return nil, err

@@ -29,6 +29,7 @@ type SchemaField {
 
   createdAt: DateTime!
   updatedAt: DateTime!
+  overrideRequired: Boolean!
 }
 
 union SchemaFieldTypeProperty =

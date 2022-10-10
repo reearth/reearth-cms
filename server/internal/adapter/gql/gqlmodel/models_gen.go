@@ -468,19 +468,20 @@ func (Schema) IsNode()        {}
 func (this Schema) GetID() ID { return this.ID }
 
 type SchemaField struct {
-	ID           ID                      `json:"id"`
-	ModelID      ID                      `json:"modelId"`
-	Model        *Model                  `json:"model"`
-	Type         SchemaFiledType         `json:"type"`
-	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
-	Key          string                  `json:"key"`
-	Title        string                  `json:"title"`
-	Description  *string                 `json:"description"`
-	MultiValue   bool                    `json:"multiValue"`
-	Unique       bool                    `json:"unique"`
-	Required     bool                    `json:"required"`
-	CreatedAt    time.Time               `json:"createdAt"`
-	UpdatedAt    time.Time               `json:"updatedAt"`
+	ID               ID                      `json:"id"`
+	ModelID          ID                      `json:"modelId"`
+	Model            *Model                  `json:"model"`
+	Type             SchemaFiledType         `json:"type"`
+	TypeProperty     SchemaFieldTypeProperty `json:"typeProperty"`
+	Key              string                  `json:"key"`
+	Title            string                  `json:"title"`
+	Description      *string                 `json:"description"`
+	MultiValue       bool                    `json:"multiValue"`
+	Unique           bool                    `json:"unique"`
+	Required         bool                    `json:"required"`
+	CreatedAt        time.Time               `json:"createdAt"`
+	UpdatedAt        time.Time               `json:"updatedAt"`
+	OverrideRequired bool                    `json:"overrideRequired"`
 }
 
 type SchemaFieldAsset struct {

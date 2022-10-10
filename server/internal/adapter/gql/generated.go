@@ -391,19 +391,20 @@ type ComplexityRoot struct {
 	}
 
 	SchemaField struct {
-		CreatedAt    func(childComplexity int) int
-		Description  func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Key          func(childComplexity int) int
-		Model        func(childComplexity int) int
-		ModelID      func(childComplexity int) int
-		MultiValue   func(childComplexity int) int
-		Required     func(childComplexity int) int
-		Title        func(childComplexity int) int
-		Type         func(childComplexity int) int
-		TypeProperty func(childComplexity int) int
-		Unique       func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		Description      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Key              func(childComplexity int) int
+		Model            func(childComplexity int) int
+		ModelID          func(childComplexity int) int
+		MultiValue       func(childComplexity int) int
+		OverrideRequired func(childComplexity int) int
+		Required         func(childComplexity int) int
+		Title            func(childComplexity int) int
+		Type             func(childComplexity int) int
+		TypeProperty     func(childComplexity int) int
+		Unique           func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
 	}
 
 	SchemaFieldAsset struct {
@@ -2271,6 +2272,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.MultiValue(childComplexity), true
 
+	case "SchemaField.overrideRequired":
+		if e.complexity.SchemaField.OverrideRequired == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.OverrideRequired(childComplexity), true
+
 	case "SchemaField.required":
 		if e.complexity.SchemaField.Required == nil {
 			break
@@ -3439,6 +3447,7 @@ type SchemaField {
 
   createdAt: DateTime!
   updatedAt: DateTime!
+  overrideRequired: Boolean!
 }
 
 union SchemaFieldTypeProperty =
@@ -7015,6 +7024,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
+			case "overrideRequired":
+				return ec.fieldContext_SchemaField_overrideRequired(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
 		},
@@ -14541,6 +14552,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
+			case "overrideRequired":
+				return ec.fieldContext_SchemaField_overrideRequired(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
 		},
@@ -15197,6 +15210,50 @@ func (ec *executionContext) fieldContext_SchemaField_updatedAt(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_overrideRequired(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_overrideRequired(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OverrideRequired, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_overrideRequired(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25316,6 +25373,13 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 		case "updatedAt":
 
 			out.Values[i] = ec._SchemaField_updatedAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "overrideRequired":
+
+			out.Values[i] = ec._SchemaField_overrideRequired(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

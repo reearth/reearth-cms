@@ -7,15 +7,16 @@ import (
 )
 
 type Field struct {
-	id           FieldID
-	name         string
-	description  string
-	key          key.Key
-	unique       bool
-	multiValue   bool
-	required     bool
-	updatedAt    time.Time
-	typeProperty *TypeProperty
+	id               FieldID
+	name             string
+	description      string
+	key              key.Key
+	unique           bool
+	multiValue       bool
+	required         bool
+	overrideRequired bool
+	updatedAt        time.Time
+	typeProperty     *TypeProperty
 }
 
 func (f *Field) ID() FieldID {
@@ -58,6 +59,10 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
+func (f *Field) OverrideRequired() bool {
+	return f.overrideRequired
+}
+
 func (f *Field) CreatedAt() time.Time {
 	return f.id.Timestamp()
 }
@@ -94,14 +99,15 @@ func (f *Field) Clone() *Field {
 	}
 
 	return &Field{
-		id:           f.id.Clone(),
-		name:         f.name,
-		description:  f.description,
-		key:          f.key,
-		unique:       f.unique,
-		multiValue:   f.multiValue,
-		required:     f.required,
-		updatedAt:    f.updatedAt,
-		typeProperty: f.typeProperty.Clone(),
+		id:               f.id.Clone(),
+		name:             f.name,
+		description:      f.description,
+		key:              f.key,
+		unique:           f.unique,
+		multiValue:       f.multiValue,
+		required:         f.required,
+		overrideRequired: f.overrideRequired,
+		updatedAt:        f.updatedAt,
+		typeProperty:     f.typeProperty.Clone(),
 	}
 }

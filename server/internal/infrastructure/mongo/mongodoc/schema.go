@@ -17,15 +17,16 @@ type SchemaDocument struct {
 }
 
 type FiledDocument struct {
-	ID           string
-	Name         string
-	Description  string
-	Key          string
-	Unique       bool
-	MultiValue   bool
-	Required     bool
-	UpdatedAt    time.Time
-	TypeProperty TypePropertyDocument
+	ID               string
+	Name             string
+	Description      string
+	Key              string
+	Unique           bool
+	MultiValue       bool
+	Required         bool
+	OverrideRequired bool
+	UpdatedAt        time.Time
+	TypeProperty     TypePropertyDocument
 }
 
 type TypePropertyDocument struct {
@@ -93,14 +94,15 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	sId := s.ID().String()
 	fieldsDoc := util.Map(s.Fields(), func(f *schema.Field) FiledDocument {
 		fd := FiledDocument{
-			ID:          f.ID().String(),
-			Name:        f.Name(),
-			Description: f.Description(),
-			Key:         f.Key().String(),
-			Unique:      f.Unique(),
-			MultiValue:  f.MultiValue(),
-			Required:    f.Required(),
-			UpdatedAt:   f.UpdatedAt(),
+			ID:               f.ID().String(),
+			Name:             f.Name(),
+			Description:      f.Description(),
+			Key:              f.Key().String(),
+			Unique:           f.Unique(),
+			MultiValue:       f.MultiValue(),
+			Required:         f.Required(),
+			OverrideRequired: f.OverrideRequired(),
+			UpdatedAt:        f.UpdatedAt(),
 			TypeProperty: TypePropertyDocument{
 				Type: string(f.Type()),
 			},
@@ -227,6 +229,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 
 		return fb.ID(id.MustFieldID(fd.ID)).
 			Options(fd.Unique, fd.MultiValue, fd.Required).
+			OverrideRequired(fd.OverrideRequired).
 			Name(fd.Name).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
