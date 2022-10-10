@@ -87,6 +87,20 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 				proj.UpdateDescription(*p.Description)
 			}
 
+			if p.Publication != nil {
+				pub := proj.Publication()
+				if pub == nil {
+					pub = project.NewPublication(project.PublicationScopePrivate, false)
+				}
+				if p.Publication.Scope != nil {
+					pub.SetScope(*p.Publication.Scope)
+				}
+				if p.Publication.AssetPublic != nil {
+					pub.SetAssetPublic(*p.Publication.AssetPublic)
+				}
+				proj.SetPublication(pub)
+			}
+
 			if err := i.repos.Project.Save(ctx, proj); err != nil {
 				return nil, err
 			}
