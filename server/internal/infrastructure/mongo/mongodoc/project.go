@@ -17,6 +17,12 @@ type ProjectDocument struct {
 	Alias       string
 	ImageURL    string
 	Workspace   string
+	Publication *ProjectPublicationDocument
+}
+
+type ProjectPublicationDocument struct {
+	AssetPublic bool
+	Scope       string
 }
 
 func NewProject(project *project.Project) (*ProjectDocument, string) {
@@ -35,7 +41,19 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		Alias:       project.Alias(),
 		ImageURL:    imageURL,
 		Workspace:   project.Workspace().String(),
+		Publication: NewProjectPublication(project.Publication()),
 	}, pid
+}
+
+func NewProjectPublication(p *project.Publication) *ProjectPublicationDocument {
+	if p == nil {
+		return nil
+	}
+
+	return &ProjectPublicationDocument{
+		AssetPublic: p.AssetPublic(),
+		Scope:       string(p.Scope()),
+	}
 }
 
 func (d *ProjectDocument) Model() (*project.Project, error) {
@@ -63,7 +81,15 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Alias(d.Alias).
 		Workspace(tid).
 		ImageURL(imageURL).
+		Publication(d.Publication.Model()).
 		Build()
+}
+
+func (d *ProjectPublicationDocument) Model() *project.Publication {
+	if d == nil {
+		return nil
+	}
+	return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic)
 }
 
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]
