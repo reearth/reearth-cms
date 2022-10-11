@@ -4,9 +4,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import ContentTable from "@reearth-cms/components/molecules/Content/ContentTable";
-import ContentWrapper from "@reearth-cms/components/molecules/Content/ContentWrapper";
+import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 

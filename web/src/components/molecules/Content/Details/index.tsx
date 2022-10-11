@@ -1,6 +1,6 @@
-import ContentForm from "@reearth-cms/components/molecules/Content/ContentForm";
-import ContentWrapper from "@reearth-cms/components/molecules/Content/ContentWrapper";
+import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Props = {

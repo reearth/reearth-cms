@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/ContentDetails";
+import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
