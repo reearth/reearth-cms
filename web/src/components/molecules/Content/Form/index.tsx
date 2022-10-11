@@ -18,7 +18,6 @@ import { validateURL } from "@reearth-cms/utils/regex";
 export interface Props {
   itemId?: string;
   initialFormValues: any;
-  defaultFormValues: any;
   model?: Model;
   onItemCreate: (data: { schemaID: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemID: string; fields: ItemField[] }) => Promise<void>;
@@ -29,7 +28,6 @@ const ContentForm: React.FC<Props> = ({
   itemId: itemID,
   model,
   initialFormValues,
-  defaultFormValues,
   onItemCreate,
   onItemUpdate,
   onBack,
@@ -58,10 +56,7 @@ const ContentForm: React.FC<Props> = ({
   }, [form, model?.schema.fields, model?.schema.id, itemID, onItemCreate, onItemUpdate]);
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      initialValues={itemID ? initialFormValues : defaultFormValues}>
+    <Form form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
         title={model?.name}
         onBack={onBack}

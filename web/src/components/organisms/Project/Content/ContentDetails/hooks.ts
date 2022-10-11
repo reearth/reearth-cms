@@ -63,35 +63,32 @@ export default ({ itemId: itemID }: Props) => {
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
-    const item = itemsData?.items.nodes.find(item => item?.id === itemID);
     const initialValues: { [key: string]: any } = {};
-    item?.fields?.forEach(field => {
-      initialValues[field.schemaFieldID] = field.value;
-    });
+    if (!itemID) {
+      currentModel?.schema.fields.forEach(field => {
+        switch (field.type) {
+          case "Select":
+            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            break;
+          case "Integer":
+            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            break;
+          default:
+            initialValues[field.id] = field.typeProperty.defaultValue;
+            break;
+        }
+      });
+    } else {
+      const item = itemsData?.items.nodes.find(item => item?.id === itemID);
+      item?.fields?.forEach(field => {
+        initialValues[field.schemaFieldID] = field.value;
+      });
+    }
     return initialValues;
-  }, [itemsData?.items.nodes, itemID]);
-
-  const defaultFormValues: { [key: string]: any } = useMemo(() => {
-    const defaultValues: { [key: string]: any } = {};
-    currentModel?.schema.fields.forEach(field => {
-      switch (field.type) {
-        case "Select":
-          defaultValues[field.id] = field.typeProperty.selectDefaultValue;
-          break;
-        case "Integer":
-          defaultValues[field.id] = field.typeProperty.integerDefaultValue;
-          break;
-        default:
-          defaultValues[field.id] = field.typeProperty.defaultValue;
-          break;
-      }
-    });
-    return defaultValues;
-  }, [currentModel?.schema.fields]);
+  }, [itemsData?.items.nodes, itemID, currentModel?.schema.fields]);
 
   return {
     initialFormValues,
-    defaultFormValues,
     currentModel,
     handleItemCreate,
     handleItemUpdate,

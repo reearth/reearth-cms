@@ -9,7 +9,6 @@ export type Props = {
   onItemCreate: (data: { schemaID: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemID: string; fields: ItemField[] }) => Promise<void>;
   initialFormValues: { [key: string]: any };
-  defaultFormValues: { [key: string]: any };
   onBack: () => void;
   itemId?: string;
 };
@@ -20,7 +19,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   initialFormValues,
-  defaultFormValues,
   onBack,
   itemId,
 }) => {
@@ -32,7 +30,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onItemCreate={onItemCreate}
         onItemUpdate={onItemUpdate}
         model={model}
-        defaultFormValues={defaultFormValues}
         initialFormValues={initialFormValues}
       />
     </ContentWrapper>

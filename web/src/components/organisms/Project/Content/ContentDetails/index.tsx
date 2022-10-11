@@ -9,8 +9,9 @@ import useHooks from "./hooks";
 
 const ContentDetails: React.FC = () => {
   const { projectId, workspaceId, itemId, modelId } = useParams();
-  const { currentModel, handleItemCreate, handleItemUpdate, initialFormValues, defaultFormValues } =
-    useHooks({ itemId });
+  const { currentModel, handleItemCreate, handleItemUpdate, initialFormValues } = useHooks({
+    itemId,
+  });
   const t = useT();
 
   const navigate = useNavigate();
@@ -33,7 +34,6 @@ const ContentDetails: React.FC = () => {
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
       initialFormValues={initialFormValues}
-      defaultFormValues={defaultFormValues}
       model={currentModel}
       modelsMenu={<ModelsMenu title={t("Content")} selectModel={handleNavigateToModel} />}
     />
