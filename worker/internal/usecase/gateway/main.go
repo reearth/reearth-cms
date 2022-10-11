@@ -5,8 +5,9 @@ type Container struct {
 	CMS  CMS
 }
 
-func NewGateway(f File) *Container {
+func NewGateway(f File, cms CMS) *Container {
 	return &Container{
 		File: f,
+		CMS:  cms,
 	}
 }
