@@ -1,3 +1,5 @@
-import { Table } from "antd";
+import { Table, TableColumnsType } from "antd";
+
+export type { TableColumnsType };
 
 export default Table;

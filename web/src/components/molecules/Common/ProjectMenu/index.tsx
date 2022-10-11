@@ -1,5 +1,4 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,14 +12,6 @@ export interface Props {
   defaultSelectedKeys?: string[];
 }
 
-const topItems: ItemType[] = [
-  { label: "Overview", key: "home", icon: <Icon icon="dashboard" /> },
-  { label: "Schema", key: "schema", icon: <Icon icon="unorderedList" /> },
-  { label: "Content", key: "content", icon: <Icon icon="table" /> },
-  { label: "Asset", key: "asset", icon: <Icon icon="file" /> },
-  { label: "Request", key: "request", icon: <Icon icon="pullRequest" /> },
-];
-
 const ProjectMenu: React.FC<Props> = ({
   inlineCollapsed,
   workspaceId,
@@ -29,6 +20,15 @@ const ProjectMenu: React.FC<Props> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
+
+  const topItems: ItemType[] = [
+    { label: t("Overview"), key: "home", icon: <Icon icon="dashboard" /> },
+    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
+    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
+    { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
+    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+  ];
+
   const items: ItemType[] = [
     {
       label: t("Accessibility"),
@@ -59,6 +59,10 @@ const ProjectMenu: React.FC<Props> = ({
       case "asset":
         navigate(`/workspaces/${workspaceId}/${projectId}/asset`);
         break;
+      case "accessibility":
+        navigate(`/workspaces/${workspaceId}/${projectId}/accessibility`);
+        break;
+
     }
   };
 

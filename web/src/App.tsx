@@ -4,6 +4,7 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import AccessibilityPage from "@reearth-cms/components/pages/Accessibility";
 import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
 import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import ContentPage from "@reearth-cms/components/pages/Content";
@@ -35,6 +36,10 @@ function AppRoutes() {
     {
       path: "/workspaces/:workspaceId/:projectId/asset/:assetId",
       element: <AssetPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/:projectId/accessibility",
+      element: <AccessibilityPage />,
     },
     { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
     { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
