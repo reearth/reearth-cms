@@ -112,10 +112,10 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 }
 
 func Test_itemRepo_FindByIDs(t *testing.T) {
-	sid := schema.NewID()
-	sfid := schema.NewFieldID()
-	id1 := item.NewID()
-	id2 := item.NewID()
+	sid := id.NewItemID()
+	sfid := id.NewFieldID()
+	id1 := id.NewItemID()
+	id2 := id.NewItemID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
 	i2, _ := item.New().ID(id2).Fields(fs).Schema(sid).Build()
@@ -163,7 +163,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 
 func Test_itemRepo_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
-	sfid := schema.NewFieldID()
+	sfid := id.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
 	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
@@ -225,7 +225,7 @@ func Test_itemRepo_FindByProject(t *testing.T) {
 		},
 		{
 			Name:     "must not find any item",
-			Input:    id.NewProjectID(),
+			Input:    project.NewID(),
 			RepoData: item.List{i1, i2},
 		},
 	}
