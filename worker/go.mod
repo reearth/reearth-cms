@@ -10,6 +10,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.8.0
 	github.com/reearth/reearthx v0.0.0-20220831124713-1b1373700421
+	github.com/spf13/afero v1.9.2
 	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.34.0
 	google.golang.org/appengine v1.6.7

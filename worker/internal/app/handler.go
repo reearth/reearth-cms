@@ -17,17 +17,14 @@ func NewHandler(c *rhttp.Controller) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		var input rhttp.DecompressInput
-		err := c.Bind(&input)
-		if err != nil {
+		if err := c.Bind(&input); err != nil {
 			return err
 		}
 
-		out, err := h.Controller.DecompressController.Decompress(c.Request().Context(), input)
-		if err != nil {
+		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
 			return err
 		}
-		return c.JSON(http.StatusOK, out)
+		return c.NoContent(http.StatusOK)
 	}
 }

@@ -1,4 +1,4 @@
-package zip
+package decompresser
 
 import (
 	"archive/zip"
@@ -7,21 +7,32 @@ import (
 	"io"
 )
 
+var (
+	ErrUnsupportedExtention = errors.New("unsupoprted extention type")
+)
+
 const limit = 1024 * 1024 * 1024 * 10 // 10GB
 
-type Unzipper struct {
+type Decompresser struct {
 	r   *zip.Reader
 	wFn func(name string) (io.WriteCloser, error)
 }
 
-func NewUnzipper(r *zip.Reader, wFn func(name string) (io.WriteCloser, error)) (*Unzipper, error) {
-	return &Unzipper{
-		r,
-		wFn,
-	}, nil
+func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*Decompresser, error) {
+	if ext == "zip" {
+		zr, err := zip.NewReader(r, size)
+		if err != nil {
+			return nil, err
+		}
+		return &Decompresser{
+			r:   zr,
+			wFn: wFn,
+		}, nil
+	}
+	return nil, ErrUnsupportedExtention
 }
 
-func (uz *Unzipper) Unzip() error {
+func (uz *Decompresser) Decompress() error {
 	for _, f := range uz.r.File {
 
 		if f.FileInfo().IsDir() {

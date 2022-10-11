@@ -51,6 +51,9 @@ func NewFile(bucketName, base string, cacheControl string) (gateway.File, error)
 }
 
 func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, error) {
+	if path == "" {
+		return nil, 0, rerror.ErrNotFound
+	}
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
 	return f.NewGCSReaderAt(ctx, objectName)
 }

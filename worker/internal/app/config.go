@@ -16,12 +16,17 @@ type Config struct {
 	ServerHost string
 	Dev        bool
 	GCS        GCSConfig
+	PubSub     PubSubConfig
 }
 
 type GCSConfig struct {
 	BucketName              string `default:"asset.cms.test.reearth.dev" envconfig:"GCS_BUCKET_NAME"` //TODO: fix here later
 	AssetBaseURL            string `default:"https://asset.cms.test.reearth.dev" envconfig:"GCS_ASSET_BASE_URL"`
 	PublicationCacheControl string
+}
+
+type PubSubConfig struct {
+	Topic string
 }
 
 func ReadConfig(debug bool) (*Config, error) {

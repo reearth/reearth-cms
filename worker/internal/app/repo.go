@@ -9,7 +9,9 @@ import (
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
-	gateways := &gateway.Container{}
+	gateways := &gateway.Container{
+		CMS: gcp.NewPubSub(conf.PubSub.Topic),
+	}
 
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)

@@ -1,16 +1,13 @@
 package interactor
 
 import (
-	"archive/zip"
 	"context"
 	"io"
-	"net/url"
 	"path"
 	"strings"
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
-	rzip "github.com/reearth/reearth-cms/worker/pkg/zip"
-	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearth-cms/worker/pkg/decompresser"
 )
 
 type Usecase struct {
@@ -21,60 +18,27 @@ func NewUsecase(g *gateway.Container) *Usecase {
 	return &Usecase{gateways: g}
 }
 
-type DecompressableExt string
+func (u *Usecase) Decompress(ctx context.Context, assetPath string) error {
+	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
+	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
-// MEMO: modify here when we support other compression format
-const (
-	Zip = DecompressableExt("zip")
-)
-
-func FromString(ext string) DecompressableExt {
-	switch ext {
-	case "zip":
-		return Zip
-	default:
-		return ""
-	}
-}
-
-func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
-	aURL, err := url.Parse(assetURL)
+	compressedFile, size, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
 		return err
 	}
 
-	rawExt := strings.TrimPrefix(path.Ext(aURL.Path), ".")
-	ext := FromString(rawExt)
-	fileName := strings.TrimPrefix(strings.TrimSuffix(aURL.Path, "."+rawExt), "/")
-
-	if ext == "" {
-		log.Infof("decompress: file wasn't decompressed since it's not supported extension type")
-		return nil
-	}
-
-	compressedFile, size, err := u.gateways.File.Read(ctx, aURL.Path)
-	if err != nil {
-		return err
-	}
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, fileName+name)
+		w, err := u.gateways.File.Upload(ctx, path.Join(base, name))
 		if err != nil {
 			return nil, err
 		}
 		return w, nil
 	}
-	zr, err := zip.NewReader(compressedFile, size)
-	if err != nil {
-		return err
-	}
-	unzipper, err := rzip.NewUnzipper(zr, uploadFunc)
+
+	de, err := decompresser.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
 		return err
 	}
 
-	if err := unzipper.Unzip(); err != nil {
-		return err
-	}
-
-	return nil
+	return de.Decompress()
 }
