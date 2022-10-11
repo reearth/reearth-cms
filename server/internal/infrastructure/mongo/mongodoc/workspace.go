@@ -60,14 +60,14 @@ func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
 			if err != nil {
 				return nil, err
 			}
-			inviterId, err := id.UserIDFrom(member.InvitedBy)
+			inviterID, err := id.UserIDFrom(member.InvitedBy)
 			if err != nil {
-				inviterId = uid
+				inviterID = uid
 			}
 			members[uid] = user.Member{
 				Role:      user.Role(member.Role),
 				Disabled:  member.Disabled,
-				InvitedBy: inviterId,
+				InvitedBy: inviterID,
 			}
 		}
 	}
