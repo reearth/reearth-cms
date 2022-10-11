@@ -18,9 +18,10 @@ import (
 func Test_ItemRepo_FindByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sid := schema.NewID()
+	pid := schema.NewID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemID
@@ -29,7 +30,7 @@ func Test_ItemRepo_FindByID(t *testing.T) {
 	}{
 		{
 			Name:     "must find a item",
-			Input:    i1.ID(),
+			Input:    id1,
 			RepoData: i1,
 			Expected: i1,
 		},
@@ -205,9 +206,9 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 }
 
 func Test_itemRepo_FindByProject(t *testing.T) {
-	sid := id.NewProjectID()
-	i1, _ := item.New().NewID().Project(sid).Build()
-	i2, _ := item.New().NewID().Project(sid).Build()
+	pid := id.NewProjectID()
+	i1, _ := item.New().NewID().Project(pid).Build()
+	i2, _ := item.New().NewID().Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ProjectID
@@ -215,7 +216,7 @@ func Test_itemRepo_FindByProject(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    sid,
+			Input:    pid,
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
 		},
