@@ -130,8 +130,9 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	SchemaID ID                `json:"schemaId"`
-	Fields   []*ItemFieldInput `json:"fields"`
+	SchemaID  ID                `json:"schemaId"`
+	ProjectID ID                `json:"projectId"`
+	Fields    []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -277,9 +278,10 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID       ID           `json:"id"`
-	SchemaID ID           `json:"schemaId"`
-	Fields   []*ItemField `json:"fields"`
+	ID        ID           `json:"id"`
+	SchemaID  ID           `json:"schemaId"`
+	ProjectID ID           `json:"projectId"`
+	Fields    []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}

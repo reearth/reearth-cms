@@ -114,3 +114,20 @@ func TestItem_FindBySchema(t *testing.T) {
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
 }
+
+func TestItem_FindByProject(t *testing.T) {
+	ctx := context.Background()
+	pid := id.NewProjectID()
+	i, _ := item.New().NewID().Project(pid).Build()
+	i2, _ := item.New().NewID().Project(pid).Build()
+
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
+	got, _, _ := r.FindByProject(ctx, pid, nil)
+	assert.Equal(t, 2, len(got))
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
+}

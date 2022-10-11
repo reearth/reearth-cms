@@ -40,6 +40,12 @@ func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagin
 	}, pagination)
 }
 
+func (i *itemRepo) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	return i.paginate(ctx, bson.M{
+		"project": projectID.String(),
+	}, pagination)
+}
+
 func (i *itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
 	c := mongodoc.NewItemConsumer()
 	if err := i.client.Find(ctx, bson.M{

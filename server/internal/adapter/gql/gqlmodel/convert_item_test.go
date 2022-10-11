@@ -14,9 +14,10 @@ import (
 func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Fields(fs).Build()
+	i, _ := item.New().ID(iid).Schema(sid).Project(pid).Fields(fs).Build()
 	tests := []struct {
 		name  string
 		input *item.Item
@@ -26,8 +27,9 @@ func TestToItem(t *testing.T) {
 			name:  "should return a gql model item",
 			input: i,
 			want: &Item{
-				ID:       IDFrom(iid),
-				SchemaID: IDFrom(sid),
+				ID:        IDFrom(iid),
+				ProjectID: IDFrom(pid),
+				SchemaID:  IDFrom(sid),
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sfid),

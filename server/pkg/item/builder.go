@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"golang.org/x/exp/slices"
 )
@@ -37,5 +38,10 @@ func (b *Builder) Fields(fs []*Field) *Builder {
 
 func (b *Builder) Schema(sid schema.ID) *Builder {
 	b.i.schemaID = sid
+	return b
+}
+
+func (b *Builder) Project(pid project.ID) *Builder {
+	b.i.projectID = pid
 	return b
 }

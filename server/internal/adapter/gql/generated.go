@@ -187,9 +187,10 @@ type ComplexityRoot struct {
 	}
 
 	Item struct {
-		Fields   func(childComplexity int) int
-		ID       func(childComplexity int) int
-		SchemaID func(childComplexity int) int
+		Fields    func(childComplexity int) int
+		ID        func(childComplexity int) int
+		ProjectID func(childComplexity int) int
+		SchemaID  func(childComplexity int) int
 	}
 
 	ItemConnection struct {
@@ -359,6 +360,7 @@ type ComplexityRoot struct {
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		Items                     func(childComplexity int, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
+		ItemsByProject            func(childComplexity int, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
@@ -617,6 +619,7 @@ type QueryResolver interface {
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
+	ItemsByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
@@ -1070,6 +1073,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ID(childComplexity), true
+
+	case "Item.projectId":
+		if e.complexity.Item.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Item.ProjectID(childComplexity), true
 
 	case "Item.schemaId":
 		if e.complexity.Item.SchemaID == nil {
@@ -2055,6 +2065,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Items(childComplexity, args["schemaId"].(gqlmodel.ID), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
+
+	case "Query.itemsByProject":
+		if e.complexity.Query.ItemsByProject == nil {
+			break
+		}
+
+		args, err := ec.field_Query_itemsByProject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ItemsByProject(childComplexity, args["projectId"].(gqlmodel.ID), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -3608,6 +3630,7 @@ extend type Mutation {
 	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
+  projectId: ID!
   fields: [ItemField!]
 }
 
@@ -3633,6 +3656,7 @@ input ItemFieldInput {
 
 input CreateItemInput {
   schemaId: ID!
+  projectId: ID!
   fields: [ItemFieldInput!]!
 }
 
@@ -3669,6 +3693,13 @@ type ItemEdge {
 extend type Query {
   items(
     schemaId: ID!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ItemConnection!
+  itemsByProject(
+    projectId: ID!
     first: Int
     last: Int
     after: Cursor
@@ -4547,6 +4578,57 @@ func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Conte
 		}
 	}
 	args["alias"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_itemsByProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["projectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["projectId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *usecasex.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg3
+	var arg4 *usecasex.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg4, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg4
 	return args, nil
 }
 
@@ -7717,6 +7799,50 @@ func (ec *executionContext) fieldContext_Item_schemaId(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_projectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_fields(ctx, field)
 	if err != nil {
@@ -7859,6 +7985,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Item_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Item_fields(ctx, field)
 			}
@@ -8050,6 +8178,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Item_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Item_fields(ctx, field)
 			}
@@ -8234,6 +8364,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Item_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Item_fields(ctx, field)
 			}
@@ -13770,6 +13902,71 @@ func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_itemsByProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_itemsByProject(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ItemsByProject(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ItemConnection)
+	fc.Result = res
+	return ec.marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_itemsByProject(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_ItemConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ItemConnection_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ItemConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_ItemConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ItemConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_itemsByProject_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_versionsByItem(ctx, field)
 	if err != nil {
@@ -16573,6 +16770,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Item_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Item_fields(ctx, field)
 			}
@@ -19964,7 +20163,7 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"schemaId", "fields"}
+	fieldsInOrder := [...]string{"schemaId", "projectId", "fields"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19976,6 +20175,14 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
 			it.SchemaID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -23382,6 +23589,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "projectId":
+
+			out.Values[i] = ec._Item_projectId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "fields":
 
 			out.Values[i] = ec._Item_fields(ctx, field, obj)
@@ -24802,6 +25016,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_items(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "itemsByProject":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_itemsByProject(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

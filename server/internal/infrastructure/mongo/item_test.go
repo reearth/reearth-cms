@@ -203,3 +203,48 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 		})
 	}
 }
+
+func Test_itemRepo_FindByProject(t *testing.T) {
+	sid := id.NewProjectID()
+	i1, _ := item.New().NewID().Project(sid).Build()
+	i2, _ := item.New().NewID().Project(sid).Build()
+	tests := []struct {
+		Name               string
+		Input              id.ProjectID
+		RepoData, Expected item.List
+	}{
+		{
+			Name:     "must find two items (first 10)",
+			Input:    sid,
+			RepoData: item.List{i1, i2},
+			Expected: item.List{i1, i2},
+		},
+		{
+			Name:     "must not find any item",
+			Input:    id.NewProjectID(),
+			RepoData: item.List{i1, i2},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
+}

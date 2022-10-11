@@ -128,3 +128,14 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 			return nil
 		})
 }
+
+func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	_, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.FindByProject(ctx, projectID, p)
+		})
+}

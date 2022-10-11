@@ -3,6 +3,7 @@ package item
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
 )
@@ -81,4 +82,10 @@ func TestBuilder_Build(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestBuilder_Project(t *testing.T) {
+	pid := project.NewID()
+	b, _ := New().NewID().Project(pid).Build()
+	assert.Equal(t, pid, b.Project())
 }
