@@ -9,7 +9,7 @@ import (
 
 type Thread interface {
 	Filtered(filter WorkspaceFilter) Thread
-	AddComment(context.Context, id.ThreadID, *thread.Comment) error
-	UpdateComment(context.Context, id.ThreadID, *thread.Comment) error
-	DeleteComment(context.Context, id.ThreadID, id.CommentID) error
+	AddComment(context.Context, *thread.Thread, *thread.Comment) error
+	UpdateComment(context.Context, *thread.Thread, *thread.Comment) error
+	DeleteComment(context.Context, *thread.Thread, id.CommentID) error
 }

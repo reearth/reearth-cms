@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -37,55 +36,34 @@ func (r *threadRepo) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	}
 }
 
-func (r *threadRepo) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Comment) error {
-	th, err := r.findOne(ctx, bson.M{
-		"id": thid.String(),
-	})
-	if err != nil {
-		return err
-	}
+func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+	filter := bson.M{"id": th.ID().String()}
+	update := bson.M{"$push": bson.M{"comments": c}}
 
-	th.AddComment(*c)
-
-	doc, id := mongodoc.NewThread(th)
-	if err := r.client.SaveOne(ctx, id, doc); err != nil {
+	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, thid id.ThreadID, c *thread.Comment) error {
-	th, err := r.findOne(ctx, bson.M{
-		"id": thid.String(),
-	})
-	if err != nil {
-		return err
-	}
-
-	cc, ok := lo.Find(th.Comments(), func(c2 *thread.Comment) bool {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+	_, i, ok := lo.FindIndexOf(th.Comments(), func(c2 *thread.Comment) bool {
 		return c2.ID() == c.ID()
 	})
 
 	if !ok {
 		return nil
 	}
-	cc.SetContent(c.Content())
 
-	doc, thid2 := mongodoc.NewThread(th)
-	if err := r.client.SaveOne(ctx, thid2, doc); err != nil {
+	filter := bson.M{"id": th.ID().String()}
+	update := bson.M{"$set": bson.M{"comments." + string(rune(i)) + ".content": c.Content()}}
+	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *threadRepo) DeleteComment(ctx context.Context, thid id.ThreadID, id id.CommentID) error {
-	th, err := r.findOne(ctx, bson.M{
-		"id": thid.String(),
-	})
-	if err != nil {
-		return err
-	}
-
+func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
 	_, i, ok := lo.FindIndexOf(th.Comments(), func(c *thread.Comment) bool {
 		return c.ID() == id
 	})
@@ -93,31 +71,19 @@ func (r *threadRepo) DeleteComment(ctx context.Context, thid id.ThreadID, id id.
 	if !ok {
 		return nil
 	}
-	comments := removeIndex(th.Comments(), i)
-	th.SetComments(comments...)
 
-	doc, thid2 := mongodoc.NewThread(th)
-	if err := r.client.SaveOne(ctx, thid2, doc); err != nil {
+	filter := bson.M{"id": th.ID().String()}
+	update := bson.M{"$set": bson.M{"comments." + string(rune(i)): nil}}
+	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
+		return err
+	}
+	update = bson.M{"$pull": bson.M{"comments": nil}}
+	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *threadRepo) findOne(ctx context.Context, filter interface{}) (*thread.Thread, error) {
-	c := mongodoc.NewThreadConsumer()
-	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
-		return nil, err
-	}
-	return c.Result[0], nil
+func (r *threadRepo) writeFilter(filter any) any {
+	return applyWorkspaceFilter(filter, r.f.Writable)
 }
-
-func removeIndex[T any](s []T, index int) []T {
-	return append(s[:index], s[index+1:]...)
-}
-func (r *threadRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
-}
-
-// func (r *threadRepo) writeFilter(filter any) any {
-// 	return applyWorkspaceFilter(filter, r.f.Writable)
-// }
