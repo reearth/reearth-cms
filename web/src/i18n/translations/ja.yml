@@ -1,4 +1,11 @@
 Download: ''
+Model: ''
+Switch: ''
+Private: ''
+API Key Only: ''
+Public: ''
+Accessibility: 公開設定
+Save changes: 変更を保存
 Unzip File: ''
 Asset Type: ''
 Created Time: ''
@@ -37,7 +44,11 @@ Re:Earth CMS: Re:Earth CMS
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project description: プロジェクト概要
-Accessibility: 公開設定
+Overview: ''
+Schema: ''
+Content: ''
+Asset: アセット
+Request: ''
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
@@ -100,7 +111,6 @@ Please note that all webhook URLs must start with http://.: WebhookのURLがhttp
 URL is not valid: 無効なURLです
 Trigger Event: イベント
 Item: アイテム
-Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
@@ -131,12 +141,10 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
-Content: ''
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Write something here to describe this record.: このレコードの説明を入力してください
-Save changes: 変更を保存
 Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
