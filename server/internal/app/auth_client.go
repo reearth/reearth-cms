@@ -8,8 +8,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 )
+
+var contextAuthInfo = struct{}{}
+
+const debugUserHeader = "X-Reearth-Debug-User"
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -17,13 +22,13 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
+			var ai *appx.AuthInfo
 			var userID string
 			var u *user.User
 
 			// get sub from context
-			au := adapter.GetAuthInfo(ctx)
-			if u, ok := ctx.Value(contextUser).(string); ok {
-				userID = u
+			if ai2, ok := ctx.Value(contextAuthInfo).(*appx.AuthInfo); ok {
+				ai = ai2
 			}
 
 			// debug mode
@@ -49,18 +54,18 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				}
 			}
 
-			if u == nil && au != nil {
+			if u == nil && ai != nil {
 				var err error
 				// find user
-				u, err = cfg.Repos.User.FindBySub(ctx, au.Sub)
+				u, err = cfg.Repos.User.FindBySub(ctx, ai.Sub)
 				if err != nil && err != rerror.ErrNotFound {
 					return err
 				}
 			}
 
 			// save a new sub
-			if u != nil && au != nil {
-				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(au.Sub), cfg); err != nil {
+			if u != nil && ai != nil {
+				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(ai.Sub), cfg); err != nil {
 					return err
 				}
 			}
