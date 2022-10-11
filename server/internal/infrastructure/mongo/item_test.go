@@ -112,7 +112,7 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 }
 
 func Test_itemRepo_FindByIDs(t *testing.T) {
-	sid := id.NewItemID()
+	sid := id.NewSchemaID()
 	sfid := id.NewFieldID()
 	id1 := id.NewItemID()
 	id2 := id.NewItemID()
