@@ -16,6 +16,7 @@ export type Props = {
   contentTableColumns?: ProColumns<ContentTableField>[];
   modelsMenu: React.ReactNode;
   onItemAdd: () => void;
+  onItemEdit: (itemId: string) => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const ContentListMolecule: React.FC<Props> = ({
   contentTableColumns,
   modelsMenu: ModelsMenu,
   onItemAdd,
+  onItemEdit,
 }) => {
   const t = useT();
 
@@ -38,6 +40,7 @@ const ContentListMolecule: React.FC<Props> = ({
         }
       />
       <StyledContentTable
+        onItemEdit={onItemEdit}
         contentTableFields={contentTableFields}
         contentTableColumns={contentTableColumns}
       />

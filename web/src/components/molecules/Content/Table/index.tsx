@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
@@ -7,9 +5,10 @@ import { ContentTableField } from "@reearth-cms/components/molecules/Content/typ
 export type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ProColumns<ContentTableField>[];
+  onItemEdit: (itemId: string) => void;
 };
 
-const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns }) => {
+const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns, onItemEdit }) => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: _ => {},
@@ -23,9 +22,7 @@ const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns
         {
           title: "actions",
           render: (_, contentField) => (
-            <Link to={"./details/" + contentField.id}>
-              <Icon icon="edit" />
-            </Link>
+            <Icon icon="edit" onClick={() => onItemEdit(contentField.id)} />
           ),
         },
         ...contentTableColumns,
