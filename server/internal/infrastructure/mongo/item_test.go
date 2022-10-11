@@ -100,13 +100,13 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	ctx := context.Background()
 	err := repo.Save(ctx, i1)
 	assert.NoError(t, err)
-	got, err := repo.FindAllVersionsByID(ctx, i1.ID())
+	got, err := repo.FindAllVersionsByID(ctx, id1)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(got))
 
 	err = repo.Save(ctx, i1)
 	assert.NoError(t, err)
-	got2, err := repo.FindAllVersionsByID(ctx, i1.ID())
+	got2, err := repo.FindAllVersionsByID(ctx, id1)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(got2))
 }
@@ -114,9 +114,11 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 func Test_itemRepo_FindByIDs(t *testing.T) {
 	sid := schema.NewID()
 	sfid := schema.NewFieldID()
+	id1 := item.NewID()
+	id2 := item.NewID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
-	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
+	i2, _ := item.New().ID(id2).Fields(fs).Schema(sid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemIDList
@@ -124,7 +126,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items",
-			Input:    id.ItemIDList{i1.ID(), i2.ID()},
+			Input:    id.ItemIDList{id1, id2},
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
 		},
@@ -207,7 +209,7 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 }
 
 func Test_itemRepo_FindByProject(t *testing.T) {
-	pid := id.NewProjectID()
+	pid := project.NewID()
 	i1, _ := item.New().NewID().Project(pid).Build()
 	i2, _ := item.New().NewID().Project(pid).Build()
 	tests := []struct {
