@@ -130,7 +130,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			id       id.SchemaID
 			operator *usecase.Operator
 		}
-		want        item.List
+		want        int
 		mockItemErr bool
 		wantErr     error
 	}{
@@ -150,7 +150,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -169,7 +169,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid2,
 				operator: op,
 			},
-			want:    item.List{i3},
+			want:    1,
 			wantErr: nil,
 		},
 		{
@@ -188,7 +188,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -207,7 +207,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -236,7 +236,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, len(got))
 
 		})
 	}
