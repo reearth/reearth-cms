@@ -82,7 +82,7 @@ func (b *Builder) RandomKey() *Builder {
 	return b
 }
 
-func (b *Builder) IsPublic(public bool) *Builder {
+func (b *Builder) Public(public bool) *Builder {
 	b.model.public = public
 	return b
 }

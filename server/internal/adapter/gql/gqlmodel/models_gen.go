@@ -130,8 +130,8 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	ModelID ID                `json:"modelId"`
-	Fields  []*ItemFieldInput `json:"fields"`
+	SchemaID ID                `json:"schemaId"`
+	Fields   []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -277,14 +277,9 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID             `json:"id"`
-	ModelID       ID             `json:"modelId"`
-	Model         *Model         `json:"model"`
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	LatestVersion *ItemVersion   `json:"latestVersion"`
-	PublicVersion string         `json:"publicVersion"`
-	Versions      []*ItemVersion `json:"versions"`
+	ID       ID           `json:"id"`
+	SchemaID ID           `json:"schemaId"`
+	Fields   []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}
@@ -303,24 +298,19 @@ type ItemEdge struct {
 }
 
 type ItemField struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemFieldInput struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemPayload struct {
 	Item *Item `json:"item"`
-}
-
-type ItemVersion struct {
-	Version string       `json:"version"`
-	Parent  []string     `json:"parent"`
-	Ref     []string     `json:"ref"`
-	Fields  []*ItemField `json:"fields"`
 }
 
 type KeyAvailability struct {
@@ -722,6 +712,7 @@ type UpdateModelInput struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	Key         *string `json:"key"`
+	Public      bool    `json:"public"`
 }
 
 type UpdateProjectInput struct {
@@ -768,6 +759,13 @@ type User struct {
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
+
+type VersionedItem struct {
+	Version string   `json:"version"`
+	Parents []string `json:"parents"`
+	Refs    []string `json:"refs"`
+	Value   *Item    `json:"value"`
+}
 
 type Webhook struct {
 	ID        ID              `json:"id"`

@@ -411,7 +411,7 @@ func TestBuilder_ID(t *testing.T) {
 	}
 }
 
-func TestBuilder_IsPublic(t *testing.T) {
+func TestBuilder_Public(t *testing.T) {
 	type fields struct {
 		model *Model
 		k     key.Key
@@ -467,7 +467,7 @@ func TestBuilder_IsPublic(t *testing.T) {
 				model: tt.fields.model,
 				k:     tt.fields.k,
 			}
-			assert.Equal(t, tt.want, b.IsPublic(tt.args.public))
+			assert.Equal(t, tt.want, b.Public(tt.args.public))
 		})
 	}
 }
