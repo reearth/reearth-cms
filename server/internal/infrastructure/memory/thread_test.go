@@ -4,38 +4,93 @@ import (
 	"context"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestThread_UpdateComment(t *testing.T) {
-	ctx := context.Background()
-	r := &Thread{
-		data: &util.SyncMap[id.ThreadID, *thread.Thread]{},
-	}
 	c1 := thread.Comment{}
 	cid1 := id.NewCommentID()
 	c1.SetID(cid1)
-	c1.SetContent("hi")
 
 	c2 := thread.Comment{}
 	cid2 := id.NewCommentID()
 	c2.SetID(cid2)
+	c2.SetContent("test")
 
-	comments := []*thread.Comment{&c1, &c2}
-	th := thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments(comments).MustBuild()
+	wid := id.NewWorkspaceID()
+	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{&c1, &c2}).MustBuild()
 
-	err := r.UpdateComment(ctx, th, &c1)
+	tests := []struct {
+		name         string
+		seed         *thread.Thread
+		arg          string
+		filter       *repo.WorkspaceFilter
+		want         *thread.Comment
+		wantErr      error
+		mockNotFound bool
+	}{
+		{
+			name: "workspaces operation denied",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{},
+				Writable: []id.WorkspaceID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "workspaces operation success",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{wid},
+				Writable: []id.WorkspaceID{wid},
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "update comment success",
+			seed:    th1,
+			arg:     "updated",
+			wantErr: nil,
+		},
+		{
+			name:         "update comment not found",
+			seed:         th1,
+			wantErr:      repo.ErrCommentNotFound,
+			mockNotFound: true,
+		},
+	}
 
-	assert.Equal(t, nil, err)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	c1.SetContent("hello")
-	cc, _ := lo.Find(th.Comments(), func(tc *thread.Comment) bool {
-		return tc.ID() == c1.ID()
-	})
-	assert.Equal(t, "hello", cc.Content())
+			r := NewThread()
+			ctx := context.Background()
 
+			err := r.Save(ctx, tc.seed.Clone())
+			assert.NoError(t, err)
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			for _, c := range tc.seed.Comments() {
+				c.SetContent(tc.arg)
+				if tc.mockNotFound {
+					c = &thread.Comment{}
+				}
+				got, err := r.UpdateComment(ctx, tc.seed, c)
+				if tc.wantErr != nil {
+					assert.Equal(t, tc.wantErr, err)
+					return
+				}
+				assert.Equal(t, tc.arg, got.Content())
+			}
+		})
+	}
 }

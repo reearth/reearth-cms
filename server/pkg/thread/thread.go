@@ -46,3 +46,19 @@ func (th *Thread) AddComment(c Comment) {
 func (th *Thread) SetComments(comments ...*Comment) {
 	th.comments = slices.Clone(comments)
 }
+
+func (th *Thread) Clone() *Thread {
+	if th == nil {
+		return nil
+	}
+
+	comments := lo.Map(th.comments, func(c *Comment, _ int) *Comment {
+		return c.Clone()
+	})
+
+	return &Thread{
+		id:        th.id.Clone(),
+		workspace: th.workspace.Clone(),
+		comments:  comments,
+	}
+}

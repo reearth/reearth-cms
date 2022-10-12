@@ -25,6 +25,7 @@ func NewThread() repo.Thread {
 func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	return &Thread{
 		data: r.data,
+		f:    r.f.Merge(f),
 	}
 }
 
@@ -44,13 +45,13 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 	return nil
 }
 
-func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
 	if r.err != nil {
-		return r.err
+		return nil, r.err
 	}
 
 	if !r.f.CanWrite(th.Workspace()) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	cc, ok := lo.Find(th.Comments(), func(c2 *thread.Comment) bool {
@@ -58,13 +59,13 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 	})
 
 	if !ok {
-		return nil
+		return nil, repo.ErrCommentNotFound
 	}
 
 	cc.SetContent(c.Content())
 
 	r.data.Store(th.ID(), th)
-	return nil
+	return cc, nil
 }
 
 func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
@@ -91,4 +92,21 @@ func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.Com
 	th.SetComments(comments...)
 	r.data.Store(th.ID(), th)
 	return nil
+}
+
+func (r *Thread) Save(_ context.Context, th *thread.Thread) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	if !r.f.CanWrite(th.Workspace()) {
+		return repo.ErrOperationDenied
+	}
+
+	r.data.Store(th.ID(), th)
+	return nil
+}
+
+func SetThreadError(r repo.Thread, err error) {
+	r.(*Thread).err = err
 }

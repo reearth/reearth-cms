@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -46,21 +47,21 @@ func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *threa
 	return nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
-	_, i, ok := lo.FindIndexOf(th.Comments(), func(c2 *thread.Comment) bool {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
+	cc, i, ok := lo.FindIndexOf(th.Comments(), func(c2 *thread.Comment) bool {
 		return c2.ID() == c.ID()
 	})
 
 	if !ok {
-		return nil
+		return nil, repo.ErrCommentNotFound
 	}
 
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$set": bson.M{"comments." + string(rune(i)) + ".content": c.Content()}}
 	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return cc, nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
@@ -82,6 +83,14 @@ func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id
 		return err
 	}
 	return nil
+}
+
+func (r *threadRepo) Save(ctx context.Context, thread *thread.Thread) error {
+	if !r.f.CanWrite(thread.Workspace()) {
+		return repo.ErrOperationDenied
+	}
+	doc, id := mongodoc.NewThread(thread)
+	return r.client.SaveOne(ctx, id, doc)
 }
 
 func (r *threadRepo) writeFilter(filter any) any {

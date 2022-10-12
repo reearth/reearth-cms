@@ -44,3 +44,16 @@ func (c *Comment) SetContent(content string) {
 func (c *Comment) SetCreatedAt(createdAt time.Time) {
 	c.createdAt = createdAt
 }
+
+func (c *Comment) Clone() *Comment {
+	if c == nil {
+		return nil
+	}
+
+	return &Comment{
+		id:        c.id.Clone(),
+		author:    c.author.Clone(),
+		content:   c.content,
+		createdAt: c.createdAt,
+	}
+}
