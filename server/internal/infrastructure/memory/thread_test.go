@@ -10,6 +10,121 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestThread_Filtered(t *testing.T) {
+	wid := id.NewWorkspaceID()
+	th1 := thread.New().NewID().Workspace(wid).MustBuild()
+	th2 := thread.New().NewID().Workspace(wid).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   []*thread.Thread
+		filter  repo.WorkspaceFilter
+		wantErr error
+	}{
+		{
+			name:  "workspaces operation denied",
+			seeds: []*thread.Thread{th1, th2},
+			filter: repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{},
+				Writable: []id.WorkspaceID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name:  "workspaces operation success",
+			seeds: []*thread.Thread{th1, th2},
+			filter: repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{wid},
+				Writable: []id.WorkspaceID{wid},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewThread().Filtered(tc.filter)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				assert.ErrorIs(t, err, tc.wantErr)
+			}
+		})
+	}
+}
+
+func TestThread_AddComment(t *testing.T) {
+	c1 := thread.Comment{}
+	cid1 := id.NewCommentID()
+	c1.SetID(cid1)
+
+	wid := id.NewWorkspaceID()
+	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
+
+	tests := []struct {
+		name    string
+		seed    *thread.Thread
+		arg     *thread.Comment
+		filter  *repo.WorkspaceFilter
+		wantErr error
+	}{
+		{
+			name: "workspaces operation denied",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{},
+				Writable: []id.WorkspaceID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "workspaces operation success",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{wid},
+				Writable: []id.WorkspaceID{wid},
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "add comment success",
+			seed:    th1,
+			arg:     &c1,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewThread()
+			ctx := context.Background()
+
+			err := r.Save(ctx, tc.seed.Clone())
+			assert.NoError(t, err)
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			err1 := r.AddComment(ctx, tc.seed, tc.arg)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err1)
+				return
+			}
+
+			if tc.arg != nil {
+				assert.True(t, tc.seed.HasComment(tc.arg.ID()))
+			}
+		})
+	}
+}
+
 func TestThread_UpdateComment(t *testing.T) {
 	c1 := thread.Comment{}
 	cid1 := id.NewCommentID()
@@ -91,6 +206,79 @@ func TestThread_UpdateComment(t *testing.T) {
 				}
 				assert.Equal(t, tc.arg, got.Content())
 			}
+		})
+	}
+}
+
+func TestThread_DeleteComment(t *testing.T) {
+	c1 := thread.Comment{}
+	cid1 := id.NewCommentID()
+	c1.SetID(cid1)
+
+	wid := id.NewWorkspaceID()
+	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{&c1}).MustBuild()
+
+	tests := []struct {
+		name    string
+		seed    *thread.Thread
+		arg     id.CommentID
+		filter  *repo.WorkspaceFilter
+		wantErr error
+	}{
+		{
+			name: "workspaces operation denied",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{},
+				Writable: []id.WorkspaceID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "workspaces operation success",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{wid},
+				Writable: []id.WorkspaceID{wid},
+			},
+			wantErr: nil,
+		},
+		{
+			name:    "delete comment success",
+			seed:    th1,
+			arg:     c1.ID(),
+			wantErr: nil,
+		},
+		{
+			name:    "delete comment not found",
+			seed:    th1,
+			arg:     id.NewCommentID(),
+			wantErr: repo.ErrCommentNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewThread()
+			ctx := context.Background()
+
+			err := r.Save(ctx, tc.seed.Clone())
+			assert.NoError(t, err)
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			err1 := r.DeleteComment(ctx, tc.seed, tc.arg)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err1)
+				return
+			}
+
+			assert.False(t, tc.seed.HasComment(tc.arg))
 		})
 	}
 }

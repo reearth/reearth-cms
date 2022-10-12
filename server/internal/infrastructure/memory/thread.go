@@ -82,7 +82,7 @@ func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.Com
 	})
 
 	if !ok {
-		return nil
+		return repo.ErrCommentNotFound
 	}
 
 	comments := lo.Filter(th.Comments(), func(x *thread.Comment, index int) bool {
