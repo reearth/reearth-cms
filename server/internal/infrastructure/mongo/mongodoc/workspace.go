@@ -7,30 +7,44 @@ import (
 )
 
 type WorkspaceMemberDocument struct {
-	Role string
+	Role      string
+	InvitedBy string
+	Disabled  bool
 }
 
 type WorkspaceDocument struct {
-	ID       string
-	Name     string
-	Members  map[string]WorkspaceMemberDocument
-	Personal bool
+	ID           string
+	Name         string
+	Members      map[string]WorkspaceMemberDocument
+	Integrations map[string]WorkspaceMemberDocument
+	Personal     bool
 }
 
 func NewWorkspace(ws *user.Workspace) (*WorkspaceDocument, string) {
 	membersDoc := map[string]WorkspaceMemberDocument{}
-	for user, r := range ws.Members().Members() {
-		membersDoc[user.String()] = WorkspaceMemberDocument{
-			Role: string(r),
+	for uId, m := range ws.Members().Users() {
+		membersDoc[uId.String()] = WorkspaceMemberDocument{
+			Role:      string(m.Role),
+			Disabled:  m.Disabled,
+			InvitedBy: m.InvitedBy.String(),
 		}
 	}
-	id := ws.ID().String()
+	integrationsDoc := map[string]WorkspaceMemberDocument{}
+	for iId, m := range ws.Members().Integrations() {
+		integrationsDoc[iId.String()] = WorkspaceMemberDocument{
+			Role:      string(m.Role),
+			Disabled:  m.Disabled,
+			InvitedBy: m.InvitedBy.String(),
+		}
+	}
+	wId := ws.ID().String()
 	return &WorkspaceDocument{
-		ID:       id,
-		Name:     ws.Name(),
-		Members:  membersDoc,
-		Personal: ws.IsPersonal(),
-	}, id
+		ID:           wId,
+		Name:         ws.Name(),
+		Members:      membersDoc,
+		Integrations: integrationsDoc,
+		Personal:     ws.IsPersonal(),
+	}, wId
 }
 
 func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
@@ -39,20 +53,43 @@ func (d *WorkspaceDocument) Model() (*user.Workspace, error) {
 		return nil, err
 	}
 
-	members := map[id.UserID]user.Role{}
+	members := map[id.UserID]user.Member{}
 	if d.Members != nil {
 		for uid, member := range d.Members {
 			uid, err := id.UserIDFrom(uid)
 			if err != nil {
 				return nil, err
 			}
-			members[uid] = user.Role(member.Role)
+			inviterID, err := id.UserIDFrom(member.InvitedBy)
+			if err != nil {
+				inviterID = uid
+			}
+			members[uid] = user.Member{
+				Role:      user.Role(member.Role),
+				Disabled:  member.Disabled,
+				InvitedBy: inviterID,
+			}
+		}
+	}
+	integrations := map[id.IntegrationID]user.Member{}
+	if d.Integrations != nil {
+		for iId, integrationDoc := range d.Integrations {
+			iId, err := id.IntegrationIDFrom(iId)
+			if err != nil {
+				return nil, err
+			}
+			integrations[iId] = user.Member{
+				Role:      user.Role(integrationDoc.Role),
+				Disabled:  integrationDoc.Disabled,
+				InvitedBy: id.MustUserID(integrationDoc.InvitedBy),
+			}
 		}
 	}
 	return user.NewWorkspace().
 		ID(tid).
 		Name(d.Name).
 		Members(members).
+		Integrations(integrations).
 		Personal(d.Personal).
 		Build()
 }
@@ -64,9 +101,9 @@ func NewWorkspaces(workspaces []*user.Workspace) ([]*WorkspaceDocument, []string
 		if d == nil {
 			continue
 		}
-		r, id := NewWorkspace(d)
+		r, wId := NewWorkspace(d)
 		res = append(res, r)
-		ids = append(ids, id)
+		ids = append(ids, wId)
 	}
 	return res, ids
 }

@@ -90,6 +90,15 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(res.UpdatedAt(), d))
 }
 
+func TestBuilder_Publication(t *testing.T) {
+	var tb = New().NewID()
+	p := &Publication{}
+	res := tb.Publication(p)
+	assert.Equal(t, &Builder{
+		p: &Project{id: tb.p.id, publication: p},
+	}, res)
+}
+
 func TestBuilder_Build(t *testing.T) {
 	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	i, _ := url.Parse("ttt://xxx.aa/")

@@ -1,28 +1,29 @@
 import styled from "@emotion/styled";
 
+import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+
 export type Props = {
-  src?: string;
-  selected?: boolean;
-  title: string;
+  integration: Integration;
+  integrationSelected: boolean;
+  onClick: () => void;
 };
 
-const IntegrationCard: React.FC<Props> = ({ src, selected, title }) => {
-  return (
-    <CardWrapper selected={selected}>
-      <CardImg src={src} />
-      <CardTitle>{title}</CardTitle>
-    </CardWrapper>
-  );
-};
+const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, onClick }) => (
+  <CardWrapper onClick={onClick} isSelected={integrationSelected}>
+    <CardImg src={integration.logoUrl} />
+    <CardTitle>{integration.name}</CardTitle>
+  </CardWrapper>
+);
 
-const CardWrapper = styled.div<{ selected?: boolean }>`
+const CardWrapper = styled.div<{ isSelected?: boolean }>`
+  cursor: pointer;
   box-shadow: 0px 2px 8px #00000026;
   border: 1px solid #f0f0f0;
   padding: 12px;
   min-height: 88px;
   display: flex;
   align-items: center;
-  background-color: ${({ selected }) => (selected ? "#E6F7FF" : "#FFF")};
+  background-color: ${({ isSelected }) => (isSelected ? "#E6F7FF" : "#FFF")};
   margin-bottom: 10px;
 `;
 
