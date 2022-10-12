@@ -29,6 +29,10 @@ func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	}
 }
 
+func (r *Thread) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error) {
+	panic("implement me")
+}
+
 func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if r.err != nil {
 		return r.err

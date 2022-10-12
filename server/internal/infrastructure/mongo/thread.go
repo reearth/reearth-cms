@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -34,15 +35,23 @@ func (r *threadRepo) init() {
 func (r *threadRepo) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	return &threadRepo{
 		client: r.client,
+		f:      r.f.Merge(f),
 	}
 }
 
-func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
-	filter := bson.M{"id": th.ID().String()}
-	update := bson.M{"$push": bson.M{"comments": c}}
+func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error) {
+	return r.findOne(ctx, bson.M{
+		"id": id.String(),
+	})
+}
 
-	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
-		return err
+func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+	cc := mongodoc.ToComment(c)
+	filter := bson.M{"id": th.ID().String()}
+	update := bson.M{"$push": bson.M{"comments": cc}}
+
+	if _, err := r.client.Client().UpdateOne(ctx, r.writeFilter(filter), update); err != nil {
+		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
@@ -58,29 +67,18 @@ func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *th
 
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$set": bson.M{"comments." + string(rune(i)) + ".content": c.Content()}}
+
 	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
-		return nil, err
+		return nil, rerror.ErrInternalBy(err)
 	}
 	return cc, nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
-	_, i, ok := lo.FindIndexOf(th.Comments(), func(c *thread.Comment) bool {
-		return c.ID() == id
-	})
-
-	if !ok {
-		return nil
-	}
-
 	filter := bson.M{"id": th.ID().String()}
-	update := bson.M{"$set": bson.M{"comments." + string(rune(i)): nil}}
+	update := bson.M{"$pull": bson.M{"comments": bson.M{"id": id.String()}}}
 	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
-		return err
-	}
-	update = bson.M{"$pull": bson.M{"comments": nil}}
-	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
-		return err
+		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
@@ -91,6 +89,18 @@ func (r *threadRepo) Save(ctx context.Context, thread *thread.Thread) error {
 	}
 	doc, id := mongodoc.NewThread(thread)
 	return r.client.SaveOne(ctx, id, doc)
+}
+
+func (r *threadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, error) {
+	c := mongodoc.NewThreadConsumer()
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
+		return nil, err
+	}
+	return c.Result[0], nil
+}
+
+func (r *threadRepo) readFilter(filter any) any {
+	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
 func (r *threadRepo) writeFilter(filter any) any {
