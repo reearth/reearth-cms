@@ -19,10 +19,9 @@ import (
 func Test_ItemRepo_FindByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sid := schema.NewID()
-	pid := project.NewID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemID
@@ -31,7 +30,7 @@ func Test_ItemRepo_FindByID(t *testing.T) {
 	}{
 		{
 			Name:     "must find a item",
-			Input:    id1,
+			Input:    i1.ID(),
 			RepoData: i1,
 			Expected: i1,
 		},
@@ -100,25 +99,23 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	ctx := context.Background()
 	err := repo.Save(ctx, i1)
 	assert.NoError(t, err)
-	got, err := repo.FindAllVersionsByID(ctx, id1)
+	got, err := repo.FindAllVersionsByID(ctx, i1.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(got))
 
 	err = repo.Save(ctx, i1)
 	assert.NoError(t, err)
-	got2, err := repo.FindAllVersionsByID(ctx, id1)
+	got2, err := repo.FindAllVersionsByID(ctx, i1.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(got2))
 }
 
 func Test_itemRepo_FindByIDs(t *testing.T) {
-	sid := id.NewSchemaID()
-	sfid := id.NewFieldID()
-	id1 := id.NewItemID()
-	id2 := id.NewItemID()
+	sid := schema.NewID()
+	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
-	i2, _ := item.New().ID(id2).Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemIDList
@@ -126,7 +123,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items",
-			Input:    id.ItemIDList{id1, id2},
+			Input:    id.ItemIDList{i1.ID(), i2.ID()},
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
 		},
@@ -163,7 +160,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 
 func Test_itemRepo_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
-	sfid := id.NewFieldID()
+	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
 	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
@@ -208,47 +205,48 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 	}
 }
 
-func Test_itemRepo_FindByProject(t *testing.T) {
-	pid := project.NewID()
-	i1, _ := item.New().NewID().Project(pid).Build()
-	i2, _ := item.New().NewID().Project(pid).Build()
-	tests := []struct {
-		Name               string
-		Input              id.ProjectID
-		RepoData, Expected item.List
-	}{
-		{
-			Name:     "must find two items (first 10)",
-			Input:    pid,
-			RepoData: item.List{i1, i2},
-			Expected: item.List{i1, i2},
-		},
-		{
-			Name:     "must not find any item",
-			Input:    project.NewID(),
-			RepoData: item.List{i1, i2},
-		},
-	}
-
-	init := mongotest.Connect(t)
-
-	for _, tc := range tests {
-		tc := tc
-
-		t.Run(tc.Name, func(tt *testing.T) {
-			tt.Parallel()
-
-			client := mongox.NewClientWithDatabase(init(t))
-
-			repo := NewItem(client)
-			ctx := context.Background()
-			for _, i := range tc.RepoData {
-				err := repo.Save(ctx, i)
-				assert.NoError(tt, err)
-			}
-
-			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
-			assert.Equal(tt, tc.Expected, got)
-		})
-	}
-}
+//
+//func Test_itemRepo_FindByProject(t *testing.T) {
+//	pid := project.NewID()
+//	i1, _ := item.New().NewID().Project(pid).Build()
+//	i2, _ := item.New().NewID().Project(pid).Build()
+//	tests := []struct {
+//		Name               string
+//		Input              id.ProjectID
+//		RepoData, Expected item.List
+//	}{
+//		{
+//			Name:     "must find two items (first 10)",
+//			Input:    pid,
+//			RepoData: item.List{i1, i2},
+//			Expected: item.List{i1, i2},
+//		},
+//		{
+//			Name:     "must not find any item",
+//			Input:    project.NewID(),
+//			RepoData: item.List{i1, i2},
+//		},
+//	}
+//
+//	init := mongotest.Connect(t)
+//
+//	for _, tc := range tests {
+//		tc := tc
+//
+//		t.Run(tc.Name, func(tt *testing.T) {
+//			tt.Parallel()
+//
+//			client := mongox.NewClientWithDatabase(init(t))
+//
+//			repo := NewItem(client)
+//			ctx := context.Background()
+//			for _, i := range tc.RepoData {
+//				err := repo.Save(ctx, i)
+//				assert.NoError(tt, err)
+//			}
+//
+//			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+//			assert.Equal(tt, tc.Expected, got)
+//		})
+//	}
+//}
