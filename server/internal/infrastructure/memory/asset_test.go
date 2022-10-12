@@ -13,6 +13,63 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAssetRepo_Filtered(t *testing.T) {
+	tid1 := id.NewProjectID()
+	id1 := id.NewAssetID()
+	id2 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	uid2 := id.NewUserID()
+	p1 := asset.New().ID(id1).Project(tid1).CreatedBy(uid1).Size(1000).MustBuild()
+	p2 := asset.New().ID(id2).Project(tid1).CreatedBy(uid2).Size(1000).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   asset.List
+		arg     repo.ProjectFilter
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				p1,
+				p2,
+			},
+			arg: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "project filter operation success",
+			seeds: asset.List{
+				p1,
+				p2,
+			},
+			arg: repo.ProjectFilter{
+				Readable: []id.ProjectID{tid1},
+				Writable: []id.ProjectID{tid1},
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewAsset().Filtered(tc.arg)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				assert.ErrorIs(t, err, tc.wantErr)
+			}
+		})
+	}
+}
+
 func TestAssetRepo_FindByID(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
@@ -188,6 +245,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 		name    string
 		seeds   []*asset.Asset
 		args    args
+		filter  *repo.ProjectFilter
 		want    []*asset.Asset
 		wantErr error
 	}{
@@ -249,6 +307,18 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			},
 			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "Filtered",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
+			want:    []*asset.Asset{a1},
 			wantErr: nil,
 		},
 	}
