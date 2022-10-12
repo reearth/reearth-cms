@@ -9,10 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/appx"
 )
-
-var contextAuthInfo = struct{}{}
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -23,10 +20,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			var u *user.User
 
 			// get sub from context
-			var ai *appx.AuthInfo
-			if ai2, ok := ctx.Value(contextAuthInfo).(*appx.AuthInfo); ok {
-				ai = ai2
-			}
+			ai := adapter.GetAuthInfo(ctx)
 
 			// find or create user
 			if ai != nil {
