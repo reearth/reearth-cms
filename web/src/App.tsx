@@ -8,6 +8,7 @@ import AccessibilityPage from "@reearth-cms/components/pages/Accessibility";
 import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
 import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import ContentPage from "@reearth-cms/components/pages/Content";
+import ContentDetailsPage from "@reearth-cms/components/pages/ContentDetails";
 import DashboardPage from "@reearth-cms/components/pages/Dashboard";
 import IntegrationPage from "@reearth-cms/components/pages/Integration";
 import MembersPage from "@reearth-cms/components/pages/Members";
@@ -29,6 +30,14 @@ function AppRoutes() {
     { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
     { path: "/workspaces/:workspaceId/:projectId/content", element: <ContentPage /> },
     { path: "/workspaces/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
+    {
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details",
+      element: <ContentDetailsPage />,
+    },
+    {
+      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details/:itemId",
+      element: <ContentDetailsPage />,
+    },
     {
       path: "/workspaces/:workspaceId/:projectId/asset",
       element: <AssetListPage />,
