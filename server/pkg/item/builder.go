@@ -1,7 +1,6 @@
 package item
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"golang.org/x/exp/slices"
 )
@@ -41,7 +40,7 @@ func (b *Builder) Schema(sid schema.ID) *Builder {
 	return b
 }
 
-func (b *Builder) Project(pid project.ID) *Builder {
+func (b *Builder) Project(pid ProjectID) *Builder {
 	b.i.projectID = pid
 	return b
 }

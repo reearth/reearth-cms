@@ -1,7 +1,6 @@
 package item
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"golang.org/x/exp/slices"
@@ -12,7 +11,7 @@ type VersionedItem = version.Value[Item]
 type Item struct {
 	id        ID
 	schemaID  schema.ID
-	projectID project.ID
+	projectID ProjectID
 	fields    []*Field
 }
 
@@ -24,7 +23,7 @@ func (i *Item) Fields() []*Field {
 	return slices.Clone(i.fields)
 }
 
-func (i *Item) Project() project.ID {
+func (i *Item) Project() ProjectID {
 	return i.projectID
 }
 

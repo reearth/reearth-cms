@@ -2,6 +2,8 @@ type Item implements Node {
   id: ID!
   schemaId: ID!
   projectId: ID!
+  project: Project!
+  schema: Schema!
   fields: [ItemField!]
 }
 
@@ -27,7 +29,6 @@ input ItemFieldInput {
 
 input CreateItemInput {
   schemaId: ID!
-  projectId: ID!
   fields: [ItemFieldInput!]!
 }
 
@@ -64,13 +65,6 @@ type ItemEdge {
 extend type Query {
   items(
     schemaId: ID!
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ItemConnection!
-  itemsByProject(
-    projectId: ID!
     first: Int
     last: Int
     after: Cursor
