@@ -627,19 +627,6 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int    `json:"maxLength"`
 }
 
-type SignupInput struct {
-	Lang        *language.Tag `json:"lang"`
-	Theme       *Theme        `json:"theme"`
-	UserID      *ID           `json:"userId"`
-	WorkspaceID *ID           `json:"workspaceId"`
-	Secret      *string       `json:"secret"`
-}
-
-type SignupPayload struct {
-	User      *User      `json:"user"`
-	Workspace *Workspace `json:"workspace"`
-}
-
 type Thread struct {
 	ID          ID         `json:"id"`
 	Workspace   *Workspace `json:"workspace"`
