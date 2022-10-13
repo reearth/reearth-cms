@@ -126,6 +126,11 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
+func (i *Asset) Restore(ctx context.Context, inp interfaces.RestoreAssetParam) (*asset.Asset, error) {
+
+	panic("impl here")
+}
+
 func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
 	return Run1(
 		ctx, operator, i.repos,
