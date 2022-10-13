@@ -3,7 +3,7 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 import Dashboard from "@reearth-cms/components/organisms/Dashboard";
 import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
 
-const WorkspacePage: React.FC = () => {
+const MyIntegrationsPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
       <Dashboard
@@ -15,4 +15,4 @@ const WorkspacePage: React.FC = () => {
   );
 };
 
-export default WorkspacePage;
+export default MyIntegrationsPage;

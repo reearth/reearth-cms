@@ -10,17 +10,17 @@ export type InnerProps = {
 };
 
 export type Props = {
-  header: React.ReactNode;
-  child: React.ReactNode;
-  sidebar: React.ReactNode;
+  headerComponent: React.ReactNode;
+  contentComponent: React.ReactNode;
+  sidebarComponent: React.ReactNode;
   collapsed: boolean;
   onCollapse: (collapse: boolean) => void;
 };
 
 const DashboardMolecule: React.FC<Props> = ({
-  child: Child,
-  sidebar: Sidebar,
-  header: Header,
+  contentComponent: Child,
+  sidebarComponent: Sidebar,
+  headerComponent: Header,
   collapsed,
   onCollapse,
 }) => {
