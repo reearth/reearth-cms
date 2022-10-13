@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 type Thread struct {
@@ -54,10 +54,11 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 		return repo.ErrOperationDenied
 	}
 
-	comments := append(th.Comments(), c)
-	th.SetComments(comments...)
+	th1 := th.Clone()
+	comments := append(th1.Comments(), c)
+	th1.SetComments(comments...)
 
-	r.data.Store(th.ID(), th)
+	r.data.Store(th1.ID(), th1)
 	return nil
 }
 
@@ -70,17 +71,12 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 		return repo.ErrOperationDenied
 	}
 
-	cc, ok := lo.Find(th.Comments(), func(c2 *thread.Comment) bool {
-		return c2.ID() == c.ID()
-	})
+	th1 := th.Clone()
+	comments := th1.Comments()
+	i := slices.IndexFunc(comments, func(c2 *thread.Comment) bool { return c2.ID() == c.ID() })
+	comments[i].SetContent(c.Content())
 
-	if !ok {
-		return repo.ErrCommentNotFound
-	}
-
-	cc.SetContent(c.Content())
-
-	r.data.Store(th.ID(), th)
+	r.data.Store(th1.ID(), th1)
 	return nil
 }
 
@@ -93,20 +89,12 @@ func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.Com
 		return repo.ErrOperationDenied
 	}
 
-	_, i, ok := lo.FindIndexOf(th.Comments(), func(c *thread.Comment) bool {
-		return c.ID() == id
-	})
+	th1 := th.Clone()
+	i := slices.IndexFunc(th1.Comments(), func(c *thread.Comment) bool { return c.ID() == id })
+	comments := append(th1.Comments()[:i], th1.Comments()[i+1:]...)
+	th1.SetComments(comments...)
 
-	if !ok {
-		return repo.ErrCommentNotFound
-	}
-
-	comments := lo.Filter(th.Comments(), func(x *thread.Comment, index int) bool {
-		return index != i
-	})
-
-	th.SetComments(comments...)
-	r.data.Store(th.ID(), th)
+	r.data.Store(th1.ID(), th1)
 	return nil
 }
 

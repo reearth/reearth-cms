@@ -7,60 +7,27 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestThread_Filtered(t *testing.T) {
+	r := &Thread{}
 	wid := id.NewWorkspaceID()
-	th1 := thread.New().NewID().Workspace(wid).MustBuild()
-	th2 := thread.New().NewID().Workspace(wid).MustBuild()
 
-	tests := []struct {
-		name    string
-		seeds   []*thread.Thread
-		filter  repo.WorkspaceFilter
-		wantErr error
-	}{
-		{
-			name:  "workspaces operation denied",
-			seeds: []*thread.Thread{th1, th2},
-			filter: repo.WorkspaceFilter{
-				Readable: []id.WorkspaceID{},
-				Writable: []id.WorkspaceID{},
-			},
-			wantErr: repo.ErrOperationDenied,
+	assert.Equal(t, &Thread{
+		f: repo.WorkspaceFilter{
+			Readable: id.WorkspaceIDList{wid},
+			Writable: nil,
 		},
-		{
-			name:  "workspaces operation success",
-			seeds: []*thread.Thread{th1, th2},
-			filter: repo.WorkspaceFilter{
-				Readable: []id.WorkspaceID{wid},
-				Writable: []id.WorkspaceID{wid},
-			},
-			wantErr: nil,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			r := NewThread().Filtered(tc.filter)
-			ctx := context.Background()
-			for _, p := range tc.seeds {
-				err := r.Save(ctx, p.Clone())
-				assert.ErrorIs(t, err, tc.wantErr)
-			}
-		})
-	}
+	}, r.Filtered(repo.WorkspaceFilter{
+		Readable: id.WorkspaceIDList{wid},
+		Writable: nil,
+	}))
 }
 
 func TestThread_AddComment(t *testing.T) {
-	c1 := thread.Comment{}
-	cid1 := id.NewCommentID()
-	c1.SetID(cid1)
-
+	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
 
@@ -90,9 +57,13 @@ func TestThread_AddComment(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:    "add comment success",
-			seed:    th1,
-			arg:     &c1,
+			name: "add comment success",
+			seed: th1,
+			filter: &repo.WorkspaceFilter{
+				Readable: []id.WorkspaceID{wid},
+				Writable: []id.WorkspaceID{wid},
+			},
+			arg:     c1,
 			wantErr: nil,
 		},
 	}
@@ -104,39 +75,35 @@ func TestThread_AddComment(t *testing.T) {
 
 			r := NewThread()
 			ctx := context.Background()
-
-			err := r.Save(ctx, tc.seed.Clone())
-			assert.NoError(t, err)
+			_ = r.Save(ctx, tc.seed.Clone())
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
 
-			err1 := r.AddComment(ctx, tc.seed, tc.arg)
+			err := r.AddComment(ctx, tc.seed, tc.arg)
 			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err1)
+				assert.Equal(t, tc.wantErr, err)
 				return
+			} else {
+				assert.NoError(t, err)
 			}
 
 			if tc.arg != nil {
-				assert.True(t, tc.seed.HasComment(tc.arg.ID()))
+				th, err := r.FindByID(ctx, tc.seed.ID())
+				assert.NoError(t, err)
+				assert.Equal(t, 1, len(th.Comments()))
+				assert.True(t, th.HasComment(tc.arg.ID()))
 			}
 		})
 	}
 }
 
 func TestThread_UpdateComment(t *testing.T) {
-	c1 := thread.Comment{}
-	cid1 := id.NewCommentID()
-	c1.SetID(cid1)
-
-	c2 := thread.Comment{}
-	cid2 := id.NewCommentID()
-	c2.SetID(cid2)
-	c2.SetContent("test")
-
+	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "test")
 	wid := id.NewWorkspaceID()
-	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{&c1, &c2}).MustBuild()
+	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 
 	tests := []struct {
 		name         string
@@ -171,12 +138,6 @@ func TestThread_UpdateComment(t *testing.T) {
 			arg:     "updated",
 			wantErr: nil,
 		},
-		{
-			name:         "update comment not found",
-			seed:         th1,
-			wantErr:      repo.ErrCommentNotFound,
-			mockNotFound: true,
-		},
 	}
 
 	for _, tc := range tests {
@@ -187,36 +148,35 @@ func TestThread_UpdateComment(t *testing.T) {
 			r := NewThread()
 			ctx := context.Background()
 
-			err := r.Save(ctx, tc.seed.Clone())
+			thread := tc.seed.Clone()
+			err := r.Save(ctx, thread)
 			assert.NoError(t, err)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
 
-			for _, c := range tc.seed.Comments() {
-				c.SetContent(tc.arg)
-				if tc.mockNotFound {
-					c = &thread.Comment{}
-				}
-				got, err := r.UpdateComment(ctx, tc.seed, c)
-				if tc.wantErr != nil {
-					assert.Equal(t, tc.wantErr, err)
-					return
-				}
-				assert.Equal(t, tc.arg, got.Content())
+			comment := thread.Comments()[0]
+			comment.SetContent(tc.arg)
+
+			if err := r.UpdateComment(ctx, thread, comment); tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			} else {
+				assert.NoError(t, err)
 			}
+
+			thread2, _ := r.FindByID(ctx, thread.ID())
+			assert.Equal(t, tc.arg, thread2.Comments()[0].Content())
 		})
 	}
 }
 
 func TestThread_DeleteComment(t *testing.T) {
-	c1 := thread.Comment{}
-	cid1 := id.NewCommentID()
-	c1.SetID(cid1)
-
+	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "bbb")
 	wid := id.NewWorkspaceID()
-	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{&c1}).MustBuild()
+	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -249,12 +209,6 @@ func TestThread_DeleteComment(t *testing.T) {
 			arg:     c1.ID(),
 			wantErr: nil,
 		},
-		{
-			name:    "delete comment not found",
-			seed:    th1,
-			arg:     id.NewCommentID(),
-			wantErr: repo.ErrCommentNotFound,
-		},
 	}
 
 	for _, tc := range tests {
@@ -265,20 +219,25 @@ func TestThread_DeleteComment(t *testing.T) {
 			r := NewThread()
 			ctx := context.Background()
 
-			err := r.Save(ctx, tc.seed.Clone())
+			seed := tc.seed.Clone()
+			err := r.Save(ctx, seed)
 			assert.NoError(t, err)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
 
-			err1 := r.DeleteComment(ctx, tc.seed, tc.arg)
-			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err1)
+			commentID := seed.Comments()[0].ID()
+			if err := r.DeleteComment(ctx, seed, commentID); tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
 				return
+			} else {
+				assert.NoError(t, err)
 			}
 
-			assert.False(t, tc.seed.HasComment(tc.arg))
+			thread2, _ := r.FindByID(ctx, seed.ID())
+			assert.Equal(t, len(seed.Comments())-1, len(thread2.Comments()))
+			assert.False(t, lo.ContainsBy(thread2.Comments(), func(c *thread.Comment) bool { return c.ID() == commentID }))
 		})
 	}
 }
