@@ -13,7 +13,7 @@ type Props = {
   itemId: string | undefined;
 };
 
-export default ({ itemId: itemID }: Props) => {
+export default ({ itemId }: Props) => {
   const { currentModel, itemsData } = useContentHooks();
 
   const [createNewItem] = useCreateItemMutation({
@@ -22,12 +22,12 @@ export default ({ itemId: itemID }: Props) => {
 
   const handleItemCreate = useCallback(
     async (data: {
-      schemaID: string;
-      fields: { schemaFieldID: string; type: FieldType; value: string }[];
+      schemaId: string;
+      fields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
       const item = await createNewItem({
         variables: {
-          schemaID: data.schemaID,
+          schemaId: data.schemaId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
         },
       });
@@ -45,12 +45,12 @@ export default ({ itemId: itemID }: Props) => {
 
   const handleItemUpdate = useCallback(
     async (data: {
-      itemID: string;
-      fields: { schemaFieldID: string; type: FieldType; value: string }[];
+      itemId: string;
+      fields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
       const item = await updateItem({
         variables: {
-          itemID: data.itemID,
+          itemId: data.itemId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
         },
       });
@@ -64,7 +64,7 @@ export default ({ itemId: itemID }: Props) => {
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    if (!itemID) {
+    if (!itemId) {
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -79,13 +79,13 @@ export default ({ itemId: itemID }: Props) => {
         }
       });
     } else {
-      const item = itemsData?.items.nodes.find(item => item?.id === itemID);
+      const item = itemsData?.items.nodes.find(item => item?.id === itemId);
       item?.fields?.forEach(field => {
-        initialValues[field.schemaFieldID] = field.value;
+        initialValues[field.schemaFieldId] = field.value;
       });
     }
     return initialValues;
-  }, [itemsData?.items.nodes, itemID, currentModel?.schema.fields]);
+  }, [itemsData?.items.nodes, itemId, currentModel?.schema.fields]);
 
   return {
     initialFormValues,
