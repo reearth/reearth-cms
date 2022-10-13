@@ -20,7 +20,7 @@ func TestWorkspace_Create(t *testing.T) {
 
 	db := memory.New()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
 	workspaceUC := NewWorkspace(db)
 	op := &usecase.Operator{User: u.ID()}
 	workspace, err := workspaceUC.Create(ctx, "workspace name", u.ID(), op)
@@ -52,7 +52,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
@@ -162,7 +162,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
@@ -545,7 +545,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 	id3 := id.NewWorkspaceID()
 	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 
 	op := &usecase.Operator{
 		User:               userID,
@@ -668,7 +668,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 
 func TestWorkspace_RemoveMember(t *testing.T) {
 	userID := id.NewUserID()
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
 	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
@@ -809,7 +809,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 
 func TestWorkspace_UpdateMember(t *testing.T) {
 	userID := id.NewUserID()
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
 	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
