@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/appx"
 )
 
 type ContextKey string
@@ -15,18 +16,9 @@ type ContextKey string
 const (
 	contextUser     ContextKey = "user"
 	contextOperator ContextKey = "operator"
-	contextAuthInfo ContextKey = "authinfo"
+	ContextAuthInfo ContextKey = "authinfo"
 	contextUsecases ContextKey = "usecases"
 )
-
-type AuthInfo struct {
-	Token         string
-	Sub           string
-	Iss           string
-	Name          string
-	Email         string
-	EmailVerified *bool
-}
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
 	return context.WithValue(ctx, contextUser, u)
@@ -34,10 +26,6 @@ func AttachUser(ctx context.Context, u *user.User) context.Context {
 
 func AttachOperator(ctx context.Context, o *usecase.Operator) context.Context {
 	return context.WithValue(ctx, contextOperator, o)
-}
-
-func AttachAuthInfo(ctx context.Context, a AuthInfo) context.Context {
-	return context.WithValue(ctx, contextAuthInfo, a)
 }
 
 func AttachUsecases(ctx context.Context, u *interfaces.Container) context.Context {
@@ -81,9 +69,9 @@ func Operator(ctx context.Context) *usecase.Operator {
 	return nil
 }
 
-func GetAuthInfo(ctx context.Context) *AuthInfo {
-	if v := ctx.Value(contextAuthInfo); v != nil {
-		if v2, ok := v.(AuthInfo); ok {
+func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
+	if v := ctx.Value(ContextAuthInfo); v != nil {
+		if v2, ok := v.(appx.AuthInfo); ok {
 			return &v2
 		}
 	}

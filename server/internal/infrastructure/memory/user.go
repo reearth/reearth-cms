@@ -128,6 +128,35 @@ func (r *User) FindByVerification(ctx context.Context, code string) (*user.User,
 	}), rerror.ErrNotFound)
 }
 
+func (r *User) FindBySubOrCreate(ctx context.Context, u *user.User, sub string) (*user.User, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	u2 := r.data.Find(func(key id.UserID, value *user.User) bool {
+		return value.ContainAuth(user.AuthFromAuth0Sub(sub))
+	})
+	if u2 == nil {
+		r.data.Store(u.ID(), u)
+		return u, nil
+	}
+	return u2, nil
+}
+
+func (r *User) Create(ctx context.Context, u *user.User) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	if _, ok := r.data.Load(u.ID()); !ok {
+		r.data.Store(u.ID(), u)
+	} else {
+		return repo.ErrDuplicatedUser
+	}
+
+	return nil
+}
+
 func (r *User) Save(ctx context.Context, u *user.User) error {
 	if r.err != nil {
 		return r.err

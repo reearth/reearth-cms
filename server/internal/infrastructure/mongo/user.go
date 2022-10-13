@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -11,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type userRepo struct {
@@ -24,7 +27,7 @@ func NewUser(client *mongox.Client) repo.User {
 }
 
 func (r *userRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"subs"}, []string{"id", "email", "name"})
+	i := r.client.CreateIndex(context.Background(), []string{"subs", "name"}, []string{"id", "email"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "user", i)
 	}
@@ -89,6 +92,46 @@ func (r *userRepo) FindByPasswordResetRequest(ctx context.Context, pwdResetToken
 	return r.findOne(ctx, bson.M{
 		"passwordreset.token": pwdResetToken,
 	})
+}
+
+func (r *userRepo) FindBySubOrCreate(ctx context.Context, user *user.User, sub string) (*user.User, error) {
+	userDoc, _ := mongodoc.NewUser(user)
+	if err := r.client.Client().FindOneAndUpdate(
+		ctx,
+		bson.M{
+			"$or": []bson.M{
+				{
+					"subs": bson.M{
+						"$elemMatch": bson.M{
+							"$eq": sub,
+						},
+					},
+				},
+			},
+		},
+		bson.M{"$setOnInsert": userDoc},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	).Decode(&userDoc); err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return nil, repo.ErrDuplicatedUser
+		}
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return userDoc.Model()
+}
+
+func (r *userRepo) Create(ctx context.Context, user *user.User) error {
+	doc, _ := mongodoc.NewUser(user)
+	if _, err := r.client.Client().InsertOne(
+		ctx,
+		doc,
+	); err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return repo.ErrDuplicatedUser
+		}
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
 }
 
 func (r *userRepo) Save(ctx context.Context, user *user.User) error {

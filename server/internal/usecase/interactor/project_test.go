@@ -29,7 +29,7 @@ func TestProject_Fetch(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -143,7 +143,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -249,7 +249,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 func TestProject_Create(t *testing.T) {
 	mocktime := time.Now()
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: nil,
@@ -353,7 +353,7 @@ func TestProject_Update(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -472,7 +472,7 @@ func TestProject_CheckAlias(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -547,7 +547,7 @@ func TestProject_Delete(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
