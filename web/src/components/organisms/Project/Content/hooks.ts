@@ -4,7 +4,7 @@ import { useModel } from "@reearth-cms/state";
 export default () => {
   const [currentModel] = useModel();
   const { data: itemsData } = useGetItemsQuery({
-    variables: { schemaID: currentModel?.schema.id ?? "", first: 100 },
+    variables: { schemaId: currentModel?.schema.id ?? "", first: 100 },
     skip: !currentModel?.schema.id,
   });
 
