@@ -19,9 +19,10 @@ import (
 type contextKey string
 
 const (
-	debugUserHeader            = "X-Reearth-Debug-User"
-	contextUser     contextKey = "reearth_user"
-	defaultJWTTTL              = 5 * time.Minute
+	debugUserHeader                   = "X-Reearth-Debug-User"
+	debugIntegrationHeader            = "X-Reearth-Debug-Integration"
+	contextUser            contextKey = "reearth_user"
+	defaultJWTTTL                     = 5 * time.Minute
 )
 
 type customClaims struct {

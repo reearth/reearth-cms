@@ -3,7 +3,7 @@ package integration
 import "context"
 
 func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error) {
-
+	// TODO implement me
 	panic("implement me")
 }
 

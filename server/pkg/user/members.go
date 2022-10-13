@@ -88,6 +88,11 @@ func (m *Members) ContainsUser(u ID) bool {
 	return ok
 }
 
+func (m *Members) ContainsIntegration(i IntegrationID) bool {
+	_, ok := m.integrations[i]
+	return ok
+}
+
 func (m *Members) Count() int {
 	return len(m.users)
 }

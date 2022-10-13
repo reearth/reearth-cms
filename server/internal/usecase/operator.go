@@ -2,11 +2,13 @@ package usecase
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Operator struct {
-	User               user.ID
+	User               *user.ID
+	Integration        *integration.ID
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList

@@ -32,6 +32,16 @@ func (r *Workspace) FindByUser(ctx context.Context, i id.UserID) (user.Workspace
 	}), rerror.ErrNotFound)
 }
 
+func (r *Workspace) FindByIntegration(_ context.Context, i id.IntegrationID) (user.WorkspaceList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	return rerror.ErrIfNil(r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
+		return value.Members().ContainsIntegration(i)
+	}), rerror.ErrNotFound)
+}
+
 func (r *Workspace) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
 	if r.err != nil {
 		return nil, r.err

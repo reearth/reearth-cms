@@ -37,6 +37,12 @@ func (r *integrationRepo) FindByID(ctx context.Context, integrationID id.Integra
 	})
 }
 
+func (r *integrationRepo) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
+	return r.findOne(ctx, bson.M{
+		"token": token,
+	})
+}
+
 func (r *integrationRepo) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (integration.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
