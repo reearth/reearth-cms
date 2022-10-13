@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
@@ -8,6 +9,7 @@ import {
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 type Params = {
   integrationId?: string;
@@ -16,6 +18,7 @@ type Params = {
 
 export default ({ integrationId, webhookId }: Params) => {
   const { integrations } = integrationHooks();
+  const t = useT();
 
   const selectedIntegration = useMemo(() => {
     return integrations?.find(integration => integration.id === integrationId);
@@ -66,11 +69,12 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.createWebhook) {
-        // TODO: add notification error
+        Notification.error({ message: t("Failed to create webhook.") });
         return;
       }
+      Notification.success({ message: t("Successfully created webhook!") });
     },
-    [createNewWebhook, integrationId],
+    [createNewWebhook, integrationId, t],
   );
 
   const [deleteWebhook] = useDeleteWebhookMutation({
@@ -87,11 +91,12 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.deleteWebhook) {
-        // TODO: Add notification error
+        Notification.error({ message: t("Failed to delete webhook.") });
         return;
       }
+      Notification.success({ message: t("Successfully deleted webhook!") });
     },
-    [deleteWebhook, integrationId],
+    [deleteWebhook, integrationId, t],
   );
 
   const [updateWebhook] = useUpdateWebhookMutation({
@@ -118,11 +123,12 @@ export default ({ integrationId, webhookId }: Params) => {
         },
       });
       if (webhook.errors || !webhook.data?.updateWebhook) {
-        // TODO: Add notification error
+        Notification.error({ message: t("Failed to update webhook.") });
         return;
       }
+      Notification.success({ message: t("Successfully updated webhook!") });
     },
-    [updateWebhook, integrationId],
+    [updateWebhook, integrationId, t],
   );
 
   return {
