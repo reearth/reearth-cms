@@ -22,6 +22,9 @@ func Start(debug bool, version string) {
 	if cerr != nil {
 		log.Fatal(cerr)
 	}
+	log.Infof("config: %s", conf.Print())
+
+	// Init repositories
 	repos, gateways := initReposAndGateways(ctx, conf, debug)
 
 	// Start web server
