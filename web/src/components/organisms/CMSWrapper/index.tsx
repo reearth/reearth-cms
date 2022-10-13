@@ -23,7 +23,7 @@ export type Props = {
   }>;
 };
 
-const Dashboard: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar: Sidebar }) => {
+const CMSWrapper: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar: Sidebar }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -76,4 +76,4 @@ const Dashboard: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar
   );
 };
 
-export default Dashboard;
+export default CMSWrapper;
