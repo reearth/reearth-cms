@@ -46,17 +46,25 @@ func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thre
 }
 
 func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+	if !r.f.CanWrite(th.Workspace()) {
+		return  repo.ErrOperationDenied
+	}
+	
 	cc := mongodoc.ToComment(c)
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$push": bson.M{"comments": cc}}
 
-	if _, err := r.client.Client().UpdateOne(ctx, r.writeFilter(filter), update); err != nil {
+	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
 
 func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
+	if !r.f.CanWrite(th.Workspace()) {
+		return nil, repo.ErrOperationDenied
+	}
+	
 	cc, i, ok := lo.FindIndexOf(th.Comments(), func(c2 *thread.Comment) bool {
 		return c2.ID() == c.ID()
 	})
@@ -68,16 +76,20 @@ func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *th
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$set": bson.M{"comments." + string(rune(i)) + ".content": c.Content()}}
 
-	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
+	if _, err := r.client.Client().UpdateMany(ctx,filter, update); err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
 	return cc, nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
+	if !r.f.CanWrite(th.Workspace()) {
+		return repo.ErrOperationDenied
+	}
+	
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$pull": bson.M{"comments": bson.M{"id": id.String()}}}
-	if _, err := r.client.Client().UpdateMany(ctx, r.writeFilter(filter), update); err != nil {
+	if _, err := r.client.Client().UpdateMany(ctx, filter, update); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
