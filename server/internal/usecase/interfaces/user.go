@@ -16,37 +16,27 @@ var (
 	ErrUserInvalidPasswordReset        = errors.New("invalid password reset request")
 	ErrUserInvalidLang                 = errors.New("invalid lang")
 	ErrSignupInvalidSecret             = errors.New("invalid secret")
-	ErrSignupInvalidName               = errors.New("invalid name")
 	ErrInvalidUserEmail                = errors.New("invalid email")
 	ErrNotVerifiedUser                 = errors.New("not verified user")
-	ErrSignupInvalidPassword           = errors.New("invalid password")
+	ErrInvalidEmailOrPassword          = errors.New("invalid email or password")
 	ErrUserAlreadyExists               = errors.New("user already exists")
 )
 
-type SignupParam struct {
-	Sub      *string // required by Auth0
-	Email    string
-	Name     string
-	Password *string
-	Secret   *string
-	User     SignupUserParam
-}
-
-type SignupOIDCParam struct {
-	AccessToken string
-	Issuer      string
-	Sub         string
+type SignUpParam struct {
 	Email       string
 	Name        string
+	Password    string
 	Secret      *string
-	User        SignupUserParam
-}
-
-type SignupUserParam struct {
-	UserID      *id.UserID
 	Lang        *language.Tag
 	Theme       *user.Theme
+	UserID      *id.UserID
 	WorkspaceID *id.WorkspaceID
+}
+
+type UserFindOrCreateParam struct {
+	Sub   string
+	ISS   string
+	Token string
 }
 
 type GetUserByCredentials struct {
@@ -65,11 +55,8 @@ type UpdateMeParam struct {
 
 type User interface {
 	Fetch(context.Context, []id.UserID, *usecase.Operator) ([]*user.User, error)
-	// TODO(signup): remove the internal auth provider signup
-	Signup(context.Context, SignupParam) (*user.User, *user.Workspace, error)
-	SignupOIDC(context.Context, SignupOIDCParam) (*user.User, *user.Workspace, error)
-	GetUserByCredentials(context.Context, GetUserByCredentials) (*user.User, error)
-	GetUserBySubject(context.Context, string) (*user.User, error)
+	SignUp(context.Context, SignUpParam) (*user.User, error)
+	FindOrCreate(context.Context, UserFindOrCreateParam) (*user.User, error)
 	UpdateMe(context.Context, UpdateMeParam, *usecase.Operator) (*user.User, error)
 	RemoveMyAuth(context.Context, string, *usecase.Operator) (*user.User, error)
 	SearchUser(context.Context, string, *usecase.Operator) (*user.User, error)
