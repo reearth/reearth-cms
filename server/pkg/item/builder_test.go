@@ -55,15 +55,15 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should build an item",
 			fields: fields{
 				i: &Item{
-					id:        iid,
-					schemaID:  sid,
-					projectID: pid,
+					id:      iid,
+					schema:  sid,
+					project: pid,
 				},
 			},
 			want: &Item{
-				id:        iid,
-				schemaID:  sid,
-				projectID: pid,
+				id:      iid,
+				schema:  sid,
+				project: pid,
 			},
 			wantErr: false,
 		},
@@ -79,8 +79,8 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should fail: invalid schema ID",
 			fields: fields{
 				i: &Item{
-					id:        iid,
-					projectID: pid,
+					id:      iid,
+					project: pid,
 				},
 			},
 			want:    nil,
@@ -90,8 +90,8 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should fail: invalid project ID",
 			fields: fields{
 				i: &Item{
-					id:       iid,
-					schemaID: sid,
+					id:     iid,
+					schema: sid,
 				},
 			},
 			want:    nil,

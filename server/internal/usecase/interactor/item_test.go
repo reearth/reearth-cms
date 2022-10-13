@@ -246,7 +246,10 @@ func TestItem_FindBySchema(t *testing.T) {
 
 func TestItem_Create(t *testing.T) {
 	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).MustBuild()
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
@@ -254,6 +257,8 @@ func TestItem_Create(t *testing.T) {
 	ctx := context.Background()
 
 	db := memory.New()
+	err := db.Schema.Save(ctx, s)
+	assert.Nil(t, err)
 
 	itemUC := NewItem(db)
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
@@ -270,7 +275,7 @@ func TestItem_Create(t *testing.T) {
 	wantErr := errors.New("test")
 	memory.SetItemError(db.Item, wantErr)
 	item2, err := itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: schema.ID{},
+		SchemaID: sid,
 		Fields:   nil,
 	}, op)
 	assert.Nil(t, item2)
@@ -401,7 +406,7 @@ func TestItem_FindByProject(t *testing.T) {
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}

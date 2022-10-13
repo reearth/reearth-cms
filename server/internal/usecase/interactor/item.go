@@ -62,7 +62,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			ib := item.New().
 				NewID().
 				Schema(param.SchemaID).
-				Project(s.)
+				Project(s.Project())
 
 			if len(param.Fields) > 0 {
 				var fs []*item.Field

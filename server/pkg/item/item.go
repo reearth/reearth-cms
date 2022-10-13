@@ -8,10 +8,10 @@ import (
 type VersionedItem = version.Value[Item]
 
 type Item struct {
-	id        ID
-	schemaID  SchemaID
-	projectID ProjectID
-	fields    []*Field
+	id      ID
+	schema  SchemaID
+	project ProjectID
+	fields  []*Field
 }
 
 func (i *Item) ID() ID {
@@ -23,11 +23,11 @@ func (i *Item) Fields() []*Field {
 }
 
 func (i *Item) Project() ProjectID {
-	return i.projectID
+	return i.project
 }
 
 func (i *Item) Schema() SchemaID {
-	return i.schemaID
+	return i.schema
 }
 
 func (i *Item) UpdateFields(fields []*Field) {
