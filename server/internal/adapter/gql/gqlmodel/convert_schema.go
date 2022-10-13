@@ -11,8 +11,8 @@ func ToSchema(s *schema.Schema) *Schema {
 	}
 
 	return &Schema{
-		ID: IDFrom(s.ID()),
-		// ProjectID: nil,
+		ID:        IDFrom(s.ID()),
+		ProjectID: IDFrom(s.Project()),
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *SchemaField {
 			return ToSchemaField(sf)
 		}),
