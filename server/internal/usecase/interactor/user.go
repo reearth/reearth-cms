@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"errors"
-	"net/mail"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -70,7 +69,7 @@ func (i *User) GetUserByCredentials(ctx context.Context, inp interfaces.GetUserB
 			return nil, err
 		}
 		if !matched {
-			return nil, interfaces.ErrSignupInvalidPassword
+			return nil, interfaces.ErrInvalidEmailOrPassword
 		}
 		if u.Verification() == nil || !u.Verification().IsVerified() {
 			return nil, interfaces.ErrNotVerifiedUser
@@ -105,14 +104,6 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 		}
 
 		if p.Name != nil && *p.Name != u.Name() {
-			// username should not be a valid mail
-			if _, err := mail.ParseAddress(*p.Name); err == nil {
-				return nil, interfaces.ErrSignupInvalidName
-			}
-			// make sure the username is not exists
-			if userByName, _ := i.repos.User.FindByName(ctx, *p.Name); userByName != nil {
-				return nil, interfaces.ErrSignupInvalidName
-			}
 			oldName := u.Name()
 			u.UpdateName(*p.Name)
 

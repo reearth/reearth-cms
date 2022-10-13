@@ -288,7 +288,6 @@ type ComplexityRoot struct {
 		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
-		Signup                         func(childComplexity int, input gqlmodel.SignupInput) int
 		UpdateAsset                    func(childComplexity int, input gqlmodel.UpdateAssetInput) int
 		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
@@ -451,11 +450,6 @@ type ComplexityRoot struct {
 		DefaultValue func(childComplexity int) int
 	}
 
-	SignupPayload struct {
-		User      func(childComplexity int) int
-		Workspace func(childComplexity int) int
-	}
-
 	Thread struct {
 		Comments    func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -566,7 +560,6 @@ type MutationResolver interface {
 	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
 	UpdateAsset(ctx context.Context, input gqlmodel.UpdateAssetInput) (*gqlmodel.UpdateAssetPayload, error)
 	DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error)
-	Signup(ctx context.Context, input gqlmodel.SignupInput) (*gqlmodel.SignupPayload, error)
 	UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error)
 	RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error)
 	DeleteMe(ctx context.Context, input gqlmodel.DeleteMeInput) (*gqlmodel.DeleteMePayload, error)
@@ -1658,18 +1651,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveUserFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveUserFromWorkspaceInput)), true
 
-	case "Mutation.signup":
-		if e.complexity.Mutation.Signup == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_signup_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.Signup(childComplexity, args["input"].(gqlmodel.SignupInput)), true
-
 	case "Mutation.updateAsset":
 		if e.complexity.Mutation.UpdateAsset == nil {
 			break
@@ -2401,20 +2382,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldURL.DefaultValue(childComplexity), true
 
-	case "SignupPayload.user":
-		if e.complexity.SignupPayload.User == nil {
-			break
-		}
-
-		return e.complexity.SignupPayload.User(childComplexity), true
-
-	case "SignupPayload.workspace":
-		if e.complexity.SignupPayload.Workspace == nil {
-			break
-		}
-
-		return e.complexity.SignupPayload.Workspace(childComplexity), true
-
 	case "Thread.comments":
 		if e.complexity.Thread.Comments == nil {
 			break
@@ -2771,7 +2738,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldTypePropertyInput,
 		ec.unmarshalInputSchemaFieldURLInput,
 		ec.unmarshalInputSchemaMarkdownTextInput,
-		ec.unmarshalInputSignupInput,
 		ec.unmarshalInputUpdateAssetInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdateFieldInput,
@@ -3015,74 +2981,60 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
-    id: ID!
-    name: String!
-    email: String!
+  id: ID!
+  name: String!
+  email: String!
 }
 
 type Me {
-    id: ID!
-    name: String!
-    email: String!
-    lang: Lang!
-    theme: Theme!
-    myWorkspaceId: ID!
-    auths: [String!]!
-    workspaces: [Workspace!]!
-    myWorkspace: Workspace!
-    integrations: [Integration!]!
-}
-
-input SignupInput {
-    lang: Lang
-    theme: Theme
-    userId: ID
-    workspaceId: ID
-    secret: String
+  id: ID!
+  name: String!
+  email: String!
+  lang: Lang!
+  theme: Theme!
+  myWorkspaceId: ID!
+  auths: [String!]!
+  workspaces: [Workspace!]!
+  myWorkspace: Workspace!
+  integrations: [Integration!]!
 }
 
 input UpdateMeInput {
-    name: String
-    email: String
-    lang: Lang
-    theme: Theme
-    password: String
-    passwordConfirmation: String
+  name: String
+  email: String
+  lang: Lang
+  theme: Theme
+  password: String
+  passwordConfirmation: String
 }
 
 input RemoveMyAuthInput {
-    auth: String!
+  auth: String!
 }
 
 input DeleteMeInput {
-    userId: ID!
+  userId: ID!
 }
 
 extend type Query {
-    me: Me
-    searchUser(nameOrEmail: String!): User
+  me: Me
+  searchUser(nameOrEmail: String!): User
 }
-
 
 type UpdateMePayload {
-    me: Me!
-}
-
-type SignupPayload {
-    user: User!
-    workspace: Workspace!
+  me: Me!
 }
 
 type DeleteMePayload {
-    userId: ID!
+  userId: ID!
 }
 
 extend type Mutation {
-    signup(input: SignupInput!): SignupPayload
-    updateMe(input: UpdateMeInput!): UpdateMePayload
-    removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
-    deleteMe(input: DeleteMeInput!): DeleteMePayload
-}`, BuiltIn: false},
+  updateMe(input: UpdateMeInput!): UpdateMePayload
+  removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
+  deleteMe(input: DeleteMeInput!): DeleteMePayload
+}
+`, BuiltIn: false},
 	{Name: "../../../schemas/workspace.graphql", Input: `type Workspace implements Node {
     id: ID!
     name: String!
@@ -4236,21 +4188,6 @@ func (ec *executionContext) field_Mutation_removeUserFromWorkspace_args(ctx cont
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNRemoveUserFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveUserFromWorkspaceInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 gqlmodel.SignupInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNSignupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9882,64 +9819,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteAsset(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_signup(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Signup(rctx, fc.Args["input"].(gqlmodel.SignupInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.SignupPayload)
-	fc.Result = res
-	return ec.marshalOSignupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "user":
-				return ec.fieldContext_SignupPayload_user(ctx, field)
-			case "workspace":
-				return ec.fieldContext_SignupPayload_workspace(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SignupPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_signup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -15664,112 +15543,6 @@ func (ec *executionContext) fieldContext_SchemaFieldURL_defaultValue(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _SignupPayload_user(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SignupPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupPayload_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupPayload_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SignupPayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SignupPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupPayload_workspace(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Workspace, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Workspace)
-	fc.Result = res
-	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupPayload_workspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Workspace_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Workspace_name(ctx, field)
-			case "members":
-				return ec.fieldContext_Workspace_members(ctx, field)
-			case "personal":
-				return ec.fieldContext_Workspace_personal(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Workspace", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Thread_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Thread) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Thread_id(ctx, field)
 	if err != nil {
@@ -21453,66 +21226,6 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSignupInput(ctx context.Context, obj interface{}) (gqlmodel.SignupInput, error) {
-	var it gqlmodel.SignupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"lang", "theme", "userId", "workspaceId", "secret"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "lang":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
-			it.Lang, err = ec.unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "theme":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("theme"))
-			it.Theme, err = ec.unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "workspaceId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "secret":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
-			it.Secret, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateAssetInput, error) {
 	var it gqlmodel.UpdateAssetInput
 	asMap := map[string]interface{}{}
@@ -23983,12 +23696,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_deleteAsset(ctx, field)
 			})
 
-		case "signup":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_signup(ctx, field)
-			})
-
 		case "updateMe":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -25403,41 +25110,6 @@ func (ec *executionContext) _SchemaFieldURL(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._SchemaFieldURL_defaultValue(ctx, field, obj)
 
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var signupPayloadImplementors = []string{"SignupPayload"}
-
-func (ec *executionContext) _SignupPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SignupPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, signupPayloadImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SignupPayload")
-		case "user":
-
-			out.Values[i] = ec._SignupPayload_user(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "workspace":
-
-			out.Values[i] = ec._SignupPayload_workspace(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -27505,11 +27177,6 @@ func (ec *executionContext) marshalNSchemaFiledType2githubᚗcomᚋreearthᚋree
 	return v
 }
 
-func (ec *executionContext) unmarshalNSignupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupInput(ctx context.Context, v interface{}) (gqlmodel.SignupInput, error) {
-	res, err := ec.unmarshalInputSignupInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -28736,13 +28403,6 @@ func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋ
 	}
 	res, err := ec.unmarshalInputSchemaMarkdownTextInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOSignupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSignupPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SignupPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._SignupPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

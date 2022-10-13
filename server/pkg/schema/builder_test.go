@@ -9,6 +9,7 @@ import (
 
 func TestBuilder_Build(t *testing.T) {
 	sId := NewID()
+	pId := id.NewProjectID()
 	wId := id.NewWorkspaceID()
 	tests := []struct {
 		name    string
@@ -29,21 +30,21 @@ func TestBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name:    "wid only",
-			s:       &Schema{workspace: id.NewWorkspaceID()},
+			name:    "id and wid only",
+			s:       &Schema{id: NewID(), workspace: id.NewWorkspaceID()},
 			want:    nil,
 			wantErr: ErrInvalidID,
 		},
 		{
 			name:    "minimal",
-			s:       &Schema{id: sId, workspace: wId},
-			want:    &Schema{id: sId, workspace: wId},
+			s:       &Schema{id: sId, workspace: wId, project: pId},
+			want:    &Schema{id: sId, workspace: wId, project: pId},
 			wantErr: nil,
 		},
 		{
 			name:    "full",
-			s:       &Schema{id: sId, workspace: wId, fields: []*Field{{name: "F1"}}},
-			want:    &Schema{id: sId, workspace: wId, fields: []*Field{{name: "F1"}}},
+			s:       &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
+			want:    &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
 			wantErr: nil,
 		},
 	}
@@ -83,6 +84,7 @@ func TestBuilder_ID(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	sId := NewID()
+	pId := id.NewProjectID()
 	wId := id.NewWorkspaceID()
 	tests := []struct {
 		name    string
@@ -103,21 +105,21 @@ func TestBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name:    "wid only",
-			s:       &Schema{workspace: id.NewWorkspaceID()},
+			name:    "id and wid only",
+			s:       &Schema{id: NewID(), workspace: id.NewWorkspaceID()},
 			want:    nil,
 			wantErr: ErrInvalidID,
 		},
 		{
 			name:    "minimal",
-			s:       &Schema{id: sId, workspace: wId},
-			want:    &Schema{id: sId, workspace: wId},
+			s:       &Schema{id: sId, workspace: wId, project: pId},
+			want:    &Schema{id: sId, workspace: wId, project: pId},
 			wantErr: nil,
 		},
 		{
 			name:    "full",
-			s:       &Schema{id: sId, workspace: wId, fields: []*Field{{name: "F1"}}},
-			want:    &Schema{id: sId, workspace: wId, fields: []*Field{{name: "F1"}}},
+			s:       &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
+			want:    &Schema{id: sId, workspace: wId, project: pId, fields: []*Field{{name: "F1"}}},
 			wantErr: nil,
 		},
 	}
@@ -154,6 +156,14 @@ func TestBuilder_Workspace(t *testing.T) {
 	b.Workspace(wId)
 	assert.Equal(t, wId, b.s.workspace)
 	assert.NotSame(t, wId, b.s.workspace)
+}
+
+func TestBuilder_Project(t *testing.T) {
+	b := &Builder{s: &Schema{}}
+	pId := id.NewProjectID()
+	b.Project(pId)
+	assert.Equal(t, pId, b.s.project)
+	assert.NotSame(t, pId, b.s.project)
 }
 
 func TestNew(t *testing.T) {
