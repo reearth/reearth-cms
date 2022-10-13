@@ -18,7 +18,7 @@ export type MenuShowType = "personal" | "notPersonal" | "both";
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
+  { label: "Home", key: "workspace", icon: <Icon icon="home" />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
@@ -82,7 +82,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const onClick = (e: any) => {
     if (e.key === "member") {
       navigate(`/workspaces/${workspaceId}/members`);
-    } else if (e.key === "home") {
+    } else if (e.key === "workspace") {
       navigate(`/dashboard/${workspaceId}`);
     } else if (e.key === "my-integration") {
       navigate(`/workspaces/${workspaceId}/myIntegrations`);
