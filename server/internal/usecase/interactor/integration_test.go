@@ -31,7 +31,7 @@ func testSuite() testData {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	wid := id.NewWorkspaceID()
 	uId := id.NewUserID()
-	u := user.New().ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		ReadableWorkspaces: nil,
