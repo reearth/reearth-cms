@@ -347,7 +347,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Filtered",
+			name: "project filter operation success",
 			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
@@ -356,6 +356,18 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    nil,
 			wantErr: nil,
 		},
 	}
@@ -374,6 +386,10 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a)
 				assert.Nil(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
 			}
 
 			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{Pagination: tc.args.pInfo})
