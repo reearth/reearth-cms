@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import ProjectCreationModal from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
@@ -75,13 +74,14 @@ const Project: React.FC = () => {
   );
 };
 
-const PaddedContent = styled(Content)`
+const PaddedContent = styled.div`
   margin: 16px;
   background-color: #fff;
-  min-height: 100%;
+  flex: 1;
+  max-height: 100%;
 `;
 
-const ActionHeader = styled(Content)`
+const ActionHeader = styled.div`
   max-width: 1200px;
   margin: auto;
   padding: 16px;

@@ -74,7 +74,6 @@ const EmptyListWrapper = styled.div`
 `;
 
 const StyledDashboardBlock = styled.div`
-  height: 100%;
   width: 100%;
   @media only screen and (max-width: 1024px) {
     order: 4;

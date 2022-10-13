@@ -114,8 +114,10 @@ const IntegrationTable: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
+  flex: 1;
   min-height: 100%;
   background-color: #fff;
+  margin: 16px;
 `;
 
 const EmptyTableWrapper = styled.div`

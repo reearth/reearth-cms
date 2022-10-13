@@ -28,8 +28,10 @@ const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOp
 };
 
 const Wrapper = styled.div`
+  margin: 16px;
   background: #fff;
   min-height: 100%;
+  flex: 1;
 `;
 
 const ListWrapper = styled.div`

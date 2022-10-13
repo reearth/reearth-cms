@@ -2,16 +2,13 @@ import styled from "@emotion/styled";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-import Content from "@reearth-cms/components/atoms/Content";
 import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
-import ThreadSider from "@reearth-cms/components/molecules/Common/ThreadSider";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
-import { useSelectedMenuKey } from "@reearth-cms/state";
 
 import useHooks from "./hooks";
 
@@ -24,10 +21,7 @@ type Props = {
 const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
-  const [threadVisibility, setThreadVisibility] = useState(true);
-  const [selectedMenuKey, _] = useSelectedMenuKey();
 
-  const displayThread = menuType === "project" && selectedMenuKey === "asset";
   const {
     user,
     personalWorkspace,
@@ -74,15 +68,7 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
               />
             )}
           </DashboardSider>
-          <PaddedContent>{children}</PaddedContent>
-          {displayThread && (
-            <ThreadSider
-              collapsible
-              collapsed={!threadVisibility}
-              width={300}
-              onCollapse={value => setThreadVisibility(!value)}
-            />
-          )}
+          {children}
         </Layout>
       </DashboardLayout>
       <WorkspaceCreationModal
@@ -106,6 +92,10 @@ const DashboardLayout = styled(Layout)`
 `;
 
 const DashboardSider = styled(Sider)`
+  position: sticky;
+  top: 0;
+  min-height: 100%;
+  max-height: calc(100vh - 48px);
   background-color: #fff;
   .ant-layout-sider-trigger {
     background-color: #fff;
@@ -118,10 +108,6 @@ const DashboardSider = styled(Sider)`
     flex-direction: column;
     justify-content: space-between;
   }
-`;
-
-const PaddedContent = styled(Content)`
-  margin: 16px;
 `;
 
 export default Dashboard;

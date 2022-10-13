@@ -76,8 +76,10 @@ const AssetList: React.FC = () => {
 };
 
 const Wrapper = styled.div`
+  margin: 16px;
   background-color: white;
-  height: 100%;
+  min-height: 100%;
+  flex: 1;
 `;
 
 export default AssetList;

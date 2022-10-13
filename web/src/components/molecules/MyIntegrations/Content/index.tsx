@@ -88,8 +88,10 @@ const MyIntegrationContent: React.FC<Props> = ({
 };
 
 const MyIntegrationWrapper = styled.div`
+  margin: 16px;
   min-height: 100%;
   background-color: #fff;
+  flex: 1;
 `;
 
 const MyIntegrationTabs = styled(Tabs)`

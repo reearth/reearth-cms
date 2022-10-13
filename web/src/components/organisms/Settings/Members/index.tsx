@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
-import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -146,13 +145,14 @@ const Members: React.FC = () => {
   );
 };
 
-const PaddedContent = styled(Content)`
+const PaddedContent = styled.div`
   margin: 16px;
   background-color: #fff;
   min-height: 100%;
+  flex: 1;
 `;
 
-const ActionHeader = styled(Content)`
+const ActionHeader = styled.div`
   border-top: 1px solid #f0f0f0;
   padding: 16px;
   display: flex;
