@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -29,8 +30,19 @@ func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	}
 }
 
-func (r *Thread) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error) {
-	panic("implement me")
+func (r *Thread) FindByID(ctx context.Context, thid id.ThreadID) (*thread.Thread, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	p := r.data.Find(func(k id.ThreadID, v *thread.Thread) bool {
+		return k == thid && r.f.CanRead(v.Workspace())
+	})
+
+	if p != nil {
+		return p, nil
+	}
+	return nil, rerror.ErrNotFound
 }
 
 func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
@@ -49,13 +61,13 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 	return nil
 }
 
-func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
+func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if r.err != nil {
-		return nil, r.err
+		return r.err
 	}
 
 	if !r.f.CanWrite(th.Workspace()) {
-		return nil, repo.ErrOperationDenied
+		return repo.ErrOperationDenied
 	}
 
 	cc, ok := lo.Find(th.Comments(), func(c2 *thread.Comment) bool {
@@ -63,13 +75,13 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 	})
 
 	if !ok {
-		return nil, repo.ErrCommentNotFound
+		return repo.ErrCommentNotFound
 	}
 
 	cc.SetContent(c.Content())
 
 	r.data.Store(th.ID(), th)
-	return cc, nil
+	return nil
 }
 
 func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
