@@ -47,7 +47,7 @@ const Dashboard: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar
       <DashboardMolecule
         collapsed={collapsed}
         onCollapse={handleCollapse}
-        sidebar={
+        sidebarComponent={
           <Sidebar
             projectId={projectId}
             defaultSelectedKeys={defaultSelectedKeys}
@@ -56,7 +56,7 @@ const Dashboard: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar
             isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
           />
         }
-        header={
+        headerComponent={
           <MoleculeHeader
             onModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
@@ -65,7 +65,7 @@ const Dashboard: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar
             user={user}
           />
         }
-        child={<Child onWorkspaceModalOpen={handleWorkspaceModalOpen} />}
+        contentComponent={<Child onWorkspaceModalOpen={handleWorkspaceModalOpen} />}
       />
       <WorkspaceCreationModal
         open={workspaceModalShown}
