@@ -62,7 +62,10 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
-			s := schema.New().NewID().Workspace(p.Workspace()).MustBuild()
+			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
+			if err != nil {
+				return nil, err
+			}
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
 			}
@@ -71,7 +74,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				New().
 				NewID().
 				Schema(s.ID()).
-				IsPublic(false).
+				Public(false).
 				Project(param.ProjectId)
 
 			if param.Name != nil {
@@ -79,6 +82,9 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			}
 			if param.Description != nil {
 				mb = mb.Description(*param.Description)
+			}
+			if param.Public != nil {
+				mb = mb.Public(*param.Public)
 			}
 			if param.Key != nil {
 				k := key.New(*param.Key)
@@ -125,6 +131,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				if err := m.SetKey(key.New(*param.Key)); err != nil {
 					return nil, err
 				}
+			}
+			if param.Public != nil {
+				m.SetPublic(*param.Public)
 			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {

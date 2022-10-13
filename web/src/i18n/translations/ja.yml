@@ -49,6 +49,9 @@ Integration: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
+Please input field!: ''
+Asset: アセット
+New Item: ''
 New Request: ''
 Title: ''
 Please input the title of your request!: ''
@@ -102,7 +105,6 @@ Please note that all webhook URLs must start with http://.: WebhookのURLがhttp
 URL is not valid: 無効なURLです
 Trigger Event: イベント
 Item: アイテム
-Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
@@ -133,18 +135,49 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
+Successfully created workspace!: ''
 Content: ''
+Failed to create project.: ''
+Successfully created project!: ''
 input search text: 検索
 Create a Workspace: 新規ワークスペース
+Failed to create model.: ''
+Successfully created model!: ''
+Failed to delete field.: ''
+Successfully deleted field!: ''
+Failed to update field.: ''
+Successfully updated field!: ''
+Failed to create field.: ''
+Successfully created field!: ''
+Failed to update project.: ''
+Successfully updated project!: ''
+Failed to delete project.: ''
+Successfully deleted project!: ''
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Write something here to describe this record.: このレコードの説明を入力してください
 Save changes: 変更を保存
 Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
+Failed to connect integration.: ''
+Successfully connected integration to the workspace!: ''
+Failed to update workspace integration.: ''
+Successfully updated workspace integration!: ''
+Failed to add one or more members.: ''
+Successfully added member(s) to the workspace!: ''
+Failed to delete member from the workspace.: ''
+Successfully removed member from the workspace!: ''
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Change Role?: ロールを変更
 Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
+Failed to create webhook.: ''
+Successfully created webhook!: ''
+Failed to delete webhook.: ''
+Successfully deleted webhook!: ''
+Failed to update webhook.: ''
+Successfully updated webhook!: ''
+Failed to create integration.: ''
+Successfully created integration!: ''
 Loading: ローディング中

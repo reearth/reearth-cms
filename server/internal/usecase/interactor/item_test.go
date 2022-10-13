@@ -31,7 +31,7 @@ func TestItem_FindByID(t *testing.T) {
 	i2, _ := item.New().ID(id2).Schema(sid).Build()
 
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
@@ -112,10 +112,11 @@ func TestItem_FindBySchema(t *testing.T) {
 	id3 := id.NewItemID()
 	i3, _ := item.New().ID(id3).Schema(sid2).Build()
 	wid := id.NewWorkspaceID()
-	s1 := schema.New().ID(sid1).Workspace(wid).MustBuild()
-	s2 := schema.New().ID(sid2).Workspace(wid).MustBuild()
+	pid := id.NewProjectID()
+	s1 := schema.New().ID(sid1).Workspace(wid).Project(pid).MustBuild()
+	s2 := schema.New().ID(sid2).Workspace(wid).Project(pid).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
@@ -130,7 +131,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			id       id.SchemaID
 			operator *usecase.Operator
 		}
-		want        item.List
+		want        int
 		mockItemErr bool
 		wantErr     error
 	}{
@@ -150,7 +151,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -169,7 +170,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid2,
 				operator: op,
 			},
-			want:    item.List{i3},
+			want:    1,
 			wantErr: nil,
 		},
 		{
@@ -188,7 +189,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -207,7 +208,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				id:       sid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -236,7 +237,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, len(got))
 
 		})
 	}
@@ -245,7 +246,7 @@ func TestItem_FindBySchema(t *testing.T) {
 func TestItem_Create(t *testing.T) {
 	sid := id.NewSchemaID()
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
@@ -281,7 +282,7 @@ func TestItem_Delete(t *testing.T) {
 	i1, _ := item.New().ID(id1).Schema(sid).Build()
 
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
@@ -310,7 +311,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	i1, _ := item.New().ID(id1).Schema(sid).Build()
 
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
@@ -350,7 +351,7 @@ func TestItem_UpdateItem(t *testing.T) {
 	i1, _ := item.New().ID(id1).Schema(sid).Fields([]*item.Field{f1}).Build()
 
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}

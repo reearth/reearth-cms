@@ -15,6 +15,9 @@ func (b *Builder) Build() (*Schema, error) {
 	if b.s.workspace.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.s.project.IsNil() {
+		return nil, ErrInvalidID
+	}
 	return b.s, nil
 }
 
@@ -38,6 +41,11 @@ func (b *Builder) NewID() *Builder {
 
 func (b *Builder) Workspace(workspace WorkspaceID) *Builder {
 	b.s.workspace = workspace.Clone()
+	return b
+}
+
+func (b *Builder) Project(project ProjectID) *Builder {
+	b.s.project = project.Clone()
 	return b
 }
 

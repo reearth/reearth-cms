@@ -1,13 +1,13 @@
 import { gql } from "@apollo/client";
 
 export const GET_ITEMS = gql`
-  query GetItems($schemaID: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-    items(schemaID: $schemaID, first: $first, last: $last, after: $after, before: $before) {
+  query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+    items(schemaId: $schemaId, first: $first, last: $last, after: $after, before: $before) {
       nodes {
         id
-        schemaID
+        schemaId
         fields {
-          schemaFieldID
+          schemaFieldId
           type
           value
         }
@@ -17,15 +17,15 @@ export const GET_ITEMS = gql`
 `;
 
 export const CREATE_ITEM = gql`
-  mutation CreateItem($schemaID: ID!, $fields: [ItemFieldInput!]!) {
-    createItem(input: { schemaID: $schemaID, fields: $fields }) {
+  mutation CreateItem($schemaId: ID!, $fields: [ItemFieldInput!]!) {
+    createItem(input: { schemaId: $schemaId, fields: $fields }) {
       item {
         id
-        schemaID
+        schemaId
         fields {
           value
           type
-          schemaFieldID
+          schemaFieldId
         }
       }
     }
@@ -33,23 +33,23 @@ export const CREATE_ITEM = gql`
 `;
 
 export const DELETE_ITEM = gql`
-  mutation DeleteItem($itemID: ID!) {
-    deleteItem(input: { itemID: $itemID }) {
-      itemID
+  mutation DeleteItem($itemId: ID!) {
+    deleteItem(input: { itemId: $itemId }) {
+      itemId
     }
   }
 `;
 
 export const UPDATE_ITEM = gql`
-  mutation UpdateItem($itemID: ID!, $fields: [ItemFieldInput!]!) {
-    updateItem(input: { itemID: $itemID, fields: $fields }) {
+  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!) {
+    updateItem(input: { itemId: $itemId, fields: $fields }) {
       item {
         id
-        schemaID
+        schemaId
         fields {
           value
           type
-          schemaFieldID
+          schemaFieldId
         }
       }
     }

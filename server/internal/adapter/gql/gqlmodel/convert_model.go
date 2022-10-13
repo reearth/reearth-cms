@@ -18,6 +18,7 @@ func ToModel(m *model.Model) *Model {
 		Key:         m.Key().String(),
 		Project:     nil,
 		Schema:      nil,
+		Public:      m.Public(),
 		CreatedAt:   m.ID().Timestamp(),
 		UpdatedAt:   m.UpdatedAt(),
 	}
