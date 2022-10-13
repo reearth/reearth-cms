@@ -93,9 +93,12 @@ func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
 }
 
 func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
-	return r.client.UpdateMany(ctx, r.writeFilter(bson.M{
+	if !r.f.CanWrite(a.Project()) {
+		return repo.ErrOperationDenied
+	}
+	return r.client.UpdateMany(ctx, bson.M{
 		"id": a.ID().String(),
-	}), bson.M{
+	}, bson.M{
 		"previewType": a.PreviewType().String(),
 	})
 }
