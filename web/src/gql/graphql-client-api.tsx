@@ -1231,7 +1231,7 @@ export type GetAssetQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, threadId: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1798,6 +1798,19 @@ export const GetAssetDocument = gql`
       path
     }
     uuid
+    threadId
+    thread {
+      comments {
+        id
+        author {
+          id
+          name
+          email
+        }
+        content
+        createdAt
+      }
+    }
   }
 }
     `;

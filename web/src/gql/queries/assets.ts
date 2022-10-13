@@ -83,6 +83,20 @@ export const GET_ASSET = gql`
         path
       }
       uuid
+
+      threadId
+      thread {
+        comments {
+          id
+          author {
+            id
+            name
+            email
+          }
+          content
+          createdAt
+        }
+      }
     }
   }
 `;

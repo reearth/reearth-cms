@@ -7,7 +7,12 @@ import { useT } from "@reearth-cms/i18n";
 
 import Thread from "./Thread";
 
-const ThreadSider: React.FC<SiderProps> = ({ ...props }) => {
+export type Props = {
+  onCommentCreate: (content: string) => Promise<void>;
+};
+
+const ThreadSider: React.FC<Props> = ({ onCommentCreate }) => {
+  const [collapsed, setCollapsed] = useState(false);
   const t = useT();
 
   const [comments, setComments] = useState<any>([
@@ -46,8 +51,8 @@ const ThreadSider: React.FC<SiderProps> = ({ ...props }) => {
   };
 
   return (
-    <StyledSider {...props}>
-      {props.collapsed ? (
+    <StyledSider width={300} collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+      {collapsed ? (
         <CollapsedSider>
           <Icon icon="message" />
         </CollapsedSider>

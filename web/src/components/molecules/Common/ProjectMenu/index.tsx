@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
-import { useSelectedMenuKey } from "@reearth-cms/state";
 
 export interface Props {
   inlineCollapsed: boolean;
@@ -29,7 +28,6 @@ const ProjectMenu: React.FC<Props> = ({
   defaultSelectedKeys,
 }) => {
   const t = useT();
-  const [_, setSelectedMenuKey] = useSelectedMenuKey();
   const navigate = useNavigate();
   const items: ItemType[] = [
     {
@@ -45,8 +43,6 @@ const ProjectMenu: React.FC<Props> = ({
   ];
 
   const onClick = (e: any) => {
-    setSelectedMenuKey(e.key);
-
     switch (e.key) {
       case "home":
         navigate(`/dashboard/${workspaceId}`);
