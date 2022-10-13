@@ -32,3 +32,16 @@ func TestThread_Comments(t *testing.T) {
 	}
 	assert.Equal(t, c, got.Comments())
 }
+
+func TestThread_Clone(t *testing.T) {
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+		comments: []*Comment{
+			{id: NewCommentID()},
+		},
+	})
+	assert.Nil(t, (*Thread)(nil).Clone())
+	assert.Equal(t, thread, thread.Clone())
+	assert.NotSame(t, thread, thread.Clone())
+}

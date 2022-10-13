@@ -1,8 +1,6 @@
 package mongodoc
 
 import (
-	"time"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/mongox"
@@ -16,10 +14,9 @@ type ThreadDocument struct {
 }
 
 type Comment struct {
-	ID        string
-	Author    string
-	Content   string
-	CreatedAt time.Time
+	ID      string
+	Author  string
+	Content string
 }
 
 type ThreadConsumer = mongox.SliceFuncConsumer[*ThreadDocument, *thread.Thread]
@@ -68,10 +65,9 @@ func ToComment(c *thread.Comment) *Comment {
 	}
 
 	return &Comment{
-		ID:        c.ID().String(),
-		Author:    c.Author().String(),
-		Content:   c.Content(),
-		CreatedAt: c.CreatedAt(),
+		ID:      c.ID().String(),
+		Author:  c.Author().String(),
+		Content: c.Content(),
 	}
 }
 
@@ -90,11 +86,5 @@ func FromComment(c *Comment) *thread.Comment {
 		return nil
 	}
 
-	thc := thread.Comment{}
-	thc.SetID(cid)
-	thc.SetAuthor(uid)
-	thc.SetContent(c.Content)
-	thc.SetCreatedAt(c.CreatedAt)
-
-	return &thc
+	return thread.NewComment(cid, uid, c.Content)
 }

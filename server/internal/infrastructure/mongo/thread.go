@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -47,9 +46,9 @@ func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thre
 
 func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if !r.f.CanWrite(th.Workspace()) {
-		return  repo.ErrOperationDenied
+		return repo.ErrOperationDenied
 	}
-	
+
 	cc := mongodoc.ToComment(c)
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$push": bson.M{"comments": cc}}
@@ -60,36 +59,30 @@ func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *threa
 	return nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if !r.f.CanWrite(th.Workspace()) {
-		return nil, repo.ErrOperationDenied
-	}
-	
-	cc, i, ok := lo.FindIndexOf(th.Comments(), func(c2 *thread.Comment) bool {
-		return c2.ID() == c.ID()
-	})
-
-	if !ok {
-		return nil, repo.ErrCommentNotFound
+		return repo.ErrOperationDenied
 	}
 
-	filter := bson.M{"id": th.ID().String()}
-	update := bson.M{"$set": bson.M{"comments." + string(rune(i)) + ".content": c.Content()}}
-
-	if _, err := r.client.Client().UpdateMany(ctx,filter, update); err != nil {
-		return nil, rerror.ErrInternalBy(err)
+	doc := mongodoc.ToComment(c)
+	filter := bson.M{"id": th.ID().String(), "comments.id": c.ID().String()}
+	update := bson.M{"$set": bson.M{
+		"comments.$.content": doc.Content,
+	}}
+	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
+		return rerror.ErrInternalBy(err)
 	}
-	return cc, nil
+	return nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
 	if !r.f.CanWrite(th.Workspace()) {
 		return repo.ErrOperationDenied
 	}
-	
+
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$pull": bson.M{"comments": bson.M{"id": id.String()}}}
-	if _, err := r.client.Client().UpdateMany(ctx, filter, update); err != nil {
+	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
