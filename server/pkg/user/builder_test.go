@@ -10,7 +10,7 @@ import (
 
 func TestBuilder_ID(t *testing.T) {
 	uid := NewID()
-	b := New().ID(uid).Email("aaa@bbb.com").MustBuild()
+	b := New().ID(uid).Email("aaa@bbb.com").Name("hoge").MustBuild()
 	assert.Equal(t, uid, b.ID())
 	assert.Nil(t, b.passwordReset)
 }
