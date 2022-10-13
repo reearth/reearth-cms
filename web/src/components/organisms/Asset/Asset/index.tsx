@@ -46,7 +46,7 @@ const Asset: React.FC = () => {
           handleFullScreen={handleFullScreen}
         />
       </Wrapper>
-      <CommentsSider threadId={asset.fileName} />
+      <CommentsSider comments={asset.thread.comments} threadId={asset.threadId} />
     </>
   ) : (
     <Wrapper>not found</Wrapper>

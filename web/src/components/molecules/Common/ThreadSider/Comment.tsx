@@ -1,20 +1,30 @@
 import moment from "moment";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
-import AntDComment, { CommentProps } from "@reearth-cms/components/atoms/Comment";
+import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 
-const Comment: React.FC<CommentProps> = ({ author, avatar, content, datetime }) => {
-  const fromNow = moment(datetime?.toString()).fromNow();
+import { CommentItem } from "./thread.types";
+
+type Props = {
+  comment: CommentItem;
+};
+
+const Comment: React.FC<Props> = ({ comment }) => {
+  const fromNow = moment(comment.createdAt?.toString()).fromNow();
 
   return (
     <AntDComment
-      author={<a>{author}</a>}
-      avatar={<Avatar src={avatar} alt="avatar" />}
-      content={<>{content}</>}
+      author={<a>{comment.author.name}</a>}
+      avatar={
+        <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+          {comment.author.name.charAt(0)}
+        </Avatar>
+      }
+      content={<>{comment.content}</>}
       datetime={
-        datetime && (
-          <Tooltip title={datetime}>
+        comment.createdAt && (
+          <Tooltip title={comment.createdAt}>
             <span>{fromNow}</span>
           </Tooltip>
         )

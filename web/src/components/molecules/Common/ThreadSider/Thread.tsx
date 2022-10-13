@@ -1,35 +1,17 @@
-import Avatar from "@reearth-cms/components/atoms/Avatar";
-
-import Comment from "./Comment";
 import { CommentList } from "./CommentList";
 import { Editor } from "./Editor";
+import { CommentItem } from "./thread.types";
 
 type Props = {
-  comments: any[];
-  avatar: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onSubmit: () => void;
-  submitting: boolean;
-  value: string;
+  onCommentCreate: (content: string) => Promise<void>;
+  comments: CommentItem[];
 };
 
-export const Thread: React.FC<Props> = ({
-  comments,
-  avatar,
-  onChange,
-  onSubmit,
-  submitting,
-  value,
-}) => {
+export const Thread: React.FC<Props> = ({ comments, onCommentCreate }) => {
   return (
     <>
       {comments.length > 0 && <CommentList comments={comments} />}
-      <Comment
-        avatar={<Avatar src={avatar} alt="Avatar" />}
-        content={
-          <Editor onChange={onChange} onSubmit={onSubmit} submitting={submitting} value={value} />
-        }
-      />
+      <Editor onCommentCreate={onCommentCreate} />
     </>
   );
 };

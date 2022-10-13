@@ -2,10 +2,10 @@ import { User } from "../../Dashboard/types";
 
 export type Thread = {
   id: string;
-  comments: Comment[];
+  comments: CommentItem[];
 };
 
-export type Comment = {
+export type CommentItem = {
   id: string;
   author: User;
   authorId: string;
