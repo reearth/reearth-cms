@@ -14,6 +14,7 @@ var FieldIDFromRef = id.FieldIDFromRef
 var ErrInvalidFieldID = id.ErrInvalidID
 
 type ID = id.SchemaID
+type ProjectID = id.ProjectID
 
 var NewID = id.NewSchemaID
 var MustID = id.MustSchemaID
