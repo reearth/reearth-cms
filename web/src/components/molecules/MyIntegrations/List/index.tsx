@@ -1,19 +1,27 @@
 import styled from "@emotion/styled";
 
-import MyIntegrationsHeader from "@reearth-cms/components/molecules/MyIntegrations/Header";
-import MyIntegrationsCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
-import IntegrationsCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
+import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-const MyIntegrationsList: React.FC = () => {
+export type Props = {
+  integrations?: Integration[];
+  onIntegrationModalOpen: () => void;
+};
+
+const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOpen }) => {
   const t = useT();
 
   return (
     <Wrapper>
-      <MyIntegrationsHeader title={t("My Integrations")} />
+      <PageHeader title={t("My Integrations")} />
       <ListWrapper>
-        <MyIntegrationsCard title="Robot Red" subTitle="Internal integration" />
-        <IntegrationsCreationAction />
+        {integrations?.map((integration: Integration) => (
+          <MyIntegrationCard key={integration.id} integration={integration} />
+        ))}
+        <IntegrationCreationAction onIntegrationModalOpen={onIntegrationModalOpen} />
       </ListWrapper>
     </Wrapper>
   );
@@ -32,4 +40,4 @@ const ListWrapper = styled.div`
   align-items: stretch;
 `;
 
-export default MyIntegrationsList;
+export default MyIntegrationList;

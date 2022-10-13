@@ -75,6 +75,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		usecaseMiddleware,
 	)
 
+	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())
 	return e
 }

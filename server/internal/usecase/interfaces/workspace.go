@@ -21,8 +21,11 @@ type Workspace interface {
 	FindByUser(context.Context, id.UserID, *usecase.Operator) ([]*user.Workspace, error)
 	Create(context.Context, string, id.UserID, *usecase.Operator) (*user.Workspace, error)
 	Update(context.Context, id.WorkspaceID, string, *usecase.Operator) (*user.Workspace, error)
-	AddMember(context.Context, id.WorkspaceID, id.UserID, user.Role, *usecase.Operator) (*user.Workspace, error)
-	RemoveMember(context.Context, id.WorkspaceID, id.UserID, *usecase.Operator) (*user.Workspace, error)
-	UpdateMember(context.Context, id.WorkspaceID, id.UserID, user.Role, *usecase.Operator) (*user.Workspace, error)
+	AddUserMember(context.Context, id.WorkspaceID, id.UserID, user.Role, *usecase.Operator) (*user.Workspace, error)
+	AddIntegrationMember(context.Context, id.WorkspaceID, id.IntegrationID, user.Role, *usecase.Operator) (*user.Workspace, error)
+	UpdateUser(context.Context, id.WorkspaceID, id.UserID, user.Role, *usecase.Operator) (*user.Workspace, error)
+	UpdateIntegration(context.Context, id.WorkspaceID, id.IntegrationID, user.Role, *usecase.Operator) (*user.Workspace, error)
+	RemoveUser(context.Context, id.WorkspaceID, id.UserID, *usecase.Operator) (*user.Workspace, error)
+	RemoveIntegration(context.Context, id.WorkspaceID, id.IntegrationID, *usecase.Operator) (*user.Workspace, error)
 	Remove(context.Context, id.WorkspaceID, *usecase.Operator) error
 }

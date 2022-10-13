@@ -10,6 +10,9 @@ type Asset implements Node {
   previewType: PreviewType
   file: AssetFile!
   uuid: String!
+  thread: Thread
+  threadId: ID!
+  url: String!
 }
 
 type AssetFile {

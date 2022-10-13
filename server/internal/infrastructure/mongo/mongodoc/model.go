@@ -54,7 +54,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Description(d.Description).
 		UpdatedAt(d.UpdatedAt).
 		Key(key.New(d.Key)).
-		IsPublic(d.Public).
+		Public(d.Public).
 		Project(pId).
 		Schema(sId).
 		Build()

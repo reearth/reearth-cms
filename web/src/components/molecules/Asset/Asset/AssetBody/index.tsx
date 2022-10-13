@@ -14,6 +14,7 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -41,6 +42,7 @@ const AssetBody: React.FC<Props> = ({
   handleModalCancel,
   handleFullScreen,
 }) => {
+  const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const displayUnzipFileList = selectedPreviewType !== "IMAGE";
@@ -78,7 +80,7 @@ const AssetBody: React.FC<Props> = ({
         return isSVG ? (
           <SVGPreview url={asset.url} svgRender={svgRender} />
         ) : (
-          <Image src={asset.url} alt="asset-preview"></Image>
+          <Image src={asset.url} alt="asset-preview" />
         );
       default:
         return <ViewerNotSupported />;
@@ -105,22 +107,22 @@ const AssetBody: React.FC<Props> = ({
           {renderPreview()}
         </Card>
         {displayUnzipFileList && (
-          <Card title="Unzip File">
-            <UnzipFileList style={{ minHeight: "400px" }}></UnzipFileList>
+          <Card title={t("Unzip File")}>
+            <UnzipFileList style={{ minHeight: "400px" }} />
           </Card>
         )}
         <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
-        <SideBarCard title="Asset Type">
+        <SideBarCard title={t("Asset Type")}>
           <PreviewTypeSelect
             style={{ width: "75%" }}
             value={selectedPreviewType}
             onTypeChange={handleTypeChange}
           />
         </SideBarCard>
-        <SideBarCard title="Created Time">{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title="Created By">{asset.createdBy}</SideBarCard>
+        <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
+        <SideBarCard title={t("Created By")}>{asset.createdBy}</SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );

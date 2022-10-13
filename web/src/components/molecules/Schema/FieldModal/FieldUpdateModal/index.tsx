@@ -233,9 +233,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             <FieldValidationInputs selectedType={selectedType} />
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue">
-            <FieldDefaultInputs
-              selectedValues={selectedValues}
-              selectedType={selectedType}></FieldDefaultInputs>
+            <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>
       </Form>

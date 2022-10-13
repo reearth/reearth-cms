@@ -64,7 +64,7 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 func TestWorkspace_FindByUser(t *testing.T) {
 	ctx := context.Background()
 	u := user.New().NewID().Email("aaa@bbb.com").MustBuild()
-	ws := user.NewWorkspace().NewID().Name("hoge").Members(map[user.ID]user.Role{u.ID(): user.RoleOwner}).MustBuild()
+	ws := user.NewWorkspace().NewID().Name("hoge").Members(map[user.ID]user.Member{u.ID(): {Role: user.RoleOwner}}).MustBuild()
 	r := &Workspace{
 		data: &util.SyncMap[id.WorkspaceID, *user.Workspace]{},
 	}
