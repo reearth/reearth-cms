@@ -377,7 +377,7 @@ func TestUser_Create(t *testing.T) {
 	assert.Equal(t, 1, r.data.Len())
 
 	err = r.Create(ctx, u)
-	assert.Equal(t, repo.ErrDuplicatedUser.Error(), err.Error())
+	assert.Equal(t, repo.ErrDuplicatedUser, err)
 }
 
 func TestUser_Save(t *testing.T) {
