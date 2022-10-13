@@ -9,10 +9,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
-
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
 func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
@@ -39,8 +41,9 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		)
 	}
 	e.Use(
-		jwtEchoMiddleware(cfg),
-		parseJwtMiddleware(),
+		echo.WrapMiddleware(lo.Must(
+			appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
+		)),
 		authMiddleware(cfg),
 	)
 
@@ -60,7 +63,8 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// apis
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
-	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
+	api.POST(
+		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())

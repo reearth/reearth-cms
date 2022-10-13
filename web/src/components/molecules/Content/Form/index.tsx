@@ -19,13 +19,13 @@ export interface Props {
   itemId?: string;
   initialFormValues: any;
   model?: Model;
-  onItemCreate: (data: { schemaID: string; fields: ItemField[] }) => Promise<void>;
-  onItemUpdate: (data: { itemID: string; fields: ItemField[] }) => Promise<void>;
+  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
+  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: () => void;
 }
 
 const ContentForm: React.FC<Props> = ({
-  itemId: itemID,
+  itemId,
   model,
   initialFormValues,
   onItemCreate,
@@ -40,20 +40,20 @@ const ContentForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      const fields: { schemaFieldID: string; type: FieldType; value: string }[] = [];
+      const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
           value: (value || "") as string,
-          schemaFieldID: key,
+          schemaFieldId: key,
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
-      if (!itemID) await onItemCreate?.({ schemaID: model?.schema.id as string, fields });
-      else await onItemUpdate?.({ itemID: itemID as string, fields });
+      if (!itemId) await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
+      else await onItemUpdate?.({ itemId: itemId as string, fields });
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [form, model?.schema.fields, model?.schema.id, itemID, onItemCreate, onItemUpdate]);
+  }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
   return (
     <Form form={form} layout="vertical" initialValues={initialFormValues}>

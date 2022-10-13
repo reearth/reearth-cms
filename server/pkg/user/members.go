@@ -11,7 +11,7 @@ var (
 	ErrUserAlreadyJoined             = errors.New("user already joined")
 	ErrCannotModifyPersonalWorkspace = errors.New("personal workspace cannot be modified")
 	ErrTargetUserNotInTheWorkspace   = errors.New("target user does not exist in the workspace")
-	ErrInvalidName                   = errors.New("invalid workspace name")
+	ErrInvalidWorkspaceName          = errors.New("invalid workspace name")
 )
 
 type Member struct {

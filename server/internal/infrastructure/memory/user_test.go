@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/rerror"
@@ -346,6 +347,37 @@ func TestUser_FindByID(t *testing.T) {
 	SetUserError(r, wantErr)
 	_, err = r.FindByID(ctx, u.ID())
 	assert.Same(t, wantErr, err)
+}
+
+func TestUser_FindBySubOrCreate(t *testing.T) {
+	ctx := context.Background()
+	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Auths([]user.Auth{{Sub: "auth0|aaa", Provider: "auth0"}}).MustBuild()
+
+	r := &User{data: &util.SyncMap[id.UserID, *user.User]{}}
+
+	_, err := r.FindBySubOrCreate(ctx, u, "auth0|aaa")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, r.data.Len())
+
+	// if same sub, it returns existing data in stead of inserting new data
+	_, err = r.FindBySubOrCreate(ctx, u, "auth0|aaa")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, r.data.Len())
+}
+
+func TestUser_Create(t *testing.T) {
+	uid := id.NewUserID()
+	ctx := context.Background()
+	u := user.New().ID(uid).Name("hoge").Email("aa@bb.cc").Auths([]user.Auth{{Sub: "auth0|aaa", Provider: "auth0"}}).MustBuild()
+
+	r := &User{data: &util.SyncMap[id.UserID, *user.User]{}}
+
+	err := r.Create(ctx, u)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, r.data.Len())
+
+	err = r.Create(ctx, u)
+	assert.Equal(t, repo.ErrDuplicatedUser, err)
 }
 
 func TestUser_Save(t *testing.T) {
