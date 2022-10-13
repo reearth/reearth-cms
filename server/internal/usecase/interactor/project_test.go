@@ -349,8 +349,6 @@ func TestProject_Update(t *testing.T) {
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
-	p1Updated := project.New().ID(pid1).Workspace(wid1).Name("test123").Description("desc321").
-		UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
@@ -385,7 +383,13 @@ func TestProject_Update(t *testing.T) {
 				},
 				operator: op,
 			},
-			want:    p1Updated,
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				Name("test123").
+				Description("desc321").
+				UpdatedAt(mocktime).
+				MustBuild(),
 			wantErr: nil,
 		},
 		{
@@ -401,6 +405,26 @@ func TestProject_Update(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "update publication",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p1.ID(),
+					Publication: &interfaces.UpdateProjectPublicationParam{
+						Scope:       lo.ToPtr(project.PublicationScopePublic),
+						AssetPublic: lo.ToPtr(true),
+					},
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				UpdatedAt(mocktime).
+				Publication(project.NewPublication(project.PublicationScopePublic, true)).
+				MustBuild(),
 		},
 		{
 			name:           "mock error",

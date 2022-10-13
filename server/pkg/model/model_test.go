@@ -214,11 +214,18 @@ func TestModel_Public(t *testing.T) {
 		want  bool
 	}{
 		{
-			name: "test",
+			name: "public true",
 			model: Model{
 				public: true,
 			},
 			want: true,
+		},
+		{
+			name: "public false",
+			model: Model{
+				public: false,
+			},
+			want: false,
 		},
 	}
 	for _, tt := range tests {
@@ -365,43 +372,13 @@ func TestModel_SetName(t *testing.T) {
 }
 
 func TestModel_SetPublic(t *testing.T) {
-	type args struct {
-		public bool
-	}
-	tests := []struct {
-		name string
-		want Model
-		args args
-	}{
-		{
-			name: "test",
-			args: args{
-				public: true,
-			},
-			want: Model{
-				public: true,
-			},
-		},
-		{
-			name: "test",
-			args: args{
-				public: false,
-			},
-			want: Model{
-				public: false,
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+	m := &Model{public: false}
+	m.SetPublic(true)
+	assert.Equal(t, &Model{public: true}, m)
 
-			m := Model{}
-			m.SetPublic(tt.args.public)
-			assert.Equal(t, tt.want, m)
-		})
-	}
+	m = &Model{public: true}
+	m.SetPublic(false)
+	assert.Equal(t, &Model{public: false}, m)
 }
 
 func TestModel_SetUpdatedAt(t *testing.T) {

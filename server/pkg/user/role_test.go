@@ -40,7 +40,7 @@ func TestRoleFromString(t *testing.T) {
 	}
 }
 
-func TestCheckRole(t *testing.T) {
+func TestRole_Valid(t *testing.T) {
 	tests := []struct {
 		Name     string
 		Input    Role
@@ -72,7 +72,7 @@ func TestCheckRole(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			res := checkRole(tt.Input)
+			res := tt.Input.Valid()
 			assert.Equal(t, tt.Expected, res)
 		})
 	}

@@ -1,3 +1,33 @@
+Download: ''
+Unzip File: ''
+Asset Type: ''
+Created Time: ''
+Created By: ''
+Source Code: ''
+Render: ''
+PNG/JPEG/TIFF/SVG: ''
+JSON/SHAPEFILE/KML/CZML: ''
+GEO3D: ''
+MODEL3D/GLB: ''
+Could not display svg: ''
+Not supported: ''
+Save: 保存
+File: ''
+Size: ''
+Preview Type: ''
+Created At: ''
+ID: ''
+Action: アクション
+Upload Asset: ''
+Click or drag files to this area to upload: ''
+Single or multiple file upload is supported: ''
+Asset Uploader: ''
+Local: ''
+URL: ''
+Google Drive: ''
+Cancel: キャンセル
+Uploading: ''
+Upload: ''
 Personal Account: パーソナルアカウント
 Teams: チーム
 new workspace: 新規ワークスペース
@@ -17,6 +47,16 @@ Integration: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
+Please input field!: ''
+Asset: アセット
+New Item: ''
+New Request: ''
+Title: ''
+Please input the title of your request!: ''
+Description: 説明
+Please select a reviewer!: ''
+Reviewer: ''
+Owner: オーナー
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
@@ -25,40 +65,37 @@ Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
 Connect Integration: インテグレーションを連携
-Cancel: キャンセル
 Connect: 連携
 Integration Setting: インテグレーション設定
-Save: 保存
 Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
 select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
-Owner: オーナー
 Name: 名前
-Creator: 作成者
 State: ステート
-Action: アクション
+'ON': ''
+'OFF': ''
+Creator: 作成者
 No Integration yet: まだインテグレーションはありません
-Create a new: 新規作成
+Create a new: ''
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+Models: モデル
+Add: 追加
 New Integration: 新規インテグレーション
-Add Field: フィールドを追加
 Create: 作成
 Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
-Description: 説明
 Integration Token: インテグレーショントークン
-Please input the token of the integration!: インテグレーションのトークンを入力してください
-Input token: トークンを入力
 Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
-Accessed by API: API経由でアクセス
+Publish: ''
+Unpublish: ''
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
 Url: URL
@@ -66,10 +103,10 @@ Please note that all webhook URLs must start with http://.: WebhookのURLがhttp
 URL is not valid: 無効なURLです
 Trigger Event: イベント
 Item: アイテム
-Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
+Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
@@ -96,9 +133,7 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
-Schema: スキーマ
-Models: モデル
-Add: 追加
+Content: ''
 input search text: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
