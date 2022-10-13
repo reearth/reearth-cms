@@ -47,6 +47,9 @@ Integration: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
+Please input field!: ''
+Asset: アセット
+New Item: ''
 New Request: ''
 Title: ''
 Please input the title of your request!: ''
@@ -100,7 +103,6 @@ Please note that all webhook URLs must start with http://.: WebhookのURLがhttp
 URL is not valid: 無効なURLです
 Trigger Event: イベント
 Item: アイテム
-Asset: アセット
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成

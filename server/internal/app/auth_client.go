@@ -6,9 +6,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/rerror"
 )
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
@@ -17,55 +17,24 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
-			var userID string
 			var u *user.User
 
 			// get sub from context
-			au := adapter.GetAuthInfo(ctx)
-			if u, ok := ctx.Value(contextUser).(string); ok {
-				userID = u
-			}
+			ai := adapter.GetAuthInfo(ctx)
 
-			// debug mode
-			if cfg.Debug {
-				if userID := c.Request().Header.Get(debugUserHeader); userID != "" {
-					if id, err := id.UserIDFrom(userID); err == nil {
-						user2, err := cfg.Repos.User.FindByID(ctx, id)
-						if err == nil && user2 != nil {
-							u = user2
-						}
-					}
-				}
-			}
-
-			if u == nil && userID != "" {
-				if userID2, err := id.UserIDFrom(userID); err == nil {
-					u, err = cfg.Repos.User.FindByID(ctx, userID2)
-					if err != nil && err != rerror.ErrNotFound {
-						return err
-					}
-				} else {
-					return err
-				}
-			}
-
-			if u == nil && au != nil {
+			// find or create user
+			if ai != nil {
 				var err error
-				// find user
-				u, err = cfg.Repos.User.FindBySub(ctx, au.Sub)
-				if err != nil && err != rerror.ErrNotFound {
+				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
+				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
+					Sub:   ai.Sub,
+					ISS:   ai.Iss,
+					Token: ai.Token,
+				})
+				if err != nil {
 					return err
 				}
-			}
 
-			// save a new sub
-			if u != nil && au != nil {
-				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(au.Sub), cfg); err != nil {
-					return err
-				}
-			}
-
-			if u != nil {
 				op, err := generateOperator(ctx, cfg, u)
 				if err != nil {
 					return err
@@ -102,16 +71,6 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 		WritableWorkspaces: writableWorkspaces,
 		OwningWorkspaces:   owningWorkspaces,
 	}, nil
-}
-
-func addSubToUser(ctx context.Context, u *user.User, a user.Auth, cfg *ServerConfig) error {
-	if u.AddAuth(a) {
-		err := cfg.Repos.User.Save(ctx, u)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
