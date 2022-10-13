@@ -62,7 +62,10 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
-			s := schema.New().NewID().Workspace(p.Workspace()).MustBuild()
+			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
+			if err != nil {
+				return nil, err
+			}
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
 			}
