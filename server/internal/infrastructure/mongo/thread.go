@@ -115,6 +115,6 @@ func (r *threadRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-func (r *threadRepo) writeFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Writable)
-}
+// func (r *threadRepo) writeFilter(filter any) any {
+// 	return applyWorkspaceFilter(filter, r.f.Writable)
+// }
