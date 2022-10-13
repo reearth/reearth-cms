@@ -24,10 +24,14 @@ interface Node {
 }
 
 enum NodeType {
-  ASSET
   USER
   WORKSPACE
   PROJECT
+  ASSET
+  Model
+  Schema
+  Item
+  Integration
 }
 
 input Pagination{

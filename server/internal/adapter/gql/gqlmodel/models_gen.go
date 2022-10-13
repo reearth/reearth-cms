@@ -764,9 +764,6 @@ type Webhook struct {
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
 
-func (Webhook) IsNode()        {}
-func (this Webhook) GetID() ID { return this.ID }
-
 type WebhookPayload struct {
 	Webhook *Webhook `json:"webhook"`
 }
@@ -907,22 +904,30 @@ func (e IntegrationType) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
-	NodeTypeAsset     NodeType = "ASSET"
-	NodeTypeUser      NodeType = "USER"
-	NodeTypeWorkspace NodeType = "WORKSPACE"
-	NodeTypeProject   NodeType = "PROJECT"
+	NodeTypeUser        NodeType = "USER"
+	NodeTypeWorkspace   NodeType = "WORKSPACE"
+	NodeTypeProject     NodeType = "PROJECT"
+	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeModel       NodeType = "Model"
+	NodeTypeSchema      NodeType = "Schema"
+	NodeTypeItem        NodeType = "Item"
+	NodeTypeIntegration NodeType = "Integration"
 )
 
 var AllNodeType = []NodeType{
-	NodeTypeAsset,
 	NodeTypeUser,
 	NodeTypeWorkspace,
 	NodeTypeProject,
+	NodeTypeAsset,
+	NodeTypeModel,
+	NodeTypeSchema,
+	NodeTypeItem,
+	NodeTypeIntegration,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeAsset, NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false
