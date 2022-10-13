@@ -10,7 +10,6 @@ import (
 )
 
 type Item interface {
-	Filtered(ProjectFilter) Item
 	FindByID(context.Context, id.ItemID) (*item.Item, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)
 	FindByIDs(context.Context, id.ItemIDList) (item.List, error)

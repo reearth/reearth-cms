@@ -15,19 +15,11 @@ import (
 type Item struct {
 	data *memorygit.VersionedSyncMap[item.ID, *item.Item]
 	err  error
-	f    repo.ProjectFilter
 }
 
 func NewItem() repo.Item {
 	return &Item{
 		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
-	}
-}
-
-func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
-	return &Item{
-		data: r.data,
-		f:    r.f.Merge(f),
 	}
 }
 

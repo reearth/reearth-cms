@@ -17,18 +17,10 @@ import (
 
 type itemRepo struct {
 	client *mongogit.Collection
-	f      repo.ProjectFilter
 }
 
 func NewItem(client *mongox.Client) repo.Item {
 	return &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
-}
-
-func (i *itemRepo) Filtered(f repo.ProjectFilter) repo.Item {
-	return &itemRepo{
-		client: i.client,
-		f:      i.f.Merge(f),
-	}
 }
 
 func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
