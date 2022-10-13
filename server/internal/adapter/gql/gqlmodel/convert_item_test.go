@@ -97,7 +97,7 @@ func TestToVersionedItem(t *testing.T) {
 	sfid := id.NewFieldID()
 	ref := "a"
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Fields(fs).Build()
+	i, _ := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Build()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
 	tests := []struct {

@@ -13,7 +13,7 @@ import (
 
 func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
@@ -32,8 +32,8 @@ func TestItem_FindByID(t *testing.T) {
 
 func TestItem_Remove(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Build()
-	i2, _ := item.New().NewID().Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
@@ -49,7 +49,7 @@ func TestItem_Remove(t *testing.T) {
 
 func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -63,8 +63,8 @@ func TestItem_Save(t *testing.T) {
 
 func TestItem_FindByIDs(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Build()
-	i2, _ := item.New().NewID().Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
@@ -82,7 +82,7 @@ func TestItem_FindByIDs(t *testing.T) {
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -101,8 +101,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 func TestItem_FindBySchema(t *testing.T) {
 	ctx := context.Background()
 	sid := id.NewSchemaID()
-	i, _ := item.New().NewID().Schema(sid).Build()
-	i2, _ := item.New().NewID().Schema(sid).Build()
+	i, _ := item.New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -118,8 +118,8 @@ func TestItem_FindBySchema(t *testing.T) {
 func TestItem_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	i, _ := item.New().NewID().Project(pid).Build()
-	i2, _ := item.New().NewID().Project(pid).Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)

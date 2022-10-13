@@ -17,6 +17,12 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.id.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.schemaID.IsNil() {
+		return nil, ErrInvalidID
+	}
+	if b.i.projectID.IsNil() {
+		return nil, ErrInvalidID
+	}
 	return b.i, nil
 }
 

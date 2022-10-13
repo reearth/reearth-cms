@@ -27,9 +27,9 @@ func TestNewItem(t *testing.T) {
 func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid).Build()
+	i2, _ := item.New().ID(id2).Schema(sid).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -107,11 +107,11 @@ func TestItem_FindBySchema(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Build()
+	i1, _ := item.New().ID(id1).Schema(sid1).Project(id.NewProjectID()).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Build()
+	i2, _ := item.New().ID(id2).Schema(sid1).Project(id.NewProjectID()).Build()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid2).Build()
+	i3, _ := item.New().ID(id3).Schema(sid2).Project(id.NewProjectID()).Build()
 	wid := id.NewWorkspaceID()
 	s1 := schema.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(wid).MustBuild()
@@ -279,7 +279,7 @@ func TestItem_Create(t *testing.T) {
 func TestItem_Delete(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -308,7 +308,7 @@ func TestItem_Delete(t *testing.T) {
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -348,7 +348,7 @@ func TestItem_UpdateItem(t *testing.T) {
 	id1 := id.NewItemID()
 	f1 := item.NewField(id.NewFieldID(), schema.TypeBool, true)
 	f2 := item.NewField(id.NewFieldID(), schema.TypeText, "xxx")
-	i1, _ := item.New().ID(id1).Schema(sid).Fields([]*item.Field{f1}).Build()
+	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Fields([]*item.Field{f1}).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -391,11 +391,11 @@ func TestItem_FindByProject(t *testing.T) {
 	sid1 := id.NewProjectID()
 	sid2 := id.NewProjectID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Project(sid1).Build()
+	i1, _ := item.New().ID(id1).Project(sid1).Schema(id.NewSchemaID()).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Project(sid1).Build()
+	i2, _ := item.New().ID(id2).Project(sid1).Schema(id.NewSchemaID()).Build()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Project(sid2).Build()
+	i3, _ := item.New().ID(id3).Project(sid2).Schema(id.NewSchemaID()).Build()
 	wid := id.NewWorkspaceID()
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()

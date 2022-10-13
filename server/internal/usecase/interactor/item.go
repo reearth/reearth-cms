@@ -52,11 +52,17 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
+	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+	if err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *item.Item, err error) {
 			ib := item.New().
 				NewID().
-				Schema(param.SchemaID)
+				Schema(param.SchemaID).
+				Project(s.)
 
 			if len(param.Fields) > 0 {
 				var fs []*item.Field
