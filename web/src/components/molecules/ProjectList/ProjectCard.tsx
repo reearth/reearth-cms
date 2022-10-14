@@ -3,7 +3,7 @@ import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 export interface Props {
   className?: string;

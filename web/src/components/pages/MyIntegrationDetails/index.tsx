@@ -1,13 +1,16 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
-import Dashboard from "@reearth-cms/components/organisms/Dashboard";
+import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import CMSWrapper from "@reearth-cms/components/organisms/CMSWrapper";
 import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
 
 const MyIntegrationDetailsPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["my-integration"]}>
-        <MyIntegrationDetails />
-      </Dashboard>
+      <CMSWrapper
+        defaultSelectedKeys={["my-integration"]}
+        child={MyIntegrationDetails}
+        sidebar={WorkspaceMenu}
+      />
     </AuthenticationRequiredPage>
   );
 };
