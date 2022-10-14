@@ -27,7 +27,7 @@ func NewItem(client *mongox.Client) repo.Item {
 }
 
 func (r *itemRepo) init() {
-	err := r.client.CreateIndexes(context.Background(), []string{"schema", "fields.value"}, []string{"id", "fields.schemafield"})
+	err := r.client.CreateIndexes(context.Background(), []string{"schema", "fields.schemafield"}, []string{"id"})
 	if err != nil {
 		log.Infof("mongo: %s: index created: %s", "item", err)
 	}

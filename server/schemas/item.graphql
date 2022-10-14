@@ -4,7 +4,7 @@ type Item implements Node {
   projectId: ID!
   project: Project!
   schema: Schema!
-  fields: [ItemField!]
+  fields: [ItemField!]!
 }
 
 type ItemField {
