@@ -12,9 +12,9 @@ type InnerProps = {
 };
 
 export type Props = {
-  child: React.FC<InnerProps>;
+  contentComponent: React.FC<InnerProps>;
   defaultSelectedKeys?: string[];
-  sidebar: React.FC<{
+  sidebarComponent: React.FC<{
     projectId?: string;
     inlineCollapsed: boolean;
     isPersonalWorkspace?: boolean;
@@ -23,7 +23,11 @@ export type Props = {
   }>;
 };
 
-const CMSWrapper: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar: Sidebar }) => {
+const CMSWrapper: React.FC<Props> = ({
+  contentComponent: Child,
+  defaultSelectedKeys,
+  sidebarComponent: Sidebar,
+}) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
