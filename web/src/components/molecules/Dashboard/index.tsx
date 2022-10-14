@@ -26,7 +26,7 @@ const DashboardMolecule: React.FC<Props> = ({
 }) => {
   return (
     <DashboardLayout>
-      <MainHeader>{Header}</MainHeader>
+      {Header}
       <Layout>
         <DashboardSider collapsible collapsed={collapsed} onCollapse={onCollapse}>
           {Sidebar}
@@ -36,13 +36,6 @@ const DashboardMolecule: React.FC<Props> = ({
     </DashboardLayout>
   );
 };
-
-const MainHeader = styled(Header)`
-  display: flex;
-  align-items: center;
-  height: 48px;
-  line-height: 48px;
-`;
 
 const DashboardLayout = styled(Layout)`
   min-height: 100vh;
