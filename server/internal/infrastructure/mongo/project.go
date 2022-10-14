@@ -63,12 +63,11 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *projectRepo) FindByWorkspace(ctx context.Context, id id.WorkspaceID, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(id) {
-		return nil, usecasex.EmptyPageInfo(), nil
-	}
+func (r *projectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	return r.paginate(ctx, bson.M{
-		"workspace": id.String(),
+		"workspace": bson.M{
+			"$in": ids.Strings(),
+		},
 	}, pagination)
 }
 

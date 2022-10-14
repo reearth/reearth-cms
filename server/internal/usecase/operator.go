@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
@@ -10,6 +11,9 @@ type Operator struct {
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
+	ReadableProjects   project.IDList
+	WritableProjects   project.IDList
+	OwningProjects     project.IDList
 }
 
 func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
@@ -54,4 +58,48 @@ func (o *Operator) IsOwningWorkspace(workspace ...id.WorkspaceID) bool {
 
 func (o *Operator) AddNewWorkspace(workspace id.WorkspaceID) {
 	o.OwningWorkspaces = append(o.OwningWorkspaces, workspace)
+}
+
+func (o *Operator) Projects(r user.Role) project.IDList {
+	if o == nil {
+		return nil
+	}
+	if r == user.RoleReader {
+		return o.ReadableProjects
+	}
+	if r == user.RoleWriter {
+		return o.WritableProjects
+	}
+	if r == user.RoleOwner {
+		return o.OwningProjects
+	}
+	return nil
+}
+
+func (o *Operator) AllReadableProjects() project.IDList {
+	return append(o.ReadableProjects, o.AllWritableProjects()...)
+}
+
+func (o *Operator) AllWritableProjects() project.IDList {
+	return append(o.WritableProjects, o.AllOwningProjects()...)
+}
+
+func (o *Operator) AllOwningProjects() project.IDList {
+	return o.OwningProjects
+}
+
+func (o *Operator) IsReadableProject(projects ...project.ID) bool {
+	return o.AllReadableProjects().Intersect(projects).Len() > 0
+}
+
+func (o *Operator) IsWritableProject(projects ...project.ID) bool {
+	return o.AllWritableProjects().Intersect(projects).Len() > 0
+}
+
+func (o *Operator) IsOwningProject(projects ...project.ID) bool {
+	return o.AllOwningProjects().Intersect(projects).Len() > 0
+}
+
+func (o *Operator) AddNewProject(p project.ID) {
+	o.OwningProjects = append(o.OwningProjects, p)
 }
