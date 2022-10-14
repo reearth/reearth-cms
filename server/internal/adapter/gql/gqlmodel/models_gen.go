@@ -277,9 +277,12 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID       ID           `json:"id"`
-	SchemaID ID           `json:"schemaId"`
-	Fields   []*ItemField `json:"fields"`
+	ID        ID           `json:"id"`
+	SchemaID  ID           `json:"schemaId"`
+	ProjectID ID           `json:"projectId"`
+	Project   *Project     `json:"project"`
+	Schema    *Schema      `json:"schema"`
+	Fields    []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}

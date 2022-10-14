@@ -46,11 +46,9 @@ models:
         resolver: true
   Item:
     fields:
-      model:
+      schema:
         resolver: true
-      latestVersion:
-        resolver: true
-      version:
+      project:
         resolver: true
   Model:
     fields:
