@@ -8,7 +8,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
@@ -56,6 +59,7 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	}
 
 	uid := u.ID()
+
 	workspaces, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
@@ -65,11 +69,44 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	writableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleWriter).IDs()
 	owningWorkspaces := workspaces.FilterByUserRole(uid, user.RoleOwner).IDs()
 
+	readableProjects := id.ProjectIDList{}
+	writableProjects := id.ProjectIDList{}
+	owningProjects := id.ProjectIDList{}
+
+	var cur *usecasex.Cursor
+	for {
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, workspaces.IDs(), &usecasex.Pagination{
+			After: cur,
+			First: lo.ToPtr(100),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range projects {
+			if owningWorkspaces.Has(p.Workspace()) {
+				owningProjects = append(owningProjects, p.ID())
+			} else if writableWorkspaces.Has(p.Workspace()) {
+				writableProjects = append(writableProjects, p.ID())
+			} else if readableWorkspaces.Has(p.Workspace()) {
+				readableProjects = append(readableProjects, p.ID())
+			}
+		}
+
+		if !pi.HasNextPage {
+			break
+		}
+		cur = pi.EndCursor
+	}
+
 	return &usecase.Operator{
 		User:               uid,
 		ReadableWorkspaces: readableWorkspaces,
 		WritableWorkspaces: writableWorkspaces,
 		OwningWorkspaces:   owningWorkspaces,
+		ReadableProjects:   readableProjects,
+		WritableProjects:   writableProjects,
+		OwningProjects:     owningProjects,
 	}, nil
 }
 
