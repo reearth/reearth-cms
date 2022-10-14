@@ -15,12 +15,6 @@ env:
   GCS_DEST: gs://cms.test.reearth.dev
 
 jobs:
-  show_info: #TODO: Delete this job later
-    name: show info
-    runs-on: ubuntu-latest
-    steps:
-      - name: show
-        run: echo ${{ github.event.workflow_run.name }}
   deploy_web:
     name: Deploy web to test env
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure'
