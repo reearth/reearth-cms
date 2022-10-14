@@ -1355,7 +1355,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: string | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: number | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: string | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: string | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: string | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: number | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: string | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: string | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1393,6 +1393,13 @@ export type CheckModelKeyAvailabilityQueryVariables = Exact<{
 
 export type CheckModelKeyAvailabilityQuery = { __typename?: 'Query', checkModelKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
 
+export type GetProjectQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Webhook', id: string } | { __typename?: 'Workspace', id: string } | null };
+
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
   first?: InputMaybe<Scalars['Int']>;
@@ -1402,7 +1409,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String'];
@@ -1418,7 +1425,7 @@ export type CreateProjectMutationVariables = Exact<{
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1431,10 +1438,11 @@ export type UpdateProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  publication?: InputMaybe<UpdateProjectPublicationInput>;
 }>;
 
 
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string } } | null };
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type GetUserBySearchQueryVariables = Exact<{
   nameOrEmail: Scalars['String'];
@@ -2331,6 +2339,7 @@ export const GetModelsDocument = gql`
       name
       description
       key
+      public
       schema {
         id
         fields {
@@ -2561,6 +2570,50 @@ export function useCheckModelKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQ
 export type CheckModelKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityQuery>;
 export type CheckModelKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityLazyQuery>;
 export type CheckModelKeyAvailabilityQueryResult = Apollo.QueryResult<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>;
+export const GetProjectDocument = gql`
+    query GetProject($projectId: ID!) {
+  node(id: $projectId, type: PROJECT) {
+    id
+    ... on Project {
+      name
+      description
+      alias
+      publication {
+        scope
+        assetPublic
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProjectQuery__
+ *
+ * To run a query within a React component, call `useGetProjectQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProjectQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProjectQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useGetProjectQuery(baseOptions: Apollo.QueryHookOptions<GetProjectQuery, GetProjectQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProjectQuery, GetProjectQueryVariables>(GetProjectDocument, options);
+      }
+export function useGetProjectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProjectQuery, GetProjectQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProjectQuery, GetProjectQueryVariables>(GetProjectDocument, options);
+        }
+export type GetProjectQueryHookResult = ReturnType<typeof useGetProjectQuery>;
+export type GetProjectLazyQueryHookResult = ReturnType<typeof useGetProjectLazyQuery>;
+export type GetProjectQueryResult = Apollo.QueryResult<GetProjectQuery, GetProjectQueryVariables>;
 export const GetProjectsDocument = gql`
     query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   projects(
@@ -2575,6 +2628,10 @@ export const GetProjectsDocument = gql`
       name
       description
       alias
+      publication {
+        scope
+        assetPublic
+      }
     }
   }
 }
@@ -2656,6 +2713,10 @@ export const CreateProjectDocument = gql`
       id
       name
       description
+      publication {
+        scope
+        assetPublic
+      }
     }
   }
 }
@@ -2722,15 +2783,19 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $publication: UpdateProjectPublicationInput) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description}
+    input: {projectId: $projectId, name: $name, description: $description, publication: $publication}
   ) {
     project {
       id
       name
       description
       alias
+      publication {
+        scope
+        assetPublic
+      }
     }
   }
 }
@@ -2753,6 +2818,7 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      projectId: // value for 'projectId'
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      publication: // value for 'publication'
  *   },
  * });
  */

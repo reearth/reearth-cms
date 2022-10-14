@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Switch } from "antd";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
@@ -8,11 +8,11 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
-export type PublicScope = "private" | "limited" | "public";
+export type PublicScope = "private" | "public"; // Add "limited" when functionality becomes available
 
 export type Model = {
   id: string;
-  name: string;
+  name?: string;
   public: boolean;
 };
 
@@ -22,14 +22,41 @@ export type ModelDataType = {
 };
 
 export type Props = {
-  projectScope: PublicScope;
+  projectScope?: PublicScope;
   models?: Model[];
   onAccessibilityUpdate?: (scope: PublicScope, modelsToUpdate?: Model[]) => void;
 };
 
-const Accessibility: React.FC<Props> = ({ projectScope, models, onAccessibilityUpdate }) => {
+const Accessibility: React.FC<Props> = ({
+  projectScope,
+  models: rawModels,
+  onAccessibilityUpdate,
+}) => {
   const t = useT();
-  const [scope, changeScope] = useState<PublicScope>(projectScope);
+  const [scope, changeScope] = useState(projectScope);
+  const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
+  const [models, setModels] = useState<Model[] | undefined>(rawModels);
+
+  useEffect(() => {
+    setModels(rawModels);
+  }, [rawModels]);
+
+  const handleAccessibilityUpdate = useCallback(() => {
+    if (!scope) return;
+    onAccessibilityUpdate?.(scope, updatedModels);
+  }, [scope, updatedModels, onAccessibilityUpdate]);
+
+  const handleUpdatedModels = useCallback(
+    (model: Model) => {
+      if (updatedModels.find(um => um.id === model.id)) {
+        setUpdatedModels(ums => ums.filter(um => um.id !== model.id));
+      } else {
+        setUpdatedModels(ums => [...ums, model]);
+      }
+      setModels(ms => ms?.map(m => (m.id === model.id ? { ...m, public: model.public } : m)));
+    },
+    [updatedModels],
+  );
 
   const columns: TableColumnsType<ModelDataType> = [
     {
@@ -50,11 +77,18 @@ const Accessibility: React.FC<Props> = ({ projectScope, models, onAccessibilityU
     () =>
       models?.map(m => {
         return {
-          name: m.name,
-          public: <Switch checked={m.public} />,
+          name: m.name ?? "",
+          public: (
+            <Switch
+              checked={m.public}
+              onChange={(publicState: boolean) =>
+                handleUpdatedModels({ id: m.id, public: publicState })
+              }
+            />
+          ),
         };
       }),
-    [models],
+    [models, handleUpdatedModels],
   );
 
   const publicScopeList = [
@@ -67,15 +101,11 @@ const Accessibility: React.FC<Props> = ({ projectScope, models, onAccessibilityU
     { id: 3, name: t("Public"), value: "public" },
   ];
 
-  const handleAccessibilityUpdate = useCallback(() => {
-    onAccessibilityUpdate?.(scope);
-  }, [scope, onAccessibilityUpdate]);
-
   return (
     <InnerContent title={t("Accessibility")}>
       <>
         <div>
-          <p>Public Scope</p>
+          <p>{t("Public Scope")}</p>
           <Select
             defaultValue={projectScope}
             value={scope}
