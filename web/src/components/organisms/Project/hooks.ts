@@ -1,13 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
 import { useGetProjectsQuery, useCreateProjectMutation } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const [currentWorkspace] = useWorkspace();
   const [projectModalShown, setProjectModalShown] = useState(false);
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+  const t = useT();
 
   const workspaceId = currentWorkspace?.id;
 
@@ -58,14 +61,14 @@ export default () => {
         },
       });
       if (project.errors || !project.data?.createProject) {
-        setProjectModalShown(false);
+        Notification.error({ message: t("Failed to create project.") });
         return;
       }
-
+      Notification.success({ message: t("Successfully created project!") });
       setProjectModalShown(false);
       refetch();
     },
-    [createNewProject, workspaceId, refetch],
+    [createNewProject, workspaceId, refetch, t],
   );
 
   const handleProjectModalClose = useCallback(() => {
