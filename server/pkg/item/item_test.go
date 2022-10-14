@@ -47,9 +47,9 @@ func TestItem_UpdateFields(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &Item{
-				id:       tt.fields.id,
-				schemaID: tt.fields.schemaID,
-				fields:   tt.fields.fields,
+				id:     tt.fields.id,
+				schema: tt.fields.schemaID,
+				fields: tt.fields.fields,
 			}
 			i.UpdateFields(tt.input)
 			assert.Equal(t, tt.want, i.Fields())
