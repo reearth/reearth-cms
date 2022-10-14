@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/Workspace/types";
 import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
+  const t = useT();
 
   const navigate = useNavigate();
 
@@ -57,12 +60,13 @@ export default (workspaceId?: string) => {
         refetchQueries: ["GetWorkspaces"],
       });
       if (results.data?.createWorkspace) {
+        Notification.success({ message: t("Successfully created workspace!") });
         setCurrentWorkspace(results.data.createWorkspace.workspace);
         navigate(`/dashboard/${results.data.createWorkspace.workspace.id}`);
       }
       refetch();
     },
-    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate],
+    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate, t],
   );
 
   const handleWorkspaceModalClose = useCallback(() => {

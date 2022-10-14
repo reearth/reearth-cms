@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import {
   Integration,
   IntegrationMember,
@@ -12,6 +13,7 @@ import {
   Integration as GQLIntegration,
   useUpdateIntegrationOfWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -19,6 +21,7 @@ export default (workspaceId?: string) => {
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>();
   const { data, refetch } = useGetMeQuery();
+  const t = useT();
 
   const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
@@ -92,13 +95,14 @@ export default (workspaceId?: string) => {
         },
       });
       if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
-        // TODO: Add notification error
+        Notification.error({ message: t("Failed to connect integration.") });
         return;
       }
+      Notification.success({ message: t("Successfully connected integration to the workspace!") });
       setIntegrationConnectModalShown(false);
       refetch();
     },
-    [addIntegrationToWorkspaceMutation, workspaceId, refetch],
+    [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
   );
 
   const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
@@ -114,13 +118,15 @@ export default (workspaceId?: string) => {
         },
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
-        // TODO: Add notification error
+        Notification.error({ message: t("Failed to update workspace integration.") });
         return;
       }
+
+      Notification.success({ message: t("Successfully updated workspace integration!") });
       setIntegrationConnectModalShown(false);
       refetch();
     },
-    [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch],
+    [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetWorkspacesQuery,
@@ -10,6 +11,7 @@ import {
   Workspace,
   useGetUserBySearchLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
@@ -23,6 +25,7 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const t = useT();
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -86,17 +89,17 @@ export default ({ workspaceId }: Props) => {
           });
           const workspace = result.data?.addUserToWorkspace?.workspace;
           if (result.errors || !workspace) {
-            // TODO: notification
+            Notification.error({ message: t("Failed to add one or more members.") });
             return;
           }
           setWorkspace(workspace);
         }),
       );
       if (results) {
-        // TODO: notification
+        Notification.success({ message: t("Successfully added member(s) to the workspace!") });
       }
     },
-    [workspaceId, addUserToWorkspaceMutation, setWorkspace],
+    [workspaceId, addUserToWorkspaceMutation, setWorkspace, t],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
@@ -135,13 +138,13 @@ export default ({ workspaceId }: Props) => {
       });
       const workspace = result.data?.removeUserFromWorkspace?.workspace;
       if (result.errors || !workspace) {
-        // TODO: notification
+        Notification.error({ message: t("Failed to delete member from the workspace.") });
         return;
       }
       setWorkspace(workspace);
-      // TODO: notification
+      Notification.success({ message: t("Successfully removed member from the workspace!") });
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace],
+    [workspaceId, removeMemberFromWorkspaceMutation, setWorkspace, t],
   );
 
   const handleRoleModalClose = useCallback(() => {
