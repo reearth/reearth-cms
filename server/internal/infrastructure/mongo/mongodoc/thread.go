@@ -4,7 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/samber/lo"
+	"github.com/reearth/reearthx/util"
 )
 
 type ThreadDocument struct {
@@ -27,7 +27,7 @@ func NewThreadConsumer() *ThreadConsumer {
 
 func NewThread(a *thread.Thread) (*ThreadDocument, string) {
 	thid := a.ID().String()
-	comments := lo.Map(a.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c) })
+	comments := util.Map(a.Comments(), func(c *thread.Comment) *Comment { return NewComment(c) })
 	thd, id := &ThreadDocument{
 		ID:        thid,
 		Workspace: a.Workspace().String(),
@@ -48,8 +48,8 @@ func (d *ThreadDocument) Model() (*thread.Thread, error) {
 		return nil, err
 	}
 
-	comments := lo.Map(d.Comments, func(c *Comment, _ int) *thread.Comment {
-		return FromComment(c)
+	comments := util.Map(d.Comments, func(c *Comment) *thread.Comment {
+		return c.Model()
 	})
 
 	return thread.New().
@@ -59,7 +59,7 @@ func (d *ThreadDocument) Model() (*thread.Thread, error) {
 		Build()
 }
 
-func ToComment(c *thread.Comment) *Comment {
+func NewComment(c *thread.Comment) *Comment {
 	if c == nil {
 		return nil
 	}
@@ -71,7 +71,7 @@ func ToComment(c *thread.Comment) *Comment {
 	}
 }
 
-func FromComment(c *Comment) *thread.Comment {
+func (c *Comment) Model() *thread.Comment {
 	if c == nil {
 		return nil
 	}

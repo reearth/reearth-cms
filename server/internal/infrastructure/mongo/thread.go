@@ -49,7 +49,7 @@ func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *threa
 		return repo.ErrOperationDenied
 	}
 
-	cc := mongodoc.ToComment(c)
+	cc := mongodoc.NewComment(c)
 	filter := bson.M{"id": th.ID().String()}
 	update := bson.M{"$push": bson.M{"comments": cc}}
 
@@ -64,7 +64,7 @@ func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *th
 		return repo.ErrOperationDenied
 	}
 
-	doc := mongodoc.ToComment(c)
+	doc := mongodoc.NewComment(c)
 	filter := bson.M{"id": th.ID().String(), "comments.id": c.ID().String()}
 	update := bson.M{"$set": bson.M{
 		"comments.$.content": doc.Content,
