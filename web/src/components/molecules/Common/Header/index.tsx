@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -20,7 +20,7 @@ export interface Props {
   currentWorkspace?: Workspace;
   personalWorkspace?: Workspace;
   workspaces?: any[];
-  handleModalOpen: () => void;
+  onModalOpen: () => void;
 }
 
 const Header: React.FC<Props> = ({
@@ -28,7 +28,7 @@ const Header: React.FC<Props> = ({
   currentWorkspace,
   workspaces,
   personalWorkspace,
-  handleModalOpen,
+  onModalOpen,
 }) => {
   const t = useT();
   const { logout } = useAuth();
@@ -82,7 +82,7 @@ const Header: React.FC<Props> = ({
           label: t("new workspace"),
           key: "new-workspace",
           icon: <Icon icon="userGroupAdd" />,
-          onClick: handleModalOpen,
+          onClick: onModalOpen,
         },
       ]}
     />

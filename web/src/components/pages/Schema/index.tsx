@@ -1,13 +1,12 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
-import Dashboard from "@reearth-cms/components/organisms/Dashboard";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
+import CMSWrapper from "@reearth-cms/components/organisms/CMSWrapper";
 import ProjectSchema from "@reearth-cms/components/organisms/Project/Schema";
 
 const SchemaPage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <Dashboard defaultSelectedKeys={["schema"]} menuType="project">
-        <ProjectSchema />
-      </Dashboard>
+      <CMSWrapper defaultSelectedKeys={["schema"]} child={ProjectSchema} sidebar={ProjectMenu} />
     </AuthenticationRequiredPage>
   );
 };
