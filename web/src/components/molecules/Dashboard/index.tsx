@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 
 import Content from "@reearth-cms/components/atoms/Content";
-import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 
