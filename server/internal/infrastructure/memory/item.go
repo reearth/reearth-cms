@@ -50,6 +50,21 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 	return res, nil, nil
 }
 
+func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.Project() == projectID {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res, nil, nil
+}
+
 func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
