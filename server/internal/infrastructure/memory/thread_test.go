@@ -153,6 +153,7 @@ func TestThread_AddComment(t *testing.T) {
 		arg     *thread.Comment
 		filter  *repo.WorkspaceFilter
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name: "workspaces operation denied",
@@ -182,6 +183,11 @@ func TestThread_AddComment(t *testing.T) {
 			arg:     c1,
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -190,6 +196,10 @@ func TestThread_AddComment(t *testing.T) {
 			t.Parallel()
 
 			r := NewThread()
+			if tc.mockErr {
+				SetThreadError(r, tc.wantErr)
+			}
+
 			ctx := context.Background()
 			_ = r.Save(ctx, tc.seed.Clone())
 
@@ -229,6 +239,7 @@ func TestThread_UpdateComment(t *testing.T) {
 		want         *thread.Comment
 		wantErr      error
 		mockNotFound bool
+		mockErr      bool
 	}{
 		{
 			name: "workspaces operation denied",
@@ -254,6 +265,12 @@ func TestThread_UpdateComment(t *testing.T) {
 			arg:     "updated",
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			seed:    th1,
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -262,11 +279,14 @@ func TestThread_UpdateComment(t *testing.T) {
 			t.Parallel()
 
 			r := NewThread()
+			if tc.mockErr {
+				SetThreadError(r, tc.wantErr)
+			}
+
 			ctx := context.Background()
 
 			thread := tc.seed.Clone()
-			err := r.Save(ctx, thread)
-			assert.NoError(t, err)
+			_ = r.Save(ctx, thread)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
@@ -300,6 +320,7 @@ func TestThread_DeleteComment(t *testing.T) {
 		arg     id.CommentID
 		filter  *repo.WorkspaceFilter
 		wantErr error
+		mockErr bool
 	}{
 		{
 			name: "workspaces operation denied",
@@ -325,6 +346,12 @@ func TestThread_DeleteComment(t *testing.T) {
 			arg:     c1.ID(),
 			wantErr: nil,
 		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			seed:    th1,
+			mockErr: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -333,11 +360,14 @@ func TestThread_DeleteComment(t *testing.T) {
 			t.Parallel()
 
 			r := NewThread()
+			if tc.mockErr {
+				SetThreadError(r, tc.wantErr)
+			}
+
 			ctx := context.Background()
 
 			seed := tc.seed.Clone()
-			err := r.Save(ctx, seed)
-			assert.NoError(t, err)
+			_ = r.Save(ctx, seed)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
