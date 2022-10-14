@@ -7,6 +7,8 @@ import (
 type ID = id.ProjectID
 type WorkspaceID = id.WorkspaceID
 
+type IDList = id.ProjectIDList
+
 var NewID = id.NewProjectID
 var NewWorkspaceID = id.NewWorkspaceID
 
