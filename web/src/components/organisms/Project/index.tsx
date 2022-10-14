@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
@@ -17,16 +16,18 @@ import useHooks from "./hooks";
 
 const Project: React.FC = () => {
   const t = useT();
+
   const { Search } = Input;
-  const { workspaceId } = useParams();
 
   const {
+    projects,
+    currentWorkspaceId,
+    projectModalShown,
     handleProjectSearch,
     handleProjectCreate,
-    handleProjectModalClose,
     handleProjectModalOpen,
-    projectModalShown,
-    projects,
+    handleProjectModalClose,
+    handleProjectSettingsNavigation,
   } = useHooks();
 
   const {
@@ -34,7 +35,7 @@ const Project: React.FC = () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     workspaceModalShown,
-  } = useDashboardHooks(workspaceId);
+  } = useDashboardHooks({ workspaceId: currentWorkspaceId });
 
   return (
     <>
@@ -57,8 +58,8 @@ const Project: React.FC = () => {
         </ActionHeader>
         <ProjectList
           projects={projects}
-          workspaceId={workspaceId}
-          handleProjectModalOpen={handleProjectModalOpen}
+          onProjectModalOpen={handleProjectModalOpen}
+          onProjectSettingsNavigation={handleProjectSettingsNavigation}
         />
       </PaddedContent>
       <ProjectCreationModal

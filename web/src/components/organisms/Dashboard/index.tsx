@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Content from "@reearth-cms/components/atoms/Content";
-import Header from "@reearth-cms/components/atoms/Header";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
@@ -22,29 +21,32 @@ type Props = {
 const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
+
   const {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
+    workspaceModalShown,
+    currentProject,
     handleWorkspaceCreate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
-    workspaceModalShown,
-  } = useHooks(workspaceId);
+    handleNavigateToSettings,
+  } = useHooks({ projectId, workspaceId });
 
   return (
     <>
       <DashboardLayout>
-        <MainHeader>
-          <MoleculeHeader
-            handleModalOpen={handleWorkspaceModalOpen}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            user={user}
-          />
-        </MainHeader>
+        <MoleculeHeader
+          personalWorkspace={personalWorkspace}
+          workspaces={workspaces}
+          currentWorkspace={currentWorkspace}
+          currentProject={currentProject}
+          user={user}
+          onWorkspaceModalOpen={handleWorkspaceModalOpen}
+          onNavigateToSettings={handleNavigateToSettings}
+        />
         <Layout>
           <DashboardSider
             collapsible
@@ -79,13 +81,6 @@ const Dashboard: React.FC<Props> = ({ children, defaultSelectedKeys, menuType })
     </>
   );
 };
-
-const MainHeader = styled(Header)`
-  display: flex;
-  align-items: center;
-  height: 48px;
-  line-height: 48px;
-`;
 
 const DashboardLayout = styled(Layout)`
   min-height: 100vh;
