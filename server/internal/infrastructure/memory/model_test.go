@@ -11,68 +11,25 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestModelRepo_Filtered(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
-	pid1 := id.NewProjectID()
-	id1 := id.NewModelID()
-	id2 := id.NewModelID()
-	sid1 := id.NewSchemaID()
-	sid2 := id.NewSchemaID()
-	k := key.New("T123456")
-	m1 := model.New().ID(id1).Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
-	m2 := model.New().ID(id2).Project(pid1).Schema(sid2).Key(k).UpdatedAt(mocknow).MustBuild()
+	r := &Model{}
+	pid := id.NewProjectID()
 
-	tests := []struct {
-		name    string
-		seeds   model.List
-		arg     repo.ProjectFilter
-		wantErr error
-		mockErr bool
-	}{
-		{
-			name: "project filter operation denied",
-			seeds: model.List{
-				m1,
-				m2,
-			},
-			arg: repo.ProjectFilter{
-				Readable: []id.ProjectID{},
-				Writable: []id.ProjectID{},
-			},
-			wantErr: repo.ErrOperationDenied,
+	assert.Equal(t, &Model{
+		f: repo.ProjectFilter{
+			Readable: id.ProjectIDList{pid},
+			Writable: nil,
 		},
-		{
-			name: "project filter operation success",
-			seeds: model.List{
-				m1,
-				m2,
-			},
-			arg: repo.ProjectFilter{
-				Readable: []id.ProjectID{pid1},
-				Writable: []id.ProjectID{pid1},
-			},
-			wantErr: nil,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			r := NewModel().Filtered(tc.arg)
-			defer MockModelNow(r, mocknow)()
-			ctx := context.Background()
-			for _, p := range tc.seeds {
-				err := r.Save(ctx, p.Clone())
-				assert.ErrorIs(t, err, tc.wantErr)
-			}
-		})
-	}
+		now: &util.TimeNow{},
+	}, r.Filtered(repo.ProjectFilter{
+		Readable: id.ProjectIDList{pid},
+		Writable: nil,
+	}))
 }
 
 func TestModelRepo_FindByID(t *testing.T) {
@@ -82,7 +39,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	k := key.New("T123456")
 	m1 := model.New().ID(id1).Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
-	
+
 	tests := []struct {
 		name    string
 		seeds   model.List
@@ -136,7 +93,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 			},
 			arg:     id1,
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
-			want:   m1,
+			want:    m1,
 			wantErr: nil,
 		},
 		{
@@ -301,7 +258,6 @@ func TestModelRepo_FindByIDs(t *testing.T) {
 		})
 	}
 }
-
 
 func TestModelRepo_FindByProject(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()

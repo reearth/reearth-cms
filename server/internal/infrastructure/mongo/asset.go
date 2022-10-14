@@ -77,6 +77,10 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 }
 
 func (r *assetRepo) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
+	if !r.f.CanWrite(from) || !r.f.CanWrite(to) {
+		return repo.ErrOperationDenied
+	}
+
 	return r.client.UpdateMany(ctx, bson.M{
 		"project": from.String(),
 	}, bson.M{
