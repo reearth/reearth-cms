@@ -387,3 +387,78 @@ func TestThread_DeleteComment(t *testing.T) {
 		})
 	}
 }
+
+func TestThreadRepo_Save(t *testing.T) {
+	wid1 := id.NewWorkspaceID()
+	id1 := id.NewThreadID()
+	th1 := thread.New().ID(id1).Workspace(wid1).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   thread.List
+		arg     *thread.Thread
+		filter  *repo.WorkspaceFilter
+		want    *thread.Thread
+		wantErr error
+	}{
+		{
+			name: "Save succeed",
+			seeds: thread.List{
+				th1,
+			},
+			arg:     th1,
+			want:    th1,
+			wantErr: nil,
+		},
+		{
+			name: "Filtered operation error",
+			seeds: thread.List{
+				th1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     th1,
+			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{}, Writable: []id.WorkspaceID{}},
+			want:    nil,
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "Filtered succeed",
+			seeds: thread.List{
+				th1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     th1,
+			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{wid1}, Writable: []id.WorkspaceID{wid1}},
+			want:    th1,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			r := NewThread()
+			ctx := context.Background()
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			for _, th := range tc.seeds {
+				err := r.Save(ctx, th)
+				if tc.wantErr != nil {
+					assert.ErrorIs(t, err, tc.wantErr)
+					return
+				}
+			}
+
+			err := r.Save(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+		})
+	}
+}
