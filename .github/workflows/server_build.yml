@@ -67,17 +67,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push nightly
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./server
-          platforms: linux/amd64,linux/arm64
-          push: true
-          build-args: VERSION=0.0.0-SNAPSHOT-${{ needs.info.outputs.sha_short }}
-          tags: ${{ env.IMAGE_NAME }}:nightly
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Get options
         id: options
         env:
@@ -105,7 +94,7 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./server
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}
