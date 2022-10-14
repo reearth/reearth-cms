@@ -1,6 +1,7 @@
 package thread
 
 import (
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -52,7 +53,7 @@ func (th *Thread) Clone() *Thread {
 		return nil
 	}
 
-	comments := lo.Map(th.comments, func(c *Comment, _ int) *Comment {
+	comments := util.Map(th.comments, func(c *Comment) *Comment {
 		return c.Clone()
 	})
 

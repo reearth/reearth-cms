@@ -2,11 +2,13 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,6 +26,120 @@ func TestThread_Filtered(t *testing.T) {
 		Readable: id.WorkspaceIDList{wid},
 		Writable: nil,
 	}))
+}
+
+func TestThreadRepo_FindByID(t *testing.T) {
+	tid1 := id.NewWorkspaceID()
+	id1 := id.NewThreadID()
+	p1 := thread.New().ID(id1).Workspace(tid1).MustBuild()
+	tests := []struct {
+		name    string
+		seeds   thread.List
+		arg     id.ThreadID
+		filter  *repo.WorkspaceFilter
+		want    *thread.Thread
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   thread.List{},
+			arg:     id.NewThreadID(),
+			filter:  nil,
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: thread.List{
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id.NewThreadID(),
+			filter:  nil,
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: thread.List{
+				p1,
+			},
+			arg:     id1,
+			filter:  nil,
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: thread.List{
+				p1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id1,
+			filter:  nil,
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name: "Filtered Found 0",
+			seeds: thread.List{
+				p1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id1,
+			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "Filtered Found 2",
+			seeds: thread.List{
+				p1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id1,
+			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{tid1}, Writable: []id.WorkspaceID{}},
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewThread()
+			if tc.mockErr {
+				SetThreadError(r, tc.wantErr)
+			}
+
+			ctx := context.Background()
+			for _, th := range tc.seeds {
+				err := r.Save(ctx, th.Clone())
+				assert.Nil(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, err := r.FindByID(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }
 
 func TestThread_AddComment(t *testing.T) {

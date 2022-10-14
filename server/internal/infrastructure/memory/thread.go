@@ -35,12 +35,12 @@ func (r *Thread) FindByID(ctx context.Context, thid id.ThreadID) (*thread.Thread
 		return nil, r.err
 	}
 
-	p := r.data.Find(func(k id.ThreadID, v *thread.Thread) bool {
+	th := r.data.Find(func(k id.ThreadID, v *thread.Thread) bool {
 		return k == thid && r.f.CanRead(v.Workspace())
 	})
 
-	if p != nil {
-		return p, nil
+	if th != nil {
+		return th, nil
 	}
 	return nil, rerror.ErrNotFound
 }
