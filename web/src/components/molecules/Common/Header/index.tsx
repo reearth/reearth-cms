@@ -58,10 +58,11 @@ const HeaderMolecule: React.FC<Props> = ({
               label: workspace.name,
               key: workspace.id,
               icon: (
-                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size={"small"}>
+                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="small">
                   {workspace.name.charAt(0)}
                 </Avatar>
               ),
+              style: { paddingLeft: 0, paddingRight: 0 },
               onClick: () => handleWorkspaceChange(workspace.id),
             })),
         },
@@ -70,23 +71,29 @@ const HeaderMolecule: React.FC<Props> = ({
         },
         {
           label: t("Workspaces"),
-          key: "teams",
+          key: "workspaces",
           type: "group",
           children: workspaces
             ?.filter(workspace => workspace.id !== personalWorkspace?.id)
             ?.map(workspace => ({
-              label: workspace.name,
+              label: <MenuText>{workspace.name}</MenuText>,
               key: workspace.id,
               icon: (
-                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+                <Avatar
+                  style={{
+                    color: "#fff",
+                    backgroundColor: "#3F3D45",
+                  }}
+                  size="small">
                   {workspace.name.charAt(0)}
                 </Avatar>
               ),
+              style: { paddingLeft: 0, paddingRight: 0 },
               onClick: () => handleWorkspaceChange(workspace.id),
             })),
         },
         {
-          label: t("new workspace"),
+          label: t("Create Workspace"),
           key: "new-workspace",
           icon: <Icon icon="userGroupAdd" />,
           onClick: onWorkspaceModalOpen,
@@ -119,7 +126,12 @@ const HeaderMolecule: React.FC<Props> = ({
       <Logo onClick={() => navigate("/")}>{t("Re:Earth CMS")}</Logo>
       <VerticalDivider />
       <WorkspaceDropdown name={currentWorkspace?.name} menu={WorkspacesMenu} />
-      {currentProject?.name && <ProjectText>/ {currentProject.name}</ProjectText>}
+      {currentProject?.name && (
+        <CurrentProject>
+          <Break>/</Break>
+          <ProjectText>{currentProject.name}</ProjectText>
+        </CurrentProject>
+      )}
       <Spacer />
       <AccountDropdown name={user.name} menu={AccountMenu} />
     </MainHeader>
@@ -133,6 +145,9 @@ const MainHeader = styled(Header)`
   line-height: 41px;
   padding: 0;
   background-color: #1d1d1d;
+  .ant-space-item {
+    color: #dbdbdb;
+  }
 `;
 
 const Logo = styled.div`
@@ -151,7 +166,6 @@ const Spacer = styled.div`
 
 const HeaderMenu = styled(Menu)`
   background-color: #1d1d1d;
-  color: white;
   width: 190px;
 
   .ant-dropdown-menu-item-divider {
@@ -160,13 +174,14 @@ const HeaderMenu = styled(Menu)`
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #dbdbdb;
+    color: #fff;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
     font-size: 12px;
     line-height: 22px;
     user-select: none;
+    color: #dbdbdb;
   }
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
@@ -202,8 +217,27 @@ const AccountDropdown = styled(HeaderDropdown)`
 `;
 
 const ProjectText = styled.p`
-  color: #fff;
-  margin: 0 0 0 10px;
+  margin: 0;
+`;
+
+const Break = styled.p`
+  margin: 0 10px 0 10px;
+`;
+
+const CurrentProject = styled.div`
+  height: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: #dbdbdb;
+`;
+
+const MenuText = styled.p`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 140px;
 `;
 
 export default HeaderMolecule;

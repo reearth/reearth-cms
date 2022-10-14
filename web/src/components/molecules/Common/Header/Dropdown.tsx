@@ -19,7 +19,7 @@ const Dropdown: React.FC<Props> = ({ className, menu, name }) => {
           <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size={"small"}>
             {name?.charAt(0)}
           </Avatar>
-          {name}
+          <Text>{name}</Text>
           <StyledIcon icon="caretDown" />
         </Space>
       </a>
@@ -37,4 +37,12 @@ const StyledDropdown = styled(DropdownAtom)`
 
 const StyledIcon = styled(Icon)`
   color: #8c8c8c;
+`;
+
+const Text = styled.p`
+  max-width: 300px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
