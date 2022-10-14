@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
-import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
+import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
+import { Project as ProjectType } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 export interface Props {

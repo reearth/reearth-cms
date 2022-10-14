@@ -6,19 +6,19 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+export type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
   workspaceId?: string;
   defaultSelectedKeys?: string[];
-}
+};
 
 export type MenuShowType = "personal" | "notPersonal" | "both";
 
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
+  { label: "Home", key: "dashboard", icon: <Icon icon="home" />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
@@ -82,7 +82,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const onClick = (e: any) => {
     if (e.key === "member") {
       navigate(`/workspaces/${workspaceId}/members`);
-    } else if (e.key === "home") {
+    } else if (e.key === "dashboard") {
       navigate(`/dashboard/${workspaceId}`);
     } else if (e.key === "my-integration") {
       navigate(`/workspaces/${workspaceId}/myIntegrations`);

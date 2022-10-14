@@ -1,18 +1,14 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 import CMSWrapper from "@reearth-cms/components/organisms/CMSWrapper";
-import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
+import Workspace from "@reearth-cms/components/organisms/Workspace";
 
-const MyIntegrationsPage: React.FC = () => {
+const WorkspacePage: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <CMSWrapper
-        defaultSelectedKeys={["my-integration"]}
-        child={MyIntegrations}
-        sidebar={WorkspaceMenu}
-      />
+      <CMSWrapper defaultSelectedKeys={["dashboard"]} child={Workspace} sidebar={WorkspaceMenu} />
     </AuthenticationRequiredPage>
   );
 };
 
-export default MyIntegrationsPage;
+export default WorkspacePage;
