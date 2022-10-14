@@ -19,12 +19,20 @@ import (
 
 type assetRepo struct {
 	client *mongox.ClientCollection
+	f      repo.ProjectFilter
 }
 
 func NewAsset(client *mongox.Client) repo.Asset {
 	r := &assetRepo{client: client.WithCollection("asset")}
 	r.init()
 	return r
+}
+
+func (r *assetRepo) Filtered(f repo.ProjectFilter) repo.Asset {
+	return &assetRepo{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
 }
 
 func (r *assetRepo) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
@@ -49,6 +57,10 @@ func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset
 }
 
 func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
 	var filter interface{} = bson.M{
 		"project": id.String(),
 	}
@@ -64,15 +76,33 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
 }
 
+func (r *assetRepo) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
+	if !r.f.CanWrite(from) || !r.f.CanWrite(to) {
+		return repo.ErrOperationDenied
+	}
+
+	return r.client.UpdateMany(ctx, bson.M{
+		"project": from.String(),
+	}, bson.M{
+		"project": to.String(),
+	})
+}
+
 func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
+	if !r.f.CanWrite(asset.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, id := mongodoc.NewAsset(asset)
 	return r.client.SaveOne(ctx, id, doc)
 }
 
 func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
-	return r.client.UpdateMany(ctx, r.writeFilter(bson.M{
+	if !r.f.CanWrite(a.Project()) {
+		return repo.ErrOperationDenied
+	}
+	return r.client.UpdateMany(ctx, bson.M{
 		"id": a.ID().String(),
-	}), bson.M{
+	}, bson.M{
 		"previewType": a.PreviewType().String(),
 	})
 }
@@ -137,9 +167,9 @@ func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
 }
 
 func (r *assetRepo) readFilter(filter interface{}) interface{} {
-	return filter
+	return applyProjectFilter(filter, r.f.Readable)
 }
 
 func (r *assetRepo) writeFilter(filter interface{}) interface{} {
-	return filter
+	return applyProjectFilter(filter, r.f.Writable)
 }

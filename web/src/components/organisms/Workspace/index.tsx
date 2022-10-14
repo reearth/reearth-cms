@@ -18,6 +18,7 @@ const Workspace: React.FC<Props> = ({ onWorkspaceModalOpen }) => {
     handleProjectModalOpen,
     projectModalShown,
     projects,
+    handleProjectSettingsNavigation,
   } = useHooks();
 
   return (
@@ -28,7 +29,11 @@ const Workspace: React.FC<Props> = ({ onWorkspaceModalOpen }) => {
         onProjectModalOpen={handleProjectModalOpen}
         onWorkspaceModalOpen={onWorkspaceModalOpen}
       />
-      <ProjectList projects={projects} handleProjectModalOpen={handleProjectModalOpen} />
+      <ProjectList
+        projects={projects}
+        onProjectModalOpen={handleProjectModalOpen}
+        onProjectSettingsNavigation={handleProjectSettingsNavigation}
+      />
       <ProjectCreationModal
         open={projectModalShown}
         onClose={handleProjectModalClose}

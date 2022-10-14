@@ -17,6 +17,12 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.id.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.schema.IsNil() {
+		return nil, ErrInvalidID
+	}
+	if b.i.project.IsNil() {
+		return nil, ErrInvalidID
+	}
 	return b.i, nil
 }
 
@@ -36,6 +42,11 @@ func (b *Builder) Fields(fs []*Field) *Builder {
 }
 
 func (b *Builder) Schema(sid schema.ID) *Builder {
-	b.i.schemaID = sid
+	b.i.schema = sid
+	return b
+}
+
+func (b *Builder) Project(pid ProjectID) *Builder {
+	b.i.project = pid
 	return b
 }

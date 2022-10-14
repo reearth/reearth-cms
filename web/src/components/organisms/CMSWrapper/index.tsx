@@ -12,9 +12,9 @@ type InnerProps = {
 };
 
 export type Props = {
-  contentComponent: React.FC<InnerProps>;
+  child: React.FC<InnerProps>;
   defaultSelectedKeys?: string[];
-  sidebarComponent: React.FC<{
+  sidebar: React.FC<{
     projectId?: string;
     inlineCollapsed: boolean;
     isPersonalWorkspace?: boolean;
@@ -23,11 +23,7 @@ export type Props = {
   }>;
 };
 
-const CMSWrapper: React.FC<Props> = ({
-  contentComponent: Child,
-  defaultSelectedKeys,
-  sidebarComponent: Sidebar,
-}) => {
+const CMSWrapper: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar: Sidebar }) => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -36,11 +32,13 @@ const CMSWrapper: React.FC<Props> = ({
     personalWorkspace,
     workspaces,
     currentWorkspace,
+    currentProject,
     handleWorkspaceCreate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     workspaceModalShown,
-  } = useHooks(workspaceId);
+    handleNavigateToSettings,
+  } = useHooks({ projectId, workspaceId });
 
   const handleCollapse = useCallback((collapse: boolean) => {
     setCollapsed(collapse);
@@ -62,11 +60,13 @@ const CMSWrapper: React.FC<Props> = ({
         }
         headerComponent={
           <MoleculeHeader
-            onModalOpen={handleWorkspaceModalOpen}
+            onWorkspaceModalOpen={handleWorkspaceModalOpen}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
+            currentProject={currentProject}
+            onNavigateToSettings={handleNavigateToSettings}
           />
         }
         contentComponent={<Child onWorkspaceModalOpen={handleWorkspaceModalOpen} />}
