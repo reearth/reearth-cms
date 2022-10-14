@@ -17,6 +17,7 @@ jobs:
       sha_short: ${{ steps.info.outputs.sha_short }}
       new_tag: ${{ steps.info.outputs.new_tag }}
       new_tag_short: ${{ steps.info.outputs.new_tag_short }}
+      name: ${{ steps.info.outputs.name }}
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -43,14 +44,15 @@ jobs:
           SHA_SHORT: ${{ steps.info.outputs.sha_short }}
           NEW_TAG: ${{ steps.info.outputs.new_tag }}
           NEW_TAG_SHORT: ${{ steps.info.outputs.new_tag_short }}
-        run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT"
+          NAME: ${{ steps.info.outputs.name }}
+        run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT, name=$NAME"
 
   docker:
     name: Build and push Docker image
     runs-on: ubuntu-latest
     needs:
       - info
-    if: needs.info.outputs.name || needs.info.outputs.tag
+    if: needs.info.outputs.name || needs.info.outputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms
     steps:
@@ -66,7 +68,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push nightly
-        if: "!needs.info.outputs.new_tag"
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -115,5 +116,5 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         if: needs.info.outputs.name == 'nightly'
         with:
-          workflow: server-deploy-test
+          workflow: deploy-test
           token: ${{ secrets.GPT }}
