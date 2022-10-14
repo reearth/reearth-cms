@@ -46,7 +46,6 @@ export default ({ projectId }: { projectId?: string }) => {
     async (scope: PublicScope, modelsToUpdate?: Model[] | undefined) => {
       if (!projectId) return;
       console.log(scope, "scope");
-      console.log(modelsToUpdate, "modelsToUpdate");
 
       // if (scope !== projectScope) {
       //   const gqlScope =

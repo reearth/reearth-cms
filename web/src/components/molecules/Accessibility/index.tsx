@@ -41,6 +41,11 @@ const Accessibility: React.FC<Props> = ({
     setModels(rawModels);
   }, [rawModels]);
 
+  const saveDisabled = useMemo(
+    () => updatedModels.length === 0 && projectScope === scope,
+    [projectScope, scope, updatedModels],
+  );
+
   const handleAccessibilityUpdate = useCallback(() => {
     if (!scope) return;
     onAccessibilityUpdate?.(scope, updatedModels);
@@ -121,7 +126,7 @@ const Accessibility: React.FC<Props> = ({
         <TableWrapper>
           <Table dataSource={dataSource} columns={columns} pagination={false} />
         </TableWrapper>
-        <Button type="primary" onClick={handleAccessibilityUpdate}>
+        <Button type="primary" disabled={saveDisabled} onClick={handleAccessibilityUpdate}>
           {t("Save changes")}
         </Button>
       </>
