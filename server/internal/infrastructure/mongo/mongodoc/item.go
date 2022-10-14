@@ -10,9 +10,10 @@ import (
 )
 
 type ItemDocument struct {
-	ID     string
-	Schema string
-	Fields []ItemFieldDoc
+	ID      string
+	Project string
+	Schema  string
+	Fields  []ItemFieldDoc
 }
 
 type ItemFieldDoc struct {
@@ -53,10 +54,12 @@ func NewItem(ws *item.Item) (*ItemDocument, string) {
 
 	id := ws.ID().String()
 	sid := ws.Schema().String()
+	pid := ws.Project().String()
 	return &ItemDocument{
-		ID:     id,
-		Schema: sid,
-		Fields: fieldDoc,
+		ID:      id,
+		Schema:  sid,
+		Project: pid,
+		Fields:  fieldDoc,
 	}, id
 }
 
@@ -66,6 +69,10 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 	sid, err := id.SchemaIDFrom(d.Schema)
+	if err != nil {
+		return nil, err
+	}
+	pid, err := id.ProjectIDFrom(d.Project)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +91,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 	return item.New().
 		ID(iid).
+		Project(pid).
 		Schema(sid).
 		Fields(fields).
 		Build()

@@ -41,3 +41,10 @@ func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{
 	}
 	return mongox.And(filter, "workspace", bson.M{"$in": ids.Strings()})
 }
+
+func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
+	if ids == nil {
+		return filter
+	}
+	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
+}

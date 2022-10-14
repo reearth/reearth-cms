@@ -16,6 +16,65 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_AssetRepo_Filtered(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := id.NewUserID()
+	id1 := id.NewAssetID()
+	id2 := id.NewAssetID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   asset.List
+		arg     repo.ProjectFilter
+		wantErr error
+	}{
+		{
+			name: "no r/w workspaces operation denied",
+			seeds: asset.List{
+				a1,
+				a2,
+			},
+			arg: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "r/w workspaces operation success",
+			seeds: asset.List{
+				a1,
+				a2,
+			},
+			arg: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client).Filtered(tc.arg)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.ErrorIs(t, err, tc.wantErr)
+			}
+		})
+	}
+}
+
 func TestAssetRepo_FindByID(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
@@ -211,6 +270,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 		name    string
 		seeds   []*asset.Asset
 		args    args
+		filter  *repo.ProjectFilter
 		want    []*asset.Asset
 		wantErr error
 	}{
@@ -286,6 +346,30 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			want:    []*asset.Asset{a2},
 			wantErr: nil,
 		},
+		{
+			name: "project filter operation success",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).MustBuild(),
+			},
+			args:    args{pid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    nil,
+			wantErr: nil,
+		},
 	}
 
 	initDB := mongotest.Connect(t)
@@ -304,6 +388,10 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
 			got, _, err := r.FindByProject(ctx, tc.args.tid, repo.AssetFilter{Pagination: tc.args.pInfo})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
@@ -311,6 +399,82 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAssetRepo_Update(t *testing.T) {
+	pid1 := id.NewProjectID()
+	id1 := id.NewAssetID()
+	id2 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	uid2 := id.NewUserID()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
+	pt := asset.PreviewTypeFromRef(lo.ToPtr("IMAGE"))
+	a2 := asset.New().ID(id2).Project(pid1).CreatedBy(uid2).Size(1000).Type(pt).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   asset.List
+		arg   *asset.Asset
+		filter     *repo.ProjectFilter
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(uid1).Size(1000).MustBuild(),
+			},
+			arg: a2,
+			filter: &repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			wantErr: repo.ErrOperationDenied,
+		},
+		{
+			name: "project filter operation success",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(uid1).Size(1000).MustBuild(),
+			},
+			arg: a2,
+			filter: &repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			err := r.Update(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Nil(t, err)
 		})
 	}
 }
