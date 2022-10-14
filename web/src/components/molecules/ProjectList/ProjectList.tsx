@@ -9,15 +9,15 @@ import { useT } from "@reearth-cms/i18n";
 export interface Props {
   className?: string;
   projects?: ProjectType[];
-  workspaceId?: string;
-  handleProjectModalOpen: () => void;
+  onProjectModalOpen: () => void;
+  onProjectSettingsNavigation: (project: ProjectType) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
   className,
   projects,
-  workspaceId,
-  handleProjectModalOpen,
+  onProjectModalOpen,
+  onProjectSettingsNavigation,
 }) => {
   const t = useT();
 
@@ -26,7 +26,11 @@ const ProjectList: React.FC<Props> = ({
       {projects?.length ? (
         <Content>
           {projects.map((project: ProjectType) => (
-            <ProjectCard key={project.id} project={project} workspaceId={workspaceId} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onProjectSettingsNavigation={onProjectSettingsNavigation}
+            />
           ))}
         </Content>
       ) : (
@@ -34,7 +38,7 @@ const ProjectList: React.FC<Props> = ({
           <Title>{t("No Projects Yet")}</Title>
           <Suggestion>
             {t("Create a new project")}{" "}
-            <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+            <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               {t("New Project")}
             </Button>
           </Suggestion>

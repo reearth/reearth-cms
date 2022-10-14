@@ -1,16 +1,20 @@
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useGetProjectsQuery, useCreateProjectMutation } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
+  const t = useT();
+  const navigate = useNavigate();
+
   const [currentWorkspace] = useWorkspace();
+  const [, setCurrentProject] = useProject();
   const [projectModalShown, setProjectModalShown] = useState(false);
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
-  const t = useT();
 
   const workspaceId = currentWorkspace?.id;
 
@@ -77,14 +81,23 @@ export default () => {
 
   const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
+  const handleProjectSettingsNavigation = useCallback(
+    (project?: Project) => {
+      navigate("/workspaces/" + currentWorkspace?.id + "/" + project?.id);
+      setCurrentProject(project);
+    },
+    [currentWorkspace, setCurrentProject, navigate],
+  );
+
   return {
     projects,
-    searchedProjectName,
-    currentWorkspace,
     projectModalShown,
+    currentWorkspaceId: currentWorkspace?.id,
+    setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
     handleProjectModalClose,
+    handleProjectSettingsNavigation,
   };
 };
