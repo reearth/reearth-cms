@@ -16,31 +16,31 @@ export type Props = {
   onCollapse: (collapse: boolean) => void;
 };
 
-const DashboardMolecule: React.FC<Props> = ({
-  contentComponent: Child,
+const CMSWrapper: React.FC<Props> = ({
+  contentComponent: Content,
   sidebarComponent: Sidebar,
   headerComponent: Header,
   collapsed,
   onCollapse,
 }) => {
   return (
-    <DashboardLayout>
+    <CMSLayout>
       {Header}
       <Layout>
-        <DashboardSider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse}>
           {Sidebar}
-        </DashboardSider>
-        <PaddedContent>{Child}</PaddedContent>
+        </CMSSidebar>
+        <CMSContent>{Content}</CMSContent>
       </Layout>
-    </DashboardLayout>
+    </CMSLayout>
   );
 };
 
-const DashboardLayout = styled(Layout)`
+const CMSLayout = styled(Layout)`
   min-height: 100vh;
 `;
 
-const DashboardSider = styled(Sider)`
+const CMSSidebar = styled(Sider)`
   background-color: #fff;
   .ant-layout-sider-trigger {
     background-color: #fff;
@@ -55,8 +55,8 @@ const DashboardSider = styled(Sider)`
   }
 `;
 
-const PaddedContent = styled(Content)`
+const CMSContent = styled(Content)`
   margin: 16px;
 `;
 
-export default DashboardMolecule;
+export default CMSWrapper;

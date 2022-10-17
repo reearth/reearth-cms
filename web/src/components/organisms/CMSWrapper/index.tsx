@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useLocation, Outlet } from "react-router-dom";
 
+import CMSWrapperMolecule from "@reearth-cms/components/molecules/CMSWrapper";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
-import DashboardMolecule from "@reearth-cms/components/molecules/Dashboard";
 
 import useHooks from "./hooks";
 
@@ -41,7 +41,7 @@ const CMSWrapper: React.FC = () => {
 
   return (
     <>
-      <DashboardMolecule
+      <CMSWrapperMolecule
         collapsed={collapsed}
         onCollapse={handleCollapse}
         sidebarComponent={

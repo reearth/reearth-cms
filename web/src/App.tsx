@@ -4,19 +4,19 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
-import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
-import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
-import ReearthCMS from "@reearth-cms/components/pages/CMSPageWrapper";
-import ContentPage from "@reearth-cms/components/pages/Content";
-import ContentDetailsPage from "@reearth-cms/components/pages/ContentDetails";
-import IntegrationPage from "@reearth-cms/components/pages/Integration";
-import MembersPage from "@reearth-cms/components/pages/Members";
-import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
-import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
-import ProjectSettingsPage from "@reearth-cms/components/pages/ProjectSettings";
+import Asset from "@reearth-cms/components/organisms/Asset/Asset";
+import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
+import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
+import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
+import Schema from "@reearth-cms/components/organisms/Project/Schema";
+import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
+import Integration from "@reearth-cms/components/organisms/Settings/Integration";
+import Members from "@reearth-cms/components/organisms/Settings/Members";
+import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
+import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
+import Workspace from "@reearth-cms/components/organisms/Workspace";
+import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
-import SchemaPage from "@reearth-cms/components/pages/Schema";
-import WorkspacePage from "@reearth-cms/components/pages/Workspace";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
@@ -31,19 +31,19 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<RootPage />} />
-                <Route path="workspace" element={<ReearthCMS />}>
-                  <Route path=":workspaceId" element={<WorkspacePage />} />
+                <Route path="workspace" element={<CMSPageWrapper />}>
+                  <Route path=":workspaceId" element={<Workspace />} />
                   <Route
                     path=":workspaceId/account"
                     element={<div>Personal workspace account page - GOTTA DO THIS PAGE!!!!</div>}
                   />
-                  <Route path=":workspaceId/members" element={<MembersPage />} />
-                  <Route path=":workspaceId/myIntegrations" element={<MyIntegrationsPage />} />
+                  <Route path=":workspaceId/members" element={<Members />} />
+                  <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
                   <Route
                     path=":workspaceId/myIntegrations/:integrationId"
-                    element={<MyIntegrationDetailsPage />}
+                    element={<MyIntegrationDetails />}
                   />
-                  <Route path=":workspaceId/integration" element={<IntegrationPage />} />
+                  <Route path=":workspaceId/integration" element={<Integration />} />
                   <Route
                     path=":workspaceId/role"
                     element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
@@ -60,32 +60,32 @@ function App() {
                     path=":workspaceId/project/:projectId"
                     element={<div>Project overview - GOTTA DO THIS PAGE!!!!</div>}
                   />
-                  <Route path=":workspaceId/project/:projectId/schema" element={<SchemaPage />} />
+                  <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
                   <Route
                     path=":workspaceId/project/:projectId/schema/:modelId"
-                    element={<SchemaPage />}
+                    element={<Schema />}
                   />
-                  <Route path=":workspaceId/project/:projectId/content" element={<ContentPage />} />
+                  <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
                   <Route
                     path=":workspaceId/project/:projectId/settings"
-                    element={<ProjectSettingsPage />}
+                    element={<ProjectSettings />}
                   />
                   <Route
                     path=":workspaceId/project/:projectId/content/:modelId"
-                    element={<ContentPage />}
+                    element={<Content />}
                   />
                   <Route
                     path=":workspaceId/project/:projectId/content/:modelId/details"
-                    element={<ContentDetailsPage />}
+                    element={<ContentDetails />}
                   />
                   <Route
                     path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
-                    element={<ContentDetailsPage />}
+                    element={<ContentDetails />}
                   />
-                  <Route path=":workspaceId/project/:projectId/asset" element={<AssetListPage />} />
+                  <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
                   <Route
                     path=":workspaceId/project/:projectId/asset/:assetId"
-                    element={<AssetPage />}
+                    element={<Asset />}
                   />
                   <Route
                     path=":workspaceId/project/:projectId/request"

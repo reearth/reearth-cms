@@ -11,11 +11,11 @@ export interface FormValues {
   description: string;
 }
 
-export interface Props {
+export type Props = {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
-}
+};
 
 const initialValues: FormValues = {
   name: "",
