@@ -1,32 +1,31 @@
 import styled from "@emotion/styled";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 export interface Props {
   className?: string;
   project: Project;
-  workspaceId?: string;
+  onProjectNavigation: (project: Project, tab?: string) => void;
 }
 
-const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
-  const navigate = useNavigate();
+const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation }) => {
   const { Meta } = Card;
+
   return (
-    <CardWrapper key={project.id}>
+    <CardWrapper className={className} key={project.id}>
       <ProjectStyledCard
         cover={<Cover>{project.name.charAt(0)}</Cover>}
         actions={[
           <Icon
             icon="settings"
-            onClick={() => navigate("/workspaces/" + workspaceId + "/" + project.id)}
+            onClick={() => onProjectNavigation(project, "settings")}
             key="setting"
           />,
-          <Icon icon="edit" key="edit" />,
-          <Icon icon="ellipsis" key="ellipsis" />,
+          <Icon icon="edit" key="edit" onClick={() => onProjectNavigation(project)} />,
+          // <Icon icon="ellipsis" key="ellipsis" />,
         ]}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
@@ -35,9 +34,8 @@ const ProjectCard: React.FC<Props> = ({ workspaceId, project }) => {
 };
 
 const CardWrapper = styled.div`
-  padding: 8px;
   flex: 0 0 25%;
-  max-width: 25%;
+  max-width: 250px;
   @media (max-width: 768px) {
     flex: 0 0 50%;
     max-width: 50%;

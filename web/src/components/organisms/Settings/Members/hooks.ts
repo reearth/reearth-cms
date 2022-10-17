@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetWorkspacesQuery,
   useAddUserToWorkspaceMutation,

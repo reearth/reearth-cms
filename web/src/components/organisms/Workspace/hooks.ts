@@ -1,16 +1,27 @@
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
-import { useGetProjectsQuery, useCreateProjectMutation } from "@reearth-cms/gql/graphql-client-api";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import {
+  useGetProjectsQuery,
+  useCreateProjectMutation,
+  useCreateWorkspaceMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
-  const [currentWorkspace] = useWorkspace();
-  const [projectModalShown, setProjectModalShown] = useState(false);
-  const [searchedProjectName, setSearchedProjectName] = useState<string>("");
   const t = useT();
+  const navigate = useNavigate();
+
+  const [, setCurrentProject] = useProject();
+  const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
+
+  const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+
+  const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
+  const [projectModalShown, setProjectModalShown] = useState(false);
 
   const workspaceId = currentWorkspace?.id;
 
@@ -77,14 +88,53 @@ export default () => {
 
   const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
+  const handleProjectNavigation = useCallback(
+    (project?: Project, tab?: string) => {
+      let route = `/workspace/${currentWorkspace?.id}/project/${project?.id}`;
+      if (tab) {
+        route = route.concat("/", tab);
+      }
+      navigate(route);
+      setCurrentProject(project);
+    },
+    [currentWorkspace, setCurrentProject, navigate],
+  );
+
+  const [createWorkspaceMutation] = useCreateWorkspaceMutation();
+  const handleWorkspaceCreate = useCallback(
+    async (data: { name: string }) => {
+      const results = await createWorkspaceMutation({
+        variables: { name: data.name },
+        refetchQueries: ["GetWorkspaces"],
+      });
+      if (results.data?.createWorkspace) {
+        Notification.success({ message: t("Successfully created workspace!") });
+        setCurrentWorkspace(results.data.createWorkspace.workspace);
+        navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
+      }
+      refetch();
+    },
+    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate, t],
+  );
+
+  const handleWorkspaceModalClose = useCallback(() => {
+    setWorkspaceModalShown(false);
+  }, []);
+
+  const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
+
   return {
     projects,
-    searchedProjectName,
-    currentWorkspace,
     projectModalShown,
+    workspaceModalShown,
+    // setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
     handleProjectModalClose,
+    handleProjectNavigation,
+    handleWorkspaceModalClose,
+    handleWorkspaceModalOpen,
+    handleWorkspaceCreate,
   };
 };

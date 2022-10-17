@@ -1,14 +1,24 @@
+import styled from "@emotion/styled";
+
 import Typography from "@reearth-cms/components/atoms/Typography";
 
 const NotFound: React.FC = () => {
   const { Title } = Typography;
   return (
-    <div>
+    <Wrapper>
       <Typography>
-        <Title>Not found</Title>
+        <Title>Page Not Found</Title>
       </Typography>
-    </div>
+    </Wrapper>
   );
 };
 
 export default NotFound;
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  padding-top: 120px;
+  background: #f0f2f5;
+`;

@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/Dashboard/types";
+import { User } from "@reearth-cms/components/molecules/Workspace/types";
 import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useProject } from "@reearth-cms/state";
 
-export default (workspaceId?: string) => {
+export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: string }) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
+  const [currentProject, setCurrentProject] = useProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
   const t = useT();
@@ -29,7 +30,7 @@ export default (workspaceId?: string) => {
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
     setCurrentWorkspace(data.me?.myWorkspace);
-    navigate(`/dashboard/${data.me?.myWorkspace?.id}`);
+    navigate(`/workspace/${data.me?.myWorkspace?.id}`);
   }, [data, navigate, setCurrentWorkspace, currentWorkspace, workspaceId]);
 
   useEffect(() => {
@@ -41,12 +42,19 @@ export default (workspaceId?: string) => {
     }
   }, [currentWorkspace, workspace, setCurrentWorkspace, personal]);
 
+  useEffect(() => {
+    if (projectId && projectId !== currentProject?.id) {
+      // TO DO: UPDATE HERE OR REMOVE IT. LOGIC ISNT GOOD...
+      setCurrentProject({ id: projectId });
+    }
+  }, [projectId, currentProject?.id, setCurrentProject]);
+
   const handleWorkspaceChange = useCallback(
     (workspaceId: string) => {
       const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
       if (workspace) {
         setCurrentWorkspace(workspace);
-        navigate(`/dashboard/${workspaceId}`);
+        navigate(`/workspace/${workspaceId}`);
       }
     },
     [workspaces, setCurrentWorkspace, navigate],
@@ -62,7 +70,7 @@ export default (workspaceId?: string) => {
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });
         setCurrentWorkspace(results.data.createWorkspace.workspace);
-        navigate(`/dashboard/${results.data.createWorkspace.workspace.id}`);
+        navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
       refetch();
     },
@@ -75,15 +83,21 @@ export default (workspaceId?: string) => {
 
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
+  const handleNavigateToSettings = useCallback(() => {
+    navigate(`/workspace/${personalWorkspace?.id}/account`);
+  }, [personalWorkspace?.id, navigate]);
+
   return {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
     workspaceModalShown,
+    currentProject,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
+    handleNavigateToSettings,
   };
 };
