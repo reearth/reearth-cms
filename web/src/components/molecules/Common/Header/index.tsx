@@ -38,12 +38,16 @@ const HeaderMolecule: React.FC<Props> = ({
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleWorkspaceChange = useCallback(
+  const handleWorkspaceNavigation = useCallback(
     (id: number) => {
-      navigate(`/dashboard/${id}`);
+      navigate(`/workspace/${id}`);
     },
     [navigate],
   );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
 
   const WorkspacesMenu = (
     <HeaderMenu
@@ -63,7 +67,7 @@ const HeaderMolecule: React.FC<Props> = ({
                 </Avatar>
               ),
               style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceChange(workspace.id),
+              onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
         },
         {
@@ -89,7 +93,7 @@ const HeaderMolecule: React.FC<Props> = ({
                 </Avatar>
               ),
               style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceChange(workspace.id),
+              onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
         },
         {
@@ -123,7 +127,7 @@ const HeaderMolecule: React.FC<Props> = ({
 
   return (
     <MainHeader>
-      <Logo onClick={() => navigate("/")}>{t("Re:Earth CMS")}</Logo>
+      <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
       <VerticalDivider />
       <WorkspaceDropdown name={currentWorkspace?.name} menu={WorkspacesMenu} />
       {currentProject?.name && (

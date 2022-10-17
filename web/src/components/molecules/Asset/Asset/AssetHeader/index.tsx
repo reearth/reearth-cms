@@ -5,17 +5,17 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   title: string;
-  subTitle: string;
+  subtitle?: string;
   handleSave: () => void;
 };
 
-const AssetHeader: React.FC<Props> = ({ title, subTitle, handleSave }) => {
+const AssetHeader: React.FC<Props> = ({ title, subtitle, handleSave }) => {
   const t = useT();
   return (
     <AssetHeaderWrapper>
       <HeaderTitleWrapper>
         <HeaderTitle>{title}</HeaderTitle>
-        <HeaderSubTitle>{subTitle}</HeaderSubTitle>
+        {subtitle && <HeaderSubTitle>{subtitle}</HeaderSubTitle>}
       </HeaderTitleWrapper>
       <Button onClick={handleSave}>{t("Save")}</Button>
     </AssetHeaderWrapper>

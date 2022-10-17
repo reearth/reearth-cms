@@ -10,14 +10,14 @@ export interface Props {
   className?: string;
   projects?: ProjectType[];
   onProjectModalOpen: () => void;
-  onProjectSettingsNavigation: (project: ProjectType) => void;
+  onProjectNavigation: (project: ProjectType, tab?: string) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
   className,
   projects,
   onProjectModalOpen,
-  onProjectSettingsNavigation,
+  onProjectNavigation,
 }) => {
   const t = useT();
 
@@ -29,7 +29,7 @@ const ProjectList: React.FC<Props> = ({
             <ProjectCard
               key={project.id}
               project={project}
-              onProjectSettingsNavigation={onProjectSettingsNavigation}
+              onProjectNavigation={onProjectNavigation}
             />
           ))}
         </Content>
