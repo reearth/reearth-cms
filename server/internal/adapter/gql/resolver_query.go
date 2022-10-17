@@ -198,3 +198,8 @@ func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
 }
+
+func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindByProject(ctx, projectID, first, last, before, after)
+
+}

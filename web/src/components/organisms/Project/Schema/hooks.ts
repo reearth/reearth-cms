@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
@@ -9,6 +10,7 @@ import {
   useDeleteFieldMutation,
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 type Params = {
   projectId?: string;
@@ -20,6 +22,7 @@ export default ({ projectId, modelId }: Params) => {
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const t = useT();
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
@@ -110,10 +113,12 @@ export default ({ projectId, modelId }: Params) => {
       if (!modelId) return;
       const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
       if (results.errors) {
-        console.log("errors");
+        Notification.error({ message: t("Failed to delete field.") });
+        return;
       }
+      Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation],
+    [modelId, deleteFieldMutation, t],
   );
 
   const handleFieldUpdate = useCallback(
@@ -136,14 +141,13 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.updateField) {
-        // Show error message
-        setFieldUpdateModalShown(false);
+        Notification.error({ message: t("Failed to update field.") });
         return;
       }
-
+      Notification.success({ message: t("Successfully updated field!") });
       setFieldUpdateModalShown(false);
     },
-    [modelId, updateField],
+    [modelId, updateField, t],
   );
 
   const handleFieldCreate = useCallback(
@@ -172,14 +176,14 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.createField) {
-        // Show error message
+        Notification.error({ message: t("Failed to create field.") });
         setFieldCreationModalShown(false);
         return;
       }
-
+      Notification.success({ message: t("Successfully created field!") });
       setFieldCreationModalShown(false);
     },
-    [modelId, createNewField],
+    [modelId, createNewField, t],
   );
 
   const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);

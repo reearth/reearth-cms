@@ -1,24 +1,23 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProjectCard from "@reearth-cms/components/molecules/Dashboard/ProjectCard";
-import { Project as ProjectType } from "@reearth-cms/components/molecules/Dashboard/types";
+import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
+import { Project as ProjectType } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   className?: string;
   projects?: ProjectType[];
-  workspaceId?: string;
-  handleProjectModalOpen: () => void;
+  onProjectModalOpen: () => void;
+  onProjectNavigation: (project: ProjectType, tab?: string) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
   className,
   projects,
-  workspaceId,
-  handleProjectModalOpen,
+  onProjectModalOpen,
+  onProjectNavigation,
 }) => {
   const t = useT();
 
@@ -27,7 +26,11 @@ const ProjectList: React.FC<Props> = ({
       {projects?.length ? (
         <Content>
           {projects.map((project: ProjectType) => (
-            <ProjectCard key={project.id} project={project} workspaceId={workspaceId} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onProjectNavigation={onProjectNavigation}
+            />
           ))}
         </Content>
       ) : (
@@ -35,7 +38,7 @@ const ProjectList: React.FC<Props> = ({
           <Title>{t("No Projects Yet")}</Title>
           <Suggestion>
             {t("Create a new project")}{" "}
-            <Button onClick={handleProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+            <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               {t("New Project")}
             </Button>
           </Suggestion>
@@ -82,14 +85,13 @@ const StyledDashboardBlock = styled.div`
 `;
 
 const Content = styled.div`
-  height: 100%;
-  margin: 0 -16px;
   display: flex;
   flex-wrap: wrap;
-  max-width: 1200px;
-  margin: auto;
   justify-content: flex-start;
   align-content: flex-start;
+  gap: 24px;
+  margin: auto;
+  height: 100%;
 `;
 
 export default ProjectList;

@@ -1,7 +1,5 @@
 export type Config = {
   api: string;
-  storageHost: string;
-  assetBase: string;
   auth0ClientId?: string;
   auth0Domain?: string;
   auth0Audience?: string;
@@ -11,8 +9,6 @@ const env = import.meta.env;
 
 export const defaultConfig: Config = {
   api: env.REEARTH_CMS_API || "/api",
-  storageHost: env.REEARTH_CMS_STORAGE_HOST || "http://localhost:8080",
-  assetBase: env.REEARTH_CMS_ASSET_BASE || "assets",
   auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE || "https://api.test.reearth.dev",
   auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN || "reearth-oss-test.eu.auth0.com",
   auth0ClientId: env.REEARTH_CMS_AUTH0_CLIENT_ID || "k6F1sgFikzVkkcW9Cpz7Ztvwq5cBRXlv",
@@ -39,8 +35,6 @@ declare global {
   interface Window {
     REEARTH_CONFIG?: {
       api: string;
-      storageHost: string;
-      assetBase: string;
       auth0ClientId?: string;
       auth0Domain?: string;
       auth0Audience?: string;
