@@ -260,9 +260,10 @@ func Test_itemRepo_FindByFieldValue(t *testing.T) {
 	sf2 := id.NewFieldID()
 	f1 := item.NewField(sf1, schema.TypeText, "foo")
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
-	i1, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Build()
-	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Build()
-	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Build()
+	pid := id.NewProjectID()
+	i1, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              string
