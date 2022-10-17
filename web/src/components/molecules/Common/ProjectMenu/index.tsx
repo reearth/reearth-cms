@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -44,29 +44,25 @@ const ProjectMenu: React.FC<Props> = ({
     },
   ];
 
-  const onClick = (e: any) => {
-    changeSelected([e.key]);
-    switch (e.key) {
-      case "home":
-        navigate(`/workspace/${workspaceId}/project/${projectId}`);
-        break;
-      case "schema":
+  const onClick = useCallback(
+    (e: any) => {
+      changeSelected([e.key]);
+      if (e.key === "schema") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
-        break;
-      case "content":
+      } else if (e.key === "content") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
-        break;
-      case "asset":
+      } else if (e.key === "asset") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
-        break;
-      case "request":
+      } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-        break;
-      case "settings":
+      } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
-        break;
-    }
-  };
+      } else {
+        navigate(`/workspace/${workspaceId}/project/${projectId}`);
+      }
+    },
+    [navigate, workspaceId, projectId],
+  );
 
   return (
     <>

@@ -84,9 +84,8 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    //TO DO: Account settings page and then navigate to there
-    // navigate(`/dashboard/${results.data.createWorkspace.workspace.id}`);
-  }, []);
+    navigate(`/workspace/${personalWorkspace?.id}/account`);
+  }, [personalWorkspace?.id, navigate]);
 
   return {
     user,

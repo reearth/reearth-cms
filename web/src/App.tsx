@@ -33,6 +33,10 @@ function App() {
                 <Route path="/" element={<RootPage />} />
                 <Route path="workspace" element={<ReearthCMS />}>
                   <Route path=":workspaceId" element={<WorkspacePage />} />
+                  <Route
+                    path=":workspaceId/account"
+                    element={<div>Personal workspace account page - GOTTA DO THIS PAGE!!!!</div>}
+                  />
                   <Route path=":workspaceId/members" element={<MembersPage />} />
                   <Route path=":workspaceId/myIntegrations" element={<MyIntegrationsPage />} />
                   <Route
@@ -40,6 +44,18 @@ function App() {
                     element={<MyIntegrationDetailsPage />}
                   />
                   <Route path=":workspaceId/integration" element={<IntegrationPage />} />
+                  <Route
+                    path=":workspaceId/role"
+                    element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/apiKey"
+                    element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/settings"
+                    element={<div>Workspace settings page - GOTTA DO THIS PAGE!!!</div>}
+                  />
                   <Route
                     path=":workspaceId/project/:projectId"
                     element={<div>Project overview - GOTTA DO THIS PAGE!!!!</div>}
