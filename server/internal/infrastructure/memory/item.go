@@ -45,7 +45,7 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 
 func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pid id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
-		return nil, usecasex.EmptyPageInfo(), nil
+		r.err = repo.ErrOperationDenied
 	}
 	if r.err != nil {
 		return nil, nil, r.err
@@ -62,9 +62,6 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pid id.Pr
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(projectID) {
-		r.err = repo.ErrOperationDenied
-	}
 	if r.err != nil {
 		return nil, nil, r.err
 	}

@@ -341,6 +341,9 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(vl))
 
+	_, err = itemUC.FindAllVersionsByID(ctx, id.NewItemID(), op)
+	assert.Equal(t, rerror.ErrNotFound, err)
+
 	// mock item error
 	wantErr := errors.New("test")
 	memory.SetItemError(db.Item, wantErr)

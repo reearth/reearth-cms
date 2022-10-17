@@ -48,6 +48,9 @@ func TestItem_Remove(t *testing.T) {
 	data, _ := r.FindByIDs(ctx, id.ItemIDList{i.ID(), i2.ID()})
 	assert.Equal(t, 1, len(data))
 
+	err := r.Remove(ctx, i.ID(), id.NewProjectID())
+	assert.Equal(t, repo.ErrOperationDenied, err)
+
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Remove(ctx, i.ID(), i.Project()))
@@ -56,14 +59,19 @@ func TestItem_Remove(t *testing.T) {
 func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	pf := repo.ProjectFilter{
 		Readable: []id.ProjectID{i.Project()},
 		Writable: []id.ProjectID{i.Project()},
 	}
 	r := NewItem().Filtered(pf)
+
 	_ = r.Save(ctx, i)
 	got, _ := r.FindByID(ctx, i.ID())
 	assert.Equal(t, i, got)
+
+	err := r.Save(ctx, i2)
+	assert.Equal(t, repo.ErrOperationDenied, err)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
@@ -105,6 +113,9 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	v, _ = r.FindAllVersionsByID(ctx, i.ID(), i.Project())
 	assert.Equal(t, 2, len(v))
 
+	_, err := r.FindAllVersionsByID(ctx, i.ID(), id.NewProjectID())
+	assert.Equal(t, repo.ErrOperationDenied, err)
+
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
@@ -125,6 +136,9 @@ func TestItem_FindBySchema(t *testing.T) {
 	_ = r.Save(ctx, i2)
 	got, _, _ := r.FindBySchema(ctx, sid, pid, nil)
 	assert.Equal(t, 2, len(got))
+
+	_, _, err := r.FindBySchema(ctx, sid, id.NewProjectID(), nil)
+	assert.Equal(t, repo.ErrOperationDenied, err)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
