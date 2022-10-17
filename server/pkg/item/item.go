@@ -11,9 +11,10 @@ import (
 type VersionedItem = version.Value[Item]
 
 type Item struct {
-	id       ID
-	schemaID schema.ID
-	fields   []*Field
+	id      ID
+	schema  SchemaID
+	project ProjectID
+	fields  []*Field
 }
 
 func (i *Item) ID() ID {
@@ -24,8 +25,12 @@ func (i *Item) Fields() []*Field {
 	return slices.Clone(i.fields)
 }
 
-func (i *Item) Schema() schema.ID {
-	return i.schemaID
+func (i *Item) Project() ProjectID {
+	return i.project
+}
+
+func (i *Item) Schema() SchemaID {
+	return i.schema
 }
 
 func (i *Item) UpdateFields(fields []*Field) {
@@ -51,8 +56,8 @@ func (i *Item) Filtered(list id.FieldIDList) *Item {
 	}
 
 	return &Item{
-		id:       i.id.Clone(),
-		schemaID: i.schemaID.Clone(),
-		fields:   res,
+		id:     i.id.Clone(),
+		schema: i.schema.Clone(),
+		fields: res,
 	}
 }

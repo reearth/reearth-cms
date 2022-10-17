@@ -15,7 +15,7 @@ export default () => {
           ? {
               ...item,
               fields: item?.fields?.reduce(
-                (obj, field) => Object.assign(obj, { [field.schemaFieldID]: field.value }),
+                (obj, field) => Object.assign(obj, { [field.schemaFieldId]: field.value }),
                 {},
               ),
             }

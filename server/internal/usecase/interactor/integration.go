@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -41,6 +42,9 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 			if err != nil {
 				return nil, err
 			}
+			in = util.Filter(in, func(item *integration.Integration) bool {
+				return item.Type() == integration.TypePublic || item.Developer() == operator.User
+			})
 			return in, err
 		})
 }

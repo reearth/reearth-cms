@@ -3,26 +3,28 @@ package item
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_ID(t *testing.T) {
 	iid := NewID()
-	b, _ := New().ID(iid).Build()
+	b, _ := New().ID(iid).Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	assert.Equal(t, iid, b.id)
 }
 
 func TestBuilder_SchemaID(t *testing.T) {
 	sid := schema.NewID()
-	b, _ := New().NewID().Schema(sid).Build()
+	b, _ := New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
 	assert.Equal(t, sid, b.Schema())
 }
 
 func TestBuilder_Fields(t *testing.T) {
 	sfid := schema.NewFieldID()
 	fs := []*Field{NewField(sfid, schema.TypeBool, true)}
-	b, _ := New().NewID().Fields(fs).Build()
+	b, _ := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(fs).Build()
 	assert.Equal(t, fs, b.Fields())
 }
 
@@ -32,12 +34,14 @@ func TestNew(t *testing.T) {
 }
 
 func TestBuilder_NewID(t *testing.T) {
-	res, _ := New().NewID().Build()
+	res, _ := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	assert.NotNil(t, res.ID())
 }
 
 func TestBuilder_Build(t *testing.T) {
 	iid := NewID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	type fields struct {
 		i *Item
 	}
@@ -51,18 +55,44 @@ func TestBuilder_Build(t *testing.T) {
 			name: "should build an item",
 			fields: fields{
 				i: &Item{
-					id: iid,
+					id:      iid,
+					schema:  sid,
+					project: pid,
 				},
 			},
 			want: &Item{
-				id: iid,
+				id:      iid,
+				schema:  sid,
+				project: pid,
 			},
 			wantErr: false,
 		},
 		{
-			name: "should fail",
+			name: "should fail: invalid item ID",
 			fields: fields{
 				i: &Item{},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "should fail: invalid schema ID",
+			fields: fields{
+				i: &Item{
+					id:      iid,
+					project: pid,
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "should fail: invalid project ID",
+			fields: fields{
+				i: &Item{
+					id:     iid,
+					schema: sid,
+				},
 			},
 			want:    nil,
 			wantErr: true,
@@ -81,4 +111,10 @@ func TestBuilder_Build(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestBuilder_Project(t *testing.T) {
+	pid := project.NewID()
+	b, _ := New().NewID().Project(pid).Schema(id.NewSchemaID()).Build()
+	assert.Equal(t, pid, b.Project())
 }

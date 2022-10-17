@@ -277,9 +277,12 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID       ID           `json:"id"`
-	SchemaID ID           `json:"schemaId"`
-	Fields   []*ItemField `json:"fields"`
+	ID        ID           `json:"id"`
+	SchemaID  ID           `json:"schemaId"`
+	ProjectID ID           `json:"projectId"`
+	Project   *Project     `json:"project"`
+	Schema    *Schema      `json:"schema"`
+	Fields    []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}
@@ -624,19 +627,6 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int    `json:"maxLength"`
 }
 
-type SignupInput struct {
-	Lang        *language.Tag `json:"lang"`
-	Theme       *Theme        `json:"theme"`
-	UserID      *ID           `json:"userId"`
-	WorkspaceID *ID           `json:"workspaceId"`
-	Secret      *string       `json:"secret"`
-}
-
-type SignupPayload struct {
-	User      *User      `json:"user"`
-	Workspace *Workspace `json:"workspace"`
-}
-
 type Thread struct {
 	ID          ID         `json:"id"`
 	Workspace   *Workspace `json:"workspace"`
@@ -776,9 +766,6 @@ type Webhook struct {
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
-
-func (Webhook) IsNode()        {}
-func (this Webhook) GetID() ID { return this.ID }
 
 type WebhookPayload struct {
 	Webhook *Webhook `json:"webhook"`
@@ -920,22 +907,30 @@ func (e IntegrationType) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
-	NodeTypeAsset     NodeType = "ASSET"
-	NodeTypeUser      NodeType = "USER"
-	NodeTypeWorkspace NodeType = "WORKSPACE"
-	NodeTypeProject   NodeType = "PROJECT"
+	NodeTypeUser        NodeType = "USER"
+	NodeTypeWorkspace   NodeType = "WORKSPACE"
+	NodeTypeProject     NodeType = "PROJECT"
+	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeModel       NodeType = "Model"
+	NodeTypeSchema      NodeType = "Schema"
+	NodeTypeItem        NodeType = "Item"
+	NodeTypeIntegration NodeType = "Integration"
 )
 
 var AllNodeType = []NodeType{
-	NodeTypeAsset,
 	NodeTypeUser,
 	NodeTypeWorkspace,
 	NodeTypeProject,
+	NodeTypeAsset,
+	NodeTypeModel,
+	NodeTypeSchema,
+	NodeTypeItem,
+	NodeTypeIntegration,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeAsset, NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false

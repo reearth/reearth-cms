@@ -25,7 +25,7 @@ const ProjectSchema: React.FC = () => {
 
   const selectModel = useCallback(
     (modelId: string) => {
-      navigate(`/workspaces/${workspaceId}/${projectId}/schema/${modelId}`);
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );

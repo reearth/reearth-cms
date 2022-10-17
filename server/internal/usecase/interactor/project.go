@@ -36,10 +36,10 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 		})
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(id).Transaction(),
+func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(wid).Transaction(),
 		func() (project.List, *usecasex.PageInfo, error) {
-			return i.repos.Project.FindByWorkspace(ctx, id, p)
+			return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
 		})
 }
 

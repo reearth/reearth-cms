@@ -1,75 +1,26 @@
 import { ConfigProvider } from "antd";
 import enUSIntl from "antd/lib/locale/en_US";
-import { BrowserRouter as Router, useRoutes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
-import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
-import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
-import ContentPage from "@reearth-cms/components/pages/Content";
-import ContentDetailsPage from "@reearth-cms/components/pages/ContentDetails";
-import DashboardPage from "@reearth-cms/components/pages/Dashboard";
-import IntegrationPage from "@reearth-cms/components/pages/Integration";
-import MembersPage from "@reearth-cms/components/pages/Members";
-import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
-import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
-import ProjectPage from "@reearth-cms/components/pages/Project";
+import Asset from "@reearth-cms/components/organisms/Asset/Asset";
+import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
+import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
+import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
+import Schema from "@reearth-cms/components/organisms/Project/Schema";
+import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
+import Integration from "@reearth-cms/components/organisms/Settings/Integration";
+import Members from "@reearth-cms/components/organisms/Settings/Members";
+import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
+import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
+import Workspace from "@reearth-cms/components/organisms/Workspace";
+import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
-import SchemaPage from "@reearth-cms/components/pages/Schema";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import "antd/dist/antd.css";
-
-function AppRoutes() {
-  const routes = useRoutes([
-    { path: "/", element: <RootPage /> },
-    { path: "/dashboard", element: <DashboardPage /> },
-    { path: "/dashboard/:workspaceId", element: <DashboardPage /> },
-    { path: "/workspaces/:workspaceId/:projectId", element: <ProjectPage /> },
-    { path: "/workspaces/:workspaceId/:projectId/content", element: <ContentPage /> },
-    { path: "/workspaces/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
-    {
-      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details",
-      element: <ContentDetailsPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/:projectId/content/:modelId/details/:itemId",
-      element: <ContentDetailsPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/:projectId/asset",
-      element: <AssetListPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/:projectId/asset/:assetId",
-      element: <AssetPage />,
-    },
-    { path: "/workspaces/:workspaceId/members", element: <MembersPage /> },
-    { path: "/workspaces/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
-    {
-      path: "/workspaces/:workspaceId/myIntegrations/:integrationId",
-      element: <MyIntegrationDetailsPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab",
-      element: <MyIntegrationDetailsPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form",
-      element: <MyIntegrationDetailsPage />,
-    },
-    {
-      path: "/workspaces/:workspaceId/myIntegrations/:integrationId/:tab/form/:webhookId",
-      element: <MyIntegrationDetailsPage />,
-    },
-    { path: "/workspaces/:workspaceId/integration", element: <IntegrationPage /> },
-    { path: "/workspaces/:workspaceId/:projectId/schema", element: <SchemaPage /> },
-    { path: "/workspaces/:workspaceId/:projectId/schema/:modelId", element: <SchemaPage /> },
-    { path: "*", element: <NotFound /> },
-  ]);
-  return routes;
-}
 
 function App() {
   return (
@@ -78,7 +29,71 @@ function App() {
         <ConfigProvider locale={enUSIntl}>
           <GqlProvider>
             <Router>
-              <AppRoutes />
+              <Routes>
+                <Route path="/" element={<RootPage />} />
+                <Route path="workspace" element={<CMSPageWrapper />}>
+                  <Route path=":workspaceId" element={<Workspace />} />
+                  <Route
+                    path=":workspaceId/account"
+                    element={<div>Personal workspace account page - GOTTA DO THIS PAGE!!!!</div>}
+                  />
+                  <Route path=":workspaceId/members" element={<Members />} />
+                  <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
+                  <Route
+                    path=":workspaceId/myIntegrations/:integrationId"
+                    element={<MyIntegrationDetails />}
+                  />
+                  <Route path=":workspaceId/integration" element={<Integration />} />
+                  <Route
+                    path=":workspaceId/role"
+                    element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/apiKey"
+                    element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/settings"
+                    element={<div>Workspace settings page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId"
+                    element={<div>Project overview - GOTTA DO THIS PAGE!!!!</div>}
+                  />
+                  <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
+                  <Route
+                    path=":workspaceId/project/:projectId/schema/:modelId"
+                    element={<Schema />}
+                  />
+                  <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
+                  <Route
+                    path=":workspaceId/project/:projectId/settings"
+                    element={<ProjectSettings />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId"
+                    element={<Content />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId/details"
+                    element={<ContentDetails />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
+                    element={<ContentDetails />}
+                  />
+                  <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
+                  <Route
+                    path=":workspaceId/project/:projectId/asset/:assetId"
+                    element={<Asset />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/request"
+                    element={<div>Request page - GOTTA DO THIS PAGE!!!!</div>}
+                  />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </Router>
           </GqlProvider>
         </ConfigProvider>
