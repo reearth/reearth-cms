@@ -33,6 +33,57 @@ func TestThread_Comments(t *testing.T) {
 	assert.Equal(t, c, got.Comments())
 }
 
+func TestThread_AddComment(t *testing.T) {
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+	})
+	c := NewComment(NewCommentID(), NewUserID(), "test")
+	err := thread.AddComment(c)
+	assert.NoError(t, err)
+	assert.True(t, thread.HasComment(c.id))
+
+	err = thread.AddComment(c)
+	assert.ErrorIs(t, err, ErrCommentAlreadyExist)
+}
+
+func TestThread_UpdateComment(t *testing.T) {
+	c := NewComment(NewCommentID(), NewUserID(), "test")
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+		comments: []*Comment{
+			{id: NewCommentID()}, c,
+		},
+	})
+
+	err := thread.UpdateComment(NewCommentID(), "updated")
+	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
+
+	err = thread.UpdateComment(c.id, "updated")
+	assert.NoError(t, err)
+	assert.Equal(t, "updated", c.content)
+
+}
+
+func TestThread_DeleteComment(t *testing.T) {
+	c := NewComment(NewCommentID(), NewUserID(), "test")
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+		comments: []*Comment{
+			{id: NewCommentID()}, c,
+		},
+	})
+
+	err := thread.DeleteComment(NewCommentID())
+	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
+
+	err = thread.DeleteComment(c.id)
+	assert.NoError(t, err)
+	assert.False(t, thread.HasComment(c.id))
+}
+
 func TestThread_Clone(t *testing.T) {
 	thread := (&Thread{
 		id:        NewID(),
