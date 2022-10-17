@@ -54,12 +54,14 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 	}
 
 	th1 := th.Clone()
-	err := th1.AddComment(c)
-	if err != nil {
+	if err := th1.AddComment(c); err != nil {
 		return err
 	}
 
-	r.data.Store(th1.ID(), th1)
+	if err := r.Save(ctx, th1); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -73,12 +75,14 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 	}
 
 	th1 := th.Clone()
-	err := th1.UpdateComment(c.ID(), c.Content())
-	if err != nil {
+	if err := th1.UpdateComment(c.ID(), c.Content()); err != nil {
 		return err
 	}
 
-	r.data.Store(th1.ID(), th1)
+	if err := r.Save(ctx, th1); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -92,12 +96,14 @@ func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, cid id.Co
 	}
 
 	th1 := th.Clone()
-	err := th1.DeleteComment(cid)
-	if err != nil {
+	if err := th1.DeleteComment(cid); err != nil {
 		return err
 	}
 
-	r.data.Store(th1.ID(), th1)
+	if err := r.Save(ctx, th1); err != nil {
+		return err
+	}
+
 	return nil
 }
 

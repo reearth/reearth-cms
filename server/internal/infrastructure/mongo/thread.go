@@ -49,11 +49,12 @@ func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *threa
 		return repo.ErrOperationDenied
 	}
 
-	cc := mongodoc.NewComment(c)
-	filter := bson.M{"id": th.ID().String()}
-	update := bson.M{"$push": bson.M{"comments": cc}}
+	th1 := th.Clone()
+	if err := th1.AddComment(c); err != nil {
+		return err
+	}
 
-	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
+	if err := r.Save(ctx, th1); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
@@ -64,12 +65,12 @@ func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *th
 		return repo.ErrOperationDenied
 	}
 
-	doc := mongodoc.NewComment(c)
-	filter := bson.M{"id": th.ID().String(), "comments.id": c.ID().String()}
-	update := bson.M{"$set": bson.M{
-		"comments.$.content": doc.Content,
-	}}
-	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
+	th1 := th.Clone()
+	if err := th1.UpdateComment(c.ID(), c.Content()); err != nil {
+		return err
+	}
+
+	if err := r.Save(ctx, th1); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
@@ -80,9 +81,12 @@ func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id
 		return repo.ErrOperationDenied
 	}
 
-	filter := bson.M{"id": th.ID().String()}
-	update := bson.M{"$pull": bson.M{"comments": bson.M{"id": id.String()}}}
-	if _, err := r.client.Client().UpdateOne(ctx, filter, update); err != nil {
+	th1 := th.Clone()
+	if err := th1.DeleteComment(id); err != nil {
+		return err
+	}
+
+	if err := r.Save(ctx, th1); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil

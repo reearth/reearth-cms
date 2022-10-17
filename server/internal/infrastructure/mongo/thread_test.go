@@ -47,6 +47,7 @@ func TestThread_AddComment(t *testing.T) {
 				Readable: []id.WorkspaceID{},
 				Writable: []id.WorkspaceID{},
 			},
+			arg:     c1,
 			wantErr: repo.ErrOperationDenied,
 		},
 		{
@@ -56,6 +57,7 @@ func TestThread_AddComment(t *testing.T) {
 				Readable: []id.WorkspaceID{wid},
 				Writable: []id.WorkspaceID{wid},
 			},
+			arg:     c1,
 			wantErr: nil,
 		},
 		{
