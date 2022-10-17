@@ -71,6 +71,13 @@ extend type Query {
     before: Cursor
   ): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
+  searchItem(
+    key: String!
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): ItemConnection!
 }
 
 extend type Mutation {
