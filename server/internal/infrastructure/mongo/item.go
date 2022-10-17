@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -20,7 +21,16 @@ type itemRepo struct {
 }
 
 func NewItem(client *mongox.Client) repo.Item {
-	return &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
+	r := &itemRepo{client: mongogit.NewCollection(client.WithCollection("item"))}
+	r.init()
+	return r
+}
+
+func (r *itemRepo) init() {
+	err := r.client.CreateIndexes(context.Background(), []string{"schema", "fields.schemafield"}, []string{"id"})
+	if err != nil {
+		log.Infof("mongo: %s: index created: %s", "item", err)
+	}
 }
 
 func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
@@ -37,6 +47,12 @@ func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, erro
 func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	return i.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
+	}, pagination)
+}
+
+func (i *itemRepo) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	return i.paginate(ctx, bson.M{
+		"project": projectID.String(),
 	}, pagination)
 }
 

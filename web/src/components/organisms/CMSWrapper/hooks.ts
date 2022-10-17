@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/Dashboard/types";
+import { User } from "@reearth-cms/components/molecules/Workspace/types";
 import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useProject } from "@reearth-cms/state";
 
-export default (workspaceId?: string) => {
+export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: string }) => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
+  const [currentProject, setCurrentProject] = useProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const { data, refetch } = useGetMeQuery();
   const t = useT();
@@ -40,6 +41,12 @@ export default (workspaceId?: string) => {
       });
     }
   }, [currentWorkspace, workspace, setCurrentWorkspace, personal]);
+
+  useEffect(() => {
+    if (projectId && projectId !== currentProject?.id) {
+      setCurrentProject({ id: projectId });
+    }
+  }, [projectId, currentProject?.id, setCurrentProject]);
 
   const handleWorkspaceChange = useCallback(
     (workspaceId: string) => {
@@ -75,15 +82,22 @@ export default (workspaceId?: string) => {
 
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
+  const handleNavigateToSettings = useCallback(() => {
+    //TO DO: Account settings page and then navigate to there
+    // navigate(`/dashboard/${results.data.createWorkspace.workspace.id}`);
+  }, []);
+
   return {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
     workspaceModalShown,
+    currentProject,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleWorkspaceChange,
+    handleNavigateToSettings,
   };
 };

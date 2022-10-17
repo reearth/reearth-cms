@@ -17,7 +17,7 @@ env:
 jobs:
   deploy_web:
     name: Deploy web to test env
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure'
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: get latest web artifact
@@ -43,7 +43,7 @@ jobs:
   deploy_server:
     name: Deploy server to test env
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure'
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     steps:
       - uses: google-github-actions/auth@v0
         with:

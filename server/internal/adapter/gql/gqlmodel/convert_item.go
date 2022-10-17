@@ -23,9 +23,10 @@ func ToItem(i *item.Item) *Item {
 	}
 
 	return &Item{
-		ID:       IDFrom(i.ID()),
-		SchemaID: IDFrom(i.Schema()),
-		Fields:   fs,
+		ID:        IDFrom(i.ID()),
+		ProjectID: IDFrom(i.Project()),
+		SchemaID:  IDFrom(i.Schema()),
+		Fields:    fs,
 	}
 }
 

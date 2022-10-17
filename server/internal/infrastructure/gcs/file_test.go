@@ -1,19 +1,38 @@
 package gcs
 
 import (
+	"net/url"
 	"path"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestFile_GetURL(t *testing.T) {
+	bucketname := "asset.cms.test"
+	host := "localhost:8080"
+	r, err := NewFile(bucketname, "", "", host)
+	assert.NoError(t, err)
+
+	u := newUUID()
+	n := "xxx.yyy"
+	a := asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).FileName(n).UUID(u).MustBuild()
+
+	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], fileName(n))
+	assert.NoError(t, err)
+	actual := r.GetURL(a)
+	assert.Equal(t, expected, actual)
+}
 
 func TestFile_GetFSObjectPath(t *testing.T) {
 	u := newUUID()
 	n := "xxx.yyy"
-	assert.Equal(t, path.Join(u[:2], u[2:], "xxx.yyy"), getGCSObjectPath(u, n))
+	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "xxx.yyy"), getGCSObjectPath(u, n))
 
 	n = "ああああ.yyy"
-	assert.Equal(t, path.Join(u[:2], u[2:], "----.yyy"), getGCSObjectPath(u, n))
+	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "----.yyy"), getGCSObjectPath(u, n))
 
 	assert.Equal(t, "", getGCSObjectPath("", ""))
 }

@@ -101,9 +101,3 @@ jobs:
           tags: ${{ steps.options.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Invoke deploy_test workflow
-        uses: benc-uk/workflow-dispatch@v1
-        if: needs.info.outputs.name == 'nightly'
-        with:
-          workflow: deploy-test
-          token: ${{ secrets.GPT }}
