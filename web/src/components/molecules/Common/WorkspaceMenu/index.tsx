@@ -18,7 +18,7 @@ export type MenuShowType = "personal" | "notPersonal" | "both";
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "dashboard", icon: <Icon icon="home" />, show: "both" },
+  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
