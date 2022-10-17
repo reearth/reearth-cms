@@ -85,14 +85,13 @@ const StyledDashboardBlock = styled.div`
 `;
 
 const Content = styled.div`
-  height: 100%;
-  margin: 0 -16px;
   display: flex;
   flex-wrap: wrap;
-  max-width: 1200px;
-  margin: auto;
   justify-content: flex-start;
   align-content: flex-start;
+  gap: 24px;
+  margin: auto;
+  height: 100%;
 `;
 
 export default ProjectList;

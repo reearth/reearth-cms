@@ -39,17 +39,19 @@ const WorkspaceWrapper: React.FC<Props> = ({
   return (
     <Wrapper>
       <Greeting />
-      <WorkspaceHeader
-        onProjectSearch={onProjectSearch}
-        onProjectModalOpen={onProjectModalOpen}
-        onWorkspaceModalOpen={onWorkspaceModalOpen}
-      />
-      <ProjectList
-        projects={projects}
-        onProjectModalOpen={onProjectModalOpen}
-        onProjectNavigation={onProjectNavigation}
-      />
-      <ProjectCreationModal open={projectModal} onClose={onClose} onSubmit={onSubmit} />
+      <Content>
+        <WorkspaceHeader
+          onProjectSearch={onProjectSearch}
+          onProjectModalOpen={onProjectModalOpen}
+          onWorkspaceModalOpen={onWorkspaceModalOpen}
+        />
+        <ProjectList
+          projects={projects}
+          onProjectModalOpen={onProjectModalOpen}
+          onProjectNavigation={onProjectNavigation}
+        />
+        <ProjectCreationModal open={projectModal} onClose={onClose} onSubmit={onSubmit} />
+      </Content>
       <WorkspaceCreationModal
         open={workspaceModal}
         onClose={onWorkspaceModalClose}
@@ -63,6 +65,10 @@ const Wrapper = styled.div`
   background-color: #fff;
   margin: 16px;
   min-height: 100%;
+`;
+
+const Content = styled.div`
+  padding: 16px;
 `;
 
 export default WorkspaceWrapper;
