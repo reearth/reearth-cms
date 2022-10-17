@@ -18,18 +18,20 @@ const ContentList: React.FC = () => {
 
   const selectModel = useCallback(
     (modelId: string) => {
-      navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
 
   const handleNavigateToItemForm = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/details`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details`);
   }, [navigate, workspaceId, projectId, modelId]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string) => {
-      navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}/details/${itemId}`);
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details/${itemId}`,
+      );
     },
     [navigate, workspaceId, projectId, modelId],
   );
