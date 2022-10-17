@@ -30,7 +30,7 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
     setCurrentWorkspace(data.me?.myWorkspace);
-    navigate(`/dashboard/${data.me?.myWorkspace?.id}`);
+    navigate(`/workspace/${data.me?.myWorkspace?.id}`);
   }, [data, navigate, setCurrentWorkspace, currentWorkspace, workspaceId]);
 
   useEffect(() => {
@@ -44,6 +44,7 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
 
   useEffect(() => {
     if (projectId && projectId !== currentProject?.id) {
+      // TO DO: UPDATE HERE OR REMOVE IT. LOGIC ISNT GOOD...
       setCurrentProject({ id: projectId });
     }
   }, [projectId, currentProject?.id, setCurrentProject]);
@@ -53,7 +54,7 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
       const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
       if (workspace) {
         setCurrentWorkspace(workspace);
-        navigate(`/dashboard/${workspaceId}`);
+        navigate(`/workspace/${workspaceId}`);
       }
     },
     [workspaces, setCurrentWorkspace, navigate],
@@ -69,7 +70,7 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });
         setCurrentWorkspace(results.data.createWorkspace.workspace);
-        navigate(`/dashboard/${results.data.createWorkspace.workspace.id}`);
+        navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
       refetch();
     },

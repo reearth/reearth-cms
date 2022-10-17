@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,7 +10,7 @@ export type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
   workspaceId?: string;
-  defaultSelectedKeys?: string[];
+  defaultSelectedKey?: string;
 };
 
 export type MenuShowType = "personal" | "notPersonal" | "both";
@@ -18,17 +18,19 @@ export type MenuShowType = "personal" | "notPersonal" | "both";
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "dashboard", icon: <Icon icon="home" />, show: "both" },
+  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
 ];
 
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
   workspaceId,
-  defaultSelectedKeys,
+  defaultSelectedKey,
 }) => {
   const t = useT();
   const navigate = useNavigate();
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
   const items: WorkspaceItemType[] = [
     {
       label: t("Member"),
@@ -80,14 +82,15 @@ const WorkspaceMenu: React.FC<Props> = ({
   );
 
   const onClick = (e: any) => {
+    changeSelected([e.key]);
     if (e.key === "member") {
-      navigate(`/workspaces/${workspaceId}/members`);
+      navigate(`/workspace/${workspaceId}/members`);
     } else if (e.key === "dashboard") {
-      navigate(`/dashboard/${workspaceId}`);
+      navigate(`/workspace/${workspaceId}`);
     } else if (e.key === "my-integration") {
-      navigate(`/workspaces/${workspaceId}/myIntegrations`);
+      navigate(`/workspace/${workspaceId}/myIntegrations`);
     } else if (e.key === "integration") {
-      navigate(`/workspaces/${workspaceId}/integration`);
+      navigate(`/workspace/${workspaceId}/integration`);
     }
   };
 
@@ -95,14 +98,14 @@ const WorkspaceMenu: React.FC<Props> = ({
     <>
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={defaultSelectedKeys}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={defaultSelectedKeys}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}

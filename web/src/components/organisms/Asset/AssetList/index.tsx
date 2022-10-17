@@ -47,7 +47,7 @@ const AssetList: React.FC = () => {
   };
 
   const handleEdit = (asset: Asset) => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/asset/${asset.id}`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
   return (

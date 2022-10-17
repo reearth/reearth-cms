@@ -11,28 +11,28 @@ const MyIntegrationDetails: React.FC = () => {
   const navigate = useNavigate();
 
   const handleIntegrationHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegration`);
+    navigate(`/workspace/${workspaceId}/myIntegration`);
   }, [navigate, workspaceId]);
 
   const handleWebhookFormHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks`);
+    navigate(`/workspace/${workspaceId}/myIntegrations/${integrationId}/webhooks`);
   }, [navigate, workspaceId, integrationId]);
 
   const handleTabChange = useCallback(
     (key: string) => {
-      navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
+      navigate(`/workspace/${workspaceId}/myIntegrations/${integrationId}/${key}`);
     },
     [navigate, workspaceId, integrationId],
   );
 
   const handleWebhookFormNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
+    navigate(`/workspace/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
   }, [navigate, workspaceId, integrationId]);
 
   const handleWebhookEditNavigation = useCallback(
     (webhookId: string) => {
       navigate(
-        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
+        `/workspace/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
       );
     },
     [navigate, workspaceId, integrationId],

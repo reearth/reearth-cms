@@ -74,7 +74,7 @@ export default ({ projectId }: Params) => {
       Notification.error({ message: t("Failed to delete project.") });
     } else {
       Notification.success({ message: t("Successfully deleted project!") });
-      navigate(`/dashboard/${workspaceId}`);
+      navigate(`/workspace/${workspaceId}`);
     }
   }, [projectId, deleteProjectMutation, navigate, workspaceId, t]);
 

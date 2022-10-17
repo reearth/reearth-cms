@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,7 +10,7 @@ export type Props = {
   inlineCollapsed: boolean;
   workspaceId?: string;
   projectId?: string;
-  defaultSelectedKeys?: string[];
+  defaultSelectedKey?: string;
 };
 
 const topItems: ItemType[] = [
@@ -25,10 +25,12 @@ const ProjectMenu: React.FC<Props> = ({
   inlineCollapsed,
   workspaceId,
   projectId,
-  defaultSelectedKeys,
+  defaultSelectedKey,
 }) => {
   const t = useT();
   const navigate = useNavigate();
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
   const items: ItemType[] = [
     {
       label: t("Accessibility"),
@@ -43,21 +45,22 @@ const ProjectMenu: React.FC<Props> = ({
   ];
 
   const onClick = (e: any) => {
+    changeSelected([e.key]);
     switch (e.key) {
       case "home":
-        navigate(`/dashboard/${workspaceId}`);
+        navigate(`/workspace/${workspaceId}/project/${projectId}`);
         break;
       case "schema":
-        navigate(`/workspaces/${workspaceId}/${projectId}/schema`);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
         break;
       case "settings":
-        navigate(`/workspaces/${workspaceId}/${projectId}`);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
         break;
       case "content":
-        navigate(`/workspaces/${workspaceId}/${projectId}/content`);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
         break;
       case "asset":
-        navigate(`/workspaces/${workspaceId}/${projectId}/asset`);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
         break;
     }
   };
@@ -66,14 +69,14 @@ const ProjectMenu: React.FC<Props> = ({
     <>
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={defaultSelectedKeys}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
       <Menu
         onClick={onClick}
-        defaultSelectedKeys={defaultSelectedKeys}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}

@@ -81,9 +81,13 @@ export default () => {
 
   const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
-  const handleProjectSettingsNavigation = useCallback(
-    (project?: Project) => {
-      navigate("/workspaces/" + currentWorkspace?.id + "/" + project?.id);
+  const handleProjectNavigation = useCallback(
+    (project?: Project, tab?: string) => {
+      let route = `/workspace/${currentWorkspace?.id}/project/${project?.id}`;
+      if (tab) {
+        route = route.concat("/", tab);
+      }
+      navigate(route);
       setCurrentProject(project);
     },
     [currentWorkspace, setCurrentProject, navigate],
@@ -92,12 +96,11 @@ export default () => {
   return {
     projects,
     projectModalShown,
-    currentWorkspaceId: currentWorkspace?.id,
     setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
     handleProjectModalClose,
-    handleProjectSettingsNavigation,
+    handleProjectNavigation,
   };
 };

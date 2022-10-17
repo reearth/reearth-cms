@@ -12,12 +12,14 @@ export type Props = {
 
 const Workspace: React.FC<Props> = ({ onWorkspaceModalOpen }) => {
   const {
+    projects,
+    projectModalShown,
+    // setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
-    handleProjectModalClose,
     handleProjectModalOpen,
-    projectModalShown,
-    projects,
+    handleProjectModalClose,
+    handleProjectNavigation,
   } = useHooks();
 
   return (
@@ -28,7 +30,11 @@ const Workspace: React.FC<Props> = ({ onWorkspaceModalOpen }) => {
         onProjectModalOpen={handleProjectModalOpen}
         onWorkspaceModalOpen={onWorkspaceModalOpen}
       />
-      <ProjectList projects={projects} handleProjectModalOpen={handleProjectModalOpen} />
+      <ProjectList
+        projects={projects}
+        onProjectModalOpen={handleProjectModalOpen}
+        onProjectNavigation={handleProjectNavigation}
+      />
       <ProjectCreationModal
         open={projectModalShown}
         onClose={handleProjectModalClose}
