@@ -1,8 +1,12 @@
 package user
 
 import (
+	"errors"
+
 	"golang.org/x/text/language"
 )
+
+var ErrInvalidName = errors.New("invalid user name")
 
 type Builder struct {
 	u            *User
@@ -17,6 +21,9 @@ func New() *Builder {
 func (b *Builder) Build() (*User, error) {
 	if b.u.id.IsNil() {
 		return nil, ErrInvalidID
+	}
+	if b.u.name == "" {
+		return nil, ErrInvalidName
 	}
 	if b.u.theme == "" {
 		b.u.theme = ThemeDefault

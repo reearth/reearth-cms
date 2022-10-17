@@ -108,11 +108,19 @@ func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID
 	return loaders(ctx).Model.CheckKey(ctx, projectID, key)
 }
 
-func (r *queryResolver) Items(ctx context.Context, modelID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
+	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
+}
+
+func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindBySchema(ctx, schemaID, first, last, before, after)
 }
 
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
+}
+
+func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindByProject(ctx, projectID, first, last, before, after)
+
 }

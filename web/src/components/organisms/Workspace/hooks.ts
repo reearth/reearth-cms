@@ -1,11 +1,18 @@
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { Project } from "@reearth-cms/components/molecules/Dashboard/types";
+import Notification from "@reearth-cms/components/atoms/Notification";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useGetProjectsQuery, useCreateProjectMutation } from "@reearth-cms/gql/graphql-client-api";
-import { useWorkspace } from "@reearth-cms/state";
+import { useT } from "@reearth-cms/i18n";
+import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
+  const t = useT();
+  const navigate = useNavigate();
+
   const [currentWorkspace] = useWorkspace();
+  const [, setCurrentProject] = useProject();
   const [projectModalShown, setProjectModalShown] = useState(false);
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
 
@@ -58,14 +65,14 @@ export default () => {
         },
       });
       if (project.errors || !project.data?.createProject) {
-        setProjectModalShown(false);
+        Notification.error({ message: t("Failed to create project.") });
         return;
       }
-
+      Notification.success({ message: t("Successfully created project!") });
       setProjectModalShown(false);
       refetch();
     },
-    [createNewProject, workspaceId, refetch],
+    [createNewProject, workspaceId, refetch, t],
   );
 
   const handleProjectModalClose = useCallback(() => {
@@ -74,14 +81,23 @@ export default () => {
 
   const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
+  const handleProjectSettingsNavigation = useCallback(
+    (project?: Project) => {
+      navigate("/workspaces/" + currentWorkspace?.id + "/" + project?.id);
+      setCurrentProject(project);
+    },
+    [currentWorkspace, setCurrentProject, navigate],
+  );
+
   return {
     projects,
-    searchedProjectName,
-    currentWorkspace,
     projectModalShown,
+    currentWorkspaceId: currentWorkspace?.id,
+    setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
     handleProjectModalClose,
+    handleProjectSettingsNavigation,
   };
 };

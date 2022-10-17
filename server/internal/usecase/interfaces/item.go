@@ -31,6 +31,7 @@ type UpdateItemParam struct {
 type Item interface {
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.List, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) ([]*version.Value[*item.Item], error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (*item.Item, error)
