@@ -296,9 +296,8 @@ func TestThread_UpdateComment(t *testing.T) {
 			}
 
 			comment := thread.Comments()[0]
-			comment.SetContent(tc.arg)
 
-			if err := r.UpdateComment(ctx, thread, comment); tc.wantErr != nil {
+			if err := r.UpdateComment(ctx, thread, comment.ID(), tc.arg); tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
 			} else {

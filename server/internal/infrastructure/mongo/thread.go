@@ -60,13 +60,13 @@ func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *threa
 	return nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) error {
 	if !r.f.CanWrite(th.Workspace()) {
 		return repo.ErrOperationDenied
 	}
 
 	th1 := th.Clone()
-	if err := th1.UpdateComment(c.ID(), c.Content()); err != nil {
+	if err := th1.UpdateComment(cid, content); err != nil {
 		return err
 	}
 

@@ -65,7 +65,7 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 	return nil
 }
 
-func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -75,7 +75,7 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 	}
 
 	th1 := th.Clone()
-	if err := th1.UpdateComment(c.ID(), c.Content()); err != nil {
+	if err := th1.UpdateComment(cid, content); err != nil {
 		return err
 	}
 
