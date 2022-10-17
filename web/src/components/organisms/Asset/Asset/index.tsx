@@ -30,11 +30,7 @@ const Asset: React.FC = () => {
     <Wrapper>loading...</Wrapper>
   ) : asset ? (
     <Wrapper>
-      <AssetHeader
-        title={`Asset/${asset?.fileName}`}
-        subTitle="This is a subtitle"
-        handleSave={handleSave}
-      />
+      <AssetHeader title={`Asset/${asset?.fileName}`} handleSave={handleSave} />
       <AssetBody
         asset={asset}
         selectedPreviewType={selectedPreviewType}

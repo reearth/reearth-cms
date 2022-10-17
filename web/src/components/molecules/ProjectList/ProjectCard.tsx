@@ -8,10 +8,10 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 export interface Props {
   className?: string;
   project: Project;
-  onProjectSettingsNavigation: (project: Project) => void;
+  onProjectNavigation: (project: Project, tab?: string) => void;
 }
 
-const ProjectCard: React.FC<Props> = ({ className, project, onProjectSettingsNavigation }) => {
+const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation }) => {
   const { Meta } = Card;
 
   return (
@@ -21,11 +21,11 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectSettingsNav
         actions={[
           <Icon
             icon="settings"
-            onClick={() => onProjectSettingsNavigation(project)}
+            onClick={() => onProjectNavigation(project, "settings")}
             key="setting"
           />,
-          <Icon icon="edit" key="edit" />,
-          <Icon icon="ellipsis" key="ellipsis" />,
+          <Icon icon="edit" key="edit" onClick={() => onProjectNavigation(project)} />,
+          // <Icon icon="ellipsis" key="ellipsis" />,
         ]}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
@@ -34,9 +34,8 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectSettingsNav
 };
 
 const CardWrapper = styled.div`
-  padding: 8px;
   flex: 0 0 25%;
-  max-width: 25%;
+  max-width: 250px;
   @media (max-width: 768px) {
     flex: 0 0 50%;
     max-width: 50%;

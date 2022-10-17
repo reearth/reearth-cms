@@ -2867,10 +2867,14 @@ interface Node {
 }
 
 enum NodeType {
-  ASSET
   USER
   WORKSPACE
   PROJECT
+  ASSET
+  Model
+  Schema
+  Item
+  Integration
 }
 
 input Pagination{
@@ -3737,7 +3741,7 @@ extend type Mutation {
   onItemUnPublish: Boolean
 }
 
-type Webhook implements Node {
+type Webhook {
   id: ID!
   name: String!
   url: URL!
@@ -22249,13 +22253,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Integration(ctx, sel, obj)
-	case gqlmodel.Webhook:
-		return ec._Webhook(ctx, sel, &obj)
-	case *gqlmodel.Webhook:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Webhook(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -25679,7 +25676,7 @@ func (ec *executionContext) _VersionedItem(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var webhookImplementors = []string{"Webhook", "Node"}
+var webhookImplementors = []string{"Webhook"}
 
 func (ec *executionContext) _Webhook(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Webhook) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, webhookImplementors)

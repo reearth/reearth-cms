@@ -7,7 +7,7 @@ import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Com
 
 type Props = {
   title: string;
-  subTitle: string;
+  subtitle?: string;
   fileList: UploadFile<File>[];
   uploading: boolean;
   uploadModalVisibility: boolean;
@@ -19,7 +19,7 @@ type Props = {
 
 const AssetListHeader: React.FC<Props> = ({
   title,
-  subTitle,
+  subtitle,
   fileList,
   uploading,
   uploadModalVisibility,
@@ -52,7 +52,7 @@ const AssetListHeader: React.FC<Props> = ({
     <AssetListHeaderWrapper>
       <HeaderTitleWrapper>
         <HeaderTitle>{title}</HeaderTitle>
-        <HeaderSubTitle>{subTitle}</HeaderSubTitle>
+        {subtitle && <HeaderSubTitle>{subtitle}</HeaderSubTitle>}
       </HeaderTitleWrapper>
       <UploadAsset
         fileList={fileList}

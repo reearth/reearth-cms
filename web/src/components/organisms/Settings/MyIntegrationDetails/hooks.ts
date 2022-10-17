@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -13,12 +13,12 @@ import { useT } from "@reearth-cms/i18n";
 
 type Params = {
   integrationId?: string;
-  webhookId?: string;
 };
 
-export default ({ integrationId, webhookId }: Params) => {
+export default ({ integrationId }: Params) => {
   const { integrations } = integrationHooks();
   const t = useT();
+  const [webhookId, setwebhookId] = useState<string>();
 
   const selectedIntegration = useMemo(() => {
     return integrations?.find(integration => integration.id === integrationId);
@@ -131,6 +131,13 @@ export default ({ integrationId, webhookId }: Params) => {
     [updateWebhook, integrationId, t],
   );
 
+  const handleWebhookSelect = useCallback(
+    (id: string) => {
+      setwebhookId(id);
+    },
+    [setwebhookId],
+  );
+
   return {
     integrations,
     selectedIntegration,
@@ -139,5 +146,6 @@ export default ({ integrationId, webhookId }: Params) => {
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
+    handleWebhookSelect,
   };
 };

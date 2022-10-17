@@ -1,42 +1,37 @@
-import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
+import { useParams, useLocation, Outlet } from "react-router-dom";
 
+import CMSWrapperMolecule from "@reearth-cms/components/molecules/CMSWrapper";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
+import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import DashboardMolecule from "@reearth-cms/components/molecules/Dashboard";
+import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
 
 import useHooks from "./hooks";
 
-type InnerProps = {
-  onWorkspaceModalOpen?: () => void;
-};
-
-export type Props = {
-  child: React.FC<InnerProps>;
-  defaultSelectedKeys?: string[];
-  sidebar: React.FC<{
-    projectId?: string;
-    inlineCollapsed: boolean;
-    isPersonalWorkspace?: boolean;
-    workspaceId?: string;
-    defaultSelectedKeys?: string[];
-  }>;
-};
-
-const CMSWrapper: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sidebar: Sidebar }) => {
+const CMSWrapper: React.FC = () => {
   const { projectId, workspaceId } = useParams();
   const [collapsed, setCollapsed] = useState(false);
+  const { pathname } = useLocation();
+
+  const [secondaryRoute, subRoute] = useMemo(() => {
+    const splitPathname = pathname.split("/");
+    const secondaryRoute = splitPathname[3];
+    const subRoute = secondaryRoute === "project" ? splitPathname[5] : secondaryRoute;
+    return [secondaryRoute, subRoute];
+  }, [pathname]);
+
+  const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
 
   const {
     user,
     personalWorkspace,
     workspaces,
     currentWorkspace,
-    currentProject,
+    workspaceModalShown,
     handleWorkspaceCreate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
-    workspaceModalShown,
     handleNavigateToSettings,
   } = useHooks({ projectId, workspaceId });
 
@@ -46,30 +41,37 @@ const CMSWrapper: React.FC<Props> = ({ child: Child, defaultSelectedKeys, sideba
 
   return (
     <>
-      <DashboardMolecule
+      <CMSWrapperMolecule
         collapsed={collapsed}
         onCollapse={handleCollapse}
         sidebarComponent={
-          <Sidebar
-            projectId={projectId}
-            defaultSelectedKeys={defaultSelectedKeys}
-            inlineCollapsed={collapsed}
-            workspaceId={currentWorkspace?.id}
-            isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
-          />
+          secondaryRoute === "project" ? (
+            <ProjectMenu
+              projectId={projectId}
+              defaultSelectedKey={selectedKey}
+              inlineCollapsed={collapsed}
+              workspaceId={currentWorkspace?.id}
+            />
+          ) : (
+            <WorkspaceMenu
+              defaultSelectedKey={selectedKey}
+              inlineCollapsed={collapsed}
+              workspaceId={currentWorkspace?.id}
+              isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+            />
+          )
         }
         headerComponent={
           <MoleculeHeader
             onWorkspaceModalOpen={handleWorkspaceModalOpen}
+            onNavigateToSettings={handleNavigateToSettings}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
             user={user}
-            currentProject={currentProject}
-            onNavigateToSettings={handleNavigateToSettings}
           />
         }
-        contentComponent={<Child onWorkspaceModalOpen={handleWorkspaceModalOpen} />}
+        contentComponent={<Outlet />}
       />
       <WorkspaceCreationModal
         open={workspaceModalShown}
