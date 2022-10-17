@@ -10,9 +10,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
 import Table from "@reearth-cms/components/atoms/Table";
-import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -53,7 +53,6 @@ const Members: React.FC = () => {
 
   const {
     me,
-    currentWorkspace,
     searchedUser,
     changeSearchedUser,
     handleUserSearch,
@@ -67,9 +66,8 @@ const Members: React.FC = () => {
     handleMemberAddModalClose,
     handleMemberAddModalOpen,
     MemberAddModalShown,
+    workspaceUserMembers,
   } = useHooks({ workspaceId });
-
-  const members = currentWorkspace?.members;
 
   const handleMemberDelete = useCallback(
     (member: Member) => {
@@ -87,7 +85,7 @@ const Members: React.FC = () => {
     [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
-  const dataSource = members?.map(member => ({
+  const dataSource = workspaceUserMembers?.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (
@@ -128,7 +126,7 @@ const Members: React.FC = () => {
         <ActionHeader>
           <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
         </ActionHeader>
-        <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />;
+        <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />
       </PaddedContent>
       <MemberRoleModal
         member={selectedMember}

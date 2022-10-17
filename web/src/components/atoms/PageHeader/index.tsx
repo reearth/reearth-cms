@@ -8,7 +8,7 @@ const Header: React.FC<Props> = props => {
 };
 
 const StyledPageHeader = styled(PageHeader)`
-  background-color: "#FFF";
+  background-color: #fff;
 `;
 
 export default Header;

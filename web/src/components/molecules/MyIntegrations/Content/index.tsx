@@ -1,34 +1,82 @@
 import styled from "@emotion/styled";
-import { useNavigate, useParams } from "react-router-dom";
 
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationsForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
-import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
-import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
+import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
+import {
+  Integration,
+  WebhookTrigger,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
+import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 
-const MyIntegrationsContent: React.FC = () => {
-  const { tab, workspaceId, integrationId } = useParams();
-  const isFormEdit = location.pathname.includes("/webhooks/edit");
-  const navigate = useNavigate();
+export type Props = {
+  integration: Integration;
+  webhookInitialValues?: any;
+  // activeTab?: string;
+  // showWebhookForm: boolean;
+  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  onWebhookCreate: (data: {
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
+  onWebhookDelete: (webhookId: string) => Promise<void>;
+  onWebhookUpdate: (data: {
+    webhookId: string;
+    name: string;
+    url: string;
+    active: boolean;
+    trigger: WebhookTrigger;
+  }) => Promise<void>;
+  onIntegrationHeaderBack: () => void;
+  onWebhookSelect: (id: string) => void;
+  // onWebhookFormHeaderBack: () => void;
+  // onWebhookFormNavigation: () => void;
+  // onWebhookEditNavigation: (webhookId: string) => void;
+};
 
+const MyIntegrationContent: React.FC<Props> = ({
+  integration,
+  webhookInitialValues,
+  // activeTab,
+  // showWebhookForm,
+  onIntegrationUpdate,
+  onWebhookCreate,
+  onWebhookDelete,
+  onWebhookUpdate,
+  onIntegrationHeaderBack,
+  onWebhookSelect,
+  // onWebhookFormHeaderBack,
+  // onWebhookFormNavigation,
+  // onWebhookEditNavigation,
+}) => {
   const { TabPane } = Tabs;
+
   return (
     <MyIntegrationWrapper>
-      <PageHeader title="My Integration / Robot Red" />
+      <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
       <MyIntegrationTabs
         defaultActiveKey="integration"
-        activeKey={tab}
-        onChange={key => {
-          navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
-        }}>
+        // activeKey={activeTab}
+        // onChange={onTabChange}
+      >
         <TabPane tab="General" key="integration">
-          <MyIntegrationsForm />
+          <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
-          {isFormEdit ? <WebhookForm /> : <WebhookList />}
+          <Webhook
+            integration={integration}
+            webhookInitialValues={webhookInitialValues}
+            onWebhookCreate={onWebhookCreate}
+            onWebhookDelete={onWebhookDelete}
+            onWebhookUpdate={onWebhookUpdate}
+            onWebhookSelect={onWebhookSelect}
+            // onWebhookFormHeaderBack={onWebhookFormHeaderBack}
+            // onWebhookFormNavigation={onWebhookFormNavigation}
+            // onWebhookEditNavigation={onWebhookEditNavigation}
+          />
         </TabPane>
-        <TabPane tab="Logs" key="logs" />
       </MyIntegrationTabs>
     </MyIntegrationWrapper>
   );
@@ -43,4 +91,4 @@ const MyIntegrationTabs = styled(Tabs)`
   padding: 0 24px;
 `;
 
-export default MyIntegrationsContent;
+export default MyIntegrationContent;

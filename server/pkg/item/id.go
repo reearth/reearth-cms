@@ -3,6 +3,8 @@ package item
 import "github.com/reearth/reearth-cms/server/pkg/id"
 
 type ID = id.ItemID
+type ProjectID = id.ProjectID
+type SchemaID = id.SchemaID
 
 var NewID = id.NewItemID
 

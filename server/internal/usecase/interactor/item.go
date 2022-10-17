@@ -52,11 +52,17 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
+	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+	if err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *item.Item, err error) {
 			ib := item.New().
 				NewID().
-				Schema(param.SchemaID)
+				Schema(param.SchemaID).
+				Project(s.Project())
 
 			if len(param.Fields) > 0 {
 				var fs []*item.Field
@@ -126,6 +132,17 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 				return err
 			}
 			return nil
+		})
+}
+
+func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	_, err := i.repos.Project.FindByID(ctx, projectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.FindByProject(ctx, projectID, p)
 		})
 }
 

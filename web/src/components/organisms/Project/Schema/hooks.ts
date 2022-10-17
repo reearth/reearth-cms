@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
-  useCreateModelMutation,
   useCreateFieldMutation,
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
-  useCheckModelKeyAvailabilityLazyQuery,
   useDeleteFieldMutation,
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 type Params = {
   projectId?: string;
@@ -18,28 +18,11 @@ type Params = {
 };
 
 export default ({ projectId, modelId }: Params) => {
-  const [modelModalShown, setModelModalShown] = useState(false);
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
-  const [isKeyAvailable, setIsKeyAvailable] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
-    fetchPolicy: "no-cache",
-  });
-
-  const handleModelKeyCheck = useCallback(
-    async (projectId: string, key: string) => {
-      if (!projectId || !key) return false;
-      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
-      return response.data ? response.data.checkModelKeyAvailability.available : false;
-    },
-    [CheckModelKeyAvailability],
-  );
-
-  useEffect(() => {
-    setIsKeyAvailable(keyData?.checkModelKeyAvailability.available ?? false);
-  }, [keyData?.checkModelKeyAvailability]);
+  const t = useT();
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
@@ -104,39 +87,13 @@ export default ({ projectId, modelId }: Params) => {
     [rawModel],
   );
 
-  const [createNewModel] = useCreateModelMutation({
-    refetchQueries: ["GetModels"],
-  });
-
   const handleFieldKeyUnique = useCallback(
     (key: string, fieldId?: string): boolean => {
       return !model?.schema.fields.some(
         field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
       );
     },
-    [modelId],
-  );
-
-  const handleModelCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
-      if (!projectId) return;
-      const model = await createNewModel({
-        variables: {
-          projectId,
-          name: data.name,
-          description: data.description,
-          key: data.key,
-        },
-      });
-      if (model.errors || !model.data?.createModel) {
-        // Show error message
-        setModelModalShown(false);
-        return;
-      }
-
-      setModelModalShown(false);
-    },
-    [createNewModel, projectId],
+    [model?.schema.fields],
   );
 
   const [createNewField] = useCreateFieldMutation({
@@ -156,10 +113,12 @@ export default ({ projectId, modelId }: Params) => {
       if (!modelId) return;
       const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
       if (results.errors) {
-        console.log("errors");
+        Notification.error({ message: t("Failed to delete field.") });
+        return;
       }
+      Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation],
+    [modelId, deleteFieldMutation, t],
   );
 
   const handleFieldUpdate = useCallback(
@@ -182,14 +141,13 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.updateField) {
-        // Show error message
-        setModelModalShown(false);
+        Notification.error({ message: t("Failed to update field.") });
         return;
       }
-
-      setModelModalShown(false);
+      Notification.success({ message: t("Successfully updated field!") });
+      setFieldUpdateModalShown(false);
     },
-    [modelId, updateField],
+    [modelId, updateField, t],
   );
 
   const handleFieldCreate = useCallback(
@@ -218,19 +176,15 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.createField) {
-        // Show error message
-        setModelModalShown(false);
+        Notification.error({ message: t("Failed to create field.") });
+        setFieldCreationModalShown(false);
         return;
       }
-
-      setModelModalShown(false);
+      Notification.success({ message: t("Successfully created field!") });
+      setFieldCreationModalShown(false);
     },
-    [modelId, createNewField],
+    [modelId, createNewField, t],
   );
-
-  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
-
-  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
@@ -259,12 +213,8 @@ export default ({ projectId, modelId }: Params) => {
   return {
     model,
     models,
-    modelModalShown,
-    handleModelModalOpen,
-    handleModelModalClose,
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
-    handleModelCreate,
     handleFieldKeyUnique,
     fieldCreationModalShown,
     fieldUpdateModalShown,
@@ -274,8 +224,6 @@ export default ({ projectId, modelId }: Params) => {
     handleFieldCreate,
     handleFieldUpdate,
     handleFieldDelete,
-    handleModelKeyCheck,
-    isKeyAvailable,
     selectedType,
   };
 };

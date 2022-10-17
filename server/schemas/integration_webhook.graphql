@@ -8,7 +8,7 @@ type WebhookTrigger  {
   onItemUnPublish: Boolean
 }
 
-type Webhook implements Node {
+type Webhook {
   id: ID!
   name: String!
   url: URL!
@@ -31,6 +31,7 @@ input WebhookTriggerInput {
 }
 
 input CreateWebhookInput {
+  integrationId: ID!
   name: String!
   url: URL!
   active: Boolean!
@@ -38,6 +39,7 @@ input CreateWebhookInput {
 }
 
 input UpdateWebhookInput {
+  integrationId: ID!
   webhookId: ID!
   name: String
   url: URL
@@ -46,6 +48,7 @@ input UpdateWebhookInput {
 }
 
 input DeleteWebhookInput {
+  integrationId: ID!
   webhookId: ID!
 }
 

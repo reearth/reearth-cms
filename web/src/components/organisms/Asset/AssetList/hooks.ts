@@ -19,7 +19,9 @@ import {
 
 type AssetSortType = "date" | "name" | "size";
 
-const assetsPerPage = 20;
+const assetsPerPage = 10;
+// Todo: this is temporary until implementing cursor pagination
+const assetsFetchCount = 500;
 
 function pagination(
   sort?: { type?: Maybe<AssetSortType>; reverse?: boolean },
@@ -30,8 +32,8 @@ function pagination(
   return {
     after: !reverseOrder ? endCursor : undefined,
     before: reverseOrder ? endCursor : undefined,
-    first: !reverseOrder ? assetsPerPage : undefined,
-    last: reverseOrder ? assetsPerPage : undefined,
+    first: !reverseOrder ? assetsFetchCount : undefined,
+    last: reverseOrder ? assetsFetchCount : undefined,
   };
 }
 

@@ -42,7 +42,7 @@ func TestInit(t *testing.T) {
 			ExpectedWorkspace: NewWorkspace().
 				ID(tid).
 				Name("nnn").
-				Members(map[ID]Role{uid: RoleOwner}).
+				Members(map[ID]Member{uid: {Role: RoleOwner}}).
 				Personal(true).
 				MustBuild(),
 			Err: nil,
@@ -67,7 +67,7 @@ func TestInit(t *testing.T) {
 			ExpectedWorkspace: NewWorkspace().
 				NewID().
 				Name("nnn").
-				Members(map[ID]Role{uid: RoleOwner}).
+				Members(map[ID]Member{uid: {Role: RoleOwner}}).
 				Personal(true).
 				MustBuild(),
 			Err: nil,
@@ -92,7 +92,7 @@ func TestInit(t *testing.T) {
 			ExpectedWorkspace: NewWorkspace().
 				ID(tid).
 				Name("nnn").
-				Members(map[ID]Role{uid: RoleOwner}).
+				Members(map[ID]Member{uid: {Role: RoleOwner}}).
 				Personal(true).
 				MustBuild(),
 			Err: nil,

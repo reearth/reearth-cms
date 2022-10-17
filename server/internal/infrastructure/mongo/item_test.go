@@ -17,10 +17,11 @@ import (
 
 func Test_ItemRepo_FindByID(t *testing.T) {
 	id1 := id.NewItemID()
-	sid := schema.NewID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemID
@@ -68,10 +69,11 @@ func Test_ItemRepo_FindByID(t *testing.T) {
 
 func Test_itemRepo_Remove(t *testing.T) {
 	id1 := id.NewItemID()
-	sid := schema.NewID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Project(pid).Build()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
 	repo := NewItem(client)
@@ -88,7 +90,7 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 
 	init := mongotest.Connect(t)
 
@@ -110,11 +112,12 @@ func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 }
 
 func Test_itemRepo_FindByIDs(t *testing.T) {
-	sid := schema.NewID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
-	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
+	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.ItemIDList
@@ -159,10 +162,11 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 
 func Test_itemRepo_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
-	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Build()
+	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
+	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
 	tests := []struct {
 		Name               string
 		Input              id.SchemaID
@@ -199,6 +203,52 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 			}
 
 			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
+}
+
+func Test_itemRepo_FindByProject(t *testing.T) {
+	pid := id.NewProjectID()
+	sid := id.NewSchemaID()
+	i1, _ := item.New().NewID().Schema(sid).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Project(pid).Build()
+	tests := []struct {
+		Name               string
+		Input              id.ProjectID
+		RepoData, Expected item.List
+	}{
+		{
+			Name:     "must find two items (first 10)",
+			Input:    pid,
+			RepoData: item.List{i1, i2},
+			Expected: item.List{i1, i2},
+		},
+		{
+			Name:     "must not find any item",
+			Input:    id.NewProjectID(),
+			RepoData: item.List{i1, i2},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}

@@ -36,10 +36,10 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 		})
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(id).Transaction(),
+func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(wid).Transaction(),
 		func() (project.List, *usecasex.PageInfo, error) {
-			return i.repos.Project.FindByWorkspace(ctx, id, p)
+			return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
 		})
 }
 
@@ -85,6 +85,20 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 
 			if p.Description != nil {
 				proj.UpdateDescription(*p.Description)
+			}
+
+			if p.Publication != nil {
+				pub := proj.Publication()
+				if pub == nil {
+					pub = project.NewPublication(project.PublicationScopePrivate, false)
+				}
+				if p.Publication.Scope != nil {
+					pub.SetScope(*p.Publication.Scope)
+				}
+				if p.Publication.AssetPublic != nil {
+					pub.SetAssetPublic(*p.Publication.AssetPublic)
+				}
+				proj.SetPublication(pub)
 			}
 
 			if err := i.repos.Project.Save(ctx, proj); err != nil {

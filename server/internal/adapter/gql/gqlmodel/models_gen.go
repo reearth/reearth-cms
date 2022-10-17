@@ -130,8 +130,8 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	ModelID ID                `json:"modelId"`
-	Fields  []*ItemFieldInput `json:"fields"`
+	SchemaID ID                `json:"schemaId"`
+	Fields   []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -149,10 +149,11 @@ type CreateProjectInput struct {
 }
 
 type CreateWebhookInput struct {
-	Name    string               `json:"name"`
-	URL     url.URL              `json:"url"`
-	Active  bool                 `json:"active"`
-	Trigger *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	Name          string               `json:"name"`
+	URL           url.URL              `json:"url"`
+	Active        bool                 `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type CreateWorkspaceInput struct {
@@ -230,7 +231,8 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteWebhookInput struct {
-	WebhookID ID `json:"webhookId"`
+	IntegrationID ID `json:"integrationId"`
+	WebhookID     ID `json:"webhookId"`
 }
 
 type DeleteWebhookPayload struct {
@@ -275,14 +277,12 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID             `json:"id"`
-	ModelID       ID             `json:"modelId"`
-	Model         *Model         `json:"model"`
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	LatestVersion *ItemVersion   `json:"latestVersion"`
-	PublicVersion string         `json:"publicVersion"`
-	Versions      []*ItemVersion `json:"versions"`
+	ID        ID           `json:"id"`
+	SchemaID  ID           `json:"schemaId"`
+	ProjectID ID           `json:"projectId"`
+	Project   *Project     `json:"project"`
+	Schema    *Schema      `json:"schema"`
+	Fields    []*ItemField `json:"fields"`
 }
 
 func (Item) IsNode()        {}
@@ -301,24 +301,19 @@ type ItemEdge struct {
 }
 
 type ItemField struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemFieldInput struct {
-	FieldID ID          `json:"fieldId"`
-	Value   interface{} `json:"value"`
+	SchemaFieldID ID              `json:"schemaFieldId"`
+	Type          SchemaFiledType `json:"type"`
+	Value         interface{}     `json:"value"`
 }
 
 type ItemPayload struct {
 	Item *Item `json:"item"`
-}
-
-type ItemVersion struct {
-	Version string       `json:"version"`
-	Parent  []string     `json:"parent"`
-	Ref     []string     `json:"ref"`
-	Fields  []*ItemField `json:"fields"`
 }
 
 type KeyAvailability struct {
@@ -348,6 +343,7 @@ type Model struct {
 	Key         string    `json:"key"`
 	Project     *Project  `json:"project"`
 	Schema      *Schema   `json:"schema"`
+	Public      bool      `json:"public"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -386,14 +382,15 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID          ID         `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Alias       string     `json:"alias"`
-	WorkspaceID ID         `json:"workspaceId"`
-	Workspace   *Workspace `json:"workspace"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	ID          ID                  `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Alias       string              `json:"alias"`
+	WorkspaceID ID                  `json:"workspaceId"`
+	Workspace   *Workspace          `json:"workspace"`
+	CreatedAt   time.Time           `json:"createdAt"`
+	UpdatedAt   time.Time           `json:"updatedAt"`
+	Publication *ProjectPublication `json:"publication"`
 }
 
 func (Project) IsNode()        {}
@@ -420,6 +417,11 @@ type ProjectPayload struct {
 	Project *Project `json:"project"`
 }
 
+type ProjectPublication struct {
+	Scope       ProjectPublicationScope `json:"scope"`
+	AssetPublic bool                    `json:"assetPublic"`
+}
+
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
@@ -430,9 +432,9 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
-type RemoveMemberFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
+type RemoveIntegrationFromWorkspaceInput struct {
+	WorkspaceID   ID `json:"workspaceId"`
+	IntegrationID ID `json:"integrationId"`
 }
 
 type RemoveMemberFromWorkspacePayload struct {
@@ -441,6 +443,11 @@ type RemoveMemberFromWorkspacePayload struct {
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
+}
+
+type RemoveUserFromWorkspaceInput struct {
+	WorkspaceID ID `json:"workspaceId"`
+	UserID      ID `json:"userId"`
 }
 
 type Schema struct {
@@ -620,19 +627,6 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int    `json:"maxLength"`
 }
 
-type SignupInput struct {
-	Lang        *language.Tag `json:"lang"`
-	Theme       *Theme        `json:"theme"`
-	UserID      *ID           `json:"userId"`
-	WorkspaceID *ID           `json:"workspaceId"`
-	Secret      *string       `json:"secret"`
-}
-
-type SignupPayload struct {
-	User      *User      `json:"user"`
-	Workspace *Workspace `json:"workspace"`
-}
-
 type Thread struct {
 	ID          ID         `json:"id"`
 	Workspace   *Workspace `json:"workspace"`
@@ -675,6 +669,12 @@ type UpdateIntegrationInput struct {
 	LogoURL       *url.URL `json:"logoUrl"`
 }
 
+type UpdateIntegrationOfWorkspaceInput struct {
+	WorkspaceID   ID   `json:"workspaceId"`
+	IntegrationID ID   `json:"integrationId"`
+	Role          Role `json:"role"`
+}
+
 type UpdateItemInput struct {
 	ItemID ID                `json:"itemId"`
 	Fields []*ItemFieldInput `json:"fields"`
@@ -693,12 +693,6 @@ type UpdateMePayload struct {
 	Me *Me `json:"me"`
 }
 
-type UpdateMemberOfWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
-}
-
 type UpdateMemberOfWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
@@ -708,20 +702,34 @@ type UpdateModelInput struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	Key         *string `json:"key"`
+	Public      bool    `json:"public"`
 }
 
 type UpdateProjectInput struct {
-	ProjectID   ID      `json:"projectId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
+	ProjectID   ID                             `json:"projectId"`
+	Name        *string                        `json:"name"`
+	Description *string                        `json:"description"`
+	Publication *UpdateProjectPublicationInput `json:"publication"`
+}
+
+type UpdateProjectPublicationInput struct {
+	Scope       *ProjectPublicationScope `json:"scope"`
+	AssetPublic *bool                    `json:"assetPublic"`
+}
+
+type UpdateUserOfWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserID      ID   `json:"userId"`
+	Role        Role `json:"role"`
 }
 
 type UpdateWebhookInput struct {
-	WebhookID ID                   `json:"webhookId"`
-	Name      *string              `json:"name"`
-	URL       *url.URL             `json:"url"`
-	Active    *bool                `json:"active"`
-	Trigger   *WebhookTriggerInput `json:"trigger"`
+	IntegrationID ID                   `json:"integrationId"`
+	WebhookID     ID                   `json:"webhookId"`
+	Name          *string              `json:"name"`
+	URL           *url.URL             `json:"url"`
+	Active        *bool                `json:"active"`
+	Trigger       *WebhookTriggerInput `json:"trigger"`
 }
 
 type UpdateWorkspaceInput struct {
@@ -742,6 +750,13 @@ type User struct {
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
 
+type VersionedItem struct {
+	Version string   `json:"version"`
+	Parents []string `json:"parents"`
+	Refs    []string `json:"refs"`
+	Value   *Item    `json:"value"`
+}
+
 type Webhook struct {
 	ID        ID              `json:"id"`
 	Name      string          `json:"name"`
@@ -751,9 +766,6 @@ type Webhook struct {
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
-
-func (Webhook) IsNode()        {}
-func (this Webhook) GetID() ID { return this.ID }
 
 type WebhookPayload struct {
 	Webhook *Webhook `json:"webhook"`
@@ -895,22 +907,30 @@ func (e IntegrationType) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
-	NodeTypeAsset     NodeType = "ASSET"
-	NodeTypeUser      NodeType = "USER"
-	NodeTypeWorkspace NodeType = "WORKSPACE"
-	NodeTypeProject   NodeType = "PROJECT"
+	NodeTypeUser        NodeType = "USER"
+	NodeTypeWorkspace   NodeType = "WORKSPACE"
+	NodeTypeProject     NodeType = "PROJECT"
+	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeModel       NodeType = "Model"
+	NodeTypeSchema      NodeType = "Schema"
+	NodeTypeItem        NodeType = "Item"
+	NodeTypeIntegration NodeType = "Integration"
 )
 
 var AllNodeType = []NodeType{
-	NodeTypeAsset,
 	NodeTypeUser,
 	NodeTypeWorkspace,
 	NodeTypeProject,
+	NodeTypeAsset,
+	NodeTypeModel,
+	NodeTypeSchema,
+	NodeTypeItem,
+	NodeTypeIntegration,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeAsset, NodeTypeUser, NodeTypeWorkspace, NodeTypeProject:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false
@@ -979,6 +999,49 @@ func (e *PreviewType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e PreviewType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ProjectPublicationScope string
+
+const (
+	ProjectPublicationScopePublic  ProjectPublicationScope = "PUBLIC"
+	ProjectPublicationScopeLimited ProjectPublicationScope = "LIMITED"
+	ProjectPublicationScopePrivate ProjectPublicationScope = "PRIVATE"
+)
+
+var AllProjectPublicationScope = []ProjectPublicationScope{
+	ProjectPublicationScopePublic,
+	ProjectPublicationScopeLimited,
+	ProjectPublicationScopePrivate,
+}
+
+func (e ProjectPublicationScope) IsValid() bool {
+	switch e {
+	case ProjectPublicationScopePublic, ProjectPublicationScopeLimited, ProjectPublicationScopePrivate:
+		return true
+	}
+	return false
+}
+
+func (e ProjectPublicationScope) String() string {
+	return string(e)
+}
+
+func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProjectPublicationScope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProjectPublicationScope", str)
+	}
+	return nil
+}
+
+func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

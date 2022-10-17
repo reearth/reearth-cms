@@ -111,8 +111,8 @@ func TestWorkspace_FindByIDs(t *testing.T) {
 }
 
 func TestWorkspace_FindByUser(t *testing.T) {
-	u := user.New().NewID().Email("aaa@bbb.com").MustBuild()
-	ws := user.NewWorkspace().NewID().Name("hoge").Members(map[user.ID]user.Role{u.ID(): user.RoleOwner}).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").MustBuild()
+	ws := user.NewWorkspace().NewID().Name("hoge").Members(map[user.ID]user.Member{u.ID(): {Role: user.RoleOwner, InvitedBy: u.ID()}}).MustBuild()
 	tests := []struct {
 		Name     string
 		Input    id.UserID

@@ -21,6 +21,12 @@ type UpdateProjectParam struct {
 	ID          id.ProjectID
 	Name        *string
 	Description *string
+	Publication *UpdateProjectPublicationParam
+}
+
+type UpdateProjectPublicationParam struct {
+	Scope       *project.PublicationScope
+	AssetPublic *bool
 }
 
 var (

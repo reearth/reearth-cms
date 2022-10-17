@@ -8,7 +8,9 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 const configPrefix = "REEARTH_CMS"
@@ -79,7 +81,7 @@ type GCSConfig struct {
 	PublicationCacheControl string
 }
 
-func (c Config) Auths() (res []AuthConfig) {
+func (c Config) Auths() (res AuthConfigs) {
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -98,6 +100,10 @@ func (c Config) Auths() (res []AuthConfig) {
 	}
 
 	return append(res, c.Auth...)
+}
+
+func (c Config) JWTProviders() (res []appx.JWTProvider) {
+	return c.Auths().JWTProviders()
 }
 
 func (c Auth0Config) AuthConfig() *AuthConfig {
@@ -121,6 +127,15 @@ func (c Auth0Config) AuthConfig() *AuthConfig {
 	}
 }
 
+func (a AuthConfig) JWTProvider() appx.JWTProvider {
+	return appx.JWTProvider{
+		ISS: a.ISS,
+		AUD: a.AUD,
+		ALG: a.ALG,
+		TTL: a.TTL,
+	}
+}
+
 // Decode is a custom decoder for AuthConfigs
 func (ipd *AuthConfigs) Decode(value string) error {
 	if value == "" {
@@ -136,6 +151,10 @@ func (ipd *AuthConfigs) Decode(value string) error {
 
 	*ipd = providers
 	return nil
+}
+
+func (a AuthConfigs) JWTProviders() []appx.JWTProvider {
+	return lo.Map(a, func(a AuthConfig, _ int) appx.JWTProvider { return a.JWTProvider() })
 }
 
 func ReadConfig(debug bool) (*Config, error) {
@@ -154,4 +173,15 @@ func ReadConfig(debug bool) (*Config, error) {
 	}
 
 	return &c, err
+}
+
+func (c Config) Print() string {
+	s := fmt.Sprintf("%+v", c)
+	for _, secret := range []string{c.DB, c.Auth0.ClientSecret} {
+		if secret == "" {
+			continue
+		}
+		s = strings.ReplaceAll(s, secret, "***")
+	}
+	return s
 }
