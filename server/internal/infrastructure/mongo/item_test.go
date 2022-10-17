@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	repo "github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -76,12 +77,19 @@ func Test_itemRepo_Remove(t *testing.T) {
 	i1, _ := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Project(pid).Build()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
-	repo := NewItem(client)
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewItem(client).Filtered(pf)
 	ctx := context.Background()
-	_ = repo.Save(ctx, i1)
-	err := repo.Remove(ctx, i1.ID())
+	_ = r.Save(ctx, i1)
+	err := r.Remove(ctx, i1.ID(), id.NewProjectID())
+	assert.Equal(t, repo.ErrOperationDenied, err)
+
+	err = r.Remove(ctx, i1.ID(), pid)
 	assert.NoError(t, err)
-	got, err := repo.FindByID(ctx, i1.ID())
+	got, err := r.FindByID(ctx, i1.ID())
 	assert.Nil(t, got)
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
@@ -89,24 +97,33 @@ func Test_itemRepo_Remove(t *testing.T) {
 func Test_itemRepo_FindAllVersionsByID(t *testing.T) {
 	id1 := id.NewItemID()
 	sfid := schema.NewFieldID()
+	pid := id.NewProjectID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Project(pid).Build()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
 
 	init := mongotest.Connect(t)
 
 	client := mongox.NewClientWithDatabase(init(t))
 
-	repo := NewItem(client)
+	r := NewItem(client).Filtered(pf)
 	ctx := context.Background()
-	err := repo.Save(ctx, i1)
+	err := r.Save(ctx, i1)
 	assert.NoError(t, err)
-	got, err := repo.FindAllVersionsByID(ctx, i1.ID())
+
+	_, err = r.FindAllVersionsByID(ctx, i1.ID(), id.NewProjectID())
+	assert.Equal(t, repo.ErrOperationDenied, err)
+
+	got, err := r.FindAllVersionsByID(ctx, i1.ID(), pid)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(got))
 
-	err = repo.Save(ctx, i1)
+	err = r.Save(ctx, i1)
 	assert.NoError(t, err)
-	got2, err := repo.FindAllVersionsByID(ctx, i1.ID())
+	got2, err := r.FindAllVersionsByID(ctx, i1.ID(), pid)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(got2))
 }
@@ -168,25 +185,37 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 	i1, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
 	i2, _ := item.New().NewID().Fields(fs).Schema(sid).Project(pid).Build()
 	tests := []struct {
-		Name               string
-		Input              id.SchemaID
+		Name  string
+		Input struct {
+			sid id.SchemaID
+			pid id.ProjectID
+		}
 		RepoData, Expected item.List
 	}{
 		{
-			Name:     "must find two items (first 10)",
-			Input:    sid,
+			Name: "must find two items (first 10)",
+			Input: struct {
+				sid id.SchemaID
+				pid id.ProjectID
+			}{sid: sid, pid: pid},
 			RepoData: item.List{i1, i2},
 			Expected: item.List{i1, i2},
 		},
 		{
-			Name:     "must not find any item",
-			Input:    id.NewSchemaID(),
+			Name: "must not find any item",
+			Input: struct {
+				sid id.SchemaID
+				pid id.ProjectID
+			}{sid: sid, pid: id.NewProjectID()},
 			RepoData: item.List{i1, i2},
 		},
 	}
 
 	init := mongotest.Connect(t)
-
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
 	for _, tc := range tests {
 		tc := tc
 
@@ -195,14 +224,14 @@ func Test_itemRepo_FindBySchema(t *testing.T) {
 
 			client := mongox.NewClientWithDatabase(init(t))
 
-			repo := NewItem(client)
+			repo := NewItem(client).Filtered(pf)
 			ctx := context.Background()
 			for _, i := range tc.RepoData {
 				err := repo.Save(ctx, i)
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.FindBySchema(ctx, tc.Input.sid, tc.Input.pid, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}
@@ -230,6 +259,10 @@ func Test_itemRepo_FindByProject(t *testing.T) {
 			RepoData: item.List{i1, i2},
 		},
 	}
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
 
 	init := mongotest.Connect(t)
 
@@ -241,7 +274,7 @@ func Test_itemRepo_FindByProject(t *testing.T) {
 
 			client := mongox.NewClientWithDatabase(init(t))
 
-			repo := NewItem(client)
+			repo := NewItem(client).Filtered(pf)
 			ctx := context.Background()
 			for _, i := range tc.RepoData {
 				err := repo.Save(ctx, i)

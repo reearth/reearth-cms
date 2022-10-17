@@ -41,13 +41,13 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	_, err := i.repos.Schema.FindByID(ctx, schemaID)
+	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
 	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (item.List, *usecasex.PageInfo, error) {
-			return i.repos.Item.FindBySchema(ctx, schemaID, p)
+			return i.repos.Item.FindBySchema(ctx, schemaID, s.Project(), p)
 		})
 }
 
@@ -90,9 +90,13 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) ([]*version.Value[*item.Item], error) {
+	it, err := i.repos.Item.FindByID(ctx, itemID)
+	if err != nil {
+		return nil, err
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() ([]*version.Value[*item.Item], error) {
-			return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+			return i.repos.Item.FindAllVersionsByID(ctx, itemID, it.Project())
 		})
 }
 
@@ -122,13 +126,13 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	_, err := i.repos.Item.FindByID(ctx, itemID)
+	it, err := i.repos.Item.FindByID(ctx, itemID)
 	if err != nil {
 		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
-			if err := i.repos.Item.Remove(ctx, itemID); err != nil {
+			if err := i.repos.Item.Remove(ctx, itemID, it.Project()); err != nil {
 				return err
 			}
 			return nil

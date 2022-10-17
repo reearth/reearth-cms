@@ -18,6 +18,7 @@ import (
 
 type itemRepo struct {
 	client *mongogit.Collection
+	f      repo.ProjectFilter
 }
 
 func NewItem(client *mongox.Client) repo.Item {
@@ -25,7 +26,12 @@ func NewItem(client *mongox.Client) repo.Item {
 	r.init()
 	return r
 }
-
+func (r *itemRepo) Filtered(f repo.ProjectFilter) repo.Item {
+	return &itemRepo{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
+}
 func (r *itemRepo) init() {
 	err := r.client.CreateIndexes(context.Background(), []string{"schema", "fields.schemafield"}, []string{"id"})
 	if err != nil {
@@ -44,13 +50,20 @@ func (i *itemRepo) FindByID(ctx context.Context, id id.ItemID) (*item.Item, erro
 	return c.Result[0], nil
 }
 
-func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+func (i *itemRepo) FindBySchema(ctx context.Context, schemaID id.SchemaID, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if !i.f.CanRead(projectID) {
+		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
+	}
+
 	return i.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
 	}, pagination)
 }
 
 func (i *itemRepo) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if !i.f.CanRead(projectID) {
+		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
+	}
 	return i.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, pagination)
@@ -69,7 +82,10 @@ func (i *itemRepo) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List,
 	return c.Result, nil
 }
 
-func (i *itemRepo) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*version.Value[*item.Item], error) {
+func (i *itemRepo) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, projectID id.ProjectID) ([]*version.Value[*item.Item], error) {
+	if !i.f.CanRead(projectID) {
+		return nil, repo.ErrOperationDenied
+	}
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := i.client.Find(ctx, bson.M{
 		"id": itemID.String(),
@@ -81,11 +97,17 @@ func (i *itemRepo) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([
 }
 
 func (i *itemRepo) Save(ctx context.Context, item *item.Item) error {
+	if !i.f.CanWrite(item.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, id := mongodoc.NewItem(item)
 	return i.client.SaveOne(ctx, id, doc, nil)
 }
 
-func (i *itemRepo) Remove(ctx context.Context, id id.ItemID) error {
+func (i *itemRepo) Remove(ctx context.Context, id id.ItemID, pid id.ProjectID) error {
+	if !i.f.CanWrite(pid) {
+		return repo.ErrOperationDenied
+	}
 	return i.client.RemoveOne(ctx, id.String())
 }
 

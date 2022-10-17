@@ -14,12 +14,20 @@ import (
 
 type Item struct {
 	data *memorygit.VersionedSyncMap[item.ID, *item.Item]
+	f    repo.ProjectFilter
 	err  error
 }
 
 func NewItem() repo.Item {
 	return &Item{
 		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
+	}
+}
+
+func (r *Item) Filtered(filter repo.ProjectFilter) repo.Item {
+	return &Item{
+		data: r.data,
+		f:    r.f.Merge(filter),
 	}
 }
 
@@ -35,7 +43,10 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 	return item, nil
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pid id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pid) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -51,6 +62,9 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(projectID) {
+		r.err = repo.ErrOperationDenied
+	}
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -73,7 +87,10 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
 }
 
-func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
+func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID, projectID id.ProjectID) ([]*version.Value[*item.Item], error) {
+	if !r.f.CanRead(projectID) {
+		r.err = repo.ErrOperationDenied
+	}
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -82,6 +99,9 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*versio
 }
 
 func (r *Item) Save(ctx context.Context, t *item.Item) error {
+	if !r.f.CanWrite(t.Project()) {
+		r.err = repo.ErrOperationDenied
+	}
 	if r.err != nil {
 		return r.err
 	}
@@ -90,7 +110,10 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
+func (r *Item) Remove(ctx context.Context, itemID id.ItemID, projectID id.ProjectID) error {
+	if !r.f.CanWrite(projectID) {
+		r.err = repo.ErrOperationDenied
+	}
 	if r.err != nil {
 		return r.err
 	}

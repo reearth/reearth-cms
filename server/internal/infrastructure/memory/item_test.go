@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
@@ -32,26 +33,34 @@ func TestItem_FindByID(t *testing.T) {
 
 func TestItem_Remove(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-	r := NewItem()
+	pid := id.NewProjectID()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewItem().Filtered(pf)
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 
-	_ = r.Remove(ctx, i2.ID())
+	_ = r.Remove(ctx, i2.ID(), pid)
 	data, _ := r.FindByIDs(ctx, id.ItemIDList{i.ID(), i2.ID()})
 	assert.Equal(t, 1, len(data))
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
-	assert.Same(t, wantErr, r.Remove(ctx, i.ID()))
+	assert.Same(t, wantErr, r.Remove(ctx, i.ID(), i.Project()))
 }
 
 func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-
-	r := NewItem()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{i.Project()},
+		Writable: []id.ProjectID{i.Project()},
+	}
+	r := NewItem().Filtered(pf)
 	_ = r.Save(ctx, i)
 	got, _ := r.FindByID(ctx, i.ID())
 	assert.Equal(t, i, got)
@@ -83,14 +92,17 @@ func TestItem_FindByIDs(t *testing.T) {
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	ctx := context.Background()
 	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-
-	r := NewItem()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{i.Project()},
+		Writable: []id.ProjectID{i.Project()},
+	}
+	r := NewItem().Filtered(pf)
 	_ = r.Save(ctx, i)
-	v, _ := r.FindAllVersionsByID(ctx, i.ID())
+	v, _ := r.FindAllVersionsByID(ctx, i.ID(), i.Project())
 	assert.Equal(t, 1, len(v))
 
 	_ = r.Save(ctx, i)
-	v, _ = r.FindAllVersionsByID(ctx, i.ID())
+	v, _ = r.FindAllVersionsByID(ctx, i.ID(), i.Project())
 	assert.Equal(t, 2, len(v))
 
 	wantErr := errors.New("test")
@@ -101,13 +113,17 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 func TestItem_FindBySchema(t *testing.T) {
 	ctx := context.Background()
 	sid := id.NewSchemaID()
-	i, _ := item.New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
-	i2, _ := item.New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
-
-	r := NewItem()
+	pid := id.NewProjectID()
+	i, _ := item.New().NewID().Schema(sid).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Project(pid).Build()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewItem().Filtered(pf)
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
-	got, _, _ := r.FindBySchema(ctx, sid, nil)
+	got, _, _ := r.FindBySchema(ctx, sid, pid, nil)
 	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")
@@ -120,8 +136,11 @@ func TestItem_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
 	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
-
-	r := NewItem()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewItem().Filtered(pf)
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	got, _, _ := r.FindByProject(ctx, pid, nil)

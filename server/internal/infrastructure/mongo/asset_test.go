@@ -416,8 +416,8 @@ func TestAssetRepo_Update(t *testing.T) {
 	tests := []struct {
 		name    string
 		seeds   asset.List
-		arg   *asset.Asset
-		filter     *repo.ProjectFilter
+		arg     *asset.Asset
+		filter  *repo.ProjectFilter
 		wantErr error
 		mockErr bool
 	}{

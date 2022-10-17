@@ -36,7 +36,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
-		Item:        c.Item,
+		Item:        c.Item.Filtered(project),
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model.Filtered(project),
 		Schema:      c.Schema.Filtered(workspace),
