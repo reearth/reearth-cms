@@ -18,13 +18,13 @@ const ContentDetails: React.FC = () => {
 
   const handleNavigateToModel = useCallback(
     (modelId: string) => {
-      navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
 
   const handleNavigateBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/${projectId}/content/${modelId}`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
   }, [navigate, workspaceId, projectId, modelId]);
 
   return (

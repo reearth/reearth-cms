@@ -7,14 +7,13 @@ import {
   Integration,
   WebhookTrigger,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/WebhookForm";
-import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/WebhookList";
+import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 
 export type Props = {
   integration: Integration;
   webhookInitialValues?: any;
-  activeTab?: string;
-  showWebhookForm: boolean;
+  // activeTab?: string;
+  // showWebhookForm: boolean;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onWebhookCreate: (data: {
     name: string;
@@ -31,26 +30,26 @@ export type Props = {
     trigger: WebhookTrigger;
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
-  onWebhookFormHeaderBack: () => void;
-  onWebhookFormNavigation: () => void;
-  onWebhookEditNavigation: (webhookId: string) => void;
-  onTabChange: (key: string) => void;
+  onWebhookSelect: (id: string) => void;
+  // onWebhookFormHeaderBack: () => void;
+  // onWebhookFormNavigation: () => void;
+  // onWebhookEditNavigation: (webhookId: string) => void;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
-  activeTab,
-  showWebhookForm,
+  // activeTab,
+  // showWebhookForm,
   onIntegrationUpdate,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
   onIntegrationHeaderBack,
-  onWebhookFormHeaderBack,
-  onWebhookFormNavigation,
-  onWebhookEditNavigation,
-  onTabChange,
+  onWebhookSelect,
+  // onWebhookFormHeaderBack,
+  // onWebhookFormNavigation,
+  // onWebhookEditNavigation,
 }) => {
   const { TabPane } = Tabs;
 
@@ -59,28 +58,24 @@ const MyIntegrationContent: React.FC<Props> = ({
       <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
       <MyIntegrationTabs
         defaultActiveKey="integration"
-        activeKey={activeTab}
-        onChange={onTabChange}>
+        // activeKey={activeTab}
+        // onChange={onTabChange}
+      >
         <TabPane tab="General" key="integration">
           <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
-          {showWebhookForm ? (
-            <WebhookForm
-              onBack={onWebhookFormHeaderBack}
-              onWebhookCreate={onWebhookCreate}
-              onWebhookUpdate={onWebhookUpdate}
-              webhookInitialValues={webhookInitialValues}
-            />
-          ) : (
-            <WebhookList
-              webhooks={integration.config.webhooks}
-              onWebhookDelete={onWebhookDelete}
-              onWebhookUpdate={onWebhookUpdate}
-              onWebhookFormNavigation={onWebhookFormNavigation}
-              onWebhookEditNavigation={onWebhookEditNavigation}
-            />
-          )}
+          <Webhook
+            integration={integration}
+            webhookInitialValues={webhookInitialValues}
+            onWebhookCreate={onWebhookCreate}
+            onWebhookDelete={onWebhookDelete}
+            onWebhookUpdate={onWebhookUpdate}
+            onWebhookSelect={onWebhookSelect}
+            // onWebhookFormHeaderBack={onWebhookFormHeaderBack}
+            // onWebhookFormNavigation={onWebhookFormNavigation}
+            // onWebhookEditNavigation={onWebhookEditNavigation}
+          />
         </TabPane>
       </MyIntegrationTabs>
     </MyIntegrationWrapper>
