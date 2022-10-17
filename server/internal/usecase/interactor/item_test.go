@@ -540,14 +540,15 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	f1 := item.NewField(sf1, schema.TypeText, "foo")
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Fields([]*item.Field{f1}).Build()
+	pid := id.NewProjectID()
+	i1, _ := item.New().ID(id1).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Fields([]*item.Field{f1}).Build()
+	i2, _ := item.New().ID(id2).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid1).Fields([]*item.Field{f2}).Build()
+	i3, _ := item.New().ID(id3).Schema(sid1).Project(pid).Fields([]*item.Field{f2}).Build()
 
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
