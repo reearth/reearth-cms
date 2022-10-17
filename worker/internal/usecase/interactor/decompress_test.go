@@ -21,7 +21,7 @@ func TestUsecase_Decompress(t *testing.T) {
 	fileGateway, err := wfs.NewFile(fs, "")
 	require.NoError(t, err)
 
-	uc := NewUsecase(gateway.NewGateway(fileGateway))
+	uc := NewUsecase(gateway.NewGateway(fileGateway, nil))
 
 	assert.NoError(t, uc.Decompress(context.Background(), "test.zip"))
 
@@ -41,7 +41,7 @@ func TestUsecase_Decompress_Error(t *testing.T) {
 	fileGateway, err := wfs.NewFile(fs, "")
 	require.NoError(t, err)
 
-	uc := NewUsecase(gateway.NewGateway(fileGateway))
+	uc := NewUsecase(gateway.NewGateway(fileGateway, nil))
 
 	// tar.gz is not unsupported
 	assert.Same(t, decompresser.ErrUnsupportedExtention, uc.Decompress(context.Background(), "test.tar.gz"))

@@ -87,3 +87,7 @@ func (a *Asset) Clone() *Asset {
 func (a *Asset) Thread() ThreadID {
 	return a.thread
 }
+
+func (a *Asset) SetFile(f *File) {
+	a.file = f
+}

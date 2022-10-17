@@ -16,8 +16,14 @@ var (
 	ErrFailedToDeleteFile error = errors.New("failed to delete file")
 )
 
+type FileEntry struct {
+	Name string
+	Size int64
+}
+
 type File interface {
 	ReadAsset(context.Context, string, string) (io.ReadCloser, error)
+	GetAssetFiles(context.Context, string) ([]FileEntry, error)
 	UploadAsset(context.Context, *file.File) (string, error)
 	DeleteAsset(context.Context, string, string) error
 	GetURL(*asset.Asset) string

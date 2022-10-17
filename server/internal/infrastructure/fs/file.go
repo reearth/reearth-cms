@@ -3,9 +3,11 @@ package fs
 import (
 	"context"
 	"io"
+	"io/fs"
 	"net/url"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kennygrant/sanitize"
@@ -49,6 +51,34 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 	sn := sanitize.Path(p)
 
 	return f.read(ctx, sn)
+}
+
+func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
+	if u == "" {
+		return nil, rerror.ErrNotFound
+	}
+
+	p := getFSObjectPath(u, "")
+	var fileEntries []gateway.FileEntry
+	if err := afero.Walk(f.fs, p, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		fileEntries = append(fileEntries, gateway.FileEntry{
+			Name: strings.TrimPrefix(strings.TrimPrefix(path, p), "/"),
+			Size: info.Size(),
+		})
+		return nil
+	}); err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	return fileEntries, nil
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
@@ -145,7 +175,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getFSObjectPath(uuid, objectName string) string {
-	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 

@@ -33,6 +33,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d
 	golang.org/x/text v0.3.7
+	google.golang.org/api v0.97.0
 	google.golang.org/genproto v0.0.0-20220920201722-2b89144ce006
 )
 
@@ -96,7 +97,6 @@ require (
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.97.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

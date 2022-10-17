@@ -31,10 +31,6 @@ type UpdateAssetParam struct {
 	PreviewType *asset.PreviewType
 }
 
-type RestoreAssetParam struct {
-	AssetId idx.ID[id.Asset]
-}
-
 var (
 	ErrCreateAssetFailed error = errors.New("failed to create asset")
 	ErrFileNotIncluded   error = errors.New("file not included")
@@ -53,6 +49,6 @@ type Asset interface {
 	GetURL(*asset.Asset) string
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
-	Restore(context.Context, RestoreAssetParam) (*asset.Asset, error)
+	UpdateFiles(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
 }

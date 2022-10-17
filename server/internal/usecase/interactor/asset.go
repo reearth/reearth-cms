@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Asset struct {
@@ -76,10 +77,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
-			f := &asset.File{}
-			f.SetName(inp.File.Path)
-			f.SetSize(uint64(inp.File.Size))
-			f.SetContentType(inp.File.ContentType)
+			f := asset.NewFile().Name(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
 			a, err := asset.New().
 				NewID().
@@ -126,9 +124,38 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-func (i *Asset) Restore(ctx context.Context, inp interfaces.RestoreAssetParam) (*asset.Asset, error) {
+func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func() (*asset.Asset, error) {
+			a, err := i.repos.Asset.FindByID(ctx, a)
+			if err != nil {
+				return nil, err
+			}
 
-	panic("impl here")
+			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+			if err != nil {
+				return nil, err
+			}
+
+			_ = lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+				return asset.NewFile().
+					Name(path.Base(f.Name)).
+					Path(f.Name).
+					GuessContentType().
+					Build()
+			})
+
+			// a.SetFile(asset.FoldFiles(assetFiles))
+
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			return a, nil
+		},
+	)
 }
 
 func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
