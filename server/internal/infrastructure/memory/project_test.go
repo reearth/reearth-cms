@@ -583,14 +583,14 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 	}
 }
 
-func TestProjectRepo_FindByWorkspace(t *testing.T) {
+func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := id.NewWorkspaceID()
 	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
 
 	type args struct {
-		tid   id.WorkspaceID
+		wids  id.WorkspaceIDList
 		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
@@ -605,7 +605,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   project.List{},
-			args:    args{id.NewWorkspaceID(), nil},
+			args:    args{id.WorkspaceIDList{id.NewWorkspaceID()}, nil},
 			filter:  nil,
 			want:    nil,
 			wantErr: nil,
@@ -615,7 +615,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{id.NewWorkspaceID(), nil},
+			args:    args{id.WorkspaceIDList{id.NewWorkspaceID()}, nil},
 			filter:  nil,
 			want:    nil,
 			wantErr: nil,
@@ -625,7 +625,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -637,7 +637,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -650,7 +650,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -663,7 +663,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -676,7 +676,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -688,7 +688,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
 			want:    nil,
 			wantErr: nil,
@@ -720,7 +720,7 @@ func TestProjectRepo_FindByWorkspace(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspace(ctx, tc.args.tid, tc.args.pInfo)
+			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

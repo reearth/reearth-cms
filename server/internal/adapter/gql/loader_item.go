@@ -84,6 +84,36 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, fir
 	}, nil
 }
 
+func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	pid, err := gqlmodel.ToID[id.Project](projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, pi, err := c.usecase.FindByProject(ctx, pid, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
+	nodes := make([]*gqlmodel.Item, 0, len(res))
+	for _, i := range res {
+		itm := gqlmodel.ToItem(i)
+		edges = append(edges, &gqlmodel.ItemEdge{
+			Node:   itm,
+			Cursor: usecasex.Cursor(itm.ID),
+		})
+		nodes = append(nodes, itm)
+	}
+
+	return &gqlmodel.ItemConnection{
+		Edges:      edges,
+		Nodes:      nodes,
+		PageInfo:   gqlmodel.ToPageInfo(pi),
+		TotalCount: pi.TotalCount,
+	}, nil
+}
+
 // data loader
 
 type ItemDataLoader interface {

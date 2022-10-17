@@ -13,7 +13,7 @@ const RootPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("workspace");
     }
     if (!isAuthenticated && !isLoading) {
       login();

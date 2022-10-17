@@ -1,13 +1,17 @@
 import { useCallback, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import {
   Integration,
   IntegrationType,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 export default () => {
   const [integrationModalShown, setIntegrationModalShown] = useState(false);
+  const t = useT();
+
   const { data } = useGetMeQuery();
 
   const [createNewIntegration] = useCreateIntegrationMutation({
@@ -46,13 +50,13 @@ export default () => {
         },
       });
       if (integration.errors || !integration.data?.createIntegration) {
-        setIntegrationModalShown(false);
+        Notification.error({ message: t("Failed to create integration.") });
         return;
       }
-
+      Notification.success({ message: t("Successfully created integration!") });
       setIntegrationModalShown(false);
     },
-    [createNewIntegration],
+    [createNewIntegration, t],
   );
 
   const handleIntegrationModalClose = useCallback(() => {

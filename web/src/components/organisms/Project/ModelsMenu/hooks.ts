@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
@@ -7,6 +8,7 @@ import {
   useCheckModelKeyAvailabilityLazyQuery,
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
 
 type Params = {
@@ -38,6 +40,8 @@ export default ({ projectId, modelId }: Params) => {
   const [currentModel, setCurrentModel] = useModel();
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const t = useT();
+
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -97,13 +101,13 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (model.errors || !model.data?.createModel) {
-        // Show error message
+        Notification.error({ message: t("Failed to create model.") });
         return;
       }
-
+      Notification.success({ message: t("Successfully created model!") });
       setModelModalShown(false);
     },
-    [createNewModel, projectId],
+    [createNewModel, projectId, t],
   );
 
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);

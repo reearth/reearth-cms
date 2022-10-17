@@ -2,16 +2,15 @@ package interactor
 
 import (
 	"context"
-	"errors"
-	"net/http"
 	"net/url"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
 
-	"github.com/jarcoal/httpmock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mailer"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -23,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUser_Signup(t *testing.T) {
+func TestUser_SignUp(t *testing.T) {
 	user.DefaultPasswordEncoder = &user.NoopPasswordEncoder{}
 	uid := id.NewUserID()
 	tid := id.NewWorkspaceID()
@@ -35,8 +34,8 @@ func TestUser_Signup(t *testing.T) {
 		signupSecret     string
 		authSrvUIDomain  string
 		createUserBefore *user.User
-		args             interfaces.SignupParam
-		wantUser         *user.User
+		args             interfaces.SignUpParam
+		wantUser         func(u *user.User) *user.User
 		wantWorkspace    *user.Workspace
 		wantMailTo       []gateway.Contact
 		wantMailSubject  string
@@ -47,25 +46,24 @@ func TestUser_Signup(t *testing.T) {
 			name:            "without secret",
 			signupSecret:    "",
 			authSrvUIDomain: "https://reearth.io",
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
-				Email:    "aaa@bbb.com",
-				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
+			args: interfaces.SignUpParam{
+				Email:       "aaa@bbb.com",
+				Name:        "NAME",
+				Password:    "PAss00!!",
+				UserID:      &uid,
+				WorkspaceID: &tid,
 			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("NAME").
-				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-				Email("aaa@bbb.com").
-				PasswordPlainText("PAss00!!").
-				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-				MustBuild(),
+			wantUser: func(u *user.User) *user.User {
+				return user.New().
+					ID(uid).
+					Workspace(tid).
+					Name("NAME").
+					Auths(u.Auths()).
+					Email("aaa@bbb.com").
+					PasswordPlainText("PAss00!!").
+					Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+					MustBuild()
+			},
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
@@ -84,28 +82,19 @@ func TestUser_Signup(t *testing.T) {
 			createUserBefore: user.New().
 				ID(uid).
 				Workspace(tid).
+				Name("NAME").
 				Email("aaa@bbb.com").
 				MustBuild(),
-			args: interfaces.SignupParam{
-				Email:    "aaa@bbb.com",
-				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
+			args: interfaces.SignUpParam{
+				Email:       "aaa@bbb.com",
+				Name:        "NAME",
+				Password:    "PAss00!!",
+				UserID:      &uid,
+				WorkspaceID: &tid,
 			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Email("aaa@bbb.com").
-				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-				MustBuild(),
-			wantWorkspace:   nil,
-			wantMailTo:      []gateway.Contact{{Email: "aaa@bbb.com", Name: ""}},
-			wantMailSubject: "email verification",
-			wantMailContent: "/?user-verification-token=CODECODE",
-			wantError:       nil,
+			wantUser:      nil,
+			wantWorkspace: nil,
+			wantError:     interfaces.ErrUserAlreadyExists,
 		},
 		{
 			name:            "existing and valdiated user",
@@ -115,17 +104,15 @@ func TestUser_Signup(t *testing.T) {
 				ID(uid).
 				Workspace(tid).
 				Email("aaa@bbb.com").
+				Name("NAME").
 				Verification(user.VerificationFrom(mockcode, mocktime, true)).
 				MustBuild(),
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
-				Email:    "aaa@bbb.com",
-				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
+			args: interfaces.SignUpParam{
+				Email:       "aaa@bbb.com",
+				Name:        "NAME",
+				Password:    "PAss00!!",
+				UserID:      &uid,
+				WorkspaceID: &tid,
 			},
 			wantUser:      nil,
 			wantWorkspace: nil,
@@ -135,26 +122,25 @@ func TestUser_Signup(t *testing.T) {
 			name:            "without secret 2",
 			signupSecret:    "",
 			authSrvUIDomain: "",
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
-				Email:    "aaa@bbb.com",
-				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
-				Secret:   lo.ToPtr("hogehoge"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
+			args: interfaces.SignUpParam{
+				Email:       "aaa@bbb.com",
+				Name:        "NAME",
+				Password:    "PAss00!!",
+				Secret:      lo.ToPtr("hogehoge"),
+				UserID:      &uid,
+				WorkspaceID: &tid,
 			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("NAME").
-				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-				Email("aaa@bbb.com").
-				PasswordPlainText("PAss00!!").
-				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-				MustBuild(),
+			wantUser: func(u *user.User) *user.User {
+				return user.New().
+					ID(uid).
+					Workspace(tid).
+					Name("NAME").
+					Auths(u.Auths()).
+					Email("aaa@bbb.com").
+					PasswordPlainText("PAss00!!").
+					Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+					MustBuild()
+			},
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
@@ -170,30 +156,29 @@ func TestUser_Signup(t *testing.T) {
 			name:            "with secret",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
-				Email:    "aaa@bbb.com",
-				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
-				Secret:   lo.ToPtr("SECRET"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-					Lang:        &language.Japanese,
-					Theme:       user.ThemeDark.Ref(),
-				},
+			args: interfaces.SignUpParam{
+				Email:       "aaa@bbb.com",
+				Name:        "NAME",
+				Password:    "PAss00!!",
+				Secret:      lo.ToPtr("SECRET"),
+				UserID:      &uid,
+				WorkspaceID: &tid,
+				Lang:        &language.Japanese,
+				Theme:       user.ThemeDark.Ref(),
 			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("NAME").
-				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-				Email("aaa@bbb.com").
-				PasswordPlainText("PAss00!!").
-				Lang(language.Japanese).
-				Theme(user.ThemeDark).
-				Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
-				MustBuild(),
+			wantUser: func(u *user.User) *user.User {
+				return user.New().
+					ID(uid).
+					Workspace(tid).
+					Name("NAME").
+					Auths(u.Auths()).
+					Email("aaa@bbb.com").
+					PasswordPlainText("PAss00!!").
+					Lang(language.Japanese).
+					Theme(user.ThemeDark).
+					Verification(user.VerificationFrom(mockcode, mocktime.Add(24*time.Hour), false)).
+					MustBuild()
+			},
 			wantWorkspace: user.NewWorkspace().
 				ID(tid).
 				Name("NAME").
@@ -209,11 +194,10 @@ func TestUser_Signup(t *testing.T) {
 			name:            "invalid secret",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
+			args: interfaces.SignUpParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
+				Password: "PAss00!!",
 				Secret:   lo.ToPtr("SECRET!"),
 			},
 			wantError: interfaces.ErrSignupInvalidSecret,
@@ -222,40 +206,39 @@ func TestUser_Signup(t *testing.T) {
 			name:            "invalid secret 2",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignupParam{
-				Sub:      lo.ToPtr("SUB"),
+			args: interfaces.SignUpParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
+				Password: "PAss00!!",
 			},
 			wantError: interfaces.ErrSignupInvalidSecret,
 		},
 		{
 			name: "invalid email",
-			args: interfaces.SignupParam{
+			args: interfaces.SignUpParam{
 				Email:    "aaa",
 				Name:     "NAME",
-				Password: lo.ToPtr("PAss00!!"),
+				Password: "PAss00!!",
 			},
 			wantError: user.ErrInvalidEmail,
 		},
 		{
 			name: "invalid password",
-			args: interfaces.SignupParam{
+			args: interfaces.SignUpParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
-				Password: lo.ToPtr("PAss00"),
+				Password: "PAss00",
 			},
 			wantError: user.ErrPasswordLength,
 		},
 		{
 			name: "invalid name",
-			args: interfaces.SignupParam{
+			args: interfaces.SignUpParam{
 				Email:    "aaa@bbb.com",
 				Name:     "",
-				Password: lo.ToPtr("PAss00!!"),
+				Password: "Ass00!!",
 			},
-			wantError: interfaces.ErrSignupInvalidName,
+			wantError: user.ErrInvalidName,
 		},
 	}
 
@@ -267,20 +250,31 @@ func TestUser_Signup(t *testing.T) {
 			defer util.MockNow(mocktime)()
 			defer user.MockGenerateVerificationCode(mockcode)()
 
+			ctx := context.Background()
 			r := memory.New()
 			if tt.createUserBefore != nil {
-				assert.NoError(t, r.User.Save(
-					context.Background(),
-					tt.createUserBefore),
-				)
+				assert.NoError(t, r.User.Save(ctx, tt.createUserBefore))
 			}
+
 			m := mailer.NewMock()
 			g := &gateway.Container{Mailer: m}
 			uc := NewUser(r, g, tt.signupSecret, tt.authSrvUIDomain)
-			user, workspace, err := uc.Signup(context.Background(), tt.args)
-			assert.Equal(t, tt.wantUser, user)
-			assert.Equal(t, tt.wantWorkspace, workspace)
+			u, err := uc.SignUp(ctx, tt.args)
+
+			if tt.wantUser != nil {
+				assert.Equal(t, tt.wantUser(u), u)
+			} else {
+				assert.Nil(t, u)
+			}
+
+			var ws *user.Workspace
+			if u != nil {
+				ws, _ = r.Workspace.FindByID(ctx, u.Workspace())
+			}
+			assert.Equal(t, tt.wantWorkspace, ws)
+
 			assert.Equal(t, tt.wantError, err)
+
 			mails := m.Mails()
 			if tt.wantMailSubject == "" {
 				assert.Empty(t, mails)
@@ -294,250 +288,51 @@ func TestUser_Signup(t *testing.T) {
 	}
 }
 
-func TestUser_SignupOIDC(t *testing.T) {
+func TestUser_FindOrCreate(t *testing.T) {
+	r := memory.New()
+	uc := NewUser(r, nil, "", "")
+
 	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
+	defer httpmock.Deactivate()
 
-	httpmock.RegisterResponder(
-		"GET",
-		"https://issuer/.well-known/openid-configuration",
-		httpmock.NewStringResponder(200, `{"userinfo_endpoint":"https://issuer/userinfo"}`),
-	)
+	httpmock.RegisterResponder("GET", "https://example.com/.well-known/openid-configuration", lo.Must(httpmock.NewJsonResponder(200, map[string]any{
+		"userinfo_endpoint": "https://example.com/userinfo",
+	})))
 
-	httpmock.RegisterResponder(
-		"GET",
-		"https://issuer/userinfo",
-		func(req *http.Request) (*http.Response, error) {
-			if req.Header.Get("Authorization") == "Bearer accesstoken" {
-				return httpmock.NewStringResponse(200, `{"sub":"SUB","email":"x@y.z","name":"NAME"}`), nil
-			}
-			return httpmock.NewStringResponse(401, "Unauthorized"), nil
-		},
-	)
+	httpmock.RegisterResponder("GET", "https://example.com/userinfo", lo.Must(httpmock.NewJsonResponder(200, map[string]any{
+		"sub":   "auth0|SUB",
+		"name":  "NAME",
+		"email": "aaa@example.com",
+	})))
 
-	user.DefaultPasswordEncoder = &user.NoopPasswordEncoder{}
-	uid := id.NewUserID()
-	tid := id.NewWorkspaceID()
-	mocktime := time.Time{}
-	mockcode := "CODECODE"
-
-	tests := []struct {
-		name             string
-		signupSecret     string
-		authSrvUIDomain  string
-		createUserBefore *user.User
-		args             interfaces.SignupOIDCParam
-		wantUser         *user.User
-		wantWorkspace    *user.Workspace
-		wantMail         *mailer.Mail
-		wantMailTo       string
-		wantMailSubject  string
-		wantMailContent  string
-		wantError        error
-	}{
-		{
-			name:            "userinfo",
-			signupSecret:    "",
-			authSrvUIDomain: "",
-			args: interfaces.SignupOIDCParam{
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("NAME").
-				Auths([]user.Auth{{Provider: "", Sub: "SUB"}}).
-				Email("x@y.z").
-				MustBuild(),
-			wantWorkspace: user.NewWorkspace().
-				ID(tid).
-				Name("NAME").
-				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
-				Personal(true).
-				MustBuild(),
-			wantError: nil,
-		},
-		{
-			name:            "no userinfo",
-			signupSecret:    "",
-			authSrvUIDomain: "",
-			args: interfaces.SignupOIDCParam{
-				Email:       "aaa@bbb.com",
-				Name:        "name",
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				Sub:         "sub",
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("name").
-				Auths([]user.Auth{{Provider: "", Sub: "sub"}}).
-				Email("aaa@bbb.com").
-				MustBuild(),
-			wantWorkspace: user.NewWorkspace().
-				ID(tid).
-				Name("name").
-				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
-				Personal(true).
-				MustBuild(),
-			wantError: nil,
-		},
-		{
-			name:            "no userinfo with secret",
-			signupSecret:    "SECRET",
-			authSrvUIDomain: "",
-			args: interfaces.SignupOIDCParam{
-				Email:       "aaa@bbb.com",
-				Name:        "name",
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				Sub:         "sub",
-				Secret:      lo.ToPtr("SECRET"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantUser: user.New().
-				ID(uid).
-				Workspace(tid).
-				Name("name").
-				Auths([]user.Auth{{Provider: "", Sub: "sub"}}).
-				Email("aaa@bbb.com").
-				MustBuild(),
-			wantWorkspace: user.NewWorkspace().
-				ID(tid).
-				Name("name").
-				Members(map[user.ID]user.Member{uid: {Role: user.RoleOwner, Disabled: false, InvitedBy: uid}}).
-				Personal(true).
-				MustBuild(),
-			wantError: nil,
-		},
-		{
-			name:            "existed but not validated user",
-			signupSecret:    "",
-			authSrvUIDomain: "",
-			createUserBefore: user.New().
-				ID(uid).
-				Email("aaa@bbb.com").
-				MustBuild(),
-			args: interfaces.SignupOIDCParam{
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantError: interfaces.ErrUserAlreadyExists,
-		},
-		{
-			name:            "existed and verified user",
-			signupSecret:    "",
-			authSrvUIDomain: "",
-			createUserBefore: user.New().
-				ID(uid).
-				Email("aaa@bbb.com").
-				Verification(user.VerificationFrom(mockcode, mocktime, true)).
-				MustBuild(),
-			args: interfaces.SignupOIDCParam{
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantError: interfaces.ErrUserAlreadyExists,
-		},
-		{
-			name:            "invalid secret",
-			signupSecret:    "SECRET",
-			authSrvUIDomain: "",
-			args: interfaces.SignupOIDCParam{
-				Email:       "aaa@bbb.com",
-				Name:        "name",
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				Sub:         "sub",
-				Secret:      lo.ToPtr("SECRET!"),
-				User: interfaces.SignupUserParam{
-					UserID:      &uid,
-					WorkspaceID: &tid,
-				},
-			},
-			wantError: interfaces.ErrSignupInvalidSecret,
-		},
-		{
-			name: "invalid email",
-			args: interfaces.SignupOIDCParam{
-				Email:       "aaabbbcom",
-				Name:        "name",
-				AccessToken: "accesstoken",
-				Issuer:      "https://issuer",
-				Sub:         "sub",
-			},
-			wantError: user.ErrInvalidEmail,
-		},
-		{
-			name: "invalid access token",
-			args: interfaces.SignupOIDCParam{
-				Email:       "",
-				Name:        "",
-				AccessToken: "",
-				Issuer:      "https://issuer",
-				Sub:         "sub",
-			},
-			wantError: errors.New("invalid access token"),
-		},
-		{
-			name: "invalid issuer",
-			args: interfaces.SignupOIDCParam{
-				Email:       "",
-				Name:        "",
-				AccessToken: "access token",
-				Issuer:      "",
-				Sub:         "sub",
-			},
-			wantError: errors.New("invalid issuer"),
-		},
+	wg := sync.WaitGroup{}
+	for i := 0; i < 10; i++ {
+		go func() {
+			_, err := uc.FindOrCreate(context.Background(), interfaces.UserFindOrCreateParam{
+				Sub:   "auth0|SUB",
+				ISS:   "https://example.com",
+				Token: "token",
+			})
+			assert.NoError(t, err)
+			wg.Done()
+		}()
+		wg.Add(1)
 	}
+	wg.Wait()
 
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			// t.Parallel() cannot be used
-
-			defer util.MockNow(mocktime)()
-			defer user.MockGenerateVerificationCode(mockcode)()
-
-			r := memory.New()
-			if tt.createUserBefore != nil {
-				assert.NoError(t, r.User.Save(
-					context.Background(),
-					tt.createUserBefore),
-				)
-			}
-			m := mailer.NewMock()
-			g := &gateway.Container{Mailer: m}
-			uc := NewUser(r, g, tt.signupSecret, tt.authSrvUIDomain)
-			user, workspace, err := uc.SignupOIDC(context.Background(), tt.args)
-			assert.Equal(t, tt.wantUser, user)
-			assert.Equal(t, tt.wantWorkspace, workspace)
-			assert.Equal(t, tt.wantError, err)
-			assert.Empty(t, m.Mails())
-		})
-	}
+	u, _ := r.User.FindBySub(context.Background(), "auth0|SUB")
+	assert.Equal(
+		t,
+		user.New().
+			ID(u.ID()).
+			Workspace(u.Workspace()).
+			Name("NAME").
+			Email("aaa@example.com").
+			Auths([]user.Auth{
+				user.AuthFromAuth0Sub("auth0|SUB"),
+			}).
+			MustBuild(),
+		u)
 }
 
 func TestIssToURL(t *testing.T) {

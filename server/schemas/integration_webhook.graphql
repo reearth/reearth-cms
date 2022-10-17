@@ -8,7 +8,7 @@ type WebhookTrigger  {
   onItemUnPublish: Boolean
 }
 
-type Webhook implements Node {
+type Webhook {
   id: ID!
   name: String!
   url: URL!

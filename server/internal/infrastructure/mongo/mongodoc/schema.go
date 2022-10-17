@@ -13,6 +13,7 @@ import (
 type SchemaDocument struct {
 	ID        string
 	Workspace string
+	Project   string
 	Fields    []FiledDocument
 }
 
@@ -183,6 +184,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	return &SchemaDocument{
 		ID:        sId,
 		Workspace: s.Workspace().String(),
+		Project:   s.Project().String(),
 		Fields:    fieldsDoc,
 	}, sId
 }
@@ -193,6 +195,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		return nil, err
 	}
 	wId, err := id.WorkspaceIDFrom(d.Workspace)
+	if err != nil {
+		return nil, err
+	}
+	pId, err := id.ProjectIDFrom(d.Project)
 	if err != nil {
 		return nil, err
 	}
@@ -240,6 +246,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	return schema.New().
 		ID(sId).
 		Workspace(wId).
+		Project(pId).
 		Fields(f).
 		Build()
 }
