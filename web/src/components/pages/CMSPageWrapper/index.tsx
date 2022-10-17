@@ -1,16 +1,16 @@
 import { AuthenticationRequiredPage } from "@reearth-cms/auth";
-import CMSWrapper from "@reearth-cms/components/organisms/CMSWrapper";
+import CMSWrapperOrganism from "@reearth-cms/components/organisms/CMSWrapper";
 
 export type Props = {
   defaultSelectedKeys?: string[];
 };
 
-const SharedWrapper: React.FC = () => {
+const CMSWrapper: React.FC = () => {
   return (
     <AuthenticationRequiredPage>
-      <CMSWrapper />
+      <CMSWrapperOrganism />
     </AuthenticationRequiredPage>
   );
 };
 
-export default SharedWrapper;
+export default CMSWrapper;

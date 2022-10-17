@@ -54,7 +54,6 @@ const AssetList: React.FC = () => {
     <Wrapper>
       <AssetListHeader
         title="Asset"
-        subTitle="This is a subtitle"
         fileList={fileList}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
