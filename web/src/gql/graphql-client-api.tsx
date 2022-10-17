@@ -137,7 +137,7 @@ export type CreateIntegrationInput = {
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
-  schemaID: Scalars['ID'];
+  schemaId: Scalars['ID'];
 };
 
 export type CreateModelInput = {
@@ -210,12 +210,12 @@ export type DeleteIntegrationPayload = {
 };
 
 export type DeleteItemInput = {
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
 };
 
 export type DeleteItemPayload = {
   __typename?: 'DeleteItemPayload';
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
 };
 
 export type DeleteMeInput = {
@@ -303,7 +303,7 @@ export type Item = Node & {
   __typename?: 'Item';
   fields?: Maybe<Array<ItemField>>;
   id: Scalars['ID'];
-  schemaID: Scalars['ID'];
+  schemaId: Scalars['ID'];
 };
 
 export type ItemConnection = {
@@ -322,13 +322,13 @@ export type ItemEdge = {
 
 export type ItemField = {
   __typename?: 'ItemField';
-  schemaFieldID: Scalars['ID'];
+  schemaFieldId: Scalars['ID'];
   type: SchemaFiledType;
   value: Scalars['Any'];
 };
 
 export type ItemFieldInput = {
-  schemaFieldID: Scalars['ID'];
+  schemaFieldId: Scalars['ID'];
   type: SchemaFiledType;
   value: Scalars['Any'];
 };
@@ -419,7 +419,6 @@ export type Mutation = {
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
-  signup?: Maybe<SignupPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<UpdateCommentPayload>;
   updateField?: Maybe<FieldPayload>;
@@ -557,11 +556,6 @@ export type MutationRemoveMyAuthArgs = {
 
 export type MutationRemoveUserFromWorkspaceArgs = {
   input: RemoveUserFromWorkspaceInput;
-};
-
-
-export type MutationSignupArgs = {
-  input: SignupInput;
 };
 
 
@@ -731,7 +725,7 @@ export type Query = {
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
   searchUser?: Maybe<User>;
-  versionsByItem?: Maybe<Array<VersionedItem>>;
+  versionsByItem: Array<VersionedItem>;
 };
 
 
@@ -764,7 +758,7 @@ export type QueryItemsArgs = {
   before?: InputMaybe<Scalars['Cursor']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  schemaID: Scalars['ID'];
+  schemaId: Scalars['ID'];
 };
 
 
@@ -804,7 +798,7 @@ export type QuerySearchUserArgs = {
 
 
 export type QueryVersionsByItemArgs = {
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
@@ -1013,20 +1007,6 @@ export type SchemaMarkdownTextInput = {
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
-export type SignupInput = {
-  lang?: InputMaybe<Scalars['Lang']>;
-  secret?: InputMaybe<Scalars['String']>;
-  theme?: InputMaybe<Theme>;
-  userId?: InputMaybe<Scalars['ID']>;
-  workspaceId?: InputMaybe<Scalars['ID']>;
-};
-
-export type SignupPayload = {
-  __typename?: 'SignupPayload';
-  user: User;
-  workspace: Workspace;
-};
-
 export enum Theme {
   Dark = 'DARK',
   Default = 'DEFAULT',
@@ -1086,7 +1066,7 @@ export type UpdateIntegrationOfWorkspaceInput = {
 
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
 };
 
 export type UpdateMeInput = {
@@ -1113,6 +1093,7 @@ export type UpdateModelInput = {
   key?: InputMaybe<Scalars['String']>;
   modelId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
+  public: Scalars['Boolean'];
 };
 
 export type UpdateProjectInput = {
@@ -1161,10 +1142,10 @@ export type User = Node & {
 
 export type VersionedItem = {
   __typename?: 'VersionedItem';
-  parents?: Maybe<Array<Scalars['ID']>>;
-  refs?: Maybe<Array<Maybe<Scalars['String']>>>;
+  parents?: Maybe<Array<Scalars['String']>>;
+  refs: Array<Scalars['String']>;
   value: Item;
-  version: Scalars['ID'];
+  version: Scalars['String'];
 };
 
 export type Webhook = Node & {
@@ -1243,14 +1224,14 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1259,7 +1240,7 @@ export type CreateAssetMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
 
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -1267,7 +1248,7 @@ export type UpdateAssetMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string } } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1332,7 +1313,7 @@ export type UpdateIntegrationMutationVariables = Exact<{
 export type UpdateIntegrationMutation = { __typename?: 'Mutation', updateIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
 
 export type GetItemsQueryVariables = Exact<{
-  schemaID: Scalars['ID'];
+  schemaId: Scalars['ID'];
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   after?: InputMaybe<Scalars['Cursor']>;
@@ -1340,30 +1321,30 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', schemaFieldID: string, type: SchemaFiledType, value: any }> | null } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value: any }> | null } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
-  schemaID: Scalars['ID'];
+  schemaId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
 
 
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldID: string }> | null } } | null };
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> | null } } | null };
 
 export type DeleteItemMutationVariables = Exact<{
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
 }>;
 
 
-export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typename?: 'DeleteItemPayload', itemID: string } | null };
+export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typename?: 'DeleteItemPayload', itemId: string } | null };
 
 export type UpdateItemMutationVariables = Exact<{
-  itemID: Scalars['ID'];
+  itemId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
 
 
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaID: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldID: string }> | null } } | null };
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> | null } } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1398,6 +1379,7 @@ export type UpdateModelMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
+  public: Scalars['Boolean'];
 }>;
 
 
@@ -1707,6 +1689,7 @@ export const GetAssetsDocument = gql`
           path
         }
         uuid
+        url
       }
     }
     nodes {
@@ -1728,6 +1711,7 @@ export const GetAssetsDocument = gql`
         path
       }
       uuid
+      url
     }
     pageInfo {
       startCursor
@@ -1791,6 +1775,7 @@ export const GetAssetDocument = gql`
       path
     }
     uuid
+    url
   }
 }
     `;
@@ -1842,6 +1827,7 @@ export const CreateAssetDocument = gql`
         path
       }
       uuid
+      url
     }
   }
 }
@@ -1892,6 +1878,7 @@ export const UpdateAssetDocument = gql`
         path
       }
       uuid
+      url
     }
   }
 }
@@ -2166,9 +2153,9 @@ export type UpdateIntegrationMutationHookResult = ReturnType<typeof useUpdateInt
 export type UpdateIntegrationMutationResult = Apollo.MutationResult<UpdateIntegrationMutation>;
 export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
-    query GetItems($schemaID: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+    query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   items(
-    schemaID: $schemaID
+    schemaId: $schemaId
     first: $first
     last: $last
     after: $after
@@ -2176,9 +2163,9 @@ export const GetItemsDocument = gql`
   ) {
     nodes {
       id
-      schemaID
+      schemaId
       fields {
-        schemaFieldID
+        schemaFieldId
         type
         value
       }
@@ -2199,7 +2186,7 @@ export const GetItemsDocument = gql`
  * @example
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
- *      schemaID: // value for 'schemaID'
+ *      schemaId: // value for 'schemaId'
  *      first: // value for 'first'
  *      last: // value for 'last'
  *      after: // value for 'after'
@@ -2219,15 +2206,15 @@ export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
 export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
 export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
 export const CreateItemDocument = gql`
-    mutation CreateItem($schemaID: ID!, $fields: [ItemFieldInput!]!) {
-  createItem(input: {schemaID: $schemaID, fields: $fields}) {
+    mutation CreateItem($schemaId: ID!, $fields: [ItemFieldInput!]!) {
+  createItem(input: {schemaId: $schemaId, fields: $fields}) {
     item {
       id
-      schemaID
+      schemaId
       fields {
         value
         type
-        schemaFieldID
+        schemaFieldId
       }
     }
   }
@@ -2248,7 +2235,7 @@ export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, C
  * @example
  * const [createItemMutation, { data, loading, error }] = useCreateItemMutation({
  *   variables: {
- *      schemaID: // value for 'schemaID'
+ *      schemaId: // value for 'schemaId'
  *      fields: // value for 'fields'
  *   },
  * });
@@ -2261,9 +2248,9 @@ export type CreateItemMutationHookResult = ReturnType<typeof useCreateItemMutati
 export type CreateItemMutationResult = Apollo.MutationResult<CreateItemMutation>;
 export type CreateItemMutationOptions = Apollo.BaseMutationOptions<CreateItemMutation, CreateItemMutationVariables>;
 export const DeleteItemDocument = gql`
-    mutation DeleteItem($itemID: ID!) {
-  deleteItem(input: {itemID: $itemID}) {
-    itemID
+    mutation DeleteItem($itemId: ID!) {
+  deleteItem(input: {itemId: $itemId}) {
+    itemId
   }
 }
     `;
@@ -2282,7 +2269,7 @@ export type DeleteItemMutationFn = Apollo.MutationFunction<DeleteItemMutation, D
  * @example
  * const [deleteItemMutation, { data, loading, error }] = useDeleteItemMutation({
  *   variables: {
- *      itemID: // value for 'itemID'
+ *      itemId: // value for 'itemId'
  *   },
  * });
  */
@@ -2294,15 +2281,15 @@ export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutati
 export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
 export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
 export const UpdateItemDocument = gql`
-    mutation UpdateItem($itemID: ID!, $fields: [ItemFieldInput!]!) {
-  updateItem(input: {itemID: $itemID, fields: $fields}) {
+    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!) {
+  updateItem(input: {itemId: $itemId, fields: $fields}) {
     item {
       id
-      schemaID
+      schemaId
       fields {
         value
         type
-        schemaFieldID
+        schemaFieldId
       }
     }
   }
@@ -2323,7 +2310,7 @@ export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, U
  * @example
  * const [updateItemMutation, { data, loading, error }] = useUpdateItemMutation({
  *   variables: {
- *      itemID: // value for 'itemID'
+ *      itemId: // value for 'itemId'
  *      fields: // value for 'fields'
  *   },
  * });
@@ -2501,9 +2488,9 @@ export type DeleteModelMutationHookResult = ReturnType<typeof useDeleteModelMuta
 export type DeleteModelMutationResult = Apollo.MutationResult<DeleteModelMutation>;
 export type DeleteModelMutationOptions = Apollo.BaseMutationOptions<DeleteModelMutation, DeleteModelMutationVariables>;
 export const UpdateModelDocument = gql`
-    mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+    mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $public: Boolean!) {
   updateModel(
-    input: {modelId: $modelId, name: $name, description: $description, key: $key}
+    input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}
   ) {
     model {
       id
@@ -2531,6 +2518,7 @@ export type UpdateModelMutationFn = Apollo.MutationFunction<UpdateModelMutation,
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      key: // value for 'key'
+ *      public: // value for 'public'
  *   },
  * });
  */

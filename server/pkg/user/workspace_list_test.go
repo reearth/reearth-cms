@@ -79,7 +79,7 @@ func TestWorkspaceList_IDs(t *testing.T) {
 	t1 := &Workspace{id: tid1}
 	t2 := &Workspace{id: tid2}
 
-	assert.Equal(t, []WorkspaceID{tid1, tid2}, WorkspaceList{t1, t2}.IDs())
-	assert.Equal(t, []WorkspaceID{}, WorkspaceList{}.IDs())
-	assert.Equal(t, []WorkspaceID(nil), WorkspaceList(nil).IDs())
+	assert.Equal(t, WorkspaceIDList{tid1, tid2}, WorkspaceList{t1, t2}.IDs())
+	assert.Equal(t, WorkspaceIDList{}, WorkspaceList{}.IDs())
+	assert.Equal(t, WorkspaceIDList(nil), WorkspaceList(nil).IDs())
 }

@@ -68,7 +68,7 @@ func (l WorkspaceList) FilterByUserRoleIncluding(u ID, r Role) WorkspaceList {
 	return res
 }
 
-func (l WorkspaceList) IDs() []WorkspaceID {
+func (l WorkspaceList) IDs() WorkspaceIDList {
 	if l == nil {
 		return nil
 	}

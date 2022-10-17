@@ -15,11 +15,19 @@ import (
 type Asset struct {
 	data *util.SyncMap[asset.ID, *asset.Asset]
 	err  error
+	f    repo.ProjectFilter
 }
 
 func NewAsset() repo.Asset {
 	return &Asset{
 		data: &util.SyncMap[id.AssetID, *asset.Asset]{},
+	}
+}
+
+func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
+	return &Asset{
+		data: r.data,
+		f:    r.f.Merge(f),
 	}
 }
 
@@ -29,7 +37,7 @@ func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, erro
 	}
 
 	return rerror.ErrIfNil(r.data.Find(func(key asset.ID, value *asset.Asset) bool {
-		return key == id
+		return key == id && r.f.CanRead(value.Project())
 	}), rerror.ErrNotFound)
 }
 
@@ -39,12 +47,16 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	}
 
 	res := asset.List(r.data.FindAll(func(key asset.ID, value *asset.Asset) bool {
-		return ids.Has(key)
+		return ids.Has(key) && r.f.CanRead(value.Project())
 	})).SortByID()
 	return res, nil
 }
 
 func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -70,6 +82,10 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 }
 
 func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
+	if !r.f.CanWrite(a.Project()) {
+		return repo.ErrOperationDenied
+	}
+
 	if r.err != nil {
 		return r.err
 	}
@@ -79,6 +95,10 @@ func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
 }
 
 func (r *Asset) Update(ctx context.Context, a *asset.Asset) error {
+	if !r.f.CanWrite(a.Project()) {
+		return repo.ErrOperationDenied
+	}
+
 	if r.err != nil {
 		return r.err
 	}
@@ -92,7 +112,7 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 		return r.err
 	}
 
-	if _, ok := r.data.Load(id); ok {
+	if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
 		r.data.Delete(id)
 	}
 	return nil

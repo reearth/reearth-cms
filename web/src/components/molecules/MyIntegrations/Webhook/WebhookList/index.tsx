@@ -17,23 +17,23 @@ export type Props = {
     active: boolean;
     trigger: WebhookTrigger;
   }) => Promise<void>;
-  onWebhookFormNavigation: () => void;
-  onWebhookEditNavigation: (webhookId: string) => void;
+  onShowForm: () => void;
+  onWebhookSelect: (id: string) => void;
 };
 
 const WebhookList: React.FC<Props> = ({
   webhooks,
   onWebhookDelete,
   onWebhookUpdate,
-  onWebhookFormNavigation,
-  onWebhookEditNavigation,
+  onShowForm,
+  onWebhookSelect,
 }) => {
   const t = useT();
 
   return (
     <>
       <ActionWrapper>
-        <Button onClick={onWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
+        <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
@@ -45,7 +45,7 @@ const WebhookList: React.FC<Props> = ({
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
-              onWebhookSettings={onWebhookEditNavigation}
+              onWebhookSettings={onWebhookSelect}
             />
           ))}
         </ListWrapper>
@@ -54,7 +54,7 @@ const WebhookList: React.FC<Props> = ({
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
             {t("Create a new ")}
-            <Button onClick={onWebhookFormNavigation} type="primary" icon={<Icon icon="plus" />}>
+            <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
           </Suggestion>
