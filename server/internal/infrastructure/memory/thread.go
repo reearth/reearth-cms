@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type Thread struct {
@@ -55,8 +54,10 @@ func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Co
 	}
 
 	th1 := th.Clone()
-	comments := append(th1.Comments(), c)
-	th1.SetComments(comments...)
+	err := th1.AddComment(c)
+	if err != nil {
+		return err
+	}
 
 	r.data.Store(th1.ID(), th1)
 	return nil
@@ -72,15 +73,16 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, c *thread
 	}
 
 	th1 := th.Clone()
-	comments := th1.Comments()
-	i := slices.IndexFunc(comments, func(c2 *thread.Comment) bool { return c2.ID() == c.ID() })
-	comments[i].SetContent(c.Content())
+	err := th1.UpdateComment(c.ID(), c.Content())
+	if err != nil {
+		return err
+	}
 
 	r.data.Store(th1.ID(), th1)
 	return nil
 }
 
-func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
+func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, cid id.CommentID) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -90,9 +92,10 @@ func (r *Thread) DeleteComment(ctx context.Context, th *thread.Thread, id id.Com
 	}
 
 	th1 := th.Clone()
-	i := slices.IndexFunc(th1.Comments(), func(c *thread.Comment) bool { return c.ID() == id })
-	comments := append(th1.Comments()[:i], th1.Comments()[i+1:]...)
-	th1.SetComments(comments...)
+	err := th1.DeleteComment(cid)
+	if err != nil {
+		return err
+	}
 
 	r.data.Store(th1.ID(), th1)
 	return nil
