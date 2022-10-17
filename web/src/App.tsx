@@ -4,14 +4,14 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 // import NotFound from "@reearth-cms/components/atoms/NotFound";
-// import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
-// import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
+import AssetPage from "@reearth-cms/components/pages/Asset/Asset";
+import AssetListPage from "@reearth-cms/components/pages/Asset/AssetList";
 import ContentPage from "@reearth-cms/components/pages/Content";
-// import ContentDetailsPage from "@reearth-cms/components/pages/ContentDetails";
+import ContentDetailsPage from "@reearth-cms/components/pages/ContentDetails";
 // import IntegrationPage from "@reearth-cms/components/pages/Integration";
-// import MembersPage from "@reearth-cms/components/pages/Members";
-// import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
-// import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
+import MembersPage from "@reearth-cms/components/pages/Members";
+import MyIntegrationDetailsPage from "@reearth-cms/components/pages/MyIntegrationDetails";
+import MyIntegrationsPage from "@reearth-cms/components/pages/MyIntegrations";
 import ProjectPage from "@reearth-cms/components/pages/Project";
 // import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
 import RootPage from "@reearth-cms/components/pages/RootPage";
@@ -25,34 +25,6 @@ import "antd/dist/antd.css";
 
 // function AppRoutes() {
 //   const routes = useRoutes([
-//     { path: "/workspace/:workspaceId/:projectId/content", element: <ContentPage /> },
-//     { path: "/workspace/:workspaceId/:projectId/content/:modelId", element: <ContentPage /> },
-//     {
-//       path: "/workspace/:workspaceId/:projectId/content/:modelId/details",
-//       element: <ContentDetailsPage />,
-//     },
-//     {
-//       path: "/workspace/:workspaceId/:projectId/content/:modelId/details/:itemId",
-//       element: <ContentDetailsPage />,
-//     },
-//     {
-//       path: "/workspace/:workspaceId/:projectId/asset",
-//       element: <AssetListPage />,
-//     },
-//     {
-//       path: "/workspace/:workspaceId/:projectId/asset/:assetId",
-//       element: <AssetPage />,
-//     },
-//     { path: "/workspace/:workspaceId/members", element: <MembersPage /> },
-//     { path: "/workspace/:workspaceId/myIntegrations", element: <MyIntegrationsPage /> },
-//     {
-//       path: "/workspace/:workspaceId/myIntegrations/:integrationId",
-//       element: <MyIntegrationDetailsPage />,
-//     },
-//     {
-//       path: "/workspace/:workspaceId/myIntegrations/:integrationId/:tab",
-//       element: <MyIntegrationDetailsPage />,
-//     },
 //     {
 //       path: "/workspace/:workspaceId/myIntegrations/:integrationId/:tab/form",
 //       element: <MyIntegrationDetailsPage />,
@@ -80,14 +52,41 @@ function App() {
                 <Route path="/" element={<RootPage />} />
                 <Route path="workspace" element={<ReearthCMS />}>
                   <Route path=":workspaceId" element={<WorkspacePage />} />
+                  <Route path=":workspaceId/members" element={<MembersPage />} />
+                  <Route path=":workspaceId/myIntegrations" element={<MyIntegrationsPage />} />
+                  <Route
+                    path=":workspaceId/myIntegrations/:integrationId"
+                    element={<MyIntegrationDetailsPage />}
+                  />
+                  {/* <Route
+                    path=":workspaceId/myIntegrations/:integrationId/:tab"
+                    element={<MyIntegrationDetailsPage />}
+                  /> */}
                   <Route
                     path=":workspaceId/project/:projectId"
-                    element={<div>Project overview</div>}
+                    element={<div>Project overview - GOTTA DO THIS PAGE!!!!</div>}
                   />
                   <Route path=":workspaceId/project/:projectId/content" element={<ContentPage />} />
                   <Route
                     path=":workspaceId/project/:projectId/settings"
                     element={<ProjectPage />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId"
+                    element={<ContentPage />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId/details"
+                    element={<ContentDetailsPage />}
+                  />
+                  <Route
+                    path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
+                    element={<ContentDetailsPage />}
+                  />
+                  <Route path=":workspaceId/project/:projectId/asset" element={<AssetListPage />} />
+                  <Route
+                    path=":workspaceId/project/:projectId/asset/:assetId"
+                    element={<AssetPage />}
                   />
                 </Route>
               </Routes>

@@ -34,7 +34,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const items: WorkspaceItemType[] = [
     {
       label: t("Member"),
-      key: "member",
+      key: "members",
       icon: <Icon icon="userGroupAdd" />,
       show: "notPersonal" as MenuShowType,
     },
@@ -52,7 +52,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     },
     {
       label: t("My Integrations"),
-      key: "my-integration",
+      key: "myIntegrations",
       icon: <Icon icon="api" />,
       show: "both" as MenuShowType,
     },
@@ -83,14 +83,14 @@ const WorkspaceMenu: React.FC<Props> = ({
 
   const onClick = (e: any) => {
     changeSelected([e.key]);
-    if (e.key === "member") {
+    if (e.key === "members") {
       navigate(`/workspace/${workspaceId}/members`);
-    } else if (e.key === "dashboard") {
-      navigate(`/workspace/${workspaceId}`);
-    } else if (e.key === "my-integration") {
+    } else if (e.key === "myIntegrations") {
       navigate(`/workspace/${workspaceId}/myIntegrations`);
     } else if (e.key === "integration") {
       navigate(`/workspace/${workspaceId}/integration`);
+    } else {
+      navigate(`/workspace/${workspaceId}`);
     }
   };
 
