@@ -17,19 +17,15 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
   return (
     <CardWrapper className={className} key={project.id}>
       <ProjectStyledCard
-        cover={
-          <StyledCover onClick={() => onProjectNavigation(project)}>
-            {project.name.charAt(0)}
-          </StyledCover>
-        }
+        cover={<Cover>{project.name.charAt(0)}</Cover>}
         actions={[
           <Icon
             icon="settings"
             onClick={() => onProjectNavigation(project, "settings")}
             key="setting"
           />,
-          <Icon icon="edit" key="edit" />,
-          <Icon icon="ellipsis" key="ellipsis" />,
+          <Icon icon="edit" key="edit" onClick={() => onProjectNavigation(project)} />,
+          // <Icon icon="ellipsis" key="ellipsis" />,
         ]}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
@@ -38,9 +34,8 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
 };
 
 const CardWrapper = styled.div`
-  padding: 8px;
   flex: 0 0 25%;
-  max-width: 25%;
+  max-width: 250px;
   @media (max-width: 768px) {
     flex: 0 0 50%;
     max-width: 50%;
@@ -71,10 +66,6 @@ const ProjectStyledCard = styled(Card)`
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-`;
-
-const StyledCover = styled(Cover)`
-  cursor: pointer;
 `;
 
 export default ProjectCard;
