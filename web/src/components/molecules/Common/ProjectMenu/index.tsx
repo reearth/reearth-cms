@@ -53,14 +53,17 @@ const ProjectMenu: React.FC<Props> = ({
       case "schema":
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
         break;
-      case "settings":
-        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
-        break;
       case "content":
         navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
         break;
       case "asset":
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
+        break;
+      case "request":
+        navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
+        break;
+      case "settings":
+        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
         break;
     }
   };

@@ -1,6 +1,4 @@
-// import { useCallback, useMemo, useState } from "react";
 import { useCallback, useMemo, useState } from "react";
-// import { useParams, Outlet } from "react-router-dom";
 import { useParams, useLocation, Outlet } from "react-router-dom";
 
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
