@@ -8,6 +8,7 @@ export const GET_MODELS = gql`
         name
         description
         key
+        public
         schema {
           id
           fields {
