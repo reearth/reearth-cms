@@ -150,6 +150,7 @@ func Test_itemRepo_FindByIDs(t *testing.T) {
 			Name:     "must not find any item",
 			Input:    id.ItemIDList{id.NewItemID()},
 			RepoData: item.List{i1, i2},
+			Expected: item.List{},
 		},
 	}
 
