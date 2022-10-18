@@ -104,6 +104,9 @@ var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
 
+type ThreadIDList = idx.List[Thread]
+type CommentIDList = idx.List[Comment]
+
 var NewThreadID = idx.New[Thread]
 var MustThreadID = idx.Must[Thread]
 var ThreadIDFrom = idx.From[Thread]

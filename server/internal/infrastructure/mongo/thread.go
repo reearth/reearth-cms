@@ -44,6 +44,21 @@ func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thre
 	})
 }
 
+func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	filter := bson.M{
+		"id": bson.M{"$in": ids.Strings()},
+	}
+	res, err := r.find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	return filterThreads(ids, res), nil
+}
+
 func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if !r.f.CanWrite(th.Workspace()) {
 		return repo.ErrOperationDenied
@@ -106,6 +121,29 @@ func (r *threadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, e
 		return nil, err
 	}
 	return c.Result[0], nil
+}
+
+func (r *threadRepo) find(ctx context.Context, filter interface{}) ([]*thread.Thread, error) {
+	c := mongodoc.NewThreadConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return c.Result, nil
+}
+
+func filterThreads(ids []id.ThreadID, rows []*thread.Thread) []*thread.Thread {
+	res := make([]*thread.Thread, 0, len(ids))
+	for _, id := range ids {
+		var r2 *thread.Thread
+		for _, r := range rows {
+			if r.ID() == id {
+				r2 = r
+				break
+			}
+		}
+		res = append(res, r2)
+	}
+	return res
 }
 
 func (r *threadRepo) readFilter(filter any) any {

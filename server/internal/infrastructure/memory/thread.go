@@ -44,6 +44,17 @@ func (r *Thread) FindByID(ctx context.Context, thid id.ThreadID) (*thread.Thread
 	return nil, rerror.ErrNotFound
 }
 
+func (r *Thread) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	res := thread.List(r.data.FindAll(func(key thread.ID, value *thread.Thread) bool {
+		return ids.Has(key) && r.f.CanRead(value.Workspace())
+	})).SortByID()
+	return res, nil
+}
+
 func (r *Thread) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if r.err != nil {
 		return r.err
