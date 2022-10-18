@@ -3,7 +3,6 @@ package mongogit
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
@@ -182,7 +181,6 @@ func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []strin
 			})...,
 		)...,
 	)
-	fmt.Println(indexes)
 
 	if _, err := c.client.Client().Indexes().CreateMany(ctx, indexes); err != nil {
 		return rerror.ErrInternalBy(err)
