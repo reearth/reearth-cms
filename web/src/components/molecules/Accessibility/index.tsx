@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
-import { Switch } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import Select from "@reearth-cms/components/atoms/Select";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
