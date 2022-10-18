@@ -2,6 +2,7 @@ package asset
 
 import (
 	"fmt"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,25 +48,49 @@ import (
 // 	assert.Equal(t, got.Children(), c)
 // }
 
-// func Test_FoldFiles(t *testing.T) {
-// 	assert.Equal(t,
-// 		&File{
-// 			name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip",
-// 			children: []*File{
-// 				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
-// 				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
-// 			},
-// 		},
-// 		FoldFiles(
-// 			[]*File{
-// 				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
-// 				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
-// 			},
-// 			&File{name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip"},
-// 		),
-// 	)
+func Test_FoldFiles(t *testing.T) {
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
+	// assert.Equal(t,
+	// 	&File{
+	// 		name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip",
+	// 		children: []*File{
+	// 			{name: "a.txt", path: "hello/good/a.txt", size: 10, contentType: "text/plain"},
+	// 			{name: "b.txt", path: "hello/good/b.txt", size: 10, contentType: "text/plain"},
+	// 			{name: "c.txt", path: "hello/c.txt", size: 20, contentType: "text/plain"},
+	// 		},
+	// 	},
+	// 	FoldFiles(
+	// 		[]*File{
+	// 			{name: "a.txt", path: "hello/good/a.txt", size: 10, contentType: "text/plain"},
+	// 			{name: "b.txt", path: "hello/good/b.txt", size: 10, contentType: "text/plain"},
+	// 			{name: "c.txt", path: "hello/c.txt", size: 20, contentType: "text/plain"},
+	// 		},
+	// 		&File{name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip"},
+	// 	),
+	// )
 
-// }
+}
+
+func Test_Example(t *testing.T) {
+	b := "/aaa/bbb/ccc.txt"
+	res := path.Base(b)
+	fmt.Printf("res ----: %v", res)
+}
 
 func Test_RemoveSlicePrefix(t *testing.T) {
 	tests := [][][]string{
