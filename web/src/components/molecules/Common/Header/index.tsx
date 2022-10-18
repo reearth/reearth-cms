@@ -11,12 +11,11 @@ import { useT } from "@reearth-cms/i18n";
 import { Project, Workspace } from "@reearth-cms/state";
 
 import HeaderDropdown from "./Dropdown";
-import type { User } from "./types";
 
 export type { User } from "./types";
 
 export interface Props {
-  user: User;
+  username?: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
   workspaces?: any[];
@@ -26,7 +25,7 @@ export interface Props {
 }
 
 const HeaderMolecule: React.FC<Props> = ({
-  user,
+  username,
   personalWorkspace,
   currentWorkspace,
   workspaces,
@@ -137,7 +136,7 @@ const HeaderMolecule: React.FC<Props> = ({
         </CurrentProject>
       )}
       <Spacer />
-      <AccountDropdown name={user.name} menu={AccountMenu} />
+      <AccountDropdown name={username} menu={AccountMenu} />
     </MainHeader>
   );
 };
