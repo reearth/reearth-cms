@@ -301,8 +301,11 @@ export enum IntegrationType {
 
 export type Item = Node & {
   __typename?: 'Item';
-  fields?: Maybe<Array<ItemField>>;
+  fields: Array<ItemField>;
   id: Scalars['ID'];
+  project: Project;
+  projectId: Scalars['ID'];
+  schema: Schema;
   schemaId: Scalars['ID'];
 };
 
@@ -624,7 +627,11 @@ export type Node = {
 
 export enum NodeType {
   Asset = 'ASSET',
+  Integration = 'Integration',
+  Item = 'Item',
+  Model = 'Model',
   Project = 'PROJECT',
+  Schema = 'Schema',
   User = 'USER',
   Workspace = 'WORKSPACE'
 }
@@ -1148,7 +1155,7 @@ export type VersionedItem = {
   version: Scalars['String'];
 };
 
-export type Webhook = Node & {
+export type Webhook = {
   __typename?: 'Webhook';
   active: Scalars['Boolean'];
   createdAt: Scalars['DateTime'];
@@ -1321,7 +1328,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value: any }> | null } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value: any }> } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   schemaId: Scalars['ID'];
@@ -1329,7 +1336,7 @@ export type CreateItemMutationVariables = Exact<{
 }>;
 
 
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> | null } } | null };
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> } } | null };
 
 export type DeleteItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
@@ -1344,7 +1351,7 @@ export type UpdateItemMutationVariables = Exact<{
 }>;
 
 
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields?: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> | null } } | null };
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value: any, type: SchemaFiledType, schemaFieldId: string }> } } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1398,7 +1405,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Webhook', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];

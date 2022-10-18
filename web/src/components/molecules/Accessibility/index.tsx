@@ -24,7 +24,7 @@ export type ModelDataType = {
 export type Props = {
   projectScope?: PublicScope;
   models?: Model[];
-  onAccessibilityUpdate?: (scope: PublicScope, modelsToUpdate?: Model[]) => void;
+  onAccessibilityUpdate?: (scope?: PublicScope, modelsToUpdate?: Model[]) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
@@ -38,6 +38,10 @@ const Accessibility: React.FC<Props> = ({
   const [models, setModels] = useState<Model[] | undefined>(rawModels);
 
   useEffect(() => {
+    changeScope(projectScope);
+  }, [projectScope]);
+
+  useEffect(() => {
     setModels(rawModels);
   }, [rawModels]);
 
@@ -47,8 +51,9 @@ const Accessibility: React.FC<Props> = ({
   );
 
   const handleAccessibilityUpdate = useCallback(() => {
-    if (!scope) return;
+    if (!scope && updatedModels.length === 0) return;
     onAccessibilityUpdate?.(scope, updatedModels);
+    setUpdatedModels([]);
   }, [scope, updatedModels, onAccessibilityUpdate]);
 
   const handleUpdatedModels = useCallback(
@@ -111,17 +116,18 @@ const Accessibility: React.FC<Props> = ({
       <>
         <div>
           <p>{t("Public Scope")}</p>
-          <Select
-            defaultValue={projectScope}
-            value={scope}
-            onChange={changeScope}
-            style={{ minWidth: "130px" }}>
+          <Select value={scope} onChange={changeScope} style={{ minWidth: "130px" }}>
             {publicScopeList.map(type => (
               <Select.Option key={type.id} value={type.value}>
                 {type.name}
               </Select.Option>
             ))}
           </Select>
+          <Subtext>
+            {t(
+              "Choose the scope of your project. This affects all the models shown below that are switched on.",
+            )}
+          </Subtext>
         </div>
         <TableWrapper>
           <Table dataSource={dataSource} columns={columns} pagination={false} />
@@ -139,4 +145,10 @@ export default Accessibility;
 const TableWrapper = styled.div`
   width: 304px;
   margin: 24px 0;
+`;
+
+const Subtext = styled.p`
+  margin-top: 3px;
+  color: rgba(0, 0, 0, 0.45);
+  padding: 0;
 `;

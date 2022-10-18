@@ -6,9 +6,9 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const { projectId } = useParams();
-  // const { projectId, workspaceId } = useParams(); // Don't need workspace for this
 
   const { projectScope, models, handleAccessibilityUpdate } = useHooks({ projectId });
+  console.log(projectScope, "scoppepeee");
 
   return (
     <AccessibilityMolecule
