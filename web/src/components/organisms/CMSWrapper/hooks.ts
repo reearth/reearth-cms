@@ -1,24 +1,44 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/Workspace/types";
-import { useCreateWorkspaceMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import {
+  useCreateWorkspaceMutation,
+  useGetMeQuery,
+  useGetProjectQuery,
+  ProjectPublicationScope,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useProject } from "@reearth-cms/state";
 
-export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: string }) => {
+export default () => {
+  const t = useT();
+  const { projectId, workspaceId } = useParams();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [currentProject, setCurrentProject] = useProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
   const { data, refetch } = useGetMeQuery();
-  const t = useT();
 
-  const navigate = useNavigate();
+  const [secondaryRoute, subRoute] = useMemo(() => {
+    const splitPathname = pathname.split("/");
+    const secondaryRoute = splitPathname[3];
+    const subRoute = secondaryRoute === "project" ? splitPathname[5] : secondaryRoute;
+    return [secondaryRoute, subRoute];
+  }, [pathname]);
 
-  const user: User = {
-    name: data?.me?.name || "",
-  };
+  const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
+
+  const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
+
+  const handleCollapse = useCallback((collapse: boolean) => {
+    setCollapsed(collapse);
+  }, []);
 
   const workspaces = data?.me?.workspaces;
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
@@ -40,25 +60,7 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
         ...workspace,
       });
     }
-  }, [currentWorkspace, workspace, setCurrentWorkspace, personal]);
-
-  useEffect(() => {
-    if (projectId && projectId !== currentProject?.id) {
-      // TO DO: UPDATE HERE OR REMOVE IT. LOGIC ISNT GOOD...
-      setCurrentProject({ id: projectId });
-    }
-  }, [projectId, currentProject?.id, setCurrentProject]);
-
-  const handleWorkspaceChange = useCallback(
-    (workspaceId: string) => {
-      const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
-      if (workspace) {
-        setCurrentWorkspace(workspace);
-        navigate(`/workspace/${workspaceId}`);
-      }
-    },
-    [workspaces, setCurrentWorkspace, navigate],
-  );
+  }, [currentWorkspace, workspace, personal, setCurrentWorkspace]);
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const handleWorkspaceCreate = useCallback(
@@ -87,17 +89,53 @@ export default ({ projectId, workspaceId }: { projectId?: string; workspaceId?: 
     navigate(`/workspace/${personalWorkspace?.id}/account`);
   }, [personalWorkspace?.id, navigate]);
 
+  const { data: projectData } = useGetProjectQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId || projectId === currentProject?.id,
+  });
+
+  useEffect(() => {
+    if (projectId) {
+      if (projectId !== currentProject?.id) {
+        const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
+        if (project) {
+          setCurrentProject({
+            id: project.id,
+            name: project.name,
+            description: project.description,
+            scope: convertScope(project.publication?.scope),
+          });
+        }
+      }
+    } else {
+      setCurrentProject();
+    }
+  }, [projectId, projectData?.node, currentProject?.id, setCurrentProject]);
+
   return {
-    user,
+    username,
     personalWorkspace,
     workspaces,
     currentWorkspace,
     workspaceModalShown,
     currentProject,
+    selectedKey,
+    secondaryRoute,
+    collapsed,
+    handleCollapse,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
-    handleWorkspaceChange,
     handleNavigateToSettings,
   };
+};
+
+const convertScope = (scope?: ProjectPublicationScope): PublicScope | undefined => {
+  switch (scope) {
+    case "PUBLIC":
+      return "public";
+    case "PRIVATE":
+      return "private";
+  }
+  return "private";
 };

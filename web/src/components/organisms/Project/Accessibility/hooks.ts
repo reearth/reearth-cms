@@ -4,29 +4,25 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility";
 import {
   useUpdateModelMutation,
-  useGetProjectQuery,
   useGetModelsQuery,
   Model as GQLModel,
   ProjectPublicationScope,
   useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useProject } from "@reearth-cms/state";
 import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
-export default ({ projectId }: { projectId?: string }) => {
+export default () => {
   const t = useT();
-
-  const { data: projectData } = useGetProjectQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
+  const [currentProject] = useProject();
 
   const { data: modelsData } = useGetModelsQuery({
     variables: {
-      projectId: projectId ?? "",
+      projectId: currentProject?.id ?? "",
       first: 100,
     },
-    skip: !projectId,
+    skip: !currentProject?.id,
   });
 
   const models = useMemo(() => {
@@ -35,27 +31,19 @@ export default ({ projectId }: { projectId?: string }) => {
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
 
-  const projectScope = useMemo(
-    () =>
-      projectData?.node?.__typename === "Project"
-        ? convertScope(projectData.node.publication?.scope)
-        : undefined,
-    [projectData],
-  );
-
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [updateModelMutation] = useUpdateModelMutation();
 
   const handleAccessibilityUpdate = useCallback(
     async (scope?: PublicScope, modelsToUpdate?: Model[]) => {
-      if (!projectId) return;
+      if (!currentProject?.id) return;
       let errors = false;
 
-      if (scope && scope !== projectScope) {
+      if (scope && scope !== currentProject.scope) {
         const gqlScope =
           scope === "public" ? ProjectPublicationScope.Public : ProjectPublicationScope.Private;
         const projRes = await updateProjectMutation({
-          variables: { projectId, publication: { scope: gqlScope } },
+          variables: { projectId: currentProject.id, publication: { scope: gqlScope } },
         });
         if (projRes.errors) {
           errors = true;
@@ -80,18 +68,8 @@ export default ({ projectId }: { projectId?: string }) => {
         });
       }
     },
-    [projectId, projectScope, t, updateProjectMutation, updateModelMutation],
+    [currentProject, t, updateProjectMutation, updateModelMutation],
   );
 
-  return { projectScope, models, handleAccessibilityUpdate };
-};
-
-const convertScope = (scope?: ProjectPublicationScope): PublicScope | undefined => {
-  switch (scope) {
-    case "PUBLIC":
-      return "public";
-    case "PRIVATE":
-      return "private";
-  }
-  return undefined;
+  return { projectScope: currentProject?.scope, models, handleAccessibilityUpdate };
 };
