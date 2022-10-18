@@ -8,7 +8,6 @@ const Accessibility: React.FC = () => {
   const { projectId } = useParams();
 
   const { projectScope, models, handleAccessibilityUpdate } = useHooks({ projectId });
-  console.log(projectScope, "scoppepeee");
 
   return (
     <AccessibilityMolecule
