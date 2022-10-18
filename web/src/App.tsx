@@ -6,6 +6,7 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import Asset from "@reearth-cms/components/organisms/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
+import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
@@ -66,6 +67,10 @@ function App() {
                     element={<Schema />}
                   />
                   <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
+                  <Route
+                    path=":workspaceId/project/:projectId/accessibility"
+                    element={<Accessibility />}
+                  />
                   <Route
                     path=":workspaceId/project/:projectId/settings"
                     element={<ProjectSettings />}
