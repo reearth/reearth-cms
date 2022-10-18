@@ -55,10 +55,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 }
 
 func jwtEchoMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
-	mw, err := appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true)
-	if err != nil {
-		panic(err)
-	}
+	mw := lo.Must(appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true))
 	return echo.WrapMiddleware(mw)
 }
 
