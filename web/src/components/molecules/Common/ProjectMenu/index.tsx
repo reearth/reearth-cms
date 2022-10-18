@@ -13,14 +13,6 @@ export type Props = {
   defaultSelectedKey?: string;
 };
 
-const topItems: ItemType[] = [
-  { label: "Overview", key: "home", icon: <Icon icon="dashboard" /> },
-  { label: "Schema", key: "schema", icon: <Icon icon="unorderedList" /> },
-  { label: "Content", key: "content", icon: <Icon icon="table" /> },
-  { label: "Asset", key: "asset", icon: <Icon icon="file" /> },
-  { label: "Request", key: "request", icon: <Icon icon="pullRequest" /> },
-];
-
 const ProjectMenu: React.FC<Props> = ({
   inlineCollapsed,
   workspaceId,
@@ -29,6 +21,14 @@ const ProjectMenu: React.FC<Props> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
+
+  const topItems: ItemType[] = [
+    { label: t("Overview"), key: "home", icon: <Icon icon="dashboard" /> },
+    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
+    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
+    { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
+    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+  ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
   const items: ItemType[] = [
@@ -55,6 +55,8 @@ const ProjectMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
       } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
+      } else if (e.key === "accessibility") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
       } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {
