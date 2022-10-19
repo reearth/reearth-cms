@@ -25,6 +25,7 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [owner, setOwner] = useState(false);
   const t = useT();
 
   const [searchedUser, changeSearchedUser] = useState<{
@@ -36,6 +37,23 @@ export default ({ workspaceId }: Props) => {
   const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
+
+  const checkOwner = useCallback(() => {
+    const members = currentWorkspace?.members;
+    if (members) {
+      for (let i = 0; i < members.length; i++) {
+        if (members[i].userId === me?.id && members[i].role === "OWNER") {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, [currentWorkspace?.members, me?.id]);
+
+  useEffect(() => {
+    const o = checkOwner();
+    setOwner(o);
+  }, [checkOwner]);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -54,8 +72,12 @@ export default ({ workspaceId }: Props) => {
   });
 
   useEffect(() => {
-    changeSearchedUser(searchUserData?.searchUser ?? undefined);
-  }, [searchUserData?.searchUser]);
+    changeSearchedUser(
+      searchUserData?.searchUser && searchUserData?.searchUser?.id !== data?.me?.id
+        ? searchUserData.searchUser
+        : undefined,
+    );
+  }, [searchUserData?.searchUser, data?.me?.id]);
 
   const handleUserSearch = useCallback(
     (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
@@ -169,6 +191,7 @@ export default ({ workspaceId }: Props) => {
 
   return {
     me,
+    owner,
     workspaces,
     currentWorkspace,
     searchedUser,

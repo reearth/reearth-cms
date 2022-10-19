@@ -4,6 +4,7 @@ import { onError } from "@apollo/client/link/error";
 import { createUploadLink } from "apollo-upload-client";
 
 import { useAuth } from "@reearth-cms/auth";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { useError } from "@reearth-cms/state";
 
 type Props = {
@@ -37,6 +38,7 @@ const Provider: React.FC<Props> = ({ children }) => {
     if (!networkError && !graphQLErrors) return;
     const error = networkError?.message ?? graphQLErrors?.map(e => e.message).join(", ");
     if (error) {
+      Notification.error({ message: error });
       setError(error);
     }
   });

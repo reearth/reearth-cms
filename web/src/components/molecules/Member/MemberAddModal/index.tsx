@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -51,57 +52,59 @@ const MemberAddModal: React.FC<Props> = ({
   const t = useT();
   const { Search } = Input;
   const [form] = Form.useForm();
-  const [memberName, setMemberName] = useState("");
 
   const handleMemberNameChange = useCallback(
     (e: any) => {
-      setMemberName?.(e);
+      form.setFieldValue("name", e);
       handleUserSearch?.(e);
     },
-    [setMemberName, handleUserSearch],
+    [handleUserSearch, form],
   );
 
-  initialValues;
-
-  useEffect(() => {
-    form.setFieldsValue({
-      name: memberName,
-    });
-  }, [form, memberName]);
-
   const handleMemberRemove = useCallback(() => {
-    setMemberName?.("");
+    form.resetFields();
     changeSearchedUser(undefined);
-  }, [setMemberName, changeSearchedUser]);
+  }, [changeSearchedUser, form]);
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then(async () => {
         if (searchedUser?.id) await onSubmit?.([searchedUser.id]);
+        changeSearchedUser(undefined);
         onClose?.(true);
         form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onSubmit, searchedUser?.id, onClose]);
+  }, [form, onSubmit, searchedUser?.id, onClose, changeSearchedUser]);
 
   const handleClose = useCallback(() => {
-    setMemberName("");
+    form.resetFields();
     changeSearchedUser(undefined);
     onClose?.(true);
-  }, [onClose, changeSearchedUser]);
+  }, [onClose, changeSearchedUser, form]);
 
   return (
-    <Modal title={t("Add member")} visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal
+      title={t("Add member")}
+      visible={open}
+      onCancel={handleClose}
+      footer={[
+        <Button key="back" onClick={handleClose}>
+          {t("Cancel")}
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} disabled={!searchedUser}>
+          {t("Add to workspace")}
+        </Button>,
+      ]}>
       {open && (
         <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
             <Search
               size="large"
               style={{ width: "300px" }}
-              value={memberName}
               onSearch={handleMemberNameChange}
               type="text"
             />
