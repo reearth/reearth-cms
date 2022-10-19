@@ -8,45 +8,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// func TestFile_FileType(t *testing.T) {
-// 	c := []*File{}
-// 	var size uint64 = 15
-// 	got := File{}
+func TestFile_FileType(t *testing.T) {
+	c := NewFile().Build()
+	f := NewFile().Name("aaa.txt").Path("aaa.txt").Size(10).GuessContentType().Children([]*File{c}).Build()
 
-// 	got.SetName("hoge")
-// 	got.SetSize(size)
-// 	got.SetContentType("xxx")
-// 	got.SetPath("yyy")
-// 	got.SetChildren(c...)
+	assert.Equal(t, "aaa.txt", f.Name())
+	assert.Equal(t, uint64(10), f.Size())
+	assert.Equal(t, "text/plain; charset=utf-8", f.ContentType())
+	assert.Equal(t, "aaa.txt", f.Path())
+	assert.Equal(t, []*File{c}, f.Children())
 
-// 	assert.Equal(t, "hoge", got.Name())
-// 	assert.Equal(t, size, got.Size())
-// 	assert.Equal(t, "xxx", got.ContentType())
-// 	assert.Equal(t, "yyy", got.Path())
-// 	assert.Equal(t, c, got.Children())
-// }
+	f.SetName("bbb")
+	assert.Equal(t, "bbb", f.Name())
 
-// func TestFile_Children(t *testing.T) {
-// 	// nil file should return nil children
-// 	var got *File = nil
-// 	assert.Nil(t, got.Children())
+	c2 := NewFile().Build()
+	f.AppendChild(c2)
+	assert.Equal(t, []*File{c, c2}, f.Children())
 
-// 	// file.Children() should return file.children
-// 	c := []*File{}
-// 	got = &File{
-// 		children: c,
-// 	}
-// 	assert.Equal(t, c, got.Children())
-// }
+	dir := NewFile().Name("dir").Path("/aaa").Children([]*File{c}).Build()
+	assert.True(t, dir.IsDir())
 
-// func TestFile_SetChildren(t *testing.T) {
-// 	f := File{}
-// 	c := []*File{&f}
-// 	got := File{}
+}
 
-// 	got.SetChildren(c...)
-// 	assert.Equal(t, got.Children(), c)
-// }
+func TestFile_Children(t *testing.T) {
+	// nil file should return nil children
+	var got *File = nil
+	assert.Nil(t, got.Children())
+
+	// file.Children() should return file.children
+	c := []*File{}
+	got = &File{
+		children: c,
+	}
+	assert.Equal(t, c, got.Children())
+}
 
 func Test_FoldFiles(t *testing.T) {
 	assert.Equal(t,
@@ -114,23 +109,3 @@ func Test_Example(t *testing.T) {
 	res := path.Base(b)
 	fmt.Printf("res ----: %v", res)
 }
-
-// func Test_RemoveSlicePrefix(t *testing.T) {
-// 	tests := [][][]string{
-// 		{{"a", "b"}, {"a", "b", "c"}, {}, {"c"}},
-// 		{{"a", "b", "c", "d"}, {"a", "b"}, {"c", "d"}, {}},
-// 		{{"a", "b"}, {"x", "y"}, {"a", "b"}, {"x", "y"}},
-// 		{{}, {"x", "y"}, {}, {"x", "y"}},
-// 		{{"a", "b"}, {}, {"a", "b"}, {}},
-// 		{{"a", "b"}, {"a", "b"}, {}, {}},
-// 		{nil, nil, nil, nil},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(fmt.Sprintf("%v,%v->%v,%v", tt[0], tt[1], tt[2], tt[3]), func(t *testing.T) {
-// 			a, b := removeSlicePrefix(tt[0], tt[1])
-// 			assert.Equal(t, tt[2], a)
-// 			assert.Equal(t, tt[3], b)
-// 		})
-// 	}
-// }

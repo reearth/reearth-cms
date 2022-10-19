@@ -63,6 +63,9 @@ func FoldFiles(files []*File, parent *File) *File {
 			continue
 		}
 
+		// parent: /a/b
+		// file: /a/b/c/d.txt
+		// diff: c
 		parentDir := strings.TrimPrefix(parent.Path(), "/")
 		fileDir := strings.TrimPrefix(path.Dir(files[i].Path()), "/")
 		diff := strings.TrimPrefix(strings.TrimPrefix(fileDir, parentDir), "/")
@@ -76,25 +79,27 @@ func FoldFiles(files []*File, parent *File) *File {
 			parent.AppendChild(files[i])
 			continue
 		} else {
-			var pd string
-			if parent.IsDir() {
-				pd = parent.Path()
-			} else {
-				pd = path.Dir(parent.Path())
+			if !parent.IsDir() {
+				// when parent is root
+				parentDir = path.Dir(parent.Path())
 			}
-			dir := NewFile().Name(parents[0]).Path(path.Join(pd, parents[0])).Build()
-			var targetFiles []*File
+
+			dir := NewFile().Name(parents[0]).Path(path.Join("/"+parentDir, parents[0])).Build()
+
+			var childrenFiles []*File
 			lo.ForEach(files, func(file *File, j int) {
+				// a file whose path contains parent's path is folded under its parent
 				if strings.HasPrefix(file.Path(), dir.Path()) {
-					targetFiles = append(targetFiles, file)
+					childrenFiles = append(childrenFiles, file)
 					_, index, _ := lo.FindIndexOf(files, func(f *File) bool {
 						return f == file
 					})
+					// a file which is folded here will be skipped above for loop
 					skipIndexes = append(skipIndexes, index)
 				}
 			})
 
-			foldedDir := FoldFiles(targetFiles, dir)
+			foldedDir := FoldFiles(childrenFiles, dir)
 			parent.AppendChild(foldedDir)
 		}
 	}
