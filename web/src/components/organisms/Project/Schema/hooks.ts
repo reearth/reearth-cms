@@ -38,6 +38,7 @@ export default ({ projectId, modelId }: Params) => {
               description: model.description,
               name: model.name,
               key: model.key,
+              public: model.public,
               schema: {
                 id: model.schema.id,
                 fields: model.schema.fields.map(field => ({
@@ -69,6 +70,7 @@ export default ({ projectId, modelId }: Params) => {
             description: rawModel.description,
             name: rawModel.name,
             key: rawModel.key,
+            public: rawModel.public,
             schema: {
               id: rawModel.schema.id,
               fields: rawModel.schema.fields.map(field => ({

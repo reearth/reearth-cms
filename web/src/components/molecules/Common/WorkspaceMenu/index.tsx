@@ -45,15 +45,15 @@ const WorkspaceMenu: React.FC<Props> = ({
       show: "notPersonal" as MenuShowType,
     },
     {
-      label: t("Integration"),
-      key: "integration",
+      label: t("Integrations"),
+      key: "integrations",
       icon: <Icon icon="api" />,
       show: "both" as MenuShowType,
     },
     {
       label: t("My Integrations"),
       key: "myIntegrations",
-      icon: <Icon icon="api" />,
+      icon: <Icon icon="myIntegrations" />,
       show: "personal" as MenuShowType,
     },
     {
@@ -65,13 +65,13 @@ const WorkspaceMenu: React.FC<Props> = ({
     {
       label: t("API key"),
       key: "apiKey",
-      icon: <Icon icon="search" />,
+      icon: <Icon icon="key" />,
       show: "both" as MenuShowType,
     },
     {
       label: t("Account"),
       key: "account",
-      icon: <Icon icon="userGroupAdd" />,
+      icon: <Icon icon="user" />,
       show: "personal" as MenuShowType,
     },
     {
@@ -94,8 +94,8 @@ const WorkspaceMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/members`);
       } else if (e.key === "myIntegrations") {
         navigate(`/workspace/${workspaceId}/myIntegrations`);
-      } else if (e.key === "integration") {
-        navigate(`/workspace/${workspaceId}/integration`);
+      } else if (e.key === "integrations") {
+        navigate(`/workspace/${workspaceId}/integrations`);
       } else if (e.key === "role") {
         navigate(`/workspace/${workspaceId}/role`);
       } else if (e.key === "apiKey") {

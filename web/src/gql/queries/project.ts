@@ -1,5 +1,22 @@
 import { gql } from "@apollo/client";
 
+export const GET_PROJECT = gql`
+  query GetProject($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+      id
+      ... on Project {
+        name
+        description
+        alias
+        publication {
+          scope
+          assetPublic
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PROJECTS = gql`
   query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
     projects(
@@ -14,6 +31,10 @@ export const GET_PROJECTS = gql`
         name
         description
         alias
+        publication {
+          scope
+          assetPublic
+        }
       }
     }
   }
@@ -35,6 +56,10 @@ export const CREATE_PROJECT = gql`
         id
         name
         description
+        publication {
+          scope
+          assetPublic
+        }
       }
     }
   }
@@ -49,13 +74,29 @@ export const DELETE_PROJECT = gql`
 `;
 
 export const UPDATE_PROJECT = gql`
-  mutation UpdateProject($projectId: ID!, $name: String, $description: String) {
-    updateProject(input: { projectId: $projectId, name: $name, description: $description }) {
+  mutation UpdateProject(
+    $projectId: ID!
+    $name: String
+    $description: String
+    $publication: UpdateProjectPublicationInput
+  ) {
+    updateProject(
+      input: {
+        projectId: $projectId
+        name: $name
+        description: $description
+        publication: $publication
+      }
+    ) {
       project {
         id
         name
         description
         alias
+        publication {
+          scope
+          assetPublic
+        }
       }
     }
   }
