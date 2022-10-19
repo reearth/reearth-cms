@@ -17,6 +17,7 @@ var (
 type Thread interface {
 	FindByID(context.Context, id.ThreadID, *usecase.Operator) (*thread.Thread, error)
 	FindByIDs(context.Context, []id.ThreadID, *usecase.Operator) (thread.List, error)
+	CreateThread(context.Context, id.WorkspaceID, *usecase.Operator) error
 	AddComment(context.Context, id.ThreadID, *thread.Comment, *usecase.Operator) error
 	UpdateComment(context.Context, id.ThreadID, id.CommentID, string, *usecase.Operator) error
 	DeleteComment(context.Context, id.ThreadID, id.CommentID, *usecase.Operator) error

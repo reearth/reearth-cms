@@ -34,6 +34,16 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 	return i.repos.Thread.FindByIDs(ctx, threads)
 }
 
+func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *usecase.Operator) error {
+	return Run0(
+		ctx, op, i.repos,
+		Usecase().WithWritableWorkspaces(wid).Transaction(),
+		func() error {
+			return i.repos.Thread.CreateThread(ctx, wid)
+		},
+	)
+}
+
 func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Comment, op *usecase.Operator) error {
 	thread, err := i.repos.Thread.FindByID(ctx, thid)
 	if err != nil {
@@ -47,8 +57,7 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Com
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(thread.Workspace()).Transaction(),
 		func() error {
-			err := i.repos.Thread.AddComment(ctx, thread, c)
-			return err
+			return i.repos.Thread.AddComment(ctx, thread, c)
 		},
 	)
 }
