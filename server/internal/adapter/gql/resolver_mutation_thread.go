@@ -9,7 +9,11 @@ import (
 	"github.com/samber/lo"
 )
 
-func (r *mutationResolver) CreateComment(ctx context.Context, input gqlmodel.CreateCommentInput) (*gqlmodel.CreateCommentPayload, error) {
+func (r *mutationResolver) CreateThread(ctx context.Context, input gqlmodel.CreateThreadInput) (*gqlmodel.CreateThreadPayload, error) {
+	panic("implement me")
+}
+
+func (r *mutationResolver) AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.AddCommentPayload, error) {
 	thid := lo.Must(gqlmodel.ToID[id.Thread](input.ThreadID))
 	author := getOperator(ctx).User
 	c := thread.NewComment(id.NewCommentID(), author, input.Content)
@@ -20,7 +24,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input gqlmodel.Cre
 		return nil, err
 	}
 
-	return &gqlmodel.CreateCommentPayload{Comment: gqlmodel.ToComment(c)}, nil
+	return &gqlmodel.AddCommentPayload{Comment: gqlmodel.ToComment(c)}, nil
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.UpdateCommentPayload, error) {

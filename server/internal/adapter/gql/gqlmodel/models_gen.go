@@ -27,6 +27,15 @@ type WorkspaceMember interface {
 	IsWorkspaceMember()
 }
 
+type AddCommentInput struct {
+	ThreadID ID     `json:"threadId"`
+	Content  string `json:"content"`
+}
+
+type AddCommentPayload struct {
+	Comment *Comment `json:"comment"`
+}
+
 type AddIntegrationToWorkspaceInput struct {
 	WorkspaceID   ID   `json:"workspaceId"`
 	IntegrationID ID   `json:"integrationId"`
@@ -101,15 +110,6 @@ type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
 }
 
-type CreateCommentInput struct {
-	ThreadID ID     `json:"threadId"`
-	Content  string `json:"content"`
-}
-
-type CreateCommentPayload struct {
-	Comment *Comment `json:"comment"`
-}
-
 type CreateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
 	Type         SchemaFiledType               `json:"type"`
@@ -146,6 +146,14 @@ type CreateProjectInput struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	Alias       *string `json:"alias"`
+}
+
+type CreateThreadInput struct {
+	WorkspaceID ID `json:"workspaceId"`
+}
+
+type CreateThreadPayload struct {
+	Thread *Thread `json:"thread"`
 }
 
 type CreateWebhookInput struct {

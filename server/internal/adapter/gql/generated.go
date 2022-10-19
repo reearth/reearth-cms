@@ -60,6 +60,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AddCommentPayload struct {
+		Comment func(childComplexity int) int
+	}
+
 	AddMemberToWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
@@ -113,8 +117,8 @@ type ComplexityRoot struct {
 		Asset func(childComplexity int) int
 	}
 
-	CreateCommentPayload struct {
-		Comment func(childComplexity int) int
+	CreateThreadPayload struct {
+		Thread func(childComplexity int) int
 	}
 
 	CreateWorkspacePayload struct {
@@ -267,15 +271,16 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		AddComment                     func(childComplexity int, input gqlmodel.AddCommentInput) int
 		AddIntegrationToWorkspace      func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
 		AddUserToWorkspace             func(childComplexity int, input gqlmodel.AddUserToWorkspaceInput) int
 		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
-		CreateComment                  func(childComplexity int, input gqlmodel.CreateCommentInput) int
 		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
 		CreateItem                     func(childComplexity int, input gqlmodel.CreateItemInput) int
 		CreateModel                    func(childComplexity int, input gqlmodel.CreateModelInput) int
 		CreateProject                  func(childComplexity int, input gqlmodel.CreateProjectInput) int
+		CreateThread                   func(childComplexity int, input gqlmodel.CreateThreadInput) int
 		CreateWebhook                  func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
 		DeleteAsset                    func(childComplexity int, input gqlmodel.DeleteAssetInput) int
@@ -599,7 +604,8 @@ type MutationResolver interface {
 	CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	DeleteWebhook(ctx context.Context, input gqlmodel.DeleteWebhookInput) (*gqlmodel.DeleteWebhookPayload, error)
-	CreateComment(ctx context.Context, input gqlmodel.CreateCommentInput) (*gqlmodel.CreateCommentPayload, error)
+	CreateThread(ctx context.Context, input gqlmodel.CreateThreadInput) (*gqlmodel.CreateThreadPayload, error)
+	AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.AddCommentPayload, error)
 	UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.UpdateCommentPayload, error)
 	DeleteComment(ctx context.Context, input gqlmodel.DeleteCommentInput) (*gqlmodel.DeleteCommentPayload, error)
 }
@@ -651,6 +657,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AddCommentPayload.comment":
+		if e.complexity.AddCommentPayload.Comment == nil {
+			break
+		}
+
+		return e.complexity.AddCommentPayload.Comment(childComplexity), true
 
 	case "AddMemberToWorkspacePayload.workspace":
 		if e.complexity.AddMemberToWorkspacePayload.Workspace == nil {
@@ -876,12 +889,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
 
-	case "CreateCommentPayload.comment":
-		if e.complexity.CreateCommentPayload.Comment == nil {
+	case "CreateThreadPayload.thread":
+		if e.complexity.CreateThreadPayload.Thread == nil {
 			break
 		}
 
-		return e.complexity.CreateCommentPayload.Comment(childComplexity), true
+		return e.complexity.CreateThreadPayload.Thread(childComplexity), true
 
 	case "CreateWorkspacePayload.workspace":
 		if e.complexity.CreateWorkspacePayload.Workspace == nil {
@@ -1380,6 +1393,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ModelPayload.Model(childComplexity), true
 
+	case "Mutation.addComment":
+		if e.complexity.Mutation.AddComment == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addComment_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddComment(childComplexity, args["input"].(gqlmodel.AddCommentInput)), true
+
 	case "Mutation.addIntegrationToWorkspace":
 		if e.complexity.Mutation.AddIntegrationToWorkspace == nil {
 			break
@@ -1415,18 +1440,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateAsset(childComplexity, args["input"].(gqlmodel.CreateAssetInput)), true
-
-	case "Mutation.createComment":
-		if e.complexity.Mutation.CreateComment == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createComment_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateComment(childComplexity, args["input"].(gqlmodel.CreateCommentInput)), true
 
 	case "Mutation.createField":
 		if e.complexity.Mutation.CreateField == nil {
@@ -1487,6 +1500,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateProject(childComplexity, args["input"].(gqlmodel.CreateProjectInput)), true
+
+	case "Mutation.createThread":
+		if e.complexity.Mutation.CreateThread == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createThread_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateThread(childComplexity, args["input"].(gqlmodel.CreateThreadInput)), true
 
 	case "Mutation.createWebhook":
 		if e.complexity.Mutation.CreateWebhook == nil {
@@ -2727,15 +2752,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAddCommentInput,
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
 		ec.unmarshalInputAddUserToWorkspaceInput,
 		ec.unmarshalInputCreateAssetInput,
-		ec.unmarshalInputCreateCommentInput,
 		ec.unmarshalInputCreateFieldInput,
 		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputCreateItemInput,
 		ec.unmarshalInputCreateModelInput,
 		ec.unmarshalInputCreateProjectInput,
+		ec.unmarshalInputCreateThreadInput,
 		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputCreateWorkspaceInput,
 		ec.unmarshalInputDeleteAssetInput,
@@ -3817,7 +3843,11 @@ type Comment {
   createdAt: DateTime!
 }
 
-input CreateCommentInput {
+input CreateThreadInput {
+  workspaceId: ID!
+}
+
+input AddCommentInput {
   threadId: ID!
   content: String!
 }
@@ -3833,7 +3863,11 @@ input DeleteCommentInput {
   commentId: ID!
 }
 
-type CreateCommentPayload {
+type CreateThreadPayload {
+  thread: Thread!
+}
+
+type AddCommentPayload {
   comment: Comment!
 }
 
@@ -3846,7 +3880,8 @@ type DeleteCommentPayload {
 }
 
 extend type Mutation {
-  createComment(input: CreateCommentInput!): CreateCommentPayload
+  createThread(input: CreateThreadInput!): CreateThreadPayload
+  addComment(input: AddCommentInput!): AddCommentPayload
   updateComment(input: UpdateCommentInput!): UpdateCommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }`, BuiltIn: false},
@@ -3856,6 +3891,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.AddCommentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNAddCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -3894,21 +3944,6 @@ func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 gqlmodel.CreateCommentInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateCommentInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3984,6 +4019,21 @@ func (ec *executionContext) field_Mutation_createProject_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateProjectInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createThread_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.CreateThreadInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4791,6 +4841,62 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AddCommentPayload_comment(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddCommentPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddCommentPayload_comment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Comment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Comment)
+	fc.Result = res
+	return ec.marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐComment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddCommentPayload_comment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddCommentPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Comment_id(ctx, field)
+			case "author":
+				return ec.fieldContext_Comment_author(ctx, field)
+			case "authorId":
+				return ec.fieldContext_Comment_authorId(ctx, field)
+			case "content":
+				return ec.fieldContext_Comment_content(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Comment_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddMemberToWorkspacePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
@@ -6362,8 +6468,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateCommentPayload_comment(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateCommentPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateCommentPayload_comment(ctx, field)
+func (ec *executionContext) _CreateThreadPayload_thread(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateThreadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateThreadPayload_thread(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6376,7 +6482,7 @@ func (ec *executionContext) _CreateCommentPayload_comment(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Comment, nil
+		return obj.Thread, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6388,31 +6494,29 @@ func (ec *executionContext) _CreateCommentPayload_comment(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.Comment)
+	res := resTmp.(*gqlmodel.Thread)
 	fc.Result = res
-	return ec.marshalNComment2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐComment(ctx, field.Selections, res)
+	return ec.marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CreateCommentPayload_comment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CreateThreadPayload_thread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CreateCommentPayload",
+		Object:     "CreateThreadPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Comment_id(ctx, field)
-			case "author":
-				return ec.fieldContext_Comment_author(ctx, field)
-			case "authorId":
-				return ec.fieldContext_Comment_authorId(ctx, field)
-			case "content":
-				return ec.fieldContext_Comment_content(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Comment_createdAt(ctx, field)
+				return ec.fieldContext_Thread_id(ctx, field)
+			case "workspace":
+				return ec.fieldContext_Thread_workspace(ctx, field)
+			case "workspaceId":
+				return ec.fieldContext_Thread_workspaceId(ctx, field)
+			case "comments":
+				return ec.fieldContext_Thread_comments(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
 		},
 	}
 	return fc, nil
@@ -11782,8 +11886,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteWebhook(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createComment(ctx, field)
+func (ec *executionContext) _Mutation_createThread(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createThread(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -11796,7 +11900,7 @@ func (ec *executionContext) _Mutation_createComment(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateComment(rctx, fc.Args["input"].(gqlmodel.CreateCommentInput))
+		return ec.resolvers.Mutation().CreateThread(rctx, fc.Args["input"].(gqlmodel.CreateThreadInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11805,12 +11909,12 @@ func (ec *executionContext) _Mutation_createComment(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.CreateCommentPayload)
+	res := resTmp.(*gqlmodel.CreateThreadPayload)
 	fc.Result = res
-	return ec.marshalOCreateCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateCommentPayload(ctx, field.Selections, res)
+	return ec.marshalOCreateThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -11818,10 +11922,10 @@ func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "comment":
-				return ec.fieldContext_CreateCommentPayload_comment(ctx, field)
+			case "thread":
+				return ec.fieldContext_CreateThreadPayload_thread(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CreateCommentPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CreateThreadPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -11831,7 +11935,63 @@ func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createThread_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addComment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddComment(rctx, fc.Args["input"].(gqlmodel.AddCommentInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.AddCommentPayload)
+	fc.Result = res
+	return ec.marshalOAddCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "comment":
+				return ec.fieldContext_AddCommentPayload_comment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddCommentPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -19625,6 +19785,42 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, obj interface{}) (gqlmodel.AddCommentInput, error) {
+	var it gqlmodel.AddCommentInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"threadId", "content"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "threadId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
+			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "content":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
+			it.Content, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
 	var it gqlmodel.AddIntegrationToWorkspaceInput
 	asMap := map[string]interface{}{}
@@ -19748,42 +19944,6 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
 			it.File, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCreateCommentInput(ctx context.Context, obj interface{}) (gqlmodel.CreateCommentInput, error) {
-	var it gqlmodel.CreateCommentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"threadId", "content"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "threadId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
-			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "content":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
-			it.Content, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20086,6 +20246,34 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alias"))
 			it.Alias, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context, obj interface{}) (gqlmodel.CreateThreadInput, error) {
+	var it gqlmodel.CreateThreadInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"workspaceId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "workspaceId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
+			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22378,6 +22566,34 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 
 // region    **************************** object.gotpl ****************************
 
+var addCommentPayloadImplementors = []string{"AddCommentPayload"}
+
+func (ec *executionContext) _AddCommentPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddCommentPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addCommentPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddCommentPayload")
+		case "comment":
+
+			out.Values[i] = ec._AddCommentPayload_comment(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var addMemberToWorkspacePayloadImplementors = []string{"AddMemberToWorkspacePayload"}
 
 func (ec *executionContext) _AddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
@@ -22764,19 +22980,19 @@ func (ec *executionContext) _CreateAssetPayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var createCommentPayloadImplementors = []string{"CreateCommentPayload"}
+var createThreadPayloadImplementors = []string{"CreateThreadPayload"}
 
-func (ec *executionContext) _CreateCommentPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CreateCommentPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, createCommentPayloadImplementors)
+func (ec *executionContext) _CreateThreadPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CreateThreadPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createThreadPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CreateCommentPayload")
-		case "comment":
+			out.Values[i] = graphql.MarshalString("CreateThreadPayload")
+		case "thread":
 
-			out.Values[i] = ec._CreateCommentPayload_comment(ctx, field, obj)
+			out.Values[i] = ec._CreateThreadPayload_thread(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -24150,10 +24366,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_deleteWebhook(ctx, field)
 			})
 
-		case "createComment":
+		case "createThread":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createComment(ctx, field)
+				return ec._Mutation_createThread(ctx, field)
+			})
+
+		case "addComment":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addComment(ctx, field)
 			})
 
 		case "updateComment":
@@ -26325,6 +26547,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNAddCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentInput(ctx context.Context, v interface{}) (gqlmodel.AddCommentInput, error) {
+	res, err := ec.unmarshalInputAddCommentInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNAddIntegrationToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddIntegrationToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
 	res, err := ec.unmarshalInputAddIntegrationToWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -26560,11 +26787,6 @@ func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateCommentInput(ctx context.Context, v interface{}) (gqlmodel.CreateCommentInput, error) {
-	res, err := ec.unmarshalInputCreateCommentInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v interface{}) (gqlmodel.CreateFieldInput, error) {
 	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -26587,6 +26809,11 @@ func (ec *executionContext) unmarshalNCreateModelInput2githubᚗcomᚋreearthᚋ
 
 func (ec *executionContext) unmarshalNCreateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateProjectInput(ctx context.Context, v interface{}) (gqlmodel.CreateProjectInput, error) {
 	res, err := ec.unmarshalInputCreateProjectInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx context.Context, v interface{}) (gqlmodel.CreateThreadInput, error) {
+	res, err := ec.unmarshalInputCreateThreadInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -27546,6 +27773,16 @@ func (ec *executionContext) marshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcms
 	return v
 }
 
+func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Thread) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Thread(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNURL2netᚋurlᚐURL(ctx context.Context, v interface{}) (url.URL, error) {
 	res, err := gqlmodel.UnmarshalURL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -28138,6 +28375,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAddCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddCommentPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AddCommentPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -28248,11 +28492,11 @@ func (ec *executionContext) marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearth
 	return ec._CreateAssetPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOCreateCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateCommentPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateCommentPayload) graphql.Marshaler {
+func (ec *executionContext) marshalOCreateThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateThreadPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._CreateCommentPayload(ctx, sel, v)
+	return ec._CreateThreadPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateWorkspacePayload) graphql.Marshaler {
