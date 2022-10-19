@@ -15,7 +15,7 @@ const BasicInnerContents: React.FC<Props> = ({ title, subtitle, children }) => {
       {title && (
         <Section>
           <Title>{title}</Title>
-          <Subtitle>{subtitle}</Subtitle>
+          {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </Section>
       )}
 
