@@ -115,8 +115,8 @@ func FoldFiles(files []*File, parent *File) *File {
 		}
 
 		parentDir := strings.TrimPrefix(parent.Path(), "/")
-		fileDir := path.Dir(files[i].Path())
-		diff := strings.TrimPrefix(fileDir, parentDir)
+		fileDir := strings.TrimPrefix(path.Dir(files[i].Path()), "/")
+		diff := strings.TrimPrefix(strings.TrimPrefix(fileDir, parentDir), "/")
 
 		var parents []string
 		if diff != "" {
@@ -127,10 +127,16 @@ func FoldFiles(files []*File, parent *File) *File {
 			parent.AppendChild(files[i])
 			continue
 		} else {
-			dir := NewFile().Name("").Path("/" + path.Join(path.Dir(parent.Path()), parents[0])).Build()
+			var pd string
+			if parent.IsDir() {
+				pd = parent.Path()
+			} else {
+				pd = path.Dir(parent.Path())
+			}
+			dir := NewFile().Name(parents[0]).Path(path.Join(pd, parents[0])).Build()
 			var targetFiles []*File
 			lo.ForEach(files, func(file *File, j int) {
-				if strings.HasPrefix(file.Path(), parents[0]) {
+				if strings.HasPrefix(file.Path(), dir.Path()) {
 					targetFiles = append(targetFiles, file)
 					_, index, _ := lo.FindIndexOf(files, func(f *File) bool {
 						return f == file

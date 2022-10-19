@@ -51,38 +51,45 @@ import (
 func Test_FoldFiles(t *testing.T) {
 	assert.Equal(t,
 		&File{
-			name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip",
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
 			children: []*File{
-				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
-				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
+				{name: "hello", path: "/hello", size: 0, contentType: "", children: []*File{
+					{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+					{name: "b.txt", path: "/hello/b.txt", size: 20, contentType: "text/plain"},
+				}},
 			},
 		},
 		FoldFiles(
 			[]*File{
-				{name: "a.txt", path: "hello/a.txt", size: 10, contentType: "text/plain"},
-				{name: "b.txt", path: "hello/b.txt", size: 20, contentType: "text/plain"},
+				{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/hello/b.txt", size: 20, contentType: "text/plain"},
 			},
-			&File{name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip"},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
 		),
 	)
-	// assert.Equal(t,
-	// 	&File{
-	// 		name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip",
-	// 		children: []*File{
-	// 			{name: "a.txt", path: "hello/good/a.txt", size: 10, contentType: "text/plain"},
-	// 			{name: "b.txt", path: "hello/good/b.txt", size: 10, contentType: "text/plain"},
-	// 			{name: "c.txt", path: "hello/c.txt", size: 20, contentType: "text/plain"},
-	// 		},
-	// 	},
-	// 	FoldFiles(
-	// 		[]*File{
-	// 			{name: "a.txt", path: "hello/good/a.txt", size: 10, contentType: "text/plain"},
-	// 			{name: "b.txt", path: "hello/good/b.txt", size: 10, contentType: "text/plain"},
-	// 			{name: "c.txt", path: "hello/c.txt", size: 20, contentType: "text/plain"},
-	// 		},
-	// 		&File{name: "hello.zip", path: "hello.zip", size: 100, contentType: "application/zip"},
-	// 	),
-	// )
+
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "hello", path: "/hello", size: 0, contentType: "", children: []*File{
+					{name: "c.txt", path: "/hello/c.txt", size: 20, contentType: "text/plain"},
+					{name: "good", path: "/hello/good", size: 0, contentType: "", children: []*File{
+						{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+						{name: "b.txt", path: "/hello/good/b.txt", size: 10, contentType: "text/plain"},
+					}},
+				}},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/hello/good/b.txt", size: 10, contentType: "text/plain"},
+				{name: "c.txt", path: "/hello/c.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
 
 }
 
