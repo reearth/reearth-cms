@@ -102,7 +102,12 @@ func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid i
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	c := lo.Must(th.FindCommentByID(cid))
+	res, err := r.FindByID(ctx, th1.ID())
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	c := lo.Must(res.FindCommentByID(cid))
 	return c, nil
 }
 

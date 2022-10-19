@@ -112,7 +112,11 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, cid id.Co
 		return nil, err
 	}
 
-	c := lo.Must(th1.FindCommentByID(cid))
+	res := r.data.Find(func(k id.ThreadID, v *thread.Thread) bool {
+		return k == th1.ID()
+	})
+
+	c := lo.Must(res.FindCommentByID(cid))
 	return c, nil
 }
 
