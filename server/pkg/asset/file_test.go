@@ -53,6 +53,22 @@ func Test_FoldFiles(t *testing.T) {
 		&File{
 			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
 			children: []*File{
+				{name: "a.txt", path: "/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/b.txt", size: 20, contentType: "text/plain"},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/b.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
 				{name: "hello", path: "/hello", size: 0, contentType: "", children: []*File{
 					{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
 					{name: "b.txt", path: "/hello/b.txt", size: 20, contentType: "text/plain"},
@@ -99,22 +115,22 @@ func Test_Example(t *testing.T) {
 	fmt.Printf("res ----: %v", res)
 }
 
-func Test_RemoveSlicePrefix(t *testing.T) {
-	tests := [][][]string{
-		{{"a", "b"}, {"a", "b", "c"}, {}, {"c"}},
-		{{"a", "b", "c", "d"}, {"a", "b"}, {"c", "d"}, {}},
-		{{"a", "b"}, {"x", "y"}, {"a", "b"}, {"x", "y"}},
-		{{}, {"x", "y"}, {}, {"x", "y"}},
-		{{"a", "b"}, {}, {"a", "b"}, {}},
-		{{"a", "b"}, {"a", "b"}, {}, {}},
-		{nil, nil, nil, nil},
-	}
+// func Test_RemoveSlicePrefix(t *testing.T) {
+// 	tests := [][][]string{
+// 		{{"a", "b"}, {"a", "b", "c"}, {}, {"c"}},
+// 		{{"a", "b", "c", "d"}, {"a", "b"}, {"c", "d"}, {}},
+// 		{{"a", "b"}, {"x", "y"}, {"a", "b"}, {"x", "y"}},
+// 		{{}, {"x", "y"}, {}, {"x", "y"}},
+// 		{{"a", "b"}, {}, {"a", "b"}, {}},
+// 		{{"a", "b"}, {"a", "b"}, {}, {}},
+// 		{nil, nil, nil, nil},
+// 	}
 
-	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%v,%v->%v,%v", tt[0], tt[1], tt[2], tt[3]), func(t *testing.T) {
-			a, b := removeSlicePrefix(tt[0], tt[1])
-			assert.Equal(t, tt[2], a)
-			assert.Equal(t, tt[3], b)
-		})
-	}
-}
+// 	for _, tt := range tests {
+// 		t.Run(fmt.Sprintf("%v,%v->%v,%v", tt[0], tt[1], tt[2], tt[3]), func(t *testing.T) {
+// 			a, b := removeSlicePrefix(tt[0], tt[1])
+// 			assert.Equal(t, tt[2], a)
+// 			assert.Equal(t, tt[3], b)
+// 		})
+// 	}
+// }
