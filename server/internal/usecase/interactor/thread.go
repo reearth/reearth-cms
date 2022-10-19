@@ -39,15 +39,16 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Com
 	if err != nil {
 		return err
 	}
-	if !thread.HasComment(c.ID()) {
-		return interfaces.ErrCommentDoesNotExist
+	if thread.HasComment(c.ID()) {
+		return interfaces.ErrCommentAlreadyExist
 	}
 
 	return Run0(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(thread.Workspace()).Transaction(),
 		func() error {
-			return i.repos.Thread.AddComment(ctx, thread, c)
+			err := i.repos.Thread.AddComment(ctx, thread, c)
+			return err
 		},
 	)
 }
