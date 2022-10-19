@@ -3,6 +3,7 @@ package thread
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,6 +32,27 @@ func TestThread_Comments(t *testing.T) {
 		comments: c,
 	}
 	assert.Equal(t, c, got.Comments())
+}
+
+func TestThread_HasComment(t *testing.T) {
+	c := NewComment(NewCommentID(), NewUserID(), "test")
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+		comments: []*Comment{
+			{id: NewCommentID()}, c,
+		},
+	})
+
+	ok := thread.HasComment(c.id)
+	assert.True(t, ok)
+
+	ok = thread.HasComment(id.NewCommentID())
+	assert.False(t, ok)
+
+	thread = nil
+	ok = thread.HasComment(c.id)
+	assert.False(t, ok)
 }
 
 func TestThread_AddComment(t *testing.T) {
@@ -82,6 +104,25 @@ func TestThread_DeleteComment(t *testing.T) {
 	err = thread.DeleteComment(c.id)
 	assert.NoError(t, err)
 	assert.False(t, thread.HasComment(c.id))
+}
+
+func TestThread_FindCommentByID(t *testing.T) {
+	c := NewComment(NewCommentID(), NewUserID(), "test")
+	thread := (&Thread{
+		id:        NewID(),
+		workspace: NewWorkspaceID(),
+		comments: []*Comment{
+			{id: NewCommentID()}, c,
+		},
+	})
+
+	_, err := thread.FindCommentByID(NewCommentID())
+	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
+
+	cc, err := thread.FindCommentByID(c.id)
+	assert.NoError(t, err)
+	assert.Equal(t, c, cc)
+
 }
 
 func TestThread_Clone(t *testing.T) {
