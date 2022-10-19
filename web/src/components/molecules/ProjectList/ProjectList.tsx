@@ -52,6 +52,7 @@ const ProjectList: React.FC<Props> = ({
 };
 
 const StyledDashboardBlock = styled.div`
+  margin-top: 16px;
   height: 100%;
   width: 100%;
   @media only screen and (max-width: 1024px) {

@@ -45,7 +45,7 @@ function App() {
                     path=":workspaceId/myIntegrations/:integrationId"
                     element={<MyIntegrationDetails />}
                   />
-                  <Route path=":workspaceId/integration" element={<Integration />} />
+                  <Route path=":workspaceId/integrations" element={<Integration />} />
                   <Route
                     path=":workspaceId/role"
                     element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}

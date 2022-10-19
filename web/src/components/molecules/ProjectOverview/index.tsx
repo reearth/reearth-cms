@@ -11,6 +11,7 @@ export type Model = ModelType;
 
 export type Props = {
   projectName?: string;
+  projectDescription?: string;
   models?: Model[];
   onModelModalOpen?: () => void;
   onSchemaNavigate?: (modelId: string) => void;
@@ -19,6 +20,7 @@ export type Props = {
 
 const ProjectOverview: React.FC<Props> = ({
   projectName,
+  projectDescription,
   models,
   onModelModalOpen,
   onSchemaNavigate,
@@ -27,7 +29,7 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title={projectName}>
+    <InnerContent title={projectName} subtitle={projectDescription}>
       <Wrapper>
         <Header>
           <Subtitle>{t("Models")}</Subtitle>

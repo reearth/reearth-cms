@@ -21,6 +21,7 @@ const ProjectOverview: React.FC = () => {
     <>
       <ProjectOverviewMolecule
         projectName={currentProject?.name}
+        projectDescription={currentProject?.description}
         models={models}
         onSchemaNavigate={handleSchemaNavigation}
         onContentNavigate={handleContentNavigation}
