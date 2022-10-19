@@ -10,7 +10,14 @@ import (
 )
 
 func (r *mutationResolver) CreateThread(ctx context.Context, input gqlmodel.CreateThreadInput) (*gqlmodel.CreateThreadPayload, error) {
-	panic("implement me")
+	wid := lo.Must(gqlmodel.ToID[id.Workspace](input.WorkspaceID))
+	uc := usecases(ctx).Thread
+	th, err := uc.CreateThread(ctx, wid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.CreateThreadPayload{Thread: gqlmodel.ToThread(th)}, nil
 }
 
 func (r *mutationResolver) AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.AddCommentPayload, error) {
@@ -19,7 +26,7 @@ func (r *mutationResolver) AddComment(ctx context.Context, input gqlmodel.AddCom
 	c := thread.NewComment(id.NewCommentID(), author, input.Content)
 
 	uc := usecases(ctx).Thread
-	err := uc.AddComment(ctx, thid, c, getOperator(ctx))
+	c, err := uc.AddComment(ctx, thid, c, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +39,11 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, input gqlmodel.Upd
 	cid := lo.Must(gqlmodel.ToID[id.Comment](input.CommentID))
 
 	uc := usecases(ctx).Thread
-	if err := uc.UpdateComment(ctx, thid, cid, input.Content, getOperator(ctx)); err != nil {
+	c, err := uc.UpdateComment(ctx, thid, cid, input.Content, getOperator(ctx))
+	if err != nil {
 		return nil, err
 	}
 
-	th := lo.Must(usecases(ctx).Thread.FindByID(ctx, thid, getOperator(ctx)))
-	c := lo.Must(th.FindCommentByID(cid))
 	return &gqlmodel.UpdateCommentPayload{Comment: gqlmodel.ToComment(c)}, nil
 }
 

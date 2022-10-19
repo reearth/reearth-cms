@@ -34,48 +34,48 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 	return i.repos.Thread.FindByIDs(ctx, threads)
 }
 
-func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *usecase.Operator) error {
-	return Run0(
+func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *usecase.Operator) (*thread.Thread, error) {
+	return Run1(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(wid).Transaction(),
-		func() error {
+		func() (*thread.Thread, error) {
 			return i.repos.Thread.CreateThread(ctx, wid)
 		},
 	)
 }
 
-func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Comment, op *usecase.Operator) error {
-	thread, err := i.repos.Thread.FindByID(ctx, thid)
+func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, c *thread.Comment, op *usecase.Operator) (*thread.Comment, error) {
+	th, err := i.repos.Thread.FindByID(ctx, thid)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if thread.HasComment(c.ID()) {
-		return interfaces.ErrCommentAlreadyExist
+	if th.HasComment(c.ID()) {
+		return nil, interfaces.ErrCommentAlreadyExist
 	}
 
-	return Run0(
+	return Run1(
 		ctx, op, i.repos,
-		Usecase().WithWritableWorkspaces(thread.Workspace()).Transaction(),
-		func() error {
-			return i.repos.Thread.AddComment(ctx, thread, c)
+		Usecase().WithWritableWorkspaces(th.Workspace()).Transaction(),
+		func() (*thread.Comment, error) {
+			return i.repos.Thread.AddComment(ctx, th, c)
 		},
 	)
 }
 
-func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, content string, op *usecase.Operator) error {
-	thread, err := i.repos.Thread.FindByID(ctx, thid)
+func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, content string, op *usecase.Operator) (*thread.Comment, error) {
+	th, err := i.repos.Thread.FindByID(ctx, thid)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if !thread.HasComment(cid) {
-		return interfaces.ErrCommentDoesNotExist
+	if !th.HasComment(cid) {
+		return nil, interfaces.ErrCommentDoesNotExist
 	}
 
-	return Run0(
+	return Run1(
 		ctx, op, i.repos,
-		Usecase().WithWritableWorkspaces(thread.Workspace()).Transaction(),
-		func() error {
-			return i.repos.Thread.UpdateComment(ctx, thread, cid, content)
+		Usecase().WithWritableWorkspaces(th.Workspace()).Transaction(),
+		func() (*thread.Comment, error) {
+			return i.repos.Thread.UpdateComment(ctx, th, cid, content)
 		},
 	)
 }

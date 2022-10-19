@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -59,48 +60,50 @@ func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thr
 	return filterThreads(ids, res), nil
 }
 
-func (r *threadRepo) CreateThread(ctx context.Context, wid id.WorkspaceID) error {
+func (r *threadRepo) CreateThread(ctx context.Context, wid id.WorkspaceID) (*thread.Thread, error) {
 	if !r.f.CanWrite(wid) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	th := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
 	if err := r.Save(ctx, th); err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
-	return nil
+	return th, nil
 }
 
-func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
 	if !r.f.CanWrite(th.Workspace()) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	th1 := th.Clone()
 	if err := th1.AddComment(c); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.Save(ctx, th1); err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
-	return nil
+	return c, nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) error {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) (*thread.Comment, error) {
 	if !r.f.CanWrite(th.Workspace()) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	th1 := th.Clone()
 	if err := th1.UpdateComment(cid, content); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.Save(ctx, th1); err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
-	return nil
+
+	c := lo.Must(th.FindCommentByID(cid))
+	return c, nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
