@@ -59,6 +59,18 @@ func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thr
 	return filterThreads(ids, res), nil
 }
 
+func (r *threadRepo) CreateThread(ctx context.Context, wid id.WorkspaceID) error {
+	if !r.f.CanWrite(wid) {
+		return repo.ErrOperationDenied
+	}
+
+	th := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
+	if err := r.Save(ctx, th); err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
 func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
 	if !r.f.CanWrite(th.Workspace()) {
 		return repo.ErrOperationDenied
