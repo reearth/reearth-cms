@@ -70,7 +70,8 @@ const Subtitle = styled.p`
 
 const GridArea = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(226px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  justify-content: space-between;
   gap: 24px;
   margin-top: 24px;
 `;

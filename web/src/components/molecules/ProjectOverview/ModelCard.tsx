@@ -19,21 +19,20 @@ const ModelCard: React.FC<Props> = ({ model, onSchemaNavigate, onContentNavigate
   const { Meta } = Card;
 
   return (
-    <div>
-      <StyledCard
-        actions={[
-          <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
-          <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
-        ]}>
-        <Meta title={model.name} description={model.description} />
-      </StyledCard>
-    </div>
+    <StyledCard
+      actions={[
+        <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
+        <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
+      ]}>
+      <Meta title={model.name} description={model.description} />
+    </StyledCard>
   );
 };
 
 export default ModelCard;
 
 const StyledCard = styled(Card)`
+  //   width: 224px;
   .ant-card-body {
     height: 102px;
   }
@@ -44,9 +43,5 @@ const StyledCard = styled(Card)`
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-  }
-
-  .ant-card-actions {
-    // height: 40px;
   }
 `;

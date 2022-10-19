@@ -33,14 +33,7 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
   );
 };
 
-const CardWrapper = styled.div`
-  flex: 0 0 25%;
-  max-width: 250px;
-  @media (max-width: 768px) {
-    flex: 0 0 50%;
-    max-width: 50%;
-  }
-`;
+const CardWrapper = styled.div``;
 
 const Cover = styled.div`
   display: flex;
