@@ -1,4 +1,13 @@
 Download: ''
+Model: ''
+Switch: ''
+Private: ''
+API Key Only: ''
+Public: ''
+Accessibility: 公開設定
+Public Scope: ''
+Choose the scope of your project. This affects all the models shown below that are switched on.: ''
+Save changes: 変更を保存
 Unzip File: ''
 Asset Type: ''
 Created Time: ''
@@ -37,18 +46,21 @@ Re:Earth CMS: Re:Earth CMS
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project description: プロジェクト概要
-Accessibility: 公開設定
+Overview: ''
+Schema: ''
+Content: ''
+Asset: アセット
+Request: ''
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
 Member: メンバー
-Account: アカウント
-Integration: インテグレーション
+Integrations: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
+Account: アカウント
 Please input field!: ''
-Asset: アセット
 New Item: ''
 New Request: ''
 Title: ''
@@ -57,13 +69,6 @@ Description: 説明
 Please select a reviewer!: ''
 Reviewer: ''
 Owner: オーナー
-Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-No Projects Yet: プロジェクトがありません
-Create a new project: 新規プロジェクトを作成
-New Project: 新規プロジェクト
-Or read: 読む
-how to use Re:Earth CMS: CMSの使い方
-first: はじめに
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -78,6 +83,9 @@ State: ステート
 Creator: 作成者
 No Integration yet: まだインテグレーションはありません
 Create a new: ''
+Or read: 読む
+how to use Re:Earth CMS: CMSの使い方
+first: はじめに
 Add member: メンバー追加
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
@@ -106,6 +114,10 @@ Item: アイテム
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 'Create a new ': 新規作成
+No Projects Yet: プロジェクトがありません
+Create a new project: 新規プロジェクトを作成
+New Project: 新規プロジェクト
+New Model: ''
 Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
@@ -133,12 +145,12 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
-Successfully created workspace!: ''
-Content: ''
-Failed to create project.: ''
-Successfully created project!: ''
-input search text: 検索
+Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
+search projects: 検索
 Create a Workspace: 新規ワークスペース
+Successfully created workspace!: ''
+Failed to update accessiblity options.: ''
+Successfully updated accessibility options!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to delete field.: ''
@@ -153,7 +165,6 @@ Failed to delete project.: ''
 Successfully deleted project!: ''
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Write something here to describe this record.: このレコードの説明を入力してください
-Save changes: 変更を保存
 Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
 Failed to connect integration.: ''
@@ -170,6 +181,7 @@ Change Role?: ロールを変更
 Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
+search for a member: 検索
 Failed to create webhook.: ''
 Successfully created webhook!: ''
 Failed to delete webhook.: ''
@@ -178,4 +190,6 @@ Failed to update webhook.: ''
 Successfully updated webhook!: ''
 Failed to create integration.: ''
 Successfully created integration!: ''
+Failed to create project.: ''
+Successfully created project!: ''
 Loading: ローディング中

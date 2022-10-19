@@ -51,6 +51,7 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
+  public: boolean;
 };
 
 export type Schema = {
