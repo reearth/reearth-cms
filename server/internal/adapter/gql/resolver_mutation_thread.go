@@ -4,27 +4,47 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateComment(ctx context.Context, input gqlmodel.CreateCommentInput) (*gqlmodel.CreateCommentPayload, error) {
-	panic("implement me")
+	thid := lo.Must(gqlmodel.ToID[id.Thread](input.ThreadID))
+	author := getOperator(ctx).User
+	c := thread.NewComment(id.NewCommentID(), author, input.Content)
+
+	uc := usecases(ctx).Thread
+	err := uc.AddComment(ctx, thid, c, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.CreateCommentPayload{Comment: gqlmodel.ToComment(c)}, nil
 }
 
 func (r *mutationResolver) UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.UpdateCommentPayload, error) {
-	panic("implement me")
+	thid := lo.Must(gqlmodel.ToID[id.Thread](input.ThreadID))
+	cid := lo.Must(gqlmodel.ToID[id.Comment](input.CommentID))
+
+	uc := usecases(ctx).Thread
+	if err := uc.UpdateComment(ctx, thid, cid, input.Content, getOperator(ctx)); err != nil {
+		return nil, err
+	}
+
+	th := lo.Must(usecases(ctx).Thread.FindByID(ctx, thid, getOperator(ctx)))
+	c := lo.Must(th.FindCommentByID(cid))
+	return &gqlmodel.UpdateCommentPayload{Comment: gqlmodel.ToComment(c)}, nil
 }
 
 func (r *mutationResolver) DeleteComment(ctx context.Context, input gqlmodel.DeleteCommentInput) (*gqlmodel.DeleteCommentPayload, error) {
-	panic("implement me")
-	// thid, err := gqlmodel.ToID[id.Thread](input.ThreadID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	thid := lo.Must(gqlmodel.ToID[id.Thread](input.ThreadID))
+	cid := lo.Must(gqlmodel.ToID[id.Comment](input.CommentID))
 
-	// res, err2 := usecases(ctx).Thread.DeleteComment(ctx, thid, getOperator(ctx))
-	// if err2 != nil {
-	// 	return nil, err2
-	// }
+	uc := usecases(ctx).Thread
+	if err := uc.DeleteComment(ctx, thid, cid, getOperator(ctx)); err != nil {
+		return nil, err
+	}
 
-	// return &gqlmodel.DeleteThreadPayload{ThreadID: gqlmodel.IDFrom(res)}, nil
+	return &gqlmodel.DeleteCommentPayload{CommentID: gqlmodel.IDFrom(cid)}, nil
 }
