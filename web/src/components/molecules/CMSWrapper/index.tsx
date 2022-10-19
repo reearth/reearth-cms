@@ -27,7 +27,7 @@ const CMSWrapper: React.FC<Props> = ({
     <CMSLayout>
       {Header}
       <Layout>
-        <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse} collapsedWidth={54}>
           {Sidebar}
         </CMSSidebar>
         <CMSContent>{Content}</CMSContent>
@@ -44,14 +44,24 @@ const CMSSidebar = styled(Sider)`
   background-color: #fff;
   .ant-layout-sider-trigger {
     background-color: #fff;
+    border-top: 1px solid #f0f0f0;
     color: #002140;
     text-align: left;
-    padding: 0 24px;
+    padding: 0 20px;
+    margin: 0;
+    height: 38px;
+    line-height: 38px;
   }
   .ant-layout-sider-children {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+  .ant-menu-inline {
+    border-right: 1px solid white;
+  }
+  .ant-menu-vertical {
+    border-right: none;
   }
 `;
 

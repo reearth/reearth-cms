@@ -55,7 +55,7 @@ Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
 Member: メンバー
-Integration: インテグレーション
+Integrations: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
@@ -117,6 +117,7 @@ No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
+New Model: ''
 Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
@@ -145,7 +146,7 @@ Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-input search text: 検索
+search projects: 検索
 Create a Workspace: 新規ワークスペース
 Successfully created workspace!: ''
 Failed to update accessiblity options.: ''
@@ -180,6 +181,7 @@ Change Role?: ロールを変更
 Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
+search for a member: 検索
 Failed to create webhook.: ''
 Successfully created webhook!: ''
 Failed to delete webhook.: ''

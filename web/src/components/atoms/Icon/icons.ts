@@ -31,9 +31,11 @@ import {
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
+import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
 import ListBullets from "./Icons/listBullets.svg";
 import MarkDown from "./Icons/markDown.svg";
+import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
@@ -75,4 +77,6 @@ export default {
   minusCircle: MinusCircleOutlined,
   delete: DeleteOutlined,
   arrowLeft: ArrowLeftOutlined,
+  myIntegrations: MyIntegrations,
+  key: Key,
 };

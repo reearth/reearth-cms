@@ -24,7 +24,7 @@ const WorkspaceHeader: React.FC<Props> = ({
     <ActionHeader>
       <Search
         onSearch={onProjectSearch}
-        placeholder={t("input search text")}
+        placeholder={t("search projects")}
         allowClear
         type="text"
         style={{ width: 264 }}
