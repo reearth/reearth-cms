@@ -51,6 +51,31 @@ const ProjectList: React.FC<Props> = ({
   );
 };
 
+const StyledDashboardBlock = styled.div`
+  margin-top: 16px;
+  height: 100%;
+  width: 100%;
+  @media only screen and (max-width: 1024px) {
+    order: 4;
+  }
+`;
+
+const Content = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  justify-content: space-between;
+  gap: 24px;
+`;
+
+const EmptyListWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 64px;
+`;
+
 const Suggestion = styled.p`
   margin-top: 8px;
   margin-bottom: 8px;
@@ -65,33 +90,6 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: #000;
-`;
-
-const EmptyListWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 64px;
-`;
-
-const StyledDashboardBlock = styled.div`
-  height: 100%;
-  width: 100%;
-  @media only screen and (max-width: 1024px) {
-    order: 4;
-  }
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
-  gap: 24px;
-  margin: auto;
-  height: 100%;
 `;
 
 export default ProjectList;

@@ -34,12 +34,7 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
 };
 
 const CardWrapper = styled.div`
-  flex: 0 0 25%;
-  max-width: 250px;
-  @media (max-width: 768px) {
-    flex: 0 0 50%;
-    max-width: 50%;
-  }
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
 const Cover = styled.div`
@@ -52,18 +47,26 @@ const Cover = styled.div`
   height: 150px;
   background-color: #eeeeee;
   color: #fff;
+  user-select: none;
 `;
 
 const ProjectStyledCard = styled(Card)`
   .ant-card-body {
-    height: 118px;
+    height: 100px;
+    padding: 24px;
   }
-  .ant-card-meta-description {
-    height: 44px;
+  .ant-card-actions {
+    height: 40px;
+    > li {
+      margin: auto;
+      font-size: 16px;
+    }
+  }
+  .ant-card-meta-detail {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
 `;
