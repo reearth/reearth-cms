@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -30,6 +30,12 @@ const ProjectMenu: React.FC<Props> = ({
     { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
+  useEffect(() => {
+    if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {
+      changeSelected([defaultSelectedKey]);
+    }
+  }, [selected, defaultSelectedKey]);
 
   const items: ItemType[] = [
     {

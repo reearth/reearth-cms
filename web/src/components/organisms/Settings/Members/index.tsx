@@ -124,7 +124,7 @@ const Members: React.FC = () => {
           }
         />
         <ActionHeader>
-          <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
+          <Search placeholder={t("search for a member")} allowClear style={{ width: 264 }} />
         </ActionHeader>
         <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />
       </PaddedContent>
