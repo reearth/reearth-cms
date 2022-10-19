@@ -12,6 +12,11 @@ import (
 
 func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
 	op := getOperator(ctx)
+	uop, err := op.UserOperator()
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := usecases(ctx).Integration.Create(
 		ctx,
 		interfaces.CreateIntegrationParam{
@@ -20,14 +25,14 @@ func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel
 			Type:        integration.TypeFrom(input.Type.String()),
 			Logo:        input.LogoURL,
 		},
-		op,
+		uop,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res, op.User),
+		Integration: gqlmodel.ToIntegration(res, uop.User()),
 	}, nil
 }
 
@@ -37,6 +42,11 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	op := getOperator(ctx)
+	uop, err := op.UserOperator()
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := usecases(ctx).Integration.Update(
 		ctx,
 		iId,
@@ -45,14 +55,14 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 			Description: input.Description,
 			Logo:        input.LogoURL,
 		},
-		op,
+		uop,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res, op.User),
+		Integration: gqlmodel.ToIntegration(res, uop.User()),
 	}, nil
 }
 
@@ -62,7 +72,12 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 
-	err = usecases(ctx).Integration.Delete(ctx, iId, getOperator(ctx))
+	uop, err := getOperator(ctx).UserOperator()
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.Delete(ctx, iId, uop)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +89,11 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 
 func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error) {
 	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
+	if err != nil {
+		return nil, err
+	}
+
+	uop, err := getOperator(ctx).UserOperator()
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +111,7 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
 			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 		},
-	}, getOperator(ctx))
+	}, uop)
 	if err != nil {
 		return nil, err
 	}
@@ -103,6 +123,11 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 
 func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error) {
 	iId, wId, err := gqlmodel.ToID2[id.Integration, id.Webhook](input.IntegrationID, input.WebhookID)
+	if err != nil {
+		return nil, err
+	}
+
+	uop, err := getOperator(ctx).UserOperator()
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +145,7 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
 			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 		},
-	}, getOperator(ctx))
+	}, uop)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +161,12 @@ func (r *mutationResolver) DeleteWebhook(ctx context.Context, input gqlmodel.Del
 		return nil, err
 	}
 
-	err = usecases(ctx).Integration.DeleteWebhook(ctx, iId, wId, getOperator(ctx))
+	uop, err := getOperator(ctx).UserOperator()
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.DeleteWebhook(ctx, iId, wId, uop)
 	if err != nil {
 		return nil, err
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
@@ -63,8 +64,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// apis
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
-	api.POST(
-		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
+	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
+
+	integrationApi := e.Group("/iapi")
+	integrationHandlers := integration.NewStrictHandler(integration.NewServer(*adapter.Usecases(ctx)), nil)
+	integration.RegisterHandlers(integrationApi, integrationHandlers)
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())

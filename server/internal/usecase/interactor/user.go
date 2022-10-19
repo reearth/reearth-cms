@@ -88,8 +88,8 @@ func (i *User) GetUserBySubject(ctx context.Context, sub string) (u *user.User, 
 	})
 }
 
-func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operator *usecase.Operator) (u *user.User, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operator *usecase.UserOperator) (u *user.User, err error) {
+	return Run1(ctx, &operator.Operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
 		if p.Password != nil {
 			if p.PasswordConfirmation == nil || *p.Password != *p.PasswordConfirmation {
 				return nil, interfaces.ErrUserInvalidPasswordConfirmation
@@ -98,7 +98,7 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 
 		var workspace *user.Workspace
 
-		u, err = i.repos.User.FindByID(ctx, operator.User)
+		u, err = i.repos.User.FindByID(ctx, operator.User())
 		if err != nil {
 			return nil, err
 		}
@@ -170,10 +170,10 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 	})
 }
 
-func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *usecase.Operator) (u *user.User, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *usecase.UserOperator) (u *user.User, err error) {
+	return Run1(ctx, &operator.Operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
 
-		u, err = i.repos.User.FindByID(ctx, operator.User)
+		u, err = i.repos.User.FindByID(ctx, operator.User())
 		if err != nil {
 			return nil, err
 		}
@@ -199,9 +199,9 @@ func (i *User) SearchUser(ctx context.Context, nameOrEmail string, operator *use
 	})
 }
 
-func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase.Operator) (err error) {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		if userID.IsNil() || userID != operator.User {
+func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase.UserOperator) (err error) {
+	return Run0(ctx, &operator.Operator, i.repos, Usecase().Transaction(), func() error {
+		if userID.IsNil() || userID != operator.User() {
 			return errors.New("invalid user id")
 		}
 

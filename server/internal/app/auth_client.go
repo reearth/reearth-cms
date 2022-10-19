@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -50,12 +51,14 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 			// get integration token if presented
 			token := req.Header.Get("authorization")
-			strings.HasPrefix(token, "secret_")
+			if !strings.HasPrefix(token, "secret_") {
+				return errors.New("invalid integration token")
+			}
 
 			if token != "" {
 				var i *integration.Integration
 				var err error
-				i, err = cfg.Repos.Integration.FindByToken(ctx, integrationToken)
+				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
 				if err != nil {
 					return err
 				}
@@ -81,36 +84,45 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) 
 
 	uid := u.ID()
 
-	workspaces, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
+	w, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	readableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleReader).IDs()
-	writableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleWriter).IDs()
-	owningWorkspaces := workspaces.FilterByUserRole(uid, user.RoleOwner).IDs()
+	rw := w.FilterByUserRole(uid, user.RoleReader).IDs()
+	ww := w.FilterByUserRole(uid, user.RoleWriter).IDs()
+	ow := w.FilterByUserRole(uid, user.RoleOwner).IDs()
 
-	readableProjects := id.ProjectIDList{}
-	writableProjects := id.ProjectIDList{}
-	owningProjects := id.ProjectIDList{}
+	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	if err != nil {
+		return nil, err
+	}
+
+	return usecase.NewUserOperator(uid, rw, ww, ow, rp, wp, op), nil
+}
+
+func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+	rp := id.ProjectIDList{}
+	wp := id.ProjectIDList{}
+	op := id.ProjectIDList{}
 
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, workspaces.IDs(), &usecasex.Pagination{
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), &usecasex.Pagination{
 			After: cur,
 			First: lo.ToPtr(100),
 		})
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 
 		for _, p := range projects {
-			if owningWorkspaces.Has(p.Workspace()) {
-				owningProjects = append(owningProjects, p.ID())
-			} else if writableWorkspaces.Has(p.Workspace()) {
-				writableProjects = append(writableProjects, p.ID())
-			} else if readableWorkspaces.Has(p.Workspace()) {
-				readableProjects = append(readableProjects, p.ID())
+			if ow.Has(p.Workspace()) {
+				op = append(op, p.ID())
+			} else if ww.Has(p.Workspace()) {
+				wp = append(wp, p.ID())
+			} else if rw.Has(p.Workspace()) {
+				rp = append(rp, p.ID())
 			}
 		}
 
@@ -119,16 +131,7 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) 
 		}
 		cur = pi.EndCursor
 	}
-
-	return &usecase.Operator{
-		User:               &uid,
-		ReadableWorkspaces: readableWorkspaces,
-		WritableWorkspaces: writableWorkspaces,
-		OwningWorkspaces:   owningWorkspaces,
-		ReadableProjects:   readableProjects,
-		WritableProjects:   writableProjects,
-		OwningProjects:     owningProjects,
-	}, nil
+	return rp, wp, op, nil
 }
 
 func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration) (*usecase.Operator, error) {
@@ -137,24 +140,21 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}
 
 	iId := i.ID()
-	workspaces, err := cfg.Repos.Workspace.FindByIntegration(ctx, iId)
+	w, err := cfg.Repos.Workspace.FindByIntegration(ctx, iId)
 	if err != nil {
 		return nil, err
 	}
 
-	readableWorkspaces := workspaces.FilterByIntegrationRole(iId, user.RoleReader).IDs()
-	writableWorkspaces := workspaces.FilterByIntegrationRole(iId, user.RoleWriter).IDs()
-	owningWorkspaces := workspaces.FilterByIntegrationRole(iId, user.RoleOwner).IDs()
+	rw := w.FilterByIntegrationRole(iId, user.RoleReader).IDs()
+	ww := w.FilterByIntegrationRole(iId, user.RoleWriter).IDs()
+	ow := w.FilterByIntegrationRole(iId, user.RoleOwner).IDs()
 
-	return &usecase.Operator{
-		Integration:        &iId,
-		ReadableWorkspaces: readableWorkspaces,
-		WritableWorkspaces: writableWorkspaces,
-		OwningWorkspaces:   owningWorkspaces,
-		ReadableProjects:   readableProjects,
-		WritableProjects:   writableProjects,
-		OwningProjects:     owningProjects,
-	}, nil
+	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	if err != nil {
+		return nil, err
+	}
+
+	return usecase.NewIntegrationOperator(iId, rw, ww, ow, rp, wp, op), nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
