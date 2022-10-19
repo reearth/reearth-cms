@@ -1,5 +1,6 @@
 import { atom, useAtom } from "jotai";
 
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 // useError is needed for Apollo provider error only.
@@ -20,7 +21,9 @@ export const useWorkspace = () => useAtom(workspace);
 
 export type Project = {
   id: string;
-  name?: string;
+  name: string;
+  description?: string;
+  scope?: PublicScope;
 };
 
 const project = atom<Project | undefined>(undefined);

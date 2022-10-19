@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
-import { useParams, useLocation, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import CMSWrapperMolecule from "@reearth-cms/components/molecules/CMSWrapper";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
@@ -10,34 +9,22 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 import useHooks from "./hooks";
 
 const CMSWrapper: React.FC = () => {
-  const { projectId, workspaceId } = useParams();
-  const [collapsed, setCollapsed] = useState(false);
-  const { pathname } = useLocation();
-
-  const [secondaryRoute, subRoute] = useMemo(() => {
-    const splitPathname = pathname.split("/");
-    const secondaryRoute = splitPathname[3];
-    const subRoute = secondaryRoute === "project" ? splitPathname[5] : secondaryRoute;
-    return [secondaryRoute, subRoute];
-  }, [pathname]);
-
-  const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
-
   const {
-    user,
+    username,
     personalWorkspace,
     workspaces,
     currentWorkspace,
     workspaceModalShown,
-    handleWorkspaceCreate,
+    currentProject,
+    selectedKey,
+    secondaryRoute,
+    collapsed,
+    handleCollapse,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
+    handleWorkspaceCreate,
     handleNavigateToSettings,
-  } = useHooks({ projectId, workspaceId });
-
-  const handleCollapse = useCallback((collapse: boolean) => {
-    setCollapsed(collapse);
-  }, []);
+  } = useHooks();
 
   return (
     <>
@@ -47,7 +34,7 @@ const CMSWrapper: React.FC = () => {
         sidebarComponent={
           secondaryRoute === "project" ? (
             <ProjectMenu
-              projectId={projectId}
+              projectId={currentProject?.id}
               defaultSelectedKey={selectedKey}
               inlineCollapsed={collapsed}
               workspaceId={currentWorkspace?.id}
@@ -68,7 +55,8 @@ const CMSWrapper: React.FC = () => {
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
-            user={user}
+            currentProject={currentProject}
+            username={username}
           />
         }
         contentComponent={<Outlet />}

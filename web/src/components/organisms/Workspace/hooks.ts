@@ -9,13 +9,12 @@ import {
   useCreateWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const navigate = useNavigate();
 
-  const [, setCurrentProject] = useProject();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
@@ -95,9 +94,8 @@ export default () => {
         route = route.concat("/", tab);
       }
       navigate(route);
-      setCurrentProject(project);
     },
-    [currentWorkspace, setCurrentProject, navigate],
+    [currentWorkspace, navigate],
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
@@ -127,7 +125,6 @@ export default () => {
     projects,
     projectModalShown,
     workspaceModalShown,
-    // setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
