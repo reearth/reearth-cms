@@ -9,14 +9,18 @@ export type Props = {
   className?: string;
   menu: React.ReactElement | (() => React.ReactElement);
   name?: string;
+  personal?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ className, menu, name }) => {
+const Dropdown: React.FC<Props> = ({ className, menu, name, personal }) => {
   return (
     <StyledDropdown className={className} overlay={menu} trigger={["click"]}>
       <a onClick={e => e.preventDefault()}>
         <Space>
-          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size={"small"}>
+          <Avatar
+            shape={personal ? "circle" : "square"}
+            style={{ color: "#fff", backgroundColor: "#3F3D45" }}
+            size={"small"}>
             {name?.charAt(0)}
           </Avatar>
           <Text>{name}</Text>
