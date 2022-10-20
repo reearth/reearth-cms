@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -57,7 +58,7 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 		}
 		return true
 	})
-	return res, nil, nil
+	return res.SortByTimestamp(), nil, nil
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
@@ -74,7 +75,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 		return true
 	})
 
-	return res, nil, nil
+	return res.SortByTimestamp(), nil, nil
 }
 
 func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, error) {
@@ -82,7 +83,7 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 		return nil, r.err
 	}
 
-	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
+	return item.List(r.data.LoadAll(list, version.Latest.OrVersion())).SortByTimestamp(), nil
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
@@ -91,6 +92,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*versio
 	}
 
 	res := r.data.LoadAllVersions(id).All()
+	sortItems(res)
 	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
 	}), nil
@@ -163,4 +165,10 @@ func SetItemError(r repo.Item, err error) {
 
 func (r *Item) Len() int {
 	return r.data.Len()
+}
+
+func sortItems(items []*version.Value[*item.Item]) {
+	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) bool {
+		return a.Value().Timestamp().Before(b.Value().Timestamp())
+	})
 }

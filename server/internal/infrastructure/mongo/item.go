@@ -52,8 +52,7 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
 	}, pagination)
-	res.SortByTimestamp()
-	return res, pi, err
+	return res.SortByTimestamp(), pi, err
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
@@ -63,8 +62,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, pagination)
-	res.SortByTimestamp()
-	return res, pi, err
+	return res.SortByTimestamp(), pi, err
 }
 
 func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
