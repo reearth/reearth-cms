@@ -67,14 +67,20 @@ const ProjectSchema: React.FC = () => {
           </Sidebar>
         }
         center={
-          <ContentChild>
-            <ModelTitle>{model?.name}</ModelTitle>
-            <ModelFieldList
-              handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
-              handleFieldDelete={handleFieldDelete}
-              fields={model?.schema.fields}
-            />
-          </ContentChild>
+          <Content>
+            {model?.name && (
+              <TitleWrapper>
+                <ModelTitle>{model.name}</ModelTitle>
+              </TitleWrapper>
+            )}
+            <ModelFieldListWrapper>
+              <ModelFieldList
+                handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
+                handleFieldDelete={handleFieldDelete}
+                fields={model?.schema.fields}
+              />
+            </ModelFieldListWrapper>
+          </Content>
         }
         right={
           <FieldListWrapper>
@@ -105,19 +111,28 @@ const ProjectSchema: React.FC = () => {
   );
 };
 
-const ModelTitle = styled.h1`
+const ModelTitle = styled.p`
   font-weight: 500;
   font-size: 20px;
-  line-height: 28px;
+  line-height: 20px;
   color: rgba(0, 0, 0, 0.85);
-  margin: 24px 0;
   word-break: break-all;
   width: 100%;
+  margin: 0;
 `;
 
-const ContentChild = styled.div`
-  width: 100%;
+const TitleWrapper = styled.div`
+  display: flex;
+  padding: 22px 24px;
   background-color: #fff;
+`;
+
+const Content = styled.div`
+  width: 100%;
+  background: #fafafa;
+`;
+
+const ModelFieldListWrapper = styled.div`
   padding: 24px;
 `;
 
@@ -128,7 +143,7 @@ const FieldListWrapper = styled.div`
   overflow-y: auto;
 `;
 
-const Sidebar = styled(Sider)<{ collapsed?: boolean }>`
+const Sidebar = styled(Sider)`
   background-color: #fff;
 
   .ant-layout-sider-trigger {

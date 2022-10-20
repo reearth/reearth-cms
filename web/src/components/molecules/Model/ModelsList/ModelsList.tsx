@@ -36,7 +36,7 @@ const ModelsList: React.FC<Props> = ({
       {collapsed ? (
         <StyledIcon icon="unorderedList" />
       ) : (
-        <>
+        <Header>
           <SchemaStyledTitle>{title}</SchemaStyledTitle>
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
@@ -44,7 +44,7 @@ const ModelsList: React.FC<Props> = ({
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>
-        </>
+        </Header>
       )}
       <MenuWrapper>
         <StyledMenu
@@ -64,6 +64,10 @@ const ModelsList: React.FC<Props> = ({
   );
 };
 
+const Header = styled.div`
+  padding: 22px 20px 4px 20px;
+`;
+
 const SchemaAction = styled.div<{ collapsed?: boolean }>`
   display: flex;
   justify-content: ${({ collapsed }) => (collapsed ? "space-around" : "space-between")};
@@ -72,6 +76,7 @@ const SchemaAction = styled.div<{ collapsed?: boolean }>`
 
 const SchemaAddButton = styled(Button)`
   color: #1890ff;
+  padding: 4px;
   &:hover,
   &:active,
   &:focus {
@@ -80,17 +85,13 @@ const SchemaAddButton = styled(Button)`
 `;
 
 const SchemaStyledMenuTitle = styled.h1`
-  padding: 24px;
   margin: 0;
   font-weight: 400;
   font-size: 14px;
-  line-height: 22px;
   color: #00000073;
 `;
 
-const SchemaStyledTitle = styled.h2`
-  padding: 24px;
-`;
+const SchemaStyledTitle = styled.h2``;
 
 const SchemaStyledMenu = styled.div`
   display: flex;
