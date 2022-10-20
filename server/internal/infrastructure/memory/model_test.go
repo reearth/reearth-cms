@@ -365,7 +365,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 			defer MockModelNow(r, mocknow)()
 			ctx := context.Background()
 			for _, a := range tc.seeds {
-				err := r.Save(ctx, a)
+				err := r.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
 

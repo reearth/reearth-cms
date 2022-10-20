@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -48,18 +49,22 @@ func (r *Item) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
 }
 
 func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	return r.paginate(ctx, bson.M{
+	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
 	}, pagination)
+	res.SortByTimestamp()
+	return res, pi, err
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(projectID) {
 		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
 	}
-	return r.paginate(ctx, bson.M{
+	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, pagination)
+	res.SortByTimestamp()
+	return res, pi, err
 }
 
 func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
@@ -88,7 +93,9 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*ve
 		return nil, err
 	}
 
-	return c.Result, nil
+	res := slices.Clone(c.Result)
+	sortItems(res)
+	return res, nil
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {
@@ -131,7 +138,6 @@ func (r *Item) find(ctx context.Context, filter interface{}) (item.List, error) 
 	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(version.Latest.OrVersion()), c); err != nil {
 		return nil, err
 	}
-
 	return c.Result, nil
 }
 
@@ -163,4 +169,10 @@ func (r *Item) readFilter(filter interface{}) interface{} {
 
 func (r *Item) writeFilter(filter interface{}) interface{} {
 	return applyProjectFilter(filter, r.f.Writable)
+}
+
+func sortItems(items []*version.Value[*item.Item]) {
+	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) bool {
+		return a.Value().Timestamp().Before(b.Value().Timestamp())
+	})
 }

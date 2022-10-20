@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -17,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -111,9 +113,15 @@ func TestItem_FindBySchema(t *testing.T) {
 	pid := id.NewProjectID()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
 	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
 	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
+	restore()
 
 	type args struct {
 		schema     id.SchemaID
@@ -381,9 +389,15 @@ func TestItem_FindByProject(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
 	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
 	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Build()
+	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{

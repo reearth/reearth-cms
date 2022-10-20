@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"testing"
+	"time"
 
 	repo "github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -13,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -49,7 +51,6 @@ func TestItem_FindByID(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -71,44 +72,51 @@ func TestItem_FindByID(t *testing.T) {
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
-	id1 := id.NewItemID()
+	iid := id.NewItemID()
 	sfid := schema.NewFieldID()
 	pid := id.NewProjectID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1 := item.New().ID(id1).Fields(fs).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+	now1 := time.Now().Truncate(time.Millisecond).UTC()
+	restore := util.MockNow(now1)
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+	restore()
+	now2 := now1.Add(time.Second).UTC()
+	restore = util.MockNow(now2)
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Project(i1.Project()).MustBuild()
+	restore()
 
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
 
 	r := NewItem(client)
 	ctx := context.Background()
-	err := r.Save(ctx, i1)
-	assert.NoError(t, err)
-
-	got, err := r.FindAllVersionsByID(ctx, i1.ID())
-	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
-		version.NewValue(got[0].Version(), nil, version.NewRefs(version.Latest), i1),
-	}, got)
-
 	assert.NoError(t, r.Save(ctx, i1))
 
-	got2, err := r.FindAllVersionsByID(ctx, i1.ID())
+	got1, err := r.FindAllVersionsByID(ctx, iid)
+	assert.NoError(t, err)
+	assert.Equal(t, []*version.Value[*item.Item]{
+		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), i1),
+	}, got1)
+	assert.NoError(t, r.Save(ctx, i2))
+
+	got2, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
 	assert.Equal(t, []*version.Value[*item.Item]{
 		version.NewValue(got2[0].Version(), nil, nil, i1),
-		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), i1),
+		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), i2),
 	}, got2)
 
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{id.NewProjectID()},
 	})
-	got3, err := r.FindAllVersionsByID(ctx, i1.ID())
+	got3, err := r.FindAllVersionsByID(ctx, iid)
 	assert.Nil(t, got3)
 	assert.NoError(t, err)
 }
 
 func TestItem_FindByIDs(t *testing.T) {
+	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
+
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
@@ -138,7 +146,6 @@ func TestItem_FindByIDs(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
@@ -159,6 +166,8 @@ func TestItem_FindByIDs(t *testing.T) {
 }
 
 func TestItem_FindBySchema(t *testing.T) {
+	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
+
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
@@ -192,10 +201,7 @@ func TestItem_FindBySchema(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-
 		t.Run(tc.Name, func(tt *testing.T) {
-			tt.Parallel()
-
 			client := mongox.NewClientWithDatabase(init(t))
 			r := NewItem(client)
 			ctx := context.Background()
@@ -217,6 +223,7 @@ func TestItem_FindBySchema(t *testing.T) {
 }
 
 func TestItem_FindByProject(t *testing.T) {
+	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
 	pid := id.NewProjectID()
 	sid := id.NewSchemaID()
 	i1 := item.New().NewID().Schema(sid).Project(pid).MustBuild()
@@ -243,7 +250,6 @@ func TestItem_FindByProject(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-
 		t.Run(tc.Name, func(tt *testing.T) {
 			tt.Parallel()
 
