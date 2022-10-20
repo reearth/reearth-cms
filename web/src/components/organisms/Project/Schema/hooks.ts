@@ -18,11 +18,12 @@ type Params = {
 };
 
 export default ({ projectId, modelId }: Params) => {
+  const t = useT();
+
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const t = useT();
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },

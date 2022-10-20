@@ -14,12 +14,14 @@ export interface Props {
 }
 
 const ModelFieldList: React.FC<Props> = ({
+  className,
   fields,
   handleFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
   return (
     <FieldStyledList
+      className={className}
       itemLayout="horizontal"
       dataSource={fields}
       renderItem={item => (
