@@ -41,11 +41,10 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          {model?.name && (
-            <TitleWrapper>
-              <ModelTitle>{model.name}</ModelTitle>
-            </TitleWrapper>
-          )}
+          <TitleWrapper>
+            <ModelTitle>{model?.name}</ModelTitle>
+          </TitleWrapper>
+
           <ModelFieldListWrapper>
             <ModelFieldList
               fields={model?.schema.fields}
@@ -78,7 +77,9 @@ const ModelTitle = styled.p`
 
 const TitleWrapper = styled.div`
   display: flex;
-  padding: 22px 24px;
+  align-items: center;
+  padding: 0 24px;
+  height: 72px;
   background-color: #fff;
 `;
 
