@@ -16,14 +16,14 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel 
   const { projectId, modelId } = useParams();
 
   const {
-    handleModelModalClose,
-    handleModelModalOpen,
     modelModalShown,
-    handleModelCreate,
-    handleModelKeyCheck,
     isKeyAvailable,
     models,
     model,
+    handleModelModalClose,
+    handleModelModalOpen,
+    handleModelCreate,
+    handleModelKeyCheck,
   } = useHooks({
     projectId,
     modelId,
@@ -34,17 +34,17 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel 
       <ModelsList
         className={className}
         title={title}
-        selectModel={selectModel}
-        defaultSelectedKeys={[model?.id ?? ""]}
+        selectedKey={model?.id}
         models={models}
         collapsed={collapsed}
+        selectModel={selectModel}
         onModalOpen={handleModelModalOpen}
       />
       <ModelCreationModal
         isKeyAvailable={isKeyAvailable}
         projectId={projectId}
-        onModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
+        onModelKeyCheck={handleModelKeyCheck}
         onClose={handleModelModalClose}
         onSubmit={handleModelCreate}
       />

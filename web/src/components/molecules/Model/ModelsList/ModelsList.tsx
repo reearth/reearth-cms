@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   className?: string;
   title?: string;
-  defaultSelectedKeys?: string[];
+  selectedKey?: string;
   models?: Model[];
   collapsed?: boolean;
   onModalOpen: () => void;
@@ -19,7 +19,7 @@ export type Props = {
 
 const ModelsList: React.FC<Props> = ({
   className,
-  defaultSelectedKeys,
+  selectedKey,
   models,
   collapsed,
   onModalOpen,
@@ -49,7 +49,7 @@ const ModelsList: React.FC<Props> = ({
       <MenuWrapper>
         <StyledMenu
           onClick={onClick}
-          defaultSelectedKeys={defaultSelectedKeys}
+          selectedKeys={[selectedKey ?? ""]}
           mode={collapsed ? "vertical" : "inline"}
           style={{
             color: collapsed ? "#C4C4C4" : undefined,

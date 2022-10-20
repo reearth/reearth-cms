@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
+import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
@@ -13,12 +15,13 @@ export type FormValues = {
 };
 
 const ProjectSchema: React.FC = () => {
+  const t = useT();
   const navigate = useNavigate();
   const [collapsed, collapse] = useState(false);
 
   const { projectId, workspaceId, modelId } = useParams();
 
-  const selectModel = useCallback(
+  const handleModelSelect = useCallback(
     (modelId: string) => {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
     },
@@ -49,8 +52,10 @@ const ProjectSchema: React.FC = () => {
       <SchemaMolecule
         collapsed={collapsed}
         model={model}
+        modelsMenu={
+          <ModelsMenu title={t("Schema")} collapsed={collapsed} selectModel={handleModelSelect} />
+        }
         onCollapse={collapse}
-        selectModel={selectModel}
         onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
         onFieldCreationModalOpen={handleFieldCreationModalOpen}
         onFieldDelete={handleFieldDelete}

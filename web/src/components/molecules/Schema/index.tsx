@@ -6,14 +6,12 @@ import Sider from "@reearth-cms/components/atoms/Sider";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
-import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
-import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   collapsed?: boolean;
   model?: Model;
+  modelsMenu?: JSX.Element;
   onCollapse?: (collapse: boolean) => void;
-  selectModel: (modelId: string) => void;
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
@@ -22,14 +20,12 @@ export type Props = {
 const Schema: React.FC<Props> = ({
   collapsed,
   model,
-  selectModel,
+  modelsMenu,
   onCollapse,
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
 }) => {
-  const t = useT();
-
   return (
     <ComplexInnerContents
       left={
@@ -40,7 +36,7 @@ const Schema: React.FC<Props> = ({
           collapsedWidth={54}
           width={208}
           trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
-          <ModelsMenu title={t("Schema")} collapsed={collapsed} selectModel={selectModel} />
+          {modelsMenu}
         </Sidebar>
       }
       center={
