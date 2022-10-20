@@ -158,6 +158,7 @@ const MainHeader = styled(Header)`
   line-height: 41px;
   padding: 0;
   background-color: #1d1d1d;
+
   .ant-space-item {
     color: #dbdbdb;
   }
