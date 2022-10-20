@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -44,36 +45,70 @@ func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thre
 	})
 }
 
-func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) error {
+func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	filter := bson.M{
+		"id": bson.M{"$in": ids.Strings()},
+	}
+	res, err := r.find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	return filterThreads(ids, res), nil
+}
+
+func (r *threadRepo) CreateThread(ctx context.Context, wid id.WorkspaceID) (*thread.Thread, error) {
+	if !r.f.CanWrite(wid) {
+		return nil, repo.ErrOperationDenied
+	}
+
+	th := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
+	if err := r.Save(ctx, th); err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return th, nil
+}
+
+func (r *threadRepo) AddComment(ctx context.Context, th *thread.Thread, c *thread.Comment) (*thread.Comment, error) {
 	if !r.f.CanWrite(th.Workspace()) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	th1 := th.Clone()
 	if err := th1.AddComment(c); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.Save(ctx, th1); err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
-	return nil
+	return c, nil
 }
 
-func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) error {
+func (r *threadRepo) UpdateComment(ctx context.Context, th *thread.Thread, cid id.CommentID, content string) (*thread.Comment, error) {
 	if !r.f.CanWrite(th.Workspace()) {
-		return repo.ErrOperationDenied
+		return nil, repo.ErrOperationDenied
 	}
 
 	th1 := th.Clone()
 	if err := th1.UpdateComment(cid, content); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.Save(ctx, th1); err != nil {
-		return rerror.ErrInternalBy(err)
+		return nil, rerror.ErrInternalBy(err)
 	}
-	return nil
+
+	res, err := r.FindByID(ctx, th1.ID())
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	c := lo.Must(res.FindCommentByID(cid))
+	return c, nil
 }
 
 func (r *threadRepo) DeleteComment(ctx context.Context, th *thread.Thread, id id.CommentID) error {
@@ -106,6 +141,29 @@ func (r *threadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, e
 		return nil, err
 	}
 	return c.Result[0], nil
+}
+
+func (r *threadRepo) find(ctx context.Context, filter interface{}) ([]*thread.Thread, error) {
+	c := mongodoc.NewThreadConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	return c.Result, nil
+}
+
+func filterThreads(ids []id.ThreadID, rows []*thread.Thread) []*thread.Thread {
+	res := make([]*thread.Thread, 0, len(ids))
+	for _, id := range ids {
+		var r2 *thread.Thread
+		for _, r := range rows {
+			if r.ID() == id {
+				r2 = r
+				break
+			}
+		}
+		res = append(res, r2)
+	}
+	return res
 }
 
 func (r *threadRepo) readFilter(filter any) any {

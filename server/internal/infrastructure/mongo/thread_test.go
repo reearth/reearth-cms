@@ -89,7 +89,7 @@ func TestThread_AddComment(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			err := r.AddComment(ctx, tc.seed, tc.arg)
+			_, err := r.AddComment(ctx, tc.seed, tc.arg)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -169,7 +169,7 @@ func TestThread_UpdateComment(t *testing.T) {
 			}
 
 			comment := thread.Comments()[0]
-			if err := r.UpdateComment(ctx, thread, comment.ID(), tc.arg); tc.wantErr != nil {
+			if _, err := r.UpdateComment(ctx, thread, comment.ID(), tc.arg); tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
 			} else {
