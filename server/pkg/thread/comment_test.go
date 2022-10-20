@@ -38,3 +38,13 @@ func TestComment_CreatedAt(t *testing.T) {
 	got = &Comment{id: NewCommentID()}
 	assert.Equal(t, mocknow, got.CreatedAt())
 }
+
+func TestComment_Clone(t *testing.T) {
+	comment := (&Comment{
+		id:      NewCommentID(),
+		author:  NewUserID(),
+		content: "test"})
+	assert.Nil(t, (*Comment)(nil).Clone())
+	assert.Equal(t, comment, comment.Clone())
+	assert.NotSame(t, comment, comment.Clone())
+}
