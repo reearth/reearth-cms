@@ -1,8 +1,15 @@
 package http
 
-import "context"
+import (
+	"context"
+
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+)
 
 type TaskController struct {
+	usecase interfaces.Asset
 }
 
 type NotifyInput struct {
@@ -10,10 +17,20 @@ type NotifyInput struct {
 	AssetID string `json:"assetId"`
 }
 
-func NewTaskController() *TaskController {
-	return &TaskController{}
+func NewTaskController(uc interfaces.Asset) *TaskController {
+	return &TaskController{usecase: uc}
 }
 
-func (t *TaskController) Notify(ctx context.Context, input NotifyInput) error {
-	panic("implement me")
+func (tc *TaskController) Notify(ctx context.Context, input NotifyInput) error {
+	aID, err := id.AssetIDFrom(input.AssetID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tc.usecase.UpdateFiles(ctx, aID, adapter.Operator(ctx))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

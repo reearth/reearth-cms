@@ -139,7 +139,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			_ = lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+			assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
 					Path(f.Name).
@@ -147,7 +147,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 					Build()
 			})
 
-			// a.SetFile(asset.FoldFiles(assetFiles))
+			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
