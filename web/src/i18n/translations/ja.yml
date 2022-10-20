@@ -1,14 +1,5 @@
 Download: ''
 Loading: ローディング中
-Model: ''
-Switch: ''
-Private: ''
-API Key Only: ''
-Public: ''
-Accessibility: 公開設定
-Public Scope: ''
-Choose the scope of your project. This affects all the models shown below that are switched on.: ''
-Save changes: 変更を保存
 Unzip File: ''
 Asset Type: ''
 Created Time: ''
@@ -52,6 +43,7 @@ Schema: ''
 Content: ''
 Asset: アセット
 Request: ''
+Public: ''
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
@@ -119,6 +111,13 @@ No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
 New Model: ''
+Model: ''
+Switch: ''
+Private: ''
+API Key Only: ''
+Public Scope: ''
+Choose the scope of your project. This affects all the models shown below that are switched on.: ''
+Save changes: 変更を保存
 Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
@@ -150,10 +149,10 @@ Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
 Successfully created workspace!: ''
-Failed to update accessiblity options.: ''
-Successfully updated accessibility options!: ''
 Failed to create model.: ''
 Successfully created model!: ''
+Failed to update publication settings.: ''
+Successfully updated publication settings!: ''
 Failed to delete field.: ''
 Successfully deleted field!: ''
 Failed to update field.: ''
