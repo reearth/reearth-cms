@@ -29,7 +29,7 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title={projectName} subtitle={projectDescription}>
+    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
       <Wrapper>
         <Header>
           <Subtitle>{t("Models")}</Subtitle>
@@ -54,7 +54,11 @@ const ProjectOverview: React.FC<Props> = ({
 
 export default ProjectOverview;
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
 
 const Header = styled.div`
   display: flex;

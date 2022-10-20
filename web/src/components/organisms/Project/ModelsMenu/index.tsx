@@ -16,12 +16,12 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel 
   const { projectId, modelId } = useParams();
 
   const {
+    model,
+    models,
     modelModalShown,
     isKeyAvailable,
-    models,
-    model,
-    handleModelModalClose,
     handleModelModalOpen,
+    handleModelModalClose,
     handleModelCreate,
     handleModelKeyCheck,
   } = useHooks({
