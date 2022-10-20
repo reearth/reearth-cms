@@ -30,6 +30,8 @@ const AssetList: React.FC = () => {
   };
   const hideUploadModal = () => {
     setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
   };
 
   const handleUpload = () => {
@@ -40,8 +42,6 @@ const AssetList: React.FC = () => {
         console.log(error);
       })
       .finally(() => {
-        setUploading(false);
-        setFileList([]);
         hideUploadModal();
       });
   };
