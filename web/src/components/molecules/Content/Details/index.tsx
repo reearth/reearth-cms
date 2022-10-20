@@ -6,8 +6,8 @@ import { Model } from "@reearth-cms/components/molecules/Schema/types";
 export type Props = {
   model?: Model;
   modelsMenu: React.ReactNode;
-  onItemCreate: (data: { schemaID: string; fields: ItemField[] }) => Promise<void>;
-  onItemUpdate: (data: { itemID: string; fields: ItemField[] }) => Promise<void>;
+  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
+  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   initialFormValues: { [key: string]: any };
   onBack: () => void;
   itemId?: string;

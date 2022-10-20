@@ -75,7 +75,7 @@ const IntegrationTable: React.FC<Props> = ({
   return (
     <Wrapper>
       <PageHeader
-        title={t("Integration")}
+        title={t("Integrations")}
         extra={
           <Button type="primary" onClick={onIntegrationConnectModalOpen} icon={<Icon icon="api" />}>
             {t("Connect Integration")}

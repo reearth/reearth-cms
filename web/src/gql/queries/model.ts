@@ -8,6 +8,7 @@ export const GET_MODELS = gql`
         name
         description
         key
+        public
         schema {
           id
           fields {
@@ -76,8 +77,22 @@ export const DELETE_MODEL = gql`
 `;
 
 export const UPDATE_MODEL = gql`
-  mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
-    updateModel(input: { modelId: $modelId, name: $name, description: $description, key: $key }) {
+  mutation UpdateModel(
+    $modelId: ID!
+    $name: String
+    $description: String
+    $key: String
+    $public: Boolean!
+  ) {
+    updateModel(
+      input: {
+        modelId: $modelId
+        name: $name
+        description: $description
+        key: $key
+        public: $public
+      }
+    ) {
       model {
         id
         name
