@@ -1,11 +1,21 @@
 package thread
 
-import "time"
+import (
+	"time"
+)
 
 type Comment struct {
 	id      CommentID
 	author  UserID
 	content string
+}
+
+func NewComment(id CommentID, author UserID, content string) *Comment {
+	return &Comment{
+		id:      id,
+		author:  author,
+		content: content,
+	}
 }
 
 func (c *Comment) ID() CommentID {
@@ -26,4 +36,16 @@ func (c *Comment) CreatedAt() time.Time {
 
 func (c *Comment) SetContent(content string) {
 	c.content = content
+}
+
+func (c *Comment) Clone() *Comment {
+	if c == nil {
+		return nil
+	}
+
+	return &Comment{
+		id:      c.id.Clone(),
+		author:  c.author.Clone(),
+		content: c.content,
+	}
 }

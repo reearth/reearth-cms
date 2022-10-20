@@ -1,6 +1,11 @@
 package thread
 
-import "golang.org/x/exp/slices"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
+)
 
 type Thread struct {
 	id        ID
@@ -21,4 +26,74 @@ func (th *Thread) Comments() []*Comment {
 		return nil
 	}
 	return slices.Clone(th.comments)
+}
+
+func (th *Thread) HasComment(cid CommentID) bool {
+	if th == nil {
+		return false
+	}
+	return lo.SomeBy(th.comments, func(c *Comment) bool { return c.ID() == cid })
+}
+
+func (th *Thread) AddComment(c *Comment) error {
+	if th.comments == nil {
+		th.comments = []*Comment{}
+	}
+	if th.HasComment(c.ID()) {
+		return ErrCommentAlreadyExist
+	}
+
+	th.comments = append(th.comments, c)
+	return nil
+}
+
+func (th *Thread) UpdateComment(cid id.CommentID, content string) error {
+	if !th.HasComment(cid) {
+		return ErrCommentDoesNotExist
+	}
+
+	i := slices.IndexFunc(th.comments, func(c *Comment) bool { return c.ID() == cid })
+	th.comments[i].SetContent(content)
+	return nil
+}
+
+func (th *Thread) DeleteComment(cid id.CommentID) error {
+	if !th.HasComment(cid) {
+		return ErrCommentDoesNotExist
+	}
+
+	i := slices.IndexFunc(th.Comments(), func(c *Comment) bool { return c.ID() == cid })
+	comments := append(th.Comments()[:i], th.Comments()[i+1:]...)
+	th.SetComments(comments...)
+	return nil
+}
+
+func (th *Thread) FindCommentByID(cid id.CommentID) (*Comment, error) {
+	if !th.HasComment(cid) {
+		return nil, ErrCommentDoesNotExist
+	}
+
+	i := slices.IndexFunc(th.comments, func(c *Comment) bool { return c.ID() == cid })
+	c := th.comments[i]
+	return c, nil
+}
+
+func (th *Thread) SetComments(comments ...*Comment) {
+	th.comments = slices.Clone(comments)
+}
+
+func (th *Thread) Clone() *Thread {
+	if th == nil {
+		return nil
+	}
+
+	comments := util.Map(th.comments, func(c *Comment) *Comment {
+		return c.Clone()
+	})
+
+	return &Thread{
+		id:        th.id.Clone(),
+		workspace: th.workspace.Clone(),
+		comments:  comments,
+	}
 }
