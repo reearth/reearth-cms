@@ -68,7 +68,7 @@ const Wrapper = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 16px;
+  padding: 32px;
 `;
 
 export default WorkspaceWrapper;

@@ -7,7 +7,6 @@ const Workspace: React.FC = () => {
     projects,
     projectModalShown,
     workspaceModalShown,
-    // setCurrentProject,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
