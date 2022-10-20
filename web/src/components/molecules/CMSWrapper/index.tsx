@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import Content from "@reearth-cms/components/atoms/Content";
+import CMSContent from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 
@@ -63,10 +63,6 @@ const CMSSidebar = styled(Sider)`
   .ant-menu-vertical {
     border-right: none;
   }
-`;
-
-const CMSContent = styled(Content)`
-  margin: 16px;
 `;
 
 export default CMSWrapper;

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";

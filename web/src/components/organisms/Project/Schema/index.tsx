@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import Content from "@reearth-cms/components/atoms/Content";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import Sider from "@reearth-cms/components/atoms/Sider";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
@@ -12,14 +14,15 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
   description: string;
-}
+};
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
+  const [collapsed, collapse] = useState(false);
 
   const { projectId, workspaceId, modelId } = useParams();
 
@@ -31,19 +34,19 @@ const ProjectSchema: React.FC = () => {
   );
 
   const {
+    fieldCreationModalShown,
+    fieldUpdateModalShown,
+    selectedField,
+    model,
+    selectedType,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
-    selectedField,
     handleFieldDelete,
-    model,
-    selectedType,
   } = useHooks({
     projectId,
     modelId,
@@ -51,20 +54,34 @@ const ProjectSchema: React.FC = () => {
 
   return (
     <>
-      <PaddedContent>
-        <StyledModelsMenu title={t("Models")} selectModel={selectModel} />
-        <ContentChild>
-          <ModelTitle>{model?.name}</ModelTitle>
-          <ModelFieldList
-            handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
-            handleFieldDelete={handleFieldDelete}
-            fields={model?.schema.fields}
-          />
-        </ContentChild>
-        <FieldListWrapper>
-          <FieldList addField={handleFieldCreationModalOpen} />
-        </FieldListWrapper>
-      </PaddedContent>
+      <ComplexInnerContents
+        left={
+          <Sidebar
+            collapsible
+            collapsed={collapsed}
+            onCollapse={collapse}
+            collapsedWidth={54}
+            width={208}
+            trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
+            <ModelsMenu title={t("Schema")} collapsed={collapsed} selectModel={selectModel} />
+          </Sidebar>
+        }
+        center={
+          <ContentChild>
+            <ModelTitle>{model?.name}</ModelTitle>
+            <ModelFieldList
+              handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
+              handleFieldDelete={handleFieldDelete}
+              fields={model?.schema.fields}
+            />
+          </ContentChild>
+        }
+        right={
+          <FieldListWrapper>
+            <FieldList addField={handleFieldCreationModalOpen} />
+          </FieldListWrapper>
+        }
+      />
       {selectedType && (
         <FieldCreationModal
           handleFieldKeyUnique={handleFieldKeyUnique}
@@ -94,28 +111,51 @@ const ModelTitle = styled.h1`
   line-height: 28px;
   color: rgba(0, 0, 0, 0.85);
   margin: 24px 0;
-`;
-
-const StyledModelsMenu = styled(ModelsMenu)`
-  width: 200px;
+  word-break: break-all;
+  width: 100%;
 `;
 
 const ContentChild = styled.div`
-  flex: 1;
+  width: 100%;
   background-color: #fff;
   padding: 24px;
 `;
 
-const PaddedContent = styled(Content)`
-  margin: 16px;
-  display: flex;
-  min-height: 100%;
+const FieldListWrapper = styled.div`
+  height: 100%;
+  width: 272px;
+  padding: 12px;
+  overflow-y: auto;
 `;
 
-const FieldListWrapper = styled.div`
-  flex: 0 0 calc(100% / 3);
-  max-width: 300px;
-  padding: 12px;
+const Sidebar = styled(Sider)<{ collapsed?: boolean }>`
+  background-color: #fff;
+
+  .ant-layout-sider-trigger {
+    background-color: #fff;
+    border-top: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    color: #002140;
+    text-align: left;
+    padding: 0 20px;
+    margin: 0;
+    height: 38px;
+    line-height: 38px;
+    cursor: pointer;
+  }
+  .ant-layout-sider-children {
+    height: calc(100% + 12px);
+  }
+  .ant-menu-inline {
+    border-right: 1px solid white;
+
+    & > li {
+      padding: 0 20px;
+    }
+  }
+  .ant-menu-vertical {
+    border-right: none;
+  }
 `;
 
 export default ProjectSchema;

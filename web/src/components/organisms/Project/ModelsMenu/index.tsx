@@ -6,11 +6,13 @@ import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCr
 import useHooks from "./hooks";
 
 export interface Props {
+  className?: string;
   title: string;
+  collapsed?: boolean;
   selectModel: (modelId: string) => void;
 }
 
-const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {
+const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel }) => {
   const { projectId, modelId } = useParams();
 
   const {
@@ -30,10 +32,12 @@ const ModelsMenu: React.FC<Props> = ({ title, selectModel }) => {
   return (
     <>
       <ModelsList
+        className={className}
         title={title}
         selectModel={selectModel}
         defaultSelectedKeys={[model?.id ?? ""]}
         models={models}
+        collapsed={collapsed}
         onModalOpen={handleModelModalOpen}
       />
       <ModelCreationModal

@@ -7,21 +7,21 @@ import Menu from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
-  defaultSelectedKeys?: string[];
-}
-
-export interface Props {
-  title: string;
+export type Props = {
+  className?: string;
+  title?: string;
   defaultSelectedKeys?: string[];
   models?: Model[];
+  collapsed?: boolean;
   onModalOpen: () => void;
   selectModel: (modelId: string) => void;
-}
+};
 
 const ModelsList: React.FC<Props> = ({
+  className,
   defaultSelectedKeys,
   models,
+  collapsed,
   onModalOpen,
   selectModel,
   title,
@@ -32,28 +32,41 @@ const ModelsList: React.FC<Props> = ({
   };
 
   return (
-    <SchemaStyledMenu>
-      <SchemaStyledTitle>{title}</SchemaStyledTitle>
-      <SchemaAction>
-        <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
-        <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
-          {t("Add")}
-        </SchemaAddButton>
-      </SchemaAction>
-      <Menu
-        onClick={onClick}
-        defaultSelectedKeys={defaultSelectedKeys}
-        mode="inline"
-        items={models?.map(model => ({ label: model.name, key: model.id }))}
-      />
+    <SchemaStyledMenu className={className}>
+      {collapsed ? (
+        <StyledIcon icon="unorderedList" />
+      ) : (
+        <>
+          <SchemaStyledTitle>{title}</SchemaStyledTitle>
+          <SchemaAction>
+            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
+            <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
+              {!collapsed && t("Add")}
+            </SchemaAddButton>
+          </SchemaAction>
+        </>
+      )}
+      <MenuWrapper>
+        <StyledMenu
+          onClick={onClick}
+          defaultSelectedKeys={defaultSelectedKeys}
+          mode={collapsed ? "vertical" : "inline"}
+          style={{
+            color: collapsed ? "#C4C4C4" : undefined,
+          }}
+          items={models?.map(model => ({
+            label: collapsed ? <Icon icon="dot" /> : model.name,
+            key: model.id,
+          }))}
+        />
+      </MenuWrapper>
     </SchemaStyledMenu>
   );
 };
 
-const SchemaAction = styled.div`
+const SchemaAction = styled.div<{ collapsed?: boolean }>`
   display: flex;
-  padding: 24px;
-  justify-content: space-between;
+  justify-content: ${({ collapsed }) => (collapsed ? "space-around" : "space-between")};
   align-items: center;
 `;
 
@@ -67,6 +80,7 @@ const SchemaAddButton = styled(Button)`
 `;
 
 const SchemaStyledMenuTitle = styled.h1`
+  padding: 24px;
   margin: 0;
   font-weight: 400;
   font-size: 14px;
@@ -79,9 +93,27 @@ const SchemaStyledTitle = styled.h2`
 `;
 
 const SchemaStyledMenu = styled.div`
+  display: flex;
+  flex-direction: column;
   background-color: #fff;
   height: 100%;
   border-right: 1px solid #f0f0f0;
+`;
+
+const MenuWrapper = styled.div`
+  overflow: auto;
+`;
+
+const StyledIcon = styled(Icon)`
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 20px;
+`;
+
+const StyledMenu = styled(Menu)`
+  .ant-menu-item {
+    display: flex;
+    justify-content: center;
+  }
 `;
 
 export default ModelsList;
