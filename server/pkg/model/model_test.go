@@ -334,7 +334,7 @@ func TestModel_SetKey(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tt.want, m)
 		})
 	}

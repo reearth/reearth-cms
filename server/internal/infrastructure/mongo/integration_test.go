@@ -82,7 +82,7 @@ func TestIntegrationRepo_FindByID(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			got, err := r.FindByID(ctx, tc.arg)
@@ -90,7 +90,7 @@ func TestIntegrationRepo_FindByID(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -154,7 +154,7 @@ func TestIntegrationRepo_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			got, err := r.FindByIDs(ctx, tc.arg)
@@ -162,7 +162,7 @@ func TestIntegrationRepo_FindByIDs(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -211,7 +211,7 @@ func TestIntegrationRepo_FindByUser(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			got, err := r.FindByUser(ctx, tc.arg)
@@ -219,7 +219,7 @@ func TestIntegrationRepo_FindByUser(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -273,10 +273,10 @@ func TestIntegrationRepo_Save(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 
 			got, err := r.FindByID(ctx, tc.arg.ID())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.arg, got)
 		})
 	}
