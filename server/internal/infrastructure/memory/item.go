@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Item struct {
@@ -43,17 +44,15 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 	return item, nil
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pid id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(pid) {
-		r.err = repo.ErrOperationDenied
-	}
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
+
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion()).Value()
-		if it.Schema() == schemaID {
+		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
 			res = append(res, it)
 		}
 		return true
@@ -65,6 +64,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	if r.err != nil {
 		return nil, nil, r.err
 	}
+
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion()).Value()
@@ -73,6 +73,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 		}
 		return true
 	})
+
 	return res, nil, nil
 }
 
@@ -84,44 +85,72 @@ func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.List, er
 	return r.data.LoadAll(list, version.Latest.OrVersion()), nil
 }
 
-func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID, projectID id.ProjectID) ([]*version.Value[*item.Item], error) {
-	if !r.f.CanRead(projectID) {
-		r.err = repo.ErrOperationDenied
-	}
+func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) ([]*version.Value[*item.Item], error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	return r.data.LoadAllVersions(id).All(), nil
+	res := r.data.LoadAllVersions(id).All()
+	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
+		return r.f.CanRead(i.Value().Project())
+	}), nil
 }
 
 func (r *Item) Save(ctx context.Context, t *item.Item) error {
-	if !r.f.CanWrite(t.Project()) {
-		r.err = repo.ErrOperationDenied
-	}
 	if r.err != nil {
 		return r.err
+	}
+
+	if !r.f.CanWrite(t.Project()) {
+		return repo.ErrOperationDenied
 	}
 
 	r.data.SaveOne(t.ID(), t, nil)
 	return nil
 }
 
-func (r *Item) Remove(ctx context.Context, itemID id.ItemID, projectID id.ProjectID) error {
-	if !r.f.CanWrite(projectID) {
-		r.err = repo.ErrOperationDenied
-	}
+func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err
+	}
+
+	item, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if item == nil {
+		return rerror.ErrNotFound
+	}
+	if !r.f.CanWrite(item.Project()) {
+		return repo.ErrOperationDenied
 	}
 
 	r.data.Delete(itemID)
 	return nil
 }
 
-func (r *Item) Archive(ctx context.Context, itemID id.ItemID, archived bool) error {
+func (r *Item) IsArchived(ctx context.Context, itemID id.ItemID) (bool, error) {
+	if r.err != nil {
+		return false, r.err
+	}
+
+	i, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if i == nil || !r.f.CanRead(i.Project()) {
+		return false, nil
+	}
+
+	return r.data.IsArchived(itemID), nil
+}
+
+func (r *Item) Archive(ctx context.Context, itemID id.ItemID, projectID id.ProjectID, archived bool) error {
 	if r.err != nil {
 		return r.err
+	}
+
+	i, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if i == nil {
+		return rerror.ErrNotFound
+	}
+
+	if !r.f.CanWrite(i.Project()) {
+		return repo.ErrOperationDenied
 	}
 
 	r.data.Archive(itemID, archived)

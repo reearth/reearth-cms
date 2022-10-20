@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -24,6 +25,10 @@ func (b *Builder) Build() (*Item, error) {
 		return nil, ErrInvalidID
 	}
 	return b.i, nil
+}
+
+func (b *Builder) MustBuild() *Item {
+	return lo.Must(b.Build())
 }
 
 func (b *Builder) ID(id ID) *Builder {

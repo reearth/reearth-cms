@@ -3,6 +3,7 @@ package mongogit
 import (
 	"context"
 	"errors"
+	"io"
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
@@ -43,7 +44,7 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 	return c.client.Count(ctx, apply(q, filter))
 }
 
-func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr *version.VersionOrRef) error {
+func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.VersionOrRef) error {
 	if archived, err := c.IsArchived(ctx, id); err != nil {
 		return err
 	} else if archived {
@@ -51,7 +52,6 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 	}
 
 	actualVr := lo.FromPtrOr(vr, version.Latest.OrVersion())
-
 	meta, err := c.meta(ctx, id, actualVr.Ref())
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, replacement any, vr
 	}
 
 	if _, err := c.client.Client().InsertOne(ctx, &Document[any]{
-		Data: replacement,
+		Data: d,
 		Meta: newmeta,
 	}); err != nil {
 		return rerror.ErrInternalBy(err)
@@ -122,13 +122,13 @@ func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, 
 	return nil
 }
 
-func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
+func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 	cons := mongox.SliceConsumer[MetadataDocument]{}
-	if err := c.client.FindOne(ctx, bson.M{
-		"id":    id,
+	q := mongox.And(filter, "", bson.M{
 		metaKey: true,
-	}, &cons); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) {
+	})
+	if err := c.client.FindOne(ctx, q, &cons); err != nil {
+		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
 			return false, nil
 		}
 		return false, err
@@ -136,28 +136,29 @@ func (c *Collection) IsArchived(ctx context.Context, id string) (bool, error) {
 	return cons.Result[0].Archived, nil
 }
 
-func (c *Collection) ArchiveOne(ctx context.Context, id string, archived bool) error {
+func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived bool) error {
+	f := mongox.And(filter, "", bson.M{metaKey: true})
+
 	if !archived {
-		_, err := c.client.Client().DeleteOne(ctx, bson.M{"id": id, metaKey: true})
+		_, err := c.client.Client().DeleteOne(ctx, f)
 		if err != nil {
 			return rerror.ErrInternalBy(err)
 		}
 		return nil
 	}
 
-	_, err := c.client.Client().ReplaceOne(ctx, bson.M{"id": id, metaKey: true}, MetadataDocument{
-		ID:       id,
-		Meta:     true,
-		Archived: archived,
-	}, options.Replace().SetUpsert(true))
+	_, err := c.client.Client().ReplaceOne(ctx, f, lo.Assign(bson.M{
+		metaKey:    true,
+		"archived": archived,
+	}, filter), options.Replace().SetUpsert(true))
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
 }
 
-func (c *Collection) RemoveOne(ctx context.Context, id string) error {
-	return c.client.RemoveAll(ctx, bson.M{"id": id})
+func (c *Collection) RemoveOne(ctx context.Context, filter any) error {
+	return c.client.RemoveAll(ctx, filter)
 }
 
 func (c *Collection) Empty(ctx context.Context) error {
@@ -167,17 +168,23 @@ func (c *Collection) Empty(ctx context.Context) error {
 func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []string) error {
 	indexes := append(
 		[]mongo.IndexModel{
-			{Keys: []string{"id", versionKey}, Options: options.Index().SetUnique(true)},
-			{Keys: []string{"id", metaKey}, Options: options.Index().SetUnique(true)},
-			{Keys: []string{refsKey}},
-			{Keys: []string{parentsKey}},
+			{
+				Keys:    bson.D{{Key: "id", Value: 1}, {Key: versionKey, Value: 1}},
+				Options: options.Index().SetUnique(true),
+			},
+			{
+				Keys:    bson.D{{Key: "id", Value: 1}, {Key: metaKey, Value: 1}},
+				Options: options.Index().SetUnique(true).SetPartialFilterExpression(bson.M{metaKey: true}),
+			},
+			{Keys: bson.D{{Key: refsKey, Value: 1}}},
+			{Keys: bson.D{{Key: parentsKey, Value: 1}}},
 		},
 		append(
 			util.Map(keys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: []string{k}}
+				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}}
 			}),
 			util.Map(uniqueKeys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: []string{k}, Options: options.Index().SetUnique(true)}
+				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}, Options: options.Index().SetUnique(true)}
 			})...,
 		)...,
 	)

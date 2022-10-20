@@ -130,7 +130,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			got, err := r.FindByID(ctx, tc.arg)
@@ -217,7 +217,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			got, err := r.FindByIDs(ctx, tc.arg)
@@ -344,7 +344,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -417,7 +417,7 @@ func TestAssetRepo_Update(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -429,7 +429,7 @@ func TestAssetRepo_Update(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		})
 	}
 }
@@ -474,7 +474,7 @@ func TestAssetRepo_Delete(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			err := r.Delete(ctx, tc.arg)
@@ -482,7 +482,7 @@ func TestAssetRepo_Delete(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			_, err = r.FindByID(ctx, tc.arg)
 			assert.ErrorIs(t, err, rerror.ErrNotFound)
 		})

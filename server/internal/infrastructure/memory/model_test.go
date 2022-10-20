@@ -121,7 +121,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -241,7 +241,7 @@ func TestModelRepo_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -366,7 +366,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 			ctx := context.Background()
 			for _, a := range tc.seeds {
 				err := r.Save(ctx, a)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
