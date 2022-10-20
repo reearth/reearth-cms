@@ -12,6 +12,7 @@ import (
 
 func TestToSchema(t *testing.T) {
 	wId := id.NewWorkspaceID()
+	pId := id.NewProjectID()
 	sId := schema.NewID()
 	fId := id.NewFieldID()
 	k := key.Random()
@@ -27,19 +28,19 @@ func TestToSchema(t *testing.T) {
 		},
 		{
 			name:   "success",
-			schema: schema.New().ID(sId).Workspace(wId).Fields(nil).MustBuild(),
+			schema: schema.New().ID(sId).Workspace(wId).Fields(nil).Project(pId).MustBuild(),
 			want: &Schema{
-				ID:      IDFrom(sId),
-				Project: nil,
-				Fields:  []*SchemaField{},
+				ID:        IDFrom(sId),
+				ProjectID: IDFrom(pId),
+				Fields:    []*SchemaField{},
 			},
 		},
 		{
 			name:   "success",
-			schema: schema.New().ID(sId).Workspace(wId).Fields([]*schema.Field{schema.NewFieldText(nil, nil).ID(fId).Key(k).MustBuild()}).MustBuild(),
+			schema: schema.New().ID(sId).Workspace(wId).Project(pId).Fields([]*schema.Field{schema.NewFieldText(nil, nil).ID(fId).Key(k).MustBuild()}).MustBuild(),
 			want: &Schema{
-				ID:      IDFrom(sId),
-				Project: nil,
+				ID:        IDFrom(sId),
+				ProjectID: IDFrom(pId),
 				Fields: []*SchemaField{{
 					ID:          IDFrom(fId),
 					Type:        "Text",

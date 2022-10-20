@@ -67,7 +67,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 	if sn == "" {
 		return nil, rerror.ErrNotFound
 	}
-	return f.read(ctx, path.Join(gcsAssetBasePath, sn))
+	return f.read(ctx, sn)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -142,7 +142,7 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 
 func (r *fileRepo) GetURL(a *asset.Asset) string {
 	uuid := a.UUID()
-	url, _ := url.JoinPath(r.host, uuid[:2], uuid[2:], fileName(a.FileName()))
+	url, _ := url.JoinPath(r.host, gcsAssetBasePath, uuid[:2], uuid[2:], fileName(a.FileName()))
 	return url
 }
 
@@ -230,7 +230,7 @@ func getGCSObjectPath(uuid, objectName string) string {
 		return ""
 	}
 
-	return path.Join(uuid[:2], uuid[2:], fileName(objectName))
+	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], fileName(objectName))
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {

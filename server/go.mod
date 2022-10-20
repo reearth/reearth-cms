@@ -73,7 +73,7 @@ require (
 	github.com/tidwall/pretty v1.0.1 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	github.com/urfave/cli/v2 v2.8.1 // indirect
+	github.com/urfave/cli/v2 v2.11.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

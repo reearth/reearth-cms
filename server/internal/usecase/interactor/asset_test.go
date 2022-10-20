@@ -353,7 +353,7 @@ func TestAsset_Create(t *testing.T) {
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		User:               u.ID(),
 		WritableWorkspaces: []id.WorkspaceID{wid1},

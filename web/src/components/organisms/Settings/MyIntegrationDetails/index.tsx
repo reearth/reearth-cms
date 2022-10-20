@@ -6,37 +6,12 @@ import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegratio
 import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
-  const { tab, workspaceId, integrationId, webhookId } = useParams();
-  const showWebhookForm = location.pathname.includes("/webhooks/form");
+  const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
 
   const handleIntegrationHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegration`);
+    navigate(`/workspace/${workspaceId}/myIntegrations`);
   }, [navigate, workspaceId]);
-
-  const handleWebhookFormHeaderBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks`);
-  }, [navigate, workspaceId, integrationId]);
-
-  const handleTabChange = useCallback(
-    (key: string) => {
-      navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/${key}`);
-    },
-    [navigate, workspaceId, integrationId],
-  );
-
-  const handleWebhookFormNavigation = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form`);
-  }, [navigate, workspaceId, integrationId]);
-
-  const handleWebhookEditNavigation = useCallback(
-    (webhookId: string) => {
-      navigate(
-        `/workspaces/${workspaceId}/myIntegrations/${integrationId}/webhooks/form/${webhookId}`,
-      );
-    },
-    [navigate, workspaceId, integrationId],
-  );
 
   const {
     selectedIntegration,
@@ -45,9 +20,9 @@ const MyIntegrationDetails: React.FC = () => {
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
+    handleWebhookSelect,
   } = useHooks({
     integrationId,
-    webhookId,
   });
 
   return selectedIntegration ? (
@@ -59,12 +34,13 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
       onIntegrationHeaderBack={handleIntegrationHeaderBack}
-      onWebhookFormHeaderBack={handleWebhookFormHeaderBack}
-      onWebhookFormNavigation={handleWebhookFormNavigation}
-      onWebhookEditNavigation={handleWebhookEditNavigation}
-      onTabChange={handleTabChange}
-      activeTab={tab}
-      showWebhookForm={showWebhookForm}
+      onWebhookSelect={handleWebhookSelect}
+      // onWebhookFormHeaderBack={handleWebhookFormHeaderBack}
+      // onWebhookFormNavigation={handleWebhookFormNavigation}
+      // onWebhookEditNavigation={handleWebhookEditNavigation}
+      // onTabChange={handleTabChange}
+      // activeTab={tab}
+      // showWebhookForm={showWebhookForm}
     />
   ) : null;
 };

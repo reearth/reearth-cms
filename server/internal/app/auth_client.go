@@ -6,10 +6,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/appx"
-	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 var contextAuthInfo = struct{}{}
@@ -22,55 +25,24 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
-			var ai *appx.AuthInfo
-			var userID string
 			var u *user.User
 
 			// get sub from context
-			if ai2, ok := ctx.Value(contextAuthInfo).(*appx.AuthInfo); ok {
-				ai = ai2
-			}
+			ai := adapter.GetAuthInfo(ctx)
 
-			// debug mode
-			if cfg.Debug {
-				if userID := c.Request().Header.Get(debugUserHeader); userID != "" {
-					if id, err := id.UserIDFrom(userID); err == nil {
-						user2, err := cfg.Repos.User.FindByID(ctx, id)
-						if err == nil && user2 != nil {
-							u = user2
-						}
-					}
-				}
-			}
-
-			if u == nil && userID != "" {
-				if userID2, err := id.UserIDFrom(userID); err == nil {
-					u, err = cfg.Repos.User.FindByID(ctx, userID2)
-					if err != nil && err != rerror.ErrNotFound {
-						return err
-					}
-				} else {
-					return err
-				}
-			}
-
-			if u == nil && ai != nil {
+			// find or create user
+			if ai != nil {
 				var err error
-				// find user
-				u, err = cfg.Repos.User.FindBySub(ctx, ai.Sub)
-				if err != nil && err != rerror.ErrNotFound {
+				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
+				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
+					Sub:   ai.Sub,
+					ISS:   ai.Iss,
+					Token: ai.Token,
+				})
+				if err != nil {
 					return err
 				}
-			}
 
-			// save a new sub
-			if u != nil && ai != nil {
-				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(ai.Sub), cfg); err != nil {
-					return err
-				}
-			}
-
-			if u != nil {
 				op, err := generateOperator(ctx, cfg, u)
 				if err != nil {
 					return err
@@ -86,12 +58,18 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
+func jwtEchoMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+	mw := lo.Must(appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true))
+	return echo.WrapMiddleware(mw)
+}
+
 func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*usecase.Operator, error) {
 	if u == nil {
 		return nil, nil
 	}
 
 	uid := u.ID()
+
 	workspaces, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
@@ -101,22 +79,45 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	writableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleWriter).IDs()
 	owningWorkspaces := workspaces.FilterByUserRole(uid, user.RoleOwner).IDs()
 
+	readableProjects := id.ProjectIDList{}
+	writableProjects := id.ProjectIDList{}
+	owningProjects := id.ProjectIDList{}
+
+	var cur *usecasex.Cursor
+	for {
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, workspaces.IDs(), &usecasex.Pagination{
+			After: cur,
+			First: lo.ToPtr(100),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range projects {
+			if owningWorkspaces.Has(p.Workspace()) {
+				owningProjects = append(owningProjects, p.ID())
+			} else if writableWorkspaces.Has(p.Workspace()) {
+				writableProjects = append(writableProjects, p.ID())
+			} else if readableWorkspaces.Has(p.Workspace()) {
+				readableProjects = append(readableProjects, p.ID())
+			}
+		}
+
+		if !pi.HasNextPage {
+			break
+		}
+		cur = pi.EndCursor
+	}
+
 	return &usecase.Operator{
 		User:               uid,
 		ReadableWorkspaces: readableWorkspaces,
 		WritableWorkspaces: writableWorkspaces,
 		OwningWorkspaces:   owningWorkspaces,
+		ReadableProjects:   readableProjects,
+		WritableProjects:   writableProjects,
+		OwningProjects:     owningProjects,
 	}, nil
-}
-
-func addSubToUser(ctx context.Context, u *user.User, a user.Auth, cfg *ServerConfig) error {
-	if u.AddAuth(a) {
-		err := cfg.Repos.User.Save(ctx, u)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

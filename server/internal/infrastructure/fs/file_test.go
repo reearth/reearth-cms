@@ -3,13 +3,16 @@ package fs
 import (
 	"context"
 	"io"
+	"net/url"
 	"os"
 	"path"
 	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -112,6 +115,22 @@ func TestFile_DeleteAsset(t *testing.T) {
 	f1, _ := NewFile(fs1, "https://example.com/assets", "")
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
+}
+
+func TestFile_GetURL(t *testing.T) {
+	host := ""
+	fs := mockFs()
+	r, err := NewFile(fs, "", host)
+	assert.NoError(t, err)
+
+	u := newUUID()
+	n := "xxx.yyy"
+	a := asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).FileName(n).UUID(u).MustBuild()
+
+	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
+	assert.NoError(t, err)
+	actual := r.GetURL(a)
+	assert.Equal(t, expected, actual)
 }
 
 func TestFile_GetFSObjectPath(t *testing.T) {

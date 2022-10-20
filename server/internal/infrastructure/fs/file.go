@@ -113,7 +113,7 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	uuid := a.UUID()
-	url, _ := url.JoinPath(f.host, uuid[:2], uuid[2:], url.PathEscape(a.FileName()))
+	url, _ := url.JoinPath(f.host, assetDir, uuid[:2], uuid[2:], url.PathEscape(a.FileName()))
 	return url
 }
 

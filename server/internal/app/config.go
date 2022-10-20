@@ -193,3 +193,14 @@ func ReadConfig(debug bool) (*Config, error) {
 
 	return &c, err
 }
+
+func (c Config) Print() string {
+	s := fmt.Sprintf("%+v", c)
+	for _, secret := range []string{c.DB, c.Auth0.ClientSecret} {
+		if secret == "" {
+			continue
+		}
+		s = strings.ReplaceAll(s, secret, "***")
+	}
+	return s
+}
