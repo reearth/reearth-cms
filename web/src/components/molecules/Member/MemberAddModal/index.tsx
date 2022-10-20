@@ -102,27 +102,22 @@ const MemberAddModal: React.FC<Props> = ({
       {open && (
         <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
-            <Search
-              size="large"
-              style={{ width: "300px" }}
-              onSearch={handleMemberNameChange}
-              type="text"
-            />
+            <Search size="large" onSearch={handleMemberNameChange} type="text" />
           </Form.Item>
           {searchedUser && (
             <SearchedUSerResult>
-              <div>
+              <SearchedUserAvatar>
                 <Avatar
                   style={{
                     color: "#fff",
                     backgroundColor: "#3F3D45",
-                    marginRight: "12px",
                   }}>
                   {searchedUser.name.charAt(0)}
                 </Avatar>
-                {searchedUser.name}
-                <EmailContent>{searchedUser.email}</EmailContent>
-              </div>
+              </SearchedUserAvatar>
+              <SearchedUserName>{searchedUser.name}</SearchedUserName>
+              <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
+
               <IconButton onClick={handleMemberRemove}>
                 <Icon icon="close" />
               </IconButton>
@@ -139,27 +134,40 @@ const IconButton = styled.button`
   cursor: pointer;
 `;
 
-const EmailContent = styled.span`
+const SearchedUserAvatar = styled.div`
+  width: 32px;
+  margin-right: 8px;
+`;
+
+const SearchedUserName = styled.div`
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const SearchedUserEmail = styled.div`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  margin-left: 8px;
   color: rgba(0, 0, 0, 0.45);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SearchedUSerResult = styled.div`
-  width: 300px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
   border: 1px solid #d9d9d9;
-
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
-  border-radius: 2px;
+  border-radius: 8px;
 `;
 
 export default MemberAddModal;
