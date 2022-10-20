@@ -1,29 +1,27 @@
-import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import Content from "@reearth-cms/components/atoms/Content";
-import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
+import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
-import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
   description: string;
-}
+};
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
+  const [collapsed, collapse] = useState(false);
 
   const { projectId, workspaceId, modelId } = useParams();
 
-  const selectModel = useCallback(
+  const handleModelSelect = useCallback(
     (modelId: string) => {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
     },
@@ -31,19 +29,19 @@ const ProjectSchema: React.FC = () => {
   );
 
   const {
+    fieldCreationModalShown,
+    fieldUpdateModalShown,
+    selectedField,
+    model,
+    selectedType,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
     handleFieldUpdateModalClose,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
-    selectedField,
     handleFieldDelete,
-    model,
-    selectedType,
   } = useHooks({
     projectId,
     modelId,
@@ -51,35 +49,32 @@ const ProjectSchema: React.FC = () => {
 
   return (
     <>
-      <PaddedContent>
-        <StyledModelsMenu title={t("Models")} selectModel={selectModel} />
-        <ContentChild>
-          <ModelTitle>{model?.name}</ModelTitle>
-          <ModelFieldList
-            handleFieldUpdateModalOpen={handleFieldUpdateModalOpen}
-            handleFieldDelete={handleFieldDelete}
-            fields={model?.schema.fields}
-          />
-        </ContentChild>
-        <FieldListWrapper>
-          <FieldList addField={handleFieldCreationModalOpen} />
-        </FieldListWrapper>
-      </PaddedContent>
+      <SchemaMolecule
+        collapsed={collapsed}
+        model={model}
+        modelsMenu={
+          <ModelsMenu title={t("Schema")} collapsed={collapsed} selectModel={handleModelSelect} />
+        }
+        onCollapse={collapse}
+        onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
+        onFieldCreationModalOpen={handleFieldCreationModalOpen}
+        onFieldDelete={handleFieldDelete}
+      />
       {selectedType && (
         <FieldCreationModal
-          handleFieldKeyUnique={handleFieldKeyUnique}
           selectedType={selectedType}
           open={fieldCreationModalShown}
+          handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
         />
       )}
       {selectedType && (
         <FieldUpdateModal
-          handleFieldKeyUnique={handleFieldKeyUnique}
           selectedType={selectedType}
           open={fieldUpdateModalShown}
           selectedField={selectedField}
+          handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldUpdateModalClose}
           onSubmit={handleFieldUpdate}
         />
@@ -87,35 +82,5 @@ const ProjectSchema: React.FC = () => {
     </>
   );
 };
-
-const ModelTitle = styled.h1`
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 28px;
-  color: rgba(0, 0, 0, 0.85);
-  margin: 24px 0;
-`;
-
-const StyledModelsMenu = styled(ModelsMenu)`
-  width: 200px;
-`;
-
-const ContentChild = styled.div`
-  flex: 1;
-  background-color: #fff;
-  padding: 24px;
-`;
-
-const PaddedContent = styled(Content)`
-  margin: 16px;
-  display: flex;
-  min-height: 100%;
-`;
-
-const FieldListWrapper = styled.div`
-  flex: 0 0 calc(100% / 3);
-  max-width: 300px;
-  padding: 12px;
-`;
 
 export default ProjectSchema;
