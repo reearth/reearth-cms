@@ -116,7 +116,7 @@ func TestWebhookBuilder_Build(t *testing.T) {
 				assert.Nil(t, got)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equalf(t, tt.want, got, "Build()")
 		})
 	}

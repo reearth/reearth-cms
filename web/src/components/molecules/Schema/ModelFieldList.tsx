@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
@@ -15,12 +14,14 @@ export interface Props {
 }
 
 const ModelFieldList: React.FC<Props> = ({
+  className,
   fields,
   handleFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
   return (
     <FieldStyledList
+      className={className}
       itemLayout="horizontal"
       dataSource={fields}
       renderItem={item => (
