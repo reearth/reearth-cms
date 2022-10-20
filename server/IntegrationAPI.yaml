@@ -108,6 +108,7 @@ paths:
                 type: object
                 properties:
                   id:
+                    x-go-type: id.FieldID
                     type: string
                     format: uuid
         '400':
@@ -236,6 +237,7 @@ paths:
                 type: object
                 properties:
                   id:
+                    x-go-type: id.AssetID
                     type: string
                     format: uuid
         '400':
@@ -250,16 +252,16 @@ components:
       description: ID of the selected project within the selected workspace
       required: true
       schema:
-        x-go-type: 'ProjectId'
-        type: string
-        format: uuid
+        x-go-type: id.ProjectID
+        x-go-type-import:
+          path: github.com/reearth/reearth-cms/server/pkg/id
     modelIdParam:
       name: modelId
       in: path
       description: ID of the selected model within the selected project
       required: true
       schema:
-        x-go-type: 'ModelId'
+        x-go-type: id.ModelID
         type: string
         format: uuid
     itemIdParam:
@@ -268,7 +270,7 @@ components:
       description: ID of the selected item
       required: true
       schema:
-        x-go-type: 'ItemId'
+        x-go-type: id.ItemID
         type: string
         format: uuid
     assetIdParam:
@@ -277,7 +279,7 @@ components:
       description: ID of the selected asset
       required: true
       schema:
-        x-go-type: 'AssetId'
+        x-go-type: id.AssetID
         type: string
         format: uuid
     sortParam:
@@ -337,6 +339,7 @@ components:
       type: object
       properties:
         id:
+          x-go-type: id.FieldID
           type: string
           format: uuid
           example: ""
@@ -353,6 +356,7 @@ components:
       type: object
       properties:
         id:
+          x-go-type: id.ItemID
           type: string
           format: uuid
         version:
@@ -371,6 +375,7 @@ components:
           type: boolean
           default: false
         modelId:
+          x-go-type: id.ModelID
           type: string
           format: uuid
         fields:
@@ -398,9 +403,11 @@ components:
       type: object
       properties:
         id:
+          x-go-type: id.AssetID
           type: string
           format: uuid
         projectId:
+          x-go-type: id.ProjectID
           type: string
           format: uuid
         name:

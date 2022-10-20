@@ -9,7 +9,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/rerror"
@@ -63,7 +62,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
 	integrationApi := e.Group("/iapi")
-	integrationHandlers := integration.NewStrictHandler(integration.NewServer(*adapter.Usecases(ctx)), nil)
+	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
 	integration.RegisterHandlers(integrationApi, integrationHandlers)
 
 	serveFiles(e, cfg.Gateways.File)
