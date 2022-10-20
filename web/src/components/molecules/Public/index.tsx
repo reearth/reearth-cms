@@ -108,7 +108,7 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, onPublicUpda
   ];
 
   return (
-    <InnerContent title={t("Public")}>
+    <InnerContent title={t("Public")} flexChildren>
       <>
         <div>
           <p>{t("Public Scope")}</p>
