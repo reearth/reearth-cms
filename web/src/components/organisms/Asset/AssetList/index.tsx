@@ -39,14 +39,9 @@ const AssetList: React.FC = () => {
 
   const handleUpload = () => {
     setUploading(true);
-    createAssets(fileList)
-      .catch(error => {
-        // TODO: notification
-        console.log(error);
-      })
-      .finally(() => {
-        hideUploadModal();
-      });
+    createAssets(fileList).finally(() => {
+      hideUploadModal();
+    });
   };
 
   const handleEdit = (asset: Asset) => {

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
@@ -16,6 +17,7 @@ import {
   Asset as GQLAsset,
   AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 type AssetSortType = "date" | "name" | "size";
 
@@ -38,6 +40,7 @@ function pagination(
 }
 
 export default (projectId?: string) => {
+  const t = useT();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState({
@@ -94,18 +97,16 @@ export default (projectId?: string) => {
               variables: { projectId, createdById: currentUser?.id, file },
             });
             if (result.errors || !result.data?.createAsset) {
-              // TODO: notification
-              // console.log("Failed to add one or more assets.");
+              Notification.error({ message: t("Failed to add one or more assets.") });
             }
           }),
         );
         if (results) {
-          // TODO: notification
-          // console.log("Successfully added one or more assets.");
+          Notification.success({ message: t("Successfully added one or more assets.") });
           await refetch();
         }
       })(),
-    [projectId, currentUser?.id, createAssetMutation, refetch],
+    [t, projectId, currentUser?.id, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -120,18 +121,16 @@ export default (projectId?: string) => {
               refetchQueries: ["GetAssets"],
             });
             if (result.errors || result.data?.deleteAsset) {
-              // TODO: notification
-              // console.log("Failed to delete one or more assets.");
+              Notification.error({ message: t("Failed to delete one or more assets.") });
             }
           }),
         );
         if (results) {
-          // TODO: notification
-          // console.log("One or more assets were successfully deleted.");
+          Notification.success({ message: t("One or more assets were successfully deleted.") });
           selectAsset([]);
         }
       })(),
-    [deleteAssetMutation, projectId],
+    [t, deleteAssetMutation, projectId],
   );
 
   const handleSortChange = useCallback(
