@@ -7,11 +7,14 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	schemaIndexes = []string{"id"}
 )
 
 type schemaRepo struct {
@@ -20,16 +23,11 @@ type schemaRepo struct {
 }
 
 func NewSchema(client *mongox.Client) repo.Schema {
-	r := &schemaRepo{client: client.WithCollection("schema")}
-	r.init()
-	return r
+	return &schemaRepo{client: client.WithCollection("schema")}
 }
 
-func (r *schemaRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"id"}, nil)
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "schema", i)
-	}
+func (r *schemaRepo) Init() error {
+	return createIndexes(context.Background(), r.client, schemaIndexes, nil)
 }
 
 func (r *schemaRepo) Filtered(f repo.WorkspaceFilter) repo.Schema {

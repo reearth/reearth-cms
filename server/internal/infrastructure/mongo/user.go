@@ -11,9 +11,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+)
+
+var (
+	userIndexes       = []string{"subs", "name"}
+	userUniqueIndexes = []string{"id", "email"}
 )
 
 type userRepo struct {
@@ -21,16 +25,11 @@ type userRepo struct {
 }
 
 func NewUser(client *mongox.Client) repo.User {
-	r := &userRepo{client: client.WithCollection("user")}
-	r.init()
-	return r
+	return &userRepo{client: client.WithCollection("user")}
 }
 
-func (r *userRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"subs", "name"}, []string{"id", "email"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "user", i)
-	}
+func (r *userRepo) Init() error {
+	return createIndexes(context.Background(), r.client, userIndexes, userUniqueIndexes)
 }
 
 func (r *userRepo) FindByIDs(ctx context.Context, ids id.UserIDList) ([]*user.User, error) {

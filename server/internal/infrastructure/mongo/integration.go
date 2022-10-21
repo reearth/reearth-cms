@@ -7,11 +7,14 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	integrationUniqueIndexes = []string{"id"}
 )
 
 type integrationRepo struct {
@@ -19,16 +22,11 @@ type integrationRepo struct {
 }
 
 func NewIntegration(client *mongox.Client) repo.Integration {
-	r := &integrationRepo{client: client.WithCollection("integration")}
-	r.init()
-	return r
+	return &integrationRepo{client: client.WithCollection("integration")}
 }
 
-func (r *integrationRepo) init() {
-	i := r.client.CreateIndex(context.Background(), nil, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "integration", i)
-	}
+func (r *integrationRepo) Init() error {
+	return createIndexes(context.Background(), r.client, nil, integrationUniqueIndexes)
 }
 
 func (r *integrationRepo) FindByID(ctx context.Context, integrationID id.IntegrationID) (*integration.Integration, error) {

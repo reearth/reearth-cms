@@ -8,9 +8,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	workspaceUniqueIndexes = []string{"id"}
 )
 
 type workspaceRepo struct {
@@ -18,16 +21,11 @@ type workspaceRepo struct {
 }
 
 func NewWorkspace(client *mongox.Client) repo.Workspace {
-	r := &workspaceRepo{client: client.WithCollection("workspace")}
-	r.init()
-	return r
+	return &workspaceRepo{client: client.WithCollection("workspace")}
 }
 
-func (r *workspaceRepo) init() {
-	i := r.client.CreateIndex(context.Background(), nil, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "workspace", i)
-	}
+func (r *workspaceRepo) Init() error {
+	return createIndexes(context.Background(), r.client, nil, workspaceUniqueIndexes)
 }
 
 func (r *workspaceRepo) FindByUser(ctx context.Context, id id.UserID) (user.WorkspaceList, error) {

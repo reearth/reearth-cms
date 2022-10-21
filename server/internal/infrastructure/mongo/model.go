@@ -7,11 +7,15 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	modelIndexes       = []string{"key", "project", "workspace"}
+	modelUniqueIndexes = []string{"id"}
 )
 
 type modelRepo struct {
@@ -20,9 +24,7 @@ type modelRepo struct {
 }
 
 func NewModel(client *mongox.Client) repo.Model {
-	r := &modelRepo{client: client.WithCollection("model")}
-	r.init()
-	return r
+	return &modelRepo{client: client.WithCollection("model")}
 }
 
 func (r *modelRepo) Filtered(f repo.ProjectFilter) repo.Model {
@@ -32,11 +34,8 @@ func (r *modelRepo) Filtered(f repo.ProjectFilter) repo.Model {
 	}
 }
 
-func (r *modelRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"key", "project", "workspace"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "model", i)
-	}
+func (r *modelRepo) Init() error {
+	return createIndexes(context.Background(), r.client, modelIndexes, modelUniqueIndexes)
 }
 
 func (r *modelRepo) FindByID(ctx context.Context, modelID id.ModelID) (*model.Model, error) {

@@ -9,10 +9,14 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+)
+
+var (
+	projectIndexes       = []string{"alias", "workspace"}
+	projectUniqueIndexes = []string{"id"}
 )
 
 type projectRepo struct {
@@ -21,16 +25,11 @@ type projectRepo struct {
 }
 
 func NewProject(client *mongox.Client) repo.Project {
-	r := &projectRepo{client: client.WithCollection("project")}
-	r.init()
-	return r
+	return &projectRepo{client: client.WithCollection("project")}
 }
 
-func (r *projectRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"alias", "workspace"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "project", i)
-	}
+func (r *projectRepo) Init() error {
+	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
 }
 
 func (r *projectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
