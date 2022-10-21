@@ -363,7 +363,7 @@ func TestAsset_Create(t *testing.T) {
 	buflen := int64(buf.Len())
 	var pti asset.PreviewType = asset.PreviewTypeIMAGE
 	var ptg asset.PreviewType = asset.PreviewTypeGEO
-	af := asset.NewFile().Name("aaa.txt").Size(uint64(buflen)).Build()
+	af := asset.NewFile().Name("aaa.txt").Size(uint64(buflen)).Path("aaa.txt").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
