@@ -369,6 +369,7 @@ func TestAsset_Create(t *testing.T) {
 	af := &asset.File{}
 	af.SetName("aaa.txt")
 	af.SetSize(uint64(buflen))
+	af.SetPath("aaa.txt")
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
