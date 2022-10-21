@@ -20,7 +20,7 @@ var (
 	itemIndexes = []string{"schema", "fields.schemafield"}
 )
 
-type itemRepo struct {
+type Item struct {
 	client *mongogit.Collection
 	f      repo.ProjectFilter
 }
