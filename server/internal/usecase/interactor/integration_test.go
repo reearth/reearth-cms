@@ -126,7 +126,7 @@ func TestIntegration_Create(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -137,13 +137,13 @@ func TestIntegration_Create(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Token())
 			assert.False(t, got.ID().IsEmpty())
 			assertIntegrationEq(t, tt.want, got)
 
 			got, err = db.Integration.FindByID(ctx, got.ID())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assertIntegrationEq(t, tt.want, got)
 		})
 	}
@@ -188,7 +188,7 @@ func TestIntegration_Update(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -199,13 +199,13 @@ func TestIntegration_Update(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			// assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Token())
 			assert.False(t, got.ID().IsEmpty())
 			assertIntegrationEq(t, tt.want, got)
 
 			got, err = db.Integration.FindByID(ctx, tt.args.id)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assertIntegrationEq(t, tt.want, got)
 		})
 	}
@@ -237,7 +237,7 @@ func TestIntegration_Delete(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -248,7 +248,7 @@ func TestIntegration_Delete(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 
 			got, err := db.Integration.FindByID(ctx, tt.args)
 			assert.Nil(t, got)
@@ -285,7 +285,7 @@ func TestIntegration_FindByIDs(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -296,7 +296,7 @@ func TestIntegration_FindByIDs(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			for idx, in := range got {
 				// assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Token())
 				assert.False(t, in.ID().IsEmpty())
@@ -335,7 +335,7 @@ func TestIntegration_FindByUser(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -346,7 +346,7 @@ func TestIntegration_FindByUser(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			for idx, in := range got {
 				// assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Token())
 				assert.False(t, in.ID().IsEmpty())
@@ -397,7 +397,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -408,7 +408,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assertWebhookEq(t, tt.want, got)
 		})
 	}
@@ -488,7 +488,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -499,7 +499,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assertWebhookEq(t, tt.want, got)
 		})
 	}
@@ -579,7 +579,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			defer memory.MockNow(db, ts.Now)
 			for _, s := range tt.seeds {
 				err := db.Integration.Save(ctx, s.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			i := Integration{
@@ -590,7 +590,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		})
 	}
 }

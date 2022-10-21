@@ -24,13 +24,17 @@ export default () => {
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data, refetch } = useGetProjectsQuery({
+  const {
+    data,
+    loading: loadingProjects,
+    refetch,
+  } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", first: 100 },
     skip: !workspaceId,
   });
 
   const projects = useMemo(() => {
-    return (data?.projects.nodes ?? [])
+    return data?.projects.nodes
       .map<Project | undefined>(project =>
         project
           ? {
@@ -124,6 +128,7 @@ export default () => {
   return {
     projects,
     projectModalShown,
+    loadingProjects,
     workspaceModalShown,
     handleProjectSearch,
     handleProjectCreate,
