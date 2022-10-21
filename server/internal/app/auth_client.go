@@ -10,14 +10,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
 var contextAuthInfo = struct{}{}
-
-const debugUserHeader = "X-Reearth-Debug-User"
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -56,11 +53,6 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
-}
-
-func jwtEchoMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
-	mw := lo.Must(appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true))
-	return echo.WrapMiddleware(mw)
 }
 
 func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*usecase.Operator, error) {
