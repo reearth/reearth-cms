@@ -30,6 +30,7 @@ func TestToItem(t *testing.T) {
 				ID:        IDFrom(iid),
 				ProjectID: IDFrom(pid),
 				SchemaID:  IDFrom(sid),
+				CreatedAt: i.Timestamp(),
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sfid),
@@ -43,6 +44,7 @@ func TestToItem(t *testing.T) {
 			name: "should return nil",
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
@@ -58,7 +60,7 @@ func TestToItemParam(t *testing.T) {
 	tests := []struct {
 		name  string
 		input *ItemFieldInput
-		want  interfaces.ItemFieldParam
+		want  *interfaces.ItemFieldParam
 	}{
 		{
 			name: "should return ItemFieldParam",
@@ -67,7 +69,7 @@ func TestToItemParam(t *testing.T) {
 				Type:          SchemaFiledTypeText,
 				Value:         "foo",
 			},
-			want: interfaces.ItemFieldParam{
+			want: &interfaces.ItemFieldParam{
 				SchemaFieldID: sfid,
 				ValueType:     schema.TypeText,
 				Value:         "foo",
@@ -77,10 +79,10 @@ func TestToItemParam(t *testing.T) {
 			name: "nil input",
 		},
 		{
-			name:  "invalid schema field ID",
-			input: &ItemFieldInput{},
+			name: "invalid schema field ID",
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {

@@ -1,6 +1,6 @@
 import { atom, useAtom } from "jotai";
 
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import { PublicScope } from "@reearth-cms/components/molecules/Public";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 // useError is needed for Apollo provider error only.

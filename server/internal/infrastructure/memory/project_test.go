@@ -112,7 +112,7 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -292,7 +292,7 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -425,7 +425,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -565,7 +565,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -577,7 +577,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -713,7 +713,7 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -820,7 +820,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -832,7 +832,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			_, err = r.FindByID(ctx, tc.arg)
 			assert.ErrorIs(t, err, rerror.ErrNotFound)
 		})

@@ -51,7 +51,7 @@ const FieldList: React.FC<Props> = ({ addField }) => {
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
             {(item as FieldListItem).fields?.map((field: string) => (
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
-                <List.Item.Meta
+                <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={fieldTypes[field].title}
                   description={fieldTypes[field].description}
@@ -97,6 +97,12 @@ const FieldStyledList = styled(List)`
         align-items: center;
       }
     }
+  }
+`;
+
+const Meta = styled(List.Item.Meta)`
+  .ant-list-item-meta-description {
+    font-size: 12px;
   }
 `;
 
