@@ -44,8 +44,8 @@ func (c *Comment) Clone() *Comment {
 	}
 
 	return &Comment{
-		id:      c.id.Clone(),
-		author:  c.author.Clone(),
+		id:      c.id,
+		author:  c.author,
 		content: c.content,
 	}
 }

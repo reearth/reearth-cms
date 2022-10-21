@@ -25,7 +25,7 @@ func TestWorkspace_Create(t *testing.T) {
 	op := &usecase.Operator{User: u.ID()}
 	workspace, err := workspaceUC.Create(ctx, "workspace name", u.ID(), op)
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, workspace)
 
 	resultWorkspaces, _ := workspaceUC.Fetch(ctx, []id.WorkspaceID{workspace.ID()}, &usecase.Operator{
@@ -140,7 +140,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
@@ -237,7 +237,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
@@ -344,7 +344,7 @@ func TestWorkspace_Update(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
@@ -505,7 +505,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			}
 			if tc.args.project != nil {
 				err := db.Project.Save(ctx, tc.args.project)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
@@ -515,7 +515,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
@@ -639,11 +639,11 @@ func TestWorkspace_AddMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
@@ -780,11 +780,11 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
@@ -910,11 +910,11 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			workspaceUC := NewWorkspace(db)
 
