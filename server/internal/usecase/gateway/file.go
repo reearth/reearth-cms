@@ -14,6 +14,7 @@ var (
 	ErrFailedToUploadFile error = errors.New("failed to upload file")
 	ErrFileTooLarge       error = errors.New("file too large")
 	ErrFailedToDeleteFile error = errors.New("failed to delete file")
+	ErrFileNotFound       error = errors.New("file not found")
 )
 
 type FileEntry struct {

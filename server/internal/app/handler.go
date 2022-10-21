@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	adapter "github.com/reearth/reearth-cms/server/internal/adapter/http"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
 	"github.com/reearth/reearthx/appx"
 )
 
@@ -25,7 +26,7 @@ func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var input adapter.NotifyInput
+		var input rhttp.NotifyInput
 		var b pubsubBody
 		if err := c.Bind(&b); err != nil {
 			if err := c.Bind(&input); err != nil {
@@ -37,8 +38,11 @@ func NotifyHandler() echo.HandlerFunc {
 			return err
 		}
 
-		controller := adapter.NewTaskController()
-		if err := controller.Notify(c.Request().Context(), input); err != nil {
+		ctx := c.Request().Context()
+
+		assetUC := adapter.Usecases(ctx).Asset
+		controller := rhttp.NewTaskController(assetUC)
+		if err := controller.Notify(ctx, input); err != nil {
 			return err
 		}
 		return c.NoContent(http.StatusOK)

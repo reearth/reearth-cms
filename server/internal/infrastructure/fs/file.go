@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/fs"
 	"net/url"
@@ -60,7 +61,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 
 	p := getFSObjectPath(u, "")
 	var fileEntries []gateway.FileEntry
-	if err := afero.Walk(f.fs, p, func(path string, info fs.FileInfo, err error) error {
+	err := afero.Walk(f.fs, p, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -74,8 +75,17 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 			Size: info.Size(),
 		})
 		return nil
-	}); err != nil {
-		return nil, rerror.ErrInternalBy(err)
+	})
+	if err != nil {
+		if errors.Is(err, afero.ErrFileNotFound) {
+			return nil, gateway.ErrFileNotFound
+		} else {
+			return nil, rerror.ErrInternalBy(err)
+		}
+	}
+
+	if len(fileEntries) == 0 {
+		return nil, gateway.ErrFileNotFound
 	}
 
 	return fileEntries, nil

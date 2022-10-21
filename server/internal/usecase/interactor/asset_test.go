@@ -3,6 +3,7 @@ package interactor
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -26,6 +27,40 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
+
+type assetTestData struct {
+	Now        time.Time
+	Op         *usecase.Operator
+	UId        id.UserID
+	aId1, aId2 id.AssetID
+	a1, a2     *asset.Asset
+}
+
+func assetTestSuite() assetTestData {
+	now := time.Now().Truncate(time.Millisecond).UTC()
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	op := &usecase.Operator{
+		User:               u.ID(),
+		ReadableWorkspaces: nil,
+		WritableWorkspaces: nil,
+		OwningWorkspaces:   []id.WorkspaceID{wid},
+	}
+	aId1 := id.NewAssetID()
+	aId2 := id.NewAssetID()
+	a1 := asset.New().ID(aId1).MustBuild()
+	a2 := asset.New().ID(aId2).MustBuild()
+	return assetTestData{
+		Now:  now,
+		Op:   op,
+		UId:  uId,
+		aId1: aId1,
+		aId2: aId2,
+		a1:   a1,
+		a2:   a2,
+	}
+}
 
 func TestAsset_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
@@ -570,6 +605,86 @@ func TestAsset_Update(t *testing.T) {
 	}
 }
 
+func TestAsset_UpdateFiles(t *testing.T) {
+	uid := id.NewUserID()
+	// var pti asset.PreviewType = asset.PreviewTypeIMAGE
+
+	fmt.Printf("---%v", id.NewAssetID().String())
+	assetID1 := asset.NewID()
+	assetID2 := asset.NewID()
+	projectID := id.NewProjectID()
+	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").MustBuild()
+	// a1Updated := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).Type(&pti).MustBuild()
+
+	a2 := asset.New().ID(assetID2).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").MustBuild()
+
+	op := &usecase.Operator{}
+
+	fmt.Print(a1, a2)
+	tests := []struct {
+		name            string
+		seedAssets      []*asset.Asset
+		prepareFileFunc func() afero.Fs
+		assetID         id.AssetID
+		want            *asset.Asset
+		wantErr         error
+	}{
+		{
+			name: "update asset not found",
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:       "update file not found",
+			seedAssets: []*asset.Asset{a1, a2},
+			prepareFileFunc: func() afero.Fs {
+				return afero.NewMemMapFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: gateway.ErrFileNotFound,
+		},
+		// {
+		// 	name:       "update",
+		// 	seedAssets: []*asset.Asset{a1, a2},
+		// 	prepareFileFunc: func() afero.Fs {
+		// 		return mockFs()
+		// 	},
+		// 	want:       a1Updated,
+		// 	wantErr:    nil,
+		// },
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", ""))
+
+			for _, p := range tc.seedAssets {
+				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, &gateway.Container{File: fileGw})
+
+			got, err := assetUC.UpdateFiles(ctx, tc.assetID, op)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_Delete(t *testing.T) {
 	uid := id.NewUserID()
 
@@ -670,4 +785,21 @@ func TestAsset_GetURL(t *testing.T) {
 		},
 	}
 	assert.Equal(t, "xxx", uc.GetURL(nil))
+}
+
+func mockFs() afero.Fs {
+	files := map[string]string{
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt":       "hello",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/yyy/hello.txt": "hello!",
+		"plugins/aaa~1.0.0/foo.js":                                   "bar",
+		"published/s.json":                                           "{}",
+	}
+
+	fs := afero.NewMemMapFs()
+	for name, content := range files {
+		f, _ := fs.Create(name)
+		_, _ = f.WriteString(content)
+		_ = f.Close()
+	}
+	return fs
 }

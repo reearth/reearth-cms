@@ -100,6 +100,10 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 		fileEntries = append(fileEntries, fe)
 	}
 
+	if len(fileEntries) == 0 {
+		return nil, gateway.ErrFileNotFound
+	}
+
 	return fileEntries, nil
 }
 
