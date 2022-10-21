@@ -49,14 +49,14 @@ func Init(r *repo.Container) error {
 	}
 
 	return util.Try(
-		r.Asset.(*assetRepo).Init,
-		r.Workspace.(*workspaceRepo).Init,
-		r.User.(*userRepo).Init,
-		r.Project.(*projectRepo).Init,
-		r.Item.(*itemRepo).Init,
-		r.Model.(*modelRepo).Init,
-		r.Schema.(*schemaRepo).Init,
-		r.Integration.(*integrationRepo).Init,
+		r.Asset.(*Asset).Init,
+		r.Workspace.(*Workspace).Init,
+		r.User.(*User).Init,
+		r.Project.(*ProjectRepo).Init,
+		r.Item.(*Item).Init,
+		r.Model.(*Model).Init,
+		r.Schema.(*Schema).Init,
+		r.Integration.(*Integration).Init,
 	)
 }
 

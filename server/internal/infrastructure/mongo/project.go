@@ -19,33 +19,33 @@ var (
 	projectUniqueIndexes = []string{"id"}
 )
 
-type projectRepo struct {
+type ProjectRepo struct {
 	client *mongox.ClientCollection
 	f      repo.WorkspaceFilter
 }
 
 func NewProject(client *mongox.Client) repo.Project {
-	return &projectRepo{client: client.WithCollection("project")}
+	return &ProjectRepo{client: client.WithCollection("project")}
 }
 
-func (r *projectRepo) Init() error {
+func (r *ProjectRepo) Init() error {
 	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
 }
 
-func (r *projectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
-	return &projectRepo{
+func (r *ProjectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
+	return &ProjectRepo{
 		client: r.client,
 		f:      r.f.Merge(f),
 	}
 }
 
-func (r *projectRepo) FindByID(ctx context.Context, id id.ProjectID) (*project.Project, error) {
+func (r *ProjectRepo) FindByID(ctx context.Context, id id.ProjectID) (*project.Project, error) {
 	return r.findOne(ctx, bson.M{
 		"id": id.String(),
 	})
 }
 
-func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (project.List, error) {
+func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (project.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -62,7 +62,7 @@ func (r *projectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *projectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	return r.paginate(ctx, bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
@@ -70,7 +70,7 @@ func (r *projectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDLi
 	}, pagination)
 }
 
-func (r *projectRepo) FindByPublicName(ctx context.Context, name string) (*project.Project, error) {
+func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*project.Project, error) {
 	if name == "" {
 		return nil, rerror.ErrNotFound
 	}
@@ -79,14 +79,14 @@ func (r *projectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	})
 }
 
-func (r *projectRepo) CountByWorkspace(ctx context.Context, workspace id.WorkspaceID) (int, error) {
+func (r *ProjectRepo) CountByWorkspace(ctx context.Context, workspace id.WorkspaceID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
 		"workspace": workspace.String(),
 	})
 	return int(count), err
 }
 
-func (r *projectRepo) Save(ctx context.Context, project *project.Project) error {
+func (r *ProjectRepo) Save(ctx context.Context, project *project.Project) error {
 	if !r.f.CanWrite(project.Workspace()) {
 		return repo.ErrOperationDenied
 	}
@@ -94,11 +94,11 @@ func (r *projectRepo) Save(ctx context.Context, project *project.Project) error 
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *projectRepo) Remove(ctx context.Context, id id.ProjectID) error {
+func (r *ProjectRepo) Remove(ctx context.Context, id id.ProjectID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
-func (r *projectRepo) find(ctx context.Context, filter any) (project.List, error) {
+func (r *ProjectRepo) find(ctx context.Context, filter any) (project.List, error) {
 	c := mongodoc.NewProjectConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (r *projectRepo) find(ctx context.Context, filter any) (project.List, error
 	return c.Result, nil
 }
 
-func (r *projectRepo) findOne(ctx context.Context, filter any) (*project.Project, error) {
+func (r *ProjectRepo) findOne(ctx context.Context, filter any) (*project.Project, error) {
 	c := mongodoc.NewProjectConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ func (r *projectRepo) findOne(ctx context.Context, filter any) (*project.Project
 	return c.Result[0], nil
 }
 
-func (r *projectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewProjectConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
@@ -136,10 +136,10 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 	return res
 }
 
-func (r *projectRepo) readFilter(filter any) any {
+func (r *ProjectRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-func (r *projectRepo) writeFilter(filter any) any {
+func (r *ProjectRepo) writeFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Writable)
 }
