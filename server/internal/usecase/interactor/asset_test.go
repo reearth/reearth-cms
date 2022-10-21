@@ -3,7 +3,6 @@ package interactor
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -27,40 +26,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
-
-type assetTestData struct {
-	Now        time.Time
-	Op         *usecase.Operator
-	UId        id.UserID
-	aId1, aId2 id.AssetID
-	a1, a2     *asset.Asset
-}
-
-func assetTestSuite() assetTestData {
-	now := time.Now().Truncate(time.Millisecond).UTC()
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
-	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		User:               u.ID(),
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
-	}
-	aId1 := id.NewAssetID()
-	aId2 := id.NewAssetID()
-	a1 := asset.New().ID(aId1).MustBuild()
-	a2 := asset.New().ID(aId2).MustBuild()
-	return assetTestData{
-		Now:  now,
-		Op:   op,
-		UId:  uId,
-		aId1: aId1,
-		aId2: aId2,
-		a1:   a1,
-		a2:   a2,
-	}
-}
 
 func TestAsset_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
@@ -611,9 +576,9 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	assetID2 := asset.NewID()
 	projectID := id.NewProjectID()
 
-	c1 := asset.NewFile().Name("hello").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/yyy/hello.txt").GuessContentType().Build()
-	c2 := asset.NewFile().Name("zzz").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/zzz.txt").GuessContentType().Build()
-	f1 := asset.NewFile().Name("xxx").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
+	c1 := asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build()
+	c2 := asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build()
+	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
 
 	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).MustBuild()
 
@@ -621,7 +586,6 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 	op := &usecase.Operator{}
 
-	fmt.Print(a1, a2)
 	tests := []struct {
 		name            string
 		seedAssets      []*asset.Asset
@@ -630,24 +594,24 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		want            *asset.Asset
 		wantErr         error
 	}{
-		// {
-		// 	name: "update asset not found",
-		// 	prepareFileFunc: func() afero.Fs {
-		// 		return mockFs()
-		// 	},
-		// 	want:    nil,
-		// 	wantErr: rerror.ErrNotFound,
-		// },
-		// {
-		// 	name:       "update file not found",
-		// 	seedAssets: []*asset.Asset{a1, a2},
-		// 	prepareFileFunc: func() afero.Fs {
-		// 		return afero.NewMemMapFs()
-		// 	},
-		// 	assetID: assetID1,
-		// 	want:    nil,
-		// 	wantErr: gateway.ErrFileNotFound,
-		// },
+		{
+			name: "update asset not found",
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:       "update file not found",
+			seedAssets: []*asset.Asset{a1, a2},
+			prepareFileFunc: func() afero.Fs {
+				return afero.NewMemMapFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: gateway.ErrFileNotFound,
+		},
 		{
 			name:       "update",
 			seedAssets: []*asset.Asset{a1, a2},
