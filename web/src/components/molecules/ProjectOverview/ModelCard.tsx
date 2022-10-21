@@ -32,7 +32,6 @@ const ModelCard: React.FC<Props> = ({ model, onSchemaNavigate, onContentNavigate
 export default ModelCard;
 
 const StyledCard = styled(Card)`
-  //   width: 224px;
   .ant-card-body {
     height: 102px;
   }

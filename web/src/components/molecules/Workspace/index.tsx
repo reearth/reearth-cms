@@ -13,6 +13,7 @@ export type Props = {
   projects?: ProjectType[];
   projectModal?: boolean;
   workspaceModal?: boolean;
+  loadingProjects?: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: ProjectType, tab?: string) => void;
@@ -27,6 +28,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   projects,
   projectModal,
   workspaceModal,
+  loadingProjects,
   onProjectSearch,
   onProjectModalOpen,
   onProjectNavigation,
@@ -47,6 +49,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
         />
         <ProjectList
           projects={projects}
+          loading={loadingProjects}
           onProjectModalOpen={onProjectModalOpen}
           onProjectNavigation={onProjectNavigation}
         />
