@@ -607,14 +607,15 @@ func TestAsset_Update(t *testing.T) {
 
 func TestAsset_UpdateFiles(t *testing.T) {
 	uid := id.NewUserID()
-	// var pti asset.PreviewType = asset.PreviewTypeIMAGE
-
-	fmt.Printf("---%v", id.NewAssetID().String())
 	assetID1 := asset.NewID()
 	assetID2 := asset.NewID()
 	projectID := id.NewProjectID()
-	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").MustBuild()
-	// a1Updated := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).Type(&pti).MustBuild()
+
+	c1 := asset.NewFile().Name("hello").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/yyy/hello.txt").GuessContentType().Build()
+	c2 := asset.NewFile().Name("zzz").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/zzz.txt").GuessContentType().Build()
+	f1 := asset.NewFile().Name("xxx").Path("/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
+
+	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).MustBuild()
 
 	a2 := asset.New().ID(assetID2).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").MustBuild()
 
@@ -629,33 +630,34 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		want            *asset.Asset
 		wantErr         error
 	}{
-		{
-			name: "update asset not found",
-			prepareFileFunc: func() afero.Fs {
-				return mockFs()
-			},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:       "update file not found",
-			seedAssets: []*asset.Asset{a1, a2},
-			prepareFileFunc: func() afero.Fs {
-				return afero.NewMemMapFs()
-			},
-			assetID: assetID1,
-			want:    nil,
-			wantErr: gateway.ErrFileNotFound,
-		},
 		// {
-		// 	name:       "update",
-		// 	seedAssets: []*asset.Asset{a1, a2},
+		// 	name: "update asset not found",
 		// 	prepareFileFunc: func() afero.Fs {
 		// 		return mockFs()
 		// 	},
-		// 	want:       a1Updated,
-		// 	wantErr:    nil,
+		// 	want:    nil,
+		// 	wantErr: rerror.ErrNotFound,
 		// },
+		// {
+		// 	name:       "update file not found",
+		// 	seedAssets: []*asset.Asset{a1, a2},
+		// 	prepareFileFunc: func() afero.Fs {
+		// 		return afero.NewMemMapFs()
+		// 	},
+		// 	assetID: assetID1,
+		// 	want:    nil,
+		// 	wantErr: gateway.ErrFileNotFound,
+		// },
+		{
+			name:       "update",
+			seedAssets: []*asset.Asset{a1, a2},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).MustBuild(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -789,10 +791,11 @@ func TestAsset_GetURL(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt":       "hello",
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/yyy/hello.txt": "hello!",
-		"plugins/aaa~1.0.0/foo.js":                                   "bar",
-		"published/s.json":                                           "{}",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.zip":           "xxx",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/zzz.txt":       "zzz",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/yyy/hello.txt": "hello",
+		"plugins/aaa~1.0.0/foo.js":                                       "bar",
+		"published/s.json":                                               "{}",
 	}
 
 	fs := afero.NewMemMapFs()
