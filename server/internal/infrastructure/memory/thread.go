@@ -112,7 +112,7 @@ func (r *Thread) UpdateComment(ctx context.Context, th *thread.Thread, cid id.Co
 		return nil, err
 	}
 
-	c := lo.Must(th1.FindCommentByID(cid))
+	c := lo.Must(th1.Comment(cid))
 	return c, nil
 }
 
