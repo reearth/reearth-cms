@@ -43,7 +43,8 @@ func TestComment_Clone(t *testing.T) {
 	comment := (&Comment{
 		id:      NewCommentID(),
 		author:  NewUserID(),
-		content: "test"})
+		content: "test",
+	})
 	assert.Nil(t, (*Comment)(nil).Clone())
 	assert.Equal(t, comment, comment.Clone())
 	assert.NotSame(t, comment, comment.Clone())

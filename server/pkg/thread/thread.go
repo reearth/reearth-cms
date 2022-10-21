@@ -48,27 +48,26 @@ func (th *Thread) AddComment(c *Comment) error {
 }
 
 func (th *Thread) UpdateComment(cid id.CommentID, content string) error {
-	if !th.HasComment(cid) {
+	c, _ := lo.Find(th.comments, func(c *Comment) bool { return c.ID() == cid })
+	if c == nil {
 		return ErrCommentDoesNotExist
 	}
-
-	i := slices.IndexFunc(th.comments, func(c *Comment) bool { return c.ID() == cid })
-	th.comments[i].SetContent(content)
+	c.SetContent(content)
 	return nil
 }
 
 func (th *Thread) DeleteComment(cid id.CommentID) error {
-	if !th.HasComment(cid) {
+	i := slices.IndexFunc(th.Comments(), func(c *Comment) bool { return c.ID() == cid })
+	if i < 0 {
 		return ErrCommentDoesNotExist
 	}
 
-	i := slices.IndexFunc(th.Comments(), func(c *Comment) bool { return c.ID() == cid })
 	comments := append(th.Comments()[:i], th.Comments()[i+1:]...)
 	th.SetComments(comments...)
 	return nil
 }
 
-func (th *Thread) FindCommentByID(cid id.CommentID) (*Comment, error) {
+func (th *Thread) Comment(cid id.CommentID) (*Comment, error) {
 	if !th.HasComment(cid) {
 		return nil, ErrCommentDoesNotExist
 	}
