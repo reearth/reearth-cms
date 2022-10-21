@@ -35,7 +35,7 @@ const ContentDetails: React.FC = () => {
       onItemUpdate={handleItemUpdate}
       initialFormValues={initialFormValues}
       model={currentModel}
-      modelsMenu={<ModelsMenu title={t("Content")} selectModel={handleNavigateToModel} />}
+      modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleNavigateToModel} />}
     />
   );
 };
