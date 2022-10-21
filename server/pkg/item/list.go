@@ -13,3 +13,11 @@ func (l List) SortByID() List {
 	})
 	return m
 }
+
+func (l List) SortByTimestamp() List {
+	m := slices.Clone(l)
+	slices.SortFunc(m, func(a, b *Item) bool {
+		return a.timestamp.Before(b.Timestamp())
+	})
+	return m
+}

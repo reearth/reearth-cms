@@ -106,7 +106,7 @@ func TestThread_DeleteComment(t *testing.T) {
 	assert.False(t, thread.HasComment(c.id))
 }
 
-func TestThread_FindCommentByID(t *testing.T) {
+func TestThread_Comment(t *testing.T) {
 	c := NewComment(NewCommentID(), NewUserID(), "test")
 	thread := (&Thread{
 		id:        NewID(),
@@ -116,10 +116,10 @@ func TestThread_FindCommentByID(t *testing.T) {
 		},
 	})
 
-	_, err := thread.FindCommentByID(NewCommentID())
+	_, err := thread.Comment(NewCommentID())
 	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
 
-	cc, err := thread.FindCommentByID(c.id)
+	cc, err := thread.Comment(c.id)
 	assert.NoError(t, err)
 	assert.Equal(t, c, cc)
 

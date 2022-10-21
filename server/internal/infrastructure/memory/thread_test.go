@@ -31,7 +31,7 @@ func TestThread_Filtered(t *testing.T) {
 func TestThreadRepo_FindByID(t *testing.T) {
 	tid1 := id.NewWorkspaceID()
 	id1 := id.NewThreadID()
-	p1 := thread.New().ID(id1).Workspace(tid1).MustBuild()
+	th1 := thread.New().ID(id1).Workspace(tid1).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   thread.List
@@ -62,29 +62,29 @@ func TestThreadRepo_FindByID(t *testing.T) {
 		{
 			name: "Found 1",
 			seeds: thread.List{
-				p1,
+				th1,
 			},
 			arg:     id1,
 			filter:  nil,
-			want:    p1,
+			want:    th1,
 			wantErr: nil,
 		},
 		{
 			name: "Found 2",
 			seeds: thread.List{
-				p1,
+				th1,
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
 			filter:  nil,
-			want:    p1,
+			want:    th1,
 			wantErr: nil,
 		},
 		{
 			name: "Filtered Found 0",
 			seeds: thread.List{
-				p1,
+				th1,
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
@@ -96,13 +96,13 @@ func TestThreadRepo_FindByID(t *testing.T) {
 		{
 			name: "Filtered Found 2",
 			seeds: thread.List{
-				p1,
+				th1,
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
 			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{tid1}, Writable: []id.WorkspaceID{}},
-			want:    p1,
+			want:    th1,
 			wantErr: nil,
 		},
 		{
@@ -137,6 +137,103 @@ func TestThreadRepo_FindByID(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestThreadRepo_FindByIDs(t *testing.T) {
+	wid1 := id.NewWorkspaceID()
+	id1 := id.NewThreadID()
+	id2 := id.NewThreadID()
+	th1 := thread.New().ID(id1).Workspace(wid1).MustBuild()
+	th2 := thread.New().ID(id2).Workspace(wid1).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   []*thread.Thread
+		arg     id.ThreadIDList
+		want    []*thread.Thread
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   []*thread.Thread{},
+			arg:     id.ThreadIDList{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with thread for another workspaces",
+			seeds: []*thread.Thread{
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id.ThreadIDList{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single thread",
+			seeds: []*thread.Thread{
+				th1,
+			},
+			arg:     id.ThreadIDList{id1},
+			want:    []*thread.Thread{th1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi threads",
+			seeds: []*thread.Thread{
+				th1,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id.ThreadIDList{id1},
+			want:    []*thread.Thread{th1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi threads",
+			seeds: []*thread.Thread{
+				th1,
+				th2,
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+			},
+			arg:     id.ThreadIDList{id1, id2},
+			want:    []*thread.Thread{th1, th2},
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewThread()
+			if tc.mockErr {
+				SetThreadError(r, tc.wantErr)
+			}
+
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
+				assert.Nil(t, err)
+			}
+
+			got, err := r.FindByIDs(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
 			assert.Equal(t, tc.want, got)
 		})
 	}

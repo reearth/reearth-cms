@@ -291,6 +291,7 @@ type Item struct {
 	Project   *Project     `json:"project"`
 	Schema    *Schema      `json:"schema"`
 	Fields    []*ItemField `json:"fields"`
+	CreatedAt time.Time    `json:"createdAt"`
 }
 
 func (Item) IsNode()        {}
