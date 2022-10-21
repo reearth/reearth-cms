@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility";
+import { PublicScope, Model } from "@reearth-cms/components/molecules/Public";
 import {
   useUpdateModelMutation,
   useGetModelsQuery,
@@ -34,7 +34,7 @@ export default () => {
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [updateModelMutation] = useUpdateModelMutation();
 
-  const handleAccessibilityUpdate = useCallback(
+  const handlePublicUpdate = useCallback(
     async (scope?: PublicScope, modelsToUpdate?: Model[]) => {
       if (!currentProject?.id) return;
       let errors = false;
@@ -61,15 +61,15 @@ export default () => {
         });
       }
       if (errors) {
-        Notification.error({ message: t("Failed to update accessiblity options.") });
+        Notification.error({ message: t("Failed to update publication settings.") });
       } else {
         Notification.success({
-          message: t("Successfully updated accessibility options!"),
+          message: t("Successfully updated publication settings!"),
         });
       }
     },
     [currentProject, t, updateProjectMutation, updateModelMutation],
   );
 
-  return { projectScope: currentProject?.scope, models, handleAccessibilityUpdate };
+  return { projectScope: currentProject?.scope, models, handlePublicUpdate };
 };

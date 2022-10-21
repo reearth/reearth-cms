@@ -117,7 +117,7 @@ func TestProject_Fetch(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 
@@ -231,7 +231,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 
@@ -316,7 +316,7 @@ func TestProject_Create(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 
@@ -332,7 +332,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Workspace(), got.Workspace())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want.Name(), dbGot.Name())
 			assert.Equal(t, tc.want.Alias(), dbGot.Alias())
 			assert.Equal(t, tc.want.Description(), dbGot.Description())
@@ -446,7 +446,7 @@ func TestProject_Update(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 
@@ -521,7 +521,7 @@ func TestProject_CheckAlias(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 
@@ -616,7 +616,7 @@ func TestProject_Delete(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			projectUC := NewProject(db)
 

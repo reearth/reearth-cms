@@ -2,30 +2,34 @@ package item
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_ID(t *testing.T) {
 	iid := NewID()
-	b, _ := New().ID(iid).Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	b := New().ID(iid).Schema(id.NewSchemaID()).Project(id.NewProjectID()).MustBuild()
 	assert.Equal(t, iid, b.id)
 }
 
 func TestBuilder_SchemaID(t *testing.T) {
 	sid := schema.NewID()
-	b, _ := New().NewID().Schema(sid).Project(id.NewProjectID()).Build()
+	b := New().NewID().Schema(sid).Project(id.NewProjectID()).MustBuild()
 	assert.Equal(t, sid, b.Schema())
 }
 
 func TestBuilder_Fields(t *testing.T) {
 	sfid := schema.NewFieldID()
-	fs := []*Field{NewField(sfid, schema.TypeBool, true)}
-	b, _ := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(fs).Build()
-	assert.Equal(t, fs, b.Fields())
+	fields := []*Field{NewField(sfid, schema.TypeBool, true)}
+	b := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(fields).MustBuild()
+	assert.Equal(t, fields, b.Fields())
+	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(nil).MustBuild()
+	assert.Nil(t, b.Fields())
 }
 
 func TestNew(t *testing.T) {
@@ -37,11 +41,25 @@ func TestBuilder_NewID(t *testing.T) {
 	res, _ := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
 	assert.NotNil(t, res.ID())
 }
+func TestBuilder_Project(t *testing.T) {
+	pid := project.NewID()
+	b := New().NewID().Project(pid).Schema(id.NewSchemaID()).MustBuild()
+	assert.Equal(t, pid, b.Project())
+}
+
+func TestBuilder_Timestamp(t *testing.T) {
+	tt := time.Now()
+	b := New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Timestamp(tt).Schema(id.NewSchemaID()).MustBuild()
+	assert.Equal(t, tt, b.Timestamp())
+}
 
 func TestBuilder_Build(t *testing.T) {
 	iid := NewID()
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
+	now := time.Now()
+	defer util.MockNow(now)()
+
 	type fields struct {
 		i *Item
 	}
@@ -49,7 +67,7 @@ func TestBuilder_Build(t *testing.T) {
 		name    string
 		fields  fields
 		want    *Item
-		wantErr bool
+		wantErr error
 	}{
 		{
 			name: "should build an item",
@@ -61,11 +79,12 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			want: &Item{
-				id:      iid,
-				schema:  sid,
-				project: pid,
+				id:        iid,
+				schema:    sid,
+				project:   pid,
+				timestamp: now,
 			},
-			wantErr: false,
+			wantErr: nil,
 		},
 		{
 			name: "should fail: invalid item ID",
@@ -73,7 +92,7 @@ func TestBuilder_Build(t *testing.T) {
 				i: &Item{},
 			},
 			want:    nil,
-			wantErr: true,
+			wantErr: id.ErrInvalidID,
 		},
 		{
 			name: "should fail: invalid schema ID",
@@ -84,7 +103,7 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: true,
+			wantErr: id.ErrInvalidID,
 		},
 		{
 			name: "should fail: invalid project ID",
@@ -95,26 +114,28 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: true,
+			wantErr: id.ErrInvalidID,
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			b := &Builder{
 				i: tt.fields.i,
 			}
+
 			got, err := b.Build()
-			if tt.wantErr {
-				assert.Error(t, err)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				assert.Panics(t, func() {
+					_ = b.MustBuild()
+				})
 			} else {
+				assert.Equal(t, tt.want, got)
+				got = b.MustBuild()
 				assert.Equal(t, tt.want, got)
 			}
 		})
 	}
-}
-
-func TestBuilder_Project(t *testing.T) {
-	pid := project.NewID()
-	b, _ := New().NewID().Project(pid).Schema(id.NewSchemaID()).Build()
-	assert.Equal(t, pid, b.Project())
 }
