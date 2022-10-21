@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -29,6 +30,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
+	CloudTasks   gcp.CloudTasksConfig
 	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs

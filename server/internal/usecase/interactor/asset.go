@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -94,6 +95,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			// taskPayload for runner
+			taskPayload := task.DecompressAssetPayload{
+				Asset: a.ID().String(),
+				Path:  a.File().Path(),
+			}
+
+			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())
+			if err != nil {
 				return nil, err
 			}
 
