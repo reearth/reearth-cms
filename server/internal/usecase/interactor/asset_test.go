@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
@@ -445,6 +446,7 @@ func TestAsset_Create(t *testing.T) {
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
 			f, _ := fs.NewFile(mfs, "", "")
+			runnerGw := NewMockRunner()
 
 			err := db.User.Save(ctx, u)
 			assert.NoError(t, err)
@@ -457,7 +459,8 @@ func TestAsset_Create(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, &gateway.Container{
-				File: f,
+				File:       f,
+				TaskRunner: runnerGw,
 			})
 
 			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
@@ -769,4 +772,15 @@ func mockFs() afero.Fs {
 		_ = f.Close()
 	}
 	return fs
+}
+
+// mockRunner implements gateway.TaskRunner
+type mockRunner struct{}
+
+func NewMockRunner() gateway.TaskRunner {
+	return &mockRunner{}
+}
+
+func (r *mockRunner) Run(context.Context, task.Payload) error {
+	return nil
 }
