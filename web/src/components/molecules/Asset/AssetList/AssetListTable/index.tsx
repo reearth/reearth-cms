@@ -104,6 +104,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 
   const options: OptionConfig = {
     search: true,
+    reload: false,
   };
 
   const pagination: TablePaginationConfig = {
@@ -145,6 +146,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         pagination={pagination}
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
+        tableStyle={{ overflow: "scroll" }}
       />
     </AssetListTableWrapper>
   );
