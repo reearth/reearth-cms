@@ -80,6 +80,15 @@ func (r *projectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	})
 }
 
+func (r *projectRepo) FindByAPIToken(ctx context.Context, apiToken string) (*project.Project, error) {
+	if apiToken == "" {
+		return nil, rerror.ErrNotFound
+	}
+	return r.findOne(ctx, bson.M{
+		"alias": name,
+	})
+}
+
 func (r *projectRepo) CountByWorkspace(ctx context.Context, workspace id.WorkspaceID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
 		"workspace": workspace.String(),

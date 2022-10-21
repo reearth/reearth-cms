@@ -58,8 +58,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// apis
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
-	api.POST(
-		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
+	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
+
+	e.Group("/publicapi")
+	api.GET("/:projectName/:schemaKey", PublicApiItemList())
+	api.GET("/:projectName/:schemaKey/:itemId", PublicApiItem())
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())
