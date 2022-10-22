@@ -1,6 +1,9 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -9,6 +12,17 @@ export type Props = {
 
 const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
+  const { confirm } = Modal;
+
+  const handleAccountDeleteConfirmation = useCallback(() => {
+    confirm({
+      title: t("Are you sure you want to delete your account?"),
+      icon: <Icon icon="exclamationCircle" />,
+      onOk() {
+        onUserDelete();
+      },
+    });
+  }, [confirm, onUserDelete, t]);
 
   return (
     <>
@@ -19,7 +33,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
         )}
       </Text>
 
-      <Button onClick={onUserDelete} type="primary" danger>
+      <Button onClick={handleAccountDeleteConfirmation} type="primary" danger>
         {t("Delete Personal Account")}
       </Button>
     </>
