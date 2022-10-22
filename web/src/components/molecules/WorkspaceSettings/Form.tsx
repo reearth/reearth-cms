@@ -1,16 +1,35 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {};
+export type Props = {
+  workspaceName?: string;
+  onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
+};
 
-const WorkspaceForm: React.FC<Props> = () => {
+const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
 
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await onWorkspaceUpdate?.(values.name);
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
+  }, [form, onWorkspaceUpdate]);
+
   return (
-    <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
+    <Form
+      style={{ maxWidth: 400 }}
+      form={form}
+      initialValues={{ name: workspaceName }}
+      layout="vertical"
+      autoComplete="off">
       <Form.Item
         name="name"
         label={t("Workspace Name")}
@@ -19,7 +38,7 @@ const WorkspaceForm: React.FC<Props> = () => {
         )}>
         <Input />
       </Form.Item>
-      <Button onClick={() => {}} type="primary" htmlType="submit">
+      <Button onClick={handleSubmit} type="primary" htmlType="submit">
         {t("Save")}
       </Button>
     </Form>

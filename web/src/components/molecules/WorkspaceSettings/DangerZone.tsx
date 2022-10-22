@@ -3,20 +3,23 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {};
+export type Props = {
+  onWorkspaceDelete: () => Promise<void>;
+};
 
-const DangerZone: React.FC<Props> = () => {
+const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
   const t = useT();
 
   return (
     <>
-      <Title>Remove Workspace</Title>
+      <Title>{t("Remove Workspace")}</Title>
       <Text>
-        Permanently remove your Workspace and all of its contents from the Re:Earth CMS. This action
-        is not reversible – please continue with caution.
+        {t(
+          "Permanently remove your Workspace and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
+        )}
       </Text>
 
-      <Button onClick={() => {}} type="primary" danger>
+      <Button onClick={onWorkspaceDelete} type="primary" danger>
         {t("Remove Workspace")}
       </Button>
     </>
