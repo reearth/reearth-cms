@@ -1,5 +1,3 @@
-import { ConfigProvider } from "antd";
-import enUSIntl from "antd/lib/locale/en_US";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
@@ -28,23 +26,22 @@ import AccountSettings from "./components/organisms/Account";
 function App() {
   return (
     <Auth0Provider>
-      <I18nProvider>
-        <ConfigProvider locale={enUSIntl}>
-          <GqlProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<RootPage />} />
-                <Route path="workspace" element={<CMSPageWrapper />}>
-                  <Route path=":workspaceId" element={<Workspace />} />
-                  <Route path=":workspaceId/account" element={<AccountSettings />} />
-                  <Route path=":workspaceId/members" element={<Members />} />
-                  <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
-                  <Route
-                    path=":workspaceId/myIntegrations/:integrationId"
-                    element={<MyIntegrationDetails />}
-                  />
-                  <Route path=":workspaceId/integrations" element={<Integration />} />
-                  {/* <Route
+      <GqlProvider>
+        <I18nProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<RootPage />} />
+              <Route path="workspace" element={<CMSPageWrapper />}>
+                <Route path=":workspaceId" element={<Workspace />} />
+                <Route path=":workspaceId/account" element={<AccountSettings />} />
+                <Route path=":workspaceId/members" element={<Members />} />
+                <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
+                <Route
+                  path=":workspaceId/myIntegrations/:integrationId"
+                  element={<MyIntegrationDetails />}
+                />
+                <Route path=":workspaceId/integrations" element={<Integration />} />
+                {/* <Route
                     path=":workspaceId/role"
                     element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
                   />
@@ -52,47 +49,43 @@ function App() {
                     path=":workspaceId/apiKey"
                     element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
                   /> */}
-                  <Route path=":workspaceId/settings" element={<WorkspaceSettings />} />
-                  <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
-                  <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
-                  <Route
-                    path=":workspaceId/project/:projectId/schema/:modelId"
-                    element={<Schema />}
-                  />
-                  <Route path=":workspaceId/project/:projectId/public" element={<Public />} />
-                  <Route
-                    path=":workspaceId/project/:projectId/settings"
-                    element={<ProjectSettings />}
-                  />
-                  <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
-                  <Route
-                    path=":workspaceId/project/:projectId/content/:modelId"
-                    element={<Content />}
-                  />
-                  <Route
-                    path=":workspaceId/project/:projectId/content/:modelId/details"
-                    element={<ContentDetails />}
-                  />
-                  <Route
-                    path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
-                    element={<ContentDetails />}
-                  />
-                  <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
-                  <Route
-                    path=":workspaceId/project/:projectId/asset/:assetId"
-                    element={<Asset />}
-                  />
-                  <Route
-                    path=":workspaceId/project/:projectId/request"
-                    element={<div>Request page - GOTTA DO THIS PAGE!!!!</div>}
-                  />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Router>
-          </GqlProvider>
-        </ConfigProvider>
-      </I18nProvider>
+                <Route path=":workspaceId/settings" element={<WorkspaceSettings />} />
+                <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
+                <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
+                <Route
+                  path=":workspaceId/project/:projectId/schema/:modelId"
+                  element={<Schema />}
+                />
+                <Route path=":workspaceId/project/:projectId/public" element={<Public />} />
+                <Route
+                  path=":workspaceId/project/:projectId/settings"
+                  element={<ProjectSettings />}
+                />
+                <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
+                <Route
+                  path=":workspaceId/project/:projectId/content/:modelId"
+                  element={<Content />}
+                />
+                <Route
+                  path=":workspaceId/project/:projectId/content/:modelId/details"
+                  element={<ContentDetails />}
+                />
+                <Route
+                  path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
+                  element={<ContentDetails />}
+                />
+                <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
+                <Route path=":workspaceId/project/:projectId/asset/:assetId" element={<Asset />} />
+                <Route
+                  path=":workspaceId/project/:projectId/request"
+                  element={<div>Request page - GOTTA DO THIS PAGE!!!!</div>}
+                />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Router>
+        </I18nProvider>
+      </GqlProvider>
     </Auth0Provider>
   );
 }

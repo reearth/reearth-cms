@@ -6,12 +6,16 @@ const AccountSettings: React.FC = () => {
   const { handleUserUpdate, handleLanguageUpdate, handleUserDelete, me } = useHooks();
 
   return (
-    <AccountSettingsMolecule
-      user={me}
-      onUserUpdate={handleUserUpdate}
-      onLanguageUpdate={handleLanguageUpdate}
-      onUserDelete={handleUserDelete}
-    />
+    <>
+      {me && (
+        <AccountSettingsMolecule
+          user={me}
+          onUserUpdate={handleUserUpdate}
+          onLanguageUpdate={handleLanguageUpdate}
+          onUserDelete={handleUserDelete}
+        />
+      )}
+    </>
   );
 };
 

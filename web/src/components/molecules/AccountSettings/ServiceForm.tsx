@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
+import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { useT } from "@reearth-cms/i18n";
+import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
 export type Props = {
   user?: User;
@@ -13,7 +14,19 @@ export type Props = {
 
 const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   const [form] = Form.useForm();
+  const { Option } = Select;
   const t = useT();
+
+  const langItems = useMemo(
+    () => [
+      { key: "und", label: t("Auto") },
+      ...Object.keys(localesWithLabel).map(l => ({
+        key: l as keyof typeof localesWithLabel,
+        label: localesWithLabel[l as keyof typeof localesWithLabel],
+      })),
+    ],
+    [t],
+  );
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -35,7 +48,13 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI langauge")}>
-        <Input />
+        <Select placeholder={t("Language")}>
+          {langItems?.map(langItem => (
+            <Option key={langItem.key} value={langItem.key}>
+              {langItem.label}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
       <Button onClick={handleSubmit} type="primary" htmlType="submit">
         {t("Save")}
