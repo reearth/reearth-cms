@@ -3,13 +3,15 @@ import { useCallback } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
+  user?: User;
   onUserUpdate: (name?: string | undefined, email?: string | undefined) => Promise<void>;
 };
 
-const AccountGeneralForm: React.FC<Props> = ({ onUserUpdate }) => {
+const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
 
@@ -23,7 +25,12 @@ const AccountGeneralForm: React.FC<Props> = ({ onUserUpdate }) => {
   }, [form, onUserUpdate]);
 
   return (
-    <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
+    <Form
+      style={{ maxWidth: 400 }}
+      form={form}
+      initialValues={user}
+      layout="vertical"
+      autoComplete="on">
       <Form.Item
         name="name"
         label={t("Account Name")}

@@ -1,16 +1,32 @@
 import { useApolloClient } from "@apollo/client";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { useDeleteMeMutation, useUpdateMeMutation } from "@reearth-cms/gql/graphql-client-api";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import {
+  useDeleteMeMutation,
+  useGetMeQuery,
+  useUpdateMeMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export default () => {
-  const userId = "";
+  const { data } = useGetMeQuery();
   const t = useT();
   const client = useApolloClient();
   const { logout } = useAuth();
+
+  const me: User | undefined = useMemo(() => {
+    return data?.me
+      ? {
+          id: data.me.id,
+          name: data.me.name,
+          lang: data.me.lang,
+          email: data.me.email,
+        }
+      : undefined;
+  }, [data]);
 
   const [updateMeMutation] = useUpdateMeMutation({
     refetchQueries: ["GetMe"],
@@ -46,8 +62,8 @@ export default () => {
   );
 
   const handleUserDelete = useCallback(async () => {
-    if (!userId) return;
-    const user = await deleteMeMutation({ variables: { userId } });
+    if (!me) return;
+    const user = await deleteMeMutation({ variables: { userId: me.id } });
     if (user.errors) {
       Notification.error({ message: t("Failed to delete user.") });
       return;
@@ -55,9 +71,10 @@ export default () => {
       Notification.success({ message: t("Successfully deleted user!") });
       logout();
     }
-  }, [deleteMeMutation, logout, t]);
+  }, [me, deleteMeMutation, logout, t]);
 
   return {
+    me,
     handleUserUpdate,
     handleLanguageUpdate,
     handleUserDelete,
