@@ -17,10 +17,13 @@ import Members from "@reearth-cms/components/organisms/Settings/Members";
 import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
 import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
 import Workspace from "@reearth-cms/components/organisms/Workspace";
+import WorkspaceSettings from "@reearth-cms/components/organisms/Workspace/Settings";
 import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
+
+import AccountSettings from "./components/organisms/Account";
 
 function App() {
   return (
@@ -33,10 +36,7 @@ function App() {
                 <Route path="/" element={<RootPage />} />
                 <Route path="workspace" element={<CMSPageWrapper />}>
                   <Route path=":workspaceId" element={<Workspace />} />
-                  <Route
-                    path=":workspaceId/account"
-                    element={<div>Personal workspace account page - GOTTA DO THIS PAGE!!!!</div>}
-                  />
+                  <Route path=":workspaceId/account" element={<AccountSettings />} />
                   <Route path=":workspaceId/members" element={<Members />} />
                   <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
                   <Route
@@ -52,10 +52,7 @@ function App() {
                     path=":workspaceId/apiKey"
                     element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
                   /> */}
-                  <Route
-                    path=":workspaceId/settings"
-                    element={<div>Workspace settings page - GOTTA DO THIS PAGE!!!</div>}
-                  />
+                  <Route path=":workspaceId/settings" element={<WorkspaceSettings />} />
                   <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
                   <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
                   <Route
