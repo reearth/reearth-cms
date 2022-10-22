@@ -1,13 +1,26 @@
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {};
+export type Props = {
+  onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
+};
 
-const AccountServiceForm: React.FC<Props> = () => {
+const AccountServiceForm: React.FC<Props> = ({ onLanguageUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
+
+  const handleSubmit = useCallback(async () => {
+    try {
+      const values = await form.validateFields();
+      await onLanguageUpdate?.(values.lang);
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
+  }, [form, onLanguageUpdate]);
 
   return (
     <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
@@ -17,7 +30,7 @@ const AccountServiceForm: React.FC<Props> = () => {
         extra={t("This will change the UI langauge")}>
         <Input />
       </Form.Item>
-      <Button onClick={() => {}} type="primary" htmlType="submit">
+      <Button onClick={handleSubmit} type="primary" htmlType="submit">
         {t("Save")}
       </Button>
     </Form>

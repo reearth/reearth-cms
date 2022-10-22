@@ -3,20 +3,23 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {};
+export type Props = {
+  onUserDelete: () => Promise<void>;
+};
 
-const DangerZone: React.FC<Props> = () => {
+const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
 
   return (
     <>
-      <Title>Delete Personal Account</Title>
+      <Title>{t("Delete Personal Account")}</Title>
       <Text>
-        Permanently remove your Personal Account and all of its contents from the Re:Earth CMS. This
-        action is not reversible, so please continue with caution.
+        {t(
+          "Permanently remove your Personal Account and all of its contents from the Re:Earth CMS. This action is not reversible, so please continue with caution.",
+        )}
       </Text>
 
-      <Button onClick={() => {}} type="primary" danger>
+      <Button onClick={onUserDelete} type="primary" danger>
         {t("Delete Personal Account")}
       </Button>
     </>

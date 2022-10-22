@@ -5,21 +5,25 @@ import AccountGeneralForm from "@reearth-cms/components/molecules/AccountSetting
 import AccountServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {};
+export type Props = {
+  onUserUpdate: (name?: string | undefined, email?: string | undefined) => Promise<void>;
+  onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
+  onUserDelete: () => Promise<void>;
+};
 
-const AccountSettings: React.FC<Props> = () => {
+const AccountSettings: React.FC<Props> = ({ onUserDelete, onLanguageUpdate, onUserUpdate }) => {
   const t = useT();
 
   return (
     <InnerContent title="Workspace setting">
       <ContentSection title={t("General")}>
-        <AccountGeneralForm />
+        <AccountGeneralForm onUserUpdate={onUserUpdate} />
       </ContentSection>
       <ContentSection title={t("Service")}>
-        <AccountServiceForm />
+        <AccountServiceForm onLanguageUpdate={onLanguageUpdate} />
       </ContentSection>
       <ContentSection title={t("Dangerous Zone")} danger>
-        <DangerZone />
+        <DangerZone onUserDelete={onUserDelete} />
       </ContentSection>
     </InnerContent>
   );
