@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
