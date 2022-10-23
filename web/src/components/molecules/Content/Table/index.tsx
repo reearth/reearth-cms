@@ -6,13 +6,25 @@ export type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ProColumns<ContentTableField>[];
   onItemEdit: (itemId: string) => void;
+  onItemsReload: () => void;
 };
 
-const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns, onItemEdit }) => {
+const ContentTable: React.FC<Props> = ({
+  contentTableFields,
+  contentTableColumns,
+  onItemEdit,
+  onItemsReload,
+}) => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       onSearch: _ => {},
     },
+  };
+
+  const options = {
+    fullScreen: true,
+    reload: onItemsReload,
+    setting: true,
   };
 
   return contentTableColumns ? (
@@ -30,6 +42,7 @@ const ContentTable: React.FC<Props> = ({ contentTableFields, contentTableColumns
       search={false}
       rowKey="id"
       toolbar={handleToolbarEvents}
+      options={options}
     />
   ) : null;
 };

@@ -10,7 +10,7 @@ import useHooks from "./hooks";
 const ContentList: React.FC = () => {
   const t = useT();
 
-  const { currentModel, contentTableFields, contentTableColumns } = useHooks();
+  const { currentModel, contentTableFields, contentTableColumns, handleItemsReload } = useHooks();
 
   const navigate = useNavigate();
 
@@ -38,6 +38,7 @@ const ContentList: React.FC = () => {
 
   return (
     <ContentListMolecule
+      onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
       onItemAdd={handleNavigateToItemForm}
       model={currentModel}

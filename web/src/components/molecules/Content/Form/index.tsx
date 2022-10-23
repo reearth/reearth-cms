@@ -18,6 +18,7 @@ import { validateURL } from "@reearth-cms/utils/regex";
 export interface Props {
   itemId?: string;
   initialFormValues: any;
+  loading: boolean;
   model?: Model;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
@@ -28,6 +29,7 @@ const ContentForm: React.FC<Props> = ({
   itemId,
   model,
   initialFormValues,
+  loading,
   onItemCreate,
   onItemUpdate,
   onBack,
@@ -63,7 +65,7 @@ const ContentForm: React.FC<Props> = ({
         title={model?.name}
         onBack={onBack}
         extra={
-          <Button htmlType="submit" onClick={handleSubmit}>
+          <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
             {t("Save")}
           </Button>
         }

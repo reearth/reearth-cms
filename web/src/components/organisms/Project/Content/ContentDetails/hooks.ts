@@ -19,7 +19,7 @@ export default ({ itemId }: Props) => {
   const { currentModel, itemsData } = useContentHooks();
   const t = useT();
 
-  const [createNewItem] = useCreateItemMutation({
+  const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -43,7 +43,7 @@ export default ({ itemId }: Props) => {
     [createNewItem, t],
   );
 
-  const [updateItem] = useUpdateItemMutation({
+  const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -98,5 +98,7 @@ export default ({ itemId }: Props) => {
     currentModel,
     handleItemCreate,
     handleItemUpdate,
+    itemCreationLoading,
+    itemUpdatingLoading,
   };
 };
