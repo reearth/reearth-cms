@@ -87,11 +87,9 @@ Models: モデル
 Add: 追加
 New Integration: 新規インテグレーション
 Create: 作成
-Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Integration Token: インテグレーショントークン
-Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
