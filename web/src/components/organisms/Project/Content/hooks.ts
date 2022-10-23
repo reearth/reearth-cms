@@ -5,7 +5,12 @@ import { useModel } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
-  const { data: itemsData, refetch } = useGetItemsQuery({
+  const {
+    data: itemsData,
+    refetch,
+    loading: itemsDataLoading,
+  } = useGetItemsQuery({
+    notifyOnNetworkStatusChange: true,
     variables: { schemaId: currentModel?.schema.id ?? "", first: 100 },
     skip: !currentModel?.schema.id,
   });
@@ -13,9 +18,11 @@ export default () => {
   const handleItemsReload = useCallback(() => {
     refetch();
   }, [refetch]);
+  console.log(itemsDataLoading);
 
   return {
     handleItemsReload,
+    itemsDataLoading,
     currentModel,
     itemsData,
   };

@@ -13,6 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   model?: Model;
   contentTableFields?: ContentTableField[];
+  itemsDataLoading: boolean;
   contentTableColumns?: ProColumns<ContentTableField>[];
   modelsMenu: React.ReactNode;
   onItemAdd: () => void;
@@ -25,6 +26,7 @@ const ContentListMolecule: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   modelsMenu: ModelsMenu,
+  itemsDataLoading,
   onItemAdd,
   onItemsReload,
   onItemEdit,
@@ -42,6 +44,7 @@ const ContentListMolecule: React.FC<Props> = ({
         }
       />
       <StyledContentTable
+        loading={itemsDataLoading}
         onItemsReload={onItemsReload}
         onItemEdit={onItemEdit}
         contentTableFields={contentTableFields}

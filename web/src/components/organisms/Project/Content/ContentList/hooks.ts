@@ -6,7 +6,7 @@ import { ContentTableField } from "@reearth-cms/components/molecules/Content/typ
 import useContentHooks from "../hooks";
 
 export default () => {
-  const { currentModel, itemsData, handleItemsReload } = useContentHooks();
+  const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
@@ -34,6 +34,7 @@ export default () => {
 
   return {
     currentModel,
+    itemsDataLoading,
     contentTableFields,
     contentTableColumns,
     handleItemsReload,
