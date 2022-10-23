@@ -13,6 +13,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
+import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
@@ -95,7 +96,8 @@ export default ({ workspaceId }: Props) => {
             }
           : undefined,
       )
-      .filter((user): user is Member => !!user);
+      .filter((user): user is Member => !!user)
+      .sort((a, b) => stringSortCallback(a.userId, b.userId));
   }, [currentWorkspace]);
 
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
