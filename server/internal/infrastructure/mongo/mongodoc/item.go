@@ -1,19 +1,24 @@
 package mongodoc
 
 import (
+	"time"
+
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type ItemDocument struct {
-	ID      string
-	Project string
-	Schema  string
-	Fields  []ItemFieldDoc
+	ID        string
+	Project   string
+	Schema    string
+	Fields    []ItemFieldDoc
+	Timestamp time.Time
 }
 
 type ItemFieldDoc struct {
@@ -43,23 +48,19 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 }
 
 func NewItem(ws *item.Item) (*ItemDocument, string) {
-	var fieldDoc []ItemFieldDoc
-	for _, f := range ws.Fields() {
-		fieldDoc = append(fieldDoc, ItemFieldDoc{
-			SchemaField: f.SchemaFieldID().String(),
-			ValueType:   string(f.ValueType()),
-			Value:       f.Value(),
-		})
-	}
-
 	id := ws.ID().String()
-	sid := ws.Schema().String()
-	pid := ws.Project().String()
 	return &ItemDocument{
 		ID:      id,
-		Schema:  sid,
-		Project: pid,
-		Fields:  fieldDoc,
+		Schema:  ws.Schema().String(),
+		Project: ws.Project().String(),
+		Fields: lo.Map(ws.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
+			return ItemFieldDoc{
+				SchemaField: f.SchemaFieldID().String(),
+				ValueType:   string(f.ValueType()),
+				Value:       f.Value(),
+			}
+		}),
+		Timestamp: ws.Timestamp(),
 	}, id
 }
 
@@ -68,32 +69,34 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	sid, err := id.SchemaIDFrom(d.Schema)
 	if err != nil {
 		return nil, err
 	}
+
 	pid, err := id.ProjectIDFrom(d.Project)
 	if err != nil {
 		return nil, err
 	}
 
-	var fields []*item.Field
-	if d.Fields != nil {
-		for _, f := range d.Fields {
-			sf, err := schema.FieldIDFrom(f.SchemaField)
-			if err != nil {
-				return nil, err
-			}
-
-			itemField := item.NewField(sf, schema.Type(f.ValueType), f.Value)
-			fields = append(fields, itemField)
+	fields, err := util.TryMap(d.Fields, func(f ItemFieldDoc) (*item.Field, error) {
+		sf, err := schema.FieldIDFrom(f.SchemaField)
+		if err != nil {
+			return nil, err
 		}
+		return item.NewField(sf, schema.Type(f.ValueType), f.Value), nil
+	})
+	if err != nil {
+		return nil, err
 	}
+
 	return item.New().
 		ID(iid).
 		Project(pid).
 		Schema(sid).
 		Fields(fields).
+		Timestamp(d.Timestamp).
 		Build()
 }
 

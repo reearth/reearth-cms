@@ -5,20 +5,14 @@ import "github.com/reearth/reearthx/idx"
 type Workspace struct{}
 type User struct{}
 type Asset struct{}
-type Thread struct{}
-type Comment struct{}
 
 func (Workspace) Type() string { return "workspace" }
 func (User) Type() string      { return "user" }
 func (Asset) Type() string     { return "asset" }
-func (Thread) Type() string    { return "thread" }
-func (Comment) Type() string   { return "comment" }
 
 type WorkspaceID = idx.ID[Workspace]
 type UserID = idx.ID[User]
 type AssetID = idx.ID[Asset]
-type ThreadID = idx.ID[Thread]
-type CommentID = idx.ID[Comment]
 
 var NewWorkspaceID = idx.New[Workspace]
 var NewUserID = idx.New[User]
@@ -104,10 +98,24 @@ var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
 
+type Thread struct{}
+
+func (Thread) Type() string { return "thread" }
+
+type ThreadID = idx.ID[Thread]
+type ThreadIDList = idx.List[Thread]
+
 var NewThreadID = idx.New[Thread]
 var MustThreadID = idx.Must[Thread]
 var ThreadIDFrom = idx.From[Thread]
 var ThreadIDFromRef = idx.FromRef[Thread]
+
+type Comment struct{}
+
+func (Comment) Type() string { return "comment" }
+
+type CommentID = idx.ID[Comment]
+type CommentIDList = idx.List[Comment]
 
 var NewCommentID = idx.New[Comment]
 var MustCommentID = idx.Must[Comment]

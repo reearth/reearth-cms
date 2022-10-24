@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,14 +13,6 @@ export type Props = {
   defaultSelectedKey?: string;
 };
 
-const topItems: ItemType[] = [
-  { label: "Overview", key: "home", icon: <Icon icon="dashboard" /> },
-  { label: "Schema", key: "schema", icon: <Icon icon="unorderedList" /> },
-  { label: "Content", key: "content", icon: <Icon icon="table" /> },
-  { label: "Asset", key: "asset", icon: <Icon icon="file" /> },
-  { label: "Request", key: "request", icon: <Icon icon="pullRequest" /> },
-];
-
 const ProjectMenu: React.FC<Props> = ({
   inlineCollapsed,
   workspaceId,
@@ -29,12 +21,26 @@ const ProjectMenu: React.FC<Props> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
+
+  const topItems: ItemType[] = [
+    { label: t("Overview"), key: "home", icon: <Icon icon="dashboard" /> },
+    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
+    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
+    { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
+    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+  ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
+  useEffect(() => {
+    if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {
+      changeSelected([defaultSelectedKey]);
+    }
+  }, [selected, defaultSelectedKey]);
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
-      key: "accessibility",
+      label: t("Public"),
+      key: "public",
       icon: <Icon icon="send" />,
     },
     {
@@ -55,6 +61,8 @@ const ProjectMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
       } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
+      } else if (e.key === "public") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/public`);
       } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {

@@ -10,37 +10,19 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
+import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 type Params = {
   projectId?: string;
   modelId?: string;
 };
 
-const fromModel = (model: GQLModel) => ({
-  id: model.id,
-  description: model.description,
-  name: model.name,
-  key: model.key,
-  schema: {
-    id: model.schema?.id,
-    fields: model.schema?.fields.map(field => ({
-      id: field.id,
-      description: field.description,
-      title: field.title,
-      type: field.type,
-      key: field.key,
-      unique: field.unique,
-      required: field.required,
-      typeProperty: field.typeProperty,
-    })),
-  },
-});
-
 export default ({ projectId, modelId }: Params) => {
+  const t = useT();
   const [currentModel, setCurrentModel] = useModel();
+
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
-  const t = useT();
 
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
@@ -66,7 +48,7 @@ export default ({ projectId, modelId }: Params) => {
 
   const models = useMemo(() => {
     return data?.models.nodes
-      ?.map<Model | undefined>(model => (model ? fromModel(model as GQLModel) : undefined))
+      ?.map<Model | undefined>(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
@@ -76,7 +58,7 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   const model = useMemo<Model | undefined>(
-    () => (rawModel?.id ? fromModel(rawModel as GQLModel) : undefined),
+    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
     [rawModel],
   );
 
@@ -118,10 +100,10 @@ export default ({ projectId, modelId }: Params) => {
     model,
     models,
     modelModalShown,
+    isKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,
     handleModelKeyCheck,
-    isKeyAvailable,
   };
 };

@@ -22,11 +22,11 @@ type AssetDocument struct {
 }
 
 type File struct {
-	name        string
-	size        uint64
-	contentType string
-	path        string
-	children    []*File
+	Name        string
+	Size        uint64
+	ContentType string
+	Path        string
+	Children    []*File
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -103,11 +103,11 @@ func ToFile(f *asset.File) *File {
 	}
 
 	return &File{
-		name:        f.Name(),
-		size:        f.Size(),
-		contentType: f.ContentType(),
-		path:        f.Path(),
-		children:    c,
+		Name:        f.Name(),
+		Size:        f.Size(),
+		ContentType: f.ContentType(),
+		Path:        f.Path(),
+		Children:    c,
 	}
 }
 
@@ -117,17 +117,17 @@ func FromFile(f *File) *asset.File {
 	}
 
 	c := []*asset.File{}
-	if f.children != nil && len(f.children) > 0 {
-		for _, v := range f.children {
+	if f.Children != nil && len(f.Children) > 0 {
+		for _, v := range f.Children {
 			c = append(c, FromFile(v))
 		}
 	}
 
 	af := asset.File{}
-	af.SetName(f.name)
-	af.SetSize(f.size)
-	af.SetContentType(f.contentType)
-	af.SetPath(f.path)
+	af.SetName(f.Name)
+	af.SetSize(f.Size)
+	af.SetContentType(f.ContentType)
+	af.SetPath(f.Path)
 	af.SetChildren(c...)
 
 	return &af

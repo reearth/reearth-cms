@@ -18,44 +18,17 @@ type Params = {
 };
 
 export default ({ projectId, modelId }: Params) => {
+  const t = useT();
+
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const t = useT();
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
     skip: !projectId,
   });
-
-  const models = useMemo(() => {
-    return (data?.models.nodes ?? [])
-      .map<Model | undefined>(model =>
-        model
-          ? {
-              id: model.id,
-              description: model.description,
-              name: model.name,
-              key: model.key,
-              schema: {
-                id: model.schema.id,
-                fields: model.schema.fields.map(field => ({
-                  id: field.id,
-                  description: field.description,
-                  title: field.title,
-                  type: field.type,
-                  key: field.key,
-                  unique: field.unique,
-                  required: field.required,
-                  typeProperty: field.typeProperty,
-                })),
-              },
-            }
-          : undefined,
-      )
-      .filter((model): model is Model => !!model);
-  }, [data?.models.nodes]);
 
   const rawModel = useMemo(
     () => data?.models.nodes.find((p: any) => p?.id === modelId),
@@ -69,6 +42,7 @@ export default ({ projectId, modelId }: Params) => {
             description: rawModel.description,
             name: rawModel.name,
             key: rawModel.key,
+            public: rawModel.public,
             schema: {
               id: rawModel.schema.id,
               fields: rawModel.schema.fields.map(field => ({
@@ -211,19 +185,18 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   return {
-    model,
-    models,
-    handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
-    handleFieldKeyUnique,
     fieldCreationModalShown,
     fieldUpdateModalShown,
-    handleFieldCreationModalOpen,
-    handleFieldCreationModalClose,
     selectedField,
+    model,
+    selectedType,
+    handleFieldCreationModalClose,
+    handleFieldCreationModalOpen,
+    handleFieldUpdateModalOpen,
+    handleFieldUpdateModalClose,
     handleFieldCreate,
+    handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldDelete,
-    selectedType,
   };
 };

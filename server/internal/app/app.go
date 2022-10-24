@@ -9,11 +9,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearthx/appx"
+	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
@@ -29,9 +27,9 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 
 	// basic middleware
-	logger := GetEchoLogger()
+	logger := rlog.NewEcho()
 	e.Logger = logger
-	e.Use(logger.Hook(), middleware.Recover(), otelecho.Middleware("reearth-cms"))
+	e.Use(logger.AccessLogger(), middleware.Recover(), otelecho.Middleware("reearth-cms"))
 	origins := allowedOrigins(cfg)
 	if len(origins) > 0 {
 		e.Use(
@@ -41,9 +39,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		)
 	}
 	e.Use(
-		echo.WrapMiddleware(lo.Must(
-			appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
-		)),
+		jwtEchoMiddleware(cfg),
 		authMiddleware(cfg),
 	)
 

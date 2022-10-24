@@ -2,57 +2,44 @@ package item
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestItem_UpdateFields(t *testing.T) {
-	iid := id.NewItemID()
-	sid := id.NewSchemaID()
 	f := NewField(id.NewFieldID(), schema.TypeText, "test")
-	type fields struct {
-		id       ID
-		schemaID schema.ID
-		fields   []*Field
-	}
+	now := time.Now()
+	defer util.MockNow(now)()
 
 	tests := []struct {
-		name        string
-		fields      fields
-		input, want []*Field
+		name  string
+		input []*Field
+		want  *Item
 	}{
 		{
 			name:  "should update fields",
 			input: []*Field{f},
-			fields: fields{
-				id:       iid,
-				schemaID: sid,
-				fields:   []*Field{},
+			want: &Item{
+				fields:    []*Field{f},
+				timestamp: now,
 			},
-			want: []*Field{f},
 		},
 		{
-			name: "nil fields",
-			fields: fields{
-				id:       iid,
-				schemaID: sid,
-				fields:   []*Field{},
-			},
+			name:  "nil fields",
 			input: nil,
-			want:  []*Field{},
+			want:  &Item{},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			i := &Item{
-				id:     tt.fields.id,
-				schema: tt.fields.schemaID,
-				fields: tt.fields.fields,
-			}
+			i := &Item{}
 			i.UpdateFields(tt.input)
-			assert.Equal(t, tt.want, i.Fields())
+			assert.Equal(t, tt.want, i)
 		})
 	}
 }
