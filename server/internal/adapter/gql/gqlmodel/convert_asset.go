@@ -10,6 +10,7 @@ const (
 	PreviewTypeGEO     PreviewType = "GEO"
 	PreviewTypeGEO3D   PreviewType = "GEO3D"
 	PreviewTypeMODEL3D PreviewType = "MODEL3D"
+	PreviewTypeUNKNOWN PreviewType = "UNKNOWN"
 )
 
 func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
@@ -51,6 +52,8 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 		p2 = PreviewTypeGEO3D
 	case asset.PreviewTypeMODEL3D:
 		p2 = PreviewTypeMODEL3D
+	case asset.PreviewTypeUNKNOWN:
+		p2 = PreviewTypeUNKNOWN
 	default:
 		return nil
 	}

@@ -89,6 +89,9 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	var pt6 asset.PreviewType = "test"
 	want6 := (*PreviewType)(nil)
 
+	var pt7 asset.PreviewType = asset.PreviewTypeUNKNOWN
+	want7 := PreviewTypeUNKNOWN
+
 	tests := []struct {
 		name string
 		arg  *asset.PreviewType
@@ -123,6 +126,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 			name: "to asset other",
 			arg:  &pt6,
 			want: want6,
+		},
+		{
+			name: "to asset unknown",
+			arg:  &pt7,
+			want: &want7,
 		},
 	}
 
