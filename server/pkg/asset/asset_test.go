@@ -15,7 +15,7 @@ func TestAsset_Getters(t *testing.T) {
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
-	wantPreviewType := PreviewTypeFrom(lo.ToPtr("image"))
+	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("image"))
 
 	got := Asset{
 		id:          aid,
@@ -24,7 +24,7 @@ func TestAsset_Getters(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
-		previewType: PreviewTypeFrom(lo.ToPtr(PreviewTypeImage.String())),
+		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
 		file:        &File{},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,

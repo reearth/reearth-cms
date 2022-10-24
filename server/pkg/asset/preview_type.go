@@ -16,7 +16,24 @@ const (
 	PreviewTypeUnknown PreviewType = "unknown"
 )
 
-func PreviewTypeFrom(p *string) *PreviewType {
+func PreviewTypeFrom(p string) (PreviewType, bool) {
+	switch PreviewType(p) {
+	case PreviewTypeImage:
+		return PreviewTypeImage, true
+	case PreviewTypeGeo:
+		return PreviewTypeGeo, true
+	case PreviewTypeGeo3d:
+		return PreviewTypeGeo3d, true
+	case PreviewTypeModel3d:
+		return PreviewTypeModel3d, true
+	case PreviewTypeUnknown:
+		return PreviewTypeUnknown, true
+	default:
+		return PreviewType(""), false
+	}
+}
+
+func PreviewTypeFromRef(p *string) *PreviewType {
 	if p == nil {
 		return nil
 	}

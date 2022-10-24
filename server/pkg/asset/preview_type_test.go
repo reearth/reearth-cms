@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPreviewType_PreviewTypeFrom(t *testing.T) {
+func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	i := PreviewTypeImage
 	g := PreviewTypeGeo
 	g3d := PreviewTypeGeo3d
@@ -57,8 +57,89 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			res := PreviewTypeFrom(tc.Input)
+			res := PreviewTypeFromRef(tc.Input)
 			assert.Equal(t, tc.Expected, res)
+		})
+	}
+}
+
+func TestPreviewType_PreviewTypeFrom(t *testing.T) {
+	tests := []struct {
+		Name     string
+		Expected struct {
+			TA   PreviewType
+			Bool bool
+		}
+	}{
+		{
+			Name: "image",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeImage,
+				Bool: true,
+			},
+		},
+		{
+			Name: "geo",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeGeo,
+				Bool: true,
+			},
+		},
+		{
+			Name: "geo3d",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeGeo3d,
+				Bool: true,
+			},
+		},
+		{
+			Name: "model3d",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeModel3d,
+				Bool: true,
+			},
+		},
+		{
+			Name: "unknown",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeUnknown,
+				Bool: true,
+			},
+		},
+		{
+			Name: "undefined",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewType(""),
+				Bool: false,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+			res, ok := PreviewTypeFrom(tc.Name)
+			assert.Equal(t, tc.Expected.TA, res)
+			assert.Equal(t, tc.Expected.Bool, ok)
 		})
 	}
 }
