@@ -18,7 +18,7 @@ func NewUsecase(g *gateway.Container) *Usecase {
 	return &Usecase{gateways: g}
 }
 
-func (u *Usecase) Decompress(ctx context.Context, assetPath string) error {
+func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
 	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
@@ -40,5 +40,9 @@ func (u *Usecase) Decompress(ctx context.Context, assetPath string) error {
 		return err
 	}
 
-	return de.Decompress()
+	if err = de.Decompress(); err != nil {
+		return err
+	}
+
+	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID)
 }

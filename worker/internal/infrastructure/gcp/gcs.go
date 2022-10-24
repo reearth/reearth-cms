@@ -153,7 +153,7 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
-func getGCSObjectNameFromURL(assetBasePath string, path string) string { //TODO: fix later
+func getGCSObjectNameFromURL(assetBasePath string, path string) string {
 	if path == "" {
 		return ""
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-const configPrefix = "reearthCmsWorker"
+const configPrefix = "REEARTH_CMS_WORKER"
 
 type Config struct {
 	Port       string `default:"8080" envconfig:"PORT"`
@@ -20,13 +20,13 @@ type Config struct {
 }
 
 type GCSConfig struct {
-	BucketName              string `default:"asset.cms.test.reearth.dev" envconfig:"GCS_BUCKET_NAME"` //TODO: fix here later
+	BucketName              string `default:"asset.cms.test.reearth.dev" envconfig:"GCS_BUCKET_NAME"`
 	AssetBaseURL            string `default:"https://asset.cms.test.reearth.dev" envconfig:"GCS_ASSET_BASE_URL"`
 	PublicationCacheControl string
 }
 
 type PubSubConfig struct {
-	Topic string
+	Topic string `default:"decompress"`
 }
 
 func ReadConfig(debug bool) (*Config, error) {
