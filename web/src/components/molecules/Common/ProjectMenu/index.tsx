@@ -1,5 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -31,10 +31,16 @@ const ProjectMenu: React.FC<Props> = ({
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
+  useEffect(() => {
+    if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {
+      changeSelected([defaultSelectedKey]);
+    }
+  }, [selected, defaultSelectedKey]);
+
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
-      key: "accessibility",
+      label: t("Public"),
+      key: "public",
       icon: <Icon icon="send" />,
     },
     {
@@ -55,8 +61,8 @@ const ProjectMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
       } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-      } else if (e.key === "accessibility") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
+      } else if (e.key === "public") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/public`);
       } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {

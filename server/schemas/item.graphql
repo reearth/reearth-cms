@@ -5,6 +5,7 @@ type Item implements Node {
   project: Project!
   schema: Schema!
   fields: [ItemField!]!
+  createdAt: DateTime!
 }
 
 type ItemField {

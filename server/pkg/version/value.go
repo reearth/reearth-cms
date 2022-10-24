@@ -1,7 +1,5 @@
 package version
 
-import "fmt"
-
 type Value[T any] struct {
 	version Version
 	parents Versions

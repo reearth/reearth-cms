@@ -25,6 +25,7 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
   if (!icon) return null;
 
   const sizeStr = typeof size === "number" ? `${size}px` : size;
+
   if (!src) {
     return <StyledImg src={icon} alt={alt} style={style} size={sizeStr} onClick={onClick} />;
   }
@@ -43,7 +44,11 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
     );
   }
 
-  return React.createElement(src, { className, onClick, style: { ...style, color } });
+  return React.createElement(src, {
+    className,
+    onClick,
+    style: { ...style, color, fontSize: sizeStr },
+  });
 };
 
 const StyledImg = styled.img<{ size?: string }>`

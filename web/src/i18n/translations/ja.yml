@@ -1,13 +1,5 @@
 Download: ''
-Model: ''
-Switch: ''
-Private: ''
-API Key Only: ''
-Public: ''
-Accessibility: 公開設定
-Public Scope: ''
-Choose the scope of your project. This affects all the models shown below that are switched on.: ''
-Save changes: 変更を保存
+Loading: ローディング中
 Unzip File: ''
 Asset Type: ''
 Created Time: ''
@@ -51,11 +43,12 @@ Schema: ''
 Content: ''
 Asset: アセット
 Request: ''
+Public: ''
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
 Member: メンバー
-Integration: インテグレーション
+Integrations: インテグレーション
 My Integrations: ''
 Role: ロール
 API key: APIキー
@@ -87,6 +80,7 @@ Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
 Add member: メンバー追加
+Add to workspace: ''
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
@@ -117,6 +111,14 @@ No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
+New Model: ''
+Model: ''
+Switch: ''
+Private: ''
+API Key Only: ''
+Public Scope: ''
+Choose the scope of your project. This affects all the models shown below that are switched on.: ''
+Save changes: 変更を保存
 Add Field: フィールドを追加
 Setting: 設定
 Display name: 表示名
@@ -145,13 +147,17 @@ Model description: モデル概要
 Model key: モデルキー
 Please input the key of the model!: このモデルのキーを入力してください
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-input search text: 検索
+search projects: 検索
 Create a Workspace: 新規ワークスペース
 Successfully created workspace!: ''
-Failed to update accessiblity options.: ''
-Successfully updated accessibility options!: ''
+Failed to create item.: ''
+Successfully created Item!: ''
+Failed to update item.: ''
+Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
+Failed to update publication settings.: ''
+Successfully updated publication settings!: ''
 Failed to delete field.: ''
 Successfully deleted field!: ''
 Failed to update field.: ''
@@ -180,6 +186,7 @@ Change Role?: ロールを変更
 Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
+search for a member: 検索
 Failed to create webhook.: ''
 Successfully created webhook!: ''
 Failed to delete webhook.: ''
@@ -190,4 +197,3 @@ Failed to create integration.: ''
 Successfully created integration!: ''
 Failed to create project.: ''
 Successfully created project!: ''
-Loading: ローディング中

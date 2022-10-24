@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -10,6 +11,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
+
+var ErrItemFieldRequired = errors.New("item field required")
 
 type ItemFieldParam struct {
 	SchemaFieldID schema.FieldID

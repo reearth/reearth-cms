@@ -13,6 +13,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
+import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
@@ -25,6 +26,7 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [owner, setOwner] = useState(false);
   const t = useT();
 
   const [searchedUser, changeSearchedUser] = useState<{
@@ -36,6 +38,15 @@ export default ({ workspaceId }: Props) => {
   const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
+
+  const isOwner = useMemo(
+    () => currentWorkspace?.members?.find(m => m.userId === me?.id && m.role === "OWNER"),
+    [currentWorkspace?.members, me?.id],
+  );
+
+  useEffect(() => {
+    setOwner(isOwner);
+  }, [isOwner]);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -54,8 +65,12 @@ export default ({ workspaceId }: Props) => {
   });
 
   useEffect(() => {
-    changeSearchedUser(searchUserData?.searchUser ?? undefined);
-  }, [searchUserData?.searchUser]);
+    changeSearchedUser(
+      searchUserData?.searchUser && searchUserData?.searchUser?.id !== data?.me?.id
+        ? searchUserData.searchUser
+        : undefined,
+    );
+  }, [searchUserData?.searchUser, data?.me?.id]);
 
   const handleUserSearch = useCallback(
     (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
@@ -73,7 +88,8 @@ export default ({ workspaceId }: Props) => {
             }
           : undefined,
       )
-      .filter((user): user is Member => !!user);
+      .filter((user): user is Member => !!user)
+      .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace]);
 
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
@@ -169,6 +185,7 @@ export default ({ workspaceId }: Props) => {
 
   return {
     me,
+    owner,
     workspaces,
     currentWorkspace,
     searchedUser,

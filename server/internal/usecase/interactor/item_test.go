@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -14,7 +15,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -88,7 +92,7 @@ func TestItem_FindByID(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Item.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			itemUC := NewItem(db)
 
@@ -104,112 +108,79 @@ func TestItem_FindByID(t *testing.T) {
 }
 
 func TestItem_FindBySchema(t *testing.T) {
-	sid1 := id.NewSchemaID()
-	sid2 := id.NewSchemaID()
-	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Project(id.NewProjectID()).Build()
-	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Project(id.NewProjectID()).Build()
-	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid2).Project(id.NewProjectID()).Build()
+	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
-	s1 := schema.New().ID(sid1).Workspace(wid).Project(pid).MustBuild()
-	s2 := schema.New().ID(sid2).Workspace(wid).Project(pid).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
+	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
+	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
+	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
+	restore()
 
-	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		User: u.ID(),
+	type args struct {
+		schema     id.SchemaID
+		operator   *usecase.Operator
+		pagination *usecasex.Pagination
 	}
 
 	tests := []struct {
-		name  string
-		seeds struct {
-			items  item.List
-			schema *schema.Schema
-		}
-		args struct {
-			id       id.SchemaID
-			operator *usecase.Operator
-		}
-		want        int
-		mockItemErr bool
+		name        string
+		seedItems   item.List
+		seedSchema  *schema.Schema
+		args        args
+		want        item.List
 		wantErr     error
+		mockItemErr bool
 	}{
 		{
-			name: "find 2 of 3",
-			seeds: struct {
-				items  item.List
-				schema *schema.Schema
-			}{
-				items:  item.List{i1, i2, i3},
-				schema: s1,
+			name:       "find 2 of 3",
+			seedItems:  item.List{i1, i2, i3},
+			seedSchema: s1,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					User:             uid,
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
 			},
-			args: struct {
-				id       id.SchemaID
-				operator *usecase.Operator
-			}{
-				id:       sid1,
-				operator: op,
-			},
-			want:    2,
+			want:    item.List{i1, i2},
 			wantErr: nil,
 		},
 		{
-			name: "find 1 of 3",
-			seeds: struct {
-				items  item.List
-				schema *schema.Schema
-			}{
-				items:  item.List{i1, i2, i3},
-				schema: s2,
+			name:       "items not found",
+			seedItems:  item.List{},
+			seedSchema: s1,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					User:             uid,
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
 			},
-			args: struct {
-				id       id.SchemaID
-				operator *usecase.Operator
-			}{
-				id:       sid2,
-				operator: op,
-			},
-			want:    1,
+			want:    nil,
 			wantErr: nil,
 		},
 		{
-			name: "items not found",
-			seeds: struct {
-				items  item.List
-				schema *schema.Schema
-			}{
-				items:  item.List{},
-				schema: s1,
+			name:       "schema not found",
+			seedItems:  item.List{i1, i2, i3},
+			seedSchema: s2,
+			args: args{
+				schema: s1.ID(),
+				operator: &usecase.Operator{
+					User:             uid,
+					ReadableProjects: []id.ProjectID{pid},
+					WritableProjects: []id.ProjectID{pid},
+				},
 			},
-			args: struct {
-				id       id.SchemaID
-				operator *usecase.Operator
-			}{
-				id:       sid1,
-				operator: op,
-			},
-			want:    0,
-			wantErr: nil,
-		},
-		{
-			name: "schema not found",
-			seeds: struct {
-				items  item.List
-				schema *schema.Schema
-			}{
-				items:  item.List{i1, i2, i3},
-				schema: s2,
-			},
-			args: struct {
-				id       id.SchemaID
-				operator *usecase.Operator
-			}{
-				id:       sid1,
-				operator: op,
-			},
-			want:    0,
+			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -224,22 +195,25 @@ func TestItem_FindBySchema(t *testing.T) {
 			if tc.mockItemErr {
 				memory.SetItemError(db.Item, tc.wantErr)
 			}
-			for _, seed := range tc.seeds.items {
+
+			for _, seed := range tc.seedItems {
 				err := db.Item.Save(ctx, seed)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			err := db.Schema.Save(ctx, tc.seeds.schema)
-			assert.Nil(t, err)
+			if tc.seedSchema != nil {
+				err := db.Schema.Save(ctx, tc.seedSchema)
+				assert.NoError(t, err)
+			}
+
 			itemUC := NewItem(db)
 
-			got, _, err := itemUC.FindBySchema(ctx, tc.args.id, nil, tc.args.operator)
+			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, len(got))
-
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -252,20 +226,21 @@ func TestItem_Create(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User:             u.ID(),
+		ReadableProjects: []id.ProjectID{pid},
+		WritableProjects: []id.ProjectID{pid},
 	}
 	ctx := context.Background()
 
 	db := memory.New()
 	err := db.Schema.Save(ctx, s)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	itemUC := NewItem(db)
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
 	}, op)
-
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, item)
 
 	_, err = itemUC.FindByID(ctx, item.ID(), op)
@@ -296,11 +271,11 @@ func TestItem_Delete(t *testing.T) {
 
 	db := memory.New()
 	err := db.Item.Save(ctx, i1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	itemUC := NewItem(db)
 	err = itemUC.Delete(ctx, id1, op)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, err = itemUC.FindByID(ctx, id1, op)
 	assert.Error(t, err)
@@ -325,21 +300,32 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	db := memory.New()
 	err := db.Item.Save(ctx, i1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	itemUC := NewItem(db)
 
 	// first version
-	vl, err := itemUC.FindAllVersionsByID(ctx, id1, op)
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(vl))
+	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
+	assert.NoError(t, err)
+	assert.Equal(t, []*version.Value[*item.Item]{
+		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
+	}, res)
 
 	// second version
 	err = db.Item.Save(ctx, i1)
-	assert.Nil(t, err)
-	vl, err = itemUC.FindAllVersionsByID(ctx, id1, op)
-	assert.Nil(t, err)
-	assert.Equal(t, 2, len(vl))
+	assert.NoError(t, err)
+
+	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
+	assert.NoError(t, err)
+	assert.Equal(t, []*version.Value[*item.Item]{
+		version.NewValue(res[0].Version(), nil, nil, i1),
+		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
+	}, res)
+
+	// not found
+	res, err = itemUC.FindAllVersionsByID(ctx, id.NewItemID(), op)
+	assert.NoError(t, err)
+	assert.Empty(t, res)
 
 	// mock item error
 	wantErr := errors.New("test")
@@ -349,7 +335,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.Equal(t, wantErr, err)
 }
 
-func TestItem_UpdateItem(t *testing.T) {
+func TestItem_Update(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
 	f1 := item.NewField(id.NewFieldID(), schema.TypeBool, true)
@@ -359,13 +345,15 @@ func TestItem_UpdateItem(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User:             u.ID(),
+		ReadableProjects: []id.ProjectID{i1.Project()},
+		WritableProjects: []id.ProjectID{i1.Project()},
 	}
 	ctx := context.Background()
 
 	db := memory.New()
 	err := db.Item.Save(ctx, i1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	itemUC := NewItem(db)
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -384,121 +372,84 @@ func TestItem_UpdateItem(t *testing.T) {
 			},
 		},
 	}, op)
-	assert.Nil(t, err)
-	assert.Equal(t, []*item.Field{f1, f2}, i.Fields())
+	assert.NoError(t, err)
+	assert.Equal(t, i1, i)
 
-	// mock item error
-	wantErr := rerror.ErrNotFound
-	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{}, op)
-	assert.Equal(t, wantErr, err)
+	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID:   id1,
+		SchemaID: sid,
+		Fields:   []interfaces.ItemFieldParam{},
+	}, op)
+	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
 }
 
 func TestItem_FindByProject(t *testing.T) {
 	sid1 := id.NewProjectID()
 	sid2 := id.NewProjectID()
-	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Project(sid1).Schema(id.NewSchemaID()).Build()
-	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Project(sid1).Schema(id.NewSchemaID()).Build()
-	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Project(sid2).Schema(id.NewSchemaID()).Build()
 	wid := id.NewWorkspaceID()
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
+	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
+	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	restore()
+	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
+	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Build()
+	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User: u.ID(),
 	}
 
+	type args struct {
+		id         id.ProjectID
+		operator   *usecase.Operator
+		pagination *usecasex.Pagination
+	}
+
 	tests := []struct {
-		name  string
-		seeds struct {
-			items   item.List
-			project *project.Project
-		}
-		args struct {
-			id       id.ProjectID
-			operator *usecase.Operator
-		}
-		want        int
+		name        string
+		seedItems   item.List
+		seedProject *project.Project
+		args        args
+		want        item.List
 		mockItemErr bool
 		wantErr     error
 	}{
 		{
-			name: "find 2 of 3",
-			seeds: struct {
-				items   item.List
-				project *project.Project
-			}{
-				items:   item.List{i1, i2, i3},
-				project: s1,
-			},
-			args: struct {
-				id       id.ProjectID
-				operator *usecase.Operator
-			}{
+			name:        "find 2 of 3",
+			seedItems:   item.List{i1, i2, i3},
+			seedProject: s1,
+			args: args{
 				id:       sid1,
 				operator: op,
 			},
-			want:    2,
+			want:    item.List{i1, i2},
 			wantErr: nil,
 		},
 		{
-			name: "find 1 of 3",
-			seeds: struct {
-				items   item.List
-				project *project.Project
-			}{
-				items:   item.List{i1, i2, i3},
-				project: s2,
-			},
-			args: struct {
-				id       id.ProjectID
-				operator *usecase.Operator
-			}{
-				id:       sid2,
-				operator: op,
-			},
-			want:    1,
-			wantErr: nil,
-		},
-		{
-			name: "items not found",
-			seeds: struct {
-				items   item.List
-				project *project.Project
-			}{
-				items:   item.List{},
-				project: s1,
-			},
-			args: struct {
-				id       id.ProjectID
-				operator *usecase.Operator
-			}{
+			name:        "items not found",
+			seedItems:   item.List{},
+			seedProject: s1,
+			args: args{
 				id:       sid1,
 				operator: op,
 			},
-			want:    0,
+			want:    nil,
 			wantErr: nil,
 		},
 		{
-			name: "project not found",
-			seeds: struct {
-				items   item.List
-				project *project.Project
-			}{
-				items:   item.List{i1, i2, i3},
-				project: s2,
-			},
-			args: struct {
-				id       id.ProjectID
-				operator *usecase.Operator
-			}{
+			name:        "project not found",
+			seedItems:   item.List{i1, i2, i3},
+			seedProject: s2,
+			args: args{
 				id:       sid1,
 				operator: op,
 			},
-			want:    0,
+			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -513,27 +464,26 @@ func TestItem_FindByProject(t *testing.T) {
 			if tc.mockItemErr {
 				memory.SetItemError(db.Item, tc.wantErr)
 			}
-			for _, seed := range tc.seeds.items {
+			for _, seed := range tc.seedItems {
 				err := db.Item.Save(ctx, seed)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			err := db.Project.Save(ctx, tc.seeds.project)
-			assert.Nil(t, err)
+			err := db.Project.Save(ctx, tc.seedProject)
+			assert.NoError(t, err)
 			itemUC := NewItem(db)
 
-			got, _, err := itemUC.FindByProject(ctx, tc.args.id, nil, tc.args.operator)
+			got, _, err := itemUC.FindByProject(ctx, tc.args.id, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, len(got))
-
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
 
-func TestItem_FindByFieldValue(t *testing.T) {
+func TestItem_Search(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
@@ -559,7 +509,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 			items item.List
 		}
 		args struct {
-			find     string
+			query    *item.Query
 			operator *usecase.Operator
 		}
 		want        int
@@ -574,10 +524,10 @@ func TestItem_FindByFieldValue(t *testing.T) {
 				items: item.List{i1, i2, i3},
 			},
 			args: struct {
-				find     string
+				query    *item.Query
 				operator *usecase.Operator
 			}{
-				find:     "foo",
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "foo"),
 				operator: op,
 			},
 			want:    2,
@@ -591,10 +541,10 @@ func TestItem_FindByFieldValue(t *testing.T) {
 				items: item.List{i1, i2, i3},
 			},
 			args: struct {
-				find     string
+				query    *item.Query
 				operator *usecase.Operator
 			}{
-				find:     "hoge",
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "hoge"),
 				operator: op,
 			},
 			want:    1,
@@ -608,10 +558,10 @@ func TestItem_FindByFieldValue(t *testing.T) {
 				items: item.List{i1, i2, i3},
 			},
 			args: struct {
-				find     string
+				query    *item.Query
 				operator *usecase.Operator
 			}{
-				find:     "xxx",
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "xxx"),
 				operator: op,
 			},
 			want:    0,
@@ -622,7 +572,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -635,7 +585,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 			}
 			itemUC := NewItem(db)
 
-			got, _, err := itemUC.Search(ctx, tc.args.find, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

@@ -53,6 +53,7 @@ const Members: React.FC = () => {
 
   const {
     me,
+    owner,
     searchedUser,
     changeSearchedUser,
     handleUserSearch,
@@ -98,12 +99,18 @@ const Members: React.FC = () => {
     action: (
       <>
         {member.userId !== me?.id && (
-          <a onClick={() => handleRoleModalOpen(member)}>{t("Change Role?")}</a>
+          <Button type="link" onClick={() => handleRoleModalOpen(member)} disabled={!owner}>
+            {t("Change Role?")}
+          </Button>
         )}
         {member.role !== "OWNER" && (
-          <a style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
+          <Button
+            type="link"
+            style={{ marginLeft: "8px" }}
+            onClick={() => handleMemberDelete(member)}
+            disabled={!owner}>
             {t("Remove")}
-          </a>
+          </Button>
         )}
       </>
     ),
@@ -124,9 +131,13 @@ const Members: React.FC = () => {
           }
         />
         <ActionHeader>
-          <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
+          <Search placeholder={t("search for a member")} allowClear style={{ width: 264 }} />
         </ActionHeader>
-        <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          style={{ padding: "24px", overflowX: "auto" }}
+        />
       </PaddedContent>
       <MemberRoleModal
         member={selectedMember}

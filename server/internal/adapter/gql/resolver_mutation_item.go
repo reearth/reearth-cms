@@ -16,7 +16,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
-		Fields:   util.Map(input.Fields, gqlmodel.ToItemParam),
+		Fields:   util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	}
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: iid,
-		Fields: util.Map(input.Fields, gqlmodel.ToItemParam),
+		Fields: util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

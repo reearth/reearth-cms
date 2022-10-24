@@ -18,10 +18,11 @@ type Params = {
 };
 
 export default ({ projectId, modelId }: Params) => {
+  const t = useT();
   const [currentModel, setCurrentModel] = useModel();
+
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
-  const t = useT();
 
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
@@ -99,10 +100,10 @@ export default ({ projectId, modelId }: Params) => {
     model,
     models,
     modelModalShown,
+    isKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,
     handleModelKeyCheck,
-    isKeyAvailable,
   };
 };

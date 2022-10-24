@@ -6,9 +6,10 @@ import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import Asset from "@reearth-cms/components/organisms/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
-import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
+import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
+import Public from "@reearth-cms/components/organisms/Project/Public";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
 import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
 import Integration from "@reearth-cms/components/organisms/Settings/Integration";
@@ -20,8 +21,6 @@ import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
-
-import "antd/dist/antd.css";
 
 function App() {
   return (
@@ -44,37 +43,31 @@ function App() {
                     path=":workspaceId/myIntegrations/:integrationId"
                     element={<MyIntegrationDetails />}
                   />
-                  <Route path=":workspaceId/integration" element={<Integration />} />
-                  <Route
+                  <Route path=":workspaceId/integrations" element={<Integration />} />
+                  {/* <Route
                     path=":workspaceId/role"
                     element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
                   />
                   <Route
                     path=":workspaceId/apiKey"
                     element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
-                  />
+                  /> */}
                   <Route
                     path=":workspaceId/settings"
                     element={<div>Workspace settings page - GOTTA DO THIS PAGE!!!</div>}
                   />
-                  <Route
-                    path=":workspaceId/project/:projectId"
-                    element={<div>Project overview - GOTTA DO THIS PAGE!!!!</div>}
-                  />
+                  <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
                   <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
                   <Route
                     path=":workspaceId/project/:projectId/schema/:modelId"
                     element={<Schema />}
                   />
-                  <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
-                  <Route
-                    path=":workspaceId/project/:projectId/accessibility"
-                    element={<Accessibility />}
-                  />
+                  <Route path=":workspaceId/project/:projectId/public" element={<Public />} />
                   <Route
                     path=":workspaceId/project/:projectId/settings"
                     element={<ProjectSettings />}
                   />
+                  <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
                   <Route
                     path=":workspaceId/project/:projectId/content/:modelId"
                     element={<Content />}

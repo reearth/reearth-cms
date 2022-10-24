@@ -31,6 +31,17 @@ const CMSWrapper: React.FC = () => {
       <CMSWrapperMolecule
         collapsed={collapsed}
         onCollapse={handleCollapse}
+        headerComponent={
+          <MoleculeHeader
+            onWorkspaceModalOpen={handleWorkspaceModalOpen}
+            onNavigateToSettings={handleNavigateToSettings}
+            personalWorkspace={personalWorkspace}
+            workspaces={workspaces}
+            currentWorkspace={currentWorkspace}
+            currentProject={currentProject}
+            username={username}
+          />
+        }
         sidebarComponent={
           secondaryRoute === "project" ? (
             <ProjectMenu
@@ -47,17 +58,6 @@ const CMSWrapper: React.FC = () => {
               isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
             />
           )
-        }
-        headerComponent={
-          <MoleculeHeader
-            onWorkspaceModalOpen={handleWorkspaceModalOpen}
-            onNavigateToSettings={handleNavigateToSettings}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            currentProject={currentProject}
-            username={username}
-          />
         }
         contentComponent={<Outlet />}
       />

@@ -14,12 +14,10 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.9.0
-	github.com/labstack/gommon v0.3.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20220920100400-54da87c8211a
+	github.com/reearth/reearthx v0.0.0-20221020083658-2790d5ca27cc
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
 	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7
 	github.com/stretchr/testify v1.8.0
@@ -57,6 +55,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
