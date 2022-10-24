@@ -15,7 +15,8 @@ func TestAsset_Getters(t *testing.T) {
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
-	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("image"))
+	wantPreviewType, _ := PreviewTypeFrom("image")
+	gotPreviewType, _ := PreviewTypeFrom(PreviewTypeImage.String())
 
 	got := Asset{
 		id:          aid,
@@ -24,7 +25,7 @@ func TestAsset_Getters(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
-		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+		previewType: &gotPreviewType,
 		file:        &File{},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
@@ -36,7 +37,7 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, uid, got.CreatedBy())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
-	assert.Equal(t, wantPreviewType, got.PreviewType())
+	assert.Equal(t, &wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, thid, got.Thread())
