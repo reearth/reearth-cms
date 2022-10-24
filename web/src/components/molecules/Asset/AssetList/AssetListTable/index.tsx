@@ -146,7 +146,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         pagination={pagination}
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
-        tableStyle={{ overflow: "scroll" }}
+        tableStyle={{ overflowX: "scroll" }}
       />
     </AssetListTableWrapper>
   );

@@ -39,7 +39,7 @@ const Asset: React.FC = () => {
   ) : asset ? (
     <Wrapper>
       <PageHeader
-        title={`Asset/${asset?.fileName}`}
+        title={`${t("Asset")}/${asset?.fileName}`}
         onBack={handleBack}
         extra={<Button onClick={handleSave}>{t("Save")}</Button>}
       />

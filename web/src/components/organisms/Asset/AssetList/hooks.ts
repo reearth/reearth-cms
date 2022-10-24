@@ -97,12 +97,12 @@ export default (projectId?: string) => {
               variables: { projectId, createdById: currentUser?.id, file },
             });
             if (result.errors || !result.data?.createAsset) {
-              Notification.error({ message: t("Failed to add one or more assets.") });
+              Notification.error({ message: t("Failed to add one or more assets!") });
             }
           }),
         );
         if (results) {
-          Notification.success({ message: t("Successfully added one or more assets.") });
+          Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
       })(),
@@ -121,12 +121,12 @@ export default (projectId?: string) => {
               refetchQueries: ["GetAssets"],
             });
             if (result.errors || result.data?.deleteAsset) {
-              Notification.error({ message: t("Failed to delete one or more assets.") });
+              Notification.error({ message: t("Failed to delete one or more assets!") });
             }
           }),
         );
         if (results) {
-          Notification.success({ message: t("One or more assets were successfully deleted.") });
+          Notification.success({ message: t("One or more assets were successfully deleted!") });
           selectAsset([]);
         }
       })(),
