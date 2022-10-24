@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
-import { PageHeaderProps } from "antd";
 
-import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import PageHeader, { Props as PageHeaderProps } from "@reearth-cms/components/atoms/PageHeader";
 import AssetListTable, {
   AssetListTableProps,
 } from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
