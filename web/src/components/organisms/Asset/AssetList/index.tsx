@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 
 import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList/AssetList";
+import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList/AssetListBody";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
