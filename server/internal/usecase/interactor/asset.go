@@ -100,8 +100,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			// taskPayload for runner
 			taskPayload := task.DecompressAssetPayload{
-				Asset: a.ID().String(),
-				Path:  a.UUID()[:2] + "/" + a.UUID()[2:] + a.File().Path(),
+				AssetID: a.ID().String(),
+				Path:    a.UUID()[:2] + "/" + a.UUID()[2:] + a.File().Path(),
 			}
 
 			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())

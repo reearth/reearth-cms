@@ -10,7 +10,7 @@ import (
 
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
 	gateways := &gateway.Container{
-		CMS: gcp.NewPubSub(conf.PubSub.Topic),
+		CMS: gcp.NewPubSub(conf.PubSub.Topic, conf.GCP.Project),
 	}
 
 	if conf.GCS.BucketName != "" {

@@ -33,7 +33,7 @@ func TestNewUnzipper(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestUnzipper_Unzip(t *testing.T) {
+func TestDecompressor_Decompress(t *testing.T) {
 	zf, err := os.Open("testdata/test.zip")
 	require.NoError(t, err)
 

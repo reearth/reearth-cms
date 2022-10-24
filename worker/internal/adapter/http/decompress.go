@@ -17,10 +17,10 @@ func NewDecompressController(u *interactor.Usecase) *DecompressController {
 }
 
 type DecompressInput struct {
-	Asset string `json:"asset"`
-	Path  string `json:"path"`
+	AssetID string `json:"assetId"`
+	Path    string `json:"path"`
 }
 
 func (c *DecompressController) Decompress(ctx context.Context, input DecompressInput) error {
-	return c.usecase.Decompress(ctx, input.Path)
+	return c.usecase.Decompress(ctx, input.AssetID, input.Path)
 }

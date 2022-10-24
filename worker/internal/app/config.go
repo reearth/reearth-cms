@@ -17,12 +17,17 @@ type Config struct {
 	Dev        bool
 	GCS        GCSConfig
 	PubSub     PubSubConfig
+	GCP        GCPConfig `envconfig:"GCP"`
 }
 
 type GCSConfig struct {
 	BucketName              string `default:"asset.cms.test.reearth.dev" envconfig:"GCS_BUCKET_NAME"`
 	AssetBaseURL            string `default:"https://asset.cms.test.reearth.dev" envconfig:"GCS_ASSET_BASE_URL"`
 	PublicationCacheControl string
+}
+
+type GCPConfig struct {
+	Project string
 }
 
 type PubSubConfig struct {

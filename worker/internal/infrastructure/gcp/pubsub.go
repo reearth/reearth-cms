@@ -9,12 +9,14 @@ import (
 )
 
 type PubSub struct {
-	topic string
+	topic   string
+	project string
 }
 
-func NewPubSub(topic string) *PubSub {
+func NewPubSub(topic, project string) *PubSub {
 	return &PubSub{
-		topic: topic,
+		topic:   topic,
+		project: project,
 	}
 }
 
@@ -24,7 +26,7 @@ func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string) er
 		"assetId": assetID,
 	}))
 
-	client, err := pubsub.NewClient(ctx, "")
+	client, err := pubsub.NewClient(ctx, c.project)
 	if err != nil {
 		return err
 	}
