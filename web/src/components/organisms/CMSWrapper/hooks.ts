@@ -91,21 +91,19 @@ export default () => {
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
-    skip: !projectId || projectId === currentProject?.id,
+    skip: !projectId,
   });
 
   useEffect(() => {
     if (projectId) {
-      if (projectId !== currentProject?.id) {
-        const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
-        if (project) {
-          setCurrentProject({
-            id: project.id,
-            name: project.name,
-            description: project.description,
-            scope: convertScope(project.publication?.scope),
-          });
-        }
+      const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
+      if (project) {
+        setCurrentProject({
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          scope: convertScope(project.publication?.scope),
+        });
       }
     } else {
       setCurrentProject();

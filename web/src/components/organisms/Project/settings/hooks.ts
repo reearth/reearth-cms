@@ -8,7 +8,7 @@ import {
   useDeleteProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject } from "@reearth-cms/state";
+import { useWorkspace } from "@reearth-cms/state";
 
 type Params = {
   projectId?: string;
@@ -16,7 +16,6 @@ type Params = {
 
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();
-  const [, setCurrentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
@@ -44,7 +43,9 @@ export default ({ projectId }: Params) => {
     [rawProject],
   );
 
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useUpdateProjectMutation({
+    refetchQueries: ["GetProject"],
+  });
   const [deleteProjectMutation] = useDeleteProjectMutation({
     refetchQueries: ["GetProjects"],
   });
@@ -63,11 +64,9 @@ export default ({ projectId }: Params) => {
         Notification.error({ message: t("Failed to update project.") });
         return;
       }
-      const updatedProjectData = project.data.updateProject.project;
-      setCurrentProject({ ...updatedProjectData });
       Notification.success({ message: t("Successfully updated project!") });
     },
-    [setCurrentProject, projectId, updateProjectMutation, t],
+    [projectId, updateProjectMutation, t],
   );
 
   const handleProjectDelete = useCallback(async () => {
