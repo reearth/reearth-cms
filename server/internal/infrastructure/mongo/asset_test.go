@@ -410,7 +410,7 @@ func TestAssetRepo_Update(t *testing.T) {
 	uid1 := id.NewUserID()
 	uid2 := id.NewUserID()
 	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).Size(1000).MustBuild()
-	pt := asset.PreviewTypeFromRef(lo.ToPtr("IMAGE"))
+	pt := asset.PreviewTypeFromRef(lo.ToPtr("image"))
 	a2 := asset.New().ID(id2).Project(pid1).CreatedBy(uid2).Size(1000).Type(pt).MustBuild()
 
 	tests := []struct {

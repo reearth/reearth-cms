@@ -9,11 +9,11 @@ import (
 type PreviewType string
 
 const (
-	PreviewTypeIMAGE   PreviewType = "IMAGE"
-	PreviewTypeGEO     PreviewType = "GEO"
-	PreviewTypeGEO3D   PreviewType = "GEO3D"
-	PreviewTypeMODEL3D PreviewType = "MODEL3D"
-	PreviewTypeUNKNOWN PreviewType = "UNKNOWN"
+	PreviewTypeIMAGE   PreviewType = "image"
+	PreviewTypeGEO     PreviewType = "geo"
+	PreviewTypeGEO3D   PreviewType = "geo3d"
+	PreviewTypeMODEL3D PreviewType = "model3d"
+	PreviewTypeUNKNOWN PreviewType = "unknown"
 )
 
 func PreviewTypeFrom(p string) (PreviewType, bool) {

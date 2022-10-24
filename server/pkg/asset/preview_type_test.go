@@ -16,7 +16,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 		}
 	}{
 		{
-			Name: "IMAGE",
+			Name: "image",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
@@ -26,7 +26,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
-			Name: "GEO",
+			Name: "geo",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
@@ -36,7 +36,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
-			Name: "GEO3D",
+			Name: "geo3d",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
@@ -46,7 +46,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
-			Name: "MODEL3D",
+			Name: "model3d",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
@@ -56,7 +56,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
-			Name: "UNKNOWN",
+			Name: "unknown",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
@@ -101,28 +101,28 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 		Expected *PreviewType
 	}{
 		{
-			Name:     "IMAGE",
-			Input:    lo.ToPtr("IMAGE"),
+			Name:     "image",
+			Input:    lo.ToPtr("image"),
 			Expected: &i,
 		},
 		{
-			Name:     "GEO",
-			Input:    lo.ToPtr("GEO"),
+			Name:     "geo",
+			Input:    lo.ToPtr("geo"),
 			Expected: &g,
 		},
 		{
-			Name:     "GEO3D",
-			Input:    lo.ToPtr("GEO3D"),
+			Name:     "geo3d",
+			Input:    lo.ToPtr("geo3d"),
 			Expected: &g3d,
 		},
 		{
-			Name:     "MODEL3D",
-			Input:    lo.ToPtr("MODEL3D"),
+			Name:     "model3d",
+			Input:    lo.ToPtr("model3d"),
 			Expected: &m,
 		},
 		{
-			Name:     "UNKNOWN",
-			Input:    lo.ToPtr("UNKNOWN"),
+			Name:     "unknown",
+			Input:    lo.ToPtr("unknown"),
 			Expected: &u,
 		},
 		{
@@ -176,7 +176,7 @@ func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 }
 
 func TestPreviewType_String(t *testing.T) {
-	s := "IMAGE"
+	s := "image"
 	pt := PreviewTypeIMAGE
 	assert.Equal(t, s, pt.String())
 }
