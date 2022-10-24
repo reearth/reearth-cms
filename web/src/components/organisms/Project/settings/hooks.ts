@@ -16,7 +16,7 @@ type Params = {
 
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();
-  const [_, setCurrentProject] = useProject();
+  const [, setCurrentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
