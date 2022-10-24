@@ -56,18 +56,18 @@ const WorkspaceMenu: React.FC<Props> = ({
       icon: <Icon icon="myIntegrations" />,
       show: "personal" as MenuShowType,
     },
-    {
-      label: t("Role"),
-      key: "role",
-      icon: <Icon icon="userSwitch" />,
-      show: "notPersonal" as MenuShowType,
-    },
-    {
-      label: t("API key"),
-      key: "apiKey",
-      icon: <Icon icon="key" />,
-      show: "both" as MenuShowType,
-    },
+    // {
+    //   label: t("Role"),
+    //   key: "role",
+    //   icon: <Icon icon="userSwitch" />,
+    //   show: "notPersonal" as MenuShowType,
+    // },
+    // {
+    //   label: t("API key"),
+    //   key: "apiKey",
+    //   icon: <Icon icon="key" />,
+    //   show: "both" as MenuShowType,
+    // },
     {
       label: t("Account"),
       key: "account",

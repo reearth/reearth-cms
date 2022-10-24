@@ -28,9 +28,12 @@ import {
   MinusCircleOutlined,
   DeleteOutlined,
   ArrowLeftOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
+import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
 import ListBullets from "./Icons/listBullets.svg";
@@ -79,4 +82,7 @@ export default {
   arrowLeft: ArrowLeftOutlined,
   myIntegrations: MyIntegrations,
   key: Key,
+  modelMenuClose: MenuFoldOutlined,
+  modelMenuOpen: MenuUnfoldOutlined,
+  dot: Dot,
 };

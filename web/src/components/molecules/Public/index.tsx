@@ -24,14 +24,10 @@ export type ModelDataType = {
 export type Props = {
   projectScope?: PublicScope;
   models?: Model[];
-  onAccessibilityUpdate?: (scope?: PublicScope, modelsToUpdate?: Model[]) => void;
+  onPublicUpdate?: (scope?: PublicScope, modelsToUpdate?: Model[]) => void;
 };
 
-const Accessibility: React.FC<Props> = ({
-  projectScope,
-  models: rawModels,
-  onAccessibilityUpdate,
-}) => {
+const Public: React.FC<Props> = ({ projectScope, models: rawModels, onPublicUpdate }) => {
   const t = useT();
   const [scope, changeScope] = useState(projectScope);
   const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
@@ -50,11 +46,11 @@ const Accessibility: React.FC<Props> = ({
     [projectScope, scope, updatedModels],
   );
 
-  const handleAccessibilityUpdate = useCallback(() => {
+  const handlePublicUpdate = useCallback(() => {
     if (!scope && updatedModels.length === 0) return;
-    onAccessibilityUpdate?.(scope, updatedModels);
+    onPublicUpdate?.(scope, updatedModels);
     setUpdatedModels([]);
-  }, [scope, updatedModels, onAccessibilityUpdate]);
+  }, [scope, updatedModels, onPublicUpdate]);
 
   const handleUpdatedModels = useCallback(
     (model: Model) => {
@@ -112,7 +108,7 @@ const Accessibility: React.FC<Props> = ({
   ];
 
   return (
-    <InnerContent title={t("Accessibility")}>
+    <InnerContent title={t("Public")} flexChildren>
       <>
         <div>
           <p>{t("Public Scope")}</p>
@@ -132,7 +128,7 @@ const Accessibility: React.FC<Props> = ({
         <TableWrapper>
           <Table dataSource={dataSource} columns={columns} pagination={false} />
         </TableWrapper>
-        <Button type="primary" disabled={saveDisabled} onClick={handleAccessibilityUpdate}>
+        <Button type="primary" disabled={saveDisabled} onClick={handlePublicUpdate}>
           {t("Save changes")}
         </Button>
       </>
@@ -140,7 +136,7 @@ const Accessibility: React.FC<Props> = ({
   );
 };
 
-export default Accessibility;
+export default Public;
 
 const TableWrapper = styled.div`
   width: 304px;

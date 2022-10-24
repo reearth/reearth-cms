@@ -16,7 +16,7 @@ require (
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/labstack/gommon v0.3.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20220920100400-54da87c8211a
+	github.com/reearth/reearthx v0.0.0-20221020083658-2790d5ca27cc
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/sirupsen/logrus v1.9.0
