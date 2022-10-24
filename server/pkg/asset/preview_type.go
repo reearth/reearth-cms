@@ -43,7 +43,7 @@ func PreviewTypeFromContentType(c string) *PreviewType {
 	if strings.HasPrefix(c, "image/") {
 		return lo.ToPtr(PreviewTypeImage)
 	}
-	return lo.ToPtr(PreviewTypeGeo)
+	return lo.ToPtr(PreviewTypeUnknown)
 }
 
 func (p PreviewType) String() string {

@@ -70,7 +70,7 @@ func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	assert.Equal(t, want1, got1)
 
 	c2 := "video/mp4"
-	want2 := lo.ToPtr(PreviewTypeGeo)
+	want2 := lo.ToPtr(PreviewTypeUnknown)
 	got2 := PreviewTypeFromContentType(c2)
 	assert.Equal(t, want2, got2)
 }

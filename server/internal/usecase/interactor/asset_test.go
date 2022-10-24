@@ -365,7 +365,7 @@ func TestAsset_Create(t *testing.T) {
 	buf := bytes.NewBufferString("Hello")
 	buflen := int64(buf.Len())
 	var pti asset.PreviewType = asset.PreviewTypeImage
-	var ptg asset.PreviewType = asset.PreviewTypeGeo
+	var ptg asset.PreviewType = asset.PreviewTypeUnknown
 	af := &asset.File{}
 	af.SetName("aaa.txt")
 	af.SetSize(uint64(buflen))
