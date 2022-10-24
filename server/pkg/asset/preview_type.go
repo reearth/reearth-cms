@@ -13,6 +13,7 @@ const (
 	PreviewTypeGEO     PreviewType = "GEO"
 	PreviewTypeGEO3D   PreviewType = "GEO3D"
 	PreviewTypeMODEL3D PreviewType = "MODEL3D"
+	PreviewTypeUnknown PreviewType = "UNKNOWN"
 )
 
 func PreviewTypeFrom(p string) (PreviewType, bool) {
@@ -25,6 +26,8 @@ func PreviewTypeFrom(p string) (PreviewType, bool) {
 		return PreviewTypeGEO3D, true
 	case PreviewTypeMODEL3D:
 		return PreviewTypeMODEL3D, true
+	case PreviewTypeUnknown:
+		return PreviewTypeUnknown, true
 	default:
 		return PreviewType(""), false
 	}
@@ -44,6 +47,8 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 		p2 = PreviewTypeGEO3D
 	case PreviewTypeMODEL3D:
 		p2 = PreviewTypeMODEL3D
+	case PreviewTypeUnknown:
+		p2 = PreviewTypeUnknown
 	default:
 		return nil
 	}

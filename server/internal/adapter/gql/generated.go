@@ -2958,6 +2958,7 @@ enum PreviewType {
   GEO
   GEO3D
   MODEL3D
+  UNKNOWN
 }
 
 input CreateAssetInput {
