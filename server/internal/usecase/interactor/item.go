@@ -146,9 +146,9 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 		})
 }
 
-func (i Item) FindByFieldValue(ctx context.Context, s string, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
 	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (item.List, *usecasex.PageInfo, error) {
-			return i.repos.Item.FindByFieldValue(ctx, s, p)
+			return i.repos.Item.Search(ctx, q, p)
 		})
 }

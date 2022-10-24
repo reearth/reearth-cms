@@ -116,7 +116,7 @@ func (r *Item) Len() int {
 	return r.data.Len()
 }
 
-func (r *Item) FindByFieldValue(ctx context.Context, s string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+func (r *Item) Search(ctx context.Context, s string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}

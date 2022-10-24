@@ -149,7 +149,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	_ = r.Save(ctx, i3)
-	got, _, _ := r.FindByFieldValue(ctx, "foo", nil)
+	got, _, _ := r.Search(ctx, "foo", nil)
 	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")

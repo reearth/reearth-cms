@@ -300,7 +300,7 @@ func Test_itemRepo_FindByFieldValue(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindByFieldValue(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.Search(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}

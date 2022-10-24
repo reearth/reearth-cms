@@ -114,8 +114,17 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 	}, nil
 }
 
-func (c *ItemLoader) Search(ctx context.Context, key string, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	res, pi, err := c.usecase.FindByFieldValue(ctx, key, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	wid, err := gqlmodel.ToID[id.Workspace](query.Workspace)
+	if err != nil {
+		return nil, err
+	}
+	pid, err := gqlmodel.ToID[id.Project](query.Project)
+	if err != nil {
+		return nil, err
+	}
+	q := item.NewQuery(wid, pid, *query.Q)
+	res, pi, err := c.usecase.Search(ctx, q, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

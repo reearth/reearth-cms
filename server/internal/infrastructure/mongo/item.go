@@ -59,10 +59,10 @@ func (i *itemRepo) FindByProject(ctx context.Context, projectID id.ProjectID, pa
 	}, pagination)
 }
 
-func (i *itemRepo) FindByFieldValue(ctx context.Context, keyword string, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+func (i *itemRepo) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	return i.paginate(ctx, bson.M{
 		"fields.value": bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(keyword)), Options: "i"},
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"},
 		},
 	}, pagination)
 }

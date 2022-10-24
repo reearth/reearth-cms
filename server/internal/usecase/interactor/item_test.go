@@ -635,7 +635,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 			}
 			itemUC := NewItem(db)
 
-			got, _, err := itemUC.FindByFieldValue(ctx, tc.args.find, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, tc.args.find, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

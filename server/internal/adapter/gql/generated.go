@@ -367,7 +367,7 @@ type ComplexityRoot struct {
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
-		SearchItem                func(childComplexity int, key string, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
+		SearchItem                func(childComplexity int, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
 		VersionsByItem            func(childComplexity int, itemID gqlmodel.ID) int
 	}
@@ -620,7 +620,7 @@ type QueryResolver interface {
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
-	SearchItem(ctx context.Context, key string, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
+	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
 }
 type SchemaResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
@@ -2133,7 +2133,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchItem(childComplexity, args["key"].(string), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
+		return e.complexity.Query.SearchItem(childComplexity, args["query"].(gqlmodel.ItemQuery), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
 
 	case "Query.searchUser":
 		if e.complexity.Query.SearchUser == nil {
@@ -2763,6 +2763,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeleteWorkspaceInput,
 		ec.unmarshalInputItemFieldInput,
+		ec.unmarshalInputItemQuery,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishModelInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
@@ -3668,6 +3669,12 @@ type ItemEdge {
   node: Item
 }
 
+input ItemQuery {
+  workspace: ID!
+  project: ID!
+  q: String
+}
+
 extend type Query {
   items(
     schemaId: ID!
@@ -3678,7 +3685,7 @@ extend type Query {
   ): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(
-    key: String!
+    query: ItemQuery!
     first: Int
     last: Int
     after: Cursor
@@ -4748,15 +4755,15 @@ func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["key"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 gqlmodel.ItemQuery
+	if tmp, ok := rawArgs["query"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+		arg0, err = ec.unmarshalNItemQuery2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["key"] = arg0
+	args["query"] = arg0
 	var arg1 *int
 	if tmp, ok := rawArgs["first"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
@@ -14019,7 +14026,7 @@ func (ec *executionContext) _Query_searchItem(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchItem(rctx, fc.Args["key"].(string), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
+		return ec.resolvers.Query().SearchItem(rctx, fc.Args["query"].(gqlmodel.ItemQuery), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20668,6 +20675,50 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputItemQuery(ctx context.Context, obj interface{}) (gqlmodel.ItemQuery, error) {
+	var it gqlmodel.ItemQuery
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"workspace", "project", "q"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "workspace":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspace"))
+			it.Workspace, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "project":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project"))
+			it.Project, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "q":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+			it.Q, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (gqlmodel.Pagination, error) {
 	var it gqlmodel.Pagination
 	asMap := map[string]interface{}{}
@@ -27173,6 +27224,11 @@ func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreeart
 func (ec *executionContext) unmarshalNItemFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInput(ctx context.Context, v interface{}) (*gqlmodel.ItemFieldInput, error) {
 	res, err := ec.unmarshalInputItemFieldInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNItemQuery2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQuery(ctx context.Context, v interface{}) (gqlmodel.ItemQuery, error) {
+	res, err := ec.unmarshalInputItemQuery(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNKeyAvailability2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability(ctx context.Context, sel ast.SelectionSet, v gqlmodel.KeyAvailability) graphql.Marshaler {

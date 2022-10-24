@@ -203,6 +203,7 @@ func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.I
 	return loaders(ctx).Item.FindByProject(ctx, projectID, first, last, before, after)
 }
 
-func (r *queryResolver) SearchItem(ctx context.Context, key string, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, key, first, last, before, after)
+func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.Search(ctx, query, first, last, before, after)
+
 }
