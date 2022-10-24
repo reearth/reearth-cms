@@ -7,62 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
-	i := PreviewTypeImage
-	g := PreviewTypeGeo
-	g3d := PreviewTypeGeo3d
-	m := PreviewTypeModel3d
-	u := PreviewTypeUnknown
-
-	tests := []struct {
-		Name     string
-		Input    *string
-		Expected *PreviewType
-	}{
-		{
-			Name:     "image",
-			Input:    lo.ToPtr("image"),
-			Expected: &i,
-		},
-		{
-			Name:     "geo",
-			Input:    lo.ToPtr("geo"),
-			Expected: &g,
-		},
-		{
-			Name:     "geo3d",
-			Input:    lo.ToPtr("geo3d"),
-			Expected: &g3d,
-		},
-		{
-			Name:     "model3d",
-			Input:    lo.ToPtr("model3d"),
-			Expected: &m,
-		},
-		{
-			Name:     "unknown",
-			Input:    lo.ToPtr("unknown"),
-			Expected: &u,
-		},
-		{
-			Name:  "undefined",
-			Input: lo.ToPtr("undefined"),
-		},
-		{
-			Name: "nil input",
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			res := PreviewTypeFromRef(tc.Input)
-			assert.Equal(t, tc.Expected, res)
-		})
-	}
-}
-
 func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 	tests := []struct {
 		Name     string
@@ -140,6 +84,62 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			res, ok := PreviewTypeFrom(tc.Name)
 			assert.Equal(t, tc.Expected.TA, res)
 			assert.Equal(t, tc.Expected.Bool, ok)
+		})
+	}
+}
+
+func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
+	i := PreviewTypeImage
+	g := PreviewTypeGeo
+	g3d := PreviewTypeGeo3d
+	m := PreviewTypeModel3d
+	u := PreviewTypeUnknown
+
+	tests := []struct {
+		Name     string
+		Input    *string
+		Expected *PreviewType
+	}{
+		{
+			Name:     "image",
+			Input:    lo.ToPtr("image"),
+			Expected: &i,
+		},
+		{
+			Name:     "geo",
+			Input:    lo.ToPtr("geo"),
+			Expected: &g,
+		},
+		{
+			Name:     "geo3d",
+			Input:    lo.ToPtr("geo3d"),
+			Expected: &g3d,
+		},
+		{
+			Name:     "model3d",
+			Input:    lo.ToPtr("model3d"),
+			Expected: &m,
+		},
+		{
+			Name:     "unknown",
+			Input:    lo.ToPtr("unknown"),
+			Expected: &u,
+		},
+		{
+			Name:  "undefined",
+			Input: lo.ToPtr("undefined"),
+		},
+		{
+			Name: "nil input",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+			res := PreviewTypeFromRef(tc.Input)
+			assert.Equal(t, tc.Expected, res)
 		})
 	}
 }
