@@ -112,7 +112,7 @@ func TestAsset_FindByID(t *testing.T) {
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, nil)
 
@@ -206,7 +206,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, nil)
 
@@ -334,7 +334,7 @@ func TestAsset_FindByProject(t *testing.T) {
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, nil)
 
@@ -369,6 +369,7 @@ func TestAsset_Create(t *testing.T) {
 	af := &asset.File{}
 	af.SetName("aaa.txt")
 	af.SetSize(uint64(buflen))
+	af.SetPath("aaa.txt")
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -452,14 +453,14 @@ func TestAsset_Create(t *testing.T) {
 			f, _ := fs.NewFile(mfs, "", "")
 
 			err := db.User.Save(ctx, u)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 
 			err2 := db.Project.Save(ctx, p1.Clone())
 			assert.Nil(t, err2)
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, &gateway.Container{
 				File: f,
@@ -485,7 +486,7 @@ func TestAsset_Create(t *testing.T) {
 			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
 
 			dbGot, err := db.Asset.FindByID(ctx, got.ID())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want.Project(), dbGot.Project())
 			assert.Equal(t, tc.want.FileName(), dbGot.FileName())
 			assert.Equal(t, tc.want.Size(), dbGot.Size())
@@ -560,7 +561,7 @@ func TestAsset_Update(t *testing.T) {
 
 			for _, p := range tc.seeds {
 				err := db.Asset.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, &gateway.Container{})
 
@@ -642,7 +643,7 @@ func TestAsset_Delete(t *testing.T) {
 
 			for _, p := range tc.seeds {
 				err := db.Asset.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, &gateway.Container{})
 
