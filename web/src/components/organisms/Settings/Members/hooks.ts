@@ -39,22 +39,14 @@ export default ({ workspaceId }: Props) => {
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
 
-  const checkOwner = useCallback(() => {
-    const members = currentWorkspace?.members;
-    if (members) {
-      for (let i = 0; i < members.length; i++) {
-        if (members[i].userId === me?.id && members[i].role === "OWNER") {
-          return true;
-        }
-      }
-    }
-    return false;
-  }, [currentWorkspace?.members, me?.id]);
+  const isOwner = useMemo(
+    () => currentWorkspace?.members?.find(m => m.userId === me?.id && m.role === "OWNER"),
+    [currentWorkspace?.members, me?.id],
+  );
 
   useEffect(() => {
-    const o = checkOwner();
-    setOwner(o);
-  }, [checkOwner]);
+    setOwner(isOwner);
+  }, [isOwner]);
 
   useEffect(() => {
     if (!workspaceId) return;
