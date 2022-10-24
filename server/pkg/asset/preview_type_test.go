@@ -64,34 +64,15 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 }
 
 func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
-	var pt1 *PreviewType
-	var pt2 *PreviewType = lo.ToPtr(PreviewTypeImage)
-	s := string(*pt2)
+	c1 := "image/png"
+	want1 := lo.ToPtr(PreviewTypeImage)
+	got1 := PreviewTypeFromContentType(c1)
+	assert.Equal(t, want1, got1)
 
-	tests := []struct {
-		Name     string
-		Input    *string
-		Expected *string
-	}{
-		{
-			Name:     "content type image",
-			Input:    pt1.StringRef(),
-			Expected: nil,
-		},
-		{
-			Name:     "PreviewType pointer",
-			Input:    pt2.StringRef(),
-			Expected: &s,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.Expected, tc.Input)
-		})
-	}
+	c2 := "video/mp4"
+	want2 := lo.ToPtr(PreviewTypeGeo)
+	got2 := PreviewTypeFromContentType(c2)
+	assert.Equal(t, want2, got2)
 }
 
 func TestPreviewType_String(t *testing.T) {
