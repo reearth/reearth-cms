@@ -11,6 +11,7 @@ export type Props = {
   initialFormValues: { [key: string]: any };
   onBack: () => void;
   itemId?: string;
+  loading: boolean;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -21,10 +22,12 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   initialFormValues,
   onBack,
   itemId,
+  loading,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
       <ContentForm
+        loading={loading}
         onBack={onBack}
         itemId={itemId}
         onItemCreate={onItemCreate}

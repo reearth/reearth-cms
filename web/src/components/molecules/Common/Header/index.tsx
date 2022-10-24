@@ -179,7 +179,7 @@ const Spacer = styled.div`
 `;
 
 const HeaderMenu = styled(Menu)`
-  background-color: #1d1d1d;
+  background-color: #141414;
   width: 190px;
 
   .ant-dropdown-menu-item-divider {
@@ -197,12 +197,8 @@ const HeaderMenu = styled(Menu)`
     user-select: none;
     color: #dbdbdb;
   }
-  .ant-dropdown-menu-item,
-  .ant-dropdown-menu-submenu-title {
-    &:hover {
-      background-color: #1d1d1d;
-      color: #fff;
-    }
+  .ant-dropdown-menu-item-active {
+    background-color: #1d1d1d;
   }
 
   svg {
