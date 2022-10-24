@@ -85,7 +85,7 @@ func TestItem_Filtered(t *testing.T) {
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 
-			got := tc.item.Filtered(tc.args)
+			got := tc.item.FilterFields(tc.args)
 			assert.Equal(tt, tc.want, got)
 		})
 	}

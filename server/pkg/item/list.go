@@ -27,7 +27,7 @@ func (l List) Filtered(lids id.FieldIDList) List {
 	var res List
 
 	for _, i := range l {
-		fi := i.Filtered(lids)
+		fi := i.FilterFields(lids)
 		res = append(res, fi)
 	}
 

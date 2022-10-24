@@ -49,7 +49,7 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.timestamp = util.Now()
 }
 
-func (i *Item) Filtered(list id.FieldIDList) *Item {
+func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	if i == nil || list == nil {
 		return nil
 	}
@@ -65,8 +65,10 @@ func (i *Item) Filtered(list id.FieldIDList) *Item {
 	}
 
 	return &Item{
-		id:     i.id.Clone(),
-		schema: i.schema.Clone(),
-		fields: res,
+		id:        i.id,
+		schema:    i.schema,
+		project:   i.project,
+		fields:    res,
+		timestamp: i.timestamp,
 	}
 }

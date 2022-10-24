@@ -41,11 +41,7 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 		if err != nil {
 			return nil, nil, err
 		}
-		sfl := s.Fields()
-		sfids := id.FieldIDList{}
-		for _, sf := range sfl {
-			sfids.Add(sf.ID())
-		}
+		sfids := s.Fields().IDs()
 		res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
 		return res.Filtered(sfids), page, err
 	})
