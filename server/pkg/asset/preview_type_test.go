@@ -8,11 +8,11 @@ import (
 )
 
 func TestPreviewType_PreviewTypeFrom(t *testing.T) {
-	i := PreviewTypeIMAGE
-	g := PreviewTypeGEO
-	g3d := PreviewTypeGEO3D
-	m := PreviewTypeMODEL3D
-	u := PreviewTypeUNKNOWN
+	i := PreviewTypeImage
+	g := PreviewTypeGeo
+	g3d := PreviewTypeGeo3d
+	m := PreviewTypeModel3d
+	u := PreviewTypeUnknown
 
 	tests := []struct {
 		Name     string
@@ -65,7 +65,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 
 func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	var pt1 *PreviewType
-	var pt2 *PreviewType = lo.ToPtr(PreviewTypeIMAGE)
+	var pt2 *PreviewType = lo.ToPtr(PreviewTypeImage)
 	s := string(*pt2)
 
 	tests := []struct {
@@ -96,13 +96,13 @@ func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 
 func TestPreviewType_String(t *testing.T) {
 	s := "image"
-	pt := PreviewTypeIMAGE
+	pt := PreviewTypeImage
 	assert.Equal(t, s, pt.String())
 }
 
 func TestPreviewType_StringRef(t *testing.T) {
 	var pt1 *PreviewType
-	var pt2 *PreviewType = lo.ToPtr(PreviewTypeIMAGE)
+	var pt2 *PreviewType = lo.ToPtr(PreviewTypeImage)
 	s := string(*pt2)
 
 	tests := []struct {

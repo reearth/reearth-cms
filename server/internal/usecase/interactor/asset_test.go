@@ -364,8 +364,8 @@ func TestAsset_Create(t *testing.T) {
 
 	buf := bytes.NewBufferString("Hello")
 	buflen := int64(buf.Len())
-	var pti asset.PreviewType = asset.PreviewTypeIMAGE
-	var ptg asset.PreviewType = asset.PreviewTypeGEO
+	var pti asset.PreviewType = asset.PreviewTypeImage
+	var ptg asset.PreviewType = asset.PreviewTypeGeo
 	af := &asset.File{}
 	af.SetName("aaa.txt")
 	af.SetSize(uint64(buflen))
@@ -498,8 +498,8 @@ func TestAsset_Create(t *testing.T) {
 
 func TestAsset_Update(t *testing.T) {
 	uid := id.NewUserID()
-	var pti asset.PreviewType = asset.PreviewTypeIMAGE
-	var ptg asset.PreviewType = asset.PreviewTypeGEO
+	var pti asset.PreviewType = asset.PreviewTypeImage
+	var ptg asset.PreviewType = asset.PreviewTypeGeo
 
 	pid1 := id.NewProjectID()
 	aid1 := id.NewAssetID()

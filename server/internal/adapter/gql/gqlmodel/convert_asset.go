@@ -5,14 +5,6 @@ import (
 	"github.com/samber/lo"
 )
 
-const (
-	PreviewTypeIMAGE   PreviewType = "image"
-	PreviewTypeGEO     PreviewType = "geo"
-	PreviewTypeGEO3D   PreviewType = "geo3d"
-	PreviewTypeMODEL3D PreviewType = "model3d"
-	PreviewTypeUNKNOWN PreviewType = "unknown"
-)
-
 func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	if a == nil {
 		return nil
@@ -44,16 +36,16 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 
 	var p2 PreviewType
 	switch *p {
-	case asset.PreviewTypeIMAGE:
-		p2 = PreviewTypeIMAGE
-	case asset.PreviewTypeGEO:
-		p2 = PreviewTypeGEO
-	case asset.PreviewTypeGEO3D:
-		p2 = PreviewTypeGEO3D
-	case asset.PreviewTypeMODEL3D:
-		p2 = PreviewTypeMODEL3D
-	case asset.PreviewTypeUNKNOWN:
-		p2 = PreviewTypeUNKNOWN
+	case asset.PreviewTypeImage:
+		p2 = PreviewTypeImage
+	case asset.PreviewTypeGeo:
+		p2 = PreviewTypeGeo
+	case asset.PreviewTypeGeo3d:
+		p2 = PreviewTypeGeo3d
+	case asset.PreviewTypeModel3d:
+		p2 = PreviewTypeModel3d
+	case asset.PreviewTypeUnknown:
+		p2 = PreviewTypeUnknown
 	default:
 		return nil
 	}

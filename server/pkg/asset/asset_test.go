@@ -24,7 +24,7 @@ func TestAsset_Getters(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
-		previewType: PreviewTypeFrom(lo.ToPtr(PreviewTypeIMAGE.String())),
+		previewType: PreviewTypeFrom(lo.ToPtr(PreviewTypeImage.String())),
 		file:        &File{},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
@@ -87,7 +87,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	pt := lo.ToPtr(PreviewTypeIMAGE)
+	pt := lo.ToPtr(PreviewTypeImage)
 	got.UpdatePreviewType(pt)
 	assert.Equal(t, pt, got.PreviewType())
 }
