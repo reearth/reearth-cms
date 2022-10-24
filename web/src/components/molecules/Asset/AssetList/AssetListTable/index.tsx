@@ -17,7 +17,7 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
-type AssetListTableProps = {
+export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
   handleEdit: (asset: Asset) => void;

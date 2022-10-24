@@ -1,10 +1,8 @@
-import styled from "@emotion/styled";
 import { useParams } from "react-router-dom";
 
-import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
+import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
@@ -69,10 +67,10 @@ const AssetList: React.FC = () => {
   };
 
   return (
-    <Wrapper>
-      <PageHeader
-        title="Asset"
-        extra={
+    <AssetListBody
+      pageHeader={{
+        title: "Asset",
+        extra: (
           <UploadAsset
             fileList={fileList}
             uploading={uploading}
@@ -82,23 +80,18 @@ const AssetList: React.FC = () => {
             hideUploadModal={hideUploadModal}
             handleUpload={handleUpload}
           />
-        }
-      />
-      <AssetListTable
-        assetList={assetList}
-        assetsPerPage={assetsPerPage}
-        handleEdit={handleEdit}
-        handleSearchTerm={handleSearchTerm}
-        selection={selection}
-        setSelection={setSelection}
-      />
-    </Wrapper>
+        ),
+      }}
+      tableProps={{
+        assetList,
+        assetsPerPage,
+        handleEdit,
+        handleSearchTerm,
+        selection,
+        setSelection,
+      }}
+    />
   );
 };
-
-const Wrapper = styled.div`
-  background-color: white;
-  height: 100%;
-`;
 
 export default AssetList;
