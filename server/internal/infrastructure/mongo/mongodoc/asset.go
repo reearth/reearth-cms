@@ -84,7 +84,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		CreatedBy(uid).
 		FileName(d.FileName).
 		Size(d.Size).
-		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
+		Type(asset.PreviewTypeFrom(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
 		UUID(d.UUID).
 		Build()

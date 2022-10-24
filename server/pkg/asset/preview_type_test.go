@@ -8,87 +8,6 @@ import (
 )
 
 func TestPreviewType_PreviewTypeFrom(t *testing.T) {
-	tests := []struct {
-		Name     string
-		Expected struct {
-			TA   PreviewType
-			Bool bool
-		}
-	}{
-		{
-			Name: "image",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeIMAGE,
-				Bool: true,
-			},
-		},
-		{
-			Name: "geo",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeGEO,
-				Bool: true,
-			},
-		},
-		{
-			Name: "geo3d",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeGEO3D,
-				Bool: true,
-			},
-		},
-		{
-			Name: "model3d",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeMODEL3D,
-				Bool: true,
-			},
-		},
-		{
-			Name: "unknown",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeUNKNOWN,
-				Bool: true,
-			},
-		},
-		{
-			Name: "undefined",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewType(""),
-				Bool: false,
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			res, ok := PreviewTypeFrom(tc.Name)
-			assert.Equal(t, tc.Expected.TA, res)
-			assert.Equal(t, tc.Expected.Bool, ok)
-		})
-	}
-}
-
-func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	i := PreviewTypeIMAGE
 	g := PreviewTypeGEO
 	g3d := PreviewTypeGEO3D
@@ -138,7 +57,7 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			res := PreviewTypeFromRef(tc.Input)
+			res := PreviewTypeFrom(tc.Input)
 			assert.Equal(t, tc.Expected, res)
 		})
 	}
