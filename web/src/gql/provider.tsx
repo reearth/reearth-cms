@@ -5,7 +5,6 @@ import { createUploadLink } from "apollo-upload-client";
 
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { useError } from "@reearth-cms/state";
 
 type Props = {
   children?: React.ReactNode;
@@ -15,7 +14,6 @@ const Provider: React.FC<Props> = ({ children }) => {
   const endpoint = window.REEARTH_CONFIG?.api
     ? `${window.REEARTH_CONFIG.api}/graphql`
     : "/api/graphql";
-  const [, setError] = useError();
   const { getAccessToken } = useAuth();
 
   const authLink = setContext(async (_, { headers }) => {
@@ -39,7 +37,6 @@ const Provider: React.FC<Props> = ({ children }) => {
     const error = networkError?.message ?? graphQLErrors?.map(e => e.message).join(", ");
     if (error) {
       Notification.error({ message: error });
-      setError(error);
     }
   });
 
