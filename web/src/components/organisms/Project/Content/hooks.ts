@@ -18,7 +18,6 @@ export default () => {
   const handleItemsReload = useCallback(() => {
     refetch();
   }, [refetch]);
-  console.log(itemsDataLoading);
 
   return {
     handleItemsReload,
