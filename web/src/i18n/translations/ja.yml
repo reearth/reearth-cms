@@ -150,6 +150,10 @@ Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
 Successfully created workspace!: ''
+Failed to create item.: ''
+Successfully created Item!: ''
+Failed to update item.: ''
+Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to update publication settings.: ''
