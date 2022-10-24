@@ -97,7 +97,7 @@ export default ({ workspaceId }: Props) => {
           : undefined,
       )
       .filter((user): user is Member => !!user)
-      .sort((a, b) => stringSortCallback(a.userId, b.userId));
+      .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace]);
 
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
