@@ -3,13 +3,14 @@ import styled from "@emotion/styled";
 import PageHeader, { Props as PageHeaderProps } from "@reearth-cms/components/atoms/PageHeader";
 import AssetListTable, {
   AssetListTableProps,
-} from "@reearth-cms/components/molecules/Asset/AssetList/AssetListTable";
+} from "@reearth-cms/components/molecules/Asset/AssetListTable";
 
 type Props = {
   pageHeader: PageHeaderProps;
   tableProps: AssetListTableProps;
 };
-const AssetListBody: React.FC<Props> = ({ pageHeader, tableProps }) => {
+
+const AssetList: React.FC<Props> = ({ pageHeader, tableProps }) => {
   return (
     <Wrapper>
       <PageHeader {...pageHeader} />
@@ -23,4 +24,4 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-export default AssetListBody;
+export default AssetList;
