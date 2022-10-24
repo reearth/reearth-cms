@@ -45,7 +45,11 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 }
 
 func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.VersionOrRef) error {
-	if archived, err := c.IsArchived(ctx, id); err != nil {
+	q := bson.M{
+		"id":    id,
+		metaKey: true,
+	}
+	if archived, err := c.IsArchived(ctx, q); err != nil {
 		return err
 	} else if archived {
 		return version.ErrArchived
@@ -127,6 +131,7 @@ func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 	q := mongox.And(filter, "", bson.M{
 		metaKey: true,
 	})
+
 	if err := c.client.FindOne(ctx, q, &cons); err != nil {
 		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
 			return false, nil
