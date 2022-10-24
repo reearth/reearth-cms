@@ -136,7 +136,7 @@ const Members: React.FC = () => {
         <Table
           dataSource={dataSource}
           columns={columns}
-          style={{ padding: "24px", overflow: "auto" }}
+          style={{ padding: "24px", overflowX: "auto" }}
         />
       </PaddedContent>
       <MemberRoleModal
