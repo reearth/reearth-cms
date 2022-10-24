@@ -53,7 +53,9 @@ const ContentForm: React.FC<Props> = ({
       if (!itemId) {
         await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
         form.resetFields();
-      } else await onItemUpdate?.({ itemId: itemId as string, fields });
+      } else {
+        await onItemUpdate?.({ itemId: itemId as string, fields });
+      }
     } catch (info) {
       console.log("Validate Failed:", info);
     }
