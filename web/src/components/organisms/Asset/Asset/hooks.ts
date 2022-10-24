@@ -38,7 +38,7 @@ export default (assetId?: string) => {
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
-          Notification.error({ message: t("Failed to update asset!") });
+          Notification.error({ message: t("Failed to update asset.") });
         }
         if (result) {
           Notification.success({ message: t("Asset was successfully updated!") });

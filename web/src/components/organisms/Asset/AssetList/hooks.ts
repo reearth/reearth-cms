@@ -97,7 +97,7 @@ export default (projectId?: string) => {
               variables: { projectId, createdById: currentUser?.id, file },
             });
             if (result.errors || !result.data?.createAsset) {
-              Notification.error({ message: t("Failed to add one or more assets!") });
+              Notification.error({ message: t("Failed to add one or more assets.") });
             }
           }),
         );
@@ -121,7 +121,7 @@ export default (projectId?: string) => {
               refetchQueries: ["GetAssets"],
             });
             if (result.errors || result.data?.deleteAsset) {
-              Notification.error({ message: t("Failed to delete one or more assets!") });
+              Notification.error({ message: t("Failed to delete one or more assets.") });
             }
           }),
         );
