@@ -1,4 +1,4 @@
-package decompresser
+package decompressor
 
 import (
 	"archive/zip"
@@ -15,18 +15,18 @@ var (
 
 const limit = 1024 * 1024 * 1024 * 10 // 10GB
 
-type Decompresser struct {
+type decompressor struct {
 	r   *zip.Reader
 	wFn func(name string) (io.WriteCloser, error)
 }
 
-func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*Decompresser, error) {
+func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*decompressor, error) {
 	if ext == "zip" {
 		zr, err := zip.NewReader(r, size)
 		if err != nil {
 			return nil, err
 		}
-		return &Decompresser{
+		return &decompressor{
 			r:   zr,
 			wFn: wFn,
 		}, nil
@@ -34,7 +34,7 @@ func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteC
 	return nil, ErrUnsupportedExtention
 }
 
-func (uz *Decompresser) Decompress() error {
+func (uz *decompressor) Decompress() error {
 	for _, f := range uz.r.File {
 
 		if f.FileInfo().IsDir() {

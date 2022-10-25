@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/worker/pkg/decompresser"
+	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
 )
 
 type Usecase struct {
@@ -35,7 +35,7 @@ func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) err
 		return w, nil
 	}
 
-	de, err := decompresser.New(compressedFile, size, ext, uploadFunc)
+	de, err := decompressor.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
 		return err
 	}
