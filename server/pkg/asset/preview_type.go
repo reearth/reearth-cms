@@ -17,7 +17,8 @@ const (
 )
 
 func PreviewTypeFrom(p string) (PreviewType, bool) {
-	switch PreviewType(p) {
+	pp := strings.ToLower(p)
+	switch PreviewType(pp) {
 	case PreviewTypeImage:
 		return PreviewTypeImage, true
 	case PreviewTypeGeo:
@@ -37,8 +38,9 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 	if p == nil {
 		return nil
 	}
+	pp := strings.ToLower(*p)
 	var p2 PreviewType
-	switch PreviewType(*p) {
+	switch PreviewType(pp) {
 	case PreviewTypeImage:
 		p2 = PreviewTypeImage
 	case PreviewTypeGeo:

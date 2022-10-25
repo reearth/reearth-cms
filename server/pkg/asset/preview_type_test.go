@@ -26,6 +26,16 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
+			Name: "IMAGE",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeImage,
+				Bool: true,
+			},
+		},
+		{
 			Name: "geo",
 			Expected: struct {
 				TA   PreviewType
@@ -103,6 +113,11 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 		{
 			Name:     "image",
 			Input:    lo.ToPtr("image"),
+			Expected: &i,
+		},
+		{
+			Name:     "upper case image",
+			Input:    lo.ToPtr("IMAGE"),
 			Expected: &i,
 		},
 		{
