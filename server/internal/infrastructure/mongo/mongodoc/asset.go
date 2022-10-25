@@ -123,12 +123,13 @@ func FromFile(f *File) *asset.File {
 		}
 	}
 
-	af := asset.File{}
-	af.SetName(f.Name)
-	af.SetSize(f.Size)
-	af.SetContentType(f.ContentType)
-	af.SetPath(f.Path)
-	af.SetChildren(c...)
+	af := asset.NewFile().
+		Name(f.Name).
+		Size(f.Size).
+		ContentType(f.ContentType).
+		Path(f.Path).
+		Children(c).
+		Build()
 
-	return &af
+	return af
 }
