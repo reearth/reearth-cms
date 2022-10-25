@@ -15,12 +15,8 @@ const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) =>
   const t = useT();
 
   const handleSubmit = useCallback(async () => {
-    try {
-      const values = await form.validateFields();
-      await onWorkspaceUpdate?.(values.name);
-    } catch (info) {
-      console.log("Validate Failed:", info);
-    }
+    const values = await form.validateFields();
+    await onWorkspaceUpdate?.(values.name);
   }, [form, onWorkspaceUpdate]);
 
   return (
@@ -34,7 +30,7 @@ const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) =>
         name="name"
         label={t("Workspace Name")}
         extra={t(
-          "This is your team's visible name within Re:Earth and Re:Earth CMS. For example, the name of your company or department.",
+          "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.",
         )}>
         <Input />
       </Form.Item>

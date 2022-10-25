@@ -20,7 +20,7 @@ const WorkspaceSettings: React.FC<Props> = ({
   return (
     <InnerContent title="Workspace setting">
       <ContentSection title={t("General")}>
-        <WorkspaceForm onWorkspaceUpdate={onWorkspaceUpdate} workspaceName={workspaceName} />
+        <WorkspaceForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
       </ContentSection>
 
       <ContentSection title={t("Dangerous Zone")} danger>
