@@ -92,10 +92,10 @@ func TestThreadRepo_Save(t *testing.T) {
 }
 
 func TestThread_Filtered(t *testing.T) {
-	r := &threadRepo{}
+	r := &ThreadRepo{}
 	wid := id.NewWorkspaceID()
 
-	assert.Equal(t, &threadRepo{
+	assert.Equal(t, &ThreadRepo{
 		f: repo.WorkspaceFilter{
 			Readable: id.WorkspaceIDList{wid},
 			Writable: nil,

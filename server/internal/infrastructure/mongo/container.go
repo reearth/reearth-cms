@@ -57,6 +57,7 @@ func Init(r *repo.Container) error {
 		r.Item.(*Item).Init,
 		r.Model.(*Model).Init,
 		r.Schema.(*Schema).Init,
+		r.Thread.(*ThreadRepo).Init,
 		r.Integration.(*Integration).Init,
 	)
 }
