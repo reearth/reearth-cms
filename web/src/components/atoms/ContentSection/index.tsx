@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
 export type Props = {
+  className?: string;
   title: string;
   danger?: boolean;
   extra?: ReactNode;
@@ -12,7 +13,7 @@ const ContentSection: React.FC<Props> = ({ title, extra, children, danger }) => 
   return (
     <Wrapper danger={danger}>
       <Header>
-        <Subtitle>{title}</Subtitle>
+        <Title>{title}</Title>
         {extra}
       </Header>
       <GridArea>{children}</GridArea>
@@ -39,7 +40,7 @@ const Header = styled.div`
   padding: 10px 24px;
 `;
 
-const Subtitle = styled.p`
+const Title = styled.p`
   font-size: 16px;
   font-weight: 500;
   margin: 0;
