@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import { useT } from "@reearth-cms/i18n";
@@ -34,8 +35,7 @@ const Asset: React.FC = () => {
   };
 
   return isLoading ? (
-    // TODO: need to add a spinner
-    <Wrapper>loading...</Wrapper>
+    <Loading spinnerSize="large" minHeight="100vh" />
   ) : asset ? (
     <Wrapper>
       <PageHeader
