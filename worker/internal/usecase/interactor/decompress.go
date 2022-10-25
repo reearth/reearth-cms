@@ -1,13 +1,13 @@
 package interactor
 
 import (
-	"archive/zip"
 	"context"
 	"io"
-	"net/url"
+	"path"
+	"strings"
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
-	rzip "github.com/reearth/reearth-cms/worker/pkg/zip"
+	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
 )
 
 type Usecase struct {
@@ -18,37 +18,31 @@ func NewUsecase(g *gateway.Container) *Usecase {
 	return &Usecase{gateways: g}
 }
 
-func (u *Usecase) Decompress(ctx context.Context, assetURL string) error {
-	url, err := url.Parse(assetURL)
-	if err != nil {
-		return err
-	}
+func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
+	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
+	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
-	// TODO: extract comressed file format and choose the function to decompress it
-	compressedFile, size, err := u.gateways.File.Read(ctx, url.Path)
+	compressedFile, size, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
 		return err
 	}
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, name)
+		w, err := u.gateways.File.Upload(ctx, path.Join(base, name))
 		if err != nil {
 			return nil, err
 		}
 		return w, nil
 	}
-	zr, err := zip.NewReader(compressedFile, size)
-	if err != nil {
-		return err
-	}
-	unzipper, err := rzip.NewUnzipper(zr, uploadFunc)
+
+	de, err := decompressor.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
 		return err
 	}
 
-	if err := unzipper.Unzip(); err != nil {
+	if err = de.Decompress(); err != nil {
 		return err
 	}
 
-	return nil
+	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID)
 }

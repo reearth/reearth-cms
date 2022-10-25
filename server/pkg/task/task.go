@@ -6,8 +6,8 @@ type Payload struct {
 }
 
 type DecompressAssetPayload struct {
-	// Asset id.AssetID TODO: comment out after Asset has been implemented
-	Asset string
+	AssetID string
+	Path    string
 }
 
 func (t *DecompressAssetPayload) Payload() Payload {
@@ -17,8 +17,7 @@ func (t *DecompressAssetPayload) Payload() Payload {
 }
 
 type CompressAssetPayload struct {
-	// Asset id.AssetID TODO: same as above
-	Asset string
+	AssetID string
 }
 
 func (t *CompressAssetPayload) Payload() Payload {
@@ -28,5 +27,5 @@ func (t *CompressAssetPayload) Payload() Payload {
 }
 
 func NewDecompressAssetPayloadForTest(aID string) *DecompressAssetPayload {
-	return &DecompressAssetPayload{Asset: aID}
+	return &DecompressAssetPayload{AssetID: aID}
 }

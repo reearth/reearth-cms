@@ -1,7 +1,6 @@
-package zip
+package decompressor
 
 import (
-	"archive/zip"
 	"bytes"
 	"errors"
 	"io"
@@ -30,15 +29,13 @@ func TestNewUnzipper(t *testing.T) {
 	wFn := func(name string) (io.WriteCloser, error) {
 		return &Buffer{bytes.Buffer{}}, nil
 	}
-	r, err := zip.NewReader(zf, fInfo.Size())
-	assert.NoError(t, err)
-	_, err = NewUnzipper(r, wFn)
+	_, err = New(zf, fInfo.Size(), "zip", wFn)
 	assert.NoError(t, err)
 }
 
-func TestUnzipper_Unzip(t *testing.T) {
+func TestDecompressor_Decompress(t *testing.T) {
 	zf, err := os.Open("testdata/test.zip")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	fInfo, err := zf.Stat()
 	if err != nil {
@@ -56,23 +53,21 @@ func TestUnzipper_Unzip(t *testing.T) {
 		"test2.txt": {bytes.Buffer{}},
 	}
 
-	// Normal Scenario
-	r, err := zip.NewReader(zf, fInfo.Size())
-	require.NoError(t, err)
-	uz, err := NewUnzipper(r, func(name string) (io.WriteCloser, error) {
+	// normal scenario
+	uz, err := New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
 		return files[name], nil
 	})
 	require.NoError(t, err)
 
-	assert.NoError(t, uz.Unzip())
+	assert.NoError(t, uz.Decompress())
 	for k, v := range files {
 		assert.Equal(t, v.Bytes(), expectedFiles[k])
 	}
 
-	// Exception: test if wFn's error is same as what Unzip returns
-	uz, err = NewUnzipper(r, func(name string) (io.WriteCloser, error) {
+	// exception: test if  wFn's error is same as what Unzip returns
+	uz, err = New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
 		return nil, errors.New("test")
 	})
 	require.NoError(t, err)
-	assert.Equal(t, errors.New("test"), uz.Unzip())
+	assert.Equal(t, errors.New("test"), uz.Decompress())
 }

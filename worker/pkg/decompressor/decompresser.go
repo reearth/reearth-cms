@@ -1,27 +1,40 @@
-package zip
+package decompressor
 
 import (
 	"archive/zip"
 	"errors"
 	"fmt"
 	"io"
+
+	"github.com/kennygrant/sanitize"
+)
+
+var (
+	ErrUnsupportedExtention = errors.New("unsupoprted extention type")
 )
 
 const limit = 1024 * 1024 * 1024 * 10 // 10GB
 
-type Unzipper struct {
+type decompressor struct {
 	r   *zip.Reader
 	wFn func(name string) (io.WriteCloser, error)
 }
 
-func NewUnzipper(r *zip.Reader, wFn func(name string) (io.WriteCloser, error)) (*Unzipper, error) {
-	return &Unzipper{
-		r,
-		wFn,
-	}, nil
+func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*decompressor, error) {
+	if ext == "zip" {
+		zr, err := zip.NewReader(r, size)
+		if err != nil {
+			return nil, err
+		}
+		return &decompressor{
+			r:   zr,
+			wFn: wFn,
+		}, nil
+	}
+	return nil, ErrUnsupportedExtention
 }
 
-func (uz *Unzipper) Unzip() error {
+func (uz *decompressor) Decompress() error {
 	for _, f := range uz.r.File {
 
 		if f.FileInfo().IsDir() {
@@ -33,7 +46,9 @@ func (uz *Unzipper) Unzip() error {
 			}
 			defer rc.Close()
 
-			w, err := uz.wFn(f.FileInfo().Name())
+			sPath := sanitize.Path(f.Name)
+
+			w, err := uz.wFn(sPath)
 			if err != nil {
 				return err
 			}

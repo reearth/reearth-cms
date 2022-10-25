@@ -9,11 +9,13 @@ import (
 )
 
 func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
-	gateways := &gateway.Container{}
+	gateways := &gateway.Container{
+		CMS: gcp.NewPubSub(conf.PubSub.Topic, conf.GCP.Project),
+	}
 
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
-		fileRepo, err := gcp.NewFile(conf.GCS.BucketName, "", conf.GCS.PublicationCacheControl)
+		fileRepo, err := gcp.NewFile(conf.GCS.BucketName, conf.GCS.AssetBaseURL, conf.GCS.PublicationCacheControl)
 		if err != nil {
 			if debug {
 				log.Warnf("file: failed to init GCS storage: %s\n", err.Error())
