@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Provider as Auth0Provider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Asset from "@reearth-cms/components/organisms/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
@@ -20,8 +21,6 @@ import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
-
-import AccountSettings from "./components/organisms/Account";
 
 function App() {
   return (

@@ -3,7 +3,7 @@ import WorkspaceSettingsMolecule from "@reearth-cms/components/molecules/Workspa
 import useHooks from "./hooks";
 
 const WorkspaceSettings: React.FC = () => {
-  const { handleWorkspaceUpdate, handleWorkspaceDelete, workspaceName } = useHooks();
+  const { workspaceName, handleWorkspaceUpdate, handleWorkspaceDelete } = useHooks();
 
   return (
     <WorkspaceSettingsMolecule

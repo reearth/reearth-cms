@@ -1,4 +1,3 @@
-import { useApolloClient } from "@apollo/client";
 import { useCallback, useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -14,7 +13,6 @@ import { useT } from "@reearth-cms/i18n";
 export default () => {
   const { data } = useGetMeQuery();
   const t = useT();
-  const client = useApolloClient();
   const { logout } = useAuth();
 
   const me: User | undefined = useMemo(() => {
@@ -49,16 +47,15 @@ export default () => {
   const handleLanguageUpdate = useCallback(
     async (lang?: string) => {
       if (!lang) return;
-      const language = await updateMeMutation({ variables: { lang } });
-      if (language.errors) {
+      const res = await updateMeMutation({ variables: { lang } });
+      if (res.errors) {
         Notification.error({ message: t("Failed to update language.") });
         return;
       } else {
-        await client.resetStore();
         Notification.success({ message: t("Successfully updated language!") });
       }
     },
-    [updateMeMutation, client, t],
+    [updateMeMutation, t],
   );
 
   const handleUserDelete = useCallback(async () => {

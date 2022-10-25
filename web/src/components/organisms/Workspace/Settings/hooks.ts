@@ -25,17 +25,17 @@ export default () => {
   const handleWorkspaceUpdate = useCallback(
     async (name?: string) => {
       if (!workspaceId || !name) return;
-      const workspace = await updateWorkspaceMutation({
+      const res = await updateWorkspaceMutation({
         variables: {
           workspaceId,
           name,
         },
       });
-      if (workspace.errors || !workspace.data?.updateWorkspace) {
+      if (res.errors || !res.data?.updateWorkspace) {
         Notification.error({ message: t("Failed to update workspace.") });
         return;
       }
-      setCurrentWorkspace({ ...workspace.data.updateWorkspace.workspace });
+      setCurrentWorkspace({ ...res.data.updateWorkspace.workspace });
       Notification.success({ message: t("Successfully updated workspace!") });
     },
     [workspaceId, updateWorkspaceMutation, setCurrentWorkspace, t],
