@@ -18,7 +18,7 @@ const WorkspaceSettings: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title="Workspace setting">
+    <InnerContent title="Workspace settings">
       <ContentSection title={t("General")}>
         <WorkspaceForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
       </ContentSection>
