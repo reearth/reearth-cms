@@ -68,7 +68,9 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 			}
 
 			comment := thread.NewComment(thread.NewCommentID(), op.User, content)
-			th.AddComment(comment)
+			if err := th.AddComment(comment); err != nil {
+				return nil, nil, err
+			}
 
 			if err := i.repos.Thread.Save(ctx, th); err != nil {
 				return nil, nil, err
