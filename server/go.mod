@@ -3,23 +3,23 @@ module github.com/reearth/reearth-cms/server
 go 1.19
 
 require (
+	cloud.google.com/go/cloudtasks v1.5.0
 	cloud.google.com/go/storage v1.27.0
 	github.com/99designs/gqlgen v0.17.20
 	github.com/avast/retry-go/v4 v4.1.0
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/google/uuid v1.3.0
+	github.com/googleapis/gax-go/v2 v2.5.1
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.9.0
-	github.com/labstack/gommon v0.3.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
 	github.com/reearth/reearthx v0.0.0-20221020083658-2790d5ca27cc
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
 	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7
 	github.com/stretchr/testify v1.8.0
@@ -31,6 +31,8 @@ require (
 	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d
 	golang.org/x/text v0.3.7
+	google.golang.org/api v0.97.0
+	google.golang.org/genproto v0.0.0-20220920201722-2b89144ce006
 )
 
 require (
@@ -53,10 +55,10 @@ require (
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
-	github.com/googleapis/gax-go/v2 v2.5.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -91,12 +93,10 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
-	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
+	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.97.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220920201722-2b89144ce006 // indirect
 	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
