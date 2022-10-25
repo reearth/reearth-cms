@@ -80,6 +80,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			f.SetName(inp.File.Path)
 			f.SetSize(uint64(inp.File.Size))
 			f.SetContentType(inp.File.ContentType)
+			f.SetPath(inp.File.Path)
 
 			a, err := asset.New().
 				NewID().

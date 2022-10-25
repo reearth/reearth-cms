@@ -1,11 +1,13 @@
 import { useCallback, useMemo } from "react";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   SchemaFiledType,
   useCreateItemMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 import useContentHooks from "../hooks";
 
@@ -15,8 +17,9 @@ type Props = {
 
 export default ({ itemId }: Props) => {
   const { currentModel, itemsData } = useContentHooks();
+  const t = useT();
 
-  const [createNewItem] = useCreateItemMutation({
+  const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -32,14 +35,15 @@ export default ({ itemId }: Props) => {
         },
       });
       if (item.errors || !item.data?.createItem) {
-        // TODO: notification
+        Notification.error({ message: t("Failed to create item.") });
         return;
       }
+      Notification.success({ message: t("Successfully created Item!") });
     },
-    [createNewItem],
+    [createNewItem, t],
   );
 
-  const [updateItem] = useUpdateItemMutation({
+  const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -55,11 +59,13 @@ export default ({ itemId }: Props) => {
         },
       });
       if (item.errors || !item.data?.updateItem) {
-        // TODO: notification
+        Notification.error({ message: t("Failed to update item.") });
         return;
       }
+
+      Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem],
+    [updateItem, t],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
@@ -92,5 +98,7 @@ export default ({ itemId }: Props) => {
     currentModel,
     handleItemCreate,
     handleItemUpdate,
+    itemCreationLoading,
+    itemUpdatingLoading,
   };
 };
