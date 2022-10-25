@@ -30,7 +30,7 @@ func (b *FileBuilder) ContentType(contentType string) *FileBuilder {
 }
 
 func (b *FileBuilder) Path(path string) *FileBuilder {
-	if !strings.HasPrefix(path, "/") {
+	if !strings.HasPrefix(path, "/") && path != "" {
 		path = "/" + path
 	}
 	b.f.path = path
