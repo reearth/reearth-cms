@@ -56,7 +56,7 @@ func TestBuilder_Build(t *testing.T) {
 				id:          aid,
 				project:     pid,
 				createdAt:   tim,
-				createdBy:   uid,
+				user:        &uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
@@ -94,7 +94,7 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrInvalidID,
 		},
 		{
-			name: "fail: empty createdBy",
+			name: "fail: empty user",
 			input: Input{
 				id:          aid,
 				project:     pid,
@@ -108,7 +108,7 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoUser,
 		},
 		{
-			name: "fail: empty createdBy",
+			name: "fail: empty user",
 			input: Input{
 				id:          aid,
 				project:     pid,
@@ -139,7 +139,7 @@ func TestBuilder_Build(t *testing.T) {
 				id:          aid,
 				project:     pid,
 				createdAt:   aid.Timestamp(),
-				createdBy:   uid,
+				user:        &uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
@@ -156,7 +156,7 @@ func TestBuilder_Build(t *testing.T) {
 				ID(tt.input.id).
 				Project(tt.input.project).
 				CreatedAt(tt.input.createdAt).
-				CreatedBy(tt.input.createdBy).
+				CreatedByUser(tt.input.createdBy).
 				FileName(tt.input.fileName).
 				Size(tt.input.size).
 				Type(tt.input.previewType).
@@ -199,7 +199,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				id:          aid,
 				project:     pid,
 				createdAt:   tim,
-				createdBy:   uid,
+				user:        &uid,
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("IMAGE")),
@@ -236,7 +236,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					ID(tt.input.id).
 					Project(tt.input.project).
 					CreatedAt(tt.input.createdAt).
-					CreatedBy(tt.input.createdBy).
+					CreatedByUser(tt.input.createdBy).
 					FileName(tt.input.fileName).
 					Type(tt.input.previewType).
 					Size(tt.input.size).
@@ -258,6 +258,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

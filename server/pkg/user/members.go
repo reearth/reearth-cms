@@ -83,12 +83,12 @@ func (m *Members) Integrations() map[IntegrationID]Member {
 	return maps.Clone(m.integrations)
 }
 
-func (m *Members) ContainsUser(u ID) bool {
+func (m *Members) HasUser(u ID) bool {
 	_, ok := m.users[u]
 	return ok
 }
 
-func (m *Members) ContainsIntegration(i IntegrationID) bool {
+func (m *Members) HasIntegration(i IntegrationID) bool {
 	_, ok := m.integrations[i]
 	return ok
 }

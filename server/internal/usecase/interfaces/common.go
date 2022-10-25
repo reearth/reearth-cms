@@ -12,6 +12,7 @@ const (
 
 var (
 	ErrOperationDenied error = errors.New("operation denied")
+	ErrInvalidOperator error = errors.New("invalid operator")
 )
 
 type Container struct {

@@ -104,7 +104,16 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) 
 		return nil, err
 	}
 
-	return usecase.NewUserOperator(uid, rw, ww, ow, rp, wp, op), nil
+	return &usecase.Operator{
+		User:               &uid,
+		Integration:        nil,
+		ReadableWorkspaces: rw,
+		WritableWorkspaces: ww,
+		OwningWorkspaces:   ow,
+		ReadableProjects:   rp,
+		WritableProjects:   wp,
+		OwningProjects:     op,
+	}, nil
 }
 
 func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
@@ -160,7 +169,16 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		return nil, err
 	}
 
-	return usecase.NewIntegrationOperator(iId, rw, ww, ow, rp, wp, op), nil
+	return &usecase.Operator{
+		User:               nil,
+		Integration:        &iId,
+		ReadableWorkspaces: rw,
+		WritableWorkspaces: ww,
+		OwningWorkspaces:   ow,
+		ReadableProjects:   rp,
+		WritableProjects:   wp,
+		OwningProjects:     op,
+	}, nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

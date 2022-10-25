@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -10,68 +8,14 @@ import (
 )
 
 type Operator struct {
-	user               *user.ID
-	integration        *integration.ID
+	User               *user.ID
+	Integration        *integration.ID
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
 	ReadableProjects   project.IDList
 	WritableProjects   project.IDList
 	OwningProjects     project.IDList
-}
-
-type UserOperator struct {
-	Operator
-}
-
-type IntegrationOperator struct {
-	Operator
-}
-
-func (o *Operator) UserOperator() (*UserOperator, error) {
-	if o == nil || o.user == nil {
-		return nil, errors.New("invalid operator")
-	}
-	return &UserOperator{*o}, nil
-}
-
-func NewUserOperator(u user.ID, rw, ww, ow user.WorkspaceIDList, rp, wp, op project.IDList) *Operator {
-	return &Operator{
-		user:               &u,
-		ReadableWorkspaces: rw,
-		WritableWorkspaces: ww,
-		OwningWorkspaces:   ow,
-		ReadableProjects:   rp,
-		WritableProjects:   wp,
-		OwningProjects:     op,
-	}
-}
-
-func NewIntegrationOperator(i integration.ID, rw, ww, ow user.WorkspaceIDList, rp, wp, op project.IDList) *Operator {
-	return &Operator{
-		integration:        &i,
-		ReadableWorkspaces: rw,
-		WritableWorkspaces: ww,
-		OwningWorkspaces:   ow,
-		ReadableProjects:   rp,
-		WritableProjects:   wp,
-		OwningProjects:     op,
-	}
-}
-
-func (uo *UserOperator) User() user.ID {
-	return *uo.user
-}
-
-func (o *Operator) IntegrationOperator() (*IntegrationOperator, error) {
-	if o == nil || o.integration == nil {
-		return nil, errors.New("invalid operator")
-	}
-	return &IntegrationOperator{*o}, nil
-}
-
-func (io *IntegrationOperator) Integration() integration.ID {
-	return *io.integration
 }
 
 func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {

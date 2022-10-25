@@ -57,8 +57,8 @@ type User interface {
 	Fetch(context.Context, []id.UserID, *usecase.Operator) ([]*user.User, error)
 	SignUp(context.Context, SignUpParam) (*user.User, error)
 	FindOrCreate(context.Context, UserFindOrCreateParam) (*user.User, error)
-	UpdateMe(context.Context, UpdateMeParam, *usecase.UserOperator) (*user.User, error)
-	RemoveMyAuth(context.Context, string, *usecase.UserOperator) (*user.User, error)
+	UpdateMe(context.Context, UpdateMeParam, *usecase.Operator) (*user.User, error)
+	RemoveMyAuth(context.Context, string, *usecase.Operator) (*user.User, error)
 	SearchUser(context.Context, string, *usecase.Operator) (*user.User, error)
-	DeleteMe(context.Context, id.UserID, *usecase.UserOperator) error
+	DeleteMe(context.Context, id.UserID, *usecase.Operator) error
 }

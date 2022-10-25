@@ -1,5 +1,7 @@
 # Built-in
 
+union Operator = User | Integration
+
 scalar Upload
 scalar Any
 

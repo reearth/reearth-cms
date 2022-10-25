@@ -57,7 +57,7 @@ func TestMembers_ContainsUser(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			res := tt.M.ContainsUser(tt.UID)
+			res := tt.M.HasUser(tt.UID)
 			assert.Equal(t, tt.Expected, res)
 		})
 	}
@@ -128,7 +128,7 @@ func TestMembers_Leave(t *testing.T) {
 			t.Parallel()
 			err := tt.M.Leave(tt.UID)
 			if tt.err == nil {
-				assert.False(t, tt.M.ContainsUser(tt.UID))
+				assert.False(t, tt.M.HasUser(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
@@ -297,7 +297,7 @@ func TestMembers_Join(t *testing.T) {
 			t.Parallel()
 			err := tt.M.JoinUser(tt.UID, tt.JoinRole, NewID())
 			if tt.err == nil {
-				assert.True(t, tt.M.ContainsUser(tt.UID))
+				assert.True(t, tt.M.HasUser(tt.UID))
 				assert.Equal(t, tt.ExpectedRole, tt.M.UserRole(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)

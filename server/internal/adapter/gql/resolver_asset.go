@@ -12,7 +12,7 @@ func (r *Resolver) Asset() AssetResolver {
 
 type assetResolver struct{ *Resolver }
 
-func (r *assetResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.User, error) {
+func (r *assetResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (gqlmodel.Operator, error) {
 	return dataloaders(ctx).User.Load(obj.CreatedByID)
 }
 

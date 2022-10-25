@@ -21,7 +21,7 @@ func TestAsset_Getters(t *testing.T) {
 		id:          aid,
 		project:     pid,
 		createdAt:   tim,
-		createdBy:   uid,
+		user:        &uid,
 		fileName:    "hoge",
 		size:        size,
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
@@ -33,7 +33,7 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, aid, got.ID())
 	assert.Equal(t, pid, got.Project())
 	assert.Equal(t, tim, got.CreatedAt())
-	assert.Equal(t, uid, got.CreatedBy())
+	assert.Equal(t, uid, got.User())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
@@ -59,7 +59,7 @@ func TestAsset_PreviewType(t *testing.T) {
 		id:        aid,
 		project:   pid,
 		createdAt: tim,
-		createdBy: uid,
+		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
@@ -80,7 +80,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		id:        aid,
 		project:   pid,
 		createdAt: tim,
-		createdBy: uid,
+		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
 		file:      &File{},
@@ -95,7 +95,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)

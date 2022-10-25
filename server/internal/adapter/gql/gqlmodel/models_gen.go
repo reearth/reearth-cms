@@ -19,6 +19,10 @@ type Node interface {
 	GetID() ID
 }
 
+type Operator interface {
+	IsOperator()
+}
+
 type SchemaFieldTypeProperty interface {
 	IsSchemaFieldTypeProperty()
 }
@@ -48,7 +52,7 @@ type Asset struct {
 	Project     *Project     `json:"project"`
 	ProjectID   ID           `json:"projectId"`
 	CreatedAt   time.Time    `json:"createdAt"`
-	CreatedBy   *User        `json:"createdBy"`
+	CreatedBy   Operator     `json:"createdBy"`
 	CreatedByID ID           `json:"createdById"`
 	FileName    string       `json:"fileName"`
 	Size        int64        `json:"size"`
@@ -92,9 +96,8 @@ type Comment struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID   ID             `json:"projectId"`
-	CreatedByID ID             `json:"createdById"`
-	File        graphql.Upload `json:"file"`
+	ProjectID ID             `json:"projectId"`
+	File      graphql.Upload `json:"file"`
 }
 
 type CreateAssetPayload struct {
@@ -263,6 +266,8 @@ type Integration struct {
 	CreatedAt   time.Time          `json:"createdAt"`
 	UpdatedAt   time.Time          `json:"updatedAt"`
 }
+
+func (Integration) IsOperator() {}
 
 func (Integration) IsNode()        {}
 func (this Integration) GetID() ID { return this.ID }
@@ -747,6 +752,8 @@ type User struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
+
+func (User) IsOperator() {}
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }

@@ -25,7 +25,7 @@ func NewIntegration(client *mongox.Client) repo.Integration {
 }
 
 func (r *integrationRepo) init() {
-	i := r.client.CreateIndex(context.Background(), nil, []string{"id"})
+	i := r.client.CreateIndex(context.Background(), nil, []string{"id", "token"})
 	if len(i) > 0 {
 		log.Infof("mongo: %s: index created: %s", "integration", i)
 	}

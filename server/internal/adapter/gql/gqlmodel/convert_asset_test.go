@@ -21,7 +21,7 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 	f.SetSize(1000)
 	f.SetContentType("image/jpg")
 
-	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).MustBuild()
 
 	want1 := Asset{
 		ID:          ID(id1.String()),

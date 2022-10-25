@@ -71,6 +71,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 		ctx, operator, i.repos,
 		Usecase().WithWritableWorkspaces(prj.Workspace()).Transaction(),
 		func() (*asset.Asset, error) {
+			if operator.User == nil && operator.Integration == nil {
+				return nil, interfaces.ErrInvalidOperator
+			}
 			uuid, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {
 				return nil, err
@@ -81,16 +84,23 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			f.SetSize(uint64(inp.File.Size))
 			f.SetContentType(inp.File.ContentType)
 
-			a, err := asset.New().
+			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
-				UUID(uuid).
-				Build()
+				UUID(uuid)
+
+			if operator.User != nil {
+				ab.CreatedByUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				panic("not imp")
+			}
+
+			a, err := ab.Build()
 			if err != nil {
 				return nil, err
 			}

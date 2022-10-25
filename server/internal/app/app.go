@@ -61,7 +61,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	api.GET("/ping", Ping())
 	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
 
-	integrationApi := e.Group("/iapi")
+	integrationApi := e.Group("/api")
 	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
 	integration.RegisterHandlers(integrationApi, integrationHandlers)
 

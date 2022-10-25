@@ -36,7 +36,7 @@ func TestAsset_FindByID(t *testing.T) {
 
 	id1 := id.NewAssetID()
 	uid1 := id.NewUserID()
-	a1 := asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid).CreatedByUser(uid1).Size(1000).File(&f).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -65,7 +65,7 @@ func TestAsset_FindByID(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: []*asset.Asset{
-				asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
+				asset.New().ID(id1).Project(pid).CreatedByUser(uid1).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
 				id:       id.NewAssetID(),
@@ -90,8 +90,8 @@ func TestAsset_FindByID(t *testing.T) {
 			name: "Found 2",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
 				id:       id1,
@@ -136,8 +136,8 @@ func TestAsset_FindByIDs(t *testing.T) {
 	f := asset.File{}
 	c := []*asset.File{}
 	f.SetChildren(c...)
-	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
-	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedByUser(uid1).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedByUser(uid1).Size(1000).File(&f).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -156,7 +156,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with asset for another workspaces",
 			seeds: asset.List{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -175,8 +175,8 @@ func TestAsset_FindByIDs(t *testing.T) {
 			name: "1 count with multi assets",
 			seeds: asset.List{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    asset.List{a1},
@@ -187,8 +187,8 @@ func TestAsset_FindByIDs(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				a2,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    asset.List{a1, a2},
@@ -230,11 +230,11 @@ func TestAsset_FindByProject(t *testing.T) {
 
 	aid1 := id.NewAssetID()
 	uid1 := id.NewUserID()
-	a1 := asset.New().ID(aid1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a1 := asset.New().ID(aid1).Project(pid).CreatedByUser(uid1).Size(1000).File(&f).MustBuild()
 
 	aid2 := id.NewAssetID()
 	uid2 := id.NewUserID()
-	a2 := asset.New().ID(aid2).Project(pid).CreatedBy(uid2).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().ID(aid2).Project(pid).CreatedByUser(uid2).Size(1000).File(&f).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -263,7 +263,7 @@ func TestAsset_FindByProject(t *testing.T) {
 		{
 			name: "0 count with asset for another projects",
 			seeds: asset.List{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
 				pid:      id.NewProjectID(),
@@ -291,8 +291,8 @@ func TestAsset_FindByProject(t *testing.T) {
 			name: "1 count with multi assets",
 			seeds: asset.List{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -309,8 +309,8 @@ func TestAsset_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				a2,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).File(&f).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -358,7 +358,7 @@ func TestAsset_Create(t *testing.T) {
 
 	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 	}
 
@@ -386,8 +386,7 @@ func TestAsset_Create(t *testing.T) {
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   p1.ID(),
-					CreatedByID: u.ID(),
+					ProjectID: p1.ID(),
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
@@ -399,7 +398,7 @@ func TestAsset_Create(t *testing.T) {
 			want: asset.New().
 				NewID().
 				Project(p1.ID()).
-				CreatedBy(u.ID()).
+				CreatedByUser(u.ID()).
 				FileName("aaa.txt").
 				File(af).
 				Size(uint64(buflen)).
@@ -412,8 +411,7 @@ func TestAsset_Create(t *testing.T) {
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   p1.ID(),
-					CreatedByID: u.ID(),
+					ProjectID: p1.ID(),
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
@@ -430,9 +428,8 @@ func TestAsset_Create(t *testing.T) {
 			seeds: []*asset.Asset{},
 			args: args{
 				cpp: interfaces.CreateAssetParam{
-					ProjectID:   p1.ID(),
-					CreatedByID: u.ID(),
-					File:        nil,
+					ProjectID: p1.ID(),
+					File:      nil,
 				},
 				operator: op,
 			},
@@ -502,12 +499,12 @@ func TestAsset_Update(t *testing.T) {
 
 	pid1 := id.NewProjectID()
 	aid1 := id.NewAssetID()
-	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).MustBuild()
-	a1Updated := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).Type(&pti).MustBuild()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedByUser(uid).Size(1000).MustBuild()
+	a1Updated := asset.New().ID(aid1).Project(pid1).CreatedByUser(uid).Size(1000).Type(&pti).MustBuild()
 
 	pid2 := id.NewProjectID()
 	aid2 := id.NewAssetID()
-	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid).Size(1000).MustBuild()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedByUser(uid).Size(1000).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -580,11 +577,11 @@ func TestAsset_Delete(t *testing.T) {
 
 	pid1 := id.NewProjectID()
 	aid1 := id.NewAssetID()
-	a1 := asset.New().ID(aid1).Project(pid1).CreatedBy(uid).Size(1000).MustBuild()
+	a1 := asset.New().ID(aid1).Project(pid1).CreatedByUser(uid).Size(1000).MustBuild()
 
 	pid2 := id.NewProjectID()
 	aid2 := id.NewAssetID()
-	a2 := asset.New().ID(aid2).Project(pid2).CreatedBy(uid).Size(1000).MustBuild()
+	a2 := asset.New().ID(aid2).Project(pid2).CreatedByUser(uid).Size(1000).MustBuild()
 
 	op := &usecase.Operator{}
 

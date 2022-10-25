@@ -27,35 +27,30 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 	}
 
 	op := getOperator(ctx)
-	uop, err := op.UserOperator()
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, uop)
+	res, err := c.usecase.FindByIDs(ctx, sIds, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
 	return lo.Map(res, func(m *integration.Integration, _ int) *gqlmodel.Integration {
-		return gqlmodel.ToIntegration(m, uop.User())
+		return gqlmodel.ToIntegration(m, op.User)
 	}), nil
 }
 
 func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integration, error) {
 	op := getOperator(ctx)
-	uop, err := op.UserOperator()
-	if err != nil {
-		return nil, err
-	}
 
-	res, err := c.usecase.FindByMe(ctx, uop)
+	res, err := c.usecase.FindByMe(ctx, op)
 	if err != nil {
 		return nil, err
 	}
 	integrations := make([]*gqlmodel.Integration, 0, len(res))
 	for _, i := range res {
-		integrations = append(integrations, gqlmodel.ToIntegration(i, uop.User()))
+		integrations = append(integrations, gqlmodel.ToIntegration(i, op.User))
 	}
 	return integrations, nil
 }

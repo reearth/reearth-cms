@@ -22,11 +22,19 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		url = urlResolver(a)
 	}
 
+	var createdBy ID
+	if a.User() != nil {
+		createdBy = IDFrom(*a.User())
+	}
+	if a.Integration() != nil {
+		createdBy = IDFrom(*a.Integration())
+	}
+
 	return &Asset{
 		ID:          IDFrom(a.ID()),
 		ProjectID:   IDFrom(a.Project()),
 		CreatedAt:   a.CreatedAt(),
-		CreatedByID: IDFrom(a.CreatedBy()),
+		CreatedByID: createdBy,
 		FileName:    a.FileName(),
 		Size:        int64(a.Size()),
 		PreviewType: ToPreviewType(a.PreviewType()),

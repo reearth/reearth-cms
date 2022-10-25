@@ -8,6 +8,7 @@ type ID = id.AssetID
 type ProjectID = id.ProjectID
 type UserID = id.UserID
 type ThreadID = id.ThreadID
+type IntegrationID = id.IntegrationID
 
 var NewID = id.NewAssetID
 var NewProjectID = id.NewProjectID

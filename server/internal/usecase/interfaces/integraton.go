@@ -47,13 +47,13 @@ type WebhookTriggerParam struct {
 }
 
 type Integration interface {
-	FindByIDs(context.Context, id.IntegrationIDList, *usecase.UserOperator) (integration.List, error)
-	FindByMe(context.Context, *usecase.UserOperator) (integration.List, error)
-	Create(context.Context, CreateIntegrationParam, *usecase.UserOperator) (*integration.Integration, error)
-	Update(context.Context, id.IntegrationID, UpdateIntegrationParam, *usecase.UserOperator) (*integration.Integration, error)
-	Delete(context.Context, id.IntegrationID, *usecase.UserOperator) error
+	FindByIDs(context.Context, id.IntegrationIDList, *usecase.Operator) (integration.List, error)
+	FindByMe(context.Context, *usecase.Operator) (integration.List, error)
+	Create(context.Context, CreateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
+	Update(context.Context, id.IntegrationID, UpdateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
+	Delete(context.Context, id.IntegrationID, *usecase.Operator) error
 
-	CreateWebhook(context.Context, id.IntegrationID, CreateWebhookParam, *usecase.UserOperator) (*integration.Webhook, error)
-	UpdateWebhook(context.Context, id.IntegrationID, id.WebhookID, UpdateWebhookParam, *usecase.UserOperator) (*integration.Webhook, error)
-	DeleteWebhook(context.Context, id.IntegrationID, id.WebhookID, *usecase.UserOperator) error
+	CreateWebhook(context.Context, id.IntegrationID, CreateWebhookParam, *usecase.Operator) (*integration.Webhook, error)
+	UpdateWebhook(context.Context, id.IntegrationID, id.WebhookID, UpdateWebhookParam, *usecase.Operator) (*integration.Webhook, error)
+	DeleteWebhook(context.Context, id.IntegrationID, id.WebhookID, *usecase.Operator) error
 }

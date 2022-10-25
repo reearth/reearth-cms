@@ -31,7 +31,7 @@ func TestList_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).MustBuild()
 
 	list := List{a}
 	got := list.Clone()
