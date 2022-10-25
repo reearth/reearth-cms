@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -29,6 +30,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
+	CloudTasks   gcp.CloudTasksConfig
 	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs
@@ -38,6 +40,8 @@ type Config struct {
 	Auth_ALG      *string
 	Auth_TTL      *int
 	Auth_ClientID *string
+	// auth for m2m
+	AuthM2M AuthM2MConfig
 }
 
 type AuthConfig struct {
@@ -79,6 +83,14 @@ type SMTPConfig struct {
 type GCSConfig struct {
 	BucketName              string
 	PublicationCacheControl string
+}
+
+type AuthM2MConfig struct {
+	ISS   string
+	AUD   []string
+	ALG   *string
+	TTL   *int
+	Email string
 }
 
 func (c Config) Auths() (res AuthConfigs) {
@@ -128,6 +140,15 @@ func (c Auth0Config) AuthConfig() *AuthConfig {
 }
 
 func (a AuthConfig) JWTProvider() appx.JWTProvider {
+	return appx.JWTProvider{
+		ISS: a.ISS,
+		AUD: a.AUD,
+		ALG: a.ALG,
+		TTL: a.TTL,
+	}
+}
+
+func (a AuthM2MConfig) JWTProvider() appx.JWTProvider {
 	return appx.JWTProvider{
 		ISS: a.ISS,
 		AUD: a.AUD,
