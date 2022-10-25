@@ -1,46 +1,49 @@
 import styled from "@emotion/styled";
+import { Dispatch, Key, SetStateAction } from "react";
 
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
 type Props = {
-  workspaceId: string | undefined;
-  projectId: string | undefined;
-  assetList: any;
-  createAssets: any;
-  assetsPerPage: any;
-  navigate: any;
-  handleSearchTerm: any;
-  selection: any;
-  setSelection: any;
-  fileList: any;
-  setFileList: any;
-  uploading: any;
-  setUploading: any;
-  uploadModalVisibility: any;
-  setUploadModalVisibility: any;
+  assetList: Asset[];
+  assetsPerPage: number | undefined;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  onSearchTerm: (term?: string) => void;
+  onEdit: (asset: Asset) => void;
+  selection: {
+    selectedRowKeys: Key[];
+  };
+  setSelection: Dispatch<
+    SetStateAction<{
+      selectedRowKeys: Key[];
+    }>
+  >;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
 };
 
 const AssetList: React.FC<Props> = ({
-  workspaceId,
-  projectId,
   assetList,
-  createAssets,
   assetsPerPage,
-  navigate,
-  handleSearchTerm,
+  createAssets,
+  fileList,
+  onSearchTerm,
+  onEdit,
   selection,
   setSelection,
-  fileList,
   setFileList,
-  uploading,
   setUploading,
-  uploadModalVisibility,
   setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
 }) => {
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -56,10 +59,6 @@ const AssetList: React.FC<Props> = ({
     createAssets(fileList).finally(() => {
       hideUploadModal();
     });
-  };
-
-  const handleEdit = (asset: Asset) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
   const uploadProps: UploadProps = {
@@ -101,8 +100,8 @@ const AssetList: React.FC<Props> = ({
       <AssetListTable
         assetList={assetList}
         assetsPerPage={assetsPerPage}
-        handleEdit={handleEdit}
-        handleSearchTerm={handleSearchTerm}
+        onEdit={onEdit}
+        onSearchTerm={onSearchTerm}
         selection={selection}
         setSelection={setSelection}
       />

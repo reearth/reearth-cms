@@ -1,5 +1,5 @@
 import { useApolloClient } from "@apollo/client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Key } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -43,10 +43,10 @@ export default (projectId?: string) => {
   const t = useT();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
-  const [selection, setSelection] = useState({
+  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
-  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+  const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -88,7 +88,7 @@ export default (projectId?: string) => {
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
   const createAssets = useCallback(
-    (files: UploadFile<any>[]) =>
+    (files: UploadFile<File>[]) =>
       (async () => {
         if (!projectId || !currentUser?.id) return;
         const results = await Promise.all(
