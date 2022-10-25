@@ -7,31 +7,31 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type threadRepo struct {
+var (
+	threadIndexes       = []string{"workspace", "author"}
+	threadUniqueIndexes = []string{"id"}
+)
+
+type ThreadRepo struct {
 	client *mongox.ClientCollection
 	f      repo.WorkspaceFilter
 }
 
 func NewThread(client *mongox.Client) repo.Thread {
-	r := &threadRepo{client: client.WithCollection("thread")}
-	r.init()
-	return r
+	return &ThreadRepo{client: client.WithCollection("thread")}
 }
 
-func (r *threadRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"workspace", "author"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "thread", i)
-	}
+func (r *ThreadRepo) Init() error {
+	return createIndexes(context.Background(), r.client, threadIndexes, threadUniqueIndexes)
+
 }
 
-func (r *threadRepo) Save(ctx context.Context, thread *thread.Thread) error {
+func (r *ThreadRepo) Save(ctx context.Context, thread *thread.Thread) error {
 	if !r.f.CanWrite(thread.Workspace()) {
 		return repo.ErrOperationDenied
 	}
@@ -39,20 +39,20 @@ func (r *threadRepo) Save(ctx context.Context, thread *thread.Thread) error {
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *threadRepo) Filtered(f repo.WorkspaceFilter) repo.Thread {
-	return &threadRepo{
+func (r *ThreadRepo) Filtered(f repo.WorkspaceFilter) repo.Thread {
+	return &ThreadRepo{
 		client: r.client,
 		f:      r.f.Merge(f),
 	}
 }
 
-func (r *threadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error) {
+func (r *ThreadRepo) FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error) {
 	return r.findOne(ctx, bson.M{
 		"id": id.String(),
 	})
 }
 
-func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
+func (r *ThreadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.Thread, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -67,7 +67,7 @@ func (r *threadRepo) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thr
 	return filterThreads(ids, res), nil
 }
 
-func (r *threadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, error) {
+func (r *ThreadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, error) {
 	c := mongodoc.NewThreadConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (r *threadRepo) findOne(ctx context.Context, filter any) (*thread.Thread, e
 	return c.Result[0], nil
 }
 
-func (r *threadRepo) find(ctx context.Context, filter interface{}) ([]*thread.Thread, error) {
+func (r *ThreadRepo) find(ctx context.Context, filter interface{}) ([]*thread.Thread, error) {
 	c := mongodoc.NewThreadConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -98,10 +98,10 @@ func filterThreads(ids []id.ThreadID, rows []*thread.Thread) []*thread.Thread {
 	return res
 }
 
-func (r *threadRepo) readFilter(filter any) any {
+func (r *ThreadRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-// func (r *threadRepo) writeFilter(filter any) any {
+// func (r *ThreadRepo) writeFilter(filter any) any {
 // 	return applyWorkspaceFilter(filter, r.f.Writable)
 // }

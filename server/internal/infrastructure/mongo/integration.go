@@ -7,37 +7,35 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type integrationRepo struct {
+var (
+	integrationUniqueIndexes = []string{"id"}
+)
+
+type Integration struct {
 	client *mongox.ClientCollection
 }
 
 func NewIntegration(client *mongox.Client) repo.Integration {
-	r := &integrationRepo{client: client.WithCollection("integration")}
-	r.init()
-	return r
+	return &Integration{client: client.WithCollection("integration")}
 }
 
-func (r *integrationRepo) init() {
-	i := r.client.CreateIndex(context.Background(), nil, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "integration", i)
-	}
+func (r *Integration) Init() error {
+	return createIndexes(context.Background(), r.client, nil, integrationUniqueIndexes)
 }
 
-func (r *integrationRepo) FindByID(ctx context.Context, integrationID id.IntegrationID) (*integration.Integration, error) {
+func (r *Integration) FindByID(ctx context.Context, integrationID id.IntegrationID) (*integration.Integration, error) {
 	return r.findOne(ctx, bson.M{
 		"id": integrationID.String(),
 	})
 }
 
-func (r *integrationRepo) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (integration.List, error) {
+func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (integration.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -63,22 +61,22 @@ func (r *integrationRepo) FindByIDs(ctx context.Context, ids id.IntegrationIDLis
 	}), nil
 }
 
-func (r *integrationRepo) FindByUser(ctx context.Context, userID id.UserID) (integration.List, error) {
+func (r *Integration) FindByUser(ctx context.Context, userID id.UserID) (integration.List, error) {
 	return r.find(ctx, bson.M{
 		"developer": userID.String(),
 	})
 }
 
-func (r *integrationRepo) Save(ctx context.Context, integration *integration.Integration) error {
+func (r *Integration) Save(ctx context.Context, integration *integration.Integration) error {
 	doc, sId := mongodoc.NewIntegration(integration)
 	return r.client.SaveOne(ctx, sId, doc)
 }
 
-func (r *integrationRepo) Remove(ctx context.Context, integrationID id.IntegrationID) error {
+func (r *Integration) Remove(ctx context.Context, integrationID id.IntegrationID) error {
 	return r.client.RemoveOne(ctx, bson.M{"id": integrationID.String()})
 }
 
-func (r *integrationRepo) findOne(ctx context.Context, filter any) (*integration.Integration, error) {
+func (r *Integration) findOne(ctx context.Context, filter any) (*integration.Integration, error) {
 	c := mongodoc.NewIntegrationConsumer()
 	if err := r.client.FindOne(ctx, filter, c); err != nil {
 		return nil, err
@@ -86,7 +84,7 @@ func (r *integrationRepo) findOne(ctx context.Context, filter any) (*integration
 	return c.Result[0], nil
 }
 
-func (r *integrationRepo) find(ctx context.Context, filter any) (integration.List, error) {
+func (r *Integration) find(ctx context.Context, filter any) (integration.List, error) {
 	c := mongodoc.NewIntegrationConsumer()
 	if err := r.client.Find(ctx, filter, c); err != nil {
 		return nil, err
