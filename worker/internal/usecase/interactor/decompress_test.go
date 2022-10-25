@@ -18,12 +18,13 @@ import (
 
 func TestUsecase_Decompress(t *testing.T) {
 	fs := mockFs()
+	mCMS := NewCMS()
 	fileGateway, err := wfs.NewFile(fs, "")
 	require.NoError(t, err)
 
-	uc := NewUsecase(gateway.NewGateway(fileGateway, nil))
+	uc := NewUsecase(gateway.NewGateway(fileGateway, mCMS))
 
-	assert.NoError(t, uc.Decompress(context.Background(), "test.zip"))
+	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.zip"))
 
 	f := lo.Must(fs.Open("test/test1.txt"))
 	content := lo.Must(io.ReadAll(f))
@@ -38,13 +39,14 @@ func TestUsecase_Decompress(t *testing.T) {
 
 func TestUsecase_Decompress_Error(t *testing.T) {
 	fs := mockFs()
+	mCMS := NewCMS()
 	fileGateway, err := wfs.NewFile(fs, "")
 	require.NoError(t, err)
 
-	uc := NewUsecase(gateway.NewGateway(fileGateway, nil))
+	uc := NewUsecase(gateway.NewGateway(fileGateway, mCMS))
 
 	// tar.gz is not unsupported
-	assert.Same(t, decompresser.ErrUnsupportedExtention, uc.Decompress(context.Background(), "test.tar.gz"))
+	assert.Same(t, decompresser.ErrUnsupportedExtention, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
 }
 
 func mockFs() afero.Fs {
@@ -62,4 +64,15 @@ func mockFs() afero.Fs {
 	_ = zf.Close()
 
 	return fs
+}
+
+type mockCMS struct {
+}
+
+func NewCMS() *mockCMS {
+	return &mockCMS{}
+}
+
+func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string) error {
+	return nil
 }

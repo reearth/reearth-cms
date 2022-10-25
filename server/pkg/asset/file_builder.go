@@ -3,6 +3,7 @@ package asset
 import (
 	"mime"
 	"path"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -29,6 +30,9 @@ func (b *FileBuilder) ContentType(contentType string) *FileBuilder {
 }
 
 func (b *FileBuilder) Path(path string) *FileBuilder {
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
 	b.f.path = path
 	return b
 }
@@ -45,6 +49,13 @@ func (b *FileBuilder) Children(children []*File) *FileBuilder {
 
 func (b *FileBuilder) GuessContentType() *FileBuilder {
 	b.detectContentType = true
+	return b
+}
+
+func (b *FileBuilder) Dir() *FileBuilder {
+	if b.f.children == nil {
+		b.f.children = []*File{}
+	}
 	return b
 }
 

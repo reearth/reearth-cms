@@ -19,14 +19,23 @@ func TestFileBuilder_ContentType(t *testing.T) {
 }
 
 func TestFileBuilder_Path(t *testing.T) {
-	path := "hoge"
-	f := NewFile().Path(path).Build()
-	assert.Equal(t, path, f.Path())
+	path1 := "/hoge"
+	path2 := "fuga"
+	f1 := NewFile().Path(path1).Build()
+	assert.Equal(t, path1, f1.Path())
+
+	f2 := NewFile().Path(path2).Build()
+	assert.Equal(t, "/"+path2, f2.Path())
 }
 
 func TestFileBuilder_GuessContentType(t *testing.T) {
 	f := NewFile().GuessContentType()
 	assert.Equal(t, true, f.detectContentType)
+}
+
+func TestFileBuilder_Dir(t *testing.T) {
+	f := NewFile().Dir().Build()
+	assert.NotNil(t, f.children)
 }
 
 func TestFileBuilder_Build(t *testing.T) {

@@ -44,13 +44,14 @@ func (f *File) Children() []*File {
 }
 
 func (f *File) IsDir() bool {
-	return path.Ext(f.Path()) == ""
+	return f.children != nil
 }
 
 func (f *File) AppendChild(c *File) {
 	f.children = append(f.children, c)
 }
 
+// TODO:improve this perfomance later
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
 	slices.SortFunc(files, func(a, b *File) bool {
@@ -78,30 +79,30 @@ func FoldFiles(files []*File, parent *File) *File {
 		if len(parents) == 0 {
 			parent.AppendChild(files[i])
 			continue
-		} else {
-			if !parent.IsDir() {
-				// when parent is root
-				parentDir = path.Dir(parent.Path())
-			}
-
-			dir := NewFile().Name(parents[0]).Path(path.Join("/"+parentDir, parents[0])).Build()
-
-			var childrenFiles []*File
-			lo.ForEach(files, func(file *File, j int) {
-				// a file whose path contains parent's path is folded under its parent
-				if strings.HasPrefix(file.Path(), dir.Path()) {
-					childrenFiles = append(childrenFiles, file)
-					_, index, _ := lo.FindIndexOf(files, func(f *File) bool {
-						return f == file
-					})
-					// a file which is folded here will be skipped above for loop
-					skipIndexes = append(skipIndexes, index)
-				}
-			})
-
-			foldedDir := FoldFiles(childrenFiles, dir)
-			parent.AppendChild(foldedDir)
 		}
+		if !parent.IsDir() {
+			// when parent is root
+			parentDir = path.Dir(parent.Path())
+		}
+
+		dir := NewFile().Name(parents[0]).Dir().Path(path.Join(parentDir, parents[0])).Build()
+
+		var childrenFiles []*File
+		lo.ForEach(files, func(file *File, j int) {
+			// a file whose path contains parent's path is folded under its parent
+			if strings.HasPrefix(file.Path(), dir.Path()) {
+				childrenFiles = append(childrenFiles, file)
+				_, index, _ := lo.FindIndexOf(files, func(f *File) bool {
+					return f == file
+				})
+				// a file which is folded here will be skipped above for loop
+				skipIndexes = append(skipIndexes, index)
+			}
+		})
+
+		foldedDir := FoldFiles(childrenFiles, dir)
+		parent.AppendChild(foldedDir)
+
 	}
 
 	return parent
