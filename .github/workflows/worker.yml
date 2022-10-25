@@ -1,8 +1,7 @@
 name: ci-worker
 on:
   push:
-    branches:
-      - main
+    branches: [main, release]
     paths:
       - worker/**
       - .github/workflows/worker.yml
@@ -10,6 +9,9 @@ on:
     paths:
       - worker/**
       - .github/workflows/worker.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ci:
     name: ci
