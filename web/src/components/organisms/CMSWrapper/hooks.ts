@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import { PublicScope } from "@reearth-cms/components/molecules/Public";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -91,26 +91,24 @@ export default () => {
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
-    skip: !projectId || projectId === currentProject?.id,
+    skip: !projectId,
   });
 
   useEffect(() => {
     if (projectId) {
-      if (projectId !== currentProject?.id) {
-        const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
-        if (project) {
-          setCurrentProject({
-            id: project.id,
-            name: project.name,
-            description: project.description,
-            scope: convertScope(project.publication?.scope),
-          });
-        }
+      const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
+      if (project) {
+        setCurrentProject({
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          scope: convertScope(project.publication?.scope),
+        });
       }
     } else {
       setCurrentProject();
     }
-  }, [projectId, projectData?.node, currentProject?.id, setCurrentProject]);
+  }, [projectId, projectData?.node, setCurrentProject]);
 
   return {
     username,

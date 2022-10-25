@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -36,6 +36,11 @@ const HeaderMolecule: React.FC<Props> = ({
   const t = useT();
   const { logout } = useAuth();
   const navigate = useNavigate();
+
+  const currentIsPersonal = useMemo(
+    () => currentWorkspace?.id === personalWorkspace?.id,
+    [currentWorkspace?.id, personalWorkspace?.id],
+  );
 
   const handleWorkspaceNavigation = useCallback(
     (id: number) => {
@@ -83,6 +88,7 @@ const HeaderMolecule: React.FC<Props> = ({
               key: workspace.id,
               icon: (
                 <Avatar
+                  shape="square"
                   style={{
                     color: "#fff",
                     backgroundColor: "#3F3D45",
@@ -128,7 +134,11 @@ const HeaderMolecule: React.FC<Props> = ({
     <MainHeader>
       <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
       <VerticalDivider />
-      <WorkspaceDropdown name={currentWorkspace?.name} menu={WorkspacesMenu} />
+      <WorkspaceDropdown
+        name={currentWorkspace?.name}
+        menu={WorkspacesMenu}
+        personal={currentIsPersonal}
+      />
       {currentProject?.name && (
         <CurrentProject>
           <Break>/</Break>
@@ -136,7 +146,7 @@ const HeaderMolecule: React.FC<Props> = ({
         </CurrentProject>
       )}
       <Spacer />
-      <AccountDropdown name={username} menu={AccountMenu} />
+      <AccountDropdown name={username} menu={AccountMenu} personal={true} />
     </MainHeader>
   );
 };
@@ -148,6 +158,7 @@ const MainHeader = styled(Header)`
   line-height: 41px;
   padding: 0;
   background-color: #1d1d1d;
+
   .ant-space-item {
     color: #dbdbdb;
   }
@@ -168,7 +179,7 @@ const Spacer = styled.div`
 `;
 
 const HeaderMenu = styled(Menu)`
-  background-color: #1d1d1d;
+  background-color: #141414;
   width: 190px;
 
   .ant-dropdown-menu-item-divider {
@@ -186,12 +197,8 @@ const HeaderMenu = styled(Menu)`
     user-select: none;
     color: #dbdbdb;
   }
-  .ant-dropdown-menu-item,
-  .ant-dropdown-menu-submenu-title {
-    &:hover {
-      background-color: #1d1d1d;
-      color: #fff;
-    }
+  .ant-dropdown-menu-item-active {
+    background-color: #1d1d1d;
   }
 
   svg {

@@ -16,6 +16,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+func init() {
+	mongotest.Env = "REEARTH_CMS_DB"
+}
+
 func TestCollection_FindOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
@@ -378,11 +382,11 @@ func TestCollection_IsArchived(t *testing.T) {
 		"archived": true,
 	})
 
-	got, err := col.IsArchived(ctx, "xxx")
+	got, err := col.IsArchived(ctx, bson.M{"id": "xxx"})
 	assert.NoError(t, err)
 	assert.True(t, got)
 
-	got, err = col.IsArchived(ctx, "yyy")
+	got, err = col.IsArchived(ctx, bson.M{"id": "yyy"})
 	assert.NoError(t, err)
 	assert.False(t, got)
 
@@ -395,7 +399,7 @@ func TestCollection_IsArchived(t *testing.T) {
 		},
 	})
 
-	got, err = col.IsArchived(ctx, "xxx")
+	got, err = col.IsArchived(ctx, bson.M{"id": "xxx"})
 	assert.NoError(t, err)
 	assert.False(t, got)
 }
@@ -404,31 +408,35 @@ func TestCollection_ArchiveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
 	c := col.Client().Client()
-	var metadata MetadataDocument
 
-	assert.NoError(t, col.ArchiveOne(ctx, "xxx", false))
+	assert.NoError(t, col.ArchiveOne(ctx, bson.M{"id": "xxx"}, false))
 	got := c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
 	assert.Equal(t, mongo.ErrNoDocuments, got.Err())
 
-	assert.NoError(t, col.ArchiveOne(ctx, "xxx", true))
+	assert.NoError(t, col.ArchiveOne(ctx, bson.M{"id": "xxx"}, true))
 	got = c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
+	var metadata bson.M
 	assert.NoError(t, got.Decode(&metadata))
-	assert.Equal(t, MetadataDocument{
-		ID:       "xxx",
-		Meta:     true,
-		Archived: true,
+	assert.Equal(t, bson.M{
+		"_id":      metadata["_id"],
+		"__":       true,
+		"id":       "xxx",
+		"archived": true,
 	}, metadata)
 
-	assert.NoError(t, col.ArchiveOne(ctx, "yyy", true))
+	assert.NoError(t, col.ArchiveOne(ctx, bson.M{"id": "yyy", "a": 1}, true))
 	got = c.FindOne(ctx, bson.M{"id": "yyy", metaKey: true})
-	assert.NoError(t, got.Decode(&metadata))
-	assert.Equal(t, MetadataDocument{
-		ID:       "yyy",
-		Meta:     true,
-		Archived: true,
-	}, metadata)
+	var metadata2 bson.M
+	assert.NoError(t, got.Decode(&metadata2))
+	assert.Equal(t, bson.M{
+		"_id":      metadata2["_id"],
+		"__":       true,
+		"id":       "yyy",
+		"a":        int32(1),
+		"archived": true,
+	}, metadata2)
 
-	assert.NoError(t, col.ArchiveOne(ctx, "xxx", false))
+	assert.NoError(t, col.ArchiveOne(ctx, bson.M{"id": "xxx"}, false))
 	got = c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
 	assert.Equal(t, mongo.ErrNoDocuments, got.Err())
 }
@@ -444,7 +452,7 @@ func TestCollection_RemoveOne(t *testing.T) {
 		bson.M{"id": "yyy", "foo": "hoge"},
 	})
 
-	assert.NoError(t, col.RemoveOne(ctx, "xxx"))
+	assert.NoError(t, col.RemoveOne(ctx, bson.M{"id": "xxx"}))
 	got := c.FindOne(ctx, bson.M{"id": "xxx", metaKey: true})
 	assert.Equal(t, mongo.ErrNoDocuments, got.Err())
 	got = c.FindOne(ctx, bson.M{"id": "xxx"})
@@ -509,7 +517,7 @@ func TestCollection_Meta(t *testing.T) {
 	assert.Nil(t, got)
 
 	got, err = col.meta(ctx, "y", version.Latest.OrVersion().Ref())
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Nil(t, got)
 }
 

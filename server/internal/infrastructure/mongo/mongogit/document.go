@@ -72,10 +72,19 @@ type Meta struct {
 }
 
 func ToValue[T any](m Meta, inner T) *version.Value[T] {
+	var parents version.Versions
+	var refs version.Refs
+	if len(m.Parents) > 0 {
+		parents = version.NewVersions(m.Parents...)
+	}
+	if len(m.Refs) > 0 {
+		refs = version.NewRefs(m.Refs...)
+	}
+
 	return version.NewValue(
 		m.Version,
-		version.NewVersions(m.Parents...),
-		version.NewRefs(m.Refs...),
+		parents,
+		refs,
 		inner,
 	)
 }
@@ -100,7 +109,6 @@ func (meta Meta) apply(d any) (any, error) {
 }
 
 type MetadataDocument struct {
-	ID       string
 	Meta     bool `json:"__" bson:"__"`
 	Archived bool
 }
