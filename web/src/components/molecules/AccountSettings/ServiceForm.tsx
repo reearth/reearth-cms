@@ -28,12 +28,8 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   );
 
   const handleSubmit = useCallback(async () => {
-    try {
-      const values = await form.validateFields();
-      await onLanguageUpdate?.(values.lang);
-    } catch (info) {
-      console.log("Validate Failed:", info);
-    }
+    const values = await form.validateFields();
+    await onLanguageUpdate?.(values.lang);
   }, [form, onLanguageUpdate]);
 
   return (
