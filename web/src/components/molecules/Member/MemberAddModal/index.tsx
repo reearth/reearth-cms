@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -51,75 +52,72 @@ const MemberAddModal: React.FC<Props> = ({
   const t = useT();
   const { Search } = Input;
   const [form] = Form.useForm();
-  const [memberName, setMemberName] = useState("");
 
   const handleMemberNameChange = useCallback(
     (e: any) => {
-      setMemberName?.(e);
+      form.setFieldValue("name", e);
       handleUserSearch?.(e);
     },
-    [setMemberName, handleUserSearch],
+    [handleUserSearch, form],
   );
 
-  initialValues;
-
-  useEffect(() => {
-    form.setFieldsValue({
-      name: memberName,
-    });
-  }, [form, memberName]);
-
   const handleMemberRemove = useCallback(() => {
-    setMemberName?.("");
+    form.resetFields();
     changeSearchedUser(undefined);
-  }, [setMemberName, changeSearchedUser]);
+  }, [changeSearchedUser, form]);
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then(async () => {
         if (searchedUser?.id) await onSubmit?.([searchedUser.id]);
+        changeSearchedUser(undefined);
         onClose?.(true);
         form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onSubmit, searchedUser?.id, onClose]);
+  }, [form, onSubmit, searchedUser?.id, onClose, changeSearchedUser]);
 
   const handleClose = useCallback(() => {
-    setMemberName("");
+    form.resetFields();
     changeSearchedUser(undefined);
     onClose?.(true);
-  }, [onClose, changeSearchedUser]);
+  }, [onClose, changeSearchedUser, form]);
 
   return (
-    <Modal title={t("Add member")} visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal
+      title={t("Add member")}
+      visible={open}
+      onCancel={handleClose}
+      footer={[
+        <Button key="back" onClick={handleClose}>
+          {t("Cancel")}
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} disabled={!searchedUser}>
+          {t("Add to workspace")}
+        </Button>,
+      ]}>
       {open && (
         <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
-            <Search
-              size="large"
-              style={{ width: "300px" }}
-              value={memberName}
-              onSearch={handleMemberNameChange}
-              type="text"
-            />
+            <Search size="large" onSearch={handleMemberNameChange} type="text" />
           </Form.Item>
           {searchedUser && (
             <SearchedUSerResult>
-              <div>
+              <SearchedUserAvatar>
                 <Avatar
                   style={{
                     color: "#fff",
                     backgroundColor: "#3F3D45",
-                    marginRight: "12px",
                   }}>
                   {searchedUser.name.charAt(0)}
                 </Avatar>
-                {searchedUser.name}
-                <EmailContent>{searchedUser.email}</EmailContent>
-              </div>
+              </SearchedUserAvatar>
+              <SearchedUserName>{searchedUser.name}</SearchedUserName>
+              <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
+
               <IconButton onClick={handleMemberRemove}>
                 <Icon icon="close" />
               </IconButton>
@@ -136,27 +134,40 @@ const IconButton = styled.button`
   cursor: pointer;
 `;
 
-const EmailContent = styled.span`
+const SearchedUserAvatar = styled.div`
+  width: 32px;
+  margin-right: 8px;
+`;
+
+const SearchedUserName = styled.div`
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const SearchedUserEmail = styled.div`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  margin-left: 8px;
   color: rgba(0, 0, 0, 0.45);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SearchedUSerResult = styled.div`
-  width: 300px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
   border: 1px solid #d9d9d9;
-
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
-  border-radius: 2px;
+  border-radius: 8px;
 `;
 
 export default MemberAddModal;
