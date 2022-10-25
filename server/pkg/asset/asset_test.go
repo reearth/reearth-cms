@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAsset_Getters(t *testing.T) {
+func TestAsset_Type(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
@@ -17,6 +17,8 @@ func TestAsset_Getters(t *testing.T) {
 	var size uint64 = 15
 	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("IMAGE"))
 
+	file := NewFile().Name("hoge").Path("hoge.zip").Build()
+
 	got := Asset{
 		id:          aid,
 		project:     pid,
@@ -24,8 +26,8 @@ func TestAsset_Getters(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
+		file:        file,
 		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
-		file:        &File{},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
 	}
@@ -37,8 +39,9 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())
-	assert.Equal(t, &File{}, got.File())
+	assert.Equal(t, file, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
 }
 

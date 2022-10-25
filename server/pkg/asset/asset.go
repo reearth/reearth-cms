@@ -1,6 +1,7 @@
 package asset
 
 import (
+	"path"
 	"time"
 
 	"github.com/reearth/reearthx/util"
@@ -60,6 +61,10 @@ func (a *Asset) File() *File {
 
 func (a *Asset) UUID() string {
 	return a.uuid
+}
+
+func (a *Asset) RootPath() string {
+	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
