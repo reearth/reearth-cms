@@ -42,7 +42,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
       <Form.Item
         name="lang"
         label={t("Service Language")}
-        extra={t("This will change the UI langauge")}>
+        extra={t("This will change the UI language")}>
         <Select placeholder={t("Language")}>
           {langItems?.map(langItem => (
             <Option key={langItem.key} value={langItem.key}>
