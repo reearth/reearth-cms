@@ -16,10 +16,7 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 	id1 := id.NewAssetID()
 	var pti asset.PreviewType = asset.PreviewTypeIMAGE
 	uuid := uuid.New().String()
-	f := &asset.File{}
-	f.SetName("aaa.jpg")
-	f.SetSize(1000)
-	f.SetContentType("image/jpg")
+	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
 
 	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).MustBuild()
 
@@ -138,13 +135,8 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 }
 
 func TestConvertAsset_ToAssetFile(t *testing.T) {
-	f1 := &asset.File{}
 	c := []*asset.File{}
-	f1.SetName("aaa.jpg")
-	f1.SetSize(1000)
-	f1.SetContentType("image/jpg")
-	f1.SetPath("/")
-	f1.SetChildren(c...)
+	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Children(c).Build()
 
 	want1 := AssetFile{
 		Name:        "aaa.jpg",
