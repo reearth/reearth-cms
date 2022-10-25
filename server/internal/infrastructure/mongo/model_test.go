@@ -18,7 +18,7 @@ import (
 )
 
 func TestModel_Filtered(t *testing.T) {
-	r := &modelRepo{}
+	r := &Model{}
 	pid := id.NewProjectID()
 
 	assert.Equal(t, &Model{

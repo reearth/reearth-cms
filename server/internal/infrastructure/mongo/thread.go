@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,11 +23,9 @@ func NewThread(client *mongox.Client) repo.Thread {
 	return r
 }
 
-func (r *threadRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"workspace", "author"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "thread", i)
-	}
+func (r *threadRepo) init() error {
+	return createIndexes(context.Background(), r.client, []string{"workspace", "author"}, []string{"id"})
+
 }
 
 func (r *threadRepo) Save(ctx context.Context, thread *thread.Thread) error {
