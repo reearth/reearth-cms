@@ -32,10 +32,6 @@ type AddCommentInput struct {
 	Content  string `json:"content"`
 }
 
-type AddCommentPayload struct {
-	Comment *Comment `json:"comment"`
-}
-
 type AddIntegrationToWorkspaceInput struct {
 	WorkspaceID   ID   `json:"workspaceId"`
 	IntegrationID ID   `json:"integrationId"`
@@ -100,6 +96,11 @@ type Comment struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type CommentPayload struct {
+	Thread  *Thread  `json:"thread"`
+	Comment *Comment `json:"comment"`
+}
+
 type CreateAssetInput struct {
 	ProjectID   ID             `json:"projectId"`
 	CreatedByID ID             `json:"createdById"`
@@ -152,10 +153,6 @@ type CreateThreadInput struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
-type CreateThreadPayload struct {
-	Thread *Thread `json:"thread"`
-}
-
 type CreateWebhookInput struct {
 	IntegrationID ID                   `json:"integrationId"`
 	Name          string               `json:"name"`
@@ -186,7 +183,8 @@ type DeleteCommentInput struct {
 }
 
 type DeleteCommentPayload struct {
-	CommentID ID `json:"commentId"`
+	Thread    *Thread `json:"thread"`
+	CommentID ID      `json:"commentId"`
 }
 
 type DeleteFieldInput struct {
@@ -643,6 +641,10 @@ type Thread struct {
 	Comments    []*Comment `json:"comments"`
 }
 
+type ThreadPayload struct {
+	Thread *Thread `json:"thread"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType"`
@@ -656,10 +658,6 @@ type UpdateCommentInput struct {
 	ThreadID  ID     `json:"threadId"`
 	CommentID ID     `json:"commentId"`
 	Content   string `json:"content"`
-}
-
-type UpdateCommentPayload struct {
-	Comment *Comment `json:"comment"`
 }
 
 type UpdateFieldInput struct {

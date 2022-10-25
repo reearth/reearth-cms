@@ -33,25 +33,23 @@ input DeleteCommentInput {
   commentId: ID!
 }
 
-type CreateThreadPayload {
+type ThreadPayload {
   thread: Thread!
 }
 
-type AddCommentPayload {
-  comment: Comment!
-}
-
-type UpdateCommentPayload {
+type CommentPayload {
+  thread: Thread!
   comment: Comment!
 }
 
 type DeleteCommentPayload {
+  thread: Thread!
   commentId: ID!
 }
 
 extend type Mutation {
-  createThread(input: CreateThreadInput!): CreateThreadPayload
-  addComment(input: AddCommentInput!): AddCommentPayload
-  updateComment(input: UpdateCommentInput!): UpdateCommentPayload
+  createThread(input: CreateThreadInput!): ThreadPayload
+  addComment(input: AddCommentInput!):CommentPayload
+  updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }
