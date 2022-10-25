@@ -43,7 +43,7 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 		}
 		sfids := s.Fields().IDs()
 		res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
-		return res.Filtered(sfids), page, err
+		return res.FilterFields(sfids), page, err
 	})
 }
 

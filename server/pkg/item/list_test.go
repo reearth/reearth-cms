@@ -67,6 +67,6 @@ func TestList_Filtered(t *testing.T) {
 	sfl := id.FieldIDList{sfid1, sfid4}
 	want := List{&Item{fields: []*Field{f1}}, &Item{fields: []*Field{f4}}}
 
-	got := il.Filtered(sfl)
+	got := il.FilterFields(sfl)
 	assert.Equal(t, want, got)
 }

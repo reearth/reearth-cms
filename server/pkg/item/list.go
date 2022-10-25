@@ -23,7 +23,7 @@ func (l List) SortByTimestamp() List {
 	return m
 }
 
-func (l List) Filtered(lids id.FieldIDList) List {
+func (l List) FilterFields(lids id.FieldIDList) List {
 	var res List
 
 	for _, i := range l {

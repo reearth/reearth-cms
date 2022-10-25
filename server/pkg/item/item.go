@@ -54,21 +54,15 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 		return nil
 	}
 
-	var res []*Field
-	for _, f := range i.fields {
-		_, ok := lo.Find(list, func(fid schema.FieldID) bool {
-			return f.schemaFieldID == fid
-		})
-		if ok {
-			res = append(res, f)
-		}
-	}
+	fields := lo.Filter(list, func(fid schema.FieldID) bool {
+		return list.Has(fid)
+	})
 
 	return &Item{
 		id:        i.id,
 		schema:    i.schema,
 		project:   i.project,
-		fields:    res,
+		fields:    fields,
 		timestamp: i.timestamp,
 	}
 }
