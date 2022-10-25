@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -25,7 +26,7 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
   }, [confirm, onWorkspaceDelete, t]);
 
   return (
-    <>
+    <ContentSection title={t("Danger Zone")} danger>
       <Title>{t("Remove Workspace")}</Title>
       <Text>
         {t(
@@ -40,7 +41,7 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
       <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
         {t("Remove Workspace")}
       </Button>
-    </>
+    </ContentSection>
   );
 };
 

@@ -22,10 +22,7 @@ const WorkspaceSettings: React.FC<Props> = ({
       <ContentSection title={t("General")}>
         <WorkspaceForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
       </ContentSection>
-
-      <ContentSection title={t("Danger Zone")} danger>
-        <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
-      </ContentSection>
+      <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
     </InnerContent>
   );
 };

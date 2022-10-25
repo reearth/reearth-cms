@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -25,18 +26,17 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   }, [confirm, onUserDelete, t]);
 
   return (
-    <>
+    <ContentSection title={t("Danger Zone")} danger>
       <Title>{t("Delete Personal Account")}</Title>
       <Text>
         {t(
           "Permanently remove your Personal Account and all of its contents from the Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-
       <Button onClick={handleAccountDeleteConfirmation} type="primary" danger>
         {t("Delete Personal Account")}
       </Button>
-    </>
+    </ContentSection>
   );
 };
 

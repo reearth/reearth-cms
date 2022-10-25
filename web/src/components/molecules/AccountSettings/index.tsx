@@ -29,9 +29,7 @@ const AccountSettings: React.FC<Props> = ({
       <ContentSection title={t("Service")}>
         <AccountServiceForm user={user} onLanguageUpdate={onLanguageUpdate} />
       </ContentSection>
-      <ContentSection title={t("Danger Zone")} danger>
-        <DangerZone onUserDelete={onUserDelete} />
-      </ContentSection>
+      <DangerZone onUserDelete={onUserDelete} />
     </InnerContent>
   );
 };
