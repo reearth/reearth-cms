@@ -108,7 +108,7 @@ export default () => {
     } else {
       setCurrentProject();
     }
-  }, [projectId, projectData?.node, currentProject?.id, setCurrentProject]);
+  }, [projectId, projectData?.node, setCurrentProject]);
 
   return {
     username,
