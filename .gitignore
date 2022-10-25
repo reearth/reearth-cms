@@ -13,3 +13,5 @@ node_modules
 
 /server/mongo
 /server/data
+
+/worker/.env*

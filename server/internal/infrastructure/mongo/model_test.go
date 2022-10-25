@@ -21,7 +21,7 @@ func TestModel_Filtered(t *testing.T) {
 	r := &modelRepo{}
 	pid := id.NewProjectID()
 
-	assert.Equal(t, &modelRepo{
+	assert.Equal(t, &Model{
 		f: repo.ProjectFilter{
 			Readable: id.ProjectIDList{pid},
 			Writable: nil,

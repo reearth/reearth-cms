@@ -14,7 +14,9 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -45,15 +47,18 @@ const AssetBody: React.FC<Props> = ({
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-  const displayUnzipFileList = selectedPreviewType !== "IMAGE";
-  // TODO: maybe we need a better way to check for svg files
-  const isSVG = !!asset.fileName?.endsWith(".svg");
+  const assetFileExt = getExtension(asset.fileName) ?? "";
+  const displayUnzipFileList = assetFileExt === "zip";
+  const isSVG = assetFileExt === "svg";
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
   const renderPreview = () => {
-    switch (selectedPreviewType) {
-      case "GEO":
+    switch (true) {
+      case (selectedPreviewType === "GEO" ||
+        selectedPreviewType === "GEO3D" ||
+        selectedPreviewType === "MODEL3D") &&
+        fileFormats.includes(assetFileExt):
         return (
           <TilesetPreview
             viewerProps={{
@@ -76,7 +81,7 @@ const AssetBody: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case "IMAGE":
+      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         return isSVG ? (
           <SVGPreview url={asset.url} svgRender={svgRender} />
         ) : (

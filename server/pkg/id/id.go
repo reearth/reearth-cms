@@ -160,3 +160,22 @@ var NewWebhookID = idx.New[Webhook]
 var WebhookIDFrom = idx.From[Webhook]
 var WebhookIDFromRef = idx.FromRef[Webhook]
 var WebhookIDListFrom = idx.ListFrom[Webhook]
+
+type Task struct{}
+
+func (Task) Type() string { return "task" }
+
+type TaskID = idx.ID[Task]
+
+var NewTaskID = idx.New[Task]
+var MustTaskID = idx.Must[Task]
+var TaskIDFrom = idx.From[Task]
+var TaskIDFromRef = idx.FromRef[Task]
+
+type TaskIDList = idx.List[Task]
+
+var TaskIDListFrom = idx.ListFrom[Task]
+
+type TaskIDSet = idx.Set[Task]
+
+var NewTaskIDSet = idx.NewSet[Task]

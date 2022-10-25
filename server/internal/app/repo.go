@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcs"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -61,6 +62,14 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 
 	// Auth0
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
+
+	// CloudTasks
+	taskRunner, err := gcp.NewTaskRunner(ctx, &conf.CloudTasks)
+	if err != nil {
+		log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+	}
+
+	gateways.TaskRunner = taskRunner
 
 	return repos, gateways
 }
