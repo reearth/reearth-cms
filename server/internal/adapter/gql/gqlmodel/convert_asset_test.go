@@ -70,6 +70,81 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 	}
 }
 
+func TestConvertAsset_FromPreviewType(t *testing.T) {
+	var pt1 PreviewType = PreviewTypeImage
+	want1 := asset.PreviewTypeImage
+
+	var pt2 PreviewType = PreviewTypeGeo
+	want2 := asset.PreviewTypeGeo
+
+	var pt3 PreviewType = PreviewTypeGeo3d
+	want3 := asset.PreviewTypeGeo3d
+
+	var pt4 PreviewType = PreviewTypeModel3d
+	want4 := asset.PreviewTypeModel3d
+
+	var pt5 *PreviewType = nil
+	want5 := (*asset.PreviewType)(nil)
+
+	var pt6 PreviewType = "test"
+	want6 := (*asset.PreviewType)(nil)
+
+	var pt7 PreviewType = PreviewTypeUnknown
+	want7 := asset.PreviewTypeUnknown
+
+	tests := []struct {
+		name string
+		arg  *PreviewType
+		want *asset.PreviewType
+	}{
+		{
+			name: "to asset image",
+			arg:  &pt1,
+			want: &want1,
+		},
+		{
+			name: "to asset geo",
+			arg:  &pt2,
+			want: &want2,
+		},
+		{
+			name: "to asset geo3d",
+			arg:  &pt3,
+			want: &want3,
+		},
+		{
+			name: "to asset model3d",
+			arg:  &pt4,
+			want: &want4,
+		},
+		{
+			name: "to asset nil",
+			arg:  pt5,
+			want: want5,
+		},
+		{
+			name: "to asset other",
+			arg:  &pt6,
+			want: want6,
+		},
+		{
+			name: "to asset unknown",
+			arg:  &pt7,
+			want: &want7,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := FromPreviewType(tc.arg)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestConvertAsset_ToPreviewType(t *testing.T) {
 	var pt1 asset.PreviewType = asset.PreviewTypeImage
 	want1 := PreviewTypeImage

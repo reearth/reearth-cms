@@ -38,24 +38,12 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 	if p == nil {
 		return nil
 	}
-	pp := strings.ToLower(*p)
-	var p2 PreviewType
-	switch PreviewType(pp) {
-	case PreviewTypeImage:
-		p2 = PreviewTypeImage
-	case PreviewTypeGeo:
-		p2 = PreviewTypeGeo
-	case PreviewTypeGeo3d:
-		p2 = PreviewTypeGeo3d
-	case PreviewTypeModel3d:
-		p2 = PreviewTypeModel3d
-	case PreviewTypeUnknown:
-		p2 = PreviewTypeUnknown
-	default:
+
+	pp, ok := PreviewTypeFrom(*p)
+	if !ok {
 		return nil
 	}
-
-	return &p2
+	return &pp
 }
 
 func PreviewTypeFromContentType(c string) *PreviewType {

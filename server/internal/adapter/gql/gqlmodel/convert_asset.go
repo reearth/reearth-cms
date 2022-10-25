@@ -29,6 +29,30 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	}
 }
 
+func FromPreviewType(p *PreviewType) *asset.PreviewType {
+	if p == nil {
+		return nil
+	}
+
+	var p2 asset.PreviewType
+	switch *p {
+	case PreviewTypeImage:
+		p2 = asset.PreviewTypeImage
+	case PreviewTypeGeo:
+		p2 = asset.PreviewTypeGeo
+	case PreviewTypeGeo3d:
+		p2 = asset.PreviewTypeGeo3d
+	case PreviewTypeModel3d:
+		p2 = asset.PreviewTypeModel3d
+	case PreviewTypeUnknown:
+		p2 = asset.PreviewTypeUnknown
+	default:
+		return nil
+	}
+
+	return &p2
+}
+
 func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	if p == nil {
 		return nil
