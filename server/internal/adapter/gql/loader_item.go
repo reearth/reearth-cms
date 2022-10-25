@@ -115,15 +115,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 }
 
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	wid, err := gqlmodel.ToID[id.Workspace](query.Workspace)
-	if err != nil {
-		return nil, err
-	}
-	pid, err := gqlmodel.ToID[id.Project](query.Project)
-	if err != nil {
-		return nil, err
-	}
-	q := item.NewQuery(wid, pid, *query.Q)
+	q := gqlmodel.ToItemQuery(query)
 	res, pi, err := c.usecase.Search(ctx, q, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
 	if err != nil {
 		return nil, err
