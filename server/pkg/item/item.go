@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -54,8 +53,8 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 		return nil
 	}
 
-	fields := lo.Filter(list, func(fid schema.FieldID) bool {
-		return list.Has(fid)
+	fields := lo.Filter(i.fields, func(f *Field, i int) bool {
+		return list.Has(f.SchemaFieldID())
 	})
 
 	return &Item{
