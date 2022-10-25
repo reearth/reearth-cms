@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAsset_Getters(t *testing.T) {
+func TestAsset_Type(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
@@ -40,6 +40,7 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
 	assert.Equal(t, &File{}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
 }
 

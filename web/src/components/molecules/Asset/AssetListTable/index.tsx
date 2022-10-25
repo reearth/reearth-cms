@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, Key, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -17,17 +17,17 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
-type AssetListTableProps = {
+export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
-  handleEdit: (asset: Asset) => void;
-  handleSearchTerm: (term?: string) => void;
+  onEdit: (asset: Asset) => void;
+  onSearchTerm: (term?: string) => void;
   selection: {
-    selectedRowKeys: never[];
+    selectedRowKeys: Key[];
   };
   setSelection: Dispatch<
     SetStateAction<{
-      selectedRowKeys: never[];
+      selectedRowKeys: Key[];
     }>
   >;
 };
@@ -35,8 +35,8 @@ type AssetListTableProps = {
 const AssetListTable: React.FC<AssetListTableProps> = ({
   assetList,
   assetsPerPage,
-  handleEdit,
-  handleSearchTerm,
+  onEdit,
+  onSearchTerm,
   selection,
   setSelection,
 }) => {
@@ -45,7 +45,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => handleEdit(asset)} />
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(asset)} />
       ),
     },
     {
@@ -104,6 +104,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 
   const options: OptionConfig = {
     search: true,
+    reload: false,
   };
 
   const pagination: TablePaginationConfig = {
@@ -126,9 +127,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     search: {
       onSearch: (value: string) => {
         if (value) {
-          handleSearchTerm(value);
+          onSearchTerm(value);
         } else {
-          handleSearchTerm();
+          onSearchTerm();
         }
       },
     },
@@ -145,6 +146,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         pagination={pagination}
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
+        tableStyle={{ overflowX: "scroll" }}
       />
     </AssetListTableWrapper>
   );

@@ -1,16 +1,21 @@
 name: deploy-test
 on:
   workflow_run:
-    workflows: [server-build, ci-web]
+    workflows: [server-build, ci-web, worker-build]
     types: [completed]
     branches: [main]
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 env:
+  # server
   IMAGE: reearth/reearth-cms:nightly
   IMAGE_NAME: us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/reearth-cms:nightly
   IMAGE_GCP: us.gcr.io/reearth-oss/reearth-cms:nightly
+  # worker
+  WORKER_IMAGE:  reearth/reearth-cms-worker:nightly
+  WORKER_IMAGE_NAME: us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/reearth-cms-worker:nightly
+  WORKER_IMAGE_GCP: us.gcr.io/reearth-oss/reearth-cms-worker:nightly
   GCP_REGION: us-central1
   GCS_DEST: gs://cms.test.reearth.dev
 
@@ -61,6 +66,31 @@ jobs:
         run: |
           gcloud run deploy reearth-cms-backend \
             --image $IMAGE_GCP \
+            --region $GCP_REGION \
+            --platform managed \
+            --quiet
+
+  deploy_worker:
+    name: Deploy worker to test env
+    runs-on: ubuntu-latest
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    steps:
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Configure docker
+        run: gcloud auth configure-docker --quiet
+      - name: docker push
+        run: |
+          docker pull $WORKER_IMAGE
+          docker tag $WORKER_IMAGE $WORKER_IMAGE_GCP
+          docker push $WORKER_IMAGE_GCP
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy reearth-cms-worker \
+            --image $WORKER_IMAGE_GCP \
             --region $GCP_REGION \
             --platform managed \
             --quiet
