@@ -26,7 +26,7 @@ func TestAsset_Type(t *testing.T) {
 		fileName:    "hoge",
 		size:        size,
 		previewType: &gotPreviewType,
-		file:        &File{},
+		file:        &File{name: "hoge.zip", size: size, path: "hoge.zip"},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
 	}
@@ -38,7 +38,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
-	assert.Equal(t, &File{}, got.File())
+	assert.Equal(t, &File{name: "hoge.zip", size: size, path: "hoge.zip"}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
