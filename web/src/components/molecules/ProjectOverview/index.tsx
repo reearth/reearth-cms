@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import ContentSection from "@reearth-cms/components/atoms/ContentSection";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
 
 import ModelCard, { Model as ModelType } from "./ModelCard";

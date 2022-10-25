@@ -1,5 +1,5 @@
-import ContentSection from "@reearth-cms/components/atoms/ContentSection";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import DangerZone from "@reearth-cms/components/molecules/WorkspaceSettings/DangerZone";
 import WorkspaceForm from "@reearth-cms/components/molecules/WorkspaceSettings/Form";
 import { useT } from "@reearth-cms/i18n";
@@ -23,7 +23,7 @@ const WorkspaceSettings: React.FC<Props> = ({
         <WorkspaceForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
       </ContentSection>
 
-      <ContentSection title={t("Dangerous Zone")} danger>
+      <ContentSection title={t("Danger Zone")} danger>
         <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
       </ContentSection>
     </InnerContent>
