@@ -44,7 +44,6 @@ const ProjectSettings: React.FC = () => {
           name: values.name,
           description: values.description,
         });
-        form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
