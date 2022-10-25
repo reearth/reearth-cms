@@ -34,7 +34,7 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
       <Form.Item
         name="name"
         label={t("Account Name")}
-        extra={t("This is your id in Re:Earth and Re:Earth CMS")}>
+        extra={t("This is your ID that is used between Re:Earth and Re:Earth CMS.")}>
         <Input />
       </Form.Item>
       <Form.Item
