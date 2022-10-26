@@ -27,6 +27,11 @@ type WorkspaceMember interface {
 	IsWorkspaceMember()
 }
 
+type AddCommentInput struct {
+	ThreadID ID     `json:"threadId"`
+	Content  string `json:"content"`
+}
+
 type AddIntegrationToWorkspaceInput struct {
 	WorkspaceID   ID   `json:"workspaceId"`
 	IntegrationID ID   `json:"integrationId"`
@@ -91,6 +96,11 @@ type Comment struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type CommentPayload struct {
+	Thread  *Thread  `json:"thread"`
+	Comment *Comment `json:"comment"`
+}
+
 type CreateAssetInput struct {
 	ProjectID   ID             `json:"projectId"`
 	CreatedByID ID             `json:"createdById"`
@@ -99,15 +109,6 @@ type CreateAssetInput struct {
 
 type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
-}
-
-type CreateCommentInput struct {
-	ThreadID ID     `json:"threadId"`
-	Content  string `json:"content"`
-}
-
-type CreateCommentPayload struct {
-	Comment *Comment `json:"comment"`
 }
 
 type CreateFieldInput struct {
@@ -148,6 +149,10 @@ type CreateProjectInput struct {
 	Alias       *string `json:"alias"`
 }
 
+type CreateThreadInput struct {
+	WorkspaceID ID `json:"workspaceId"`
+}
+
 type CreateWebhookInput struct {
 	IntegrationID ID                   `json:"integrationId"`
 	Name          string               `json:"name"`
@@ -178,7 +183,8 @@ type DeleteCommentInput struct {
 }
 
 type DeleteCommentPayload struct {
-	CommentID ID `json:"commentId"`
+	Thread    *Thread `json:"thread"`
+	CommentID ID      `json:"commentId"`
 }
 
 type DeleteFieldInput struct {
@@ -641,6 +647,10 @@ type Thread struct {
 	Comments    []*Comment `json:"comments"`
 }
 
+type ThreadPayload struct {
+	Thread *Thread `json:"thread"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType"`
@@ -654,10 +664,6 @@ type UpdateCommentInput struct {
 	ThreadID  ID     `json:"threadId"`
 	CommentID ID     `json:"commentId"`
 	Content   string `json:"content"`
-}
-
-type UpdateCommentPayload struct {
-	Comment *Comment `json:"comment"`
 }
 
 type UpdateFieldInput struct {

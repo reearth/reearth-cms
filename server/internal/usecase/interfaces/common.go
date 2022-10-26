@@ -23,4 +23,5 @@ type Container struct {
 	Model       Model
 	Schema      Schema
 	Integration Integration
+	Thread      Thread
 }

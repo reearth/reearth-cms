@@ -1,22 +1,23 @@
 package interactor
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/stretchr/testify/assert"
 )
 
-type ContainerConfig struct {
-	SignupSecret    string
-	AuthSrvUIDomain string
-}
+func TestCommon_New(t *testing.T) {
+	r := &repo.Container{}
+	g := &gateway.Container{}
+	c := ContainerConfig{}
 
-func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
-
-	return interfaces.Container{
+	want := interfaces.Container{
 		Asset:       NewAsset(r, g),
 		Workspace:   NewWorkspace(r),
-		User:        NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
+		User:        NewUser(r, g, c.SignupSecret, c.AuthSrvUIDomain),
 		Project:     NewProject(r),
 		Item:        NewItem(r),
 		Model:       NewModel(r),
@@ -24,4 +25,8 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 		Integration: NewIntegration(r),
 		Thread:      NewThread(r),
 	}
+
+	got := New(r, g, c)
+
+	assert.Equal(t, want, got)
 }
