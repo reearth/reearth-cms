@@ -172,3 +172,18 @@ func sortItems(items []*version.Value[*item.Item]) {
 		return a.Value().Timestamp().Before(b.Value().Timestamp())
 	})
 }
+
+func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.FindFieldByValue(q.Q()) {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res, nil, nil
+}

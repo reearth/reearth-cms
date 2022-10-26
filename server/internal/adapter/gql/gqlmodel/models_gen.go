@@ -323,6 +323,12 @@ type ItemPayload struct {
 	Item *Item `json:"item"`
 }
 
+type ItemQuery struct {
+	Workspace ID      `json:"workspace"`
+	Project   ID      `json:"project"`
+	Q         *string `json:"q"`
+}
+
 type KeyAvailability struct {
 	Key       string `json:"key"`
 	Available bool   `json:"available"`
