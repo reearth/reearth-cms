@@ -24,12 +24,7 @@ func (l List) SortByTimestamp() List {
 }
 
 func (l List) FilterFields(lids id.FieldIDList) List {
-	var res List
-
-	for _, i := range l {
-		fi := i.FilterFields(lids)
-		res = append(res, fi)
-	}
-
-	return res
+	return lo.Map(l, func(i *Item, _ int) *Item {
+		return i.FilterFields(lids)
+	})
 }
