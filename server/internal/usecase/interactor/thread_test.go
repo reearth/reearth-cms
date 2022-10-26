@@ -205,6 +205,7 @@ func TestThread_FindByIDs(t *testing.T) {
 
 func TestThreadRepo_CreateThread(t *testing.T) {
 	wid := id.NewWorkspaceID()
+	wid2 := id.WorkspaceID{}
 	uid := id.NewUserID()
 	op := &usecase.Operator{
 		User:               uid,
@@ -224,6 +225,17 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 			arg:      wid,
 			operator: op,
 			wantErr:  nil,
+		},
+		{
+			name: "Save error: invalid workspace id",
+			arg:  wid2,
+			operator: &usecase.Operator{
+				User:               uid,
+				ReadableWorkspaces: nil,
+				WritableWorkspaces: nil,
+				OwningWorkspaces:   []id.WorkspaceID{wid2},
+			},
+			wantErr: thread.ErrNoWorkspaceID,
 		},
 		{
 			name:     "operator error",
@@ -279,10 +291,11 @@ func TestThread_AddComment(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		seed    *thread.Thread
-		args    args
-		wantErr error
+		name      string
+		seed      *thread.Thread
+		args      args
+		wantErr   error
+		mockError bool
 	}{
 		{
 			name: "workspaces operation denied",
@@ -311,6 +324,16 @@ func TestThread_AddComment(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "add comment fail",
+			seed: th1,
+			args: args{
+				content:  c1.Content(),
+				operator: op,
+			},
+			wantErr:   rerror.ErrNotFound,
+			mockError: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -326,6 +349,13 @@ func TestThread_AddComment(t *testing.T) {
 			assert.NoError(t, err)
 
 			threadUC := NewThread(db)
+			if tc.mockError && tc.wantErr != nil {
+				thid := id.NewThreadID()
+				_, _, err := threadUC.AddComment(ctx, thid, tc.args.content, tc.args.operator)
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			th, c, err := threadUC.AddComment(ctx, thread.ID(), tc.args.content, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -365,12 +395,12 @@ func TestThread_UpdateComment(t *testing.T) {
 	}
 
 	tests := []struct {
-		name         string
-		seed         *thread.Thread
-		args         args
-		want         *thread.Comment
-		wantErr      error
-		mockNotFound bool
+		name      string
+		seed      *thread.Thread
+		args      args
+		want      *thread.Comment
+		wantErr   error
+		mockError bool
 	}{
 		{
 			name: "workspaces operation denied",
@@ -402,6 +432,17 @@ func TestThread_UpdateComment(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "update comment fail",
+			seed: th1,
+			args: args{
+				comment:  c1,
+				content:  "updated",
+				operator: op,
+			},
+			wantErr:   rerror.ErrNotFound,
+			mockError: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -417,7 +458,12 @@ func TestThread_UpdateComment(t *testing.T) {
 			assert.NoError(t, err)
 
 			threadUC := NewThread(db)
-			// comment := thread.Comments()[0]
+			if tc.mockError && tc.wantErr != nil {
+				thid := id.NewThreadID()
+				_, _, err := threadUC.UpdateComment(ctx, thid, tc.args.comment.ID(), tc.args.content, tc.args.operator)
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
 			if _, _, err := threadUC.UpdateComment(ctx, thread.ID(), tc.args.comment.ID(), tc.args.content, tc.args.operator); tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -426,7 +472,8 @@ func TestThread_UpdateComment(t *testing.T) {
 			}
 
 			thread2, _ := threadUC.FindByID(ctx, thread.ID(), tc.args.operator)
-			assert.Equal(t, tc.args.content, thread2.Comments()[0].Content())
+			comment := thread2.Comments()[0]
+			assert.Equal(t, tc.args.content, comment.Content())
 		})
 	}
 }
@@ -450,12 +497,12 @@ func TestThread_DeleteComment(t *testing.T) {
 	}
 
 	tests := []struct {
-		name         string
-		seed         *thread.Thread
-		args         args
-		want         *thread.Comment
-		wantErr      error
-		mockNotFound bool
+		name      string
+		seed      *thread.Thread
+		args      args
+		want      *thread.Comment
+		wantErr   error
+		mockError bool
 	}{
 		{
 			name:    "workspaces operation denied",
@@ -475,6 +522,13 @@ func TestThread_DeleteComment(t *testing.T) {
 			args:    args{commentId: c1.ID(), operator: op},
 			wantErr: nil,
 		},
+		{
+			name:      "delete comment fail",
+			seed:      th1,
+			args:      args{commentId: c1.ID(), operator: op},
+			wantErr:   rerror.ErrNotFound,
+			mockError: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -490,6 +544,13 @@ func TestThread_DeleteComment(t *testing.T) {
 			assert.NoError(t, err)
 
 			threadUC := NewThread(db)
+			if tc.mockError && tc.wantErr != nil {
+				thid := id.NewThreadID()
+				_, err := threadUC.DeleteComment(ctx, thid, tc.args.commentId, tc.args.operator)
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
 			if _, err := threadUC.DeleteComment(ctx, tc.seed.ID(), tc.args.commentId, tc.args.operator); tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
