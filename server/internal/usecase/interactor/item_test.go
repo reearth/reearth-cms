@@ -168,7 +168,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: nil,
 		},
 		{
@@ -183,7 +183,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: rerror.ErrNotFound,
 		},
 	}
