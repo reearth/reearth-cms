@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
