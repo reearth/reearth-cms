@@ -63,7 +63,6 @@ export default () => {
     const user = await deleteMeMutation({ variables: { userId: me.id } });
     if (user.errors) {
       Notification.error({ message: t("Failed to delete user.") });
-      return;
     } else {
       Notification.success({ message: t("Successfully deleted user!") });
       logout();

@@ -33,10 +33,10 @@ export default () => {
       });
       if (res.errors || !res.data?.updateWorkspace) {
         Notification.error({ message: t("Failed to update workspace.") });
-        return;
+      } else {
+        setCurrentWorkspace({ ...res.data.updateWorkspace.workspace });
+        Notification.success({ message: t("Successfully updated workspace!") });
       }
-      setCurrentWorkspace({ ...res.data.updateWorkspace.workspace });
-      Notification.success({ message: t("Successfully updated workspace!") });
     },
     [workspaceId, updateWorkspaceMutation, setCurrentWorkspace, t],
   );
