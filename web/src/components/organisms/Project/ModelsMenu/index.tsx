@@ -9,10 +9,10 @@ export interface Props {
   className?: string;
   title: string;
   collapsed?: boolean;
-  selectModel: (modelId: string) => void;
+  onModelSelect: (modelId: string) => void;
 }
 
-const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel }) => {
+const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelect }) => {
   const { projectId, modelId } = useParams();
 
   const {
@@ -20,8 +20,8 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel 
     models,
     modelModalShown,
     isKeyAvailable,
-    handleModelModalOpen,
-    handleModelModalClose,
+    handleModalOpen,
+    handleModalClose,
     handleModelCreate,
     handleModelKeyCheck,
   } = useHooks({
@@ -37,15 +37,15 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, selectModel 
         selectedKey={model?.id}
         models={models}
         collapsed={collapsed}
-        selectModel={selectModel}
-        onModalOpen={handleModelModalOpen}
+        onModelSelect={onModelSelect}
+        onModalOpen={handleModalOpen}
       />
       <ModelCreationModal
         isKeyAvailable={isKeyAvailable}
         projectId={projectId}
         open={modelModalShown}
         onModelKeyCheck={handleModelKeyCheck}
-        onClose={handleModelModalClose}
+        onClose={handleModalClose}
         onSubmit={handleModelCreate}
       />
     </>

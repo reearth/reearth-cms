@@ -1,9 +1,8 @@
 import styled from "@emotion/styled";
-import type { MenuInfo } from "rc-menu/lib/interface";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
+import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -14,21 +13,22 @@ export type Props = {
   models?: Model[];
   collapsed?: boolean;
   onModalOpen: () => void;
-  selectModel: (modelId: string) => void;
+  onModelSelect: (modelId: string) => void;
 };
 
 const ModelsList: React.FC<Props> = ({
   className,
+  title,
   selectedKey,
   models,
   collapsed,
   onModalOpen,
-  selectModel,
-  title,
+  onModelSelect,
 }) => {
   const t = useT();
-  const onClick = (e: MenuInfo) => {
-    selectModel(e.key);
+
+  const handleClick = (e: MenuInfo) => {
+    onModelSelect(e.key);
   };
 
   return (
@@ -48,7 +48,6 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <StyledMenu
-          onClick={onClick}
           selectedKeys={[selectedKey ?? ""]}
           mode={collapsed ? "vertical" : "inline"}
           style={{
@@ -58,6 +57,7 @@ const ModelsList: React.FC<Props> = ({
             label: collapsed ? <Icon icon="dot" /> : model.name,
             key: model.id,
           }))}
+          onClick={handleClick}
         />
       </MenuWrapper>
     </SchemaStyledMenu>
