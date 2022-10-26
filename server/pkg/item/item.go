@@ -45,3 +45,15 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.fields = slices.Clone(fields)
 	i.timestamp = util.Now()
 }
+
+func (i *Item) FindFieldByValue(v any) bool {
+	if i == nil {
+		return false
+	}
+	for _, f := range i.fields {
+		if f.value == v {
+			return true
+		}
+	}
+	return false
+}
