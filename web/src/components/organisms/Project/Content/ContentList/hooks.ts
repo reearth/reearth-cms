@@ -29,6 +29,8 @@ export default () => {
       title: field.title,
       dataIndex: ["fields", field.id],
       key: field.id,
+      width: 128,
+      ellipsis: true,
     }));
   }, [currentModel?.schema.fields]);
 
