@@ -5,13 +5,6 @@ import (
 	"github.com/samber/lo"
 )
 
-const (
-	PreviewTypeIMAGE   PreviewType = "IMAGE"
-	PreviewTypeGEO     PreviewType = "GEO"
-	PreviewTypeGEO3D   PreviewType = "GEO3D"
-	PreviewTypeMODEL3D PreviewType = "MODEL3D"
-)
-
 func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	if a == nil {
 		return nil
@@ -36,6 +29,30 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	}
 }
 
+func FromPreviewType(p *PreviewType) *asset.PreviewType {
+	if p == nil {
+		return nil
+	}
+
+	var p2 asset.PreviewType
+	switch *p {
+	case PreviewTypeImage:
+		p2 = asset.PreviewTypeImage
+	case PreviewTypeGeo:
+		p2 = asset.PreviewTypeGeo
+	case PreviewTypeGeo3d:
+		p2 = asset.PreviewTypeGeo3d
+	case PreviewTypeModel3d:
+		p2 = asset.PreviewTypeModel3d
+	case PreviewTypeUnknown:
+		p2 = asset.PreviewTypeUnknown
+	default:
+		return nil
+	}
+
+	return &p2
+}
+
 func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	if p == nil {
 		return nil
@@ -43,14 +60,16 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 
 	var p2 PreviewType
 	switch *p {
-	case asset.PreviewTypeIMAGE:
-		p2 = PreviewTypeIMAGE
-	case asset.PreviewTypeGEO:
-		p2 = PreviewTypeGEO
-	case asset.PreviewTypeGEO3D:
-		p2 = PreviewTypeGEO3D
-	case asset.PreviewTypeMODEL3D:
-		p2 = PreviewTypeMODEL3D
+	case asset.PreviewTypeImage:
+		p2 = PreviewTypeImage
+	case asset.PreviewTypeGeo:
+		p2 = PreviewTypeGeo
+	case asset.PreviewTypeGeo3d:
+		p2 = PreviewTypeGeo3d
+	case asset.PreviewTypeModel3d:
+		p2 = PreviewTypeModel3d
+	case asset.PreviewTypeUnknown:
+		p2 = PreviewTypeUnknown
 	default:
 		return nil
 	}
