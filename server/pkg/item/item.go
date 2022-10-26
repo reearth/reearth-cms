@@ -3,8 +3,10 @@ package item
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -44,6 +46,24 @@ func (i *Item) UpdateFields(fields []*Field) {
 	}
 	i.fields = slices.Clone(fields)
 	i.timestamp = util.Now()
+}
+
+func (i *Item) FilterFields(list id.FieldIDList) *Item {
+	if i == nil || list == nil {
+		return nil
+	}
+
+	fields := lo.Filter(i.fields, func(f *Field, i int) bool {
+		return list.Has(f.SchemaFieldID())
+	})
+
+	return &Item{
+		id:        i.id,
+		schema:    i.schema,
+		project:   i.project,
+		fields:    fields,
+		timestamp: i.timestamp,
+	}
 }
 
 func (i *Item) FindFieldByValue(v any) bool {

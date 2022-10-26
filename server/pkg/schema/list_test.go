@@ -3,6 +3,7 @@ package schema
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -68,4 +69,15 @@ func TestFieldList_SortByID(t *testing.T) {
 		&Field{id: id2},
 		&Field{id: id1},
 	}, list)
+}
+
+func TestFieldList_IDs(t *testing.T) {
+	id1 := NewFieldID()
+	id2 := NewFieldID()
+
+	list := FieldList{
+		&Field{id: id1},
+		&Field{id: id2},
+	}
+	assert.Equal(t, id.FieldIDList{id1, id2}, list.IDs())
 }

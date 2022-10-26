@@ -64,7 +64,7 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return nil
 }
 
-func (s *Schema) Fields() []*Field {
+func (s *Schema) Fields() FieldList {
 	if s == nil {
 		return nil
 	}
