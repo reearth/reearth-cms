@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 	"golang.org/x/exp/slices"
 )
@@ -31,4 +32,10 @@ func (l FieldList) SortByID() FieldList {
 
 func (l FieldList) Clone() FieldList {
 	return util.Map(l, func(f *Field) *Field { return f.Clone() })
+}
+func (l FieldList) IDs() (ids id.FieldIDList) {
+	for _, sf := range l {
+		ids = ids.Add(sf.ID())
+	}
+	return
 }

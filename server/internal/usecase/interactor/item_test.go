@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -111,13 +112,15 @@ func TestItem_FindBySchema(t *testing.T) {
 	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
-	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	v1 := true
+	sf1 := schema.NewFieldBool(&v1).NewID().Key(key.Random()).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
@@ -165,7 +168,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: nil,
 		},
 		{
@@ -180,7 +183,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: rerror.ErrNotFound,
 		},
 	}
