@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestThread_Filtered(t *testing.T) {
-	r := &modelRepo{}
+func TestModel_Filtered(t *testing.T) {
+	r := &Model{}
 	pid := id.NewProjectID()
 
-	assert.Equal(t, &modelRepo{
+	assert.Equal(t, &Model{
 		f: repo.ProjectFilter{
 			Readable: id.ProjectIDList{pid},
 			Writable: nil,

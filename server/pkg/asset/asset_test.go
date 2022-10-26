@@ -8,14 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAsset_Getters(t *testing.T) {
+func TestAsset_Type(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
-	wantPreviewType := PreviewTypeFromRef(lo.ToPtr("IMAGE"))
+	wantPreviewType, _ := PreviewTypeFrom("image")
+	gotPreviewType, _ := PreviewTypeFrom(PreviewTypeImage.String())
 
 	got := Asset{
 		id:          aid,
@@ -24,8 +25,8 @@ func TestAsset_Getters(t *testing.T) {
 		createdBy:   uid,
 		fileName:    "hoge",
 		size:        size,
-		previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeIMAGE.String())),
-		file:        &File{},
+		previewType: &gotPreviewType,
+		file:        &File{name: "hoge.zip", size: size, path: "hoge.zip"},
 		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:      thid,
 	}
@@ -36,9 +37,10 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, uid, got.CreatedBy())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
-	assert.Equal(t, wantPreviewType, got.PreviewType())
-	assert.Equal(t, &File{}, got.File())
+	assert.Equal(t, &wantPreviewType, got.PreviewType())
+	assert.Equal(t, &File{name: "hoge.zip", size: size, path: "hoge.zip"}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
 }
 
@@ -87,7 +89,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	pt := lo.ToPtr(PreviewTypeIMAGE)
+	pt := lo.ToPtr(PreviewTypeImage)
 	got.UpdatePreviewType(pt)
 	assert.Equal(t, pt, got.PreviewType())
 }

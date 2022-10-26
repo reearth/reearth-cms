@@ -2,6 +2,8 @@ package mongo
 
 import (
 	"context"
+	"fmt"
+	"regexp"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
@@ -9,12 +11,16 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/exp/slices"
+)
+
+var (
+	itemIndexes = []string{"schema", "fields.schemafield"}
 )
 
 type Item struct {
@@ -23,9 +29,7 @@ type Item struct {
 }
 
 func NewItem(client *mongox.Client) repo.Item {
-	r := &Item{client: mongogit.NewCollection(client.WithCollection("item"))}
-	r.init()
-	return r
+	return &Item{client: mongogit.NewCollection(client.WithCollection("item"))}
 }
 
 func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
@@ -35,11 +39,8 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 	}
 }
 
-func (r *Item) init() {
-	err := r.client.CreateIndexes(context.Background(), []string{"schema", "fields.schemafield"}, nil)
-	if err != nil {
-		log.Infof("mongo: %s: index created: %s", "item", err)
-	}
+func (r *Item) Init() error {
+	return createIndexes(context.Background(), r.client.Client(), itemIndexes, nil)
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
@@ -63,6 +64,15 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 		"project": projectID.String(),
 	}, pagination)
 	return res.SortByTimestamp(), pi, err
+}
+
+func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	return i.paginate(ctx, bson.M{
+		"project": query.Project().String(),
+		"fields.value": bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"},
+		},
+	}, pagination)
 }
 
 func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {

@@ -14,10 +14,14 @@ const ContentList: React.FC = () => {
     handleModelSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
+    handleItemsReload,
+    itemsDataLoading,
   } = useHooks();
 
   return (
     <ContentListMolecule
+      itemsDataLoading={itemsDataLoading}
+      onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
       onItemAdd={handleNavigateToItemForm}
       model={currentModel}

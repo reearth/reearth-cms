@@ -19,6 +19,7 @@ type Container struct {
 	Schema      Schema
 	Item        Item
 	Integration Integration
+	Thread      Thread
 	Transaction usecasex.Transaction
 }
 
@@ -40,6 +41,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model.Filtered(project),
 		Schema:      c.Schema.Filtered(workspace),
+		Thread:      c.Thread.Filtered(workspace),
 		Integration: c.Integration,
 	}
 }

@@ -317,6 +317,12 @@ type ItemPayload struct {
 	Item *Item `json:"item"`
 }
 
+type ItemQuery struct {
+	Workspace ID      `json:"workspace"`
+	Project   ID      `json:"project"`
+	Q         *string `json:"q"`
+}
+
 type KeyAvailability struct {
 	Key       string `json:"key"`
 	Available bool   `json:"available"`
@@ -965,6 +971,7 @@ const (
 	PreviewTypeGeo     PreviewType = "GEO"
 	PreviewTypeGeo3d   PreviewType = "GEO3D"
 	PreviewTypeModel3d PreviewType = "MODEL3D"
+	PreviewTypeUnknown PreviewType = "UNKNOWN"
 )
 
 var AllPreviewType = []PreviewType{
@@ -972,11 +979,12 @@ var AllPreviewType = []PreviewType{
 	PreviewTypeGeo,
 	PreviewTypeGeo3d,
 	PreviewTypeModel3d,
+	PreviewTypeUnknown,
 }
 
 func (e PreviewType) IsValid() bool {
 	switch e {
-	case PreviewTypeImage, PreviewTypeGeo, PreviewTypeGeo3d, PreviewTypeModel3d:
+	case PreviewTypeImage, PreviewTypeGeo, PreviewTypeGeo3d, PreviewTypeModel3d, PreviewTypeUnknown:
 		return true
 	}
 	return false

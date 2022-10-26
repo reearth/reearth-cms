@@ -80,6 +80,7 @@ Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
 Add member: メンバー追加
+Add to workspace: ''
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
@@ -148,7 +149,17 @@ Please input the key of the model!: このモデルのキーを入力してく�
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
+Failed to update asset.: ''
+Asset was successfully updated!: ''
+Failed to add one or more assets.: ''
+Successfully added one or more assets!: ''
+Failed to delete one or more assets.: ''
+One or more assets were successfully deleted!: ''
 Successfully created workspace!: ''
+Failed to create item.: ''
+Successfully created Item!: ''
+Failed to update item.: ''
+Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to update publication settings.: ''
