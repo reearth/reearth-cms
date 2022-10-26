@@ -32,6 +32,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 		Item:        NewItem(client),
 		Model:       NewModel(client),
 		Schema:      NewSchema(client),
+		Thread:      NewThread(client),
 		Integration: NewIntegration(client),
 	}
 
@@ -56,6 +57,7 @@ func Init(r *repo.Container) error {
 		r.Item.(*Item).Init,
 		r.Model.(*Model).Init,
 		r.Schema.(*Schema).Init,
+		r.Thread.(*ThreadRepo).Init,
 		r.Integration.(*Integration).Init,
 	)
 }
