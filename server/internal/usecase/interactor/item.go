@@ -132,3 +132,10 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) []*item.Field {
 		)
 	})
 }
+
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.Search(ctx, q, p)
+		})
+}

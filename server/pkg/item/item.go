@@ -65,3 +65,15 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 		timestamp: i.timestamp,
 	}
 }
+
+func (i *Item) FindFieldByValue(v any) bool {
+	if i == nil {
+		return false
+	}
+	for _, f := range i.fields {
+		if f.value == v {
+			return true
+		}
+	}
+	return false
+}
