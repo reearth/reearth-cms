@@ -64,12 +64,15 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
 	// CloudTasks
-	taskRunner, err := gcp.NewTaskRunner(ctx, &conf.CloudTasks)
-	if err != nil {
-		log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+	if conf.CloudTasks.GCPProject != "" && conf.CloudTasks.GCPRegion != "" || conf.CloudTasks.QueueName != "" {
+		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.CloudTasks)
+		if err != nil {
+			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+		}
+		gateways.TaskRunner = taskRunner
+	} else {
+		log.Infof("task runner: not used")
 	}
-
-	gateways.TaskRunner = taskRunner
 
 	return repos, gateways
 }
