@@ -12,7 +12,7 @@ func ToThread(th *thread.Thread) *Thread {
 
 	return &Thread{
 		ID:          IDFrom(th.ID()),
-		WorkspaceID: IDFrom(th.ID()),
+		WorkspaceID: IDFrom(th.Workspace()),
 		Comments:    lo.Map(th.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c) }),
 	}
 }
