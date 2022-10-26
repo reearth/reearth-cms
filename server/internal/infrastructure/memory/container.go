@@ -18,6 +18,7 @@ func New() *repo.Container {
 		Item:        NewItem(),
 		Schema:      NewSchema(),
 		Integration: NewIntegration(),
+		Thread:      NewThread(),
 		Transaction: &usecasex.NopTransaction{},
 	}
 }
