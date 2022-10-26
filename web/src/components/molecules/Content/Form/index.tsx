@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -39,6 +39,10 @@ const ContentForm: React.FC<Props> = ({
 
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    form.setFieldsValue(initialFormValues);
+  }, [form, initialFormValues]);
+
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
@@ -52,7 +56,6 @@ const ContentForm: React.FC<Props> = ({
       }
       if (!itemId) {
         await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
-        form.resetFields();
       } else {
         await onItemUpdate?.({ itemId: itemId as string, fields });
       }

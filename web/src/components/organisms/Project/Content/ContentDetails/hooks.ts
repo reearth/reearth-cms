@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
@@ -11,13 +12,22 @@ import { useT } from "@reearth-cms/i18n";
 
 import useContentHooks from "../hooks";
 
-type Props = {
-  itemId: string | undefined;
-};
-
-export default ({ itemId }: Props) => {
+export default () => {
   const { currentModel, itemsData } = useContentHooks();
+  const navigate = useNavigate();
+  const { projectId, workspaceId, itemId, modelId } = useParams();
   const t = useT();
+
+  const handleNavigateToModel = useCallback(
+    (modelId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
+
+  const handleNavigateBack = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+  }, [navigate, workspaceId, projectId, modelId]);
 
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["GetItems"],
@@ -38,9 +48,10 @@ export default ({ itemId }: Props) => {
         Notification.error({ message: t("Failed to create item.") });
         return;
       }
+      navigate(`./${item.data.createItem.item.id}`);
       Notification.success({ message: t("Successfully created Item!") });
     },
-    [createNewItem, t],
+    [createNewItem, navigate, t],
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
@@ -94,11 +105,14 @@ export default ({ itemId }: Props) => {
   }, [itemsData?.items.nodes, itemId, currentModel?.schema.fields]);
 
   return {
-    initialFormValues,
+    itemId,
     currentModel,
-    handleItemCreate,
-    handleItemUpdate,
+    initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
+    handleItemCreate,
+    handleItemUpdate,
+    handleNavigateBack,
+    handleNavigateToModel,
   };
 };
