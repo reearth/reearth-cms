@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -22,7 +22,7 @@ export interface Props {
   model?: Model;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onBack: () => void;
+  onBack: (modelId?: string) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -39,6 +39,14 @@ const ContentForm: React.FC<Props> = ({
 
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    form.setFieldsValue(initialFormValues);
+  }, [form, initialFormValues]);
+
+  const handleBack = useCallback(() => {
+    onBack(model?.id);
+  }, [onBack, model]);
+
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
@@ -52,7 +60,6 @@ const ContentForm: React.FC<Props> = ({
       }
       if (!itemId) {
         await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
-        form.resetFields();
       } else {
         await onItemUpdate?.({ itemId: itemId as string, fields });
       }
@@ -65,7 +72,7 @@ const ContentForm: React.FC<Props> = ({
     <Form form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
         title={model?.name}
-        onBack={onBack}
+        onBack={handleBack}
         extra={
           <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
             {t("Save")}
