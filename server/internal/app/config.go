@@ -148,13 +148,23 @@ func (a AuthConfig) JWTProvider() appx.JWTProvider {
 	}
 }
 
-func (a AuthM2MConfig) JWTProvider() appx.JWTProvider {
-	return appx.JWTProvider{
-		ISS: a.ISS,
+func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
+	domain := a.ISS
+	if a.ISS == "" {
+		return nil
+	}
+	if !strings.HasPrefix(domain, "https://") && !strings.HasPrefix(domain, "http://") {
+		domain = "https://" + domain
+	}
+	if !strings.HasSuffix(domain, "/") {
+		domain = domain + "/"
+	}
+	return []appx.JWTProvider{{
+		ISS: domain,
 		AUD: a.AUD,
 		ALG: a.ALG,
 		TTL: a.TTL,
-	}
+	}}
 }
 
 // Decode is a custom decoder for AuthConfigs
