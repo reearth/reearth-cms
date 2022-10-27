@@ -1,6 +1,8 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -20,4 +22,10 @@ func (l List) SortByTimestamp() List {
 		return a.timestamp.Before(b.Timestamp())
 	})
 	return m
+}
+
+func (l List) FilterFields(lids id.FieldIDList) List {
+	return lo.Map(l, func(i *Item, _ int) *Item {
+		return i.FilterFields(lids)
+	})
 }

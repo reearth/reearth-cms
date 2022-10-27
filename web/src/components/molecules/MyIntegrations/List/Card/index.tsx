@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 export type Props = {
@@ -19,7 +20,7 @@ const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
   return (
     <CardWrapper>
       <Card onClick={handleCardNavigation}>
-        <CardImg src={integration.logoUrl} />
+        <Icon icon="api" size={40} color="#00000040" />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>
@@ -32,7 +33,7 @@ const CardWrapper = styled.div`
 `;
 
 const Card = styled.div`
-  min-height: 170px;
+  height: 180px;
   width: 240px;
   display: flex;
   flex-direction: column;
@@ -47,24 +48,31 @@ const Card = styled.div`
   }
 `;
 
-const CardImg = styled.img`
-  width: 40px;
-  height: 40px;
-`;
-
 const CardTitle = styled.h5`
-  margin-top: 24px;
+  width: 100%;
+  margin-top: 22px;
+  margin-bottom: 4px;
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   color: #000000d9;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const CardSubTitle = styled.h6`
+  margin: 0;
   font-weight: 400;
   font-size: 12px;
   line-height: 20px;
   color: #00000073;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 export default MyIntegrationCard;

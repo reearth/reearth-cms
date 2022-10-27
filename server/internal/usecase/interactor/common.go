@@ -22,5 +22,6 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 		Model:       NewModel(r),
 		Schema:      NewSchema(r),
 		Integration: NewIntegration(r),
+		Thread:      NewThread(r),
 	}
 }

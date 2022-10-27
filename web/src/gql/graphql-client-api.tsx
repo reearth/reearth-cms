@@ -301,6 +301,7 @@ export enum IntegrationType {
 
 export type Item = Node & {
   __typename?: 'Item';
+  createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
   project: Project;

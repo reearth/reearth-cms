@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
@@ -50,10 +51,10 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), contextAuthInfo, false),
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
 	))
 	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware([]appx.JWTProvider{cfg.Config.AuthM2M.JWTProvider()}, contextAuthInfo, false),
+		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
 	))
 	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,

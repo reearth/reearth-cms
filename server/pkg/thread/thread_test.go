@@ -116,11 +116,7 @@ func TestThread_Comment(t *testing.T) {
 		},
 	})
 
-	_, err := thread.Comment(NewCommentID())
-	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
-
-	cc, err := thread.Comment(c.id)
-	assert.NoError(t, err)
+	cc := thread.Comment(c.id)
 	assert.Equal(t, c, cc)
 
 }

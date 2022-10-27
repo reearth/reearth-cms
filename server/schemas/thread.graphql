@@ -13,7 +13,11 @@ type Comment {
   createdAt: DateTime!
 }
 
-input CreateCommentInput {
+input CreateThreadInput {
+  workspaceId: ID!
+}
+
+input AddCommentInput {
   threadId: ID!
   content: String!
 }
@@ -29,20 +33,23 @@ input DeleteCommentInput {
   commentId: ID!
 }
 
-type CreateCommentPayload {
-  comment: Comment!
+type ThreadPayload {
+  thread: Thread!
 }
 
-type UpdateCommentPayload {
+type CommentPayload {
+  thread: Thread!
   comment: Comment!
 }
 
 type DeleteCommentPayload {
+  thread: Thread!
   commentId: ID!
 }
 
 extend type Mutation {
-  createComment(input: CreateCommentInput!): CreateCommentPayload
-  updateComment(input: UpdateCommentInput!): UpdateCommentPayload
+  createThread(input: CreateThreadInput!): ThreadPayload
+  addComment(input: AddCommentInput!):CommentPayload
+  updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }

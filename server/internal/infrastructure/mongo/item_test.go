@@ -359,3 +359,56 @@ func TestItem_Archive(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, res)
 }
+
+func TestItem_Search(t *testing.T) {
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	pid := id.NewProjectID()
+	i1, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Project(pid).Build()
+	tests := []struct {
+		Name     string
+		Input    *item.Query
+		RepoData item.List
+		Expected int
+	}{
+		{
+			Name:     "must find two items (first 10)",
+			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "foo"),
+			RepoData: item.List{i1, i2, i3},
+			Expected: 2,
+		},
+		{
+			Name:     "must find one item",
+			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "hoge"),
+			RepoData: item.List{i1, i2, i3},
+			Expected: 1,
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			//tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, _, _ := repo.Search(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			assert.Equal(tt, tc.Expected, len(got))
+		})
+	}
+}
