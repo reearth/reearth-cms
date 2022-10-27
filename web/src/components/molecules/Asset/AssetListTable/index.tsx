@@ -20,8 +20,10 @@ import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reear
 export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
+  loading: boolean;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
+  onAssetsReload: () => void;
   selection: {
     selectedRowKeys: Key[];
   };
@@ -37,6 +39,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   assetsPerPage,
   onEdit,
   onSearchTerm,
+  onAssetsReload,
+  loading,
   selection,
   setSelection,
 }) => {
@@ -104,7 +108,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 
   const options: OptionConfig = {
     search: true,
-    reload: false,
+    reload: onAssetsReload,
   };
 
   const pagination: TablePaginationConfig = {
@@ -147,6 +151,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
         tableStyle={{ overflowX: "scroll" }}
+        loading={loading}
       />
     </AssetListTableWrapper>
   );
