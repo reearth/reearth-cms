@@ -30,7 +30,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
       <Title>{t("Delete Personal Account")}</Title>
       <Text>
         {t(
-          "Permanently remove your Personal Account and all of its contents from the Re:Earth CMS. This action is not reversible, so please continue with caution.",
+          "Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
       <Button onClick={handleAccountDeleteConfirmation} type="primary" danger>
