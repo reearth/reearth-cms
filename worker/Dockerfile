@@ -11,6 +11,7 @@ RUN go mod download
 
 COPY cmd/ /app/cmd/
 COPY internal/ /app/internal/
+COPY pkg/ /app/pkg/
 
 RUN CGO_ENABLED=0 go build -tags "${TAG}" "-ldflags=-X main.version=${VERSION} -s -w -buildid=" -trimpath ./cmd/reearth-cms-worker
 
