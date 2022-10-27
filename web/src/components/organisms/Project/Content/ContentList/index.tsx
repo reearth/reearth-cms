@@ -1,6 +1,3 @@
-import { useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
@@ -14,33 +11,12 @@ const ContentList: React.FC = () => {
     currentModel,
     contentTableFields,
     contentTableColumns,
+    handleModelSelect,
+    handleNavigateToItemForm,
+    handleNavigateToItemEditForm,
     handleItemsReload,
     itemsDataLoading,
   } = useHooks();
-
-  const navigate = useNavigate();
-
-  const { projectId, workspaceId, modelId } = useParams();
-
-  const selectModel = useCallback(
-    (modelId: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
-    },
-    [navigate, workspaceId, projectId],
-  );
-
-  const handleNavigateToItemForm = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details`);
-  }, [navigate, workspaceId, projectId, modelId]);
-
-  const handleNavigateToItemEditForm = useCallback(
-    (itemId: string) => {
-      navigate(
-        `/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details/${itemId}`,
-      );
-    },
-    [navigate, workspaceId, projectId, modelId],
-  );
 
   return (
     <ContentListMolecule
@@ -51,7 +27,7 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      modelsMenu={<ModelsMenu title={t("Content")} selectModel={selectModel} />}
+      modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleModelSelect} />}
     />
   );
 };

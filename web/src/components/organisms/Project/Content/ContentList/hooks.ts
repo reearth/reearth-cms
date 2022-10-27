@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
@@ -6,6 +7,8 @@ import { ContentTableField } from "@reearth-cms/components/molecules/Content/typ
 import useContentHooks from "../hooks";
 
 export default () => {
+  const navigate = useNavigate();
+  const { projectId, workspaceId, modelId } = useParams();
   const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
@@ -32,11 +35,40 @@ export default () => {
     }));
   }, [currentModel?.schema.fields]);
 
+  useEffect(() => {
+    if (!modelId && currentModel) {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${currentModel.id}`);
+    }
+  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleModelSelect = useCallback(
+    (modelId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+    },
+    [workspaceId, projectId, navigate],
+  );
+
+  const handleNavigateToItemForm = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details`);
+  }, [navigate, workspaceId, projectId, modelId]);
+
+  const handleNavigateToItemEditForm = useCallback(
+    (itemId: string) => {
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details/${itemId}`,
+      );
+    },
+    [workspaceId, projectId, modelId, navigate],
+  );
+
   return {
     currentModel,
     itemsDataLoading,
     contentTableFields,
     contentTableColumns,
+    handleModelSelect,
+    handleNavigateToItemForm,
+    handleNavigateToItemEditForm,
     handleItemsReload,
   };
 };
