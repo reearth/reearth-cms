@@ -12,6 +12,7 @@ const AssetList: React.FC = () => {
     assetsPerPage,
     createAssets,
     handleSearchTerm,
+    handleAssetsReload,
     fileList,
     navigate,
     selection,
@@ -20,6 +21,7 @@ const AssetList: React.FC = () => {
     setUploading,
     setUploadModalVisibility,
     uploading,
+    loading,
     uploadModalVisibility,
   } = useHooks(projectId);
 
@@ -34,11 +36,13 @@ const AssetList: React.FC = () => {
       createAssets={createAssets}
       fileList={fileList}
       onSearchTerm={handleSearchTerm}
+      onAssetsReload={handleAssetsReload}
       onEdit={handleEdit}
       selection={selection}
       setSelection={setSelection}
       setFileList={setFileList}
       setUploading={setUploading}
+      loading={loading}
       setUploadModalVisibility={setUploadModalVisibility}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
