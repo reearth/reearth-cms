@@ -2,11 +2,9 @@ import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Upload from "@reearth-cms/components/atoms/Upload";
 import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -70,11 +68,6 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
         </Button>,
       ]}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
-        <Form.Item label={t("Logo Image")}>
-          <Upload maxCount={1} listType="picture-card">
-            <Icon icon="plus" />
-          </Upload>
-        </Form.Item>
         <Form.Item
           name="name"
           label={t("Integration Name")}
