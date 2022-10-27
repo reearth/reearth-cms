@@ -20,6 +20,7 @@ type Container struct {
 	Item        Item
 	Integration Integration
 	Thread      Thread
+	Event       Event
 	Transaction usecasex.Transaction
 }
 

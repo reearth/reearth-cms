@@ -3,6 +3,8 @@ package integration
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/event"
 )
 
 type Webhook struct {
@@ -12,17 +14,10 @@ type Webhook struct {
 	active    bool
 	trigger   WebhookTrigger
 	updatedAt time.Time
+	secret    string
 }
 
-type WebhookTrigger struct {
-	OnItemCreate    bool
-	OnItemUpdate    bool
-	OnItemDelete    bool
-	OnAssetUpload   bool
-	OnAssetDeleted  bool
-	OnItemPublish   bool
-	OnItemUnPublish bool
-}
+type WebhookTrigger map[event.Type]bool
 
 func (w *Webhook) ID() WebhookID {
 	return w.id
@@ -36,11 +31,11 @@ func (w *Webhook) SetName(name string) {
 	w.name = name
 }
 
-func (w *Webhook) Url() *url.URL {
+func (w *Webhook) URL() *url.URL {
 	return w.url
 }
 
-func (w *Webhook) SetUrl(url *url.URL) {
+func (w *Webhook) SetURL(url *url.URL) {
 	w.url = url
 }
 
@@ -67,12 +62,18 @@ func (w *Webhook) UpdatedAt() time.Time {
 	return w.updatedAt
 }
 
+func (w *Webhook) CreatedAt() time.Time {
+	return w.id.Timestamp()
+}
 func (w *Webhook) SetUpdatedAt(updatedAt time.Time) {
 	w.updatedAt = updatedAt
 }
 
-func (w *Webhook) CreatedAt() time.Time {
-	return w.id.Timestamp()
+func (w *Webhook) Secret() string {
+	return w.secret
+}
+func (w *Webhook) SetSecret(secret string) {
+	w.secret = secret
 }
 
 func (w *Webhook) Clone() *Webhook {
@@ -91,5 +92,19 @@ func (w *Webhook) Clone() *Webhook {
 		active:    w.active,
 		trigger:   w.trigger,
 		updatedAt: w.updatedAt,
+		secret:    w.secret,
 	}
+}
+
+func (t WebhookTrigger) IsActive(et event.Type) bool {
+	v, _ := t[et]
+	return v
+}
+
+func (t WebhookTrigger) Enable(et event.Type) {
+	t[et] = true
+}
+
+func (t WebhookTrigger) Disable(et event.Type) {
+	delete(t, et)
 }

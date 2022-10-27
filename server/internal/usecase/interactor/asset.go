@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/usecasex"
@@ -109,6 +110,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
+			// create event
+			if err := i.createEvent(ctx, "asset.create", a); err != nil {
+				return nil, err
+			}
+
 			return a, nil
 		})
 }
@@ -191,4 +197,8 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 			return aid, i.repos.Asset.Delete(ctx, aid)
 		},
 	)
+}
+
+func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset) error {
+	return createEvent(ctx, i.repos, i.gateways, wid, t, a)
 }

@@ -27,39 +27,22 @@ type WebhookDocument struct {
 	Name      string
 	Url       string
 	Active    bool
-	Trigger   WebhookTriggerDocument
+	Trigger   map[string]bool
 	UpdatedAt time.Time
-}
-
-type WebhookTriggerDocument struct {
-	OnItemCreate    bool
-	OnItemUpdate    bool
-	OnItemDelete    bool
-	OnAssetUpload   bool
-	OnAssetDeleted  bool
-	OnItemPublish   bool
-	OnItemUnpublish bool
+	Secret    string
 }
 
 func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 	iId := i.ID().String()
 	w := lo.Map(i.Webhooks(), func(w *integration.Webhook, _ int) WebhookDocument {
-		t := WebhookTriggerDocument{
-			OnItemCreate:    w.Trigger().OnItemCreate,
-			OnItemUpdate:    w.Trigger().OnItemUpdate,
-			OnItemDelete:    w.Trigger().OnItemDelete,
-			OnAssetUpload:   w.Trigger().OnAssetUpload,
-			OnAssetDeleted:  w.Trigger().OnAssetDeleted,
-			OnItemPublish:   w.Trigger().OnItemPublish,
-			OnItemUnpublish: w.Trigger().OnItemUnPublish,
-		}
 		return WebhookDocument{
 			ID:        w.ID().String(),
 			Name:      w.Name(),
-			Url:       w.Url().String(),
+			Url:       w.URL().String(),
 			Active:    w.Active(),
-			Trigger:   t,
+			Trigger:   w.Trigger(),
 			UpdatedAt: w.UpdatedAt(),
+			Secret:    w.Secret(),
 		}
 	})
 	return &IntegrationDocument{
@@ -100,23 +83,14 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 			return nil
 		}
 
-		t := integration.WebhookTrigger{
-			OnItemCreate:    d.Trigger.OnItemCreate,
-			OnItemUpdate:    d.Trigger.OnItemUpdate,
-			OnItemDelete:    d.Trigger.OnItemDelete,
-			OnAssetUpload:   d.Trigger.OnAssetUpload,
-			OnAssetDeleted:  d.Trigger.OnAssetDeleted,
-			OnItemPublish:   d.Trigger.OnItemPublish,
-			OnItemUnPublish: d.Trigger.OnItemUnpublish,
-		}
-
 		m, err := integration.NewWebhookBuilder().
 			ID(wId).
 			Name(d.Name).
 			Active(d.Active).
 			Url(u).
 			UpdatedAt(d.UpdatedAt).
-			Trigger(t).
+			Trigger(d.Trigger).
+			Secret(d.Secret).
 			Build()
 		if err != nil {
 			return nil

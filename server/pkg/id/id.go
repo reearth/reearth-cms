@@ -5,30 +5,37 @@ import "github.com/reearth/reearthx/idx"
 type Workspace struct{}
 type User struct{}
 type Asset struct{}
+type Event struct{}
 
 func (Workspace) Type() string { return "workspace" }
 func (User) Type() string      { return "user" }
 func (Asset) Type() string     { return "asset" }
+func (Event) Type() string     { return "asset" }
 
 type WorkspaceID = idx.ID[Workspace]
 type UserID = idx.ID[User]
 type AssetID = idx.ID[Asset]
+type EventID = idx.ID[Event]
 
 var NewWorkspaceID = idx.New[Workspace]
 var NewUserID = idx.New[User]
 var NewAssetID = idx.New[Asset]
+var NewEventID = idx.New[Asset]
 
 var MustWorkspaceID = idx.Must[Workspace]
 var MustUserID = idx.Must[User]
 var MustAssetID = idx.Must[Asset]
+var MustEventID = idx.Must[Asset]
 
 var WorkspaceIDFrom = idx.From[Workspace]
 var UserIDFrom = idx.From[User]
 var AssetIDFrom = idx.From[Asset]
+var EventIDFrom = idx.From[Asset]
 
 var WorkspaceIDFromRef = idx.FromRef[Workspace]
 var UserIDFromRef = idx.FromRef[User]
 var AssetIDFromRef = idx.FromRef[Asset]
+var EventIDFromRef = idx.FromRef[Asset]
 
 type WorkspaceIDList = idx.List[Workspace]
 type UserIDList = idx.List[User]

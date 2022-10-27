@@ -96,3 +96,7 @@ func (a *Asset) Thread() ThreadID {
 func (a *Asset) SetFile(f *File) {
 	a.file = f
 }
+
+func (a *Asset) MarshalIntegrationJSON(_ string) ([]byte, error) {
+	panic("implement")
+}
