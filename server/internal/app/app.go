@@ -77,6 +77,10 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		usecaseMiddleware,
 	)
 
+	e.Group("/publicapi")
+	api.GET("/:projectName/:schemaKey", PublicApiItemList())
+	api.GET("/:projectName/:schemaKey/:itemId", PublicApiItem())
+
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())
 	return e
