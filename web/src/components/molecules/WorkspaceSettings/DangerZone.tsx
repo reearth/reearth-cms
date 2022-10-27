@@ -47,13 +47,13 @@ const Title = styled.h1`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  color: #000000d9;
 `;
 
 const Text = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #ff4d4f;
+  color: #000000d9;
   margin: 24px 0;
 `;
