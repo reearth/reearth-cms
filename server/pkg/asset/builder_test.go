@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -258,6 +259,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).MustBuild()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).Thread(id.NewThreadID()).MustBuild()
 	assert.False(t, a.id.IsNil())
 }
