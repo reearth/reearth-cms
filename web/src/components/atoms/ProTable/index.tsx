@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 import { useLang } from "@reearth-cms/i18n";
 
-export type Props = ProTableProps<Record<string, any>, ParamsType, "text">;
+export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
 
 const Table: React.FC<Props> = props => {
   const [antdLang, setAntdLang] = useState<Locale>(enUSIntl);
