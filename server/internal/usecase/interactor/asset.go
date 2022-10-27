@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -78,6 +79,15 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
+			thid := id.NewThreadID()
+			th, err := thread.New().ID(thid).Workspace(prj.Workspace()).Comments([]*thread.Comment{}).Build()
+			if err != nil {
+				return nil, err
+			}
+			if err := i.repos.Thread.Save(ctx, th); err != nil {
+				return nil, err
+			}
+
 			f := asset.NewFile().Name(inp.File.Path).Path(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
 			a, err := asset.New().
@@ -89,6 +99,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
+				Thread(thid).
 				Build()
 			if err != nil {
 				return nil, err
