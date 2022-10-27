@@ -30,7 +30,7 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
       <Title>{t("Remove Workspace")}</Title>
       <Text>
         {t(
-          "Permanently remove your Workspace and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
+          "Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
 
