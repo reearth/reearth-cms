@@ -14,7 +14,6 @@ type Props = {
   createAssets: (files: UploadFile[]) => Promise<void>;
   fileList: UploadFile[];
   onSearchTerm: (term?: string) => void;
-  onAssetsReload: () => void;
   onEdit: (asset: Asset) => void;
   selection: {
     selectedRowKeys: Key[];
@@ -26,10 +25,11 @@ type Props = {
   >;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
-  loading: boolean;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onAssetsReload: () => void;
+  loading: boolean;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -38,16 +38,16 @@ const AssetList: React.FC<Props> = ({
   createAssets,
   fileList,
   onSearchTerm,
-  onAssetsReload,
   onEdit,
   selection,
   setSelection,
   setFileList,
   setUploading,
-  loading,
   setUploadModalVisibility,
   uploading,
   uploadModalVisibility,
+  onAssetsReload,
+  loading,
 }) => {
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -106,10 +106,10 @@ const AssetList: React.FC<Props> = ({
         assetsPerPage={assetsPerPage}
         onEdit={onEdit}
         onSearchTerm={onSearchTerm}
-        onAssetsReload={onAssetsReload}
-        loading={loading}
         selection={selection}
         setSelection={setSelection}
+        onAssetsReload={onAssetsReload}
+        loading={loading}
       />
     </Wrapper>
   );

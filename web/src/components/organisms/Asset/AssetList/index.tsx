@@ -12,7 +12,6 @@ const AssetList: React.FC = () => {
     assetsPerPage,
     createAssets,
     handleSearchTerm,
-    handleAssetsReload,
     fileList,
     navigate,
     selection,
@@ -21,8 +20,9 @@ const AssetList: React.FC = () => {
     setUploading,
     setUploadModalVisibility,
     uploading,
-    loading,
     uploadModalVisibility,
+    handleAssetsReload,
+    loading,
   } = useHooks(projectId);
 
   const handleEdit = (asset: Asset) => {
@@ -36,16 +36,16 @@ const AssetList: React.FC = () => {
       createAssets={createAssets}
       fileList={fileList}
       onSearchTerm={handleSearchTerm}
-      onAssetsReload={handleAssetsReload}
       onEdit={handleEdit}
       selection={selection}
       setSelection={setSelection}
       setFileList={setFileList}
       setUploading={setUploading}
-      loading={loading}
       setUploadModalVisibility={setUploadModalVisibility}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
+      onAssetsReload={handleAssetsReload}
+      loading={loading}
     />
   );
 };

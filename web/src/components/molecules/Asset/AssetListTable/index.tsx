@@ -20,10 +20,8 @@ import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reear
 export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
-  loading: boolean;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
-  onAssetsReload: () => void;
   selection: {
     selectedRowKeys: Key[];
   };
@@ -32,6 +30,8 @@ export type AssetListTableProps = {
       selectedRowKeys: Key[];
     }>
   >;
+  onAssetsReload: () => void;
+  loading: boolean;
 };
 
 const AssetListTable: React.FC<AssetListTableProps> = ({
@@ -39,10 +39,10 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   assetsPerPage,
   onEdit,
   onSearchTerm,
-  onAssetsReload,
-  loading,
   selection,
   setSelection,
+  onAssetsReload,
+  loading,
 }) => {
   const t = useT();
   const columns: ProColumns<Asset>[] = [

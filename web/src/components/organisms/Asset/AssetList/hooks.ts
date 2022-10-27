@@ -193,13 +193,13 @@ export default (projectId?: string) => {
     uploading,
     setUploading,
     isLoading: loading ?? isRefetching,
-    loading,
     selectedAssets,
     handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
-    handleAssetsReload,
     uploadModalVisibility,
     setUploadModalVisibility,
+    handleAssetsReload,
+    loading,
   };
 };
