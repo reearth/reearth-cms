@@ -34,6 +34,7 @@ const Wrapper = styled.div<{ danger?: boolean }>`
 
 const Header = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   align-items: center;
