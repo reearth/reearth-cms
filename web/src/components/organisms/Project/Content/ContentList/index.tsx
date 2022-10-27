@@ -15,18 +15,20 @@ const ContentList: React.FC = () => {
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
+    handleSearchTerm,
     itemsDataLoading,
   } = useHooks();
 
   return (
     <ContentListMolecule
+      model={currentModel}
+      contentTableFields={contentTableFields}
+      contentTableColumns={contentTableColumns}
       itemsDataLoading={itemsDataLoading}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
       onItemAdd={handleNavigateToItemForm}
-      model={currentModel}
-      contentTableFields={contentTableFields}
-      contentTableColumns={contentTableColumns}
+      onSearchTerm={handleSearchTerm}
       modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleModelSelect} />}
     />
   );

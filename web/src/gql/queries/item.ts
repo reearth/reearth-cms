@@ -55,3 +55,19 @@ export const UPDATE_ITEM = gql`
     }
   }
 `;
+
+export const SEARCH_ITEMS = gql`
+  query SearchItems($query: ItemQuery!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+    searchItem(query: $query, first: $first, last: $last, after: $after, before: $before) {
+      nodes {
+        id
+        schemaId
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+      }
+    }
+  }
+`;

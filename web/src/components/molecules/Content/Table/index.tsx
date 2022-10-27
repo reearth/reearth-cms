@@ -7,6 +7,7 @@ export type Props = {
   contentTableColumns?: ProColumns<ContentTableField>[];
   onItemEdit: (itemId: string) => void;
   onItemsReload: () => void;
+  onSearchTerm: (term?: string) => void;
   loading: boolean;
 };
 
@@ -15,11 +16,14 @@ const ContentTable: React.FC<Props> = ({
   contentTableColumns,
   onItemEdit,
   onItemsReload,
+  onSearchTerm,
   loading,
 }) => {
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
-      onSearch: _ => {},
+      onSearch: (value: string) => {
+        onSearchTerm(value);
+      },
     },
   };
 

@@ -19,6 +19,7 @@ export type Props = {
   onItemAdd: () => void;
   onItemsReload: () => void;
   onItemEdit: (itemId: string) => void;
+  onSearchTerm: (term?: string) => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -30,6 +31,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemAdd,
   onItemsReload,
   onItemEdit,
+  onSearchTerm,
 }) => {
   const t = useT();
 
@@ -47,6 +49,7 @@ const ContentListMolecule: React.FC<Props> = ({
         loading={itemsDataLoading}
         onItemsReload={onItemsReload}
         onItemEdit={onItemEdit}
+        onSearchTerm={onSearchTerm}
         contentTableFields={contentTableFields}
         contentTableColumns={contentTableColumns}
       />

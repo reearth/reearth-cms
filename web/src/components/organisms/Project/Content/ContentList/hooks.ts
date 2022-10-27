@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { useSearchItemsQuery } from "@reearth-cms/gql/graphql-client-api";
 
 import useContentHooks from "../hooks";
 
@@ -10,6 +11,7 @@ export default () => {
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
   const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
+  const [searchTerm, setSearchTerm] = useState<string>();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
@@ -61,6 +63,25 @@ export default () => {
     [workspaceId, projectId, modelId, navigate],
   );
 
+  const { refetch } = useSearchItemsQuery({
+    variables: {
+      query: { project: projectId as string, workspace: workspaceId as string, q: searchTerm },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term);
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      refetch({
+        query: { project: projectId as string, workspace: workspaceId as string, q: searchTerm },
+      });
+    }
+  }, [searchTerm, projectId, workspaceId, refetch]);
+
   return {
     currentModel,
     itemsDataLoading,
@@ -70,5 +91,6 @@ export default () => {
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
+    handleSearchTerm,
   };
 };
