@@ -13,7 +13,6 @@ const ContentDetails: React.FC = () => {
     itemUpdatingLoading,
     handleItemCreate,
     handleItemUpdate,
-    handleNavigateBack,
     handleNavigateToModel,
   } = useHooks();
   const t = useT();
@@ -26,7 +25,7 @@ const ContentDetails: React.FC = () => {
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
-      onBack={handleNavigateBack}
+      onBack={handleNavigateToModel}
       modelsMenu={<ModelsMenu title={t("Content")} selectModel={handleNavigateToModel} />}
     />
   );

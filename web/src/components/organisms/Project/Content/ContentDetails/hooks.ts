@@ -15,20 +15,15 @@ import useContentHooks from "../hooks";
 export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();
-  const { projectId, workspaceId, itemId, modelId } = useParams();
+  const { projectId, workspaceId, itemId } = useParams();
   const t = useT();
 
   const handleNavigateToModel = useCallback(
-    (modelId: string) => {
+    (modelId?: string) => {
       navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
-
-  const handleNavigateBack = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
-  }, [navigate, workspaceId, projectId, modelId]);
-
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["GetItems"],
   });
@@ -48,10 +43,12 @@ export default () => {
         Notification.error({ message: t("Failed to create item.") });
         return;
       }
-      navigate(`./${item.data.createItem.item.id}`);
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
+      );
       Notification.success({ message: t("Successfully created Item!") });
     },
-    [createNewItem, navigate, t],
+    [currentModel, projectId, workspaceId, createNewItem, navigate, t],
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
@@ -112,7 +109,6 @@ export default () => {
     itemUpdatingLoading,
     handleItemCreate,
     handleItemUpdate,
-    handleNavigateBack,
     handleNavigateToModel,
   };
 };

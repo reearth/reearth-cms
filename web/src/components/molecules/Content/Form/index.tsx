@@ -22,7 +22,7 @@ export interface Props {
   model?: Model;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onBack: () => void;
+  onBack: (modelId?: string) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -42,6 +42,10 @@ const ContentForm: React.FC<Props> = ({
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
   }, [form, initialFormValues]);
+
+  const handleBack = useCallback(() => {
+    onBack(model?.id);
+  }, [onBack, model]);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -68,7 +72,7 @@ const ContentForm: React.FC<Props> = ({
     <Form form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
         title={model?.name}
-        onBack={onBack}
+        onBack={handleBack}
         extra={
           <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
             {t("Save")}
