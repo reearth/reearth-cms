@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 
 export type Props = {
@@ -11,9 +11,7 @@ export type Props = {
 
 const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, onClick }) => (
   <CardWrapper onClick={onClick} isSelected={integrationSelected}>
-    <Avatar shape="square" style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="large">
-      {integration.name.charAt(0)}
-    </Avatar>
+    <Icon icon="api" size={64} color="#00000040" />
     <CardTitle>{integration.name}</CardTitle>
   </CardWrapper>
 );

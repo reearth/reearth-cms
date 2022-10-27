@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 export type Props = {
@@ -20,9 +20,7 @@ const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
   return (
     <CardWrapper>
       <Card onClick={handleCardNavigation}>
-        <Avatar shape="square" style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="large">
-          {integration.name.charAt(0)}
-        </Avatar>
+        <Icon icon="api" size={40} color="#00000040" />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>
