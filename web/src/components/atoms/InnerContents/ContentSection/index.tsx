@@ -5,16 +5,16 @@ export type Props = {
   className?: string;
   title: string;
   danger?: boolean;
-  extra?: ReactNode;
+  headerActions?: ReactNode;
   children?: ReactNode;
 };
 
-const ContentSection: React.FC<Props> = ({ title, extra, children, danger }) => {
+const ContentSection: React.FC<Props> = ({ title, headerActions, children, danger }) => {
   return (
     <Wrapper danger={danger}>
       <Header>
         <Title>{title}</Title>
-        {extra}
+        {headerActions}
       </Header>
       <GridArea>{children}</GridArea>
     </Wrapper>
@@ -44,7 +44,7 @@ const Header = styled.div`
 const Title = styled.p`
   font-size: 16px;
   font-weight: 500;
-  margin: 0;
+  margin: 0 8px 0 0;
 `;
 
 const GridArea = styled.div`

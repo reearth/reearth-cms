@@ -33,7 +33,7 @@ const ProjectOverview: React.FC<Props> = ({
     <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
       <ContentSection
         title={t("Models")}
-        extra={
+        headerActions={
           <Button type="primary" icon={<Icon icon="plus" />} onClick={onModelModalOpen}>
             {t("New Model")}
           </Button>
