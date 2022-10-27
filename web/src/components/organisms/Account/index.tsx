@@ -1,21 +1,20 @@
+import Loading from "@reearth-cms/components/atoms/Loading";
 import AccountSettingsMolecule from "@reearth-cms/components/molecules/AccountSettings";
 
 import useHooks from "./hooks";
 
 const AccountSettings: React.FC = () => {
-  const { handleUserUpdate, handleLanguageUpdate, handleUserDelete, me } = useHooks();
+  const { me, loading, handleUserUpdate, handleLanguageUpdate, handleUserDelete } = useHooks();
 
-  return (
-    <>
-      {me && (
-        <AccountSettingsMolecule
-          user={me}
-          onUserUpdate={handleUserUpdate}
-          onLanguageUpdate={handleLanguageUpdate}
-          onUserDelete={handleUserDelete}
-        />
-      )}
-    </>
+  return !me || loading ? (
+    <Loading minHeight="400px" />
+  ) : (
+    <AccountSettingsMolecule
+      user={me}
+      onUserUpdate={handleUserUpdate}
+      onLanguageUpdate={handleLanguageUpdate}
+      onUserDelete={handleUserDelete}
+    />
   );
 };
 

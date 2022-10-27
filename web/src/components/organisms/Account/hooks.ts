@@ -11,7 +11,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 export default () => {
-  const { data } = useGetMeQuery();
+  const { data, loading } = useGetMeQuery();
   const t = useT();
   const { logout } = useAuth();
 
@@ -71,6 +71,7 @@ export default () => {
 
   return {
     me,
+    loading,
     handleUserUpdate,
     handleLanguageUpdate,
     handleUserDelete,
