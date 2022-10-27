@@ -30,11 +30,7 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
       <Title>{t("Remove Workspace")}</Title>
       <Text>
         {t(
-          "Because at the current level of development, service A and service B are interdependent, and the workspace and personal accounts will be synchronized.",
-        )}
-        <br />
-        {t(
-          "So when you delete or create a workspace in service A and service B, they will all be synchronized with each other. Make sure you understand what you're doing.",
+          "Permanently remove your Workspace and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
         )}
       </Text>
 
