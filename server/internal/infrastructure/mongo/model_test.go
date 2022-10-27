@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestThread_Filtered(t *testing.T) {
+func TestModel_Filtered(t *testing.T) {
 	r := &Model{}
 	pid := id.NewProjectID()
 

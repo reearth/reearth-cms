@@ -43,7 +43,9 @@ export default ({ projectId }: Params) => {
     [rawProject],
   );
 
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useUpdateProjectMutation({
+    refetchQueries: ["GetProject"],
+  });
   const [deleteProjectMutation] = useDeleteProjectMutation({
     refetchQueries: ["GetProjects"],
   });

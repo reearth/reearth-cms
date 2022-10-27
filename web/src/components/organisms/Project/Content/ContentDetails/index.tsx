@@ -9,7 +9,14 @@ import useHooks from "./hooks";
 
 const ContentDetails: React.FC = () => {
   const { projectId, workspaceId, itemId, modelId } = useParams();
-  const { currentModel, handleItemCreate, handleItemUpdate, initialFormValues } = useHooks({
+  const {
+    currentModel,
+    handleItemCreate,
+    handleItemUpdate,
+    itemCreationLoading,
+    itemUpdatingLoading,
+    initialFormValues,
+  } = useHooks({
     itemId,
   });
   const t = useT();
@@ -29,13 +36,14 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      loading={itemCreationLoading || itemUpdatingLoading}
       onBack={handleNavigateBack}
       itemId={itemId}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
       initialFormValues={initialFormValues}
       model={currentModel}
-      modelsMenu={<ModelsMenu title={t("Content")} selectModel={handleNavigateToModel} />}
+      modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleNavigateToModel} />}
     />
   );
 };

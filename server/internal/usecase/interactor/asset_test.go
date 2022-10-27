@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
@@ -30,13 +31,12 @@ import (
 func TestAsset_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
 
-	f := asset.File{}
 	c := []*asset.File{}
-	f.SetChildren(c...)
+	f := asset.NewFile().Children(c).Build()
 
 	id1 := id.NewAssetID()
 	uid1 := id.NewUserID()
-	a1 := asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(f).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -65,7 +65,7 @@ func TestAsset_FindByID(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: []*asset.Asset{
-				asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild(),
+				asset.New().ID(id1).Project(pid).CreatedBy(uid1).Size(1000).File(f).MustBuild(),
 			},
 			args: args{
 				id:       id.NewAssetID(),
@@ -90,8 +90,8 @@ func TestAsset_FindByID(t *testing.T) {
 			name: "Found 2",
 			seeds: []*asset.Asset{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			args: args{
 				id:       id1,
@@ -133,11 +133,10 @@ func TestAsset_FindByIDs(t *testing.T) {
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	f := asset.File{}
 	c := []*asset.File{}
-	f.SetChildren(c...)
-	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
-	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	f := asset.NewFile().Children(c).Build()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).MustBuild()
+	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -156,7 +155,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with asset for another workspaces",
 			seeds: asset.List{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -175,8 +174,8 @@ func TestAsset_FindByIDs(t *testing.T) {
 			name: "1 count with multi assets",
 			seeds: asset.List{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    asset.List{a1},
@@ -187,8 +186,8 @@ func TestAsset_FindByIDs(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				a2,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    asset.List{a1, a2},
@@ -224,17 +223,16 @@ func TestAsset_FindByIDs(t *testing.T) {
 func TestAsset_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 
-	f := asset.File{}
 	c := []*asset.File{}
-	f.SetChildren(c...)
+	f := asset.NewFile().Children(c).Build()
 
 	aid1 := id.NewAssetID()
 	uid1 := id.NewUserID()
-	a1 := asset.New().ID(aid1).Project(pid).CreatedBy(uid1).Size(1000).File(&f).MustBuild()
+	a1 := asset.New().ID(aid1).Project(pid).CreatedBy(uid1).Size(1000).File(f).MustBuild()
 
 	aid2 := id.NewAssetID()
 	uid2 := id.NewUserID()
-	a2 := asset.New().ID(aid2).Project(pid).CreatedBy(uid2).Size(1000).File(&f).MustBuild()
+	a2 := asset.New().ID(aid2).Project(pid).CreatedBy(uid2).Size(1000).File(f).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -263,7 +261,7 @@ func TestAsset_FindByProject(t *testing.T) {
 		{
 			name: "0 count with asset for another projects",
 			seeds: asset.List{
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			args: args{
 				pid:      id.NewProjectID(),
@@ -291,8 +289,8 @@ func TestAsset_FindByProject(t *testing.T) {
 			name: "1 count with multi assets",
 			seeds: asset.List{
 				a1,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -309,8 +307,8 @@ func TestAsset_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				a2,
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
-				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(&f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).File(f).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -364,12 +362,9 @@ func TestAsset_Create(t *testing.T) {
 
 	buf := bytes.NewBufferString("Hello")
 	buflen := int64(buf.Len())
-	var pti asset.PreviewType = asset.PreviewTypeIMAGE
-	var ptg asset.PreviewType = asset.PreviewTypeGEO
-	af := &asset.File{}
-	af.SetName("aaa.txt")
-	af.SetSize(uint64(buflen))
-	af.SetPath("aaa.txt")
+	var pti asset.PreviewType = asset.PreviewTypeImage
+	var ptg asset.PreviewType = asset.PreviewTypeUnknown
+	af := asset.NewFile().Name("aaa.txt").Size(uint64(buflen)).Path("aaa.txt").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -451,6 +446,7 @@ func TestAsset_Create(t *testing.T) {
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
 			f, _ := fs.NewFile(mfs, "", "")
+			runnerGw := NewMockRunner()
 
 			err := db.User.Save(ctx, u)
 			assert.NoError(t, err)
@@ -463,7 +459,8 @@ func TestAsset_Create(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			assetUC := NewAsset(db, &gateway.Container{
-				File: f,
+				File:       f,
+				TaskRunner: runnerGw,
 			})
 
 			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
@@ -498,8 +495,8 @@ func TestAsset_Create(t *testing.T) {
 
 func TestAsset_Update(t *testing.T) {
 	uid := id.NewUserID()
-	var pti asset.PreviewType = asset.PreviewTypeIMAGE
-	var ptg asset.PreviewType = asset.PreviewTypeGEO
+	var pti asset.PreviewType = asset.PreviewTypeImage
+	var ptg asset.PreviewType = asset.PreviewTypeGeo
 
 	pid1 := id.NewProjectID()
 	aid1 := id.NewAssetID()
@@ -566,6 +563,87 @@ func TestAsset_Update(t *testing.T) {
 			assetUC := NewAsset(db, &gateway.Container{})
 
 			got, err := assetUC.Update(ctx, tc.args.upp, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAsset_UpdateFiles(t *testing.T) {
+	uid := id.NewUserID()
+	assetID1 := asset.NewID()
+	assetID2 := asset.NewID()
+	projectID := id.NewProjectID()
+
+	c1 := asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build()
+	c2 := asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build()
+	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
+
+	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).MustBuild()
+
+	a2 := asset.New().ID(assetID2).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").MustBuild()
+
+	op := &usecase.Operator{}
+
+	tests := []struct {
+		name            string
+		seedAssets      []*asset.Asset
+		prepareFileFunc func() afero.Fs
+		assetID         id.AssetID
+		want            *asset.Asset
+		wantErr         error
+	}{
+		{
+			name: "update asset not found",
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:       "update file not found",
+			seedAssets: []*asset.Asset{a1, a2},
+			prepareFileFunc: func() afero.Fs {
+				return afero.NewMemMapFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: gateway.ErrFileNotFound,
+		},
+		{
+			name:       "update",
+			seedAssets: []*asset.Asset{a1, a2},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).MustBuild(),
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", ""))
+
+			for _, p := range tc.seedAssets {
+				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := NewAsset(db, &gateway.Container{File: fileGw})
+
+			got, err := assetUC.UpdateFiles(ctx, tc.assetID, op)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -676,4 +754,33 @@ func TestAsset_GetURL(t *testing.T) {
 		},
 	}
 	assert.Equal(t, "xxx", uc.GetURL(nil))
+}
+
+func mockFs() afero.Fs {
+	files := map[string]string{
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.zip":           "xxx",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/zzz.txt":       "zzz",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/yyy/hello.txt": "hello",
+		"plugins/aaa~1.0.0/foo.js":                                       "bar",
+		"published/s.json":                                               "{}",
+	}
+
+	fs := afero.NewMemMapFs()
+	for name, content := range files {
+		f, _ := fs.Create(name)
+		_, _ = f.WriteString(content)
+		_ = f.Close()
+	}
+	return fs
+}
+
+// mockRunner implements gateway.TaskRunner
+type mockRunner struct{}
+
+func NewMockRunner() gateway.TaskRunner {
+	return &mockRunner{}
+}
+
+func (r *mockRunner) Run(context.Context, task.Payload) error {
+	return nil
 }

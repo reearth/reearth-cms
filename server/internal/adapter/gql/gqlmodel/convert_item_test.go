@@ -128,3 +128,46 @@ func TestToVersionedItem(t *testing.T) {
 		})
 	}
 }
+
+func TestToItemQuery(t *testing.T) {
+	wid := id.NewWorkspaceID()
+	pid := id.NewProjectID()
+	str := "foo"
+	tests := []struct {
+		name  string
+		input ItemQuery
+		want  *item.Query
+	}{
+		{
+			name: "should pass",
+			input: ItemQuery{
+				Workspace: IDFrom(wid),
+				Project:   IDFrom(pid),
+				Q:         &str,
+			},
+			want: item.NewQuery(wid, pid, str),
+		},
+		{
+			name: "invalid workspace id",
+			input: ItemQuery{
+				Project: IDFrom(pid),
+				Q:       &str,
+			},
+		},
+		{
+			name: "invalid project id",
+			input: ItemQuery{
+				Workspace: IDFrom(wid),
+				Q:         &str,
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			got := ToItemQuery(tc.input)
+			assert.Equal(tt, tc.want, got)
+
+		})
+	}
+}
