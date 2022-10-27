@@ -22,7 +22,7 @@ const AccountSettings: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title="Workspace settings">
+    <InnerContent title="Workspace Settings">
       <ContentSection title={t("General")}>
         <AccountGeneralForm user={user} onUserUpdate={onUserUpdate} />
       </ContentSection>

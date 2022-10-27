@@ -1,6 +1,7 @@
 Download: ''
 Loading: ローディング中
 Are you sure you want to delete your account?: ''
+Danger Zone: 重要操作項目
 Delete Personal Account: ''
 Permanently remove your Personal Account and all of its contents from the Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
 Account Name: ''
@@ -10,7 +11,6 @@ Please enter the email address you want to use to log in with Re:Earth CMS.: ''
 Save: 保存
 General: ''
 Service: ''
-Danger Zone: 重要操作項目
 Auto: ''
 Service Language: ''
 This will change the UI language: ''
