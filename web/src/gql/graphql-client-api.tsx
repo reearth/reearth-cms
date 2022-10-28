@@ -22,6 +22,11 @@ export type Scalars = {
   Upload: any;
 };
 
+export type AddCommentInput = {
+  content: Scalars['String'];
+  threadId: Scalars['ID'];
+};
+
 export type AddIntegrationToWorkspaceInput = {
   integrationId: Scalars['ID'];
   role: Role;
@@ -95,6 +100,12 @@ export type Comment = {
   id: Scalars['ID'];
 };
 
+export type CommentPayload = {
+  __typename?: 'CommentPayload';
+  comment: Comment;
+  thread: Thread;
+};
+
 export type CreateAssetInput = {
   createdById: Scalars['ID'];
   file: Scalars['Upload'];
@@ -104,16 +115,6 @@ export type CreateAssetInput = {
 export type CreateAssetPayload = {
   __typename?: 'CreateAssetPayload';
   asset: Asset;
-};
-
-export type CreateCommentInput = {
-  content: Scalars['String'];
-  threadId: Scalars['ID'];
-};
-
-export type CreateCommentPayload = {
-  __typename?: 'CreateCommentPayload';
-  comment: Comment;
 };
 
 export type CreateFieldInput = {
@@ -154,6 +155,10 @@ export type CreateProjectInput = {
   workspaceId: Scalars['ID'];
 };
 
+export type CreateThreadInput = {
+  workspaceId: Scalars['ID'];
+};
+
 export type CreateWebhookInput = {
   active: Scalars['Boolean'];
   integrationId: Scalars['ID'];
@@ -188,6 +193,7 @@ export type DeleteCommentInput = {
 export type DeleteCommentPayload = {
   __typename?: 'DeleteCommentPayload';
   commentId: Scalars['ID'];
+  thread: Thread;
 };
 
 export type DeleteFieldInput = {
@@ -342,6 +348,12 @@ export type ItemPayload = {
   item: Item;
 };
 
+export type ItemQuery = {
+  project: Scalars['ID'];
+  q?: InputMaybe<Scalars['String']>;
+  workspace: Scalars['ID'];
+};
+
 export type KeyAvailability = {
   __typename?: 'KeyAvailability';
   available: Scalars['Boolean'];
@@ -398,15 +410,16 @@ export type ModelPayload = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addComment?: Maybe<CommentPayload>;
   addIntegrationToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
   addUserToWorkspace?: Maybe<AddMemberToWorkspacePayload>;
   createAsset?: Maybe<CreateAssetPayload>;
-  createComment?: Maybe<CreateCommentPayload>;
   createField?: Maybe<FieldPayload>;
   createIntegration?: Maybe<IntegrationPayload>;
   createItem?: Maybe<ItemPayload>;
   createModel?: Maybe<ModelPayload>;
   createProject?: Maybe<ProjectPayload>;
+  createThread?: Maybe<ThreadPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
@@ -424,7 +437,7 @@ export type Mutation = {
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
-  updateComment?: Maybe<UpdateCommentPayload>;
+  updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
   updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
@@ -435,6 +448,11 @@ export type Mutation = {
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
+};
+
+
+export type MutationAddCommentArgs = {
+  input: AddCommentInput;
 };
 
 
@@ -450,11 +468,6 @@ export type MutationAddUserToWorkspaceArgs = {
 
 export type MutationCreateAssetArgs = {
   input: CreateAssetInput;
-};
-
-
-export type MutationCreateCommentArgs = {
-  input: CreateCommentInput;
 };
 
 
@@ -480,6 +493,11 @@ export type MutationCreateModelArgs = {
 
 export type MutationCreateProjectArgs = {
   input: CreateProjectInput;
+};
+
+
+export type MutationCreateThreadArgs = {
+  input: CreateThreadInput;
 };
 
 
@@ -656,7 +674,8 @@ export enum PreviewType {
   Geo = 'GEO',
   Geo3D = 'GEO3D',
   Image = 'IMAGE',
-  Model3D = 'MODEL3D'
+  Model3D = 'MODEL3D',
+  Unknown = 'UNKNOWN'
 }
 
 export type Project = Node & {
@@ -732,6 +751,7 @@ export type Query = {
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
+  searchItem: ItemConnection;
   searchUser?: Maybe<User>;
   versionsByItem: Array<VersionedItem>;
 };
@@ -797,6 +817,15 @@ export type QueryProjectsArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   workspaceId: Scalars['ID'];
+};
+
+
+export type QuerySearchItemArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  query: ItemQuery;
 };
 
 
@@ -1029,6 +1058,11 @@ export type Thread = {
   workspaceId: Scalars['ID'];
 };
 
+export type ThreadPayload = {
+  __typename?: 'ThreadPayload';
+  thread: Thread;
+};
+
 export type UpdateAssetInput = {
   id: Scalars['ID'];
   previewType?: InputMaybe<PreviewType>;
@@ -1043,11 +1077,6 @@ export type UpdateCommentInput = {
   commentId: Scalars['ID'];
   content: Scalars['String'];
   threadId: Scalars['ID'];
-};
-
-export type UpdateCommentPayload = {
-  __typename?: 'UpdateCommentPayload';
-  comment: Comment;
 };
 
 export type UpdateFieldInput = {
@@ -1462,7 +1491,7 @@ export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __type
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null }> } | null };
+export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDeleted?: boolean | null } }> } | null }> } | null };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2885,6 +2914,7 @@ export const GetMeDocument = gql`
     id
     name
     email
+    lang
     myWorkspace {
       id
       name
