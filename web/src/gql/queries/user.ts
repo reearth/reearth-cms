@@ -18,6 +18,7 @@ export const GET_ME = gql`
       id
       name
       email
+      lang
       myWorkspace {
         id
         name

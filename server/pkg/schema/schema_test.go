@@ -231,7 +231,7 @@ func TestSchema_Fields(t *testing.T) {
 	tests := []struct {
 		name string
 		s    *Schema
-		want []*Field
+		want FieldList
 	}{
 		{
 			name: "add on empty array",

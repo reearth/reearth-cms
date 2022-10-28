@@ -37,11 +37,13 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
 	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
-		if _, err := i.repos.Schema.FindByID(ctx, schemaID); err != nil {
+		s, err := i.repos.Schema.FindByID(ctx, schemaID)
+		if err != nil {
 			return nil, nil, err
 		}
-
-		return i.repos.Item.FindBySchema(ctx, schemaID, p)
+		sfids := s.Fields().IDs()
+		res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
+		return res.FilterFields(sfids), page, err
 	})
 }
 
@@ -129,4 +131,11 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) []*item.Field {
 			f.Value,
 		)
 	})
+}
+
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func() (item.List, *usecasex.PageInfo, error) {
+			return i.repos.Item.Search(ctx, q, p)
+		})
 }

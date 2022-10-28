@@ -12,9 +12,9 @@ export default () => {
   const navigate = useNavigate();
 
   const {
-    handleModelModalClose,
-    handleModelModalOpen,
     modelModalShown,
+    handleModalClose: handleModelModalClose,
+    handleModalOpen: handleModelModalOpen,
     handleModelCreate,
     handleModelKeyCheck,
     isKeyAvailable,

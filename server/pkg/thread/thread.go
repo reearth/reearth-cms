@@ -67,14 +67,9 @@ func (th *Thread) DeleteComment(cid id.CommentID) error {
 	return nil
 }
 
-func (th *Thread) Comment(cid id.CommentID) (*Comment, error) {
-	if !th.HasComment(cid) {
-		return nil, ErrCommentDoesNotExist
-	}
-
-	i := slices.IndexFunc(th.comments, func(c *Comment) bool { return c.ID() == cid })
-	c := th.comments[i]
-	return c, nil
+func (th *Thread) Comment(cid id.CommentID) *Comment {
+	c, _ := lo.Find(th.comments, func(c *Comment) bool { return c.ID() == cid })
+	return c
 }
 
 func (th *Thread) SetComments(comments ...*Comment) {

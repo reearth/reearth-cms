@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
@@ -39,12 +38,10 @@ func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	pt := (*asset.PreviewType)(input.PreviewType)
-
 	uc := usecases(ctx).Asset
 	res, err2 := uc.Update(ctx, interfaces.UpdateAssetParam{
 		AssetID:     aid,
-		PreviewType: pt,
+		PreviewType: gqlmodel.FromPreviewType(input.PreviewType),
 	}, getOperator(ctx))
 	if err2 != nil {
 		return nil, err2
