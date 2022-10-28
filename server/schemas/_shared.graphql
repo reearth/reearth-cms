@@ -2,6 +2,11 @@
 
 union Operator = User | Integration
 
+enum OperatorType {
+  User
+  Integration
+}
+
 scalar Upload
 scalar Any
 

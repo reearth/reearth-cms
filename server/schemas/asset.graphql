@@ -4,6 +4,7 @@ type Asset implements Node {
   projectId: ID!
   createdAt: DateTime!
   createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!

@@ -52,6 +52,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 			// get integration token if presented
 			token := req.Header.Get("authorization")
+			token = strings.TrimPrefix(token, "Bearer ")
 			if !strings.HasPrefix(token, "secret_") {
 				return errors.New("invalid integration token")
 			}

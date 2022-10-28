@@ -7,32 +7,30 @@ require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/avast/retry-go/v4 v4.1.0
 	github.com/chrispappas/golang-generics-set v1.0.1
-	github.com/deepmap/oapi-codegen v1.11.1-0.20221017124627-b341d4d95578
-	github.com/getkin/kin-openapi v0.104.0
+	github.com/deepmap/oapi-codegen v1.11.1-0.20221025065958-57a4b26d477f
+	github.com/getkin/kin-openapi v0.106.0
 	github.com/google/uuid v1.3.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.9.0
-	github.com/labstack/gommon v0.3.1
+	github.com/labstack/echo/v4 v4.9.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
 	github.com/reearth/reearthx v0.0.0-20221020083658-2790d5ca27cc
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
 	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/vektah/dataloaden v0.3.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.mongodb.org/mongo-driver v1.10.2
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.36.1
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.36.1
-	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
+	golang.org/x/crypto v0.1.0
 	golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.4.0
 )
 
 require (
@@ -64,6 +62,7 @@ require (
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
@@ -95,13 +94,13 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/mod v0.6.0 // indirect
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/tools v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.97.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

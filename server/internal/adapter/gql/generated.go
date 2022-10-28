@@ -65,20 +65,21 @@ type ComplexityRoot struct {
 	}
 
 	Asset struct {
-		CreatedAt   func(childComplexity int) int
-		CreatedBy   func(childComplexity int) int
-		CreatedByID func(childComplexity int) int
-		File        func(childComplexity int) int
-		FileName    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		PreviewType func(childComplexity int) int
-		Project     func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		Size        func(childComplexity int) int
-		Thread      func(childComplexity int) int
-		ThreadID    func(childComplexity int) int
-		URL         func(childComplexity int) int
-		UUID        func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		CreatedBy     func(childComplexity int) int
+		CreatedByID   func(childComplexity int) int
+		CreatedByType func(childComplexity int) int
+		File          func(childComplexity int) int
+		FileName      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PreviewType   func(childComplexity int) int
+		Project       func(childComplexity int) int
+		ProjectID     func(childComplexity int) int
+		Size          func(childComplexity int) int
+		Thread        func(childComplexity int) int
+		ThreadID      func(childComplexity int) int
+		URL           func(childComplexity int) int
+		UUID          func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -680,6 +681,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.CreatedByID(childComplexity), true
+
+	case "Asset.createdByType":
+		if e.complexity.Asset.CreatedByType == nil {
+			break
+		}
+
+		return e.complexity.Asset.CreatedByType(childComplexity), true
 
 	case "Asset.file":
 		if e.complexity.Asset.File == nil {
@@ -2853,6 +2861,11 @@ var sources = []*ast.Source{
 
 union Operator = User | Integration
 
+enum OperatorType {
+  User
+  Integration
+}
+
 scalar Upload
 scalar Any
 
@@ -2936,6 +2949,7 @@ schema {
   projectId: ID!
   createdAt: DateTime!
   createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!
@@ -5096,6 +5110,50 @@ func (ec *executionContext) fieldContext_Asset_createdBy(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_createdByType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_createdByType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedByType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.OperatorType)
+	fc.Result = res
+	return ec.marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_createdByType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type OperatorType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Asset_createdById(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Asset_createdById(ctx, field)
 	if err != nil {
@@ -5607,6 +5665,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -5820,6 +5880,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -6345,6 +6407,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -13385,6 +13449,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -16064,6 +16130,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -22552,6 +22620,13 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "createdByType":
+
+			out.Values[i] = ec._Asset_createdByType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "createdById":
 
 			out.Values[i] = ec._Asset_createdById(ctx, field, obj)
@@ -27318,6 +27393,16 @@ func (ec *executionContext) marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑ
 		return graphql.Null
 	}
 	return ec._Operator(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, v interface{}) (gqlmodel.OperatorType, error) {
+	var res gqlmodel.OperatorType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.OperatorType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PageInfo) graphql.Marshaler {

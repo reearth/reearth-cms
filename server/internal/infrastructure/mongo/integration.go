@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	integrationIndexes       = []string{"developer"}
 	integrationUniqueIndexes = []string{"id", "token"}
 )
 
@@ -26,7 +27,7 @@ func NewIntegration(client *mongox.Client) repo.Integration {
 }
 
 func (r *Integration) Init() error {
-	return createIndexes(context.Background(), r.client, nil, integrationUniqueIndexes)
+	return createIndexes(context.Background(), r.client, integrationIndexes, integrationUniqueIndexes)
 }
 
 func (r *Integration) FindByID(ctx context.Context, integrationID id.IntegrationID) (*integration.Integration, error) {

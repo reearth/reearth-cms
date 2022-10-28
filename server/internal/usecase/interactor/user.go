@@ -89,11 +89,10 @@ func (i *User) GetUserBySubject(ctx context.Context, sub string) (u *user.User, 
 }
 
 func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operator *usecase.Operator) (u *user.User, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
-		if operator.User == nil {
-			return nil, interfaces.ErrInvalidOperator
-		}
-
 		if p.Password != nil {
 			if p.PasswordConfirmation == nil || *p.Password != *p.PasswordConfirmation {
 				return nil, interfaces.ErrUserInvalidPasswordConfirmation
@@ -175,11 +174,10 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 }
 
 func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *usecase.Operator) (u *user.User, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
-		if operator.User == nil {
-			return nil, interfaces.ErrInvalidOperator
-		}
-
 		u, err = i.repos.User.FindByID(ctx, *operator.User)
 		if err != nil {
 			return nil, err
@@ -207,11 +205,10 @@ func (i *User) SearchUser(ctx context.Context, nameOrEmail string, operator *use
 }
 
 func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase.Operator) (err error) {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		if operator.User == nil {
-			return interfaces.ErrInvalidOperator
-		}
-
 		if userID.IsNil() || userID != *operator.User {
 			return errors.New("invalid user id")
 		}

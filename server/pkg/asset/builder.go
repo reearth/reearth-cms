@@ -19,7 +19,7 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.project.IsNil() {
 		return nil, ErrNoProjectID
 	}
-	if b.a.user.IsNil() {
+	if b.a.user.IsNil() && b.a.integration.IsNil() {
 		return nil, ErrNoUser
 	}
 	if b.a.size == 0 {

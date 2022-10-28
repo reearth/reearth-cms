@@ -48,20 +48,21 @@ type AddUserToWorkspaceInput struct {
 }
 
 type Asset struct {
-	ID          ID           `json:"id"`
-	Project     *Project     `json:"project"`
-	ProjectID   ID           `json:"projectId"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	CreatedBy   Operator     `json:"createdBy"`
-	CreatedByID ID           `json:"createdById"`
-	FileName    string       `json:"fileName"`
-	Size        int64        `json:"size"`
-	PreviewType *PreviewType `json:"previewType"`
-	File        *AssetFile   `json:"file"`
-	UUID        string       `json:"uuid"`
-	Thread      *Thread      `json:"thread"`
-	ThreadID    ID           `json:"threadId"`
-	URL         string       `json:"url"`
+	ID            ID           `json:"id"`
+	Project       *Project     `json:"project"`
+	ProjectID     ID           `json:"projectId"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	CreatedBy     Operator     `json:"createdBy"`
+	CreatedByType OperatorType `json:"createdByType"`
+	CreatedByID   ID           `json:"createdById"`
+	FileName      string       `json:"fileName"`
+	Size          int64        `json:"size"`
+	PreviewType   *PreviewType `json:"previewType"`
+	File          *AssetFile   `json:"file"`
+	UUID          string       `json:"uuid"`
+	Thread        *Thread      `json:"thread"`
+	ThreadID      ID           `json:"threadId"`
+	URL           string       `json:"url"`
 }
 
 func (Asset) IsNode()        {}
@@ -962,6 +963,47 @@ func (e *NodeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e NodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OperatorType string
+
+const (
+	OperatorTypeUser        OperatorType = "User"
+	OperatorTypeIntegration OperatorType = "Integration"
+)
+
+var AllOperatorType = []OperatorType{
+	OperatorTypeUser,
+	OperatorTypeIntegration,
+}
+
+func (e OperatorType) IsValid() bool {
+	switch e {
+	case OperatorTypeUser, OperatorTypeIntegration:
+		return true
+	}
+	return false
+}
+
+func (e OperatorType) String() string {
+	return string(e)
+}
+
+func (e *OperatorType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OperatorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OperatorType", str)
+	}
+	return nil
+}
+
+func (e OperatorType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

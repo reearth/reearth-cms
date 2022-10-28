@@ -58,6 +58,10 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
@@ -71,9 +75,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 		ctx, operator, i.repos,
 		Usecase().WithWritableWorkspaces(prj.Workspace()).Transaction(),
 		func() (*asset.Asset, error) {
-			if operator.User == nil && operator.Integration == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
 			uuid, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {
 				return nil, err
@@ -98,7 +99,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				ab.CreatedByUser(*operator.User)
 			}
 			if operator.Integration != nil {
-				panic("not imp")
+				ab.CreatedByIntegration(*operator.Integration)
 			}
 
 			a, err := ab.Build()

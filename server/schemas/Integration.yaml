@@ -108,7 +108,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    x-go-type: id.FieldID
+                    x-go-type: id.ItemID
                     type: string
                     format: uuid
         '400':

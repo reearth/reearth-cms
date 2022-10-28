@@ -25,11 +25,11 @@ func NewIntegration(r *repo.Container) interfaces.Integration {
 }
 
 func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
 			in, err := i.repos.Integration.FindByUser(ctx, *operator.User)
 			if err != nil {
 				return nil, err
@@ -39,11 +39,11 @@ func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (
 }
 
 func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) (integration.List, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
 			in, err := i.repos.Integration.FindByIDs(ctx, ids)
 			if err != nil {
 				return nil, err
@@ -56,11 +56,11 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 }
 
 func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
 			in, err := integration.New().
 				NewID().
 				Type(param.Type).
@@ -83,12 +83,11 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 }
 
 func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param interfaces.UpdateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
-
 			in, err := i.repos.Integration.FindByID(ctx, iId)
 			if err != nil {
 				return nil, err
@@ -120,11 +119,11 @@ func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param int
 }
 
 func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID, operator *usecase.Operator) error {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
-			if operator.User == nil {
-				return interfaces.ErrInvalidOperator
-			}
 			in, err := i.repos.Integration.FindByID(ctx, integrationId)
 			if err != nil {
 				return err
@@ -137,12 +136,11 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 }
 
 func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, param interfaces.CreateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Webhook, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
-
 			in, err := i.repos.Integration.FindByID(ctx, iId)
 			if err != nil {
 				return nil, err
@@ -185,12 +183,11 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 }
 
 func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, param interfaces.UpdateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Webhook, error) {
-			if operator.User == nil {
-				return nil, interfaces.ErrInvalidOperator
-			}
-
 			in, err := i.repos.Integration.FindByID(ctx, iId)
 			if err != nil {
 				return nil, err
@@ -244,12 +241,11 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 }
 
 func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, operator *usecase.Operator) error {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
-			if operator.User == nil {
-				return interfaces.ErrInvalidOperator
-			}
-
 			in, err := i.repos.Integration.FindByID(ctx, iId)
 			if err != nil {
 				return err
