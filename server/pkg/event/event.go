@@ -9,9 +9,9 @@ type Type string
 type Event[T any] struct {
 	id        ID
 	timestamp time.Time
-	// operator
-	ty     Type
-	object T
+	operator  Operator
+	ty        Type
+	object    T
 }
 
 func (e *Event[T]) ID() ID {
@@ -26,9 +26,9 @@ func (e *Event[T]) Timestamp() time.Time {
 	return e.timestamp
 }
 
-// func (e *Event[T]) Operator() Operator {
-// 	return e.operator
-// }
+func (e *Event[T]) Operator() Operator {
+	return e.operator
+}
 
 func (e *Event[T]) Object() any {
 	return e.object

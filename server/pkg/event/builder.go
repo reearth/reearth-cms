@@ -1,6 +1,10 @@
 package event
 
-import "github.com/samber/lo"
+import (
+	"time"
+
+	"github.com/samber/lo"
+)
 
 type Builder[T any] struct {
 	i *Event[T]
@@ -11,7 +15,7 @@ func New[T any]() *Builder[T] {
 }
 
 func (b *Builder[T]) Build() (*Event[T], error) {
-	if b.i.id.IsNil() {
+	if b.i.id.IsNil() || b.i.operator.validate() {
 		return nil, ErrInvalidID
 	}
 	return b.i, nil
@@ -21,4 +25,27 @@ func (b *Builder[T]) MustBuild() *Event[T] {
 	return lo.Must(b.Build())
 }
 
-//TODO: add method later
+func (b *Builder[T]) ID(id ID) *Builder[T] {
+	b.i.id = id
+	return b
+}
+
+func (b *Builder[T]) Timestamp(t time.Time) *Builder[T] {
+	b.i.timestamp = t
+	return b
+}
+
+func (b *Builder[T]) Type(t Type) *Builder[T] {
+	b.i.ty = t
+	return b
+}
+
+func (b *Builder[T]) Operator(o Operator) *Builder[T] {
+	b.i.operator = o
+	return b
+}
+
+func (b *Builder[T]) Object(o T) *Builder[T] {
+	b.i.object = o
+	return b
+}
