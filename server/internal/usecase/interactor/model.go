@@ -103,7 +103,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Key(key.Random())
 			}
 
-			m, err := mb.Build()
+			m, err = mb.Build()
 			if err != nil {
 				return nil, err
 			}
