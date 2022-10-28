@@ -111,7 +111,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			if err := i.createEvent(ctx, "asset.create", a); err != nil {
+			if err := i.createEvent(ctx, prj.Workspace(), "asset.create", a); err != nil {
 				return nil, err
 			}
 

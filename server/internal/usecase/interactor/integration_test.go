@@ -87,7 +87,7 @@ func assertWebhookEq(t *testing.T, expected, got *integration.Webhook) {
 	}
 	assert.Equal(t, expected.Name(), got.Name())
 	assert.Equal(t, expected.Active(), got.Active())
-	assert.Equal(t, expected.Url(), got.Url())
+	assert.Equal(t, expected.URL(), got.URL())
 	assert.Equal(t, expected.Trigger(), got.Trigger())
 	// assert.Equal(t, expected.ID(), got.ID())
 	// assert.Equal(t, expected.UpdatedAt(), got.UpdatedAt())

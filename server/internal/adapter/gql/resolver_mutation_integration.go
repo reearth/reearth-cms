@@ -83,13 +83,14 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
-			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
-			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
-			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
-			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
-			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
-			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			"item.create":    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			"item.update":    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			"item.delete":    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			"item.publish":   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			"item.unpublish": lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			"asset.create":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
+			"asset.update":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
+			"asset.delete":   lo.FromPtrOr(input.Trigger.OnItemDelete, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {
@@ -112,13 +113,14 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			OnItemCreate:    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
-			OnItemUpdate:    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
-			OnItemDelete:    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
-			OnAssetUpload:   lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
-			OnAssetDeleted:  lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
-			OnItemPublish:   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
-			OnItemUnpublish: lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			"item.create":    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			"item.update":    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			"item.delete":    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			"item.publish":   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			"item.unpublish": lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			"asset.create":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
+			"asset.update":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
+			"asset.delete":   lo.FromPtrOr(input.Trigger.OnItemDelete, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {

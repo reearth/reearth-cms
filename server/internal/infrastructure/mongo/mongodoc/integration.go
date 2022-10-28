@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/mongox"
@@ -35,12 +36,15 @@ type WebhookDocument struct {
 func NewIntegration(i *integration.Integration) (*IntegrationDocument, string) {
 	iId := i.ID().String()
 	w := lo.Map(i.Webhooks(), func(w *integration.Webhook, _ int) WebhookDocument {
+		trigger := lo.MapKeys(w.Trigger(), func(_ bool, t event.Type) string {
+			return string(t)
+		})
 		return WebhookDocument{
 			ID:        w.ID().String(),
 			Name:      w.Name(),
 			Url:       w.URL().String(),
 			Active:    w.Active(),
-			Trigger:   w.Trigger(),
+			Trigger:   trigger,
 			UpdatedAt: w.UpdatedAt(),
 			Secret:    w.Secret(),
 		}
@@ -83,13 +87,16 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 			return nil
 		}
 
+		trigger := lo.MapKeys(d.Trigger, func(_ bool, t string) event.Type {
+			return event.Type(t)
+		})
 		m, err := integration.NewWebhookBuilder().
 			ID(wId).
 			Name(d.Name).
 			Active(d.Active).
 			Url(u).
 			UpdatedAt(d.UpdatedAt).
-			Trigger(d.Trigger).
+			Trigger(trigger).
 			Secret(d.Secret).
 			Build()
 		if err != nil {

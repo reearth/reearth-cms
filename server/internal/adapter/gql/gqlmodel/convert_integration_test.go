@@ -150,13 +150,14 @@ func TestToWebhook(t *testing.T) {
 			args: integration.NewWebhookBuilder().ID(wId).Name("WH1").Active(true).UpdatedAt(now).
 				Url(lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))).
 				Trigger(integration.WebhookTrigger{
-					OnItemCreate:    true,
-					OnItemUpdate:    true,
-					OnItemDelete:    true,
-					OnAssetUpload:   true,
-					OnAssetDeleted:  true,
-					OnItemPublish:   true,
-					OnItemUnPublish: true,
+					"item.create":    true,
+					"item.update":    true,
+					"item.delete":    true,
+					"item.publish":   true,
+					"item.unpublish": true,
+					"asset.create":   true,
+					"asset.update":   true,
+					"asset.delete":   true,
 				}).
 				MustBuild(),
 			want: &Webhook{
@@ -215,13 +216,14 @@ func TestToWebhooks(t *testing.T) {
 				integration.NewWebhookBuilder().ID(wId).Name("WH1").Active(true).UpdatedAt(now).
 					Url(lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test"))).
 					Trigger(integration.WebhookTrigger{
-						OnItemCreate:    true,
-						OnItemUpdate:    true,
-						OnItemDelete:    true,
-						OnAssetUpload:   true,
-						OnAssetDeleted:  true,
-						OnItemPublish:   true,
-						OnItemUnPublish: true,
+						"item.create":    true,
+						"item.update":    true,
+						"item.delete":    true,
+						"item.publish":   true,
+						"item.unpublish": true,
+						"asset.create":   true,
+						"asset.update":   true,
+						"asset.delete":   true,
 					}).
 					MustBuild(),
 			},
