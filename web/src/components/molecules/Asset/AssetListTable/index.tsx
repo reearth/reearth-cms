@@ -30,6 +30,8 @@ export type AssetListTableProps = {
       selectedRowKeys: Key[];
     }>
   >;
+  onAssetsReload: () => void;
+  loading: boolean;
 };
 
 const AssetListTable: React.FC<AssetListTableProps> = ({
@@ -39,6 +41,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   onSearchTerm,
   selection,
   setSelection,
+  onAssetsReload,
+  loading,
 }) => {
   const t = useT();
   const columns: ProColumns<Asset>[] = [
@@ -104,7 +108,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 
   const options: OptionConfig = {
     search: true,
-    reload: false,
+    reload: onAssetsReload,
   };
 
   const pagination: TablePaginationConfig = {
@@ -147,6 +151,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         toolbar={handleToolbarEvents}
         rowSelection={rowSelection}
         tableStyle={{ overflowX: "scroll" }}
+        loading={loading}
       />
     </AssetListTableWrapper>
   );
