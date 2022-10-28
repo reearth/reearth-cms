@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -51,12 +51,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			}
 
 			// get integration token if presented
-			token := req.Header.Get("authorization")
-			token = strings.TrimPrefix(token, "Bearer ")
-			if !strings.HasPrefix(token, "secret_") {
-				return errors.New("invalid integration token")
-			}
-
+			token := getIntegrationToken(req)
 			if token != "" {
 				var i *integration.Integration
 				var err error
@@ -77,6 +72,14 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func getIntegrationToken(req *http.Request) string {
+	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
+	if strings.HasPrefix(token, "secret_") {
+		return token
+	}
+	return ""
 }
 
 func jwtEchoMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
