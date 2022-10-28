@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
@@ -79,12 +80,9 @@ func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	})
 }
 
-func (r *projectRepo) FindByAPIToken(ctx context.Context, apiToken string) (*project.Project, error) {
-	if apiToken == "" {
-		return nil, rerror.ErrNotFound
-	}
+func (r *Integration) FindByToken(ctx context.Context, token string) (*integration.Integration, error) {
 	return r.findOne(ctx, bson.M{
-		"alias": name,
+		"token": token,
 	})
 }
 
