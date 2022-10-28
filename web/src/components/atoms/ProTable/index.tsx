@@ -16,7 +16,7 @@ export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">
 
 type ProColumns<T = any, ValueType = "text"> =
   | ProColumnGroupType<T, ValueType>
-  | (ProColumnType<T, ValueType> & { minWidth?: number });
+  | ProColumnType<T, ValueType>;
 
 const Table: React.FC<Props> = props => {
   const lang = useLang();
