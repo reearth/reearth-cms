@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrInvalidKey = errors.New("invalid key")
+	ErrInvalidKey    = errors.New("invalid key")
+	ErrDuplicatedKey = errors.New("duplicated key")
 )
 
 type Model struct {
