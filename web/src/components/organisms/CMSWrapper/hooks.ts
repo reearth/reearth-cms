@@ -44,6 +44,10 @@ export default () => {
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
   useEffect(() => {
+    if (workspaces && !workspace) navigate(`/404`);
+  }, [workspaces, workspace, navigate]);
+
+  useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
     setCurrentWorkspace(data.me?.myWorkspace);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
