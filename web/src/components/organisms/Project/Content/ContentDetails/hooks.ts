@@ -1,22 +1,30 @@
 import { useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   SchemaFiledType,
   useCreateItemMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 import useContentHooks from "../hooks";
 
-type Props = {
-  itemId: string | undefined;
-};
-
-export default ({ itemId }: Props) => {
+export default () => {
   const { currentModel, itemsData } = useContentHooks();
+  const navigate = useNavigate();
+  const { projectId, workspaceId, itemId } = useParams();
+  const t = useT();
 
-  const [createNewItem] = useCreateItemMutation({
+  const handleNavigateToModel = useCallback(
+    (modelId?: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
+  const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -32,14 +40,18 @@ export default ({ itemId }: Props) => {
         },
       });
       if (item.errors || !item.data?.createItem) {
-        // TODO: notification
+        Notification.error({ message: t("Failed to create item.") });
         return;
       }
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
+      );
+      Notification.success({ message: t("Successfully created Item!") });
     },
-    [createNewItem],
+    [currentModel, projectId, workspaceId, createNewItem, navigate, t],
   );
 
-  const [updateItem] = useUpdateItemMutation({
+  const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
     refetchQueries: ["GetItems"],
   });
 
@@ -55,11 +67,13 @@ export default ({ itemId }: Props) => {
         },
       });
       if (item.errors || !item.data?.updateItem) {
-        // TODO: notification
+        Notification.error({ message: t("Failed to update item.") });
         return;
       }
+
+      Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem],
+    [updateItem, t],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
@@ -88,9 +102,13 @@ export default ({ itemId }: Props) => {
   }, [itemsData?.items.nodes, itemId, currentModel?.schema.fields]);
 
   return {
-    initialFormValues,
+    itemId,
     currentModel,
+    initialFormValues,
+    itemCreationLoading,
+    itemUpdatingLoading,
     handleItemCreate,
     handleItemUpdate,
+    handleNavigateToModel,
   };
 };

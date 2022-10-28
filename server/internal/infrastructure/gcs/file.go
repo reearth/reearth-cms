@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"google.golang.org/api/iterator"
 )
 
 const (
@@ -67,6 +68,43 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 		return nil, rerror.ErrNotFound
 	}
 	return f.read(ctx, sn)
+}
+
+func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
+	p := getGCSObjectPath(u, "")
+	b, err := f.bucket(ctx)
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	it := b.Objects(ctx, &storage.Query{
+		Prefix: p,
+	})
+
+	var fileEntries []gateway.FileEntry
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			return nil, rerror.ErrInternalBy(err)
+		}
+
+		fe := gateway.FileEntry{
+			// /22/2232222233333/hoge/tileset.json -> hoge/tileset.json
+			Name: strings.TrimPrefix(strings.TrimPrefix(attrs.Name, p), "/"),
+			Size: attrs.Size,
+		}
+		fileEntries = append(fileEntries, fe)
+	}
+
+	if len(fileEntries) == 0 {
+		return nil, gateway.ErrFileNotFound
+	}
+
+	return fileEntries, nil
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {

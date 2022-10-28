@@ -1,6 +1,3 @@
-import { useCallback, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
@@ -16,17 +13,6 @@ export type FormValues = {
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
-  const navigate = useNavigate();
-  const [collapsed, collapse] = useState(false);
-
-  const { projectId, workspaceId, modelId } = useParams();
-
-  const handleModelSelect = useCallback(
-    (modelId: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
-    },
-    [navigate, workspaceId, projectId],
-  );
 
   const {
     fieldCreationModalShown,
@@ -34,6 +20,9 @@ const ProjectSchema: React.FC = () => {
     selectedField,
     model,
     selectedType,
+    collapsed,
+    collapse,
+    handleModelSelect,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
@@ -42,10 +31,7 @@ const ProjectSchema: React.FC = () => {
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldDelete,
-  } = useHooks({
-    projectId,
-    modelId,
-  });
+  } = useHooks();
 
   return (
     <>
@@ -53,7 +39,7 @@ const ProjectSchema: React.FC = () => {
         collapsed={collapsed}
         model={model}
         modelsMenu={
-          <ModelsMenu title={t("Schema")} collapsed={collapsed} selectModel={handleModelSelect} />
+          <ModelsMenu title={t("Schema")} collapsed={collapsed} onModelSelect={handleModelSelect} />
         }
         onCollapse={collapse}
         onFieldUpdateModalOpen={handleFieldUpdateModalOpen}

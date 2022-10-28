@@ -9,8 +9,9 @@ export type Props = {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   initialFormValues: { [key: string]: any };
-  onBack: () => void;
+  onBack: (modelId?: string) => void;
   itemId?: string;
+  loading: boolean;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -21,10 +22,12 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   initialFormValues,
   onBack,
   itemId,
+  loading,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
       <ContentForm
+        loading={loading}
         onBack={onBack}
         itemId={itemId}
         onItemCreate={onItemCreate}

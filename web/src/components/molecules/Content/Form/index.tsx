@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -18,16 +18,18 @@ import { validateURL } from "@reearth-cms/utils/regex";
 export interface Props {
   itemId?: string;
   initialFormValues: any;
+  loading: boolean;
   model?: Model;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onBack: () => void;
+  onBack: (modelId?: string) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
   itemId,
   model,
   initialFormValues,
+  loading,
   onItemCreate,
   onItemUpdate,
   onBack,
@@ -36,6 +38,14 @@ const ContentForm: React.FC<Props> = ({
   const { Option } = Select;
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    form.setFieldsValue(initialFormValues);
+  }, [form, initialFormValues]);
+
+  const handleBack = useCallback(() => {
+    onBack(model?.id);
+  }, [onBack, model]);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -48,8 +58,11 @@ const ContentForm: React.FC<Props> = ({
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
-      if (!itemId) await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
-      else await onItemUpdate?.({ itemId: itemId as string, fields });
+      if (!itemId) {
+        await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
+      } else {
+        await onItemUpdate?.({ itemId: itemId as string, fields });
+      }
     } catch (info) {
       console.log("Validate Failed:", info);
     }
@@ -59,9 +72,9 @@ const ContentForm: React.FC<Props> = ({
     <Form form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
         title={model?.name}
-        onBack={onBack}
+        onBack={handleBack}
         extra={
-          <Button htmlType="submit" onClick={handleSubmit}>
+          <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
             {t("Save")}
           </Button>
         }

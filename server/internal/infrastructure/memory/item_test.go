@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
@@ -156,4 +157,29 @@ func TestItem_FindByProject(t *testing.T) {
 	got, _, err := r.FindByProject(ctx, pid, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.List{i1, i2}, got)
+}
+
+func TestItem_FindByFieldValue(t *testing.T) {
+	ctx := context.Background()
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	pid := id.NewProjectID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	i, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Project(pid).Build()
+
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
+	_ = r.Save(ctx, i3)
+	q := item.NewQuery(id.NewWorkspaceID(), pid, "foo")
+	got, _, _ := r.Search(ctx, q, nil)
+	assert.Equal(t, 2, len(got))
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
 }

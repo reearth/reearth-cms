@@ -94,6 +94,7 @@ Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
 Add member: メンバー追加
+Add to workspace: ''
 Email address or user name: Emailアドレスもしくはユーザー名
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
@@ -101,11 +102,9 @@ Models: モデル
 Add: 追加
 New Integration: 新規インテグレーション
 Create: 作成
-Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Integration Token: インテグレーショントークン
-Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
@@ -133,7 +132,6 @@ Public Scope: ''
 Choose the scope of your project. This affects all the models shown below that are switched on.: ''
 Save changes: 変更を保存
 Add Field: フィールドを追加
-Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
 Please input the key of the field!: このフィールドのキーを入力してください
@@ -150,6 +148,7 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
+Setting: 設定
 Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
@@ -164,7 +163,7 @@ search projects: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this workspace?: ''
 Remove Workspace: ''
-Permanently remove your Workspace and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: ''
+Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
 Workspace Name: ''
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ''
 Failed to update user.: ''
@@ -173,7 +172,17 @@ Failed to update language.: ''
 Successfully updated language!: ''
 Failed to delete user.: ''
 Successfully deleted user!: ''
+Failed to update asset.: ''
+Asset was successfully updated!: ''
+Failed to add one or more assets.: ''
+Successfully added one or more assets!: ''
+Failed to delete one or more assets.: ''
+One or more assets were successfully deleted!: ''
 Successfully created workspace!: ''
+Failed to create item.: ''
+Successfully created Item!: ''
+Failed to update item.: ''
+Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to update publication settings.: ''

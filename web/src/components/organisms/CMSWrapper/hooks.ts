@@ -11,6 +11,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useProject } from "@reearth-cms/state";
+import { splitPathname } from "@reearth-cms/utils/path";
 
 export default () => {
   const t = useT();
@@ -25,12 +26,7 @@ export default () => {
 
   const { data, refetch } = useGetMeQuery();
 
-  const [secondaryRoute, subRoute] = useMemo(() => {
-    const splitPathname = pathname.split("/");
-    const secondaryRoute = splitPathname[3];
-    const subRoute = secondaryRoute === "project" ? splitPathname[5] : secondaryRoute;
-    return [secondaryRoute, subRoute];
-  }, [pathname]);
+  const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
   const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
 
@@ -91,26 +87,24 @@ export default () => {
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
-    skip: !projectId || projectId === currentProject?.id,
+    skip: !projectId,
   });
 
   useEffect(() => {
     if (projectId) {
-      if (projectId !== currentProject?.id) {
-        const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
-        if (project) {
-          setCurrentProject({
-            id: project.id,
-            name: project.name,
-            description: project.description,
-            scope: convertScope(project.publication?.scope),
-          });
-        }
+      const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
+      if (project) {
+        setCurrentProject({
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          scope: convertScope(project.publication?.scope),
+        });
       }
     } else {
       setCurrentProject();
     }
-  }, [projectId, projectData?.node, currentProject?.id, setCurrentProject]);
+  }, [projectId, projectData?.node, setCurrentProject]);
 
   return {
     username,
