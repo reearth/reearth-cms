@@ -104,7 +104,7 @@ const ContentTable: React.FC<Props> = ({
   const mergeColumns: ProColumns<ContentTableField>[] = columns?.map((col, index) => ({
     ...col,
     onHeaderCell: column => ({
-      minWidth: column.minWidth,
+      minWidth: (column as ProColumns<ContentTableField> & { minWidth: number }).minWidth,
       width: (column as ProColumns<ContentTableField>).width,
       onResize: handleResize(index),
     }),
