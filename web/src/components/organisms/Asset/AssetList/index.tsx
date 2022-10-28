@@ -21,6 +21,8 @@ const AssetList: React.FC = () => {
     setUploadModalVisibility,
     uploading,
     uploadModalVisibility,
+    handleAssetsReload,
+    loading,
   } = useHooks(projectId);
 
   const handleEdit = (asset: Asset) => {
@@ -42,6 +44,8 @@ const AssetList: React.FC = () => {
       setUploadModalVisibility={setUploadModalVisibility}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
+      onAssetsReload={handleAssetsReload}
+      loading={loading}
     />
   );
 };
