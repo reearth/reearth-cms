@@ -121,7 +121,6 @@ const ContentTable: React.FC<Props> = ({
         loading={loading}
         toolbar={handleToolbarEvents}
         options={options}
-        tableStyle={{ overflowX: "scroll" }}
       />
     </Wrapper>
   ) : null;
@@ -130,6 +129,10 @@ const ContentTable: React.FC<Props> = ({
 export default ContentTable;
 
 const Wrapper = styled.div`
-  width: 0px;
+  width: 0;
   min-width: 100%;
+  overflow-x: scroll;
+  table {
+    min-width: 48px;
+  }
 `;
