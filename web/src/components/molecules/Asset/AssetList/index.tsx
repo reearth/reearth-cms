@@ -28,6 +28,8 @@ type Props = {
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onAssetsReload: () => void;
+  loading: boolean;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -44,6 +46,8 @@ const AssetList: React.FC<Props> = ({
   setUploadModalVisibility,
   uploading,
   uploadModalVisibility,
+  onAssetsReload,
+  loading,
 }) => {
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -104,6 +108,8 @@ const AssetList: React.FC<Props> = ({
         onSearchTerm={onSearchTerm}
         selection={selection}
         setSelection={setSelection}
+        onAssetsReload={onAssetsReload}
+        loading={loading}
       />
     </Wrapper>
   );

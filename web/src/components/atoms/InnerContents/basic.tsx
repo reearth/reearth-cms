@@ -56,9 +56,6 @@ const Subtitle = styled.p`
 `;
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.85);
-  padding: 24px;
   ${({ lastChild }) => !lastChild && "margin-bottom: 16px;"}
   ${({ flex }) => flex && "flex: 1;"}
 `;
