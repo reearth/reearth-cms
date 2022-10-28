@@ -148,6 +148,10 @@ export default (projectId?: string) => {
     setSearchTerm(term);
   }, []);
 
+  const handleAssetsReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   useEffect(() => {
     if (sort || searchTerm) {
       selectAsset([]);
@@ -195,5 +199,7 @@ export default (projectId?: string) => {
     handleSearchTerm,
     uploadModalVisibility,
     setUploadModalVisibility,
+    handleAssetsReload,
+    loading,
   };
 };
