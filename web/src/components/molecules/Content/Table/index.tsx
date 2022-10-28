@@ -21,9 +21,10 @@ const ResizableTitle = (
   props: React.HTMLAttributes<any> & {
     onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;
     width: number;
+    minWidth: number;
   },
 ) => {
-  const { onResize, width, ...restProps } = props;
+  const { onResize, width, minWidth, ...restProps } = props;
   if (!width) {
     return <th {...restProps} />;
   }
@@ -32,6 +33,7 @@ const ResizableTitle = (
     <Resizable
       width={width}
       height={0}
+      minConstraints={[minWidth, 0]}
       handle={
         <span
           className="react-resizable-handle"
@@ -64,6 +66,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ),
       width: 48,
+      minWidth: 48,
     }),
     [onItemEdit],
   );
@@ -101,6 +104,7 @@ const ContentTable: React.FC<Props> = ({
   const mergeColumns: ProColumns<ContentTableField>[] = columns?.map((col, index) => ({
     ...col,
     onHeaderCell: column => ({
+      minWidth: column.key,
       width: (column as ProColumns<ContentTableField>).width,
       onResize: handleResize(index),
     }),

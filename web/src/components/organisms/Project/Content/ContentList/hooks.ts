@@ -33,6 +33,7 @@ export default () => {
       dataIndex: ["fields", field.id],
       key: field.id,
       width: 128,
+      minWidth: 128,
       ellipsis: true,
     }));
   }, [currentModel?.schema.fields]);
