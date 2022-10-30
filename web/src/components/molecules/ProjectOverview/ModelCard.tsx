@@ -9,6 +9,7 @@ export type Model = {
   id: string;
   name: string;
   description?: string;
+  key: string;
 };
 
 export type Props = {
@@ -16,6 +17,7 @@ export type Props = {
   onSchemaNavigate?: (modelId: string) => void;
   onContentNavigate?: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
+  onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };
 
 const ModelCard: React.FC<Props> = ({
@@ -23,6 +25,7 @@ const ModelCard: React.FC<Props> = ({
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
+  onModelUpdateModalOpen,
 }) => {
   const { Meta } = Card;
 
@@ -32,6 +35,7 @@ const ModelCard: React.FC<Props> = ({
         {
           key: "edit",
           label: "Edit",
+          onClick: () => onModelUpdateModalOpen(model),
         },
         {
           key: "delete",

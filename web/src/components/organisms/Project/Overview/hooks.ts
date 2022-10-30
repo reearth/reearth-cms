@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
-import { useDeleteModelMutation, useGetModelsQuery } from "@reearth-cms/gql/graphql-client-api";
+import {
+  useDeleteModelMutation,
+  useGetModelsQuery,
+  useUpdateModelMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
@@ -40,11 +44,20 @@ export default () => {
               id: model.id,
               description: model.description,
               name: model.name,
+              key: model.key,
             }
           : undefined,
       )
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
+
+  const handleModelUpdateModalOpen = useCallback(
+    async (model: Model) => {
+      setSelectedModel(model);
+      handleModelModalOpen();
+    },
+    [setSelectedModel, handleModelModalOpen],
+  );
 
   const handleModelDeletionModalOpen = useCallback(
     async (model: Model) => {
@@ -77,6 +90,32 @@ export default () => {
     [deleteModel, handleModelDeletionModalClose, t],
   );
 
+  const [updateNewModel] = useUpdateModelMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleModelUpdate = useCallback(
+    async (data: { modelId?: string; name: string; description: string; key: string }) => {
+      if (!data.modelId) return;
+      const model = await updateNewModel({
+        variables: {
+          modelId: data.modelId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+          public: false,
+        },
+      });
+      if (model.errors || !model.data?.updateModel) {
+        Notification.error({ message: t("Failed to update model.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated model!") });
+      handleModelModalClose();
+    },
+    [updateNewModel, handleModelModalClose, t],
+  );
+
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
       navigate(
@@ -95,6 +134,11 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleModelModalReset = useCallback(() => {
+    setSelectedModel(undefined);
+    handleModelModalClose();
+  }, [handleModelModalClose]);
+
   return {
     currentProject,
     models,
@@ -106,10 +150,12 @@ export default () => {
     handleContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
-    handleModelModalClose,
+    handleModelModalReset,
     handleModelCreate,
     handleModelDeletionModalOpen,
     handleModelDeletionModalClose,
+    handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelUpdate,
   };
 };

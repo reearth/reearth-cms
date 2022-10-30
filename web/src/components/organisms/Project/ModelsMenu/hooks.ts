@@ -29,8 +29,9 @@ export default ({ projectId, modelId }: Params) => {
   });
 
   const handleModelKeyCheck = useCallback(
-    async (projectId: string, key: string) => {
+    async (projectId: string, key: string, ignoredKey?: string) => {
       if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
       const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
       return response.data ? response.data.checkModelKeyAvailability.available : false;
     },
