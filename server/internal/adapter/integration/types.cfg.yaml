@@ -1,0 +1,4 @@
+package: integration
+generate:
+  models: true
+output: ../../../pkg/integration/api/types.gen.go
