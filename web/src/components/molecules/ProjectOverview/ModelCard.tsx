@@ -15,10 +15,17 @@ export type Props = {
   model: Model;
   onSchemaNavigate?: (modelId: string) => void;
   onContentNavigate?: (modelId: string) => void;
+  onModelDeletionModalOpen: (model: Model) => Promise<void>;
 };
 
-const ModelCard: React.FC<Props> = ({ model, onSchemaNavigate, onContentNavigate }) => {
+const ModelCard: React.FC<Props> = ({
+  model,
+  onSchemaNavigate,
+  onContentNavigate,
+  onModelDeletionModalOpen,
+}) => {
   const { Meta } = Card;
+
   const ModelMenu = (
     <Menu
       items={[
@@ -29,6 +36,7 @@ const ModelCard: React.FC<Props> = ({ model, onSchemaNavigate, onContentNavigate
         {
           key: "delete",
           label: "Delete",
+          onClick: () => onModelDeletionModalOpen(model),
         },
       ]}
     />

@@ -1,14 +1,19 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
-import { useGetModelsQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useDeleteModelMutation, useGetModelsQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
+  const [selectedModel, setSelectedModel] = useState<Model | undefined>();
+  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const t = useT();
   const navigate = useNavigate();
 
   const {
@@ -41,6 +46,37 @@ export default () => {
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
+  const handleModelDeletionModalOpen = useCallback(
+    async (model: Model) => {
+      setSelectedModel(model);
+      setModelDeletionModalShown(true);
+    },
+    [setSelectedModel, setModelDeletionModalShown],
+  );
+
+  const handleModelDeletionModalClose = useCallback(() => {
+    setSelectedModel(undefined);
+    setModelDeletionModalShown(false);
+  }, [setSelectedModel, setModelDeletionModalShown]);
+
+  const [deleteModel] = useDeleteModelMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleModelDelete = useCallback(
+    async (modelId?: string) => {
+      if (!modelId) return;
+      const res = await deleteModel({ variables: { modelId } });
+      if (res.errors || !res.data?.deleteModel) {
+        Notification.error({ message: t("Failed to delete model.") });
+      } else {
+        Notification.success({ message: t("Successfully deleted model!") });
+        handleModelDeletionModalClose();
+      }
+    },
+    [deleteModel, handleModelDeletionModalClose, t],
+  );
+
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
       navigate(
@@ -64,11 +100,16 @@ export default () => {
     models,
     isKeyAvailable,
     modelModalShown,
+    selectedModel,
+    modelDeletionModalShown,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,
+    handleModelDeletionModalOpen,
+    handleModelDeletionModalClose,
+    handleModelDelete,
   };
 };
