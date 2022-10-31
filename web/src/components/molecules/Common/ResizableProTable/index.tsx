@@ -6,8 +6,8 @@ import ProTable, {
   OptionConfig,
   ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
-import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizble";
-import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizble";
+import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 
 export type Props = {
   className?: string;
