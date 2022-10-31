@@ -48,6 +48,7 @@
     "@types/node": "18.7.18",
     "@types/react": "18.0.20",
     "@types/react-dom": "18.0.6",
+    "@types/react-resizable": "^3.0.3",
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "2.1.0",
     "eslint": "8.23.1",
@@ -86,6 +87,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "11.18.6",
+    "react-resizable": "^3.0.4",
     "react-router-dom": "6.4.0",
     "react-svg": "15.1.9",
     "resium": "1.15.1"
