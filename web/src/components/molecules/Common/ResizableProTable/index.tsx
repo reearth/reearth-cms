@@ -53,7 +53,7 @@ const ResizableProTable: React.FC<Props> = ({
     }),
   }));
 
-  return proColumns ? (
+  return (
     <Wrapper>
       <ProTable
         dataSource={dataSource}
@@ -71,7 +71,7 @@ const ResizableProTable: React.FC<Props> = ({
         tableStyle={{ overflowX: "scroll" }}
       />
     </Wrapper>
-  ) : null;
+  );
 };
 
 export default ResizableProTable;
