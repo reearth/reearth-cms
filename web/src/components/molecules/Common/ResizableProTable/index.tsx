@@ -28,7 +28,7 @@ const ResizableProTable: React.FC<Props> = ({
   const [columns, setColumns] = useState<ProColumns<any, "text">[]>([]);
 
   useEffect(() => {
-    if (Array.isArray(proColumns)) {
+    if (proColumns) {
       setColumns(proColumns);
     }
   }, [proColumns, setColumns]);
