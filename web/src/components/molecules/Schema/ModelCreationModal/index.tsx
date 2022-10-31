@@ -71,6 +71,9 @@ const ModelCreationModal: React.FC<Props> = ({
         <Form.Item
           name="key"
           label={t("Model key")}
+          extra={t(
+            "Model key must be unique and at least 5 characters, and can only contain letters, numbers, underscores and dahses.",
+          )}
           rules={[
             { required: true, message: t("Please input the key of the model!") },
             {
