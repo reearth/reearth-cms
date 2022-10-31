@@ -4,11 +4,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Upload from "@reearth-cms/components/atoms/Upload";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -62,20 +60,7 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
         <Col>
           <Divider type="vertical" style={{ height: "100%" }} />
         </Col>
-        <Col span={11}>
-          <Form.Item
-            label={t("Logo Image")}
-            rules={[
-              {
-                required: true,
-                message: t("Please input the logo of the integration!"),
-              },
-            ]}>
-            <Upload maxCount={1} listType="picture-card">
-              <Icon icon="plus" />
-            </Upload>
-          </Form.Item>
-        </Col>
+        <Col span={11} />
       </Row>
     </Form>
   );
