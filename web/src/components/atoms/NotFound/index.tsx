@@ -48,7 +48,7 @@ const Circle = styled.div`
   width: 240px;
   height: 240px;
   padding: 0;
-  border-radius: 150px;
+  border-radius: 50%;
 `;
 
 const Content = styled.div`
