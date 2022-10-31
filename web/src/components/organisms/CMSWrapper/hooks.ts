@@ -43,9 +43,10 @@ export default () => {
   );
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
-  useEffect(() => {
-    if (workspaces && !workspace) navigate(`/404`);
-  }, [workspaces, workspace, navigate]);
+  const workspaceExists = useMemo(() => {
+    if (workspaces && !workspace) return false;
+    return true;
+  }, [workspaces, workspace]);
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
@@ -120,6 +121,7 @@ export default () => {
     selectedKey,
     secondaryRoute,
     collapsed,
+    workspaceExists,
     handleCollapse,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,

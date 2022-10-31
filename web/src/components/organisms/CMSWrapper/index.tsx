@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 
+import NotFound from "@reearth-cms/components/atoms/NotFound";
 import CMSWrapperMolecule from "@reearth-cms/components/molecules/CMSWrapper";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
@@ -19,6 +20,7 @@ const CMSWrapper: React.FC = () => {
     selectedKey,
     secondaryRoute,
     collapsed,
+    workspaceExists,
     handleCollapse,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
@@ -26,7 +28,7 @@ const CMSWrapper: React.FC = () => {
     handleNavigateToSettings,
   } = useHooks();
 
-  return (
+  return workspaceExists ? (
     <>
       <CMSWrapperMolecule
         collapsed={collapsed}
@@ -67,6 +69,8 @@ const CMSWrapper: React.FC = () => {
         onSubmit={handleWorkspaceCreate}
       />
     </>
+  ) : (
+    <NotFound />
   );
 };
 
