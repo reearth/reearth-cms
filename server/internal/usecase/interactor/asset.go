@@ -79,8 +79,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
-			thid := id.NewThreadID()
-			th, err := thread.New().ID(thid).Workspace(prj.Workspace()).Comments([]*thread.Comment{}).Build()
+			th, err := thread.New().NewID().Workspace(prj.Workspace()).Comments([]*thread.Comment{}).Build()
 			if err != nil {
 				return nil, err
 			}
@@ -99,7 +98,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
-				Thread(thid).
+				Thread(th.ID()).
 				Build()
 			if err != nil {
 				return nil, err
