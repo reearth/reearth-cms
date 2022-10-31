@@ -20,7 +20,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	. "github.com/reearth/reearth-cms/server/pkg/integration/api"
+	. "github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
 // ServerInterface represents all server handlers.

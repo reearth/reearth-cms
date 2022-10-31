@@ -6,6 +6,6 @@ generate:
 output:
   server.gen.go
 additional-imports:
-    - package: github.com/reearth/reearth-cms/server/pkg/integration/api
+    - package: github.com/reearth/reearth-cms/server/pkg/integrationapi
       alias: .
     - package: github.com/reearth/reearth-cms/server/pkg/id
