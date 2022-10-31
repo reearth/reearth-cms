@@ -109,7 +109,7 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoUser,
 		},
 		{
-			name: "fail: empty createdBy",
+			name: "fail: zero size",
 			input: Input{
 				id:          aid,
 				project:     pid,
@@ -120,6 +120,21 @@ func TestBuilder_Build(t *testing.T) {
 				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
+			},
+			err: ErrZeroSize,
+		},
+		{
+			name: "fail: invalid threadId",
+			input: Input{
+				id:          aid,
+				project:     pid,
+				createdBy:   uid,
+				fileName:    "hoge",
+				size:        size,
+				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				file:        &f,
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:      ThreadID{},
 			},
 			err: ErrZeroSize,
 		},
