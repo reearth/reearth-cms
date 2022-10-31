@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { Resizable } from "react-resizable";
 import type { ResizeCallbackData } from "react-resizable";
 
@@ -16,7 +17,7 @@ export const ResizableTitle = (
   }
 
   return (
-    <Resizable
+    <StyledResizable
       width={width}
       height={0}
       minConstraints={[minWidth, 0]}
@@ -31,6 +32,23 @@ export const ResizableTitle = (
       onResize={onResize}
       draggableOpts={{ enableUserSelectHack: false }}>
       <th {...restProps} />
-    </Resizable>
+    </StyledResizable>
   );
 };
+
+const StyledResizable = styled(Resizable)`
+  .react-resizable-handle {
+    position: absolute;
+    right: -5px;
+    bottom: 0;
+    z-index: 1;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+  }
+
+  .react-resizable {
+    position: relative;
+    background-clip: padding-box;
+  }
+`;
