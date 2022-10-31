@@ -1,4 +1,4 @@
-package integrationapi
+package integration
 
 import "github.com/reearth/reearth-cms/server/pkg/asset"
 
