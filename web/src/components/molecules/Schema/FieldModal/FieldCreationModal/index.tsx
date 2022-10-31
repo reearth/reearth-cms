@@ -127,7 +127,7 @@ const FieldCreationModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Settings")} key="setting">
+          <TabPane tab={t("Settings")} key="setting" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -214,7 +214,7 @@ const FieldCreationModal: React.FC<Props> = ({
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Validation" key="validation">
+          <TabPane tab="Validation" key="validation" forceRender>
             <FieldValidationProps selectedType={selectedType} />
             <Form.Item
               name="required"
@@ -229,7 +229,7 @@ const FieldCreationModal: React.FC<Props> = ({
               <Checkbox>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>
