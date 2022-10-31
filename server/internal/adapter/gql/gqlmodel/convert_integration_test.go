@@ -82,7 +82,7 @@ func TestToIntegration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got := ToIntegration(tt.integration, tt.user)
+			got := ToIntegration(tt.integration, &tt.user)
 			assert.Equal(t, tt.want, got)
 		})
 	}

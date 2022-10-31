@@ -33,7 +33,7 @@ func TestAsset_Getters(t *testing.T) {
 	assert.Equal(t, aid, got.ID())
 	assert.Equal(t, pid, got.Project())
 	assert.Equal(t, tim, got.CreatedAt())
-	assert.Equal(t, uid, got.User())
+	assert.Equal(t, &uid, got.User())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, wantPreviewType, got.PreviewType())

@@ -31,7 +31,7 @@ func TestProject_Fetch(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -92,7 +92,7 @@ func TestProject_Fetch(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -145,7 +145,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -206,7 +206,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -251,7 +251,7 @@ func TestProject_Create(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
@@ -299,7 +299,7 @@ func TestProject_Create(t *testing.T) {
 					Description: lo.ToPtr("D002"),
 					Alias:       lo.ToPtr("Test002"),
 				},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -355,7 +355,7 @@ func TestProject_Update(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 	}
@@ -474,7 +474,7 @@ func TestProject_CheckAlias(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -549,7 +549,7 @@ func TestProject_Delete(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 	}
