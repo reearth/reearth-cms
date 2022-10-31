@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 
+import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import CMSWrapperMolecule from "@reearth-cms/components/molecules/CMSWrapper";
 import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
@@ -11,6 +12,7 @@ import useHooks from "./hooks";
 
 const CMSWrapper: React.FC = () => {
   const {
+    loading,
     username,
     personalWorkspace,
     workspaces,
@@ -28,7 +30,9 @@ const CMSWrapper: React.FC = () => {
     handleNavigateToSettings,
   } = useHooks();
 
-  return workspaceExists ? (
+  return loading ? (
+    <Loading minHeight="400px" />
+  ) : workspaceExists ? (
     <>
       <CMSWrapperMolecule
         collapsed={collapsed}

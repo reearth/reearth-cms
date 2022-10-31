@@ -24,7 +24,7 @@ export default () => {
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const { data, refetch } = useGetMeQuery();
+  const { data, refetch, loading } = useGetMeQuery();
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
@@ -112,6 +112,7 @@ export default () => {
   }, [projectId, projectData?.node, setCurrentProject]);
 
   return {
+    loading,
     username,
     personalWorkspace,
     workspaces,
