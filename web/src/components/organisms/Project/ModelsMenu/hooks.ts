@@ -67,7 +67,6 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   useEffect(() => {
-    if (model?.id === currentModel?.id) return;
     setCurrentModel(model ?? currentModel);
   }, [model, currentModel, setCurrentModel]);
 
