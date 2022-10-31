@@ -15,7 +15,7 @@ const Table: React.FC<Props> = props => {
 
   return (
     <ConfigProvider locale={lang === "ja" ? jaJPIntl : enUSIntl}>
-      <ProTable {...props} />;
+      <ProTable {...props} />
     </ConfigProvider>
   );
 };
