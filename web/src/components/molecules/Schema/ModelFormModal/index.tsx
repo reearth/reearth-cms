@@ -60,7 +60,11 @@ const ModelFormModal: React.FC<Props> = ({
   }, [form, onClose]);
 
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      title={!model?.id ? t("New Model") : t("Update Model")}>
       <Form form={form} layout="vertical">
         <Form.Item
           name="name"

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -9,7 +10,7 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel } from "@reearth-cms/state";
+import { useModel, useWorkspace } from "@reearth-cms/state";
 import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 type Params = {
@@ -20,6 +21,8 @@ type Params = {
 export default ({ projectId, modelId }: Params) => {
   const t = useT();
   const [currentModel, setCurrentModel] = useModel();
+  const [currentWorkspace] = useWorkspace();
+  const navigate = useNavigate();
 
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
@@ -89,8 +92,11 @@ export default ({ projectId, modelId }: Params) => {
       }
       Notification.success({ message: t("Successfully created model!") });
       setModelModalShown(false);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${projectId}/schema/${model.data?.createModel.model.id}`,
+      );
     },
-    [createNewModel, projectId, t],
+    [currentWorkspace?.id, projectId, createNewModel, navigate, t],
   );
 
   const handleModalClose = useCallback(() => setModelModalShown(false), []);
