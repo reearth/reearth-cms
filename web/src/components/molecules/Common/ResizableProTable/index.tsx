@@ -10,7 +10,6 @@ import { ResizableTitle } from "@reearth-cms/components/molecules/Common/Resizab
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 
 export type Props = {
-  className?: string;
   dataSource?: any[];
   proColumns?: ProColumns<any, "text">[];
   loading: boolean;
