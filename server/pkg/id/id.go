@@ -10,7 +10,7 @@ type Event struct{}
 func (Workspace) Type() string { return "workspace" }
 func (User) Type() string      { return "user" }
 func (Asset) Type() string     { return "asset" }
-func (Event) Type() string     { return "asset" }
+func (Event) Type() string     { return "event" }
 
 type WorkspaceID = idx.ID[Workspace]
 type UserID = idx.ID[User]

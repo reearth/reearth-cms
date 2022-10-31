@@ -15,7 +15,7 @@ func New[T any]() *Builder[T] {
 }
 
 func (b *Builder[T]) Build() (*Event[T], error) {
-	if b.i.id.IsNil() || b.i.operator.validate() {
+	if b.i.id.IsNil() || !b.i.operator.validate() {
 		return nil, ErrInvalidID
 	}
 	return b.i, nil
@@ -27,6 +27,11 @@ func (b *Builder[T]) MustBuild() *Event[T] {
 
 func (b *Builder[T]) ID(id ID) *Builder[T] {
 	b.i.id = id
+	return b
+}
+
+func (b *Builder[T]) NewID() *Builder[T] {
+	b.i.id = NewID()
 	return b
 }
 

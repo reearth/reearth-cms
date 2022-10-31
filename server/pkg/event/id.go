@@ -11,3 +11,6 @@ var MustID = id.MustEventID
 var IDFrom = id.EventIDFrom
 var IDFromRef = id.EventIDFromRef
 var ErrInvalidID = id.ErrInvalidID
+
+// for testing
+var NewIntegrationIDForTest = id.NewIntegrationID
