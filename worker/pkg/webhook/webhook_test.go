@@ -1,13 +1,76 @@
 package webhook
 
 import (
+	"context"
+	"crypto/hmac"
+	"encoding/hex"
 	"encoding/json"
-	"fmt"
+	"errors"
+	"io"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestSend(t *testing.T) {
+	now := time.Date(2022, 10, 10, 1, 1, 1, 1, time.UTC)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	endpoint1 := "https://example.com"
+	endpoint2 := "https://example.com/fail"
+	w := &Webhook{
+		URL:       endpoint1,
+		Secret:    "secret",
+		Timestamp: now,
+		EventID:   "event",
+		EventType: "asset.create",
+		EventData: `{
+			"id": "aaa",
+			"name": "name"
+		}`,
+	}
+
+	// httpmock.RegisterResponder("POST", endpoint1, httpmock.NewStringResponder(200, `ok`))
+	httpmock.RegisterResponder("POST", endpoint1, func(req *http.Request) (*http.Response, error) {
+
+		//check signature
+		sign := req.Header.Get("Rearth-Signature")
+		rawSign := lo.Must(hex.DecodeString(strings.Split(sign, ",")[2]))
+
+		// TODO: mock now later
+		expectedSign := Sign(lo.Must(io.ReadAll(req.Body)), []byte(w.Secret), util.Now(), "v1")
+		rawExpectedSign := lo.Must(hex.DecodeString(strings.Split(expectedSign, ",")[2]))
+
+		if !hmac.Equal(rawSign, rawExpectedSign) {
+			return nil, errors.New("invalid signature")
+		}
+
+		return httpmock.NewStringResponse(200, "hello"), nil
+	})
+
+	httpmock.RegisterResponder("POST", endpoint2, httpmock.NewStringResponder(500, `error`))
+
+	// success
+	err := Send(context.Background(), w)
+	info := httpmock.GetCallCountInfo()
+	assert.NoError(t, err)
+	assert.Equal(t, 1, info["POST "+endpoint1])
+
+	// should fail
+	w.URL = endpoint2
+	err = Send(context.Background(), w)
+	info = httpmock.GetCallCountInfo()
+	assert.Error(t, err)
+	assert.Equal(t, 1, info["POST "+endpoint2])
+}
 
 func TestWebhook_requestBody(t *testing.T) {
 	time := time.Date(2022, 10, 10, 1, 1, 1, 1, time.UTC)
@@ -38,8 +101,6 @@ func TestWebhook_requestBody(t *testing.T) {
 
 	res, err := w.requestBody()
 	assert.NoError(t, err)
-
-	fmt.Print(string(res))
 	assert.Equal(t, expected, res)
 
 }

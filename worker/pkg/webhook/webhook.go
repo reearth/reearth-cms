@@ -52,7 +52,7 @@ func Send(ctx context.Context, w *Webhook) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode < 300 {
+	if res.StatusCode > 300 {
 		return fmt.Errorf("ERROR: id=%s, url=%s, status=%d", w.EventID, w.URL, res.StatusCode)
 	}
 
