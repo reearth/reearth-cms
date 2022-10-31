@@ -158,6 +158,7 @@ Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Update Model: ''
 Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
