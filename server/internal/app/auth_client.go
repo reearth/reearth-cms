@@ -2,9 +2,12 @@ package app
 
 import (
 	"context"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	publicApi "github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -44,6 +47,23 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				}
 
 				ctx = adapter.AttachUser(ctx, u)
+				ctx = adapter.AttachOperator(ctx, op)
+			}
+
+			token := getPublicApiToken(req)
+			if token != "" {
+				var p *publicApi.PublicApiItem
+				var err error
+				p, err = cfg.Repos.publicapi.FindByToken(ctx, token)
+				if err != nil {
+					return err
+				}
+
+				op, err := generatePublicApiOperator(ctx, cfg, p)
+				if err != nil {
+					return err
+				}
+
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
@@ -108,6 +128,14 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 		WritableProjects:   writableProjects,
 		OwningProjects:     owningProjects,
 	}, nil
+}
+
+func getPublicApiToken(req *http.Request) string {
+	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
+	if strings.HasPrefix(token, "key_") {
+		return token
+	}
+	return ""
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
