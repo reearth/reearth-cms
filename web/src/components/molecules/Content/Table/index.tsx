@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { ProColumns, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 
@@ -22,12 +22,6 @@ const ContentTable: React.FC<Props> = ({
   onItemEdit,
   onItemsReload,
 }) => {
-  const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      onSearch: _ => {},
-    },
-  };
-
   const actionsColumn: ProColumns<ContentTableField> = useMemo(
     () => ({
       render: (_, contentField) => (
@@ -51,7 +45,6 @@ const ContentTable: React.FC<Props> = ({
 
   return contentTableColumns ? (
     <ResizableProTable
-      toolbar={handleToolbarEvents}
       options={options}
       loading={loading}
       dataSource={contentTableFields}
