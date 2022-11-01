@@ -1,4 +1,7 @@
+import { useParams } from "react-router-dom";
+
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -15,10 +18,16 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleNavigateToModel,
   } = useHooks();
+  const { projectId } = useParams();
+  const { assetList, handleSearchTerm, handleAssetsReload, loading } = useAssetHooks(projectId);
   const t = useT();
 
   return (
     <ContentDetailsMolecule
+      assetList={assetList}
+      onAssetSearchTerm={handleSearchTerm}
+      onAssetsReload={handleAssetsReload}
+      loadingAssets={loading}
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}

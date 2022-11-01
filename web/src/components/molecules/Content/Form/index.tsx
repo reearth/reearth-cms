@@ -3,19 +3,17 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-// import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-// import Upload from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
-
-import AssetItem from "../../Common/Form/AssetItem";
 
 export interface Props {
   itemId?: string;
@@ -25,6 +23,10 @@ export interface Props {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
+  assetList: Asset[];
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  loadingAssets: boolean;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -35,6 +37,10 @@ const ContentForm: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   onBack,
+  assetList,
+  onAssetSearchTerm,
+  onAssetsReload,
+  loadingAssets,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -124,6 +130,10 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={field.title}
+              assetList={assetList}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onAssetsReload={onAssetsReload}
+              loadingAssets={loadingAssets}
             />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>

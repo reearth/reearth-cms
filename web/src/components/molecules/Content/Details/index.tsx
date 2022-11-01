@@ -1,3 +1,4 @@
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
@@ -12,6 +13,10 @@ export type Props = {
   onBack: (modelId?: string) => void;
   itemId?: string;
   loading: boolean;
+  assetList: Asset[];
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  loadingAssets: boolean;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -23,6 +28,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onBack,
   itemId,
   loading,
+  assetList,
+  onAssetSearchTerm,
+  onAssetsReload,
+  loadingAssets,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
@@ -34,6 +43,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onItemUpdate={onItemUpdate}
         model={model}
         initialFormValues={initialFormValues}
+        assetList={assetList}
+        onAssetSearchTerm={onAssetSearchTerm}
+        onAssetsReload={onAssetsReload}
+        loadingAssets={loadingAssets}
       />
     </ContentWrapper>
   );
