@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -41,10 +42,7 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          <TitleWrapper>
-            <ModelTitle>{model?.name}</ModelTitle>
-          </TitleWrapper>
-
+          <PageHeader title={model?.name} subTitle={`#${model?.key}`} />
           <ModelFieldListWrapper>
             <ModelFieldList
               fields={model?.schema.fields}
@@ -64,24 +62,6 @@ const Schema: React.FC<Props> = ({
 };
 
 export default Schema;
-
-const ModelTitle = styled.p`
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 20px;
-  color: rgba(0, 0, 0, 0.85);
-  word-break: break-all;
-  width: 100%;
-  margin: 0;
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  height: 72px;
-  background-color: #fff;
-`;
 
 const Content = styled.div`
   width: 100%;

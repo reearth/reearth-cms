@@ -143,7 +143,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Setting")} key="setting">
+          <TabPane tab={t("Setting")} key="setting" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -229,10 +229,10 @@ const FieldUpdateModal: React.FC<Props> = ({
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Validation")} key="validation">
+          <TabPane tab={t("Validation")} key="validation" forceRender>
             <FieldValidationInputs selectedType={selectedType} />
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>

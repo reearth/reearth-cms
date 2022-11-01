@@ -9,7 +9,7 @@ type FieldURL struct {
 }
 
 func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
-	if defaultValue != nil {
+	if defaultValue != nil && *defaultValue != "" {
 		if !isUrl(*defaultValue) {
 			return nil, ErrFieldDefaultValue
 		}
