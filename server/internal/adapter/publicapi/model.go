@@ -2,11 +2,11 @@ package publicApi
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
 	"golang.org/x/exp/maps"
 )
@@ -64,20 +64,26 @@ func NewItem(i *item.Item, s *schema.Schema) Item {
 }
 
 func NewItemField(f *item.Field, _ *schema.Field) (res any) {
-	f.Value().Match(value.Match{
-		Text: (v *string) {
-			if v != nil {
-				return *v
-			}
-		},
-		// Date: (v *time.Time) {
-		// 	if v != nil {
-		// 		return v.Format(time.RFC3339)
-		// 	}
-		// }
-		// TODO
-	})
-	return
+	v := f.Value().Value()
+	if v == nil {
+		return
+	}
+
+	/* TODO: imp switch case
+	switch v {
+	case Text:
+		(v * string)
+		if v != nil {
+			return *v
+		}
+	case Date:
+		(v * time.Time)
+		if v != nil {
+			return v.Format(time.RFC3339)
+		}
+	}
+	*/
+	return v
 }
 
 func NewAsset(a *asset.Asset) Asset {
