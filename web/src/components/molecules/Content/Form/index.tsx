@@ -3,17 +3,19 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
+// import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Upload from "@reearth-cms/components/atoms/Upload";
+// import Upload from "@reearth-cms/components/atoms/Upload";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
+
+import AssetItem from "../../Common/Form/AssetItem";
 
 export interface Props {
   itemId?: string;
@@ -112,7 +114,7 @@ const ContentForm: React.FC<Props> = ({
               />
             </Form.Item>
           ) : field.type === "Asset" ? (
-            <Form.Item
+            <AssetItem
               extra={field.description}
               rules={[
                 {
@@ -121,14 +123,8 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
-              <Upload action="/upload.do" listType="picture-card">
-                <div>
-                  <Icon icon="link" />
-                  <div style={{ marginTop: 8 }}>{t("Asset")}</div>
-                </div>
-              </Upload>
-            </Form.Item>
+              label={field.title}
+            />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>
               <Select>
