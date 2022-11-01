@@ -53,7 +53,17 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
     form.setFieldsValue({
