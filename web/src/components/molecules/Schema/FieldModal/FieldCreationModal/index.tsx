@@ -155,9 +155,9 @@ const FieldCreationModal: React.FC<Props> = ({
               name="key"
               label="Field Key"
               rules={[
-                { required: true, message: t("Please input the key of the field!") },
                 {
                   message: t("Key is not valid"),
+                  required: true,
                   validator: async (_, value) => {
                     if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value);
