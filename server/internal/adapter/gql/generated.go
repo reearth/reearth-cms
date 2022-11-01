@@ -41,6 +41,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Asset() AssetResolver
+	Comment() CommentResolver
 	Integration() IntegrationResolver
 	Item() ItemResolver
 	Me() MeResolver
@@ -552,6 +553,9 @@ type AssetResolver interface {
 	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.User, error)
 
 	Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error)
+}
+type CommentResolver interface {
+	Author(ctx context.Context, obj *gqlmodel.Comment) (*gqlmodel.User, error)
 }
 type IntegrationResolver interface {
 	Developer(ctx context.Context, obj *gqlmodel.Integration) (*gqlmodel.User, error)
@@ -6263,7 +6267,7 @@ func (ec *executionContext) _Comment_author(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Author, nil
+		return ec.resolvers.Comment().Author(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6281,8 +6285,8 @@ func (ec *executionContext) fieldContext_Comment_author(ctx context.Context, fie
 	fc = &graphql.FieldContext{
 		Object:     "Comment",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -23197,32 +23201,45 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Comment_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "author":
+			field := field
 
-			out.Values[i] = ec._Comment_author(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Comment_author(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "authorId":
 
 			out.Values[i] = ec._Comment_authorId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "content":
 
 			out.Values[i] = ec._Comment_content(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "createdAt":
 
 			out.Values[i] = ec._Comment_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

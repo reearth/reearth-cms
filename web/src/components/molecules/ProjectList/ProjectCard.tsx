@@ -2,13 +2,12 @@ import styled from "@emotion/styled";
 import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 export interface Props {
   className?: string;
   project: Project;
-  onProjectNavigation: (project: Project, tab?: string) => void;
+  onProjectNavigation: (project: Project) => void;
 }
 
 const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation }) => {
@@ -17,16 +16,8 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
   return (
     <CardWrapper className={className} key={project.id}>
       <ProjectStyledCard
-        cover={<Cover>{project.name.charAt(0)}</Cover>}
-        actions={[
-          <Icon
-            icon="settings"
-            onClick={() => onProjectNavigation(project, "settings")}
-            key="setting"
-          />,
-          <Icon icon="edit" key="edit" onClick={() => onProjectNavigation(project)} />,
-          // <Icon icon="ellipsis" key="ellipsis" />,
-        ]}>
+        onClick={() => onProjectNavigation(project)}
+        cover={<Cover>{project.name.charAt(0)}</Cover>}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>
     </CardWrapper>
@@ -34,7 +25,13 @@ const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation 
 };
 
 const CardWrapper = styled.div`
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  box-shadow: none;
+  transition: box-shadow 0.2s;
+  &:hover {
+    box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px rgba(0, 0, 0, 0.08),
+      0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+  }
 `;
 
 const Cover = styled.div`

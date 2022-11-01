@@ -92,12 +92,8 @@ export default () => {
   const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
 
   const handleProjectNavigation = useCallback(
-    (project?: Project, tab?: string) => {
-      let route = `/workspace/${currentWorkspace?.id}/project/${project?.id}`;
-      if (tab) {
-        route = route.concat("/", tab);
-      }
-      navigate(route);
+    (project?: Project) => {
+      navigate(`/workspace/${currentWorkspace?.id}/project/${project?.id}`);
     },
     [currentWorkspace, navigate],
   );
