@@ -79,7 +79,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
-			th, err := thread.New().NewID().Workspace(prj.Workspace()).Comments([]*thread.Comment{}).Build()
+			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
+
 			if err != nil {
 				return nil, err
 			}
