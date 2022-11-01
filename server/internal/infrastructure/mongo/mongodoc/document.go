@@ -21,6 +21,11 @@ type Document struct {
 	Object bson.Raw
 }
 
+var (
+	ErrInvalidObject = errors.New("invalid object")
+	ErrInvalidDoc    = errors.New("invalid document")
+)
+
 func NewDocument(obj any) (doc Document, id string, err error) {
 	var res any
 	var ty Type
@@ -29,41 +34,32 @@ func NewDocument(obj any) (doc Document, id string, err error) {
 	case *asset.Asset:
 		ty = "asset"
 		res, id = NewAsset(m)
-		break
 	case *item.Item:
 		ty = "item"
 		res, id = NewItem(m)
-		break
 	case *schema.Schema:
 		ty = "schema"
 		res, id = NewSchema(m)
-		break
 	case *project.Project:
 		ty = "project"
 		res, id = NewProject(m)
-		break
 	case *model.Model:
 		ty = "model"
 		res, id = NewModel(m)
-		break
 	case *thread.Thread:
 		ty = "thread"
 		res, id = NewThread(m)
-		break
 	case *integration.Integration:
 		ty = "integration"
 		res, id = NewIntegration(m)
-		break
 	case *user.Workspace:
 		ty = "workspace"
 		res, id = NewWorkspace(m)
-		break
 	case *user.User:
 		ty = "user"
 		res, id = NewUser(m)
-		break
 	default:
-		err = errors.New("invalid object")
+		err = ErrInvalidObject
 		return
 	}
 
@@ -81,58 +77,48 @@ func ModelFrom(obj Document) (res any, err error) {
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "item":
 		var d *ItemDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "schema":
 		var d *SchemaDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "project":
 		var d *ProjectDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "model":
 		var d *ModelDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "thread":
 		var d *ThreadDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "integration":
 		var d *IntegrationDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "workspace":
 		var d *WorkspaceDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	case "user":
 		var d *UserDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}
-		break
 	default:
-		err = errors.New("invalid document")
-		break
+		err = ErrInvalidDoc
 	}
 	return
 }
