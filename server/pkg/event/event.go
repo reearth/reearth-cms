@@ -33,3 +33,16 @@ func (e *Event[T]) Operator() Operator {
 func (e *Event[T]) Object() any {
 	return e.object
 }
+
+func (e *Event[T]) Clone() *Event[T] {
+	if e == nil {
+		return nil
+	}
+	return &Event[T]{
+		id:        e.id.Clone(),
+		timestamp: e.timestamp,
+		operator:  e.operator,
+		ty:        e.ty,
+		object:    e.object,
+	}
+}
