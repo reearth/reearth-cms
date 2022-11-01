@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -33,8 +34,8 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 	}
 }
 
-func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, a any) error {
-	ev, err := event.New[any]().Build()
+func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any) error {
+	ev, err := event.New[any]().NewID().Object(o).Type(t).Timestamp(util.Now()).Build()
 	if err != nil {
 		return err
 	}

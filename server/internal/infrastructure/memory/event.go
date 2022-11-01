@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
@@ -24,30 +23,26 @@ func NewEvent() repo.Event {
 	}
 }
 
+func (r *Event) FindByID(_ context.Context, iId id.EventID) (*event.Event[any], error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	i := r.data.Find(func(k id.EventID, i *event.Event[any]) bool {
+		return k == iId
+	})
+
+	if i != nil {
+		return i, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Event) Save(ctx context.Context, ev *event.Event[any]) error {
 	if r.err != nil {
 		return r.err
 	}
+
 	r.data.Store(ev.ID(), ev)
 	return nil
-}
-
-func (r *Event) Remove(_ context.Context, eID id.EventID) error {
-	if r.err != nil {
-		return r.err
-	}
-
-	if _, ok := r.data.Load(eID); ok {
-		r.data.Delete(eID)
-		return nil
-	}
-	return rerror.ErrNotFound
-}
-
-func MockEventNow(r repo.Event, t time.Time) func() {
-	return r.(*Event).now.Mock(t)
-}
-
-func SetEventError(r repo.Event, err error) {
-	r.(*Event).err = err
 }
