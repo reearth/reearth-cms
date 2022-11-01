@@ -50,7 +50,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
 				file:        &f,
-				uuid:        "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			want: &Asset{
@@ -136,7 +136,7 @@ func TestBuilder_Build(t *testing.T) {
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      ThreadID{},
 			},
-			err: ErrZeroSize,
+			err: ErrNoThread,
 		},
 		{
 			name: "should create asset with id timestamp",
@@ -180,7 +180,9 @@ func TestBuilder_Build(t *testing.T) {
 				UUID(tt.input.uuid).
 				Thread(tt.input.thread).
 				Build()
-			if err != tt.err {
+			if tt.err != nil {
+				assert.Equal(t, tt.err, err)
+			} else {
 				assert.Equal(t, tt.want, got)
 			}
 		})
