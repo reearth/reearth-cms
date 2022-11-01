@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -37,6 +37,7 @@ const ModelCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleSubmit = useCallback(() => {
     form
@@ -57,8 +58,27 @@ const ModelCreationModal: React.FC<Props> = ({
   }, [onClose]);
 
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+    <Modal
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={() => {
+          form
+            .validateFields()
+            .then(() => {
+              setButtonDisabled(true);
+            })
+            .catch(fieldsError => {
+              setButtonDisabled(
+                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+              );
+            });
+        }}>
         <Form.Item
           name="name"
           label={t("Model name")}
@@ -72,9 +92,9 @@ const ModelCreationModal: React.FC<Props> = ({
           name="key"
           label={t("Model key")}
           rules={[
-            { required: true, message: t("Please input the key of the model!") },
             {
               message: t("Key is not valid"),
+              required: true,
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
                 const isKeyAvailable = await onModelKeyCheck(projectId ?? "", value);
