@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { ProColumns, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 
