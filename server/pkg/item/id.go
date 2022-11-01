@@ -5,6 +5,7 @@ import "github.com/reearth/reearth-cms/server/pkg/id"
 type ID = id.ItemID
 type ProjectID = id.ProjectID
 type SchemaID = id.SchemaID
+type AssetID = id.AssetID
 
 var NewID = id.NewItemID
 

@@ -2,8 +2,6 @@ package schema
 
 import "github.com/reearth/reearthx/util"
 
-var TypeText Type = "text"
-
 type FieldText struct {
 	defaultValue *string
 	maxLength    *int

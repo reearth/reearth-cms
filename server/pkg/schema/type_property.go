@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 // TypeProperty Represent special attributes for some field
@@ -112,10 +113,12 @@ func NewFieldTypePropertyURL(defaultValue *string) (*TypeProperty, error) {
 	}, nil
 }
 
+// NOTE: pkg/item/match.go should be also updated when you add a new type
+
 type TypePropertyMatch struct {
 	Text      func(*FieldText)
 	TextArea  func(*FieldTextArea)
-	RichText  func(text *FieldRichText)
+	RichText  func(*FieldRichText)
 	Markdown  func(*FieldMarkdown)
 	Asset     func(*FieldAsset)
 	Date      func(*FieldDate)
@@ -131,7 +134,7 @@ type TypePropertyMatch struct {
 type TypePropertyMatch1[T any] struct {
 	Text      func(*FieldText) T
 	TextArea  func(*FieldTextArea) T
-	RichText  func(text *FieldRichText) T
+	RichText  func(*FieldRichText) T
 	Markdown  func(*FieldMarkdown) T
 	Asset     func(*FieldAsset) T
 	Date      func(*FieldDate) T
@@ -144,31 +147,31 @@ type TypePropertyMatch1[T any] struct {
 	Default   func() T
 }
 
-func (t *TypeProperty) Type() Type {
+func (t *TypeProperty) Type() value.Type {
 	if t.text != nil {
-		return TypeText
+		return value.TypeText
 	} else if t.textArea != nil {
-		return TypeTextArea
+		return value.TypeTextAre
 	} else if t.richText != nil {
-		return TypeRichText
+		return value.TypeRichText
 	} else if t.markdown != nil {
-		return TypeMarkdown
+		return value.TypeMarkdown
 	} else if t.asset != nil {
-		return TypeAsset
+		return value.TypeAsset
 	} else if t.date != nil {
-		return TypeDate
+		return value.TypeDate
 	} else if t.bool != nil {
-		return TypeBool
+		return value.TypeBool
 	} else if t.selectt != nil {
-		return TypeSelect
+		return value.TypeSelect
 	} else if t.tag != nil {
-		return TypeTag
+		return value.TypeTag
 	} else if t.integer != nil {
-		return TypeInteger
+		return value.TypeInteger
 	} else if t.reference != nil {
-		return TypeReference
+		return value.TypeReference
 	} else if t.url != nil {
-		return TypeURL
+		return value.TypeURL
 	}
 	return ""
 }

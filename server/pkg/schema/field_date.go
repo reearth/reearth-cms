@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-var TypeDate Type = "date"
-
 type FieldDate struct {
 	defaultValue *time.Time
 }

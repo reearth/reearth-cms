@@ -5,8 +5,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var TypeTag Type = "tag"
-
 type FieldTag struct {
 	values       []string
 	defaultValue []string

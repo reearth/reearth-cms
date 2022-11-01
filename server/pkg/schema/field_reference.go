@@ -2,8 +2,6 @@ package schema
 
 import "github.com/reearth/reearth-cms/server/pkg/model"
 
-var TypeReference Type = "reference"
-
 type FieldReference struct {
 	modelID model.ID
 }

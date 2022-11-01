@@ -1,25 +1,23 @@
 package item
 
-import "github.com/reearth/reearth-cms/server/pkg/schema"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
+)
 
 type Field struct {
 	schemaFieldID schema.FieldID
-	valueType     schema.Type
-	value         any
+	value         *value.Value
 }
 
-func NewField(schemaFieldID schema.FieldID, valueType schema.Type, value any) *Field {
-	return &Field{schemaFieldID: schemaFieldID, valueType: valueType, value: value}
+func NewField(schemaFieldID schema.FieldID, value *value.Value) *Field {
+	return &Field{schemaFieldID: schemaFieldID, value: value}
 }
 
 func (f *Field) SchemaFieldID() schema.FieldID {
 	return f.schemaFieldID
 }
 
-func (f *Field) ValueType() schema.Type {
-	return f.valueType
-}
-
-func (f *Field) Value() any {
+func (f *Field) Value() *value.Value {
 	return f.value
 }

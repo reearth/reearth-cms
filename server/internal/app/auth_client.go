@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	publicApi "github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/usecasex"
@@ -24,6 +24,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			ctx := req.Context()
 
 			var u *user.User
+			var err error
 
 			// get sub from context
 			ai := adapter.GetAuthInfo(ctx)
@@ -50,21 +51,9 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
-			token := getPublicApiToken(req)
-			if token != "" {
-				var p *publicApi.PublicApiItem
-				var err error
-				p, err = cfg.Repos.publicapi.FindByToken(ctx, token)
-				if err != nil {
-					return err
-				}
-
-				op, err := generatePublicApiOperator(ctx, cfg, p)
-				if err != nil {
-					return err
-				}
-
-				ctx = adapter.AttachOperator(ctx, op)
+			ctx, err = attachOperatorFromPublicAPIToken(ctx, cfg.Repos.Project, getPublicAPIToken(req))
+			if err != nil {
+				return err
 			}
 
 			c.SetRequest(req.WithContext(ctx))
@@ -130,12 +119,30 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 	}, nil
 }
 
-func getPublicApiToken(req *http.Request) string {
+func getPublicAPIToken(req *http.Request) string {
 	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
 	if strings.HasPrefix(token, "key_") {
 		return token
 	}
 	return ""
+}
+
+func attachOperatorFromPublicAPIToken(ctx context.Context, r repo.Project, token string) (context.Context, error) {
+	if token == "" {
+		return ctx, nil
+	}
+
+	p, err := r.FindByPublicAPIToken(ctx, token)
+	if err != nil {
+		return ctx, err
+	}
+
+	op := &usecase.Operator{
+		ReadableWorkspaces: id.WorkspaceIDList{p.Workspace()},
+		ReadableProjects:   id.ProjectIDList{p.ID()},
+	}
+
+	return adapter.AttachOperator(ctx, op), nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

@@ -2,8 +2,6 @@ package schema
 
 import "errors"
 
-var TypeInteger Type = "integer"
-
 var (
 	ErrMinMaxInvalid     = errors.New("max must be larger then min")
 	ErrMinDefaultInvalid = errors.New("defaultValue must be larger then min")

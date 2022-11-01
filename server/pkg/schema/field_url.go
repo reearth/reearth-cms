@@ -2,8 +2,6 @@ package schema
 
 import "net/url"
 
-var TypeURL Type = "url"
-
 type FieldURL struct {
 	defaultValue *string
 }

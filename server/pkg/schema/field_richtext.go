@@ -1,7 +1,5 @@
 package schema
 
-var TypeRichText Type = "richText"
-
 type FieldRichText struct {
 	defaultValue *string
 	maxLength    *int

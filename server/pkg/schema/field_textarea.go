@@ -1,7 +1,5 @@
 package schema
 
-var TypeTextArea Type = "textarea"
-
 type FieldTextArea struct {
 	defaultValue *string
 	maxLength    *int
