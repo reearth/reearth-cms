@@ -22,6 +22,9 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.user.IsNil() && b.a.integration.IsNil() {
 		return nil, ErrNoUser
 	}
+	if b.a.thread.IsNil() {
+		return nil, ErrNoThread
+	}
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
 	}

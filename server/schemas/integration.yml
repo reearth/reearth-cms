@@ -1,0 +1,453 @@
+openapi: 3.0.3
+info:
+  title: ReEarth-CMS Integration API
+  description: ReEarth-CMS Integration API
+  version: 1.0.0
+servers:
+  - url: 'https//cms.reearth.io/api/v1'
+    description: main server for accessing the cms integration api
+paths:
+  /models/{modelId}/items:
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ItemFilter
+      security:
+        - bearerAuth: []
+      summary: Returns a list of items.
+      description: Returns a list of items with filtering and ordering.
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/item'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: ItemCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /items/{itemId}:
+    parameters:
+      - $ref: '#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemGet
+      security:
+        - bearerAuth: []
+      summary: Returns an items.
+      description: Returns an item.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: An item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: ItemDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: delete an item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ItemID
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid request parameter value
+        '404':
+          description: Not found
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /models/{modelId}/items/{itemId}/refs:
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/itemIdParam'
+    post:
+      operationId: ItemPublish
+      security:
+        - bearerAuth: []
+      summary: Set ref and version.
+      description: Set ref and version for the selected item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refOrVer'
+      responses:
+        '200':
+          description: An item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /projects/{projectId}/assets:
+    parameters:
+      - $ref: '#/components/parameters/projectIdParam'
+    get:
+      operationId: AssetFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of assets.
+      description: Returns a list of assets with filtering and ordering.
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/asset'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: AssetCreate
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of assets.
+      description: Returns a list of assets with filtering and ordering.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /projects/{projectId}/assets/{assetId}:
+    parameters:
+      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetGet
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: AssetDelete
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.AssetID
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+components:
+  parameters:
+    projectIdParam:
+      name: projectId
+      in: path
+      description: ID of the selected project within the selected workspace
+      required: true
+      schema:
+        x-go-type: id.ProjectID
+    modelIdParam:
+      name: modelId
+      in: path
+      description: ID of the selected model within the selected project
+      required: true
+      schema:
+        x-go-type: id.ModelID
+        type: string
+        format: uuid
+    itemIdParam:
+      name: itemId
+      in: path
+      description: ID of the selected item
+      required: true
+      schema:
+        x-go-type: id.ItemID
+        type: string
+        format: uuid
+    assetIdParam:
+      name: assetId
+      in: path
+      description: ID of the selected asset
+      required: true
+      schema:
+        x-go-type: id.AssetID
+        type: string
+        format: uuid
+    sortParam:
+      name: sort
+      in: query
+      description: Used to define the order of the response list
+      required: false
+      schema:
+        type: string
+        default: createdAt
+        enum:
+          - createdAt
+          - updatedAt
+    sortDirParam:
+      name: dir
+      in: query
+      description: Used to define the order direction of the response list, will be ignored if the order is not presented
+      required: false
+      schema:
+        type: string
+        default: desc
+        enum:
+          - asc
+          - desc
+    pageParam:
+      name: page
+      in: query
+      description: Used to select the page
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    perPageParam:
+      name: perPage
+      in: query
+      description: Used to select the page
+      required: false
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 100
+    refParam:
+      name: ref
+      in: query
+      description: Used to select a ref or ver
+      required: false
+      schema:
+        type: string
+        default: latest
+        enum:
+          - latest
+          - public
+  schemas:
+    field:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+          format: uuid
+          example: ""
+        type:
+          type: string
+          enum:
+            - text
+            - textArea
+            -
+        value:
+          type: string
+          example: 1
+    item:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+          format: uuid
+        version:
+          type: string
+          format: uuid
+        parents:
+          type: array
+          items:
+            type: string
+            format: uuid
+        refs:
+          type: array
+          items:
+            type: string
+        archived:
+          type: boolean
+          default: false
+        modelId:
+          x-go-type: id.ModelID
+          type: string
+          format: uuid
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/field"
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+    refOrVer:
+      type: object
+      properties:
+        ref:
+          type: string
+          enum:
+            - latest
+            - public
+        ver:
+          type: string
+          format: uuid
+    asset:
+      type: object
+      properties:
+        id:
+          x-go-type: id.AssetID
+          type: string
+          format: uuid
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+          format: uuid
+        name:
+          type: string
+        contentType:
+          type: string
+        previewType:
+          type: string
+          enum:
+            - image
+            - geo
+            - geo3d
+            - model3d
+        totalSize:
+          type: number
+        file:
+          $ref: '#/components/schemas/file'
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+    file:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+        contentType:
+          type: string
+        url:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/file'
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

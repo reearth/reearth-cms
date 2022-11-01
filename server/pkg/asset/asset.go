@@ -1,6 +1,7 @@
 package asset
 
 import (
+	"path"
 	"time"
 
 	"github.com/reearth/reearthx/util"
@@ -67,6 +68,10 @@ func (a *Asset) UUID() string {
 	return a.uuid
 }
 
+func (a *Asset) RootPath() string {
+	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
+}
+
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
 }
@@ -87,9 +92,14 @@ func (a *Asset) Clone() *Asset {
 		previewType: a.previewType,
 		file:        a.file,
 		uuid:        a.uuid,
+		thread:      a.thread.Clone(),
 	}
 }
 
 func (a *Asset) Thread() ThreadID {
 	return a.thread
+}
+
+func (a *Asset) SetFile(f *File) {
+	a.file = f
 }

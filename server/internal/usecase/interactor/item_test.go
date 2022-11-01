@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -112,13 +113,15 @@ func TestItem_FindBySchema(t *testing.T) {
 	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
-	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	v1 := true
+	sf1 := schema.NewFieldBool(&v1).NewID().Key(key.Random()).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
@@ -166,7 +169,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: nil,
 		},
 		{
@@ -181,7 +184,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    nil,
+			want:    item.List{},
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -480,6 +483,120 @@ func TestItem_FindByProject(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestItem_Search(t *testing.T) {
+	sid1 := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	id1 := id.NewItemID()
+	pid := id.NewProjectID()
+	i1, _ := item.New().ID(id1).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	id2 := id.NewItemID()
+	i2, _ := item.New().ID(id2).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	id3 := id.NewItemID()
+	i3, _ := item.New().ID(id3).Schema(sid1).Project(pid).Fields([]*item.Field{f2}).Build()
+
+	wid := id.NewWorkspaceID()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
+	op := &usecase.Operator{
+		User: u.ID(),
+	}
+
+	tests := []struct {
+		name  string
+		seeds struct {
+			items item.List
+		}
+		args struct {
+			query    *item.Query
+			operator *usecase.Operator
+		}
+		want        int
+		mockItemErr bool
+		wantErr     error
+	}{
+		{
+			name: "find 2 of 3",
+			seeds: struct {
+				items item.List
+			}{
+				items: item.List{i1, i2, i3},
+			},
+			args: struct {
+				query    *item.Query
+				operator *usecase.Operator
+			}{
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "foo"),
+				operator: op,
+			},
+			want:    2,
+			wantErr: nil,
+		},
+		{
+			name: "find 1 of 3",
+			seeds: struct {
+				items item.List
+			}{
+				items: item.List{i1, i2, i3},
+			},
+			args: struct {
+				query    *item.Query
+				operator *usecase.Operator
+			}{
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "hoge"),
+				operator: op,
+			},
+			want:    1,
+			wantErr: nil,
+		},
+		{
+			name: "items not found",
+			seeds: struct {
+				items item.List
+			}{
+				items: item.List{i1, i2, i3},
+			},
+			args: struct {
+				query    *item.Query
+				operator *usecase.Operator
+			}{
+				query:    item.NewQuery(id.NewWorkspaceID(), pid, "xxx"),
+				operator: op,
+			},
+			want:    0,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockItemErr {
+				memory.SetItemError(db.Item, tc.wantErr)
+			}
+			for _, seed := range tc.seeds.items {
+				err := db.Item.Save(ctx, seed)
+				assert.Nil(t, err)
+			}
+			itemUC := NewItem(db)
+
+			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, len(got))
+
 		})
 	}
 }

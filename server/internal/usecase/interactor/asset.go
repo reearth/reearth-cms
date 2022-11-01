@@ -10,7 +10,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Asset struct {
@@ -80,11 +83,16 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
-			f := &asset.File{}
-			f.SetName(inp.File.Path)
-			f.SetSize(uint64(inp.File.Size))
-			f.SetContentType(inp.File.ContentType)
-			f.SetPath(inp.File.Path)
+			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
+
+			if err != nil {
+				return nil, err
+			}
+			if err := i.repos.Thread.Save(ctx, th); err != nil {
+				return nil, err
+			}
+
+			f := asset.NewFile().Name(inp.File.Path).Path(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
 			ab := asset.New().
 				NewID().
@@ -93,7 +101,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				Size(uint64(inp.File.Size)).
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
-				UUID(uuid)
+				UUID(uuid).
+				Thread(th.ID())
 
 			if operator.User != nil {
 				ab.CreatedByUser(*operator.User)
@@ -108,6 +117,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			// taskPayload for runner
+			taskPayload := task.DecompressAssetPayload{
+				AssetID: a.ID().String(),
+				Path:    a.RootPath(),
+			}
+
+			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())
+			if err != nil {
 				return nil, err
 			}
 
@@ -134,6 +154,40 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 			}
 
 			return asset, nil
+		},
+	)
+}
+
+func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func() (*asset.Asset, error) {
+			a, err := i.repos.Asset.FindByID(ctx, a)
+			if err != nil {
+				return nil, err
+			}
+
+			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+			if err != nil {
+				return nil, err
+			}
+
+			assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+				return asset.NewFile().
+					Name(path.Base(f.Name)).
+					Path(f.Name).
+					GuessContentType().
+					Build()
+			})
+
+			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
+
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			return a, nil
 		},
 	)
 }

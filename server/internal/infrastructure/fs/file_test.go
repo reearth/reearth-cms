@@ -52,6 +52,18 @@ func TestFile_ReadAsset(t *testing.T) {
 	assert.Nil(t, r)
 }
 
+func TestFile_GetAssetFiles(t *testing.T) {
+	fs := mockFs()
+	f, _ := NewFile(fs, "", "")
+
+	files, err := f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464")
+	assert.NoError(t, err)
+	assert.Equal(t, []gateway.FileEntry{
+		{Name: "xxx.txt", Size: 5},
+		{Name: "yyy/hello.txt", Size: 6},
+	}, files)
+}
+
 func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
 	f, _ := NewFile(fs, "https://example.com/assets", "")
@@ -113,7 +125,7 @@ func TestFile_GetURL(t *testing.T) {
 
 	u := newUUID()
 	n := "xxx.yyy"
-	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).MustBuild()
+	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
 
 	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
 	assert.NoError(t, err)
@@ -141,9 +153,10 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt": "hello",
-		"plugins/aaa~1.0.0/foo.js":                             "bar",
-		"published/s.json":                                     "{}",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt":       "hello",
+		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/yyy/hello.txt": "hello!",
+		"plugins/aaa~1.0.0/foo.js":                                   "bar",
+		"published/s.json":                                           "{}",
 	}
 
 	fs := afero.NewMemMapFs()

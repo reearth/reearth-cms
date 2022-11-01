@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -11,19 +12,32 @@ import {
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useModel } from "@reearth-cms/state";
 
-type Params = {
-  projectId?: string;
-  modelId?: string;
-};
-
-export default ({ projectId, modelId }: Params) => {
+export default () => {
   const t = useT();
+  const navigate = useNavigate();
+  const { projectId, workspaceId, modelId } = useParams();
+  const [currentModel] = useModel();
 
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const [collapsed, collapse] = useState(false);
+
+  useEffect(() => {
+    if (!modelId && currentModel) {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
+    }
+  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleModelSelect = useCallback(
+    (modelId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", first: 100 },
@@ -34,6 +48,7 @@ export default ({ projectId, modelId }: Params) => {
     () => data?.models.nodes.find((p: any) => p?.id === modelId),
     [data, modelId],
   );
+
   const model = useMemo<Model | undefined>(
     () =>
       rawModel?.id
@@ -190,6 +205,9 @@ export default ({ projectId, modelId }: Params) => {
     selectedField,
     model,
     selectedType,
+    collapsed,
+    collapse,
+    handleModelSelect,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,

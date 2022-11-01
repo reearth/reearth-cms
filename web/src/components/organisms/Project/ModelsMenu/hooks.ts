@@ -64,7 +64,7 @@ export default ({ projectId, modelId }: Params) => {
 
   useEffect(() => {
     if (model?.id === currentModel?.id) return;
-    setCurrentModel(model);
+    setCurrentModel(model ?? currentModel);
   }, [model, currentModel, setCurrentModel]);
 
   const [createNewModel] = useCreateModelMutation({
@@ -92,17 +92,17 @@ export default ({ projectId, modelId }: Params) => {
     [createNewModel, projectId, t],
   );
 
-  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModalClose = useCallback(() => setModelModalShown(false), []);
 
-  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
+  const handleModalOpen = useCallback(() => setModelModalShown(true), []);
 
   return {
     model,
     models,
     modelModalShown,
     isKeyAvailable,
-    handleModelModalOpen,
-    handleModelModalClose,
+    handleModalOpen,
+    handleModalClose,
     handleModelCreate,
     handleModelKeyCheck,
   };

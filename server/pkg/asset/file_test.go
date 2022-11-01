@@ -1,27 +1,33 @@
 package asset
 
 import (
+	"fmt"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFile_FileType(t *testing.T) {
-	c := []*File{}
-	var size uint64 = 15
-	got := File{}
+	c := NewFile().Build()
+	f := NewFile().Name("aaa.txt").Path("/aaa.txt").Size(10).GuessContentType().Children([]*File{c}).Build()
 
-	got.SetName("hoge")
-	got.SetSize(size)
-	got.SetContentType("xxx")
-	got.SetPath("yyy")
-	got.SetChildren(c...)
+	assert.Equal(t, "aaa.txt", f.Name())
+	assert.Equal(t, uint64(10), f.Size())
+	assert.Equal(t, "text/plain; charset=utf-8", f.ContentType())
+	assert.Equal(t, "/aaa.txt", f.Path())
+	assert.Equal(t, []*File{c}, f.Children())
 
-	assert.Equal(t, "hoge", got.Name())
-	assert.Equal(t, size, got.Size())
-	assert.Equal(t, "xxx", got.ContentType())
-	assert.Equal(t, "yyy", got.Path())
-	assert.Equal(t, c, got.Children())
+	f.SetName("bbb")
+	assert.Equal(t, "bbb", f.Name())
+
+	c2 := NewFile().Build()
+	f.AppendChild(c2)
+	assert.Equal(t, []*File{c, c2}, f.Children())
+
+	dir := NewFile().Name("dir").Path("/aaa").Children([]*File{c}).Build()
+	assert.True(t, dir.IsDir())
+
 }
 
 func TestFile_Children(t *testing.T) {
@@ -37,11 +43,69 @@ func TestFile_Children(t *testing.T) {
 	assert.Equal(t, c, got.Children())
 }
 
-func TestFile_SetChildren(t *testing.T) {
-	f := File{}
-	c := []*File{&f}
-	got := File{}
+func Test_FoldFiles(t *testing.T) {
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "a.txt", path: "/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/b.txt", size: 20, contentType: "text/plain"},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/b.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "hello", path: "/hello", size: 0, contentType: "", children: []*File{
+					{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+					{name: "b.txt", path: "/hello/b.txt", size: 20, contentType: "text/plain"},
+				}},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/hello/b.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
 
-	got.SetChildren(c...)
-	assert.Equal(t, got.Children(), c)
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "hello", path: "/hello", size: 0, contentType: "", children: []*File{
+					{name: "c.txt", path: "/hello/c.txt", size: 20, contentType: "text/plain"},
+					{name: "good", path: "/hello/good", size: 0, contentType: "", children: []*File{
+						{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+						{name: "b.txt", path: "/hello/good/b.txt", size: 10, contentType: "text/plain"},
+					}},
+				}},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/hello/good/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/hello/good/b.txt", size: 10, contentType: "text/plain"},
+				{name: "c.txt", path: "/hello/c.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
+
+}
+
+func Test_Example(t *testing.T) {
+	b := "/aaa/bbb/ccc.txt"
+	res := path.Base(b)
+	fmt.Printf("res ----: %v", res)
 }

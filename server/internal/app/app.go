@@ -9,10 +9,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
@@ -39,10 +42,6 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 			}),
 		)
 	}
-	e.Use(
-		jwtEchoMiddleware(cfg),
-		authMiddleware(cfg),
-	)
 
 	// GraphQL Playground without auth
 	if cfg.Debug || cfg.Config.Dev {
@@ -52,16 +51,32 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		log.Printf("gql: GraphQL Playground is available")
 	}
 
-	e.Use(UsecaseMiddleware(cfg.Repos, cfg.Gateways, interactor.ContainerConfig{
+	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
+	))
+	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
+		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
+	))
+	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
-	}))
+	})
 
 	// apis
 	api := e.Group("/api")
 	api.GET("/ping", Ping())
-	api.POST("/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev))
-
+	api.POST(
+		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev),
+		internalJWTMiddleware,
+		authMiddleware(cfg),
+		usecaseMiddleware,
+	)
+	api.POST(
+		"/notify", NotifyHandler(),
+		m2mJWTMiddleware,
+		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
+		usecaseMiddleware,
+	)
 	integrationApi := e.Group("/api")
 	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
 	integration.RegisterHandlers(integrationApi, integrationHandlers)

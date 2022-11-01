@@ -3,5 +3,7 @@
   "go.lintTool": "golangci-lint",
   "go.lintFlags": [
     "--config=${workspaceFolder}/.golangci.yml"
-  ]
+  ],
+  "gopls": { "experimentalWorkspaceModule": true}
+
 }

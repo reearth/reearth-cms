@@ -1,5 +1,23 @@
 Download: ''
 Loading: ローディング中
+Oops!: ''
+PAGE NOT FOUND ON SERVER: ''
+Go back Home: ''
+Are you sure you want to delete your account?: ''
+Danger Zone: 重要操作項目
+Delete Personal Account: ''
+Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
+Account Name: ''
+This is your ID that is used between Re:Earth and Re:Earth CMS.: ''
+Your Email: ''
+Please enter the email address you want to use to log in with Re:Earth CMS.: ''
+Save: 保存
+General: ''
+Service: ''
+Auto: ''
+Service Language: ''
+This will change the UI language: ''
+Language: ''
 Unzip File: ''
 Asset Type: ''
 Created Time: ''
@@ -10,9 +28,9 @@ PNG/JPEG/TIFF/SVG: ''
 JSON/SHAPEFILE/KML/CZML: ''
 GEO3D: ''
 MODEL3D/GLB: ''
+Unknown Type: ''
 Could not display svg: ''
 Not supported: ''
-Save: 保存
 File: ''
 Size: ''
 Preview Type: ''
@@ -88,11 +106,9 @@ Models: モデル
 Add: 追加
 New Integration: 新規インテグレーション
 Create: 作成
-Logo Image: ロゴ画像
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Integration Token: インテグレーショントークン
-Please input the logo of the integration!: インテグレーションのロゴを設定してください
 Create new integration: 新規インテグレーション作成
 Update: アップデート
 Delete: 削除
@@ -120,7 +136,6 @@ Public Scope: ''
 Choose the scope of your project. This affects all the models shown below that are switched on.: ''
 Save changes: 変更を保存
 Add Field: フィールドを追加
-Setting: 設定
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
 Please input the key of the field!: このフィールドのキーを入力してください
@@ -137,6 +152,7 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
+Setting: 設定
 Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
@@ -149,6 +165,17 @@ Please input the key of the model!: このモデルのキーを入力してく�
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
+Are you sure you want to delete this workspace?: ''
+Remove Workspace: ''
+Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
+Workspace Name: ''
+This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ''
+Failed to update user.: ''
+Successfully updated user!: ''
+Failed to update language.: ''
+Successfully updated language!: ''
+Failed to delete user.: ''
+Successfully deleted user!: ''
 Failed to update asset.: ''
 Asset was successfully updated!: ''
 Failed to add one or more assets.: ''
@@ -176,7 +203,6 @@ Failed to delete project.: ''
 Successfully deleted project!: ''
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Write something here to describe this record.: このレコードの説明を入力してください
-Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
 Failed to connect integration.: ''
 Successfully connected integration to the workspace!: ''
@@ -203,3 +229,7 @@ Failed to create integration.: ''
 Successfully created integration!: ''
 Failed to create project.: ''
 Successfully created project!: ''
+Failed to update workspace.: ''
+Successfully updated workspace!: ''
+Failed to delete workspace.: ''
+Successfully deleted workspace!: ''

@@ -20,6 +20,7 @@ type AssetDocument struct {
 	PreviewType string
 	File        *File
 	UUID        string
+	Thread      string
 }
 
 type File struct {
@@ -68,6 +69,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		PreviewType: previewType,
 		File:        ToFile(file),
 		UUID:        a.UUID(),
+		Thread:      a.Thread().String(),
 	}, aid
 
 	return ad, id
@@ -82,6 +84,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
+	thid, err := id.ThreadIDFrom(d.Thread)
+	if err != nil {
+		return nil, err
+	}
 
 	ab := asset.New().
 		ID(aid).
@@ -91,7 +97,8 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
-		UUID(d.UUID)
+		UUID(d.UUID).
+		Thread(thid)
 
 	if d.User != nil {
 		uid, err := id.UserIDFrom(*d.User)
@@ -145,12 +152,13 @@ func FromFile(f *File) *asset.File {
 		}
 	}
 
-	af := asset.File{}
-	af.SetName(f.Name)
-	af.SetSize(f.Size)
-	af.SetContentType(f.ContentType)
-	af.SetPath(f.Path)
-	af.SetChildren(c...)
+	af := asset.NewFile().
+		Name(f.Name).
+		Size(f.Size).
+		ContentType(f.ContentType).
+		Path(f.Path).
+		Children(c).
+		Build()
 
-	return &af
+	return af
 }

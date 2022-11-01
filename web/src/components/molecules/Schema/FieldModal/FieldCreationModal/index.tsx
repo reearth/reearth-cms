@@ -16,7 +16,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
 
-export interface FormValues {
+export type FormValues = {
   title: string;
   description: string;
   key: string;
@@ -25,15 +25,15 @@ export interface FormValues {
   required: boolean;
   type: FieldType;
   typeProperty: CreationFieldTypePropertyInput;
-}
+};
 
-export interface Props {
+export type Props = {
   open?: boolean;
   selectedType: FieldType;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
-}
+};
 
 const initialValues: FormValues = {
   title: "",
@@ -48,15 +48,16 @@ const initialValues: FormValues = {
 
 const FieldCreationModal: React.FC<Props> = ({
   open,
+  selectedType,
   onClose,
   onSubmit,
   handleFieldKeyUnique,
-  selectedType,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
   const selectedValues = Form.useWatch("values", form);
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -114,7 +115,7 @@ const FieldCreationModal: React.FC<Props> = ({
             <StyledIcon
               icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
-            />{" "}
+            />
             <h3>
               {t("Create")} {fieldTypes[selectedType].title}
             </h3>
@@ -126,7 +127,7 @@ const FieldCreationModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Setting")} key="setting">
+          <TabPane tab={t("Settings")} key="setting" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -208,22 +209,27 @@ const FieldCreationModal: React.FC<Props> = ({
             )}
             <Form.Item
               name="multiValue"
+              valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Validation" key="validation">
+          <TabPane tab="Validation" key="validation" forceRender>
             <FieldValidationProps selectedType={selectedType} />
-            <Form.Item name="required" extra={t("Prevents saving an entry if this field is empty")}>
+            <Form.Item
+              name="required"
+              valuePropName="checked"
+              extra={t("Prevents saving an entry if this field is empty")}>
               <Checkbox>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
+              valuePropName="checked"
               extra={t("Ensures that a multiple entries can't have the same value for this field")}>
               <Checkbox>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>
