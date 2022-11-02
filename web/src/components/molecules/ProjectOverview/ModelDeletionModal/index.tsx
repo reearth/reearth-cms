@@ -30,7 +30,7 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
         </Button>,
       ]}>
       <p>
-        {t("Are you sure you want to delete this model ")} <ModelName> {model?.name} </ModelName>?
+        {t("Are you sure you want to delete the model")} <ModelName> {model?.name} </ModelName>?
       </p>
       <Alert
         message={t("Warning")}
