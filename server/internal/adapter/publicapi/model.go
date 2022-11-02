@@ -68,21 +68,61 @@ func NewItemField(f *item.Field, _ *schema.Field) (res any) {
 	if v == nil {
 		return
 	}
-
-	/* TODO: imp switch case
 	switch v {
-	case Text:
-		(v * string)
+	case value.TypeText:
 		if v != nil {
-			return *v
+			return v
 		}
-	case Date:
-		(v * time.Time)
+	case value.TypeTextArea:
 		if v != nil {
-			return v.Format(time.RFC3339)
+			return v
+		}
+	case value.TypeRichText:
+		if v != nil {
+			return v
+		}
+	case value.TypeMarkdown:
+		if v != nil {
+			return v
+		}
+	case value.TypeDate:
+		if v != nil {
+			// v, _ = time.Parse(time.RFC3339, string(v))
+			return v
+		}
+	case value.TypeAsset:
+		if v != nil {
+			return v
+		}
+	case value.TypeBool:
+		if v != nil {
+			return v
+		}
+	case value.TypeSelect:
+		if v != nil {
+			return v
+		}
+	case value.TypeTag:
+		if v != nil {
+			return v
+		}
+	case value.TypeInteger:
+		if v != nil {
+			return v
+		}
+	case value.TypeReference:
+		if v != nil {
+			return v
+		}
+	case value.TypeURL:
+		if v != nil {
+			return v
+		}
+	case value.TypeUnknown:
+		if v != nil {
+			return v
 		}
 	}
-	*/
 	return v
 }
 

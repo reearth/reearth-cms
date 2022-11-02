@@ -151,7 +151,7 @@ func (t *TypeProperty) Type() value.Type {
 	if t.text != nil {
 		return value.TypeText
 	} else if t.textArea != nil {
-		return value.TypeTextAre
+		return value.TypeTextArea
 	} else if t.richText != nil {
 		return value.TypeRichText
 	} else if t.markdown != nil {
