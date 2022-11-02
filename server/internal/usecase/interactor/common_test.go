@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
@@ -49,7 +50,7 @@ func TestCommon_createEvent(t *testing.T) {
 	now := util.Now()
 	defer util.MockNow(now)()
 	uID := user.NewID()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
+	a := asset.New().NewID().Thread(id.NewThreadID()).Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
@@ -77,7 +78,7 @@ func TestCommon_createEvent(t *testing.T) {
 func TestCommon_webhook(t *testing.T) {
 	now := time.Now()
 	uID := user.NewID()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
+	a := asset.New().NewID().Thread(id.NewThreadID()).Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()

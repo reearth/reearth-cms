@@ -161,8 +161,8 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	c := []*asset.File{}
-	f := asset.NewFile().Children(c).Build()
+	c := asset.NewFile().Path("/").Build()
+	f := asset.NewFile().Path("/").Children([]*asset.File{c}).Build()
 	a1 := asset.New().ID(id1).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).Thread(id.NewThreadID()).MustBuild()
 	a2 := asset.New().ID(id2).Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).Thread(id.NewThreadID()).MustBuild()
 
@@ -254,8 +254,8 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	c := []*asset.File{}
-	f := asset.NewFile().Children(c).Build()
+	c := asset.NewFile().Path("/").Build()
+	f := asset.NewFile().Path("/").Children([]*asset.File{c}).Build()
 	a1 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).Thread(id.NewThreadID()).MustBuild()
 	a2 := asset.New().NewID().Project(pid1).CreatedAt(tim).CreatedBy(uid1).Size(1000).File(f).Thread(id.NewThreadID()).MustBuild()
 

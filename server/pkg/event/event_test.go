@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 
 func TestEvent(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
+	a := asset.New().NewID().Thread(id.NewThreadID()).Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	now := time.Now()
 	eID := NewID()
 	ev := New[*asset.Asset]().ID(eID).Timestamp(now).Type(AssetCreate).Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
