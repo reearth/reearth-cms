@@ -10,20 +10,21 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useWorkspace } from "@reearth-cms/state";
+import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
 import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 type Params = {
-  projectId?: string;
   modelId?: string;
 };
 
-export default ({ projectId, modelId }: Params) => {
+export default ({ modelId }: Params) => {
   const t = useT();
   const [currentModel, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
+  const [currentProject] = useProject();
   const navigate = useNavigate();
 
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
 
@@ -31,14 +32,21 @@ export default ({ projectId, modelId }: Params) => {
     fetchPolicy: "no-cache",
   });
 
+  console.log(projectId);
+
   const handleModelKeyCheck = useCallback(
-    async (projectId: string, key: string, ignoredKey?: string) => {
+    async (key: string, ignoredKey?: string) => {
+      console.log(key);
+      console.log(ignoredKey);
+
+      console.log(projectId);
+
       if (!projectId || !key) return false;
       if (ignoredKey && key === ignoredKey) return true;
       const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
       return response.data ? response.data.checkModelKeyAvailability.available : false;
     },
-    [CheckModelKeyAvailability],
+    [projectId, CheckModelKeyAvailability],
   );
 
   useEffect(() => {

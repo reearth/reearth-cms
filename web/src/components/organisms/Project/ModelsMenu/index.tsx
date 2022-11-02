@@ -13,7 +13,7 @@ export interface Props {
 }
 
 const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelect }) => {
-  const { projectId, modelId } = useParams();
+  const { modelId } = useParams();
 
   const {
     model,
@@ -25,7 +25,6 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelec
     handleModelCreate,
     handleModelKeyCheck,
   } = useHooks({
-    projectId,
     modelId,
   });
 
@@ -42,7 +41,6 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelec
       />
       <ModelFormModal
         isKeyAvailable={isKeyAvailable}
-        projectId={projectId}
         open={modelModalShown}
         onModelKeyCheck={handleModelKeyCheck}
         onClose={handleModalClose}

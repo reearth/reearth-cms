@@ -17,18 +17,16 @@ export interface FormValues {
 
 export interface Props {
   model?: Model;
-  projectId?: string;
   open?: boolean;
   isKeyAvailable: boolean;
   onClose: () => void;
   onCreate?: (values: FormValues) => Promise<void> | void;
   OnUpdate?: (values: FormValues) => Promise<void> | void;
-  onModelKeyCheck: (projectId: string, key: string, ignoredKey?: string) => Promise<boolean>;
+  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
 }
 
 const ModelFormModal: React.FC<Props> = ({
   model,
-  projectId,
   open,
   onClose,
   onCreate,
@@ -44,7 +42,7 @@ const ModelFormModal: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onModelKeyCheck(projectId ?? "", values.key, model?.key);
+    await onModelKeyCheck(values.key, model?.key);
     if (!model?.id) {
       await onCreate?.(values);
     } else {
@@ -52,7 +50,7 @@ const ModelFormModal: React.FC<Props> = ({
     }
     onClose();
     form.resetFields();
-  }, [onModelKeyCheck, projectId, model, form, onClose, onCreate, OnUpdate]);
+  }, [onModelKeyCheck, model, form, onClose, onCreate, OnUpdate]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
@@ -84,7 +82,7 @@ const ModelFormModal: React.FC<Props> = ({
               message: t("Key is not valid"),
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onModelKeyCheck(projectId ?? "", value, model?.key);
+                const isKeyAvailable = await onModelKeyCheck(value, model?.key);
                 if (isKeyAvailable) {
                   return Promise.resolve();
                 } else {
