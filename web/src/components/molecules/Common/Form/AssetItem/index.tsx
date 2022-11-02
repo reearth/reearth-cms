@@ -55,9 +55,8 @@ const AssetItem: React.FC<Props> = ({
   const handleCancel = () => {
     setVisible(false);
   };
-  const handleConnect = (asset: any) => {
+  const handleConnect = (_asset: Asset) => {
     // TODO: implement connect asset with content
-    console.log(asset);
   };
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -73,13 +72,13 @@ const AssetItem: React.FC<Props> = ({
     createAssets(fileList).finally(() => {
       hideUploadModal();
       // TODO: connect the uploaded asset with content after uploading is done
-      console.log(fileList);
     });
   };
 
   const uploadProps: UploadProps = {
     name: "file",
-    multiple: true,
+    multiple: false,
+    maxCount: 1,
     directory: false,
     showUploadList: true,
     accept: imageFormats + "," + fileFormats,
@@ -90,8 +89,8 @@ const AssetItem: React.FC<Props> = ({
       newFileList.splice(index, 1);
       setFileList(newFileList);
     },
-    beforeUpload: (_file, files) => {
-      setFileList([...fileList, ...files]);
+    beforeUpload: file => {
+      setFileList([file]);
       return false;
     },
     fileList,
