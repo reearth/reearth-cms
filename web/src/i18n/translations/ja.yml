@@ -128,6 +128,11 @@ No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
 New Model: ''
+Edit: ''
+Delete Model: ''
+Are you sure you want to delete the model: ''
+Warning: ''
+This action will permanently delete the selected model and cannot be reversed.: ''
 Model: ''
 Switch: ''
 Private: ''
@@ -157,6 +162,7 @@ Validation: バリデーション
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Update Model: ''
 Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
@@ -189,6 +195,10 @@ Failed to update item.: ''
 Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
+Failed to delete model.: ''
+Successfully deleted model!: ''
+Failed to update model.: ''
+Successfully updated model!: ''
 Failed to update publication settings.: ''
 Successfully updated publication settings!: ''
 Failed to delete field.: ''

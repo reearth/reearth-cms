@@ -82,6 +82,10 @@ models:
     fields:
       workspace:
         resolver: true
+  Comment:  
+    fields:
+      author:
+        resolver: true
   DateTime:
     model: github.com/99designs/gqlgen/graphql.Time
   FileSize:

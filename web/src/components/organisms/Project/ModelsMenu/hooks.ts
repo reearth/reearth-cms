@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -9,18 +10,21 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel } from "@reearth-cms/state";
+import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
 import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 type Params = {
-  projectId?: string;
   modelId?: string;
 };
 
-export default ({ projectId, modelId }: Params) => {
+export default ({ modelId }: Params) => {
   const t = useT();
   const [currentModel, setCurrentModel] = useModel();
+  const [currentWorkspace] = useWorkspace();
+  const [currentProject] = useProject();
+  const navigate = useNavigate();
 
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isKeyAvailable, setIsKeyAvailable] = useState(false);
 
@@ -29,12 +33,13 @@ export default ({ projectId, modelId }: Params) => {
   });
 
   const handleModelKeyCheck = useCallback(
-    async (projectId: string, key: string) => {
+    async (key: string, ignoredKey?: string) => {
       if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
       const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
       return response.data ? response.data.checkModelKeyAvailability.available : false;
     },
-    [CheckModelKeyAvailability],
+    [projectId, CheckModelKeyAvailability],
   );
 
   useEffect(() => {
@@ -63,9 +68,8 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   useEffect(() => {
-    if (model?.id === currentModel?.id) return;
-    setCurrentModel(model ?? currentModel);
-  }, [model, currentModel, setCurrentModel]);
+    setCurrentModel(model ?? undefined);
+  }, [model, currentModel, modelId, setCurrentModel]);
 
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],
@@ -88,8 +92,11 @@ export default ({ projectId, modelId }: Params) => {
       }
       Notification.success({ message: t("Successfully created model!") });
       setModelModalShown(false);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${projectId}/schema/${model.data?.createModel.model.id}`,
+      );
     },
-    [createNewModel, projectId, t],
+    [currentWorkspace?.id, projectId, createNewModel, navigate, t],
   );
 
   const handleModalClose = useCallback(() => setModelModalShown(false), []);

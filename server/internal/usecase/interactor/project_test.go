@@ -554,6 +554,13 @@ func TestProject_Delete(t *testing.T) {
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 	}
 
+	opOwner := &usecase.Operator{
+		User:               u.ID(),
+		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
+		WritableWorkspaces: []id.WorkspaceID{wid1},
+		OwningWorkspaces:   []id.WorkspaceID{wid1},
+	}
+
 	type args struct {
 		id       id.ProjectID
 		operator *usecase.Operator
@@ -571,7 +578,7 @@ func TestProject_Delete(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				id:       pid1,
-				operator: op,
+				operator: opOwner,
 			},
 			want:    nil,
 			wantErr: nil,
@@ -587,10 +594,20 @@ func TestProject_Delete(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "delete od",
+			name:  "delete operation denied",
 			seeds: project.List{},
 			args: args{
 				id:       pid2,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "delete operation denied 2",
+			seeds: project.List{},
+			args: args{
+				id:       pid1,
 				operator: op,
 			},
 			want:    nil,
