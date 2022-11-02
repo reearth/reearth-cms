@@ -57,8 +57,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       dataIndex: "commentsCount",
       key: "commentsCount",
       render: (_, asset) => {
-        const commentCount = asset.comments?.length || 0;
-        return <CustomTag value={commentCount} />;
+        return <CustomTag value={asset.comments?.length || 0} />;
       },
     },
     {
