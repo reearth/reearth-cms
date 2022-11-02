@@ -8,10 +8,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type ContainerConfig struct {
@@ -34,8 +32,8 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 	}
 }
 
-func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any) error {
-	ev, err := event.New[any]().NewID().Object(o).Type(t).Timestamp(util.Now()).Build()
+func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any, op event.Operator) error {
+	ev, err := event.New[any]().NewID().Object(o).Type(t).Timestamp(util.Now()).Operator(op).Build()
 	if err != nil {
 		return err
 	}
@@ -43,6 +41,15 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, w
 	if err := r.Event.Save(ctx, ev); err != nil {
 		return err
 	}
+
+	if err := webhook(ctx, r, g, wsID, ev); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, ev *event.Event[any]) error {
 
 	// find workspace
 	ws, err := r.Workspace.FindByID(ctx, wsID)
@@ -57,15 +64,8 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, w
 		return err
 	}
 
-	// collect webhooks
-	webhooks := lo.FlatMap(integrations, func(i *integration.Integration, _ int) []*integration.Webhook {
-		return lo.Filter(i.Webhooks(), func(w *integration.Webhook, _ int) bool {
-			return w.Trigger().IsActive(t)
-		})
-	})
-
 	// call pubsub
-	for _, w := range webhooks {
+	for _, w := range integrations.ActiveWebhooks(ev.Type()) {
 		if err := g.TaskRunner.Run(ctx, task.WebhookPayload{
 			Webhook: w,
 			Event:   ev,
@@ -75,4 +75,5 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, w
 	}
 
 	return nil
+
 }

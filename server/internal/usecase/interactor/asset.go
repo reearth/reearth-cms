@@ -111,7 +111,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			if err := i.createEvent(ctx, prj.Workspace(), "asset.create", a); err != nil {
+			eOperator := event.OperatorFromUser(operator.User)
+			if err := i.createEvent(ctx, prj.Workspace(), "asset.create", a, eOperator); err != nil {
 				return nil, err
 			}
 
@@ -199,6 +200,6 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 	)
 }
 
-func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset) error {
-	return createEvent(ctx, i.repos, i.gateways, wid, t, a)
+func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) error {
+	return createEvent(ctx, i.repos, i.gateways, wid, t, a, op)
 }
