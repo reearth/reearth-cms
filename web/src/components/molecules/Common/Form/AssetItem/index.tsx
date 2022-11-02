@@ -83,11 +83,8 @@ const AssetItem: React.FC<Props> = ({
     showUploadList: true,
     accept: imageFormats + "," + fileFormats,
     listType: "picture",
-    onRemove: file => {
-      const index = fileList.indexOf(file);
-      const newFileList = fileList.slice();
-      newFileList.splice(index, 1);
-      setFileList(newFileList);
+    onRemove: _file => {
+      setFileList([]);
     },
     beforeUpload: file => {
       setFileList([file]);
