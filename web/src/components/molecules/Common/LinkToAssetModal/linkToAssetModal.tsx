@@ -6,7 +6,9 @@ import ProTable, {
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -20,6 +22,13 @@ type Props = {
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   loading: boolean;
+  fileList: UploadFile<File>[];
+  uploading: boolean;
+  uploadProps: UploadProps;
+  uploadModalVisibility: boolean;
+  displayUploadModal: () => void;
+  hideUploadModal: () => void;
+  handleUpload: () => void;
 };
 
 const LinkToAssetModal: React.FC<Props> = ({
@@ -30,6 +39,13 @@ const LinkToAssetModal: React.FC<Props> = ({
   onSearchTerm,
   onAssetsReload,
   loading,
+  fileList,
+  uploading,
+  uploadProps,
+  uploadModalVisibility,
+  displayUploadModal,
+  hideUploadModal,
+  handleUpload,
 }) => {
   const t = useT();
 
@@ -93,9 +109,16 @@ const LinkToAssetModal: React.FC<Props> = ({
       visible={visible}
       onCancel={onCancel}
       footer={[
-        <Button key="upload" icon={<Icon icon="upload" />}>
-          {t("Upload Asset")}
-        </Button>,
+        <UploadAsset
+          key={1}
+          fileList={fileList}
+          uploading={uploading}
+          uploadProps={uploadProps}
+          uploadModalVisibility={uploadModalVisibility}
+          displayUploadModal={displayUploadModal}
+          hideUploadModal={hideUploadModal}
+          handleUpload={handleUpload}
+        />,
       ]}
       width="70vw"
       bodyStyle={{

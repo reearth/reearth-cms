@@ -19,7 +19,19 @@ const ContentDetails: React.FC = () => {
     handleNavigateToModel,
   } = useHooks();
   const { projectId } = useParams();
-  const { assetList, handleSearchTerm, handleAssetsReload, loading } = useAssetHooks(projectId);
+  const {
+    assetList,
+    handleSearchTerm,
+    handleAssetsReload,
+    loading,
+    createAssets,
+    fileList,
+    setFileList,
+    setUploading,
+    setUploadModalVisibility,
+    uploading,
+    uploadModalVisibility,
+  } = useAssetHooks(projectId);
   const t = useT();
 
   return (
@@ -28,6 +40,13 @@ const ContentDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       onAssetsReload={handleAssetsReload}
       loadingAssets={loading}
+      createAssets={createAssets}
+      fileList={fileList}
+      setFileList={setFileList}
+      setUploading={setUploading}
+      setUploadModalVisibility={setUploadModalVisibility}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}

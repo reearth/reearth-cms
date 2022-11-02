@@ -1,12 +1,14 @@
 import styled from "@emotion/styled";
 import { FormItemProps } from "antd/lib/form/FormItem";
 import { FormItemLabelProps } from "antd/lib/form/FormItemLabel";
-import React, { useState } from "react";
+import React, { useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
 
 import LinkToAssetModal from "../../LinkToAssetModal/linkToAssetModal";
@@ -16,6 +18,13 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   loadingAssets: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -28,6 +37,13 @@ const AssetItem: React.FC<Props> = ({
   onAssetSearchTerm,
   onAssetsReload,
   loadingAssets,
+  createAssets,
+  fileList,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
 }) => {
   const t = useT();
   const { Item } = Form;
@@ -40,7 +56,45 @@ const AssetItem: React.FC<Props> = ({
     setVisible(false);
   };
   const handleConnect = (asset: any) => {
+    // TODO: implement connect asset with content
     console.log(asset);
+  };
+  const displayUploadModal = () => {
+    setUploadModalVisibility(true);
+  };
+  const hideUploadModal = () => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+  };
+
+  const handleUpload = () => {
+    setUploading(true);
+    createAssets(fileList).finally(() => {
+      hideUploadModal();
+      // TODO: connect the uploaded asset with content after uploading is done
+      console.log(fileList);
+    });
+  };
+
+  const uploadProps: UploadProps = {
+    name: "file",
+    multiple: true,
+    directory: false,
+    showUploadList: true,
+    accept: imageFormats + "," + fileFormats,
+    listType: "picture",
+    onRemove: file => {
+      const index = fileList.indexOf(file);
+      const newFileList = fileList.slice();
+      newFileList.splice(index, 1);
+      setFileList(newFileList);
+    },
+    beforeUpload: (_file, files) => {
+      setFileList([...fileList, ...files]);
+      return false;
+    },
+    fileList,
   };
 
   return (
@@ -59,6 +113,13 @@ const AssetItem: React.FC<Props> = ({
         onSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         loading={loadingAssets}
+        fileList={fileList}
+        uploading={uploading}
+        uploadProps={uploadProps}
+        uploadModalVisibility={uploadModalVisibility}
+        displayUploadModal={displayUploadModal}
+        hideUploadModal={hideUploadModal}
+        handleUpload={handleUpload}
       />
     </Item>
   );

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -8,6 +8,7 @@ import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
@@ -27,6 +28,13 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   loadingAssets: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -41,6 +49,13 @@ const ContentForm: React.FC<Props> = ({
   onAssetSearchTerm,
   onAssetsReload,
   loadingAssets,
+  createAssets,
+  fileList,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -134,6 +149,13 @@ const ContentForm: React.FC<Props> = ({
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
               loadingAssets={loadingAssets}
+              createAssets={createAssets}
+              fileList={fileList}
+              setFileList={setFileList}
+              setUploading={setUploading}
+              setUploadModalVisibility={setUploadModalVisibility}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
             />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>
