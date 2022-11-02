@@ -12,6 +12,7 @@ type CloudTasksConfig struct {
 	QueueName     string
 	SubscriberURL string
 	Topic         string
+	GCSHost       string
 }
 
 func (c *CloudTasksConfig) buildQueueUrl() (string, error) {

@@ -1,5 +1,7 @@
 package integration
 
+//go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=types.cfg.yml ../../schemas/integration.yml
+
 import (
 	"encoding/json"
 	"errors"
@@ -18,11 +20,11 @@ var (
 	ErrUnsupportedEntity = errors.New("unsupported entity")
 )
 
-func MarshalJSON(obj any, version string) ([]byte, error) {
+func MarshalJSON(obj any, version string, urlBuilder func(a *asset.Asset) string) ([]byte, error) {
 	var res any
 	switch o := (obj).(type) {
 	case *asset.Asset:
-		res = ToAsset(o, nil) //TODO:give url func
+		res = ToAsset(o, urlBuilder)
 	// TODO: add later
 	case *item.Item:
 		break

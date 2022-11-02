@@ -5,42 +5,41 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlBuilder func(a *asset.File) string) *Asset {
+func ToAsset(a *asset.Asset, urlBuilder func(a *asset.Asset) string) *Asset {
 	if a == nil {
 		return nil
+	}
+
+	var url string
+	if urlBuilder != nil {
+		url = urlBuilder(a)
 	}
 
 	return &Asset{
 		Id:          a.ID().Ref(),
 		ContentType: lo.ToPtr(a.File().ContentType()),
 		CreatedAt:   ToDate(a.CreatedAt()),
-		// File:        ToFile(a.File()),
 		Name:        lo.ToPtr(a.File().Name()),
 		PreviewType: ToPreviewType(a.PreviewType()),
 		ProjectId:   a.Project().Ref(),
 		TotalSize:   lo.ToPtr(float32(a.Size())),
-		File:        lo.ToPtr(ToFile(a.File(), urlBuilder)),
-		// UpdatedAt: ToDate(a.Updated) TODO: add updated at
+		Url:         lo.ToPtr(url),
+		File:        lo.ToPtr(ToFile(a.File())),
 	}
 }
 
-func ToFile(f *asset.File, urlBuilder func(a *asset.File) string) File {
+func ToFile(f *asset.File) File {
 	if f == nil {
 		return File{}
 	}
 
-	var url string
-	if urlBuilder != nil {
-		url = urlBuilder(f)
-	}
-
-	children := lo.Map(f.Children(), func(c *asset.File, _ int) File { return ToFile(c, urlBuilder) })
+	children := lo.Map(f.Children(), func(c *asset.File, _ int) File { return ToFile(c) })
 
 	return File{
 		Name:        lo.ToPtr(f.Name()),
 		ContentType: lo.ToPtr(f.ContentType()),
 		Size:        lo.ToPtr(float32(f.Size())),
-		Url:         lo.ToPtr(url),
+		Url:         lo.ToPtr(f.Path()),
 		Children:    lo.ToPtr(children),
 	}
 }
@@ -61,8 +60,7 @@ func ToPreviewType(p *asset.PreviewType) *AssetPreviewType {
 	case asset.PreviewTypeModel3d:
 		p2 = Model3d
 	case asset.PreviewTypeUnknown:
-		// p2 =
-		// TODO: change here later
+		p2 = Unknown
 	default:
 		return nil
 	}

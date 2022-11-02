@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/rerror"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
@@ -76,7 +77,11 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	data, err := marshalWebhookData(p.Webhook)
+	urlFn := func(a *asset.Asset) string {
+		return getURL(t.conf.GCSHost, a.UUID(), a.FileName())
+	}
+
+	data, err := marshalWebhookData(p.Webhook, urlFn)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}

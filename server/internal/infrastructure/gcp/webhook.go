@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	integration "github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/util"
@@ -18,8 +19,8 @@ type webhookData struct {
 	EventData any       `json:"data"`
 }
 
-func marshalWebhookData(w *task.WebhookPayload) ([]byte, error) {
-	ed, err := integration.MarshalJSON(w.Event.Object(), "")
+func marshalWebhookData(w *task.WebhookPayload, urlBuilder func(a *asset.Asset) string) ([]byte, error) {
+	ed, err := integration.MarshalJSON(w.Event.Object(), "", urlBuilder)
 	if err != nil {
 		return nil, err
 	}

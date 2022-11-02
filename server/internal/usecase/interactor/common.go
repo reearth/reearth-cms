@@ -32,25 +32,24 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 	}
 }
 
-func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any, op event.Operator) error {
+func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any, op event.Operator) (*event.Event[any], error) {
 	ev, err := event.New[any]().NewID().Object(o).Type(t).Timestamp(util.Now()).Operator(op).Build()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := r.Event.Save(ctx, ev); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := webhook(ctx, r, g, wsID, ev); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return ev, nil
 }
 
 func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, ev *event.Event[any]) error {
-
 	ws, err := r.Workspace.FindByID(ctx, wsID)
 	if err != nil {
 		return err

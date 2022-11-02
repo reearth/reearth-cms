@@ -112,7 +112,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			// create event
 			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if err := i.createEvent(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
+			if _, err := i.createEvent(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
 				return nil, err
 			}
 
@@ -178,7 +178,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 			}
 
 			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if err := i.createEvent(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
+			if _, err := i.createEvent(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
 				return nil, err
 			}
 
@@ -216,7 +216,7 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 			}
 
 			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if err := i.createEvent(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
+			if _, err := i.createEvent(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
 				return aid, err
 			}
 
@@ -225,6 +225,6 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 	)
 }
 
-func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) error {
+func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
 	return createEvent(ctx, i.repos, i.gateways, wid, t, a, op)
 }
