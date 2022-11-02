@@ -20,7 +20,7 @@ import (
 
 func TestSend(t *testing.T) {
 	now := time.Date(2022, 10, 10, 1, 1, 1, 1, time.UTC)
-
+	defer util.MockNow(now)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -38,14 +38,12 @@ func TestSend(t *testing.T) {
 		}`,
 	}
 
-	// httpmock.RegisterResponder("POST", endpoint1, httpmock.NewStringResponder(200, `ok`))
 	httpmock.RegisterResponder("POST", endpoint1, func(req *http.Request) (*http.Response, error) {
 
 		//check signature
 		sign := req.Header.Get("Rearth-Signature")
 		rawSign := lo.Must(hex.DecodeString(strings.Split(sign, ",")[2]))
 
-		// TODO: mock now later
 		expectedSign := Sign(lo.Must(io.ReadAll(req.Body)), []byte(w.Secret), util.Now(), "v1")
 		rawExpectedSign := lo.Must(hex.DecodeString(strings.Split(expectedSign, ",")[2]))
 
