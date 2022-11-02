@@ -2,10 +2,6 @@ package gcp
 
 import "fmt"
 
-type Config struct {
-	cloudTasks *CloudTasksConfig //nolint:unused
-}
-
 type CloudTasksConfig struct {
 	GCPProject    string
 	GCPRegion     string
