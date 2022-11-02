@@ -67,8 +67,8 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   useEffect(() => {
-    setCurrentModel(model ?? currentModel);
-  }, [model, currentModel, setCurrentModel]);
+    setCurrentModel(model ?? undefined);
+  }, [model, currentModel, modelId, setCurrentModel]);
 
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],

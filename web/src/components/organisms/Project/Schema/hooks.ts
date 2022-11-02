@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -17,19 +17,13 @@ export default () => {
   const t = useT();
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
-  const [currentModel, setCurrentModel] = useModel();
+  const [currentModel] = useModel();
 
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
-
-  useEffect(() => {
-    if (!modelId) {
-      setCurrentModel();
-    }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
