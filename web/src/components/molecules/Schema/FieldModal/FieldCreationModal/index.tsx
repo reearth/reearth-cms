@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -56,7 +56,17 @@ const FieldCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -127,7 +137,7 @@ const FieldCreationModal: React.FC<Props> = ({
       onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Settings")} key="setting">
+          <TabPane tab={t("Settings")} key="setting" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -214,7 +224,7 @@ const FieldCreationModal: React.FC<Props> = ({
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Validation" key="validation">
+          <TabPane tab="Validation" key="validation" forceRender>
             <FieldValidationProps selectedType={selectedType} />
             <Form.Item
               name="required"
@@ -229,7 +239,7 @@ const FieldCreationModal: React.FC<Props> = ({
               <Checkbox>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
           </TabPane>
         </Tabs>

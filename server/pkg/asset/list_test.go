@@ -3,6 +3,7 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +32,7 @@ func TestList_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
 	list := List{a}
 	got := list.Clone()
