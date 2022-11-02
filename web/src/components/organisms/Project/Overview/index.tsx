@@ -40,7 +40,6 @@ const ProjectOverview: React.FC = () => {
       <ModelFormModal
         model={selectedModel}
         isKeyAvailable={isKeyAvailable}
-        projectId={currentProject?.id}
         onModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
         onClose={handleModelModalReset}

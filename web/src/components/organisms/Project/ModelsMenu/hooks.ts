@@ -32,15 +32,8 @@ export default ({ modelId }: Params) => {
     fetchPolicy: "no-cache",
   });
 
-  console.log(projectId);
-
   const handleModelKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
-      console.log(key);
-      console.log(ignoredKey);
-
-      console.log(projectId);
-
       if (!projectId || !key) return false;
       if (ignoredKey && key === ignoredKey) return true;
       const response = await CheckModelKeyAvailability({ variables: { projectId, key } });

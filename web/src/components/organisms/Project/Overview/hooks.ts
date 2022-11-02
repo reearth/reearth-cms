@@ -27,9 +27,7 @@ export default () => {
     handleModelCreate,
     handleModelKeyCheck,
     isKeyAvailable,
-  } = useModelHooks({
-    projectId: currentProject?.id,
-  });
+  } = useModelHooks({});
 
   const { data } = useGetModelsQuery({
     variables: { projectId: currentProject?.id ?? "", first: 100 },
