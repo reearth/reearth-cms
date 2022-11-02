@@ -6,6 +6,7 @@ import { useT } from "@reearth-cms/i18n";
 import UploadModal from "../UploadModal/uploadModal";
 
 type Props = {
+  text?: string;
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
   uploading: boolean;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 const UploadAsset: React.FC<Props> = ({
+  text,
   uploadProps,
   fileList,
   uploading,
@@ -28,9 +30,10 @@ const UploadAsset: React.FC<Props> = ({
   return (
     <>
       <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
-        {t("Upload Asset")}
+        {text ?? t("Upload Asset")}
       </Button>
       <UploadModal
+        uploadButtonText={t("Upload and Link")}
         uploadProps={uploadProps}
         fileList={fileList}
         uploading={uploading}
