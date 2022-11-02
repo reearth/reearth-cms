@@ -111,7 +111,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			eOperator := event.OperatorFromUser(operator.User)
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
 			if err := i.createEvent(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
 				return nil, err
 			}
@@ -153,6 +153,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, err
+			}
+
 			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
 			if err != nil {
 				return nil, err
@@ -169,6 +174,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
+			if err := i.createEvent(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
 				return nil, err
 			}
 
@@ -195,7 +205,22 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				}
 			}
 
-			return aid, i.repos.Asset.Delete(ctx, aid)
+			err = i.repos.Asset.Delete(ctx, aid)
+			if err != nil {
+				return aid, err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, asset.Project())
+			if err != nil {
+				return aid, err
+			}
+
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
+			if err := i.createEvent(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
+				return aid, err
+			}
+
+			return aid, nil
 		},
 	)
 }
