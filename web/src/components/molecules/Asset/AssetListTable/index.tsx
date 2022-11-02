@@ -56,7 +56,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: () => <Icon icon="message" />,
       dataIndex: "commentsCount",
       key: "commentsCount",
-      render: (_, _asset) => <CustomTag value={0} />,
+      render: (_, asset) => {
+        return <CustomTag value={asset.comments?.length || 0} />;
+      },
     },
     {
       title: t("File"),
