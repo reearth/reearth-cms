@@ -17,6 +17,8 @@ export type Props = {
   onModelModalOpen?: () => void;
   onSchemaNavigate?: (modelId: string) => void;
   onContentNavigate?: (modelId: string) => void;
+  onModelDeletionModalOpen: (model: Model) => Promise<void>;
+  onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };
 
 const ProjectOverview: React.FC<Props> = ({
@@ -26,6 +28,8 @@ const ProjectOverview: React.FC<Props> = ({
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
+  onModelDeletionModalOpen,
+  onModelUpdateModalOpen,
 }) => {
   const t = useT();
 
@@ -45,6 +49,8 @@ const ProjectOverview: React.FC<Props> = ({
               model={m}
               onSchemaNavigate={onSchemaNavigate}
               onContentNavigate={onContentNavigate}
+              onModelDeletionModalOpen={onModelDeletionModalOpen}
+              onModelUpdateModalOpen={onModelUpdateModalOpen}
             />
           ))}
         </GridArea>

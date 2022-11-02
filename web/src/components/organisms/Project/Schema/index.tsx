@@ -18,7 +18,7 @@ const ProjectSchema: React.FC = () => {
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,
-    model,
+    currentModel,
     selectedType,
     collapsed,
     collapse,
@@ -37,7 +37,7 @@ const ProjectSchema: React.FC = () => {
     <>
       <SchemaMolecule
         collapsed={collapsed}
-        model={model}
+        model={currentModel}
         modelsMenu={
           <ModelsMenu title={t("Schema")} collapsed={collapsed} onModelSelect={handleModelSelect} />
         }
