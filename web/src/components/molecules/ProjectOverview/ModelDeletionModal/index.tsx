@@ -1,3 +1,5 @@
+import styled from "@emotion/styled";
+
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -27,7 +29,9 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
           {t("Delete Model")}
         </Button>,
       ]}>
-      <p>{t("Are you sure you want to delete this model ") + model?.name + "?"}</p>
+      <p>
+        {t("Are you sure you want to delete this model ")} <ModelName> {model?.name} </ModelName>?
+      </p>
       <Alert
         message={t("Warning")}
         description={t("This Change would be permanent and can not be rolled back.")}
@@ -39,3 +43,7 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
 };
 
 export default ModelDeletionModal;
+
+const ModelName = styled.span`
+  font-weight: 600;
+`;
