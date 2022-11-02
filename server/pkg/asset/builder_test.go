@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,7 +50,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
 				file:        &f,
-				uuid:        "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
 			want: &Asset{
@@ -108,7 +109,7 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoUser,
 		},
 		{
-			name: "fail: empty createdBy",
+			name: "fail: zero size",
 			input: Input{
 				id:          aid,
 				project:     pid,
@@ -121,6 +122,21 @@ func TestBuilder_Build(t *testing.T) {
 				thread:      thid,
 			},
 			err: ErrZeroSize,
+		},
+		{
+			name: "fail: invalid threadId",
+			input: Input{
+				id:          aid,
+				project:     pid,
+				createdBy:   uid,
+				fileName:    "hoge",
+				size:        size,
+				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				file:        &f,
+				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:      ThreadID{},
+			},
+			err: ErrNoThread,
 		},
 		{
 			name: "should create asset with id timestamp",
@@ -164,7 +180,9 @@ func TestBuilder_Build(t *testing.T) {
 				UUID(tt.input.uuid).
 				Thread(tt.input.thread).
 				Build()
-			if err != tt.err {
+			if tt.err != nil {
+				assert.Equal(t, tt.err, err)
+			} else {
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -258,6 +276,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).MustBuild()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(size).Thread(id.NewThreadID()).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

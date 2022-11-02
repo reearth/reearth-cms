@@ -12,7 +12,7 @@ export interface Props {
   projects?: ProjectType[];
   loading?: boolean;
   onProjectModalOpen: () => void;
-  onProjectNavigation: (project: ProjectType, tab?: string) => void;
+  onProjectNavigation: (project: ProjectType) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
