@@ -1,14 +1,48 @@
 package integration
 
-import "github.com/reearth/reearth-cms/server/pkg/asset"
+import (
+	"encoding/json"
+	"errors"
+
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/user"
+)
+
+var (
+	ErrUnsupportedEntity = errors.New("unsupported entity")
+)
 
 func MarshalJSON(obj any, version string) ([]byte, error) {
-	switch (obj).(type) {
+	var res any
+	switch o := (obj).(type) {
 	case *asset.Asset:
+		res = ToAsset(o, nil) //TODO:give url func
+	// TODO: add later
+	case *item.Item:
+		break
+	case *schema.Schema:
+		break
+	case *project.Project:
+		break
+	case *model.Model:
+		break
+	case *thread.Thread:
+		break
+	case *integration.Integration:
+		break
+	case *user.Workspace:
+		break
+	case *user.User:
 		break
 	default:
-		//TODO: return error
-		break
+		return nil, ErrUnsupportedEntity
 	}
-	return nil, nil
+
+	return json.Marshal(res)
 }
