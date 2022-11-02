@@ -97,8 +97,7 @@ func (w *Webhook) Clone() *Webhook {
 }
 
 func (t WebhookTrigger) IsActive(et event.Type) bool {
-	v, _ := t[et]
-	return v
+	return t[et]
 }
 
 func (t WebhookTrigger) Enable(et event.Type) {
