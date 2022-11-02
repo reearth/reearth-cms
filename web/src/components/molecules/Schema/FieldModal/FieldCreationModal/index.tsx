@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -56,7 +56,17 @@ const FieldCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
