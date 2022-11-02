@@ -18,7 +18,7 @@ func TestEvent_FindByID(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	eID1 := event.NewID()
-	ev := event.New[any]().ID(eID1).Timestamp(now).Type("asset.create").Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	r := NewEvent()
 	ctx := context.Background()
@@ -43,7 +43,7 @@ func TestEvent_Save(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	eID1 := event.NewID()
-	ev := event.New[any]().ID(eID1).Timestamp(now).Type("asset.create").Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	r := NewEvent()
 	ctx := context.Background()

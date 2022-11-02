@@ -6,6 +6,17 @@ import (
 
 type Type string
 
+const (
+	ItemCreate      = "item.create"
+	ItemUpdate      = "item.update"
+	ItemDelete      = "item.delete"
+	ItemPublish     = "item.publish"
+	ItemUnpublish   = "item.unpublish"
+	AssetCreate     = "asset.create"
+	AssetDecompress = "asset.decompress"
+	AssetDelete     = "asset.delete"
+)
+
 type Event[T any] struct {
 	id        ID
 	timestamp time.Time

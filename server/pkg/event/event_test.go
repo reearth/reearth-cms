@@ -15,10 +15,10 @@ func TestEvent(t *testing.T) {
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	now := time.Now()
 	eID := NewID()
-	ev := New[*asset.Asset]().ID(eID).Timestamp(now).Type("asset.create").Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := New[*asset.Asset]().ID(eID).Timestamp(now).Type(AssetCreate).Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	assert.Equal(t, eID, ev.ID())
-	assert.Equal(t, Type("asset.create"), ev.Type())
+	assert.Equal(t, Type(AssetCreate), ev.Type())
 	assert.Equal(t, OperatorFromUser(u.ID()), ev.Operator())
 	assert.Equal(t, a, ev.Object())
 	assert.Equal(t, now, ev.Timestamp())

@@ -514,13 +514,14 @@ type ComplexityRoot struct {
 	}
 
 	WebhookTrigger struct {
-		OnAssetDeleted  func(childComplexity int) int
-		OnAssetUpload   func(childComplexity int) int
-		OnItemCreate    func(childComplexity int) int
-		OnItemDelete    func(childComplexity int) int
-		OnItemPublish   func(childComplexity int) int
-		OnItemUnPublish func(childComplexity int) int
-		OnItemUpdate    func(childComplexity int) int
+		OnAssetDecompress func(childComplexity int) int
+		OnAssetDeleted    func(childComplexity int) int
+		OnAssetUpload     func(childComplexity int) int
+		OnItemCreate      func(childComplexity int) int
+		OnItemDelete      func(childComplexity int) int
+		OnItemPublish     func(childComplexity int) int
+		OnItemUnPublish   func(childComplexity int) int
+		OnItemUpdate      func(childComplexity int) int
 	}
 
 	Workspace struct {
@@ -2631,6 +2632,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WebhookPayload.Webhook(childComplexity), true
 
+	case "WebhookTrigger.onAssetDecompress":
+		if e.complexity.WebhookTrigger.OnAssetDecompress == nil {
+			break
+		}
+
+		return e.complexity.WebhookTrigger.OnAssetDecompress(childComplexity), true
+
 	case "WebhookTrigger.onAssetDeleted":
 		if e.complexity.WebhookTrigger.OnAssetDeleted == nil {
 			break
@@ -3800,11 +3808,12 @@ extend type Mutation {
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger  {
+	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
@@ -3827,6 +3836,7 @@ input WebhookTriggerInput {
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
@@ -17230,6 +17240,8 @@ func (ec *executionContext) fieldContext_Webhook_trigger(ctx context.Context, fi
 				return ec.fieldContext_WebhookTrigger_onItemDelete(ctx, field)
 			case "onAssetUpload":
 				return ec.fieldContext_WebhookTrigger_onAssetUpload(ctx, field)
+			case "onAssetDecompress":
+				return ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
 			case "onAssetDeleted":
 				return ec.fieldContext_WebhookTrigger_onAssetDeleted(ctx, field)
 			case "onItemPublish":
@@ -17543,6 +17555,47 @@ func (ec *executionContext) _WebhookTrigger_onAssetUpload(ctx context.Context, f
 }
 
 func (ec *executionContext) fieldContext_WebhookTrigger_onAssetUpload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookTrigger",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebhookTrigger_onAssetDecompress(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnAssetDecompress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookTrigger_onAssetDecompress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebhookTrigger",
 		Field:      field,
@@ -22619,7 +22672,7 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onAssetUpload", "onAssetDeleted", "onItemPublish", "onItemUnPublish"}
+	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onAssetUpload", "onAssetDecompress", "onAssetDeleted", "onItemPublish", "onItemUnPublish"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22655,6 +22708,14 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetUpload"))
 			it.OnAssetUpload, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "onAssetDecompress":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDecompress"))
+			it.OnAssetDecompress, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26348,6 +26409,10 @@ func (ec *executionContext) _WebhookTrigger(ctx context.Context, sel ast.Selecti
 		case "onAssetUpload":
 
 			out.Values[i] = ec._WebhookTrigger_onAssetUpload(ctx, field, obj)
+
+		case "onAssetDecompress":
+
+			out.Values[i] = ec._WebhookTrigger_onAssetDecompress(ctx, field, obj)
 
 		case "onAssetDeleted":
 

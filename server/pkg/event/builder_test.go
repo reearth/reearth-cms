@@ -20,13 +20,13 @@ func TestBuilder(t *testing.T) {
 	now := time.Now()
 	id := NewID()
 
-	ev := New[*asset.Asset]().ID(id).Timestamp(now).Type("asset.create").Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
-	ev2 := New[*asset.Asset]().NewID().Timestamp(now).Type("asset.update").Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := New[*asset.Asset]().ID(id).Timestamp(now).Type(AssetCreate).Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev2 := New[*asset.Asset]().NewID().Timestamp(now).Type(AssetDecompress).Operator(OperatorFromUser(u.ID())).Object(a).MustBuild()
 	// ev2 := New[*asset.Asset]().NewID().Timestamp(now).Type("asset.update").Operator(OperatorFromIntegration(in.ID())).Object(a).MustBuild()
 
 	// ev1
 	assert.Equal(t, id, ev.ID())
-	assert.Equal(t, Type("asset.create"), ev.Type())
+	assert.Equal(t, Type(AssetCreate), ev.Type())
 	assert.Equal(t, OperatorFromUser(u.ID()), ev.Operator())
 	assert.Equal(t, a, ev.Object())
 

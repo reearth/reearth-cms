@@ -51,20 +51,17 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, w
 
 func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, ev *event.Event[any]) error {
 
-	// find workspace
 	ws, err := r.Workspace.FindByID(ctx, wsID)
 	if err != nil {
 		return err
 	}
 	integrationIDs := ws.Members().IntegrationIDs()
 
-	// find integrations
 	integrations, err := r.Integration.FindByIDs(ctx, integrationIDs)
 	if err != nil {
 		return err
 	}
 
-	// call pubsub
 	for _, w := range integrations.ActiveWebhooks(ev.Type()) {
 		if err := g.TaskRunner.Run(ctx, task.WebhookPayload{
 			Webhook: w,

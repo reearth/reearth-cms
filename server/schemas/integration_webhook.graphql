@@ -1,8 +1,9 @@
-type WebhookTrigger  {
+type WebhookTrigger {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
@@ -25,6 +26,7 @@ input WebhookTriggerInput {
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean

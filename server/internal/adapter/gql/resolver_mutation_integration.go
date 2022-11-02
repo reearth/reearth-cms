@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/samber/lo"
@@ -83,14 +84,14 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			"item.create":    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
-			"item.update":    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
-			"item.delete":    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
-			"item.publish":   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
-			"item.unpublish": lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
-			"asset.create":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
-			"asset.update":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
-			"asset.delete":   lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			event.ItemCreate:      lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			event.ItemUpdate:      lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			event.ItemDelete:      lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			event.ItemPublish:     lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			event.ItemUnpublish:   lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			event.AssetCreate:     lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
+			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {
@@ -113,14 +114,14 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 		URL:    input.URL,
 		Active: input.Active,
 		Trigger: &interfaces.WebhookTriggerParam{
-			"item.create":    lo.FromPtrOr(input.Trigger.OnItemCreate, false),
-			"item.update":    lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
-			"item.delete":    lo.FromPtrOr(input.Trigger.OnItemDelete, false),
-			"item.publish":   lo.FromPtrOr(input.Trigger.OnItemPublish, false),
-			"item.unpublish": lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
-			"asset.create":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
-			"asset.update":   lo.FromPtrOr(input.Trigger.OnAssetUpload, false), //TODO: consider this
-			"asset.delete":   lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			event.ItemCreate:      lo.FromPtrOr(input.Trigger.OnItemCreate, false),
+			event.ItemUpdate:      lo.FromPtrOr(input.Trigger.OnItemUpdate, false),
+			event.ItemDelete:      lo.FromPtrOr(input.Trigger.OnItemDelete, false),
+			event.ItemPublish:     lo.FromPtrOr(input.Trigger.OnItemPublish, false),
+			event.ItemUnpublish:   lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
+			event.AssetCreate:     lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
+			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
+			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
 		},
 	}, getOperator(ctx))
 	if err != nil {

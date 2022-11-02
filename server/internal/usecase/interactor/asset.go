@@ -112,7 +112,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			// create event
 			eOperator := event.OperatorFromUser(operator.User)
-			if err := i.createEvent(ctx, prj.Workspace(), "asset.create", a, eOperator); err != nil {
+			if err := i.createEvent(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
 				return nil, err
 			}
 

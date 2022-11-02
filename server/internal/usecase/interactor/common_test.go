@@ -49,10 +49,10 @@ func TestCommon_createEvent(t *testing.T) {
 	uID := user.NewID()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
-	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{"asset.create": true}).MustBuild()
+	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
 	lo.Must0(workspace.Members().AddIntegration(integration.ID(), user.RoleOwner, uID))
-	expectedEv := event.New[any]().NewID().Timestamp(now).Type("asset.create").Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
+	expectedEv := event.New[any]().NewID().Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
 
 	db := memory.New()
 	mockCtrl := gomock.NewController(t)
@@ -70,7 +70,7 @@ func TestCommon_createEvent(t *testing.T) {
 		Webhook: wh,
 		Event:   expectedEv,
 	}.Payload()).Times(1).Return(nil)
-	err := createEvent(ctx, db, gw, workspace.ID(), event.Type("asset.create"), a, event.OperatorFromUser(uID))
+	err := createEvent(ctx, db, gw, workspace.ID(), event.Type(event.AssetCreate), a, event.OperatorFromUser(uID))
 	assert.NoError(t, err)
 	//TODO: check timestamp, id
 	//TODO: mock id
@@ -84,10 +84,10 @@ func TestCommon_webhook(t *testing.T) {
 	uID := user.NewID()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(uID).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
-	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{"asset.create": true}).MustBuild()
+	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
 	lo.Must0(workspace.Members().AddIntegration(integration.ID(), user.RoleOwner, uID))
-	ev := event.New[any]().NewID().Timestamp(now).Type("asset.create").Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
+	ev := event.New[any]().NewID().Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
 
 	db := memory.New()
 	mockCtrl := gomock.NewController(t)

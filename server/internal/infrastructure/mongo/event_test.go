@@ -19,7 +19,7 @@ func TestEvent_Save(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	eID := event.NewID()
-	ev := event.New[any]().ID(eID).Timestamp(now).Type("asset.create").Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := event.New[any]().ID(eID).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	initDB := mongotest.Connect(t)
 
