@@ -34,7 +34,9 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
       </p>
       <Alert
         message={t("Warning")}
-        description={t("This Change would be permanent and can not be rolled back.")}
+        description={t(
+          "This action will permanently delete the selected model and cannot be reversed.",
+        )}
         type="warning"
         showIcon
       />
