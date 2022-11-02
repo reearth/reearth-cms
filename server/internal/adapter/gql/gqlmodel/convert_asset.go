@@ -26,6 +26,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		File:        ToAssetFile(a.File()),
 		UUID:        a.UUID(),
 		URL:         url,
+		ThreadID:    IDFrom(a.Thread()),
 	}
 }
 
