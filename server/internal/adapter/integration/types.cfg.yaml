@@ -1,4 +1,0 @@
-package: integration
-generate:
-  models: true
-output: types.gen.go

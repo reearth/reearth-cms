@@ -1,7 +1,0 @@
-package: integration
-generate:
-  echo-server: true
-  strict-server: true
-  embedded-spec: true
-output:
-  server.gen.go

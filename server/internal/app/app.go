@@ -77,7 +77,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
-	integrationApi := e.Group("/api")
+
+	integrationApi := api.Group("",
+		internalJWTMiddleware,
+		authMiddleware(cfg),
+		usecaseMiddleware)
 	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
 	integration.RegisterHandlers(integrationApi, integrationHandlers)
 

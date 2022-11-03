@@ -346,10 +346,17 @@ components:
           enum:
             - text
             - textArea
-            -
-        value:
-          type: string
-          example: 1
+            - richText
+            - markdown
+            - asset
+            - date
+            - bool
+            - select
+            - tag
+            - integer
+            - reference
+            - url
+        value: {}
     item:
       type: object
       properties:

@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -45,10 +46,10 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	if err != nil {
 
 	}
-	itemList := lo.Map(assets, func(a *asset.Asset, _ int) Asset {
+	itemList := lo.Map(assets, func(a *asset.Asset, _ int) integrationapi.Asset {
 		aa, err := ToAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
-			return Asset{}
+			return integrationapi.Asset{}
 		}
 		return *aa
 	})
@@ -153,15 +154,15 @@ func getSize(stream io.Reader) int64 {
 	return int64(buf.Len())
 }
 
-func ToAsset(a *asset.Asset, aUrl string) (*Asset, error) {
+func ToAsset(a *asset.Asset, aUrl string) (*integrationapi.Asset, error) {
 	pt, err := ToPreviewType(a.PreviewType())
 	if err != nil {
 		return nil, err
 	}
-	return &Asset{
+	return &integrationapi.Asset{
 		ContentType: lo.ToPtr(a.File().ContentType()),
 		CreatedAt:   &types.Date{Time: a.CreatedAt()},
-		File: &File{
+		File: &integrationapi.File{
 			Children:    nil,
 			ContentType: lo.ToPtr(a.File().ContentType()),
 			Name:        lo.ToPtr(a.FileName()),
@@ -177,19 +178,19 @@ func ToAsset(a *asset.Asset, aUrl string) (*Asset, error) {
 	}, nil
 }
 
-func ToPreviewType(pt *asset.PreviewType) (*AssetPreviewType, error) {
+func ToPreviewType(pt *asset.PreviewType) (*integrationapi.AssetPreviewType, error) {
 	if pt == nil {
-		return lo.ToPtr(AssetPreviewType("")), nil
+		return lo.ToPtr(integrationapi.AssetPreviewType("")), nil
 	}
 	switch *pt {
-	case asset.PreviewTypeGEO:
-		return lo.ToPtr(Geo), nil
-	case asset.PreviewTypeGEO3D:
-		return lo.ToPtr(Geo3d), nil
-	case asset.PreviewTypeMODEL3D:
-		return lo.ToPtr(Model3d), nil
-	case asset.PreviewTypeIMAGE:
-		return lo.ToPtr(Image), nil
+	case asset.PreviewTypeGeo:
+		return lo.ToPtr(integrationapi.Geo), nil
+	case asset.PreviewTypeGeo3d:
+		return lo.ToPtr(integrationapi.Geo3d), nil
+	case asset.PreviewTypeModel3d:
+		return lo.ToPtr(integrationapi.Model3d), nil
+	case asset.PreviewTypeImage:
+		return lo.ToPtr(integrationapi.Image), nil
 	}
 	return nil, errors.New("invalid preview type")
 }

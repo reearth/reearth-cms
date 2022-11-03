@@ -8,9 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -30,14 +32,20 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		Last:   nil,
 	}
 
-	items, pi, err := adapter.Usecases(ctx).Item.FindByProject(ctx, m[0].Project(), p, op)
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
 	if err != nil {
 		return ItemFilter400Response{}, err
 	}
 
-	itemList := lo.Map(items, func(i *item.Item, _ int) Item {
-		return toItem(i, m[0].ID())
+	itemList := lo.Map(items, func(i *item.Item, _ int) integrationapi.Item {
+		ver, err := uc.Item.FindAllVersionsByID(ctx, i.ID(), op)
+		if err != nil {
+			return integrationapi.Item{}
+		}
+
+		return toItem2(i, ver[len(ver)-1], m[0].ID())
 	})
+
 	return ItemFilter200JSONResponse{
 		Items:      &itemList,
 		Page:       lo.ToPtr(1),
@@ -61,7 +69,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 
 	cp := interfaces.CreateItemParam{
 		SchemaID: m[0].Schema(),
-		Fields: lo.Map(*request.Body.Fields, func(f Field, _ int) interfaces.ItemFieldParam {
+		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
 			return toItemFieldParam(f)
 		}),
 	}
@@ -71,7 +79,12 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(toItem(i, id.NewModelID())), nil
+	ver, err := uc.Item.FindAllVersionsByID(ctx, i.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	return ItemCreate200JSONResponse(toItem2(i, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -93,11 +106,17 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 	uc := adapter.Usecases(ctx)
 	iId := id.ItemID(request.ItemId)
 
-	item, err := uc.Item.FindByID(ctx, iId, op)
+	itm, err := uc.Item.FindByID(ctx, iId, op)
 	if err != nil {
 		return ItemGet400Response{}, err
 	}
-	return ItemGet200JSONResponse(toItem(item, id.NewModelID())), nil
+
+	ver, err := uc.Item.FindAllVersionsByID(ctx, iId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return ItemGet200JSONResponse(toItem2(itm, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {
@@ -105,24 +124,68 @@ func (s Server) ItemPublish(ctx context.Context, request ItemPublishRequestObjec
 	panic("implement me")
 }
 
-func toItem(i *item.Item, mId model.ID) Item {
-	return Item{
-		Archived:  lo.ToPtr(false),
-		CreatedAt: &types.Date{Time: i.ID().Timestamp()},
-		Fields:    nil,
+func toItem2(i *item.Item, ver *version.Value[*item.Item], mId model.ID) integrationapi.Item {
+	fs := lo.Map(i.Fields(), func(f *item.Field, _ int) integrationapi.Field {
+		return integrationapi.Field{
+			Id:    f.SchemaFieldID().Ref(),
+			Type:  lo.ToPtr(integrationapi.FieldType(f.ValueType())),
+			Value: lo.ToPtr(f.Value()),
+		}
+	})
+	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
+		return types.UUID(v)
+	})
+	rs := lo.Map(ver.Refs().Values(), func(r version.Ref, _ int) string {
+		return string(r)
+	})
+	return integrationapi.Item{
 		Id:        lo.ToPtr(i.ID()),
 		ModelId:   lo.ToPtr(mId),
-		Parents:   nil,
-		Refs:      nil,
-		UpdatedAt: nil,
-		Version:   nil,
+		Archived:  lo.ToPtr(ver.Value() == nil),
+		Fields:    &fs,
+		CreatedAt: &types.Date{Time: i.Timestamp()},
+		UpdatedAt: &types.Date{Time: ver.Value().Timestamp()},
+		Parents:   &ps,
+		Refs:      &rs,
+		Version:   lo.ToPtr(types.UUID(ver.Version())),
 	}
 }
 
-func toItemFieldParam(f Field) interfaces.ItemFieldParam {
+func toItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 	return interfaces.ItemFieldParam{
-		SchemaFieldID: schema.FieldID{},
-		ValueType:     "",
-		Value:         nil,
+		SchemaFieldID: *f.Id,
+		ValueType:     FromSchemaFieldType(f.Type),
+		Value:         f.Value,
+	}
+}
+
+func FromSchemaFieldType(t *integrationapi.FieldType) schema.Type {
+	switch *t {
+	case integrationapi.FieldTypeText:
+		return schema.TypeText
+	case integrationapi.FieldTypeTextArea:
+		return schema.TypeTextArea
+	case integrationapi.FieldTypeRichText:
+		return schema.TypeRichText
+	case integrationapi.FieldTypeMarkdown:
+		return schema.TypeMarkdown
+	case integrationapi.FieldTypeAsset:
+		return schema.TypeAsset
+	case integrationapi.FieldTypeDate:
+		return schema.TypeDate
+	case integrationapi.FieldTypeBool:
+		return schema.TypeBool
+	case integrationapi.FieldTypeSelect:
+		return schema.TypeSelect
+	case integrationapi.FieldTypeTag:
+		return schema.TypeTag
+	case integrationapi.FieldTypeInteger:
+		return schema.TypeInteger
+	case integrationapi.FieldTypeReference:
+		return schema.TypeReference
+	case integrationapi.FieldTypeUrl:
+		return schema.TypeURL
+	default:
+		return ""
 	}
 }
