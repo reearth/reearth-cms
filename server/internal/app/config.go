@@ -30,7 +30,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
-	CloudTasks   gcp.CloudTasksConfig
+	Task         gcp.TasksConfig
 	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs

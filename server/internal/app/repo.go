@@ -63,9 +63,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
 	// CloudTasks
-	if conf.CloudTasks.GCPProject != "" && conf.CloudTasks.GCPRegion != "" || conf.CloudTasks.QueueName != "" {
-		conf.CloudTasks.GCSHost = conf.Host
-		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.CloudTasks)
+	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
+		conf.Task.GCSHost = conf.Host
+		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
 		}

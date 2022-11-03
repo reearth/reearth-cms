@@ -2,7 +2,7 @@ package gcp
 
 import "fmt"
 
-type CloudTasksConfig struct {
+type TasksConfig struct {
 	GCPProject    string
 	GCPRegion     string
 	QueueName     string
@@ -11,7 +11,7 @@ type CloudTasksConfig struct {
 	GCSHost       string
 }
 
-func (c *CloudTasksConfig) buildQueueUrl() (string, error) {
+func (c *TasksConfig) buildQueueUrl() (string, error) {
 	if c.GCPProject == "" || c.GCPRegion == "" || c.QueueName == "" {
 		return "", ErrMissignConfig
 	}
