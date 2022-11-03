@@ -118,6 +118,7 @@ const ItemTitle = styled.span`
 const ItemKey = styled.span`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
 `;
 
 export default ModelFieldList;
