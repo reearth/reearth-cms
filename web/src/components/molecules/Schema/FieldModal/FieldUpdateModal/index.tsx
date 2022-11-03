@@ -254,13 +254,13 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item
               name="required"
               valuePropName="checked"
-              extra={t("Prevents saving an entry if this field is empty")}>
+              extra={t("Prevent saving an entry if this field is empty")}>
               <Checkbox>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
-              extra={t("Ensures that a multiple entries can't have the same value for this field")}>
+              extra={t("Ensures that multiple entries can't have the same value for this field")}>
               <Checkbox>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>

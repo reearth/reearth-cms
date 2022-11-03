@@ -159,6 +159,8 @@ Default value: デフォルト値
 Set default value: デフォルト値を設定
 Setting: 設定
 Validation: バリデーション
+Prevent saving an entry if this field is empty: ''
+Ensures that multiple entries can't have the same value for this field: ''
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
