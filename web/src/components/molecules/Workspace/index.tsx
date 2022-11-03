@@ -16,7 +16,7 @@ export type Props = {
   loadingProjects?: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
-  onProjectNavigation: (project: ProjectType, tab?: string) => void;
+  onProjectNavigation: (project: ProjectType) => void;
   onWorkspaceModalClose: () => void;
   onWorkspaceModalOpen: () => void;
   onWorkspaceCreate: (data: { name: string }) => Promise<void>;

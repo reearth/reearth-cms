@@ -1,7 +1,7 @@
 import type { ParamsType } from "@ant-design/pro-provider";
-import ProTable, { ListToolBarProps, ProTableProps, ProColumns } from "@ant-design/pro-table";
+import ProTable, { ListToolBarProps, ProTableProps } from "@ant-design/pro-table";
 import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
-import { TableRowSelection } from "@ant-design/pro-table/lib/typing";
+import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
 import { TablePaginationConfig, ConfigProvider } from "antd";
 import enUSIntl from "antd/lib/locale/en_US";
 import jaJPIntl from "antd/lib/locale/ja_JP";
@@ -15,7 +15,7 @@ const Table: React.FC<Props> = props => {
 
   return (
     <ConfigProvider locale={lang === "ja" ? jaJPIntl : enUSIntl}>
-      <ProTable {...props} />;
+      <ProTable {...props} />
     </ConfigProvider>
   );
 };
