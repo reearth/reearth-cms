@@ -3623,7 +3623,9 @@ input UpdateFieldInput {
   title: String
   description: String
   key: String
-  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  required: Boolean
+  unique: Boolean
+  multiValue: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -22041,7 +22043,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiValue", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22085,6 +22087,30 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
 			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "required":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
+			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "unique":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
+			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "multiValue":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
+			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
