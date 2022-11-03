@@ -2,12 +2,15 @@ package interactor
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -59,11 +62,12 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-
+		if param.Fields != nil {
+			err = validateFields(param.Fields, s)
+		}
 		it, err := item.New().
 			NewID().
 			Schema(param.SchemaID).
@@ -80,6 +84,62 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		return it, nil
 	})
+}
+
+func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) error {
+	for _, field := range itemFields {
+		sf := s.Field(field.SchemaFieldID)
+		if sf.Required() && field.Value == nil {
+			return errors.New("field is required")
+		}
+		if sf.Unique() {
+			//	TODO: ask Baba-chan
+		}
+		err1 := errors.New("invalid value")
+		errFlag := false
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Text: func(f *schema.FieldText) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			TextArea: func(f *schema.FieldTextArea) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			RichText: func(f *schema.FieldRichText) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			Markdown: func(f *schema.FieldMarkdown) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			Asset: func(f *schema.FieldAsset) {
+			},
+			Date: func(f *schema.FieldDate) {
+			},
+			Bool: func(f *schema.FieldBool) {
+			},
+			Select: func(f *schema.FieldSelect) {
+			},
+			Tag: func(f *schema.FieldTag) {
+			},
+			Integer: func(f *schema.FieldInteger) {
+				if f.Max() != nil && field.Value.(int) > *f.Max() {
+					errFlag = true
+				}
+				if f.Min() != nil && field.Value.(int) < *f.Min() {
+					errFlag = true
+				}
+			},
+			Reference: func(f *schema.FieldReference) {
+
+			},
+			URL: func(f *schema.FieldURL) {
+				errFlag = !schema.IsUrl(field.Value.(string))
+			},
+		})
+		if errFlag {
+			return err1
+		}
+	}
+	return nil
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
