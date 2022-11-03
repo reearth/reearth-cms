@@ -30,6 +30,20 @@ export const GET_ASSETS = gql`
           }
           uuid
           url
+          thread {
+            id
+            workspaceId
+            comments {
+              id
+              author {
+                id
+                name
+                email
+              }
+              content
+              createdAt
+            }
+          }
         }
       }
       nodes {
@@ -52,6 +66,20 @@ export const GET_ASSETS = gql`
         }
         uuid
         url
+        thread {
+          id
+          workspaceId
+          comments {
+            id
+            author {
+              id
+              name
+              email
+            }
+            content
+            createdAt
+          }
+        }
       }
       pageInfo {
         startCursor
@@ -86,6 +114,20 @@ export const GET_ASSET = gql`
       }
       uuid
       url
+      thread {
+        id
+        workspaceId
+        comments {
+          id
+          author {
+            id
+            name
+            email
+          }
+          content
+          createdAt
+        }
+      }
     }
   }
 `;
@@ -109,6 +151,20 @@ export const CREATE_ASSET = gql`
         }
         uuid
         url
+        thread {
+          id
+          workspaceId
+          comments {
+            id
+            author {
+              id
+              name
+              email
+            }
+            content
+            createdAt
+          }
+        }
       }
     }
   }
@@ -133,6 +189,20 @@ export const UPDATE_ASSET = gql`
         }
         uuid
         url
+        thread {
+          id
+          workspaceId
+          comments {
+            id
+            author {
+              id
+              name
+              email
+            }
+            content
+            createdAt
+          }
+        }
       }
     }
   }

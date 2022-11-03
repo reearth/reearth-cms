@@ -132,6 +132,9 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 	}
 	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func() error {
+			if !operator.IsOwningWorkspace(proj.Workspace()) {
+				return interfaces.ErrOperationDenied
+			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {
 				return err
 			}

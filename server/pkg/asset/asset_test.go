@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -97,7 +98,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).MustBuild()
+	a := New().NewID().Project(pid).CreatedBy(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)

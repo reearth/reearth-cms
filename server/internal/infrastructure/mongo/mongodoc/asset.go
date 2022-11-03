@@ -19,6 +19,7 @@ type AssetDocument struct {
 	PreviewType string
 	File        *File
 	UUID        string
+	Thread      string
 }
 
 type File struct {
@@ -58,6 +59,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		PreviewType: previewType,
 		File:        ToFile(file),
 		UUID:        a.UUID(),
+		Thread:      a.Thread().String(),
 	}, aid
 
 	return ad, id
@@ -76,6 +78,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
+	thid, err := id.ThreadIDFrom(d.Thread)
+	if err != nil {
+		return nil, err
+	}
 
 	return asset.New().
 		ID(aid).
@@ -87,6 +93,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
 		UUID(d.UUID).
+		Thread(thid).
 		Build()
 }
 
