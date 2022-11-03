@@ -15,13 +15,13 @@ import (
 )
 
 type TaskRunner struct {
-	conf      *TasksConfig
+	conf      *TaskConfig
 	queuePath string
 	c         *cloudtasks.Client
 	pubsub    *pubsub.Client
 }
 
-func NewTaskRunner(ctx context.Context, conf *TasksConfig) (gateway.TaskRunner, error) {
+func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
 	qURL, err := conf.buildQueueUrl()
 	if err != nil {
 		return nil, err
