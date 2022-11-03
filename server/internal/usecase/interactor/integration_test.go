@@ -383,7 +383,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
 			wantErr: nil,
 		},
 	}
@@ -444,7 +444,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
 			wantErr: nil,
 		},
 		{
