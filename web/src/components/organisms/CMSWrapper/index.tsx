@@ -31,7 +31,7 @@ const CMSWrapper: React.FC = () => {
   } = useHooks();
 
   return loading ? (
-    <Loading minHeight="400px" />
+    <Loading spinnerSize="large" minHeight="100vh" />
   ) : workspaceExists ? (
     <>
       <CMSWrapperMolecule
