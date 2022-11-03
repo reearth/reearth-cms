@@ -61,6 +61,11 @@ func (b *Builder) Schema(sid schema.ID) *Builder {
 	return b
 }
 
+func (b *Builder) Model(mid ModelID) *Builder {
+	b.i.model = mid
+	return b
+}
+
 func (b *Builder) Project(pid ProjectID) *Builder {
 	b.i.project = pid
 	return b
