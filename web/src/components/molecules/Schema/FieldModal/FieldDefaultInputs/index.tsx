@@ -1,4 +1,7 @@
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
+
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 import { FieldType } from "../../types";
 
@@ -12,16 +15,53 @@ import URLField from "./URLField";
 export interface Props {
   selectedType: FieldType;
   selectedValues: string[];
+  assetList: Asset[];
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  loadingAssets: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
 }
 
-const FieldDefaultInputs: React.FC<Props> = ({ selectedType, selectedValues }) => {
+const FieldDefaultInputs: React.FC<Props> = ({
+  selectedType,
+  selectedValues,
+  assetList,
+  onAssetSearchTerm,
+  onAssetsReload,
+  loadingAssets,
+  createAssets,
+  fileList,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
+}) => {
   return selectedType ? (
     selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <TextAreaField />
     ) : selectedType === "Integer" ? (
       <IntegerField />
     ) : selectedType === "Asset" ? (
-      <AssetField />
+      <AssetField
+        assetList={assetList}
+        onAssetSearchTerm={onAssetSearchTerm}
+        onAssetsReload={onAssetsReload}
+        loadingAssets={loadingAssets}
+        createAssets={createAssets}
+        fileList={fileList}
+        setFileList={setFileList}
+        setUploading={setUploading}
+        setUploadModalVisibility={setUploadModalVisibility}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+      />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} />
     ) : selectedType === "URL" ? (

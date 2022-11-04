@@ -1,22 +1,54 @@
-import Upload from "antd/lib/upload/Upload";
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
-const AssetField: React.FC = () => {
+type Props = {
+  assetList: Asset[];
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  loadingAssets: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+};
+const AssetField: React.FC<Props> = ({
+  assetList,
+  onAssetSearchTerm,
+  onAssetsReload,
+  loadingAssets,
+  createAssets,
+  fileList,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
+}) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
-      <Upload action="/upload.do" listType="picture-card">
-        <div>
-          <Icon icon="link" />
-          <div style={{ marginTop: 8 }}>{t("Asset")}</div>
-        </div>
-      </Upload>
-    </Form.Item>
+    <AssetItem
+      name="defaultValue"
+      label={t("Set default value")}
+      assetList={assetList}
+      onAssetSearchTerm={onAssetSearchTerm}
+      onAssetsReload={onAssetsReload}
+      loadingAssets={loadingAssets}
+      createAssets={createAssets}
+      fileList={fileList}
+      setFileList={setFileList}
+      setUploading={setUploading}
+      setUploadModalVisibility={setUploadModalVisibility}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+    />
   );
 };
 

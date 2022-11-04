@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useEffect, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -9,6 +9,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
@@ -33,6 +35,17 @@ export type Props = {
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  assetList: Asset[];
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  loadingAssets: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  fileList: UploadFile[];
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
 };
 
 const initialValues: FormValues = {
@@ -52,6 +65,17 @@ const FieldCreationModal: React.FC<Props> = ({
   onClose,
   onSubmit,
   handleFieldKeyUnique,
+  assetList,
+  onAssetSearchTerm,
+  onAssetsReload,
+  loadingAssets,
+  createAssets,
+  fileList,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+  uploading,
+  uploadModalVisibility,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -240,7 +264,21 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-            <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
+            <FieldDefaultInputs
+              selectedValues={selectedValues}
+              selectedType={selectedType}
+              assetList={assetList}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onAssetsReload={onAssetsReload}
+              loadingAssets={loadingAssets}
+              createAssets={createAssets}
+              fileList={fileList}
+              setFileList={setFileList}
+              setUploading={setUploading}
+              setUploadModalVisibility={setUploadModalVisibility}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+            />
           </TabPane>
         </Tabs>
       </Form>
