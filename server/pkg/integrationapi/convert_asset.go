@@ -39,7 +39,7 @@ func ToFile(f *asset.File) File {
 		Name:        lo.ToPtr(f.Name()),
 		ContentType: lo.ToPtr(f.ContentType()),
 		Size:        lo.ToPtr(float32(f.Size())),
-		Url:         lo.ToPtr(f.Path()),
+		Path:        lo.ToPtr(f.Path()),
 		Children:    lo.ToPtr(children),
 	}
 }

@@ -441,7 +441,7 @@ components:
           type: number
         contentType:
           type: string
-        url:
+        path:
           type: string
         children:
           type: array

@@ -120,8 +120,8 @@ type File struct {
 	Children    *[]File  `json:"children,omitempty"`
 	ContentType *string  `json:"contentType,omitempty"`
 	Name        *string  `json:"name,omitempty"`
+	Path        *string  `json:"path,omitempty"`
 	Size        *float32 `json:"size,omitempty"`
-	Url         *string  `json:"url,omitempty"`
 }
 
 // Item defines model for item.
