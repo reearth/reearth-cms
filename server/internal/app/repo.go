@@ -7,7 +7,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcs"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -50,7 +49,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL, conf.Host)
 	} else {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
-		fileRepo, err = gcs.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.Host)
+		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.Host)
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
@@ -64,8 +63,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
 	// CloudTasks
-	if conf.CloudTasks.GCPProject != "" && conf.CloudTasks.GCPRegion != "" || conf.CloudTasks.QueueName != "" {
-		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.CloudTasks)
+	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
+		conf.Task.GCSHost = conf.Host
+		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
 		}

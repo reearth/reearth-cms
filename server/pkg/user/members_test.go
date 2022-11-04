@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -246,6 +248,18 @@ func TestMembers_UpdateIntegrationRole(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMembers_IntegrationIDs(t *testing.T) {
+	i1 := integration.NewID()
+	i2 := integration.NewID()
+	u1 := NewID()
+	m := NewMembersWith(map[ID]Member{u1: {Role: RoleOwner}})
+	lo.Must0(m.AddIntegration(i1, RoleWriter, u1))
+	lo.Must0(m.AddIntegration(i2, RoleWriter, u1))
+
+	assert.Equal(t, IntegrationIDList{i1, i2}, m.IntegrationIDs())
+
 }
 
 func TestMembers_Join(t *testing.T) {

@@ -417,6 +417,8 @@ components:
           format: uuid
         name:
           type: string
+        url:
+          type: string
         contentType:
           type: string
         previewType:
@@ -426,6 +428,7 @@ components:
             - geo
             - geo3d
             - model3d
+            - unknown
         totalSize:
           type: number
         file:
@@ -445,7 +448,7 @@ components:
           type: number
         contentType:
           type: string
-        url:
+        path:
           type: string
         children:
           type: array

@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -349,15 +350,15 @@ func TestAsset_FindByProject(t *testing.T) {
 
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
-	wid1 := id.NewWorkspaceID()
+	ws := user.NewWorkspace().NewID().MustBuild()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(ws.ID()).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(ws.ID()).MustBuild()
 	op := &usecase.Operator{
 		User:               lo.ToPtr(u.ID()),
-		WritableWorkspaces: []id.WorkspaceID{wid1},
+		WritableWorkspaces: []id.WorkspaceID{ws.ID()},
 	}
 
 	buf := bytes.NewBufferString("Hello")
@@ -456,10 +457,12 @@ func TestAsset_Create(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &gateway.Container{
-				File:       f,
-				TaskRunner: runnerGw,
-			})
+			assetUC := Asset{
+				repos: db,
+				gateways: &gateway.Container{
+					File:       f,
+					TaskRunner: runnerGw,
+				}, eventFunc: mockEventFunc}
 
 			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -576,21 +579,22 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	uid := id.NewUserID()
 	assetID1 := asset.NewID()
 	assetID2 := asset.NewID()
-	projectID := id.NewProjectID()
+	proj := project.New().NewID().MustBuild()
 
 	c1 := asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build()
 	c2 := asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build()
 	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
 
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(assetID1).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
-	a2 := asset.New().ID(assetID2).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
+	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
+	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{}
 
 	tests := []struct {
 		name            string
 		seedAssets      []*asset.Asset
+		seedProjects    []*project.Project
 		prepareFileFunc func() afero.Fs
 		assetID         id.AssetID
 		want            *asset.Asset
@@ -615,13 +619,14 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			wantErr: gateway.ErrFileNotFound,
 		},
 		{
-			name:       "update",
-			seedAssets: []*asset.Asset{a1, a2},
+			name:         "update",
+			seedAssets:   []*asset.Asset{a1, a2},
+			seedProjects: []*project.Project{proj},
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
 			},
 			assetID: assetID1,
-			want:    asset.New().ID(assetID1).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild(),
+			want:    asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild(),
 			wantErr: nil,
 		},
 	}
@@ -640,8 +645,17 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.Nil(t, err)
 			}
-			assetUC := NewAsset(db, &gateway.Container{File: fileGw})
-
+			for _, p := range tc.seedProjects {
+				err := db.Project.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			assetUC := Asset{
+				repos: db,
+				gateways: &gateway.Container{
+					File: fileGw,
+				},
+				eventFunc: mockEventFunc,
+			}
 			got, err := assetUC.UpdateFiles(ctx, tc.assetID, op)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -656,13 +670,13 @@ func TestAsset_UpdateFiles(t *testing.T) {
 func TestAsset_Delete(t *testing.T) {
 	uid := id.NewUserID()
 
-	pid1 := id.NewProjectID()
+	proj1 := project.New().NewID().MustBuild()
 	aid1 := id.NewAssetID()
-	a1 := asset.New().ID(aid1).Project(pid1).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+	a1 := asset.New().ID(aid1).Project(proj1.ID()).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
-	pid2 := id.NewProjectID()
+	proj2 := project.New().NewID().MustBuild()
 	aid2 := id.NewAssetID()
-	a2 := asset.New().ID(aid2).Project(pid2).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+	a2 := asset.New().ID(aid2).Project(proj2.ID()).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -672,15 +686,17 @@ func TestAsset_Delete(t *testing.T) {
 	}
 	tests := []struct {
 		name         string
-		seeds        []*asset.Asset
+		seedsAsset   []*asset.Asset
+		seedsProject []*project.Project
 		args         args
 		want         []*asset.Asset
 		mockAssetErr bool
 		wantErr      error
 	}{
 		{
-			name:  "delete",
-			seeds: []*asset.Asset{a1, a2},
+			name:         "delete",
+			seedsAsset:   []*asset.Asset{a1, a2},
+			seedsProject: []*project.Project{proj1, proj2},
 			args: args{
 				id:       aid1,
 				operator: op,
@@ -689,8 +705,8 @@ func TestAsset_Delete(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "delete not found",
-			seeds: []*asset.Asset{a1, a2},
+			name:       "delete not found",
+			seedsAsset: []*asset.Asset{a1, a2},
 			args: args{
 				id:       id.NewAssetID(),
 				operator: op,
@@ -699,8 +715,8 @@ func TestAsset_Delete(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "delete od",
-			seeds: []*asset.Asset{},
+			name:       "delete od",
+			seedsAsset: []*asset.Asset{},
 			args: args{
 				id:       aid2,
 				operator: op,
@@ -718,12 +734,19 @@ func TestAsset_Delete(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			for _, p := range tc.seeds {
+			for _, p := range tc.seedsAsset {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &gateway.Container{})
-
+			for _, p := range tc.seedsProject {
+				err := db.Project.Save(ctx, p.Clone())
+				assert.NoError(t, err)
+			}
+			assetUC := Asset{
+				repos:     db,
+				gateways:  &gateway.Container{},
+				eventFunc: mockEventFunc,
+			}
 			id, err := assetUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -782,4 +805,8 @@ func NewMockRunner() gateway.TaskRunner {
 
 func (r *mockRunner) Run(context.Context, task.Payload) error {
 	return nil
+}
+
+func mockEventFunc(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
+	return nil, nil
 }

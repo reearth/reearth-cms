@@ -21,6 +21,8 @@ type Asset struct {
 	thread      ThreadID
 }
 
+type URLResolver = func(*Asset) string
+
 func (a *Asset) ID() ID {
 	return a.id
 }

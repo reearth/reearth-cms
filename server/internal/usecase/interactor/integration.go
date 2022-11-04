@@ -150,21 +150,12 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			t := integration.WebhookTrigger{
-				OnItemCreate:    param.Trigger.OnItemCreate,
-				OnItemUpdate:    param.Trigger.OnItemUpdate,
-				OnItemDelete:    param.Trigger.OnItemDelete,
-				OnAssetUpload:   param.Trigger.OnAssetUpload,
-				OnAssetDeleted:  param.Trigger.OnAssetDeleted,
-				OnItemPublish:   param.Trigger.OnItemPublish,
-				OnItemUnPublish: param.Trigger.OnItemUnpublish,
-			}
 			w, err := integration.NewWebhookBuilder().
 				NewID().
 				Name(param.Name).
 				Url(&param.URL).
 				Active(param.Active).
-				Trigger(t).
+				Trigger(integration.WebhookTrigger(*param.Trigger)).
 				Build()
 
 			if err != nil {
@@ -207,7 +198,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 			}
 
 			if param.URL != nil {
-				w.SetUrl(param.URL)
+				w.SetURL(param.URL)
 			}
 
 			if param.Active != nil {
@@ -215,16 +206,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 			}
 
 			if param.Trigger != nil {
-				t := integration.WebhookTrigger{
-					OnItemCreate:    param.Trigger.OnItemCreate,
-					OnItemUpdate:    param.Trigger.OnItemUpdate,
-					OnItemDelete:    param.Trigger.OnItemDelete,
-					OnAssetUpload:   param.Trigger.OnAssetUpload,
-					OnAssetDeleted:  param.Trigger.OnAssetDeleted,
-					OnItemPublish:   param.Trigger.OnItemPublish,
-					OnItemUnPublish: param.Trigger.OnItemUnpublish,
-				}
-				w.SetTrigger(t)
+				w.SetTrigger(integration.WebhookTrigger(*param.Trigger))
 			}
 
 			w.SetUpdatedAt(time.Now())

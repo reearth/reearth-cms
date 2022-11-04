@@ -1,4 +1,4 @@
-package gcs
+package gcp
 
 import (
 	"net/url"

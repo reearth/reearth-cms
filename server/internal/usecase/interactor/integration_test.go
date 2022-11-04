@@ -87,7 +87,7 @@ func assertWebhookEq(t *testing.T, expected, got *integration.Webhook) {
 	}
 	assert.Equal(t, expected.Name(), got.Name())
 	assert.Equal(t, expected.Active(), got.Active())
-	assert.Equal(t, expected.Url(), got.Url())
+	assert.Equal(t, expected.URL(), got.URL())
 	assert.Equal(t, expected.Trigger(), got.Trigger())
 	// assert.Equal(t, expected.ID(), got.ID())
 	// assert.Equal(t, expected.UpdatedAt(), got.UpdatedAt())
@@ -383,7 +383,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
 			wantErr: nil,
 		},
 	}
@@ -444,7 +444,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 					Trigger: &interfaces.WebhookTriggerParam{},
 				},
 			},
-			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).MustBuild(),
+			want:    integration.NewWebhookBuilder().ID(wId).Name("w1").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
 			wantErr: nil,
 		},
 		{
