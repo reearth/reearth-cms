@@ -1,17 +1,14 @@
 import styled from "@emotion/styled";
-import { FormItemProps } from "antd/lib/form/FormItem";
-import { FormItemLabelProps } from "antd/lib/form/FormItemLabel";
-import React, { useState, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import LinkToAssetModal from "@reearth-cms/components/molecules/Common/LinkToAssetModal/linkToAssetModal";
 import { useT } from "@reearth-cms/i18n";
-
-import LinkToAssetModal from "../../LinkToAssetModal/linkToAssetModal";
 
 type Props = {
   assetList: Asset[];
