@@ -20,7 +20,7 @@ var (
 	ErrUnsupportedEntity = errors.New("unsupported entity")
 )
 
-func MarshalJSON(obj any, version string, urlResolver asset.AssetURLResolver) ([]byte, error) {
+func MarshalJSON(obj any, version string, urlResolver asset.URLResolver) ([]byte, error) {
 	var res any
 	switch o := (obj).(type) {
 	case *asset.Asset:
