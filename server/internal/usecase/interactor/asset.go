@@ -239,7 +239,3 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 		},
 	)
 }
-
-// func (i *Asset) createEvent(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
-// 	return createEvent(ctx, i.repos, i.gateways, wid, t, a, op)
-// }
