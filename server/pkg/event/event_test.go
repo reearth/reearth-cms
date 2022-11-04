@@ -24,4 +24,5 @@ func TestEvent(t *testing.T) {
 	assert.Equal(t, a, ev.Object())
 	assert.Equal(t, now, ev.Timestamp())
 	assert.Equal(t, ev, ev.Clone())
+	assert.NotSame(t, ev, ev.Clone())
 }

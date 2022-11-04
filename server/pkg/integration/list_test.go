@@ -189,6 +189,7 @@ func TestList_ActiveWebhooks(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			assert.Equal(t, tc.expected, iList.ActiveWebhooks(tc.eType))
 		})
