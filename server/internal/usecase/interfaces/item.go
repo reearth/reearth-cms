@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
@@ -22,6 +23,7 @@ type ItemFieldParam struct {
 
 type CreateItemParam struct {
 	SchemaID schema.ID
+	ModelID  model.ID
 	Fields   []ItemFieldParam
 }
 
