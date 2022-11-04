@@ -27,6 +27,9 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.project.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.model.IsNil() {
+		return nil, ErrInvalidID
+	}
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
@@ -58,6 +61,11 @@ func (b *Builder) Fields(fields []*Field) *Builder {
 
 func (b *Builder) Schema(sid schema.ID) *Builder {
 	b.i.schema = sid
+	return b
+}
+
+func (b *Builder) Model(mid ModelID) *Builder {
+	b.i.model = mid
 	return b
 }
 

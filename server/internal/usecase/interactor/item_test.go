@@ -32,9 +32,9 @@ func TestNewItem(t *testing.T) {
 func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -117,13 +117,13 @@ func TestItem_FindBySchema(t *testing.T) {
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
+	i3 := item.New().NewID().Schema(s2.ID()).Model(id.NewModelID()).Project(pid).MustBuild()
 	restore()
 
 	type args struct {
@@ -137,7 +137,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		seedItems   item.List
 		seedSchema  *schema.Schema
 		args        args
-		want        item.List
+		want        int
 		wantErr     error
 		mockItemErr bool
 	}{
@@ -153,7 +153,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -168,7 +168,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{},
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -183,7 +183,7 @@ func TestItem_FindBySchema(t *testing.T) {
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{},
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -216,7 +216,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, len(got))
 		})
 	}
 }
@@ -242,6 +242,7 @@ func TestItem_Create(t *testing.T) {
 	itemUC := NewItem(db)
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
+		ModelID:  id.NewModelID(),
 	}, op)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
@@ -254,6 +255,7 @@ func TestItem_Create(t *testing.T) {
 	memory.SetItemError(db.Item, wantErr)
 	item2, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
+		ModelID:  id.NewModelID(),
 		Fields:   nil,
 	}, op)
 	assert.Nil(t, item2)
@@ -263,7 +265,7 @@ func TestItem_Create(t *testing.T) {
 func TestItem_Delete(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -292,7 +294,7 @@ func TestItem_Delete(t *testing.T) {
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -343,7 +345,7 @@ func TestItem_Update(t *testing.T) {
 	id1 := id.NewItemID()
 	f1 := item.NewField(id.NewFieldID(), schema.TypeBool, true)
 	f2 := item.NewField(id.NewFieldID(), schema.TypeText, "xxx")
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Fields([]*item.Field{f1}).Build()
+	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -393,13 +395,13 @@ func TestItem_FindByProject(t *testing.T) {
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Build()
+	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
@@ -494,11 +496,11 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	i1, _ := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	i2, _ := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid1).Project(pid).Fields([]*item.Field{f2}).Build()
+	i3, _ := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
