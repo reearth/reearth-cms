@@ -59,6 +59,18 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
+func (f *Field) SetRequired(req bool) {
+	f.required = req
+}
+
+func (f *Field) SetUnique(unique bool) {
+	f.unique = unique
+}
+
+func (f *Field) SetMultiValue(mv bool) {
+	f.multiValue = mv
+}
+
 func (f *Field) CreatedAt() time.Time {
 	return f.id.Timestamp()
 }
