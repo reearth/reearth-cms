@@ -13,22 +13,22 @@ import (
 
 func TestBuilder_ID(t *testing.T) {
 	iid := NewID()
-	b := New().ID(iid).Schema(id.NewSchemaID()).Project(id.NewProjectID()).MustBuild()
+	b := New().ID(iid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()
 	assert.Equal(t, iid, b.id)
 }
 
 func TestBuilder_SchemaID(t *testing.T) {
 	sid := schema.NewID()
-	b := New().NewID().Schema(sid).Project(id.NewProjectID()).MustBuild()
+	b := New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()
 	assert.Equal(t, sid, b.Schema())
 }
 
 func TestBuilder_Fields(t *testing.T) {
 	sfid := schema.NewFieldID()
 	fields := []*Field{NewField(sfid, schema.TypeBool, true)}
-	b := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(fields).MustBuild()
+	b := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fields).MustBuild()
 	assert.Equal(t, fields, b.Fields())
-	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Fields(nil).MustBuild()
+	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).Fields(nil).MustBuild()
 	assert.Nil(t, b.Fields())
 }
 
@@ -38,24 +38,32 @@ func TestNew(t *testing.T) {
 }
 
 func TestBuilder_NewID(t *testing.T) {
-	res, _ := New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	res, _ := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	assert.NotNil(t, res.ID())
 }
+
 func TestBuilder_Project(t *testing.T) {
 	pid := project.NewID()
-	b := New().NewID().Project(pid).Schema(id.NewSchemaID()).MustBuild()
+	b := New().NewID().Project(pid).Model(id.NewModelID()).Schema(id.NewSchemaID()).MustBuild()
 	assert.Equal(t, pid, b.Project())
+}
+
+func TestBuilder_Model(t *testing.T) {
+	mid := id.NewModelID()
+	b := New().NewID().Model(mid).Project(id.NewProjectID()).Schema(id.NewSchemaID()).MustBuild()
+	assert.Equal(t, mid, b.Model())
 }
 
 func TestBuilder_Timestamp(t *testing.T) {
 	tt := time.Now()
-	b := New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Timestamp(tt).Schema(id.NewSchemaID()).MustBuild()
+	b := New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Model(id.NewModelID()).Timestamp(tt).Schema(id.NewSchemaID()).MustBuild()
 	assert.Equal(t, tt, b.Timestamp())
 }
 
 func TestBuilder_Build(t *testing.T) {
 	iid := NewID()
 	sid := id.NewSchemaID()
+	mid := id.NewModelID()
 	pid := id.NewProjectID()
 	now := time.Now()
 	defer util.MockNow(now)()
@@ -76,12 +84,14 @@ func TestBuilder_Build(t *testing.T) {
 					id:      iid,
 					schema:  sid,
 					project: pid,
+					model:   mid,
 				},
 			},
 			want: &Item{
 				id:        iid,
 				schema:    sid,
 				project:   pid,
+				model:     mid,
 				timestamp: now,
 			},
 			wantErr: nil,
