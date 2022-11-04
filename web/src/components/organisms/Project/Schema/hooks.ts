@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  useGetModelsQuery,
   useCreateFieldMutation,
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
@@ -26,12 +25,6 @@ export default () => {
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
 
-  useEffect(() => {
-    if (!modelId && currentModel) {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
-    }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleModelSelect = useCallback(
     (modelId: string) => {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
@@ -39,50 +32,13 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
 
-  const { data } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "", first: 100 },
-    skip: !projectId,
-  });
-
-  const rawModel = useMemo(
-    () => data?.models.nodes.find((p: any) => p?.id === modelId),
-    [data, modelId],
-  );
-
-  const model = useMemo<Model | undefined>(
-    () =>
-      rawModel?.id
-        ? {
-            id: rawModel.id,
-            description: rawModel.description,
-            name: rawModel.name,
-            key: rawModel.key,
-            public: rawModel.public,
-            schema: {
-              id: rawModel.schema.id,
-              fields: rawModel.schema.fields.map(field => ({
-                id: field.id,
-                description: field.description,
-                title: field.title,
-                type: field.type,
-                key: field.key,
-                unique: field.unique,
-                required: field.required,
-                typeProperty: field.typeProperty,
-              })),
-            },
-          }
-        : undefined,
-    [rawModel],
-  );
-
   const handleFieldKeyUnique = useCallback(
     (key: string, fieldId?: string): boolean => {
-      return !model?.schema.fields.some(
+      return !currentModel?.schema.fields.some(
         field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
       );
     },
-    [model?.schema.fields],
+    [currentModel],
   );
 
   const [createNewField] = useCreateFieldMutation({
@@ -203,7 +159,7 @@ export default () => {
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,
-    model,
+    currentModel,
     selectedType,
     collapsed,
     collapse,

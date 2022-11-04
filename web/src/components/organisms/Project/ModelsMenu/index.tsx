@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
-import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
+import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
 
 import useHooks from "./hooks";
 
@@ -13,7 +13,7 @@ export interface Props {
 }
 
 const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelect }) => {
-  const { projectId, modelId } = useParams();
+  const { modelId } = useParams();
 
   const {
     model,
@@ -25,7 +25,6 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelec
     handleModelCreate,
     handleModelKeyCheck,
   } = useHooks({
-    projectId,
     modelId,
   });
 
@@ -40,13 +39,12 @@ const ModelsMenu: React.FC<Props> = ({ className, title, collapsed, onModelSelec
         onModelSelect={onModelSelect}
         onModalOpen={handleModalOpen}
       />
-      <ModelCreationModal
+      <ModelFormModal
         isKeyAvailable={isKeyAvailable}
-        projectId={projectId}
         open={modelModalShown}
         onModelKeyCheck={handleModelKeyCheck}
         onClose={handleModalClose}
-        onSubmit={handleModelCreate}
+        onCreate={handleModelCreate}
       />
     </>
   );

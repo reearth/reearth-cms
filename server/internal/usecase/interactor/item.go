@@ -73,6 +73,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			NewID().
 			Schema(param.SchemaID).
 			Project(s.Project()).
+			Model(param.ModelID).
 			Fields(itemFieldsFromParams(param.Fields)).
 			Build()
 		if err != nil {
