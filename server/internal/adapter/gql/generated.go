@@ -195,6 +195,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		Fields    func(childComplexity int) int
 		ID        func(childComplexity int) int
+		ModelID   func(childComplexity int) int
 		Project   func(childComplexity int) int
 		ProjectID func(childComplexity int) int
 		Schema    func(childComplexity int) int
@@ -1111,6 +1112,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ID(childComplexity), true
+
+	case "Item.modelId":
+		if e.complexity.Item.ModelID == nil {
+			break
+		}
+
+		return e.complexity.Item.ModelID(childComplexity), true
 
 	case "Item.project":
 		if e.complexity.Item.Project == nil {
@@ -3638,7 +3646,9 @@ input UpdateFieldInput {
   title: String
   description: String
   key: String
-  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  required: Boolean
+  unique: Boolean
+  multiValue: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -3667,6 +3677,7 @@ extend type Mutation {
 	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
+  modelId: ID!
   projectId: ID!
   project: Project!
   schema: Schema!
@@ -3696,6 +3707,7 @@ input ItemFieldInput {
 
 input CreateItemInput {
   schemaId: ID!
+  modelId: ID!
   fields: [ItemFieldInput!]!
 }
 
@@ -8007,6 +8019,50 @@ func (ec *executionContext) fieldContext_Item_schemaId(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_modelId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ModelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_modelId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_projectId(ctx, field)
 	if err != nil {
@@ -8358,6 +8414,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -8557,6 +8615,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -8749,6 +8809,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -17061,6 +17123,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -20452,7 +20516,7 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"schemaId", "fields"}
+	fieldsInOrder := [...]string{"schemaId", "modelId", "fields"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20464,6 +20528,14 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
 			it.SchemaID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "modelId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22100,7 +22172,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiValue", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22144,6 +22216,30 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
 			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "required":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
+			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "unique":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
+			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "multiValue":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
+			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -23934,6 +24030,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		case "schemaId":
 
 			out.Values[i] = ec._Item_schemaId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "modelId":
+
+			out.Values[i] = ec._Item_modelId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

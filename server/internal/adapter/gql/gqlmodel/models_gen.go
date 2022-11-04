@@ -136,6 +136,7 @@ type CreateIntegrationInput struct {
 
 type CreateItemInput struct {
 	SchemaID ID                `json:"schemaId"`
+	ModelID  ID                `json:"modelId"`
 	Fields   []*ItemFieldInput `json:"fields"`
 }
 
@@ -291,6 +292,7 @@ type IntegrationPayload struct {
 type Item struct {
 	ID        ID           `json:"id"`
 	SchemaID  ID           `json:"schemaId"`
+	ModelID   ID           `json:"modelId"`
 	ProjectID ID           `json:"projectId"`
 	Project   *Project     `json:"project"`
 	Schema    *Schema      `json:"schema"`
@@ -678,6 +680,9 @@ type UpdateFieldInput struct {
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          *string                       `json:"key"`
+	Required     *bool                         `json:"required"`
+	Unique       *bool                         `json:"unique"`
+	MultiValue   *bool                         `json:"multiValue"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
