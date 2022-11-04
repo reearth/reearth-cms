@@ -22,6 +22,7 @@ type Props = {
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onLink: (asset: Asset) => void;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -41,6 +42,7 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   uploading,
   uploadModalVisibility,
+  onLink,
 }) => {
   const t = useT();
   const { Item } = Form;
@@ -51,9 +53,6 @@ const AssetItem: React.FC<Props> = ({
   };
   const handleCancel = () => {
     setVisible(false);
-  };
-  const handleLink = (_asset: Asset) => {
-    // TODO: implement link asset with content
   };
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -102,7 +101,7 @@ const AssetItem: React.FC<Props> = ({
         visible={visible}
         onCancel={handleCancel}
         assetList={assetList}
-        onLink={handleLink}
+        onLink={onLink}
         onSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         loading={loadingAssets}
