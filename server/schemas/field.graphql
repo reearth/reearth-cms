@@ -193,7 +193,9 @@ input UpdateFieldInput {
   title: String
   description: String
   key: String
-  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  required: Boolean
+  unique: Boolean
+  multiValue: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
