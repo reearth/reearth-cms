@@ -27,6 +27,9 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.project.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.model.IsNil() {
+		return nil, ErrInvalidID
+	}
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
