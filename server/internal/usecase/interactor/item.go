@@ -67,6 +67,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 		if param.Fields != nil {
 			err = validateFields(param.Fields, s)
+			return nil, err
 		}
 		it, err := item.New().
 			NewID().
@@ -92,9 +93,6 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 		if sf.Required() && field.Value == nil {
 			return errors.New("field is required")
 		}
-		if sf.Unique() {
-			//	TODO: ask Baba-chan
-		}
 		err1 := errors.New("invalid value")
 		errFlag := false
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
@@ -110,16 +108,6 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 			Markdown: func(f *schema.FieldMarkdown) {
 				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
 			},
-			Asset: func(f *schema.FieldAsset) {
-			},
-			Date: func(f *schema.FieldDate) {
-			},
-			Bool: func(f *schema.FieldBool) {
-			},
-			Select: func(f *schema.FieldSelect) {
-			},
-			Tag: func(f *schema.FieldTag) {
-			},
 			Integer: func(f *schema.FieldInteger) {
 				if f.Max() != nil && field.Value.(int) > *f.Max() {
 					errFlag = true
@@ -127,9 +115,6 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 				if f.Min() != nil && field.Value.(int) < *f.Min() {
 					errFlag = true
 				}
-			},
-			Reference: func(f *schema.FieldReference) {
-
 			},
 			URL: func(f *schema.FieldURL) {
 				errFlag = !schema.IsUrl(field.Value.(string))
@@ -148,6 +133,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+		if err != nil {
+			return nil, err
+		}
 		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
@@ -156,7 +145,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if !operator.IsWritableProject(item.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-
+		if param.Fields != nil {
+			err = validateFields(param.Fields, s)
+			return nil, err
+		}
 		item.UpdateFields(itemFieldsFromParams(param.Fields))
 
 		if err := i.repos.Item.Save(ctx, item); err != nil {
