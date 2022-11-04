@@ -41,7 +41,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 	api.POST("/decompress", t)
 
 	wh := handler.WebhookHandler()
-	api.POST("webhook", wh)
+	api.POST("/webhook", wh)
 
 	return e
 }
