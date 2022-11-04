@@ -37,7 +37,7 @@ const ContentListMolecule: React.FC<Props> = ({
     <ContentWrapper modelsMenu={ModelsMenu}>
       <PageHeader
         title={model?.name}
-        subTitle={`#${model?.key}`}
+        subTitle={model?.key ? "#" + model.key : null}
         extra={
           <Button type="primary" onClick={onItemAdd} icon={<Icon icon="plus" />} disabled={!model}>
             {t("New Item")}
