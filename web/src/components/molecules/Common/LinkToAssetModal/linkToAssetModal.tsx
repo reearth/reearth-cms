@@ -5,6 +5,7 @@ import ProTable, {
   ProColumns,
   ListToolBarProps,
   OptionConfig,
+  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -64,6 +65,11 @@ const LinkToAssetModal: React.FC<Props> = ({
         }
       },
     },
+  };
+
+  const pagination: TablePaginationConfig = {
+    pageSize: 5,
+    showSizeChanger: false,
   };
 
   const columns: ProColumns<Asset>[] = [
@@ -132,6 +138,7 @@ const LinkToAssetModal: React.FC<Props> = ({
         search={false}
         rowKey="id"
         options={options}
+        pagination={pagination}
         toolbar={handleToolbarEvents}
         tableStyle={{ overflowX: "scroll" }}
         loading={loading}
