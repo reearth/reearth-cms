@@ -782,3 +782,21 @@ func TestField_SetTypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestField_SetMultiValue(t *testing.T) {
+	f := &Field{multiValue: false}
+	f.SetMultiValue(true)
+	assert.Equal(t, true, f.MultiValue())
+}
+
+func TestField_SetRequired(t *testing.T) {
+	f := &Field{required: false}
+	f.SetRequired(true)
+	assert.Equal(t, true, f.Required())
+}
+
+func TestField_SetUnique(t *testing.T) {
+	f := &Field{unique: false}
+	f.SetUnique(true)
+	assert.Equal(t, true, f.Unique())
+}

@@ -674,6 +674,9 @@ type UpdateFieldInput struct {
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          *string                       `json:"key"`
+	Required     *bool                         `json:"required"`
+	Unique       *bool                         `json:"unique"`
+	MultiValue   *bool                         `json:"multiValue"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 

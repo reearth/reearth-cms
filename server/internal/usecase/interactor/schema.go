@@ -150,6 +150,17 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 				}
 				f.SetKey(k)
 			}
+			if param.Required != nil {
+				f.SetRequired(*param.Required)
+			}
+
+			if param.Unique != nil {
+				f.SetUnique(*param.Unique)
+			}
+
+			if param.MultiValue != nil {
+				f.SetMultiValue(*param.MultiValue)
+			}
 
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
