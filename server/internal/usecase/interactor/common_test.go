@@ -70,7 +70,7 @@ func TestCommon_webhook(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	//no workspace
+	// no workspace
 	err := webhook(ctx, db, gw, workspace.ID(), ev)
 	assert.Error(t, err)
 
