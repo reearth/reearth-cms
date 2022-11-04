@@ -91,6 +91,10 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
+  const handleLink = (_asset: Asset) => {
+    // TODO: implement link asset with content
+  };
+
   return (
     <Form form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
@@ -156,6 +160,7 @@ const ContentForm: React.FC<Props> = ({
               setUploadModalVisibility={setUploadModalVisibility}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
+              onLink={handleLink}
             />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>
