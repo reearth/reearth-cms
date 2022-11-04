@@ -504,7 +504,7 @@ func TestItem_Search(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {

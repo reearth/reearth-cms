@@ -555,7 +555,7 @@ func TestProject_Delete(t *testing.T) {
 	}
 
 	opOwner := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 		OwningWorkspaces:   []id.WorkspaceID{wid1},

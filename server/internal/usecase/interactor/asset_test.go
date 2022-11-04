@@ -583,8 +583,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
 
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
-	a2 := asset.New().ID(assetID2).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
+	a1 := asset.New().ID(assetID1).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
+	a2 := asset.New().ID(assetID2).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -621,7 +621,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				return mockFs()
 			},
 			assetID: assetID1,
-			want:    asset.New().ID(assetID1).Project(projectID).CreatedBy(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild(),
+			want:    asset.New().ID(assetID1).Project(projectID).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild(),
 			wantErr: nil,
 		},
 	}
