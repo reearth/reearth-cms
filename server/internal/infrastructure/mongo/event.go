@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	eventIndexes       = []string{"user", "Event"}
+	eventIndexes       = []string{"user", "integration"}
 	eventUniqueIndexes = []string{"id"}
 )
 
