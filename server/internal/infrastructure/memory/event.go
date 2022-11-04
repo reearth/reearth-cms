@@ -12,7 +12,6 @@ import (
 
 type Event struct {
 	data *util.SyncMap[id.EventID, *event.Event[any]]
-	now  *util.TimeNow
 	err  error
 }
 
