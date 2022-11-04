@@ -48,7 +48,14 @@ const ModelFieldList: React.FC<Props> = ({
                 <h3>{(item as Field).type}</h3>
               </FieldThumbnail>
             }
-            title={`${(item as Field).title}${(item as Field).required ? " *" : ""}`}
+            title={
+              <>
+                <ItemTitle>
+                  {(item as Field).title} {(item as Field).required ? " *" : ""}
+                </ItemTitle>
+                <ItemKey>#{(item as Field).key}</ItemKey>
+              </>
+            }
           />
         </List.Item>
       )}
@@ -102,6 +109,16 @@ const FieldStyledList = styled(List)`
       }
     }
   }
+`;
+
+const ItemTitle = styled.span`
+  color: rgba(0, 0, 0, 0.85);
+`;
+
+const ItemKey = styled.span`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
 `;
 
 export default ModelFieldList;
