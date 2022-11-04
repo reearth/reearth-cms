@@ -1,6 +1,7 @@
 package gqlmodel
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/util"
@@ -51,16 +52,17 @@ func ToWebhook(w *integration.Webhook) *Webhook {
 	return &Webhook{
 		ID:     IDFrom(w.ID()),
 		Name:   w.Name(),
-		URL:    *w.Url(),
+		URL:    *w.URL(),
 		Active: w.Active(),
 		Trigger: &WebhookTrigger{
-			OnItemCreate:    lo.ToPtr(w.Trigger().OnItemCreate),
-			OnItemUpdate:    lo.ToPtr(w.Trigger().OnItemUpdate),
-			OnItemDelete:    lo.ToPtr(w.Trigger().OnItemDelete),
-			OnAssetUpload:   lo.ToPtr(w.Trigger().OnAssetUpload),
-			OnAssetDeleted:  lo.ToPtr(w.Trigger().OnAssetDeleted),
-			OnItemPublish:   lo.ToPtr(w.Trigger().OnItemPublish),
-			OnItemUnPublish: lo.ToPtr(w.Trigger().OnItemUnPublish),
+			OnItemCreate:      lo.ToPtr(w.Trigger()[event.ItemCreate]),
+			OnItemUpdate:      lo.ToPtr(w.Trigger()[event.ItemUpdate]),
+			OnItemDelete:      lo.ToPtr(w.Trigger()[event.ItemDelete]),
+			OnItemPublish:     lo.ToPtr(w.Trigger()[event.ItemPublish]),
+			OnItemUnPublish:   lo.ToPtr(w.Trigger()[event.ItemUnpublish]),
+			OnAssetUpload:     lo.ToPtr(w.Trigger()[event.AssetCreate]),
+			OnAssetDecompress: lo.ToPtr(w.Trigger()[event.AssetDecompress]),
+			OnAssetDeleted:    lo.ToPtr(w.Trigger()[event.AssetDelete]),
 		},
 		CreatedAt: w.CreatedAt(),
 		UpdatedAt: w.UpdatedAt(),
