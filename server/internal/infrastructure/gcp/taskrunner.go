@@ -77,7 +77,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	urlFn := func(a *asset.Asset) string {
+	var urlFn asset.AssetURLResolver = func(a *asset.Asset) string {
 		return getURL(t.conf.GCSHost, a.UUID(), a.FileName())
 	}
 

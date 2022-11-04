@@ -5,14 +5,14 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlBuilder func(a *asset.Asset) string) *Asset {
+func ToAsset(a *asset.Asset, urlResolver asset.AssetURLResolver) *Asset {
 	if a == nil {
 		return nil
 	}
 
 	var url string
-	if urlBuilder != nil {
-		url = urlBuilder(a)
+	if urlResolver != nil {
+		url = urlResolver(a)
 	}
 
 	return &Asset{

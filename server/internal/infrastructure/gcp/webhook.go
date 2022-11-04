@@ -19,8 +19,8 @@ type webhookData struct {
 	EventData any       `json:"data"`
 }
 
-func marshalWebhookData(w *task.WebhookPayload, urlBuilder func(a *asset.Asset) string) ([]byte, error) {
-	ed, err := integration.MarshalJSON(w.Event.Object(), "", urlBuilder)
+func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.AssetURLResolver) ([]byte, error) {
+	ed, err := integration.MarshalJSON(w.Event.Object(), "", urlResolver)
 	if err != nil {
 		return nil, err
 	}

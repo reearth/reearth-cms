@@ -18,7 +18,6 @@ type Event struct {
 func NewEvent() repo.Event {
 	return &Event{
 		data: &util.SyncMap[id.EventID, *event.Event[any]]{},
-		now:  &util.TimeNow{},
 	}
 }
 
