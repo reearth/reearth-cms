@@ -19,7 +19,7 @@ type Props = {
   onCancel: () => void;
   // table props
   assetList: Asset[];
-  onConnect: (asset: Asset) => void;
+  onLink: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   loading: boolean;
@@ -36,7 +36,7 @@ const LinkToAssetModal: React.FC<Props> = ({
   visible,
   onCancel,
   assetList,
-  onConnect,
+  onLink,
   onSearchTerm,
   onAssetsReload,
   loading,
@@ -76,7 +76,7 @@ const LinkToAssetModal: React.FC<Props> = ({
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="link" />} onClick={() => onConnect(asset)} />
+        <Button type="link" icon={<Icon icon="link" />} onClick={() => onLink(asset)} />
       ),
     },
     {

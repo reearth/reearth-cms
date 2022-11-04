@@ -52,8 +52,8 @@ const AssetItem: React.FC<Props> = ({
   const handleCancel = () => {
     setVisible(false);
   };
-  const handleConnect = (_asset: Asset) => {
-    // TODO: implement connect asset with content
+  const handleLink = (_asset: Asset) => {
+    // TODO: implement link asset with content
   };
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -68,7 +68,7 @@ const AssetItem: React.FC<Props> = ({
     setUploading(true);
     createAssets(fileList).finally(() => {
       hideUploadModal();
-      // TODO: connect the uploaded asset with content after uploading is done
+      // TODO: link the uploaded asset with content after uploading is done
     });
   };
 
@@ -102,7 +102,7 @@ const AssetItem: React.FC<Props> = ({
         visible={visible}
         onCancel={handleCancel}
         assetList={assetList}
-        onConnect={handleConnect}
+        onLink={handleLink}
         onSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         loading={loadingAssets}
