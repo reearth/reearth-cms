@@ -64,6 +64,7 @@ func NewItem(i *item.Item, s *schema.Schema) Item {
 }
 
 func NewItemField(f *item.Field, _ *schema.Field) (res any) {
+	// ペアプロ以来の修正箇所
 	v := f.Value().Value()
 	if v == nil {
 		return
@@ -87,7 +88,6 @@ func NewItemField(f *item.Field, _ *schema.Field) (res any) {
 		}
 	case value.TypeDate:
 		if v != nil {
-			// v, _ = time.Parse(time.RFC3339, string(v))
 			return v
 		}
 	case value.TypeAsset:

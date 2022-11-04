@@ -21,7 +21,6 @@ func TestValue(t *testing.T) {
 			Input:  "01ggrrt8aya669r0xaemt2djx7",
 			Result: id.MustAssetID("01ggrrt8aya669r0xaemt2djx7"),
 		},
-		// TODO
 	}
 
 	for _, tc := range tests {

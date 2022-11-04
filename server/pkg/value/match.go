@@ -27,6 +27,7 @@ func (v *Value) Match(m Match) {
 			}
 			m.Text(w)
 		}
+	// ペアプロ以来の修正箇所
 	case TypeTextArea:
 		if m.TypeTextArea != nil {
 			var w *string
