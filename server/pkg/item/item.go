@@ -15,6 +15,7 @@ type VersionedItem = version.Value[Item]
 type Item struct {
 	id        ID
 	schema    SchemaID
+	model     ModelID
 	project   ProjectID
 	fields    []*Field
 	timestamp time.Time
@@ -30,6 +31,10 @@ func (i *Item) Fields() []*Field {
 
 func (i *Item) Project() ProjectID {
 	return i.project
+}
+
+func (i *Item) Model() ModelID {
+	return i.model
 }
 
 func (i *Item) Schema() SchemaID {
