@@ -17,6 +17,7 @@ type Props = {
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onLink: (asset: Asset) => void;
 };
 const AssetField: React.FC<Props> = ({
   assetList,
@@ -30,6 +31,7 @@ const AssetField: React.FC<Props> = ({
   setUploadModalVisibility,
   uploading,
   uploadModalVisibility,
+  onLink,
 }) => {
   const t = useT();
 
@@ -48,6 +50,7 @@ const AssetField: React.FC<Props> = ({
       setUploadModalVisibility={setUploadModalVisibility}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
+      onLink={onLink}
     />
   );
 };

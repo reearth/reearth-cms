@@ -157,6 +157,11 @@ const FieldUpdateModal: React.FC<Props> = ({
     onClose?.(true);
   }, [onClose, form]);
 
+  const handleLinkAsset = (_asset: Asset) => {
+    // TODO: implement link asset with FieldUpdateModal
+    console.log("link from schema update asset");
+  };
+
   return (
     <Modal
       title={
@@ -281,6 +286,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               setUploadModalVisibility={setUploadModalVisibility}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
+              onLink={handleLinkAsset}
             />
           </TabPane>
         </Tabs>

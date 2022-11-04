@@ -26,6 +26,7 @@ export interface Props {
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onLink: (asset: Asset) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
@@ -42,6 +43,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
   setUploadModalVisibility,
   uploading,
   uploadModalVisibility,
+  onLink,
 }) => {
   return selectedType ? (
     selectedType === "TextArea" || selectedType === "MarkdownText" ? (
@@ -61,6 +63,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
         setUploadModalVisibility={setUploadModalVisibility}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
+        onLink={onLink}
       />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} />

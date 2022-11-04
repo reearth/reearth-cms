@@ -93,6 +93,7 @@ const ContentForm: React.FC<Props> = ({
 
   const handleLink = (_asset: Asset) => {
     // TODO: implement link asset with content
+    console.log("link from content");
   };
 
   return (
