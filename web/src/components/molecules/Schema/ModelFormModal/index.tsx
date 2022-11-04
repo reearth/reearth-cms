@@ -1,64 +1,69 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
+  modelId?: string;
   name: string;
   description: string;
   key: string;
 }
 
 export interface Props {
-  projectId?: string;
+  model?: Model;
   open?: boolean;
   isKeyAvailable: boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
-  onModelKeyCheck: (projectId: string, key: string) => Promise<boolean>;
+  onClose: () => void;
+  onCreate?: (values: FormValues) => Promise<void> | void;
+  OnUpdate?: (values: FormValues) => Promise<void> | void;
+  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
 }
 
-const initialValues: FormValues = {
-  name: "",
-  description: "",
-  key: "",
-};
-
-const ModelCreationModal: React.FC<Props> = ({
-  projectId,
+const ModelFormModal: React.FC<Props> = ({
+  model,
   open,
   onClose,
-  onSubmit,
+  onCreate,
+  OnUpdate,
   onModelKeyCheck,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        await onModelKeyCheck(projectId ?? "", values.key);
-        await onSubmit?.(values);
-        onClose?.(true);
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
-  }, [onModelKeyCheck, projectId, form, onClose, onSubmit]);
+  useEffect(() => {
+    form.setFieldsValue(model ?? {});
+  }, [form, model]);
+
+  const handleSubmit = useCallback(async () => {
+    const values = await form.validateFields();
+    await onModelKeyCheck(values.key, model?.key);
+    if (!model?.id) {
+      await onCreate?.(values);
+    } else {
+      await OnUpdate?.({ modelId: model.id, ...values });
+    }
+    onClose();
+    form.resetFields();
+  }, [onModelKeyCheck, model, form, onClose, onCreate, OnUpdate]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
-  }, [onClose]);
+    form.resetFields();
+    onClose();
+  }, [form, onClose]);
 
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+    <Modal
+      visible={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      title={!model?.id ? t("New Model") : t("Update Model")}>
+      <Form form={form} layout="vertical">
         <Form.Item
           name="name"
           label={t("Model name")}
@@ -77,7 +82,7 @@ const ModelCreationModal: React.FC<Props> = ({
               message: t("Key is not valid"),
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onModelKeyCheck(projectId ?? "", value);
+                const isKeyAvailable = await onModelKeyCheck(value, model?.key);
                 if (isKeyAvailable) {
                   return Promise.resolve();
                 } else {
@@ -93,4 +98,4 @@ const ModelCreationModal: React.FC<Props> = ({
   );
 };
 
-export default ModelCreationModal;
+export default ModelFormModal;
