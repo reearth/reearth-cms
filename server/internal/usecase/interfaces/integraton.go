@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 )
@@ -36,15 +37,7 @@ type UpdateWebhookParam struct {
 	Trigger *WebhookTriggerParam
 }
 
-type WebhookTriggerParam struct {
-	OnItemCreate    bool
-	OnItemUpdate    bool
-	OnItemDelete    bool
-	OnAssetUpload   bool
-	OnAssetDeleted  bool
-	OnItemPublish   bool
-	OnItemUnpublish bool
-}
+type WebhookTriggerParam map[event.Type]bool
 
 type Integration interface {
 	FindByIDs(context.Context, id.IntegrationIDList, *usecase.Operator) (integration.List, error)
