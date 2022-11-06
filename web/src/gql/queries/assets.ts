@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { threadFragment } from "@reearth-cms/gql/fragments";
+
 export const GET_ASSETS = gql`
   query GetAssets(
     $projectId: ID!
@@ -31,18 +33,7 @@ export const GET_ASSETS = gql`
           uuid
           url
           thread {
-            id
-            workspaceId
-            comments {
-              id
-              author {
-                id
-                name
-                email
-              }
-              content
-              createdAt
-            }
+            ...threadFragment
           }
         }
       }
@@ -67,18 +58,7 @@ export const GET_ASSETS = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              id
-              name
-              email
-            }
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
       pageInfo {
@@ -90,6 +70,8 @@ export const GET_ASSETS = gql`
       totalCount
     }
   }
+
+  ${threadFragment}
 `;
 
 export const GET_ASSET = gql`
@@ -115,18 +97,7 @@ export const GET_ASSET = gql`
       uuid
       url
       thread {
-        id
-        workspaceId
-        comments {
-          id
-          author {
-            id
-            name
-            email
-          }
-          content
-          createdAt
-        }
+        ...threadFragment
       }
     }
   }
@@ -152,18 +123,7 @@ export const CREATE_ASSET = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              id
-              name
-              email
-            }
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
     }
@@ -190,18 +150,7 @@ export const UPDATE_ASSET = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              id
-              name
-              email
-            }
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
     }
