@@ -1,5 +1,6 @@
 import ProjectOverviewMolecule from "@reearth-cms/components/molecules/ProjectOverview";
-import ModelCreationModal from "@reearth-cms/components/molecules/Schema/ModelCreationModal";
+import ModelDeletionModal from "@reearth-cms/components/molecules/ProjectOverview/ModelDeletionModal";
+import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
 
 import useHooks from "./hooks";
 
@@ -9,12 +10,19 @@ const ProjectOverview: React.FC = () => {
     models,
     isKeyAvailable,
     modelModalShown,
+    selectedModel,
+    modelDeletionModalShown,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
-    handleModelModalClose,
+    handleModelModalReset,
     handleModelCreate,
+    handleModelDeletionModalOpen,
+    handleModelDeletionModalClose,
+    handleModelUpdateModalOpen,
+    handleModelDelete,
+    handleModelUpdate,
   } = useHooks();
 
   return (
@@ -26,14 +34,23 @@ const ProjectOverview: React.FC = () => {
         onSchemaNavigate={handleSchemaNavigation}
         onContentNavigate={handleContentNavigation}
         onModelModalOpen={handleModelModalOpen}
+        onModelDeletionModalOpen={handleModelDeletionModalOpen}
+        onModelUpdateModalOpen={handleModelUpdateModalOpen}
       />
-      <ModelCreationModal
+      <ModelFormModal
+        model={selectedModel}
         isKeyAvailable={isKeyAvailable}
-        projectId={currentProject?.id}
         onModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
-        onClose={handleModelModalClose}
-        onSubmit={handleModelCreate}
+        onClose={handleModelModalReset}
+        onCreate={handleModelCreate}
+        OnUpdate={handleModelUpdate}
+      />
+      <ModelDeletionModal
+        model={selectedModel}
+        open={modelDeletionModalShown}
+        onDelete={handleModelDelete}
+        onClose={handleModelDeletionModalClose}
       />
     </>
   );

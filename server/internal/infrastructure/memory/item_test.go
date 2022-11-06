@@ -16,7 +16,7 @@ import (
 
 func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
@@ -32,9 +32,9 @@ func TestItem_FindByID(t *testing.T) {
 func TestItem_Remove(t *testing.T) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
-	i3, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid2).Build()
+	i1, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i1)
@@ -63,8 +63,8 @@ func TestItem_Remove(t *testing.T) {
 
 func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	pf := repo.ProjectFilter{
 		Readable: []id.ProjectID{i.Project()},
 		Writable: []id.ProjectID{i.Project()},
@@ -85,8 +85,8 @@ func TestItem_Save(t *testing.T) {
 
 func TestItem_FindByIDs(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
-	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
@@ -100,7 +100,7 @@ func TestItem_FindByIDs(t *testing.T) {
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	ctx := context.Background()
-	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Build()
+	i, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
@@ -123,8 +123,8 @@ func TestItem_FindBySchema(t *testing.T) {
 	ctx := context.Background()
 	sid1, sid2 := id.NewSchemaID(), id.NewSchemaID()
 	pid1, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1, _ := item.New().NewID().Schema(sid1).Project(pid1).Build()
-	i2, _ := item.New().NewID().Schema(sid2).Project(pid2).Build()
+	i1, _ := item.New().NewID().Schema(sid1).Project(pid1).Model(id.NewModelID()).Build()
+	i2, _ := item.New().NewID().Schema(sid2).Project(pid2).Model(id.NewModelID()).Build()
 
 	r := NewItem().Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid1},
@@ -145,8 +145,8 @@ func TestItem_FindBySchema(t *testing.T) {
 func TestItem_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	i1, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Project(pid).Build()
+	i1, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Build()
 	r := NewItem().Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
@@ -167,9 +167,9 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	pid := id.NewProjectID()
 	f1 := item.NewField(sf1, schema.TypeText, "foo")
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
-	i, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
-	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Project(pid).Build()
+	i, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
