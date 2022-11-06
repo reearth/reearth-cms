@@ -67,7 +67,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 		if param.Fields != nil {
 			err = validateFields(param.Fields, s)
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
 		}
 		it, err := item.New().
 			NewID().
@@ -90,10 +92,13 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) error {
 	for _, field := range itemFields {
 		sf := s.Field(field.SchemaFieldID)
+		if sf == nil {
+			return interfaces.ErrFieldNotFound
+		}
 		if sf.Required() && field.Value == nil {
 			return errors.New("field is required")
 		}
-		err1 := errors.New("invalid value")
+		err1 := errors.New("invalid field value")
 		errFlag := false
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Text: func(f *schema.FieldText) {
@@ -141,16 +146,16 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-
 		if !operator.IsWritableProject(item.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 		if param.Fields != nil {
 			err = validateFields(param.Fields, s)
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
 		}
 		item.UpdateFields(itemFieldsFromParams(param.Fields))
-
 		if err := i.repos.Item.Save(ctx, item); err != nil {
 			return nil, err
 		}
