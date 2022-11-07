@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -35,6 +35,7 @@ const ModelFormModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
     form.setFieldsValue(model ?? {});
@@ -62,8 +63,23 @@ const ModelFormModal: React.FC<Props> = ({
       visible={open}
       onCancel={handleClose}
       onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}
       title={!model?.id ? t("New Model") : t("Update Model")}>
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={() => {
+          form
+            .validateFields()
+            .then(() => {
+              setButtonDisabled(false);
+            })
+            .catch(fieldsError => {
+              setButtonDisabled(
+                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+              );
+            });
+        }}>
         <Form.Item
           name="name"
           label={t("Model name")}
@@ -77,9 +93,9 @@ const ModelFormModal: React.FC<Props> = ({
           name="key"
           label={t("Model key")}
           rules={[
-            { required: true, message: t("Please input the key of the model!") },
             {
               message: t("Key is not valid"),
+              required: true,
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
                 const isKeyAvailable = await onModelKeyCheck(value, model?.key);
