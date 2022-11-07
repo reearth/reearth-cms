@@ -3,7 +3,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-import UploadModal from "../UploadModal/UploadModalComponent";
+import UploadModal from "../UploadModal/UploadModal";
 
 type Props = {
   alsoLink?: boolean;
