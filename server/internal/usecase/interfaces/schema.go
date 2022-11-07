@@ -27,6 +27,9 @@ type UpdateFieldParam struct {
 	Name         *string
 	Description  *string
 	Key          *string
+	MultiValue   *bool
+	Unique       *bool
+	Required     *bool
 	TypeProperty schema.TypeProperty
 }
 

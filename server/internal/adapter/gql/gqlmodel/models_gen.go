@@ -132,6 +132,7 @@ type CreateIntegrationInput struct {
 
 type CreateItemInput struct {
 	SchemaID ID                `json:"schemaId"`
+	ModelID  ID                `json:"modelId"`
 	Fields   []*ItemFieldInput `json:"fields"`
 }
 
@@ -285,6 +286,7 @@ type IntegrationPayload struct {
 type Item struct {
 	ID        ID           `json:"id"`
 	SchemaID  ID           `json:"schemaId"`
+	ModelID   ID           `json:"modelId"`
 	ProjectID ID           `json:"projectId"`
 	Project   *Project     `json:"project"`
 	Schema    *Schema      `json:"schema"`
@@ -672,6 +674,9 @@ type UpdateFieldInput struct {
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          *string                       `json:"key"`
+	Required     *bool                         `json:"required"`
+	Unique       *bool                         `json:"unique"`
+	MultiValue   *bool                         `json:"multiValue"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -785,23 +790,25 @@ type WebhookPayload struct {
 }
 
 type WebhookTrigger struct {
-	OnItemCreate    *bool `json:"onItemCreate"`
-	OnItemUpdate    *bool `json:"onItemUpdate"`
-	OnItemDelete    *bool `json:"onItemDelete"`
-	OnAssetUpload   *bool `json:"onAssetUpload"`
-	OnAssetDeleted  *bool `json:"onAssetDeleted"`
-	OnItemPublish   *bool `json:"onItemPublish"`
-	OnItemUnPublish *bool `json:"onItemUnPublish"`
+	OnItemCreate      *bool `json:"onItemCreate"`
+	OnItemUpdate      *bool `json:"onItemUpdate"`
+	OnItemDelete      *bool `json:"onItemDelete"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDeleted    *bool `json:"onAssetDeleted"`
+	OnItemPublish     *bool `json:"onItemPublish"`
+	OnItemUnPublish   *bool `json:"onItemUnPublish"`
 }
 
 type WebhookTriggerInput struct {
-	OnItemCreate    *bool `json:"onItemCreate"`
-	OnItemUpdate    *bool `json:"onItemUpdate"`
-	OnItemDelete    *bool `json:"onItemDelete"`
-	OnAssetUpload   *bool `json:"onAssetUpload"`
-	OnAssetDeleted  *bool `json:"onAssetDeleted"`
-	OnItemPublish   *bool `json:"onItemPublish"`
-	OnItemUnPublish *bool `json:"onItemUnPublish"`
+	OnItemCreate      *bool `json:"onItemCreate"`
+	OnItemUpdate      *bool `json:"onItemUpdate"`
+	OnItemDelete      *bool `json:"onItemDelete"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDeleted    *bool `json:"onAssetDeleted"`
+	OnItemPublish     *bool `json:"onItemPublish"`
+	OnItemUnPublish   *bool `json:"onItemUnPublish"`
 }
 
 type Workspace struct {

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -57,7 +57,17 @@ const FieldCreationModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -154,6 +164,9 @@ const FieldCreationModal: React.FC<Props> = ({
             <Form.Item
               name="key"
               label="Field Key"
+              extra={t(
+                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+              )}
               rules={[
                 {
                   message: t("Key is not valid"),

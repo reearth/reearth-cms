@@ -9,21 +9,27 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
 type Asset struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos     *repo.Container
+	gateways  *gateway.Container
+	eventFunc func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error)
 }
 
 func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
+		eventFunc: func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
+			return createEvent(ctx, r, g, wid, t, a, op)
+		},
 	}
 }
 
@@ -78,6 +84,15 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				return nil, err
 			}
 
+			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
+
+			if err != nil {
+				return nil, err
+			}
+			if err := i.repos.Thread.Save(ctx, th); err != nil {
+				return nil, err
+			}
+
 			f := asset.NewFile().Name(inp.File.Path).Path(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
 			a, err := asset.New().
@@ -89,6 +104,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
+				Thread(th.ID()).
 				Build()
 			if err != nil {
 				return nil, err
@@ -106,6 +122,12 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())
 			if err != nil {
+				return nil, err
+			}
+
+			// create event
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
 				return nil, err
 			}
 
@@ -165,6 +187,16 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, err
+			}
+
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
+				return nil, err
+			}
+
 			return a, nil
 		},
 	)
@@ -188,7 +220,22 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				}
 			}
 
-			return aid, i.repos.Asset.Delete(ctx, aid)
+			err = i.repos.Asset.Delete(ctx, aid)
+			if err != nil {
+				return aid, err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, asset.Project())
+			if err != nil {
+				return aid, err
+			}
+
+			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
+				return aid, err
+			}
+
+			return aid, nil
 		},
 	)
 }

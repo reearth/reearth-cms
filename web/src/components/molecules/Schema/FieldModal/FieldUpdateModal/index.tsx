@@ -22,6 +22,9 @@ export interface FormValues {
   title: string;
   description: string;
   key: string;
+  multiValue: boolean;
+  unique: boolean;
+  required: boolean;
   typeProperty: SchemaFieldTypePropertyInput;
 }
 
@@ -39,6 +42,9 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
+  multiValue: false,
+  unique: false,
+  required: false,
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
@@ -54,7 +60,17 @@ const FieldUpdateModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -62,6 +78,9 @@ const FieldUpdateModal: React.FC<Props> = ({
       title: selectedField?.title,
       description: selectedField?.description,
       key: selectedField?.key,
+      multiValue: selectedField?.multiValue,
+      unique: selectedField?.unique,
+      required: selectedField?.required,
       defaultValue:
         selectedField?.typeProperty.defaultValue ||
         selectedField?.typeProperty.selectDefaultValue ||
@@ -170,6 +189,9 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item
               name="key"
               label="Field Key"
+              extra={t(
+                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+              )}
               rules={[
                 {
                   message: t("Key is not valid"),
@@ -242,12 +264,25 @@ const FieldUpdateModal: React.FC<Props> = ({
             )}
             <Form.Item
               name="multiValue"
+              valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
             <FieldValidationInputs selectedType={selectedType} />
+            <Form.Item
+              name="required"
+              valuePropName="checked"
+              extra={t("Prevents saving an entry if this field is empty")}>
+              <Checkbox>{t("Make field required")}</Checkbox>
+            </Form.Item>
+            <Form.Item
+              name="unique"
+              valuePropName="checked"
+              extra={t("Ensures that multiple entries can't have the same value for this field")}>
+              <Checkbox>{t("Set field as unique")}</Checkbox>
+            </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />

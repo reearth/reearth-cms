@@ -1,4 +1,7 @@
+import { useParams } from "react-router-dom";
+
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -15,6 +18,20 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleNavigateToModel,
   } = useHooks();
+  const { projectId } = useParams();
+  const {
+    assetList,
+    fileList,
+    loading,
+    uploading,
+    uploadModalVisibility,
+    createAssets,
+    handleAssetsReload,
+    handleSearchTerm,
+    setFileList,
+    setUploading,
+    setUploadModalVisibility,
+  } = useAssetHooks(projectId);
   const t = useT();
 
   return (
@@ -27,6 +44,17 @@ const ContentDetails: React.FC = () => {
       onItemUpdate={handleItemUpdate}
       onBack={handleNavigateToModel}
       modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleNavigateToModel} />}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loading}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      createAssets={createAssets}
+      onAssetsReload={handleAssetsReload}
+      onAssetSearchTerm={handleSearchTerm}
+      setFileList={setFileList}
+      setUploading={setUploading}
+      setUploadModalVisibility={setUploadModalVisibility}
     />
   );
 };
