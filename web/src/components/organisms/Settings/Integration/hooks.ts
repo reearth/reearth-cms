@@ -14,7 +14,6 @@ import {
   useUpdateIntegrationOfWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -64,8 +63,7 @@ export default (workspaceId?: string) => {
         (integrationMember): integrationMember is IntegrationMember =>
           !!integrationMember &&
           integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
-      )
-      .sort((integration1, integration2) => stringSortCallback(integration1.id, integration2.id));
+      );
   }, [workspace, searchTerm]);
 
   const handleIntegrationConnectModalClose = useCallback(() => {
