@@ -39,6 +39,9 @@ export const UPDATE_FIELD = gql`
     $title: String!
     $description: String
     $key: String!
+    $multiValue: Boolean!
+    $unique: Boolean!
+    $required: Boolean!
     $typeProperty: SchemaFieldTypePropertyInput!
   ) {
     updateField(
@@ -48,6 +51,9 @@ export const UPDATE_FIELD = gql`
         title: $title
         description: $description
         key: $key
+        multiValue: $multiValue
+        unique: $unique
+        required: $required
         typeProperty: $typeProperty
       }
     ) {
