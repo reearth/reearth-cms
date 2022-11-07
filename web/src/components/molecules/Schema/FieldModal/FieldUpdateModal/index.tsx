@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -58,6 +58,7 @@ const FieldUpdateModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [buttonDisabled, setButtonDisabled] = useState(false);
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
 
@@ -159,8 +160,24 @@ const FieldUpdateModal: React.FC<Props> = ({
       }
       visible={open}
       onCancel={handleClose}
-      onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={() => {
+          form
+            .validateFields()
+            .then(() => {
+              setButtonDisabled(false);
+            })
+            .catch(fieldsError => {
+              setButtonDisabled(
+                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+              );
+            });
+        }}>
         <Tabs defaultActiveKey="settings">
           <TabPane tab={t("Setting")} key="setting" forceRender>
             <Form.Item
@@ -176,9 +193,9 @@ const FieldUpdateModal: React.FC<Props> = ({
                 "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
               )}
               rules={[
-                { required: true, message: t("Please input the key of the field!") },
                 {
                   message: t("Key is not valid"),
+                  required: true,
                   validator: async (_, value) => {
                     if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
