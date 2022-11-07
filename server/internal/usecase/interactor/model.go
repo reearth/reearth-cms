@@ -62,6 +62,13 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
+			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
+			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+				return nil, err
+			}
+			if m != nil {
+				return nil, interfaces.ErrDuplicatedKey
+			}
 			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
 			if err != nil {
 				return nil, err
@@ -96,7 +103,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Key(key.Random())
 			}
 
-			m, err := mb.Build()
+			m, err = mb.Build()
 			if err != nil {
 				return nil, err
 			}

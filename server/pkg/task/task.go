@@ -1,8 +1,14 @@
 package task
 
+import (
+	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
+)
+
 type Payload struct {
 	DecompressAsset *DecompressAssetPayload
 	CompressAsset   *CompressAssetPayload
+	Webhook         *WebhookPayload
 }
 
 type DecompressAssetPayload struct {
@@ -26,6 +32,13 @@ func (t *CompressAssetPayload) Payload() Payload {
 	}
 }
 
-func NewDecompressAssetPayloadForTest(aID string) *DecompressAssetPayload {
-	return &DecompressAssetPayload{AssetID: aID}
+type WebhookPayload struct {
+	Webhook *integration.Webhook
+	Event   *event.Event[any]
+}
+
+func (t WebhookPayload) Payload() Payload {
+	return Payload{
+		Webhook: &t,
+	}
 }

@@ -67,3 +67,8 @@ func (b *WebhookBuilder) UpdatedAt(updatedAt time.Time) *WebhookBuilder {
 	b.w.updatedAt = updatedAt
 	return b
 }
+
+func (b *WebhookBuilder) Secret(secret string) *WebhookBuilder {
+	b.w.secret = secret
+	return b
+}
