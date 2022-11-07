@@ -117,6 +117,7 @@ const LinkAssetModal: React.FC<Props> = ({
       footer={[
         <UploadAsset
           key={1}
+          alsoLink
           fileList={fileList}
           uploading={uploading}
           uploadProps={uploadProps}

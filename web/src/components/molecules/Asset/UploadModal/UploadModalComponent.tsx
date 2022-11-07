@@ -11,7 +11,7 @@ import LocalTab from "./localTab";
 const { TabPane } = Tabs;
 
 type Props = {
-  uploadButtonText?: string;
+  alsoLink?: boolean;
   visible: boolean;
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
@@ -21,7 +21,7 @@ type Props = {
 };
 
 const UploadModal: React.FC<Props> = ({
-  uploadButtonText,
+  alsoLink,
   visible,
   uploadProps,
   uploading,
@@ -66,7 +66,7 @@ const UploadModal: React.FC<Props> = ({
           onClick={handleUpload}
           disabled={fileList && fileList?.length === 0}
           loading={uploading}>
-          {uploading ? t("Uploading") : uploadButtonText ?? t("Upload")}
+          {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>
       </Footer>
     </Modal>

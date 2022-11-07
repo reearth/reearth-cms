@@ -7,7 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
-import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/linkAssetModal";
+import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModalComponent";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
