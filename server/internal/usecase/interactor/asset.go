@@ -137,8 +137,14 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
+			var eOp event.Operator
+			if operator.User != nil {
+				eOp = event.OperatorFromUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				eOp = event.OperatorFromIntegration(*operator.Integration)
+			}
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOp); err != nil {
 				return nil, err
 			}
 
@@ -170,6 +176,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -203,8 +213,14 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
+			var eOp event.Operator
+			if operator.User != nil {
+				eOp = event.OperatorFromUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				eOp = event.OperatorFromIntegration(*operator.Integration)
+			}
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, eOp); err != nil {
 				return nil, err
 			}
 
@@ -214,6 +230,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 }
 
 func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return aid, interfaces.ErrInvalidOperator
+	}
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -241,8 +260,14 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
+			var eOp event.Operator
+			if operator.User != nil {
+				eOp = event.OperatorFromUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				eOp = event.OperatorFromIntegration(*operator.Integration)
+			}
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, eOp); err != nil {
 				return aid, err
 			}
 

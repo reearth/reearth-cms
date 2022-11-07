@@ -59,7 +59,7 @@ func toAsset(a *asset.Asset, aUrl string) (*integrationapi.Asset, error) {
 			ContentType: lo.ToPtr(a.File().ContentType()),
 			Name:        lo.ToPtr(a.FileName()),
 			Size:        lo.ToPtr(float32(a.Size())),
-			Url:         &aUrl,
+			Path:        &aUrl,
 		},
 		Id:          a.ID().Ref(),
 		Name:        lo.ToPtr(a.FileName()),

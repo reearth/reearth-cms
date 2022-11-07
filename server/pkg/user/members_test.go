@@ -31,7 +31,7 @@ func TestNewFixedMembersWith(t *testing.T) {
 	assert.Equal(t, true, m.Fixed())
 }
 
-func TestMembers_ContainsUser(t *testing.T) {
+func TestMembers_HasUser(t *testing.T) {
 	uid1 := NewID()
 	uid2 := NewID()
 
@@ -60,6 +60,48 @@ func TestMembers_ContainsUser(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
 			res := tt.M.HasUser(tt.UID)
+			assert.Equal(t, tt.Expected, res)
+		})
+	}
+}
+
+func TestMembers_HasIntegration(t *testing.T) {
+	iId1 := id.NewIntegrationID()
+	iId2 := id.NewIntegrationID()
+
+	tests := []struct {
+		Name     string
+		M        *Members
+		iId      IntegrationID
+		Expected bool
+	}{
+		{
+			Name: "existing integration",
+			M: &Members{integrations: map[IntegrationID]Member{iId1: {
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: ID{},
+			}}},
+			iId:      iId1,
+			Expected: true,
+		},
+		{
+			Name: "not existing user",
+			M: &Members{integrations: map[IntegrationID]Member{iId1: {
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: ID{},
+			}}},
+			iId:      iId2,
+			Expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Parallel()
+			res := tt.M.HasIntegration(tt.iId)
 			assert.Equal(t, tt.Expected, res)
 		})
 	}

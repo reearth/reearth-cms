@@ -589,7 +589,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
 	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{}
+	op := &usecase.Operator{User: &uid}
 
 	tests := []struct {
 		name            string
@@ -678,7 +678,7 @@ func TestAsset_Delete(t *testing.T) {
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{}
+	op := &usecase.Operator{User: &uid}
 
 	type args struct {
 		id       id.AssetID

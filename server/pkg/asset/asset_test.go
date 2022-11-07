@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,6 +12,7 @@ func TestAsset_Type(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
 	uid := NewUserID()
+	iid := NewIntegrationID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
@@ -24,6 +24,7 @@ func TestAsset_Type(t *testing.T) {
 		project:     pid,
 		createdAt:   tim,
 		user:        &uid,
+		integration: &iid,
 		fileName:    "hoge",
 		size:        size,
 		previewType: &gotPreviewType,
@@ -36,6 +37,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, pid, got.Project())
 	assert.Equal(t, tim, got.CreatedAt())
 	assert.Equal(t, &uid, got.User())
+	assert.Equal(t, &iid, got.Integration())
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
@@ -98,7 +100,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)
