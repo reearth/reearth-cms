@@ -24,28 +24,44 @@ type TypeProperty struct {
 	url       *FieldURL
 }
 
-func NewFieldTypePropertyText(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		text: FieldTextFrom(defaultValue, maxLength),
+func NewFieldTypePropertyText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldTextFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		text: f,
+	}, nil
 }
 
-func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		textArea: FieldTextAreaFrom(defaultValue, maxLength),
+func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldTextAreaFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		textArea: f,
+	}, nil
 }
 
-func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		richText: FieldRichTextFrom(defaultValue, maxLength),
+func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldRichTextFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		richText: f,
+	}, nil
 }
 
-func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		markdown: FieldMarkdownFrom(defaultValue, maxLength),
+func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldMarkdownFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		markdown: f,
+	}, nil
 }
 
 func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {

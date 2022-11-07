@@ -13,9 +13,10 @@ func TestFieldMarkdownFrom(t *testing.T) {
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *FieldMarkdown
+		name    string
+		args    args
+		want    *FieldMarkdown
+		wantErr bool
 	}{
 		{
 			name: "success default nil",
@@ -32,12 +33,22 @@ func TestFieldMarkdownFrom(t *testing.T) {
 			args: args{maxLength: lo.ToPtr(256)},
 			want: &FieldMarkdown{maxLength: lo.ToPtr(256)},
 		},
+		{
+			name:    "fail default > max length",
+			args:    args{defaultValue: lo.ToPtr("xxx"), maxLength: lo.ToPtr(2)},
+			wantErr: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldMarkdownFrom(tc.args.defaultValue, tc.args.maxLength))
+			f, err := FieldMarkdownFrom(tc.args.defaultValue, tc.args.maxLength)
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tc.want, f)
+			}
 		})
 	}
 }
