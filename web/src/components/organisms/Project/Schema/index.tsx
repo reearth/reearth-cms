@@ -1,6 +1,9 @@
+import { useParams } from "react-router-dom";
+
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -13,6 +16,21 @@ export type FormValues = {
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
+
+  const { projectId } = useParams();
+  const {
+    assetList,
+    fileList,
+    loading,
+    uploading,
+    uploadModalVisibility,
+    createAssets,
+    handleSearchTerm,
+    handleAssetsReload,
+    setFileList,
+    setUploading,
+    setUploadModalVisibility,
+  } = useAssetHooks(projectId);
 
   const {
     fieldCreationModalShown,
@@ -53,6 +71,17 @@ const ProjectSchema: React.FC = () => {
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
+          assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loading}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          createAssets={createAssets}
+          onAssetSearchTerm={handleSearchTerm}
+          onAssetsReload={handleAssetsReload}
+          setFileList={setFileList}
+          setUploading={setUploading}
+          setUploadModalVisibility={setUploadModalVisibility}
         />
       )}
       {selectedType && (
@@ -63,6 +92,17 @@ const ProjectSchema: React.FC = () => {
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldUpdateModalClose}
           onSubmit={handleFieldUpdate}
+          assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loading}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          createAssets={createAssets}
+          onAssetSearchTerm={handleSearchTerm}
+          onAssetsReload={handleAssetsReload}
+          setFileList={setFileList}
+          setUploading={setUploading}
+          setUploadModalVisibility={setUploadModalVisibility}
         />
       )}
     </>
