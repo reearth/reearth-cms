@@ -23,6 +23,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input rhttp.DecompressInput
 		if err := c.Bind(&input); err != nil {
+			log.Errorf("failed to decompress: err=%s", err.Error())
 			return err
 		}
 

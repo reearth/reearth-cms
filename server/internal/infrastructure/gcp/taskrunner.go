@@ -59,7 +59,11 @@ func (t *TaskRunner) runCloudTask(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	bPayload, err := json.Marshal(p.DecompressAsset.Payload())
+	payload := p.DecompressAsset.Payload().DecompressAsset
+	bPayload, err := json.Marshal(struct {
+		AssetID string `json:"assetId"`
+		Path    string `json:"path"`
+	}{AssetID: payload.AssetID, Path: payload.Path})
 	if err != nil {
 		return err
 	}
