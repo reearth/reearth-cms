@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
+	"github.com/reearth/reearth-cms/worker/pkg/webhook"
 )
 
 type Handler struct {
@@ -25,6 +26,21 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
 			return err
 		}
+		return c.NoContent(http.StatusOK)
+	}
+}
+
+func (h Handler) WebhookHandler() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var w webhook.Webhook
+		if err := c.Bind(&w); err != nil {
+			return err
+		}
+
+		if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
+			return err
+		}
+
 		return c.NoContent(http.StatusOK)
 	}
 }
