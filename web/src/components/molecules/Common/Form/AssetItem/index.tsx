@@ -14,17 +14,17 @@ import useHooks from "./hooks";
 
 type Props = {
   assetList: Asset[];
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
   fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onLink: (asset: Asset) => void;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  onLink: (asset: Asset) => void;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -34,17 +34,17 @@ const AssetItem: React.FC<Props> = ({
   extra,
   rules,
   assetList,
-  onAssetSearchTerm,
-  onAssetsReload,
-  loadingAssets,
-  createAssets,
   fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onLink,
+  onAssetsReload,
+  onAssetSearchTerm,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
-  onLink,
 }) => {
   const t = useT();
   const { Item } = Form;
@@ -81,14 +81,14 @@ const AssetItem: React.FC<Props> = ({
         visible={visible}
         onCancel={handleCancel}
         assetList={assetList}
-        onLink={onLink}
-        onSearchTerm={onAssetSearchTerm}
-        onAssetsReload={onAssetsReload}
-        loading={loadingAssets}
         fileList={fileList}
+        loading={loadingAssets}
         uploading={uploading}
         uploadProps={uploadProps}
         uploadModalVisibility={uploadModalVisibility}
+        onLink={onLink}
+        onAssetsReload={onAssetsReload}
+        onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
         hideUploadModal={hideUploadModal}
         handleUpload={handleUpload}

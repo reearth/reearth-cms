@@ -19,14 +19,14 @@ type Props = {
   onCancel: () => void;
   // table props
   assetList: Asset[];
-  onLink: (asset: Asset) => void;
-  onSearchTerm: (term?: string) => void;
-  onAssetsReload: () => void;
-  loading: boolean;
   fileList: UploadFile<File>[];
+  loading: boolean;
   uploading: boolean;
   uploadProps: UploadProps;
   uploadModalVisibility: boolean;
+  onLink: (asset: Asset) => void;
+  onAssetsReload: () => void;
+  onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
   hideUploadModal: () => void;
   handleUpload: () => void;
@@ -36,14 +36,14 @@ const LinkAssetModal: React.FC<Props> = ({
   visible,
   onCancel,
   assetList,
-  onLink,
-  onSearchTerm,
-  onAssetsReload,
-  loading,
   fileList,
+  loading,
   uploading,
   uploadProps,
   uploadModalVisibility,
+  onLink,
+  onAssetsReload,
+  onSearchTerm,
   displayUploadModal,
   hideUploadModal,
   handleUpload,
