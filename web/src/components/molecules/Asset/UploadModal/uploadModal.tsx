@@ -12,7 +12,6 @@ const { TabPane } = Tabs;
 
 type Props = {
   uploadButtonText?: string;
-  cancelButtonText?: string;
   visible: boolean;
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
@@ -23,7 +22,6 @@ type Props = {
 
 const UploadModal: React.FC<Props> = ({
   uploadButtonText,
-  cancelButtonText,
   visible,
   uploadProps,
   uploading,
@@ -61,7 +59,7 @@ const UploadModal: React.FC<Props> = ({
       </Tabs>
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={handleCancel}>
-          {cancelButtonText ?? t("Cancel")}
+          {t("Cancel")}
         </CancelButton>
         <Button
           type="primary"

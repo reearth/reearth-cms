@@ -32,7 +32,7 @@ type Props = {
   handleUpload: () => void;
 };
 
-const LinkToAssetModal: React.FC<Props> = ({
+const LinkAssetModal: React.FC<Props> = ({
   visible,
   onCancel,
   assetList,
@@ -110,7 +110,7 @@ const LinkToAssetModal: React.FC<Props> = ({
 
   return (
     <Modal
-      title={t("Link To Asset")}
+      title={t("Link Asset")}
       centered
       visible={visible}
       onCancel={onCancel}
@@ -147,4 +147,4 @@ const LinkToAssetModal: React.FC<Props> = ({
   );
 };
 
-export default LinkToAssetModal;
+export default LinkAssetModal;
