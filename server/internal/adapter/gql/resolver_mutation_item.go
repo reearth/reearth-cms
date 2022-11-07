@@ -14,8 +14,13 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
+		ModelID:  mid,
 		Fields:   util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 	}, getOperator(ctx))
 	if err != nil {

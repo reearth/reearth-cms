@@ -38,6 +38,7 @@ Created At: ''
 ID: ''
 Action: アクション
 Upload Asset: ''
+Upload and Link: ''
 Click or drag files to this area to upload: ''
 Single or multiple file upload is supported: ''
 Asset Uploader: ''
@@ -53,6 +54,7 @@ Create Workspace: ワークスペースを作成
 Account Settings: アカウント設定
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
+Link Asset: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project description: プロジェクト概要
@@ -128,6 +130,11 @@ No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
 New Model: ''
+Edit: ''
+Delete Model: ''
+Are you sure you want to delete the model: ''
+Warning: ''
+This action will permanently delete the selected model and cannot be reversed.: ''
 Model: ''
 Switch: ''
 Private: ''
@@ -154,9 +161,11 @@ Default value: デフォルト値
 Set default value: デフォルト値を設定
 Setting: 設定
 Validation: バリデーション
+Ensures that multiple entries can't have the same value for this field: ''
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Update Model: ''
 Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
@@ -188,6 +197,10 @@ Failed to update item.: ''
 Successfully updated Item!: ''
 Failed to create model.: ''
 Successfully created model!: ''
+Failed to delete model.: ''
+Successfully deleted model!: ''
+Failed to update model.: ''
+Successfully updated model!: ''
 Failed to update publication settings.: ''
 Successfully updated publication settings!: ''
 Failed to delete field.: ''

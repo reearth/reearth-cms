@@ -17,6 +17,7 @@ func ToItem(i *item.Item) *Item {
 		ID:        IDFrom(i.ID()),
 		ProjectID: IDFrom(i.Project()),
 		SchemaID:  IDFrom(i.Schema()),
+		ModelID:   IDFrom(i.Model()),
 		CreatedAt: i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
