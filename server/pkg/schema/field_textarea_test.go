@@ -13,9 +13,10 @@ func TestFieldTextAreaFrom(t *testing.T) {
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *FieldTextArea
+		name   string
+		args   args
+		want   *FieldTextArea
+		wanErr bool
 	}{
 		{
 			name: "success default nil",
@@ -32,12 +33,22 @@ func TestFieldTextAreaFrom(t *testing.T) {
 			args: args{maxLength: lo.ToPtr(256)},
 			want: &FieldTextArea{maxLength: lo.ToPtr(256)},
 		},
+		{
+			name:   "fail:default > max length",
+			args:   args{defaultValue: lo.ToPtr("xxxxxx"), maxLength: lo.ToPtr(5)},
+			wanErr: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldTextAreaFrom(tc.args.defaultValue, tc.args.maxLength))
+			res, err := FieldTextAreaFrom(tc.args.defaultValue, tc.args.maxLength)
+			if tc.wanErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tc.want, res)
+			}
 		})
 	}
 }
