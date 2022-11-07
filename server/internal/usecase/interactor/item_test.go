@@ -360,12 +360,13 @@ func TestItem_Update(t *testing.T) {
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
+	mid := id.NewModelID()
 	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
 	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 	f1 := item.NewField(sf1.ID(), schema.TypeBool, true)
 	f2 := item.NewField(sf2.ID(), schema.TypeText, "xxx")
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Fields([]*item.Field{}).Build()
+	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
