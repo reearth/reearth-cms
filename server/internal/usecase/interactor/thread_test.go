@@ -376,11 +376,11 @@ func TestThread_AddComment(t *testing.T) {
 }
 
 func TestThread_UpdateComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
+	uid := id.NewUserID()
+	c1 := thread.NewComment(thread.NewCommentID(), uid, "aaa")
 	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "test")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
-	uid := id.NewUserID()
 	op := &usecase.Operator{
 		User:               &uid,
 		ReadableWorkspaces: nil,
@@ -408,7 +408,7 @@ func TestThread_UpdateComment(t *testing.T) {
 			args: args{
 				comment:  c1,
 				content:  "updated",
-				operator: &usecase.Operator{},
+				operator: &usecase.Operator{User: lo.ToPtr(id.NewUserID())},
 			},
 			wantErr: repo.ErrOperationDenied,
 		},
@@ -479,11 +479,11 @@ func TestThread_UpdateComment(t *testing.T) {
 }
 
 func TestThread_DeleteComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
+	uid := id.NewUserID()
+	c1 := thread.NewComment(thread.NewCommentID(), uid, "aaa")
 	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "test")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
-	uid := id.NewUserID()
 	op := &usecase.Operator{
 		User:               &uid,
 		ReadableWorkspaces: nil,
@@ -505,9 +505,15 @@ func TestThread_DeleteComment(t *testing.T) {
 		mockError bool
 	}{
 		{
-			name:    "workspaces operation denied",
+			name:    "invalid op",
 			seed:    th1,
 			args:    args{commentId: c1.ID(), operator: &usecase.Operator{}},
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:    "workspaces operation denied",
+			seed:    th1,
+			args:    args{commentId: c1.ID(), operator: &usecase.Operator{User: lo.ToPtr(id.NewUserID())}},
 			wantErr: repo.ErrOperationDenied,
 		},
 		{
