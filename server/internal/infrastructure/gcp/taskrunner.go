@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 )
@@ -68,6 +69,7 @@ func (t *TaskRunner) runCloudTask(ctx context.Context, p task.Payload) error {
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+	log.Infof("task request has been sent: body %v", p.DecompressAsset.Payload())
 
 	return nil
 }
@@ -90,6 +92,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
+	log.Infof("webhook request has been sent: body %v", p.Webhook.Payload())
 
 	if _, err := result.Get(ctx); err != nil {
 		return rerror.ErrInternalBy(err)
