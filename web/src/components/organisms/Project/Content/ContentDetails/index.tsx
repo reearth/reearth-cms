@@ -21,32 +21,21 @@ const ContentDetails: React.FC = () => {
   const { projectId } = useParams();
   const {
     assetList,
-    handleSearchTerm,
-    handleAssetsReload,
-    loading,
-    createAssets,
     fileList,
+    loading,
+    uploading,
+    uploadModalVisibility,
+    createAssets,
+    handleAssetsReload,
+    handleSearchTerm,
     setFileList,
     setUploading,
     setUploadModalVisibility,
-    uploading,
-    uploadModalVisibility,
   } = useAssetHooks(projectId);
   const t = useT();
 
   return (
     <ContentDetailsMolecule
-      assetList={assetList}
-      onAssetSearchTerm={handleSearchTerm}
-      onAssetsReload={handleAssetsReload}
-      loadingAssets={loading}
-      createAssets={createAssets}
-      fileList={fileList}
-      setFileList={setFileList}
-      setUploading={setUploading}
-      setUploadModalVisibility={setUploadModalVisibility}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}
@@ -55,6 +44,17 @@ const ContentDetails: React.FC = () => {
       onItemUpdate={handleItemUpdate}
       onBack={handleNavigateToModel}
       modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleNavigateToModel} />}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loading}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      createAssets={createAssets}
+      onAssetsReload={handleAssetsReload}
+      onAssetSearchTerm={handleSearchTerm}
+      setFileList={setFileList}
+      setUploading={setUploading}
+      setUploadModalVisibility={setUploadModalVisibility}
     />
   );
 };

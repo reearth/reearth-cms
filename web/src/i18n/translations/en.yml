@@ -1,247 +1,247 @@
-Download: ''
-Loading: ''
-Oops!: ''
-PAGE NOT FOUND ON SERVER: ''
-Go back Home: ''
-Are you sure you want to delete your account?: ''
-Danger Zone: ''
-Delete Personal Account: ''
-Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
-Account Name: ''
-This is your ID that is used between Re:Earth and Re:Earth CMS.: ''
-Your Email: ''
-Please enter the email address you want to use to log in with Re:Earth CMS.: ''
-Save: ''
-General: ''
-Service: ''
-Auto: ''
-Service Language: ''
-This will change the UI language: ''
-Language: ''
-Unzip File: ''
-Asset Type: ''
-Created Time: ''
-Created By: ''
-Source Code: ''
-Render: ''
-PNG/JPEG/TIFF/SVG: ''
-JSON/SHAPEFILE/KML/CZML: ''
-GEO3D: ''
-MODEL3D/GLB: ''
-Unknown Type: ''
-Could not display svg: ''
-Not supported: ''
-File: ''
-Size: ''
-Preview Type: ''
-Created At: ''
-ID: ''
-Action: ''
-Upload Asset: ''
-Upload and Link: ''
-Click or drag files to this area to upload: ''
-Single or multiple file upload is supported: ''
-Asset Uploader: ''
-Local: ''
-URL: ''
-Google Drive: ''
-Cancel: ''
-Uploading: ''
-Upload: ''
-Personal Account: ''
-Workspaces: ''
-Create Workspace: ''
-Account Settings: ''
-Logout: ''
-Re:Earth CMS: ''
-Link To Asset: ''
-Project name: ''
-Please input the name of project!: ''
-Project description: ''
-Overview: ''
-Schema: ''
-Content: ''
-Asset: ''
-Request: ''
-Public: ''
-Settings: ''
-Workspace name: ''
-Please input the title of the current workspace!: ''
-Member: ''
-Integrations: ''
-My Integrations: ''
-Role: ''
-API key: ''
-Account: ''
-Please input field!: ''
-New Item: ''
-New Request: ''
-Title: ''
-Please input the title of your request!: ''
-Description: ''
-Please select a reviewer!: ''
-Reviewer: ''
-Owner: ''
-Connect Integration: ''
-Connect: ''
-Integration Setting: ''
-Please input the appropriate role for this integration!: ''
-select role: ''
-Reader: ''
-Writer: ''
-Name: ''
-State: ''
-'ON': ''
-'OFF': ''
-Creator: ''
-No Integration yet: ''
-Create a new: ''
-Or read: ''
-how to use Re:Earth CMS: ''
-first: ''
-Add member: ''
-Add to workspace: ''
-Email address or user name: ''
-Role Settings: ''
-Please input the appropriate role for this member!: ''
-Models: ''
-Add: ''
-New Integration: ''
-Create: ''
-Integration Name: ''
-Please input the title of the integration!: ''
-Integration Token: ''
-Create new integration: ''
-Update: ''
-Delete: ''
-Publish: ''
-Unpublish: ''
-This is your webhook name: ''
-Please input the name of the webhook!: ''
-Url: ''
-Please note that all webhook URLs must start with http://.: ''
-URL is not valid: ''
-Trigger Event: ''
-Item: ''
-New Webhook: ''
-No Webhook yet: ''
-'Create a new ': ''
-No Projects Yet: ''
-Create a new project: ''
-New Project: ''
-New Model: ''
-Edit: ''
-Delete Model: ''
-Are you sure you want to delete the model: ''
-Warning: ''
-This action will permanently delete the selected model and cannot be reversed.: ''
-Model: ''
-Switch: ''
-Private: ''
-API Key Only: ''
-Public Scope: ''
-Choose the scope of your project. This affects all the models shown below that are switched on.: ''
-Save changes: ''
-Add Field: ''
-Display name: ''
-Please input the display name of field!: ''
-Please input the key of the field!: ''
-Key is not valid: ''
-Set Options: ''
-Please input value or delete this field.: ''
-Option value: ''
-New: ''
-Stores a list of values instead of a single value: ''
-Support multiple values: ''
-Prevents saving an entry if this field is empty: ''
-Make field required: ''
-Ensures that a multiple entries can't have the same value for this field: ''
-Set field as unique: ''
-Default value: ''
-Set default value: ''
-Setting: ''
-Validation: ''
-Set maximum length: ''
-Set minimum value: ''
-Set maximum value: ''
-Update Model: ''
-Model name: ''
-Please input the name of the model!: ''
-Model description: ''
-Model key: ''
-Please input the key of the model!: ''
-Welcome to Re:Earth CMS !: ''
-search projects: ''
-Create a Workspace: ''
-Are you sure you want to delete this workspace?: ''
-Remove Workspace: ''
-Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
-Workspace Name: ''
-This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ''
-Failed to update user.: ''
-Successfully updated user!: ''
-Failed to update language.: ''
-Successfully updated language!: ''
-Failed to delete user.: ''
-Successfully deleted user!: ''
-Failed to update asset.: ''
-Asset was successfully updated!: ''
-Failed to add one or more assets.: ''
-Successfully added one or more assets!: ''
-Failed to delete one or more assets.: ''
-One or more assets were successfully deleted!: ''
-Successfully created workspace!: ''
-Failed to create item.: ''
-Successfully created Item!: ''
-Failed to update item.: ''
-Successfully updated Item!: ''
-Failed to create model.: ''
-Successfully created model!: ''
-Failed to delete model.: ''
-Successfully deleted model!: ''
-Failed to update model.: ''
-Successfully updated model!: ''
-Failed to update publication settings.: ''
-Successfully updated publication settings!: ''
-Failed to delete field.: ''
-Successfully deleted field!: ''
-Failed to update field.: ''
-Successfully updated field!: ''
-Failed to create field.: ''
-Successfully created field!: ''
-Failed to update project.: ''
-Successfully updated project!: ''
-Failed to delete project.: ''
-Successfully deleted project!: ''
-Are you sure you want to delete this project?: ''
-Write something here to describe this record.: ''
-Delete project: ''
-Failed to connect integration.: ''
-Successfully connected integration to the workspace!: ''
-Failed to update workspace integration.: ''
-Successfully updated workspace integration!: ''
-Failed to add one or more members.: ''
-Successfully added member(s) to the workspace!: ''
-Failed to delete member from the workspace.: ''
-Successfully removed member from the workspace!: ''
-Are you sure to remove this member?: ''
-Remove this member from workspace means this member will not view any content of this workspace.: ''
-Change Role?: ''
-Remove: ''
-Members: ''
-New Member: ''
-search for a member: ''
-Failed to create webhook.: ''
-Successfully created webhook!: ''
-Failed to delete webhook.: ''
-Successfully deleted webhook!: ''
-Failed to update webhook.: ''
-Successfully updated webhook!: ''
-Failed to create integration.: ''
-Successfully created integration!: ''
-Failed to create project.: ''
-Successfully created project!: ''
-Failed to update workspace.: ''
-Successfully updated workspace!: ''
-Failed to delete workspace.: ''
-Successfully deleted workspace!: ''
+Download: ""
+Loading: ""
+Oops!: ""
+PAGE NOT FOUND ON SERVER: ""
+Go back Home: ""
+Are you sure you want to delete your account?: ""
+Danger Zone: ""
+Delete Personal Account: ""
+Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ""
+Account Name: ""
+This is your ID that is used between Re:Earth and Re:Earth CMS.: ""
+Your Email: ""
+Please enter the email address you want to use to log in with Re:Earth CMS.: ""
+Save: ""
+General: ""
+Service: ""
+Auto: ""
+Service Language: ""
+This will change the UI language: ""
+Language: ""
+Unzip File: ""
+Asset Type: ""
+Created Time: ""
+Created By: ""
+Source Code: ""
+Render: ""
+PNG/JPEG/TIFF/SVG: ""
+JSON/SHAPEFILE/KML/CZML: ""
+GEO3D: ""
+MODEL3D/GLB: ""
+Unknown Type: ""
+Could not display svg: ""
+Not supported: ""
+File: ""
+Size: ""
+Preview Type: ""
+Created At: ""
+ID: ""
+Action: ""
+Upload Asset: ""
+Upload and Link: ""
+Click or drag files to this area to upload: ""
+Single or multiple file upload is supported: ""
+Asset Uploader: ""
+Local: ""
+URL: ""
+Google Drive: ""
+Cancel: ""
+Uploading: ""
+Upload: ""
+Personal Account: ""
+Workspaces: ""
+Create Workspace: ""
+Account Settings: ""
+Logout: ""
+Re:Earth CMS: ""
+Link Asset: ""
+Project name: ""
+Please input the name of project!: ""
+Project description: ""
+Overview: ""
+Schema: ""
+Content: ""
+Asset: ""
+Request: ""
+Public: ""
+Settings: ""
+Workspace name: ""
+Please input the title of the current workspace!: ""
+Member: ""
+Integrations: ""
+My Integrations: ""
+Role: ""
+API key: ""
+Account: ""
+Please input field!: ""
+New Item: ""
+New Request: ""
+Title: ""
+Please input the title of your request!: ""
+Description: ""
+Please select a reviewer!: ""
+Reviewer: ""
+Owner: ""
+Connect Integration: ""
+Connect: ""
+Integration Setting: ""
+Please input the appropriate role for this integration!: ""
+select role: ""
+Reader: ""
+Writer: ""
+Name: ""
+State: ""
+"ON": ""
+"OFF": ""
+Creator: ""
+No Integration yet: ""
+Create a new: ""
+Or read: ""
+how to use Re:Earth CMS: ""
+first: ""
+Add member: ""
+Add to workspace: ""
+Email address or user name: ""
+Role Settings: ""
+Please input the appropriate role for this member!: ""
+Models: ""
+Add: ""
+New Integration: ""
+Create: ""
+Integration Name: ""
+Please input the title of the integration!: ""
+Integration Token: ""
+Create new integration: ""
+Update: ""
+Delete: ""
+Publish: ""
+Unpublish: ""
+This is your webhook name: ""
+Please input the name of the webhook!: ""
+Url: ""
+Please note that all webhook URLs must start with http://.: ""
+URL is not valid: ""
+Trigger Event: ""
+Item: ""
+New Webhook: ""
+No Webhook yet: ""
+"Create a new ": ""
+No Projects Yet: ""
+Create a new project: ""
+New Project: ""
+New Model: ""
+Edit: ""
+Delete Model: ""
+Are you sure you want to delete the model: ""
+Warning: ""
+This action will permanently delete the selected model and cannot be reversed.: ""
+Model: ""
+Switch: ""
+Private: ""
+API Key Only: ""
+Public Scope: ""
+Choose the scope of your project. This affects all the models shown below that are switched on.: ""
+Save changes: ""
+Add Field: ""
+Display name: ""
+Please input the display name of field!: ""
+Please input the key of the field!: ""
+Key is not valid: ""
+Set Options: ""
+Please input value or delete this field.: ""
+Option value: ""
+New: ""
+Stores a list of values instead of a single value: ""
+Support multiple values: ""
+Prevents saving an entry if this field is empty: ""
+Make field required: ""
+Ensures that a multiple entries can't have the same value for this field: ""
+Set field as unique: ""
+Default value: ""
+Set default value: ""
+Setting: ""
+Validation: ""
+Set maximum length: ""
+Set minimum value: ""
+Set maximum value: ""
+Update Model: ""
+Model name: ""
+Please input the name of the model!: ""
+Model description: ""
+Model key: ""
+Please input the key of the model!: ""
+Welcome to Re:Earth CMS !: ""
+search projects: ""
+Create a Workspace: ""
+Are you sure you want to delete this workspace?: ""
+Remove Workspace: ""
+Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ""
+Workspace Name: ""
+This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ""
+Failed to update user.: ""
+Successfully updated user!: ""
+Failed to update language.: ""
+Successfully updated language!: ""
+Failed to delete user.: ""
+Successfully deleted user!: ""
+Failed to update asset.: ""
+Asset was successfully updated!: ""
+Failed to add one or more assets.: ""
+Successfully added one or more assets!: ""
+Failed to delete one or more assets.: ""
+One or more assets were successfully deleted!: ""
+Successfully created workspace!: ""
+Failed to create item.: ""
+Successfully created Item!: ""
+Failed to update item.: ""
+Successfully updated Item!: ""
+Failed to create model.: ""
+Successfully created model!: ""
+Failed to delete model.: ""
+Successfully deleted model!: ""
+Failed to update model.: ""
+Successfully updated model!: ""
+Failed to update publication settings.: ""
+Successfully updated publication settings!: ""
+Failed to delete field.: ""
+Successfully deleted field!: ""
+Failed to update field.: ""
+Successfully updated field!: ""
+Failed to create field.: ""
+Successfully created field!: ""
+Failed to update project.: ""
+Successfully updated project!: ""
+Failed to delete project.: ""
+Successfully deleted project!: ""
+Are you sure you want to delete this project?: ""
+Write something here to describe this record.: ""
+Delete project: ""
+Failed to connect integration.: ""
+Successfully connected integration to the workspace!: ""
+Failed to update workspace integration.: ""
+Successfully updated workspace integration!: ""
+Failed to add one or more members.: ""
+Successfully added member(s) to the workspace!: ""
+Failed to delete member from the workspace.: ""
+Successfully removed member from the workspace!: ""
+Are you sure to remove this member?: ""
+Remove this member from workspace means this member will not view any content of this workspace.: ""
+Change Role?: ""
+Remove: ""
+Members: ""
+New Member: ""
+search for a member: ""
+Failed to create webhook.: ""
+Successfully created webhook!: ""
+Failed to delete webhook.: ""
+Successfully deleted webhook!: ""
+Failed to update webhook.: ""
+Successfully updated webhook!: ""
+Failed to create integration.: ""
+Successfully created integration!: ""
+Failed to create project.: ""
+Successfully created project!: ""
+Failed to update workspace.: ""
+Successfully updated workspace!: ""
+Failed to delete workspace.: ""
+Successfully deleted workspace!: ""

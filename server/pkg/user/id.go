@@ -21,3 +21,4 @@ var WorkspaceIDFromRef = id.WorkspaceIDFromRef
 var ErrInvalidID = id.ErrInvalidID
 
 type WorkspaceIDList = id.WorkspaceIDList
+type IntegrationIDList = id.IntegrationIDList

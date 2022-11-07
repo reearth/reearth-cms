@@ -25,16 +25,16 @@ export interface Props {
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   assetList: Asset[];
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
   fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -46,16 +46,16 @@ const ContentForm: React.FC<Props> = ({
   onItemUpdate,
   onBack,
   assetList,
-  onAssetSearchTerm,
-  onAssetsReload,
-  loadingAssets,
-  createAssets,
   fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetsReload,
+  onAssetSearchTerm,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -91,10 +91,9 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const handleLink = (_asset: Asset) => {
+  const handleLink = useCallback((_asset: Asset) => {
     // TODO: implement link asset with content
-    console.log("link from content");
-  };
+  }, []);
 
   return (
     <Form form={form} layout="vertical" initialValues={initialFormValues}>
@@ -151,17 +150,17 @@ const ContentForm: React.FC<Props> = ({
               name={field.id}
               label={field.title}
               assetList={assetList}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onAssetsReload={onAssetsReload}
-              loadingAssets={loadingAssets}
-              createAssets={createAssets}
               fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              createAssets={createAssets}
+              onAssetsReload={onAssetsReload}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onLink={handleLink}
               setFileList={setFileList}
               setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              onLink={handleLink}
             />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>

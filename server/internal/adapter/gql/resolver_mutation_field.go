@@ -185,6 +185,9 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		Name:         input.Title,
 		Description:  input.Description,
 		Key:          input.Key,
+		MultiValue:   input.MultiValue,
+		Unique:       input.Unique,
+		Required:     input.Required,
 		TypeProperty: *tp,
 	}, getOperator(ctx))
 	if err != nil {

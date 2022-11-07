@@ -3,10 +3,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
-import UploadModal from "../UploadModal/uploadModal";
+import UploadModal from "../UploadModal/UploadModal";
 
 type Props = {
-  text?: string;
+  alsoLink?: boolean;
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
   uploading: boolean;
@@ -17,7 +17,7 @@ type Props = {
 };
 
 const UploadAsset: React.FC<Props> = ({
-  text,
+  alsoLink,
   uploadProps,
   fileList,
   uploading,
@@ -30,10 +30,10 @@ const UploadAsset: React.FC<Props> = ({
   return (
     <>
       <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
-        {text ?? t("Upload Asset")}
+        {t("Upload Asset")}
       </Button>
       <UploadModal
-        uploadButtonText={t("Upload and Link")}
+        alsoLink={alsoLink}
         uploadProps={uploadProps}
         fileList={fileList}
         uploading={uploading}

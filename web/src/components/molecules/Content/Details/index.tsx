@@ -17,16 +17,16 @@ export type Props = {
   itemId?: string;
   loading: boolean;
   assetList: Asset[];
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
   fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -39,16 +39,16 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   itemId,
   loading,
   assetList,
-  onAssetSearchTerm,
-  onAssetsReload,
-  loadingAssets,
-  createAssets,
   fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetsReload,
+  onAssetSearchTerm,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
@@ -61,16 +61,16 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         model={model}
         initialFormValues={initialFormValues}
         assetList={assetList}
-        onAssetSearchTerm={onAssetSearchTerm}
-        onAssetsReload={onAssetsReload}
-        loadingAssets={loadingAssets}
-        createAssets={createAssets}
         fileList={fileList}
+        loadingAssets={loadingAssets}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        createAssets={createAssets}
+        onAssetsReload={onAssetsReload}
+        onAssetSearchTerm={onAssetSearchTerm}
         setFileList={setFileList}
         setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
       />
     </ContentWrapper>
   );
