@@ -43,9 +43,8 @@ type AddMemberToWorkspacePayload struct {
 }
 
 type AddUserToWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
+	WorkspaceID ID             `json:"workspaceId"`
+	Users       []*MemberInput `json:"users"`
 }
 
 type Asset struct {
@@ -347,6 +346,11 @@ type Me struct {
 	Workspaces    []*Workspace   `json:"workspaces"`
 	MyWorkspace   *Workspace     `json:"myWorkspace"`
 	Integrations  []*Integration `json:"integrations"`
+}
+
+type MemberInput struct {
+	UserID ID   `json:"userId"`
+	Role   Role `json:"role"`
 }
 
 type Model struct {

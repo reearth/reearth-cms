@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 func (r *mutationResolver) CreateWorkspace(ctx context.Context, input gqlmodel.CreateWorkspaceInput) (*gqlmodel.CreateWorkspacePayload, error) {
@@ -44,12 +45,19 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 }
 
 func (r *mutationResolver) AddUserToWorkspace(ctx context.Context, input gqlmodel.AddUserToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error) {
-	tid, uid, err := gqlmodel.ToID2[id.Workspace, id.User](input.WorkspaceID, input.UserID)
+	wid, err := gqlmodel.ToID[id.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
-
-	res, err := usecases(ctx).Workspace.AddUserMember(ctx, tid, uid, gqlmodel.FromRole(input.Role), getOperator(ctx))
+	usersMap := make(map[id.UserID]user.Role, len(input.Users))
+	for _, u := range input.Users {
+		uid, err := gqlmodel.ToID[id.User](u.UserID)
+		if err != nil {
+			return nil, err
+		}
+		usersMap[uid] = gqlmodel.FromRole(u.Role)
+	}
+	res, err := usecases(ctx).Workspace.AddUserMember(ctx, wid, usersMap, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

@@ -40,10 +40,14 @@ input UpdateWorkspaceInput {
     name: String!
 }
 
-input AddUserToWorkspaceInput {
-    workspaceId: ID!
+input MemberInput {
     userId: ID!
     role: Role!
+}
+
+input AddUserToWorkspaceInput {
+    workspaceId: ID!
+    users: [MemberInput!]!
 }
 
 input AddIntegrationToWorkspaceInput {
