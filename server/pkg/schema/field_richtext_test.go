@@ -13,9 +13,10 @@ func TestFieldRichTextFrom(t *testing.T) {
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *FieldRichText
+		name    string
+		args    args
+		want    *FieldRichText
+		wantErr bool
 	}{
 		{
 			name: "success default nil",
@@ -32,12 +33,22 @@ func TestFieldRichTextFrom(t *testing.T) {
 			args: args{maxLength: lo.ToPtr(256)},
 			want: &FieldRichText{maxLength: lo.ToPtr(256)},
 		},
+		{
+			name:    "fail max > length",
+			args:    args{defaultValue: lo.ToPtr("xxx"), maxLength: lo.ToPtr(2)},
+			wantErr: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldRichTextFrom(tc.args.defaultValue, tc.args.maxLength))
+			res, err := FieldRichTextFrom(tc.args.defaultValue, tc.args.maxLength)
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tc.want, res)
+			}
 		})
 	}
 }

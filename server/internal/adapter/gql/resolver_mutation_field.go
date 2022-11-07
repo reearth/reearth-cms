@@ -18,25 +18,41 @@ func ToSchemaTypeProperty(tp *gqlmodel.SchemaFieldTypePropertyInput, t gqlmodel.
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
+		tp1, err := schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
 	case gqlmodel.SchemaFiledTypeTextArea:
 		x := tp.TextArea
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
+		tp1, err := schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
 	case gqlmodel.SchemaFiledTypeRichText:
 		x := tp.RichText
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
+		tp1, err := schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
 	case gqlmodel.SchemaFiledTypeMarkdownText:
 		x := tp.MarkdownText
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
+		tp1, err := schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
 	case gqlmodel.SchemaFiledTypeAsset:
 		x := tp.Asset
 		if x == nil {
