@@ -69,7 +69,7 @@ func (t *TaskRunner) runCloudTask(ctx context.Context, p task.Payload) error {
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	log.Infof("task request has been sent: body %v", p.DecompressAsset.Payload())
+	log.Infof("task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
 
 	return nil
 }
@@ -92,7 +92,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
-	log.Infof("webhook request has been sent: body %v", p.Webhook.Payload())
+	log.Infof("webhook request has been sent: body %#v", p.Webhook.Payload().Webhook)
 
 	if _, err := result.Get(ctx); err != nil {
 		return rerror.ErrInternalBy(err)

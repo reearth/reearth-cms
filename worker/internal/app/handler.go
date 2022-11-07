@@ -25,7 +25,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 		}
 
 		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
-			log.Errorf("failed to decompress: %s", err.Error())
+			log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
 
 			return err
 		}
@@ -41,11 +41,11 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 		}
 
 		if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
-			log.Errorf("failed to send webhook: %s", err.Error())
+			log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
 			return err
 		}
 
-		log.Info("webhook has been sent: %v", w)
+		log.Info("webhook has been sent: %#v", w)
 		return c.NoContent(http.StatusOK)
 	}
 }
