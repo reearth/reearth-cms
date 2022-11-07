@@ -6,17 +6,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
 )
-
-type Usecase struct {
-	gateways *gateway.Container
-}
-
-func NewUsecase(g *gateway.Container) *Usecase {
-	return &Usecase{gateways: g}
-}
 
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")

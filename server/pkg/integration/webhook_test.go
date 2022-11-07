@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -58,13 +59,14 @@ func TestWebhook_Clone(t *testing.T) {
 				url:    lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				active: true,
 				trigger: WebhookTrigger{
-					OnItemCreate:    false,
-					OnItemUpdate:    false,
-					OnItemDelete:    false,
-					OnAssetUpload:   false,
-					OnAssetDeleted:  false,
-					OnItemPublish:   false,
-					OnItemUnPublish: false,
+					event.ItemCreate:      false,
+					event.ItemUpdate:      false,
+					event.ItemDelete:      false,
+					event.ItemPublish:     false,
+					event.ItemUnpublish:   false,
+					event.AssetCreate:     false,
+					event.AssetDecompress: false,
+					event.AssetDelete:     false,
 				},
 				updatedAt: now,
 			},
@@ -74,13 +76,14 @@ func TestWebhook_Clone(t *testing.T) {
 				url:    lo.Must(url.Parse("https://sub.hugo.com/dir?p=1#test")),
 				active: true,
 				trigger: WebhookTrigger{
-					OnItemCreate:    false,
-					OnItemUpdate:    false,
-					OnItemDelete:    false,
-					OnAssetUpload:   false,
-					OnAssetDeleted:  false,
-					OnItemPublish:   false,
-					OnItemUnPublish: false,
+					event.ItemCreate:      false,
+					event.ItemUpdate:      false,
+					event.ItemDelete:      false,
+					event.ItemPublish:     false,
+					event.ItemUnpublish:   false,
+					event.AssetCreate:     false,
+					event.AssetDecompress: false,
+					event.AssetDelete:     false,
 				},
 				updatedAt: now,
 			},
@@ -253,43 +256,48 @@ func TestWebhook_SetTrigger(t *testing.T) {
 			name: "set",
 			w:    &Webhook{},
 			args: args{trigger: WebhookTrigger{
-				OnItemCreate:    false,
-				OnItemUpdate:    false,
-				OnItemDelete:    false,
-				OnAssetUpload:   false,
-				OnAssetDeleted:  false,
-				OnItemPublish:   false,
-				OnItemUnPublish: false,
+				event.ItemCreate:      false,
+				event.ItemUpdate:      false,
+				event.ItemDelete:      false,
+				event.ItemPublish:     false,
+				event.ItemUnpublish:   false,
+				event.AssetCreate:     false,
+				event.AssetDecompress: false,
+				event.AssetDelete:     false,
 			}},
 			want: WebhookTrigger{
-				OnItemCreate:    false,
-				OnItemUpdate:    false,
-				OnItemDelete:    false,
-				OnAssetUpload:   false,
-				OnAssetDeleted:  false,
-				OnItemPublish:   false,
-				OnItemUnPublish: false},
+				event.ItemCreate:      false,
+				event.ItemUpdate:      false,
+				event.ItemDelete:      false,
+				event.ItemPublish:     false,
+				event.ItemUnpublish:   false,
+				event.AssetCreate:     false,
+				event.AssetDecompress: false,
+				event.AssetDelete:     false,
+			},
 		},
 		{
 			name: "set true",
 			w:    &Webhook{},
 			args: args{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}},
 			want: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			},
 		},
 	}
@@ -355,7 +363,7 @@ func TestWebhook_SetUrl(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.w.SetUrl(tt.args.url)
+			tt.w.SetURL(tt.args.url)
 			assert.Equal(t, tt.want, tt.w.url.String())
 		})
 	}
@@ -370,43 +378,47 @@ func TestWebhook_Trigger(t *testing.T) {
 		{
 			name: "get falsy",
 			w: &Webhook{trigger: WebhookTrigger{
-				OnItemCreate:    false,
-				OnItemUpdate:    false,
-				OnItemDelete:    false,
-				OnAssetUpload:   false,
-				OnAssetDeleted:  false,
-				OnItemPublish:   false,
-				OnItemUnPublish: false,
+				event.ItemCreate:      false,
+				event.ItemUpdate:      false,
+				event.ItemDelete:      false,
+				event.ItemPublish:     false,
+				event.ItemUnpublish:   false,
+				event.AssetCreate:     false,
+				event.AssetDecompress: false,
+				event.AssetDelete:     false,
 			}},
 			want: WebhookTrigger{
-				OnItemCreate:    false,
-				OnItemUpdate:    false,
-				OnItemDelete:    false,
-				OnAssetUpload:   false,
-				OnAssetDeleted:  false,
-				OnItemPublish:   false,
-				OnItemUnPublish: false,
+				event.ItemCreate:      false,
+				event.ItemUpdate:      false,
+				event.ItemDelete:      false,
+				event.ItemPublish:     false,
+				event.ItemUnpublish:   false,
+				event.AssetCreate:     false,
+				event.AssetDecompress: false,
+				event.AssetDelete:     false,
 			},
 		},
 		{
 			name: "get true",
 			w: &Webhook{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}},
 			want: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			},
 		},
 	}
@@ -466,7 +478,7 @@ func TestWebhook_Url(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equalf(t, tt.want, tt.w.Url().String(), "Url()")
+			assert.Equalf(t, tt.want, tt.w.URL().String(), "Url()")
 		})
 	}
 }
