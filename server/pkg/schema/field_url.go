@@ -8,7 +8,7 @@ type FieldURL struct {
 
 func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
 	if defaultValue != nil && *defaultValue != "" {
-		if !isUrl(*defaultValue) {
+		if !IsUrl(*defaultValue) {
 			return nil, ErrFieldDefaultValue
 		}
 	}
@@ -25,7 +25,7 @@ func MustFieldURLFrom(defaultValue *string) *FieldURL {
 	return v
 }
 
-func isUrl(str string) bool {
+func IsUrl(str string) bool {
 	u, err := url.Parse(str)
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
