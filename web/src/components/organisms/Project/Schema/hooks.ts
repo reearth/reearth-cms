@@ -72,6 +72,9 @@ export default () => {
       title: string;
       description: string;
       key: string;
+      multiValue: boolean;
+      unique: boolean;
+      required: boolean;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId) return;
@@ -82,6 +85,9 @@ export default () => {
           title: data.title,
           description: data.description,
           key: data.key,
+          multiValue: data.multiValue,
+          unique: data.unique,
+          required: data.required,
           typeProperty: data.typeProperty,
         },
       });
