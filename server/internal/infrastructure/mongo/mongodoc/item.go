@@ -17,6 +17,7 @@ type ItemDocument struct {
 	ID        string
 	Project   string
 	Schema    string
+	ModelID   string
 	Fields    []ItemFieldDoc
 	Timestamp time.Time
 }
@@ -52,6 +53,7 @@ func NewItem(ws *item.Item) (*ItemDocument, string) {
 	return &ItemDocument{
 		ID:      id,
 		Schema:  ws.Schema().String(),
+		ModelID: ws.Model().String(),
 		Project: ws.Project().String(),
 		Fields: lo.Map(ws.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
 			return ItemFieldDoc{
@@ -71,6 +73,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	sid, err := id.SchemaIDFrom(d.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	mid, err := id.ModelIDFrom(d.ModelID)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +102,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		ID(iid).
 		Project(pid).
 		Schema(sid).
+		Model(mid).
 		Fields(fields).
 		Timestamp(d.Timestamp).
 		Build()

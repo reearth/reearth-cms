@@ -20,6 +20,8 @@ type Asset struct {
 	thread      ThreadID
 }
 
+type URLResolver = func(*Asset) string
+
 func (a *Asset) ID() ID {
 	return a.id
 }
@@ -86,6 +88,7 @@ func (a *Asset) Clone() *Asset {
 		previewType: a.previewType,
 		file:        a.file,
 		uuid:        a.uuid,
+		thread:      a.thread.Clone(),
 	}
 }
 

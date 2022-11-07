@@ -12,6 +12,8 @@ export type Asset = {
   projectId: string;
   size: number;
   url: string;
+  threadId: string;
+  comments: Comment[];
 };
 
 export type AssetFile = {
@@ -20,4 +22,11 @@ export type AssetFile = {
   name: string;
   path: string;
   size: number;
+};
+
+export type Comment = {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
 };

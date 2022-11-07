@@ -18,6 +18,7 @@ const (
 	Geo3d   AssetPreviewType = "geo3d"
 	Image   AssetPreviewType = "image"
 	Model3d AssetPreviewType = "model3d"
+	Unknown AssetPreviewType = "unknown"
 )
 
 // Defines values for FieldType.
@@ -98,6 +99,7 @@ type Asset struct {
 	ProjectId   *id.ProjectID       `json:"projectId,omitempty"`
 	TotalSize   *float32            `json:"totalSize,omitempty"`
 	UpdatedAt   *openapi_types.Date `json:"updatedAt,omitempty"`
+	Url         *string             `json:"url,omitempty"`
 }
 
 // AssetPreviewType defines model for Asset.PreviewType.
@@ -118,8 +120,8 @@ type File struct {
 	Children    *[]File  `json:"children,omitempty"`
 	ContentType *string  `json:"contentType,omitempty"`
 	Name        *string  `json:"name,omitempty"`
+	Path        *string  `json:"path,omitempty"`
 	Size        *float32 `json:"size,omitempty"`
-	Url         *string  `json:"url,omitempty"`
 }
 
 // Item defines model for item.
