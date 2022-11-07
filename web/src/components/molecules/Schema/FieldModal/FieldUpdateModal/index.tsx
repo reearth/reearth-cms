@@ -254,7 +254,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item
               name="required"
               valuePropName="checked"
-              extra={t("Prevent saving an entry if this field is empty")}>
+              extra={t("Prevents saving an entry if this field is empty")}>
               <Checkbox>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
