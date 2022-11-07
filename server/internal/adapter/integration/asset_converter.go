@@ -72,7 +72,7 @@ func toAsset(a *asset.Asset, aUrl string) (*integrationapi.Asset, error) {
 
 func toPreviewType(pt *asset.PreviewType) (*integrationapi.AssetPreviewType, error) {
 	if pt == nil {
-		return lo.ToPtr(integrationapi.AssetPreviewType("")), nil
+		return nil, nil
 	}
 	switch *pt {
 	case asset.PreviewTypeGeo:

@@ -47,6 +47,9 @@ func toItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 }
 
 func fromSchemaFieldType(t *integrationapi.FieldType) schema.Type {
+	if t == nil {
+		return ""
+	}
 	switch *t {
 	case integrationapi.FieldTypeText:
 		return schema.TypeText
