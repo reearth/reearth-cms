@@ -37,7 +37,9 @@ func TestFieldTextFrom(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldTextFrom(tc.args.defaultValue, tc.args.maxLength))
+			res, err := FieldTextFrom(tc.args.defaultValue, tc.args.maxLength)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, res)
 		})
 	}
 }
