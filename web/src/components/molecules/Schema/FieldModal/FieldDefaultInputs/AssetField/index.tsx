@@ -7,31 +7,31 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
-  fileList: UploadFile[];
+  onLink: (asset: Asset) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  onLink: (asset: Asset) => void;
 };
 const AssetField: React.FC<Props> = ({
   assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
   onAssetSearchTerm,
   onAssetsReload,
-  loadingAssets,
-  createAssets,
-  fileList,
+  onLink,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
-  onLink,
 }) => {
   const t = useT();
 
@@ -40,17 +40,17 @@ const AssetField: React.FC<Props> = ({
       name="defaultValue"
       label={t("Set default value")}
       assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loadingAssets}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      createAssets={createAssets}
+      onLink={onLink}
       onAssetSearchTerm={onAssetSearchTerm}
       onAssetsReload={onAssetsReload}
-      loadingAssets={loadingAssets}
-      createAssets={createAssets}
-      fileList={fileList}
       setFileList={setFileList}
       setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      onLink={onLink}
     />
   );
 };

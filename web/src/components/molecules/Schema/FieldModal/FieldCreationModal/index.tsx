@@ -36,16 +36,16 @@ export type Props = {
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
   assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
-  fileList: UploadFile[];
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
 };
 
 const initialValues: FormValues = {
@@ -66,16 +66,16 @@ const FieldCreationModal: React.FC<Props> = ({
   onSubmit,
   handleFieldKeyUnique,
   assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
   onAssetSearchTerm,
   onAssetsReload,
-  loadingAssets,
-  createAssets,
-  fileList,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -141,10 +141,9 @@ const FieldCreationModal: React.FC<Props> = ({
     onClose?.(true);
   }, [onClose, form]);
 
-  const handleLinkAsset = (_asset: Asset) => {
+  const handleLinkAsset = useCallback((_asset: Asset) => {
     // TODO: implement link asset with FieldCreationModal
-    console.log("link from schema create asset");
-  };
+  }, []);
 
   return (
     <Modal
@@ -273,17 +272,17 @@ const FieldCreationModal: React.FC<Props> = ({
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
+              fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              createAssets={createAssets}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
-              loadingAssets={loadingAssets}
-              createAssets={createAssets}
-              fileList={fileList}
+              onLink={handleLinkAsset}
               setFileList={setFileList}
               setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              onLink={handleLinkAsset}
             />
           </TabPane>
         </Tabs>

@@ -16,34 +16,34 @@ export interface Props {
   selectedType: FieldType;
   selectedValues: string[];
   assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onLink: (asset: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  loadingAssets: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
-  fileList: UploadFile[];
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  onLink: (asset: Asset) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
   assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
   onAssetSearchTerm,
   onAssetsReload,
-  loadingAssets,
+  onLink,
   createAssets,
-  fileList,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
-  onLink,
 }) => {
   return selectedType ? (
     selectedType === "TextArea" || selectedType === "MarkdownText" ? (
@@ -53,17 +53,17 @@ const FieldDefaultInputs: React.FC<Props> = ({
     ) : selectedType === "Asset" ? (
       <AssetField
         assetList={assetList}
+        fileList={fileList}
+        loadingAssets={loadingAssets}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        createAssets={createAssets}
+        onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
-        loadingAssets={loadingAssets}
-        createAssets={createAssets}
-        fileList={fileList}
         setFileList={setFileList}
         setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        onLink={onLink}
       />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} />

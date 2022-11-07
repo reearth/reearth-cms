@@ -20,16 +20,16 @@ const ProjectSchema: React.FC = () => {
   const { projectId } = useParams();
   const {
     assetList,
+    fileList,
+    loading,
+    uploading,
+    uploadModalVisibility,
+    createAssets,
     handleSearchTerm,
     handleAssetsReload,
-    loading,
-    createAssets,
-    fileList,
     setFileList,
     setUploading,
     setUploadModalVisibility,
-    uploading,
-    uploadModalVisibility,
   } = useAssetHooks(projectId);
 
   const {
@@ -72,16 +72,16 @@ const ProjectSchema: React.FC = () => {
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
           assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loading}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          createAssets={createAssets}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
-          loadingAssets={loading}
-          createAssets={createAssets}
-          fileList={fileList}
           setFileList={setFileList}
           setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
         />
       )}
       {selectedType && (
@@ -93,16 +93,16 @@ const ProjectSchema: React.FC = () => {
           onClose={handleFieldUpdateModalClose}
           onSubmit={handleFieldUpdate}
           assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loading}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          createAssets={createAssets}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
-          loadingAssets={loading}
-          createAssets={createAssets}
-          fileList={fileList}
           setFileList={setFileList}
           setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
         />
       )}
     </>
