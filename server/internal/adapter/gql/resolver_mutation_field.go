@@ -11,96 +11,69 @@ import (
 )
 
 func ToSchemaTypeProperty(tp *gqlmodel.SchemaFieldTypePropertyInput, t gqlmodel.SchemaFiledType) (*schema.TypeProperty, error) {
-	var tpRes schema.TypeProperty
+	var tpRes *schema.TypeProperty
+	var err error
 	switch t {
 	case gqlmodel.SchemaFiledTypeText:
 		x := tp.Text
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
 	case gqlmodel.SchemaFiledTypeTextArea:
 		x := tp.TextArea
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
 	case gqlmodel.SchemaFiledTypeRichText:
 		x := tp.RichText
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
 	case gqlmodel.SchemaFiledTypeMarkdownText:
 		x := tp.MarkdownText
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
 	case gqlmodel.SchemaFiledTypeAsset:
 		x := tp.Asset
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyAsset(gqlmodel.ToIDRef[id.Asset](x.DefaultValue))
+		tpRes = schema.NewFieldTypePropertyAsset(gqlmodel.ToIDRef[id.Asset](x.DefaultValue))
 	case gqlmodel.SchemaFiledTypeDate:
 		x := tp.Date
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyDate(x.DefaultValue)
+		tpRes = schema.NewFieldTypePropertyDate(x.DefaultValue)
 	case gqlmodel.SchemaFiledTypeBool:
 		x := tp.Bool
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tpRes = *schema.NewFieldTypePropertyBool(x.DefaultValue)
+		tpRes = schema.NewFieldTypePropertyBool(x.DefaultValue)
 	case gqlmodel.SchemaFiledTypeSelect:
 		x := tp.Select
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
-		if err != nil {
-			return nil, errors.New("invalid type property")
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
 	case gqlmodel.SchemaFiledTypeTag:
 		x := tp.Tag
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
 	case gqlmodel.SchemaFiledTypeInteger:
 		x := tp.Integer
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyInteger(x.DefaultValue, x.Min, x.Max)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyInteger(x.DefaultValue, x.Min, x.Max)
 	case gqlmodel.SchemaFiledTypeReference:
 		x := tp.Reference
 		if x == nil {
@@ -110,21 +83,20 @@ func ToSchemaTypeProperty(tp *gqlmodel.SchemaFieldTypePropertyInput, t gqlmodel.
 		if err != nil {
 			return nil, err
 		}
-		tpRes = *schema.NewFieldTypePropertyReference(mId)
+		tpRes = schema.NewFieldTypePropertyReference(mId)
 	case gqlmodel.SchemaFiledTypeURL:
 		x := tp.URL
 		if x == nil {
 			return nil, errors.New("invalid type property")
 		}
-		tp1, err := schema.NewFieldTypePropertyURL(x.DefaultValue)
-		if err != nil {
-			return nil, err
-		}
-		tpRes = *tp1
+		tpRes, err = schema.NewFieldTypePropertyURL(x.DefaultValue)
 	default:
 		return nil, errors.New("invalid type property")
 	}
-	return &tpRes, nil
+	if err != nil {
+		return nil, err
+	}
+	return tpRes, nil
 }
 
 func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
