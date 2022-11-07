@@ -151,7 +151,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           form
             .validateFields()
             .then(() => {
-              setButtonDisabled(true);
+              setButtonDisabled(false);
             })
             .catch(fieldsError => {
               setButtonDisabled(

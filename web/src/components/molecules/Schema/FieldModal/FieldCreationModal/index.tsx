@@ -135,7 +135,7 @@ const FieldCreationModal: React.FC<Props> = ({
           form
             .validateFields()
             .then(() => {
-              setButtonDisabled(true);
+              setButtonDisabled(false);
             })
             .catch(fieldsError => {
               setButtonDisabled(
