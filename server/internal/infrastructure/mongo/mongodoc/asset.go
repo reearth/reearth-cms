@@ -123,7 +123,7 @@ func FromFile(f *File) *asset.File {
 		return nil
 	}
 
-	c := []*asset.File{}
+	var c []*asset.File
 	if f.Children != nil && len(f.Children) > 0 {
 		for _, v := range f.Children {
 			c = append(c, FromFile(v))
