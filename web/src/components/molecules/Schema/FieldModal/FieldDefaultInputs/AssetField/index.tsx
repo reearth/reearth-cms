@@ -1,22 +1,57 @@
-import Upload from "antd/lib/upload/Upload";
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
-const AssetField: React.FC = () => {
+type Props = {
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  onLink: (asset: Asset) => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+};
+const AssetField: React.FC<Props> = ({
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetSearchTerm,
+  onAssetsReload,
+  onLink,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
+}) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
-      <Upload action="/upload.do" listType="picture-card">
-        <div>
-          <Icon icon="link" />
-          <div style={{ marginTop: 8 }}>{t("Asset")}</div>
-        </div>
-      </Upload>
-    </Form.Item>
+    <AssetItem
+      name="defaultValue"
+      label={t("Set default value")}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loadingAssets}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      createAssets={createAssets}
+      onLink={onLink}
+      onAssetSearchTerm={onAssetSearchTerm}
+      onAssetsReload={onAssetsReload}
+      setFileList={setFileList}
+      setUploading={setUploading}
+      setUploadModalVisibility={setUploadModalVisibility}
+    />
   );
 };
 
