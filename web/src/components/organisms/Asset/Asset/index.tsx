@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
+import CommentsSider from "@reearth-cms/components/organisms/CommentsSider";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -23,6 +24,7 @@ const Asset: React.FC = () => {
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
+  console.log(asset);
 
   const handleSave = async () => {
     if (assetId) {
@@ -51,6 +53,7 @@ const Asset: React.FC = () => {
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}
       />
+      <CommentsSider comments={asset.thread?.comments} threadId={asset.threadId} />
     </Wrapper>
   ) : (
     <Wrapper>not found</Wrapper>
