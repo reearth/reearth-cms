@@ -14,6 +14,10 @@ import (
 	"github.com/samber/lo"
 )
 
+var (
+	debugUserHeaderKey = "X-Reearth-Debug-User"
+)
+
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -21,12 +25,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			ctx := req.Context()
 
 			var u *user.User
-
-			// get sub from context
-			ai := adapter.GetAuthInfo(ctx)
-
-			// find or create user
-			if ai != nil {
+			if ai := adapter.GetAuthInfo(ctx); ai != nil {
 				var err error
 				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
 				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
@@ -37,7 +36,20 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				if err != nil {
 					return err
 				}
+			}
 
+			if val := req.Header.Get(debugUserHeaderKey); cfg.Debug && val != "" {
+				uId, err := id.UserIDFrom(val)
+				if err != nil {
+					return err
+				}
+				u, err = cfg.Repos.User.FindByID(ctx, uId)
+				if err != nil {
+					return err
+				}
+			}
+
+			if u != nil {
 				op, err := generateOperator(ctx, cfg, u)
 				if err != nil {
 					return err

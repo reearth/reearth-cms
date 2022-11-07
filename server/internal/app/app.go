@@ -51,7 +51,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, cfg.Debug || cfg.Config.Dev),
 	))
 	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
