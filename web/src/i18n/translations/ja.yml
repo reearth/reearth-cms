@@ -138,7 +138,7 @@ Save changes: 変更を保存
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
-Field key must be unique and at least 5 characters, and can only contain letters, numbers, underscores and dahses.: ''
+Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
 Please input the key of the field!: このフィールドのキーを入力してください
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
@@ -153,7 +153,7 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
-Default value must be avalid URL and start with http.: ''
+Default value must be a valid URL and start with 'http://' or 'https://'.: ''
 Setting: 設定
 Validation: バリデーション
 Set maximum length: 最大長
@@ -163,7 +163,7 @@ Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
 Model key: モデルキー
-Model key must be unique and at least 5 characters, and can only contain letters, numbers, underscores and dahses.: ''
+Model key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
 Please input the key of the model!: このモデルのキーを入力してください
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
