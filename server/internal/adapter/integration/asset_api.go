@@ -38,8 +38,9 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
 	if err != nil {
-
+		return AssetFilter400Response{}, err
 	}
+
 	itemList := lo.Map(assets, func(a *asset.Asset, _ int) integrationapi.Asset {
 		aa, err := toAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
