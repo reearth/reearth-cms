@@ -1,6 +1,9 @@
 package gqlmodel
 
 import (
+	"errors"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/samber/lo"
 )
@@ -26,7 +29,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 
 	return &SchemaField{
 		ID:           IDFrom(sf.ID()),
-		Type:         ToSchemaFieldType(sf.Type()),
+		Type:         ToValueType(sf.Type()),
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
@@ -36,37 +39,6 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Required:     sf.Required(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
-	}
-}
-
-func ToSchemaFieldType(t schema.Type) SchemaFiledType {
-	switch t {
-	case schema.TypeText:
-		return SchemaFiledTypeText
-	case schema.TypeTextArea:
-		return SchemaFiledTypeTextArea
-	case schema.TypeRichText:
-		return SchemaFiledTypeRichText
-	case schema.TypeMarkdown:
-		return SchemaFiledTypeMarkdownText
-	case schema.TypeAsset:
-		return SchemaFiledTypeAsset
-	case schema.TypeDate:
-		return SchemaFiledTypeDate
-	case schema.TypeBool:
-		return SchemaFiledTypeBool
-	case schema.TypeSelect:
-		return SchemaFiledTypeSelect
-	case schema.TypeTag:
-		return SchemaFiledTypeTag
-	case schema.TypeInteger:
-		return SchemaFiledTypeInteger
-	case schema.TypeReference:
-		return SchemaFiledTypeReference
-	case schema.TypeURL:
-		return SchemaFiledTypeURL
-	default:
-		return ""
 	}
 }
 
@@ -144,33 +116,103 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 	return
 }
 
-func FromSchemaFieldType(t SchemaFiledType) schema.Type {
+func ToSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t ValueType) (*schema.TypeProperty, error) {
+	var tpRes schema.TypeProperty
 	switch t {
-	case SchemaFiledTypeText:
-		return schema.TypeText
-	case SchemaFiledTypeTextArea:
-		return schema.TypeTextArea
-	case SchemaFiledTypeRichText:
-		return schema.TypeRichText
-	case SchemaFiledTypeMarkdownText:
-		return schema.TypeMarkdown
-	case SchemaFiledTypeAsset:
-		return schema.TypeAsset
-	case SchemaFiledTypeDate:
-		return schema.TypeDate
-	case SchemaFiledTypeBool:
-		return schema.TypeBool
-	case SchemaFiledTypeSelect:
-		return schema.TypeSelect
-	case SchemaFiledTypeTag:
-		return schema.TypeTag
-	case SchemaFiledTypeInteger:
-		return schema.TypeInteger
-	case SchemaFiledTypeReference:
-		return schema.TypeReference
-	case SchemaFiledTypeURL:
-		return schema.TypeURL
+	case ValueTypeText:
+		x := tp.Text
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyText(x.DefaultValue, x.MaxLength)
+	case ValueTypeTextArea:
+		x := tp.TextArea
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyTextArea(x.DefaultValue, x.MaxLength)
+	case ValueTypeRichText:
+		x := tp.RichText
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyRichText(x.DefaultValue, x.MaxLength)
+	case ValueTypeMarkdownText:
+		x := tp.MarkdownText
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyMarkdown(x.DefaultValue, x.MaxLength)
+	case ValueTypeAsset:
+		x := tp.Asset
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyAsset(ToIDRef[id.Asset](x.DefaultValue))
+	case ValueTypeDate:
+		x := tp.Date
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyDate(x.DefaultValue)
+	case ValueTypeBool:
+		x := tp.Bool
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *schema.NewFieldTypePropertyBool(x.DefaultValue)
+	case ValueTypeSelect:
+		x := tp.Select
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
+		if err != nil {
+			return nil, errors.New("invalid type property")
+		}
+		tpRes = *tp1
+	case ValueTypeTag:
+		x := tp.Tag
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
+	case ValueTypeInteger:
+		x := tp.Integer
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertyInteger(x.DefaultValue, x.Min, x.Max)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
+	case ValueTypeReference:
+		x := tp.Reference
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		mId, err := ToID[id.Model](x.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *schema.NewFieldTypePropertyReference(mId)
+	case ValueTypeURL:
+		x := tp.URL
+		if x == nil {
+			return nil, errors.New("invalid type property")
+		}
+		tp1, err := schema.NewFieldTypePropertyURL(x.DefaultValue)
+		if err != nil {
+			return nil, err
+		}
+		tpRes = *tp1
 	default:
-		return ""
+		return nil, errors.New("invalid type property")
 	}
+	return &tpRes, nil
 }

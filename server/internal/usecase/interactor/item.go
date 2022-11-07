@@ -11,9 +11,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
+	"github.com/reearth/reearthx/util"
 )
 
 type Item struct {
@@ -35,6 +36,24 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecas
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (*item.Item, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
 		return i.repos.Item.FindByID(ctx, itemID)
+	})
+}
+
+func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
+		m, err := i.repos.Model.FindByID(ctx, modelID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, nil, err
+		}
+
+		sfids := s.Fields().IDs()
+		res, page, err := i.repos.Item.FindByModel(ctx, modelID, p)
+		return res.FilterFields(sfids), page, err
 	})
 }
 
@@ -62,21 +81,29 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
+
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
+
 		if param.Fields != nil {
 			err = validateFields(param.Fields, s)
 			if err != nil {
 				return nil, err
 			}
 		}
+
+		fields, err := itemFieldsFromParams(param.Fields)
+		if err != nil {
+			return nil, err
+		}
+
 		it, err := item.New().
 			NewID().
 			Schema(param.SchemaID).
 			Project(s.Project()).
 			Model(param.ModelID).
-			Fields(itemFieldsFromParams(param.Fields)).
+			Fields(fields).
 			Build()
 		if err != nil {
 			return nil, err
@@ -143,20 +170,29 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
+
 		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
+
 		if !operator.IsWritableProject(item.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
+
 		if param.Fields != nil {
 			err = validateFields(param.Fields, s)
 			if err != nil {
 				return nil, err
 			}
 		}
-		item.UpdateFields(itemFieldsFromParams(param.Fields))
+
+		fields, err := itemFieldsFromParams(param.Fields)
+		if err != nil {
+			return nil, err
+		}
+
+		item.UpdateFields(fields)
 		if err := i.repos.Item.Save(ctx, item); err != nil {
 			return nil, err
 		}
@@ -181,13 +217,14 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	})
 }
 
-func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) []*item.Field {
-	return lo.Map(Fields, func(f interfaces.ItemFieldParam, _ int) *item.Field {
-		return item.NewField(
-			f.SchemaFieldID,
-			f.ValueType,
-			f.Value,
-		)
+func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, error) {
+	return util.TryMap(Fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
+		v, err := value.New(f.ValueType, f.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		return item.NewField(f.SchemaFieldID, v), nil
 	})
 }
 

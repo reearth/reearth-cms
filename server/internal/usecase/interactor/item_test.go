@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -118,10 +119,10 @@ func TestItem_FindBySchema(t *testing.T) {
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), value.Must(value.TypeBool, "true"))}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), value.Must(value.TypeBool, "true"))}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().Schema(s2.ID()).Model(id.NewModelID()).Project(pid).MustBuild()
@@ -248,12 +249,12 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: sf1.ID(),
-				ValueType:     schema.TypeBool,
+				ValueType:     value.TypeBool,
 				Value:         false,
 			},
 			{
 				SchemaFieldID: sf2.ID(),
-				ValueType:     schema.TypeText,
+				ValueType:     value.TypeText,
 				Value:         "xxx",
 			},
 		},
@@ -364,8 +365,8 @@ func TestItem_Update(t *testing.T) {
 	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
 	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
-	f1 := item.NewField(sf1.ID(), schema.TypeBool, true)
-	f2 := item.NewField(sf2.ID(), schema.TypeText, "xxx")
+	f1 := item.NewField(sf1.ID(), value.Must(value.TypeBool, true))
+	f2 := item.NewField(sf2.ID(), value.Must(value.TypeText, "xxx"))
 	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -389,12 +390,12 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: f1.SchemaFieldID(),
-				ValueType:     f1.ValueType(),
+				ValueType:     f1.Value().Type(),
 				Value:         f1.Value(),
 			},
 			{
 				SchemaFieldID: f2.SchemaFieldID(),
-				ValueType:     f2.ValueType(),
+				ValueType:     f2.Value().Type(),
 				Value:         f2.Value(),
 			},
 		},
@@ -514,8 +515,8 @@ func TestItem_Search(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, schema.TypeText, "foo")
-	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	f1 := item.NewField(sf1, value.Must(value.TypeText, "foo"))
+	f2 := item.NewField(sf2, value.Must(value.TypeText, "hoge"))
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
 	i1, _ := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
@@ -655,32 +656,32 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfInt.ID(),
-						ValueType:     schema.TypeInteger,
+						ValueType:     value.TypeInteger,
 						Value:         9,
 					},
 					{
 						SchemaFieldID: sfText.ID(),
-						ValueType:     schema.TypeText,
+						ValueType:     value.TypeText,
 						Value:         "foo",
 					},
 					{
 						SchemaFieldID: sfTextArea.ID(),
-						ValueType:     schema.TypeTextArea,
+						ValueType:     value.TypeTextArea,
 						Value:         "foo hoge",
 					},
 					{
 						SchemaFieldID: sfMarkdown.ID(),
-						ValueType:     schema.TypeMarkdown,
+						ValueType:     value.TypeMarkdown,
 						Value:         "<h1>foo</h1>",
 					},
 					{
 						SchemaFieldID: sfRichText.ID(),
-						ValueType:     schema.TypeRichText,
+						ValueType:     value.TypeRichText,
 						Value:         "hoge",
 					},
 					{
 						SchemaFieldID: sfURL.ID(),
-						ValueType:     schema.TypeURL,
+						ValueType:     value.TypeURL,
 						Value:         "https://example.com",
 					},
 				},
@@ -694,7 +695,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfInt.ID(),
-						ValueType:     schema.TypeInteger,
+						ValueType:     value.TypeInteger,
 						Value:         14,
 					},
 				},
@@ -708,7 +709,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfText.ID(),
-						ValueType:     schema.TypeText,
+						ValueType:     value.TypeText,
 						Value:         "foofoofoofoo",
 					},
 				},
@@ -722,7 +723,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfTextArea.ID(),
-						ValueType:     schema.TypeTextArea,
+						ValueType:     value.TypeTextArea,
 						Value:         "foo foo foo foo foo",
 					},
 				},
@@ -736,7 +737,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfMarkdown.ID(),
-						ValueType:     schema.TypeMarkdown,
+						ValueType:     value.TypeMarkdown,
 						Value:         `<h1>foo</h1> <h1>foo</h1> <h1>foo</h1> `,
 					},
 				},
@@ -750,7 +751,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfRichText.ID(),
-						ValueType:     schema.TypeRichText,
+						ValueType:     value.TypeRichText,
 						Value:         "hoge hoge hoge hoge hoge hoge ",
 					},
 				},
@@ -764,7 +765,7 @@ func Test_validateFields(t *testing.T) {
 				itemFields: []interfaces.ItemFieldParam{
 					{
 						SchemaFieldID: sfURL.ID(),
-						ValueType:     schema.TypeURL,
+						ValueType:     value.TypeURL,
 						Value:         "example.com",
 					},
 				},

@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -278,67 +279,67 @@ func TestTypeProperty_Type(t *testing.T) {
 	tests := []struct {
 		name string
 		tp   TypeProperty
-		want Type
+		want value.Type
 	}{
 		{
 			name: "Text",
 			tp:   TypeProperty{text: &FieldText{}},
-			want: TypeText,
+			want: value.TypeText,
 		},
 		{
 			name: "TextArea",
 			tp:   TypeProperty{textArea: &FieldTextArea{}},
-			want: TypeTextArea,
+			want: value.TypeTextArea,
 		},
 		{
 			name: "RichText",
 			tp:   TypeProperty{richText: &FieldRichText{}},
-			want: TypeRichText,
+			want: value.TypeRichText,
 		},
 		{
 			name: "Markdown",
 			tp:   TypeProperty{markdown: &FieldMarkdown{}},
-			want: TypeMarkdown,
+			want: value.TypeMarkdown,
 		},
 		{
 			name: "Asset",
 			tp:   TypeProperty{asset: &FieldAsset{}},
-			want: TypeAsset,
+			want: value.TypeAsset,
 		},
 		{
 			name: "Date",
 			tp:   TypeProperty{date: &FieldDate{}},
-			want: TypeDate,
+			want: value.TypeDate,
 		},
 		{
 			name: "Bool",
 			tp:   TypeProperty{bool: &FieldBool{}},
-			want: TypeBool,
+			want: value.TypeBool,
 		},
 		{
 			name: "Select",
 			tp:   TypeProperty{selectt: &FieldSelect{}},
-			want: TypeSelect,
+			want: value.TypeSelect,
 		},
 		{
 			name: "Tag",
 			tp:   TypeProperty{tag: &FieldTag{}},
-			want: TypeTag,
+			want: value.TypeTag,
 		},
 		{
 			name: "Integer",
 			tp:   TypeProperty{integer: &FieldInteger{}},
-			want: TypeInteger,
+			want: value.TypeInteger,
 		},
 		{
 			name: "Reference",
 			tp:   TypeProperty{reference: &FieldReference{}},
-			want: TypeReference,
+			want: value.TypeReference,
 		},
 		{
 			name: "URL",
 			tp:   TypeProperty{url: &FieldURL{}},
-			want: TypeURL,
+			want: value.TypeURL,
 		},
 		{
 			name: "Default",

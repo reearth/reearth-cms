@@ -3444,7 +3444,7 @@ extend type Mutation {
 
 # extend type Mutation {}
 `, BuiltIn: false},
-	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFiledType {
+	{Name: "../../../schemas/field.graphql", Input: `enum ValueType {
   Text
   TextArea
   RichText
@@ -3463,7 +3463,7 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: SchemaFiledType!
+  type: ValueType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
@@ -3623,7 +3623,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
 
 input CreateFieldInput {
   modelId: ID!
-  type: SchemaFiledType!
+  type: ValueType!
   title: String!
   description: String
   key: String!
@@ -3680,7 +3680,7 @@ extend type Mutation {
 
 type ItemField {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: ValueType!
   value: Any!
 }
 
@@ -3694,7 +3694,7 @@ type VersionedItem {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: ValueType!
   value: Any!
 }
 
@@ -8651,9 +8651,9 @@ func (ec *executionContext) _ItemField_type(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.ValueType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8663,7 +8663,7 @@ func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type ValueType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15025,9 +15025,9 @@ func (ec *executionContext) _SchemaField_type(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.ValueType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15037,7 +15037,7 @@ func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type ValueType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -20367,7 +20367,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21097,7 +21097,7 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -28223,16 +28223,6 @@ func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗc
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, v interface{}) (gqlmodel.SchemaFiledType, error) {
-	var res gqlmodel.SchemaFiledType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFiledType) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -28402,6 +28392,16 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx context.Context, v interface{}) (gqlmodel.ValueType, error) {
+	var res gqlmodel.ValueType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValueType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐValueType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ValueType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.VersionedItem) graphql.Marshaler {

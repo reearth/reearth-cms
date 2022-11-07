@@ -10,19 +10,23 @@ func TestNewPublication(t *testing.T) {
 	assert.Equal(t, &Publication{
 		scope:       PublicationScopePrivate,
 		assetPublic: false,
-	}, NewPublication(PublicationScopePrivate, false))
+		token:       "token",
+	}, NewPublication(PublicationScopePrivate, false, "token"))
 	assert.Equal(t, &Publication{
 		scope:       PublicationScopeLimited,
 		assetPublic: true,
-	}, NewPublication(PublicationScopeLimited, true))
+		token:       "token",
+	}, NewPublication(PublicationScopeLimited, true, "token"))
 	assert.Equal(t, &Publication{
 		scope:       PublicationScopePublic,
 		assetPublic: false,
-	}, NewPublication(PublicationScopePublic, false))
+		token:       "token",
+	}, NewPublication(PublicationScopePublic, false, "token"))
 	assert.Equal(t, &Publication{
 		scope:       PublicationScopePrivate,
 		assetPublic: true,
-	}, NewPublication("", true))
+		token:       "token",
+	}, NewPublication("", true, "token"))
 }
 
 func TestPublication_Scope(t *testing.T) {
@@ -32,6 +36,10 @@ func TestPublication_Scope(t *testing.T) {
 
 func TestPublication_AssetPublic(t *testing.T) {
 	assert.True(t, (&Publication{assetPublic: true}).AssetPublic())
+}
+
+func TestPublication_Token(t *testing.T) {
+	assert.Equal(t, "token", (&Publication{token: "token"}).Token())
 }
 
 func TestPublication_SetScope(t *testing.T) {
@@ -82,10 +90,19 @@ func TestPublication_SetAssetPublic(t *testing.T) {
 	}, p)
 }
 
+func TestPublication_SetToken(t *testing.T) {
+	p := &Publication{}
+	p.SetToken("token")
+	assert.Equal(t, &Publication{
+		token: "token",
+	}, p)
+}
+
 func TestPublication_Clone(t *testing.T) {
 	p := &Publication{
 		assetPublic: false,
 		scope:       PublicationScopeLimited,
+		token:       "token",
 	}
 	p2 := p.Clone()
 	assert.Equal(t, p, p2)

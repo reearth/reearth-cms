@@ -22,6 +22,7 @@ type ProjectDocument struct {
 
 type ProjectPublicationDocument struct {
 	AssetPublic bool
+	Token       string `bson:",omitempty"`
 	Scope       string
 }
 
@@ -53,6 +54,7 @@ func NewProjectPublication(p *project.Publication) *ProjectPublicationDocument {
 	return &ProjectPublicationDocument{
 		AssetPublic: p.AssetPublic(),
 		Scope:       string(p.Scope()),
+		Token:       p.Token(),
 	}
 }
 
@@ -89,7 +91,7 @@ func (d *ProjectPublicationDocument) Model() *project.Publication {
 	if d == nil {
 		return nil
 	}
-	return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic)
+	return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic, d.Token)
 }
 
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]

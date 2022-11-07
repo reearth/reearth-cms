@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +17,7 @@ func TestToItem(t *testing.T) {
 	mid := id.NewModelID()
 	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i, _ := item.New().ID(iid).Schema(sid).Project(pid).Fields(fs).Model(mid).Build()
 	tests := []struct {
 		name  string
@@ -36,7 +36,7 @@ func TestToItem(t *testing.T) {
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sfid),
-						Type:          SchemaFiledTypeBool,
+						Type:          ValueTypeBool,
 						Value:         true,
 					},
 				},
@@ -68,12 +68,12 @@ func TestToItemParam(t *testing.T) {
 			name: "should return ItemFieldParam",
 			input: &ItemFieldInput{
 				SchemaFieldID: IDFrom(sfid),
-				Type:          SchemaFiledTypeText,
+				Type:          ValueTypeText,
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
 				SchemaFieldID: sfid,
-				ValueType:     schema.TypeText,
+				ValueType:     value.TypeText,
 				Value:         "foo",
 			},
 		},
@@ -100,7 +100,7 @@ func TestToVersionedItem(t *testing.T) {
 	sid := id.NewSchemaID()
 	sfid := id.NewFieldID()
 	ref := "a"
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i, _ := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Build()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)

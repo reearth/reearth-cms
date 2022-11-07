@@ -1,4 +1,4 @@
-package publicApi
+package publicapi
 
 import (
 	"encoding/json"

@@ -423,7 +423,7 @@ func TestProject_Update(t *testing.T) {
 				ID(pid1).
 				Workspace(wid1).
 				UpdatedAt(mocktime).
-				Publication(project.NewPublication(project.PublicationScopePublic, true)).
+				Publication(project.NewPublication(project.PublicationScopePublic, true, "")).
 				MustBuild(),
 		},
 		{

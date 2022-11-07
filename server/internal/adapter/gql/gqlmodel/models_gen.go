@@ -113,7 +113,7 @@ type CreateAssetPayload struct {
 
 type CreateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
-	Type         SchemaFiledType               `json:"type"`
+	Type         ValueType                     `json:"type"`
 	Title        string                        `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          string                        `json:"key"`
@@ -310,15 +310,15 @@ type ItemEdge struct {
 }
 
 type ItemField struct {
-	SchemaFieldID ID              `json:"schemaFieldId"`
-	Type          SchemaFiledType `json:"type"`
-	Value         interface{}     `json:"value"`
+	SchemaFieldID ID          `json:"schemaFieldId"`
+	Type          ValueType   `json:"type"`
+	Value         interface{} `json:"value"`
 }
 
 type ItemFieldInput struct {
-	SchemaFieldID ID              `json:"schemaFieldId"`
-	Type          SchemaFiledType `json:"type"`
-	Value         interface{}     `json:"value"`
+	SchemaFieldID ID          `json:"schemaFieldId"`
+	Type          ValueType   `json:"type"`
+	Value         interface{} `json:"value"`
 }
 
 type ItemPayload struct {
@@ -479,7 +479,7 @@ type SchemaField struct {
 	ID           ID                      `json:"id"`
 	ModelID      ID                      `json:"modelId"`
 	Model        *Model                  `json:"model"`
-	Type         SchemaFiledType         `json:"type"`
+	Type         ValueType               `json:"type"`
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
@@ -1110,67 +1110,6 @@ func (e Role) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type SchemaFiledType string
-
-const (
-	SchemaFiledTypeText         SchemaFiledType = "Text"
-	SchemaFiledTypeTextArea     SchemaFiledType = "TextArea"
-	SchemaFiledTypeRichText     SchemaFiledType = "RichText"
-	SchemaFiledTypeMarkdownText SchemaFiledType = "MarkdownText"
-	SchemaFiledTypeAsset        SchemaFiledType = "Asset"
-	SchemaFiledTypeDate         SchemaFiledType = "Date"
-	SchemaFiledTypeBool         SchemaFiledType = "Bool"
-	SchemaFiledTypeSelect       SchemaFiledType = "Select"
-	SchemaFiledTypeTag          SchemaFiledType = "Tag"
-	SchemaFiledTypeInteger      SchemaFiledType = "Integer"
-	SchemaFiledTypeReference    SchemaFiledType = "Reference"
-	SchemaFiledTypeURL          SchemaFiledType = "URL"
-)
-
-var AllSchemaFiledType = []SchemaFiledType{
-	SchemaFiledTypeText,
-	SchemaFiledTypeTextArea,
-	SchemaFiledTypeRichText,
-	SchemaFiledTypeMarkdownText,
-	SchemaFiledTypeAsset,
-	SchemaFiledTypeDate,
-	SchemaFiledTypeBool,
-	SchemaFiledTypeSelect,
-	SchemaFiledTypeTag,
-	SchemaFiledTypeInteger,
-	SchemaFiledTypeReference,
-	SchemaFiledTypeURL,
-}
-
-func (e SchemaFiledType) IsValid() bool {
-	switch e {
-	case SchemaFiledTypeText, SchemaFiledTypeTextArea, SchemaFiledTypeRichText, SchemaFiledTypeMarkdownText, SchemaFiledTypeAsset, SchemaFiledTypeDate, SchemaFiledTypeBool, SchemaFiledTypeSelect, SchemaFiledTypeTag, SchemaFiledTypeInteger, SchemaFiledTypeReference, SchemaFiledTypeURL:
-		return true
-	}
-	return false
-}
-
-func (e SchemaFiledType) String() string {
-	return string(e)
-}
-
-func (e *SchemaFiledType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SchemaFiledType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SchemaFiledType", str)
-	}
-	return nil
-}
-
-func (e SchemaFiledType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 type Theme string
 
 const (
@@ -1211,5 +1150,66 @@ func (e *Theme) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Theme) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ValueType string
+
+const (
+	ValueTypeText         ValueType = "Text"
+	ValueTypeTextArea     ValueType = "TextArea"
+	ValueTypeRichText     ValueType = "RichText"
+	ValueTypeMarkdownText ValueType = "MarkdownText"
+	ValueTypeAsset        ValueType = "Asset"
+	ValueTypeDate         ValueType = "Date"
+	ValueTypeBool         ValueType = "Bool"
+	ValueTypeSelect       ValueType = "Select"
+	ValueTypeTag          ValueType = "Tag"
+	ValueTypeInteger      ValueType = "Integer"
+	ValueTypeReference    ValueType = "Reference"
+	ValueTypeURL          ValueType = "URL"
+)
+
+var AllValueType = []ValueType{
+	ValueTypeText,
+	ValueTypeTextArea,
+	ValueTypeRichText,
+	ValueTypeMarkdownText,
+	ValueTypeAsset,
+	ValueTypeDate,
+	ValueTypeBool,
+	ValueTypeSelect,
+	ValueTypeTag,
+	ValueTypeInteger,
+	ValueTypeReference,
+	ValueTypeURL,
+}
+
+func (e ValueType) IsValid() bool {
+	switch e {
+	case ValueTypeText, ValueTypeTextArea, ValueTypeRichText, ValueTypeMarkdownText, ValueTypeAsset, ValueTypeDate, ValueTypeBool, ValueTypeSelect, ValueTypeTag, ValueTypeInteger, ValueTypeReference, ValueTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e ValueType) String() string {
+	return string(e)
+}
+
+func (e *ValueType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValueType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValueType", str)
+	}
+	return nil
+}
+
+func (e ValueType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

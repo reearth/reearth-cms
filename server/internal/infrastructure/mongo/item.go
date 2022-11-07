@@ -49,6 +49,13 @@ func (r *Item) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
 	})
 }
 
+func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	res, pi, err := r.paginate(ctx, bson.M{
+		"model": modelID.String(),
+	}, pagination)
+	return res.SortByTimestamp(), pi, err
+}
+
 func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),

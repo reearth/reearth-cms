@@ -1,13 +1,12 @@
 package value
 
-import "github.com/samber/lo"
-
 type Match struct {
-	Text         func(*string)
-	TypeTextArea func(*string)
-	TypeRichText func(*string)
-	TypeMarkdown func(*string)
-	Default      func()
+	Text     func(string)
+	TextArea func(string)
+	RichText func(string)
+	Markdown func(string)
+	Nil      func(Type)
+	Default  func()
 }
 
 func (v *Value) Match(m Match) {
@@ -18,40 +17,31 @@ func (v *Value) Match(m Match) {
 		return
 	}
 
+	if v.v == nil {
+		if m.Nil != nil {
+			m.Nil(v.Type())
+		}
+		return
+	}
+
 	switch v.t {
 	case TypeText:
 		if m.Text != nil {
-			var w *string
-			if v.v != nil {
-				w = lo.ToPtr(v.v.(string))
-			}
-			m.Text(w)
+			m.Text(v.v.(string))
 		}
-	// ペアプロ以来の修正箇所
 	case TypeTextArea:
-		if m.TypeTextArea != nil {
-			var w *string
-			if v.v != nil {
-				w = lo.ToPtr(v.v.(string))
-			}
-			m.TypeTextArea(w)
+		if m.TextArea != nil {
+			m.TextArea(v.v.(string))
 		}
 	case TypeRichText:
-		if m.TypeRichText != nil {
-			var w *string
-			if v.v != nil {
-				w = lo.ToPtr(v.v.(string))
-			}
-			m.TypeRichText(w)
+		if m.RichText != nil {
+			m.RichText(v.v.(string))
 		}
 	case TypeMarkdown:
-		if m.TypeMarkdown != nil {
-			var w *string
-			if v.v != nil {
-				w = lo.ToPtr(v.v.(string))
-			}
-			m.TypeMarkdown(w)
+		if m.Markdown != nil {
+			m.Markdown(v.v.(string))
 		}
+	// TODO: add types, add unit test for Match method
 	default:
 		if m.Default != nil {
 			m.Default()

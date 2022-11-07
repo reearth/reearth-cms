@@ -90,7 +90,7 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 			if p.Publication != nil {
 				pub := proj.Publication()
 				if pub == nil {
-					pub = project.NewPublication(project.PublicationScopePrivate, false)
+					pub = project.NewPublication(project.PublicationScopePrivate, false, "")
 				}
 				if p.Publication.Scope != nil {
 					pub.SetScope(*p.Publication.Scope)

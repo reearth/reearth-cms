@@ -11,12 +11,14 @@ type PublicationScope string
 type Publication struct {
 	scope       PublicationScope
 	assetPublic bool
+	token       string
 }
 
-func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
+func NewPublication(scope PublicationScope, assetPublic bool, token string) *Publication {
 	p := &Publication{}
 	p.SetScope(scope)
 	p.SetAssetPublic(assetPublic)
+	p.SetToken(token)
 	return p
 }
 
@@ -31,6 +33,10 @@ func (p *Publication) AssetPublic() bool {
 	return p.assetPublic
 }
 
+func (p *Publication) Token() string {
+	return p.token
+}
+
 func (p *Publication) SetScope(scope PublicationScope) {
 	if scope != PublicationScopePrivate && scope != PublicationScopeLimited && scope != PublicationScopePublic {
 		scope = PublicationScopePrivate
@@ -43,6 +49,10 @@ func (p *Publication) SetAssetPublic(assetPublic bool) {
 	p.assetPublic = assetPublic
 }
 
+func (p *Publication) SetToken(token string) {
+	p.token = token
+}
+
 func (p *Publication) Clone() *Publication {
 	if p == nil {
 		return nil
@@ -51,5 +61,6 @@ func (p *Publication) Clone() *Publication {
 	return &Publication{
 		scope:       p.scope,
 		assetPublic: p.assetPublic,
+		token:       p.token,
 	}
 }

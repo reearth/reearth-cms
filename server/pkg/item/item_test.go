@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestItem_UpdateFields(t *testing.T) {
-	f := NewField(id.NewFieldID(), schema.TypeText, "test")
+	f := NewField(id.NewFieldID(), value.Must(value.TypeText, "test"))
 	now := time.Now()
 	defer util.MockNow(now)()
 

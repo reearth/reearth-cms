@@ -1,4 +1,4 @@
-enum SchemaFiledType {
+enum ValueType {
   Text
   TextArea
   RichText
@@ -17,7 +17,7 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: SchemaFiledType!
+  type: ValueType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
@@ -177,7 +177,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
 
 input CreateFieldInput {
   modelId: ID!
-  type: SchemaFiledType!
+  type: ValueType!
   title: String!
   description: String
   key: String!

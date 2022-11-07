@@ -94,7 +94,7 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	}
 
 	if name == "" {
-		return nil, nil
+		return nil, rerror.ErrNotFound
 	}
 
 	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
@@ -107,13 +107,13 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) FindByAPIToken(_ context.Context, token id.apiToken) (*project.Project, error) {
+func (r *Project) FindByAPIToken(_ context.Context, token string) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return k == pid && r.f.CanRead(v.Workspace())
+		return r.f.CanRead(v.Workspace()) && v.Publication().Token() == token
 	})
 
 	if p != nil {

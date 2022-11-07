@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -17,7 +18,7 @@ var ErrItemFieldRequired = errors.New("item field required")
 
 type ItemFieldParam struct {
 	SchemaFieldID schema.FieldID
-	ValueType     schema.Type
+	ValueType     value.Type
 	Value         any
 }
 
@@ -35,6 +36,7 @@ type UpdateItemParam struct {
 
 type Item interface {
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.List, error)
+	FindByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)

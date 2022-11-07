@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/usecasex"
@@ -31,7 +30,6 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 			// find or create user
 			if ai != nil {
-				var err error
 				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
 				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
 					Sub:   ai.Sub,
@@ -51,10 +49,10 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
-			ctx, err = attachOperatorFromPublicAPIToken(ctx, cfg.Repos.Project, getPublicAPIToken(req))
-			if err != nil {
-				return err
-			}
+			// ctx, err = attachOperatorFromPublicAPIToken(ctx, cfg.Repos.Project, getPublicAPIToken(req))
+			// if err != nil {
+			// 	return err
+			// }
 
 			c.SetRequest(req.WithContext(ctx))
 			return next(c)
@@ -127,23 +125,24 @@ func getPublicAPIToken(req *http.Request) string {
 	return ""
 }
 
-func attachOperatorFromPublicAPIToken(ctx context.Context, r repo.Project, token string) (context.Context, error) {
-	if token == "" {
-		return ctx, nil
-	}
+// func attachOperatorFromPublicAPIToken(ctx context.Context, r repo.Project, token string) (context.Context, error) {
+// 	if token == "" {
+// 		return ctx, nil
+// 	}
 
-	p, err := r.FindByPublicAPIToken(ctx, token)
-	if err != nil {
-		return ctx, err
-	}
+// 	p, err := r.FindByPublicAPIToken(ctx, token)
+// 	if err != nil {
+// 		return ctx, err
+// 	}
 
-	op := &usecase.Operator{
-		ReadableWorkspaces: id.WorkspaceIDList{p.Workspace()},
-		ReadableProjects:   id.ProjectIDList{p.ID()},
-	}
+// 	op := &usecase.Operator{
+// 		PublicAPIProject:   p,
+// 		ReadableWorkspaces: id.WorkspaceIDList{p.Workspace()},
+// 		ReadableProjects:   id.ProjectIDList{p.ID()},
+// 	}
 
-	return adapter.AttachOperator(ctx, op), nil
-}
+// 	return adapter.AttachOperator(ctx, op), nil
+// }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {

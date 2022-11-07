@@ -5,12 +5,13 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 func TestNewField(t *testing.T) {
 	type args struct {
 		schemaFieldID schema.FieldID
-		valueType     schema.Type
+		valueType     value.Type
 		value         any
 	}
 	tests := []struct {
@@ -22,7 +23,7 @@ func TestNewField(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewField(tt.args.schemaFieldID, tt.args.valueType, tt.args.value); !reflect.DeepEqual(got, tt.want) {
+			if got := NewField(tt.args.schemaFieldID, value.Must(tt.args.valueType, tt.args.value)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewField() = %v, want %v", got, tt.want)
 			}
 		})

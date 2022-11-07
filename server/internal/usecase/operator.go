@@ -8,6 +8,7 @@ import (
 
 type Operator struct {
 	User               user.ID
+	PublicAPIProject   *project.Project
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList

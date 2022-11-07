@@ -7,11 +7,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 type CreateFieldParam struct {
 	SchemaId     id.SchemaID
-	Type         schema.Type
+	Type         value.Type
 	Name         *string
 	Description  *string
 	Key          *string

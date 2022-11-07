@@ -61,6 +61,22 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 	return res.SortByTimestamp(), nil, nil
 }
 
+func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.Model() == modelID && r.f.CanRead(it.Project()) {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res.SortByTimestamp(), nil, nil
+}
+
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err

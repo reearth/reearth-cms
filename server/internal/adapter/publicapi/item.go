@@ -1,41 +1,50 @@
-package publicApi
+package publicapi
 
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 )
 
-type PublicAPIController struct {
-	usecase interfaces.PublicAPI
-}
-
-func NewPublicAPIController(usecase interfaces.PublicAPI) *PublicAPIController {
-	return &PublicAPIController{
-		usecase: usecase,
+func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
+	if err := c.checkProject(ctx, prj); err != nil {
+		return Item{}, err
 	}
-}
 
-func (c *Controller) GetItem(ctx context.Context, prj, id string) (Item, error) {
-	i, err := c.GetItem(ctx, prj, id)
+	iid, err := id.ItemIDFrom(i)
 	if err != nil {
 		return Item{}, err
 	}
-	return Item{
-		ID:     i.ID,
-		Fields: i.Fields,
-	}, nil
+
+	item, err := c.usecases.Item.FindByID(ctx, iid, adapter.Operator(ctx))
+	if err != nil {
+		return Item{}, err
+	}
+
+	return ToItem(item), nil
 }
 
-func (c *Controller) GetItems(ctx context.Context, prj, schema string) (ListResult[Item], error) {
-	i, err := c.GetItems(ctx, prj, schema)
+func (c *Controller) GetItems(ctx context.Context, prj, model string) (ListResult[Item], error) {
+	if err := c.checkProject(ctx, prj); err != nil {
+		return ListResult[Item]{}, err
+	}
+
+	mid, err := id.ModelIDFrom(model)
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
-	return ListResult[Item]{
-		Results:    i.Results,
-		TotalCount: i.TotalCount,
-		Limit:      i.Limit,
-		Offset:     i.Offset,
-	}, nil
+
+	items, pi, err := c.usecases.Item.FindByModel(ctx, mid, usecasex.NewPagination(
+		nil, nil, nil, nil, // TODO
+	), adapter.Operator(ctx))
+	if err != nil {
+		return ListResult[Item]{}, err
+	}
+
+	res := ToListResult[Item](pi)
+	res.Results = util.Map(items, ToItem)
+	return res, nil
 }
