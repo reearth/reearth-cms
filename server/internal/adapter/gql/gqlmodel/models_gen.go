@@ -38,13 +38,13 @@ type AddIntegrationToWorkspaceInput struct {
 	Role          Role `json:"role"`
 }
 
-type AddMemberToWorkspacePayload struct {
-	Workspace *Workspace `json:"workspace"`
-}
-
-type AddUserToWorkspaceInput struct {
+type AddUsersToWorkspaceInput struct {
 	WorkspaceID ID             `json:"workspaceId"`
 	Users       []*MemberInput `json:"users"`
+}
+
+type AddUsersToWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
 }
 
 type Asset struct {

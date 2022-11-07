@@ -61,7 +61,7 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AddMemberToWorkspacePayload struct {
+	AddUsersToWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
 
@@ -274,7 +274,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddComment                     func(childComplexity int, input gqlmodel.AddCommentInput) int
 		AddIntegrationToWorkspace      func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
-		AddUserToWorkspace             func(childComplexity int, input gqlmodel.AddUserToWorkspaceInput) int
+		AddUsersToWorkspace            func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
 		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
@@ -585,8 +585,8 @@ type MutationResolver interface {
 	CreateWorkspace(ctx context.Context, input gqlmodel.CreateWorkspaceInput) (*gqlmodel.CreateWorkspacePayload, error)
 	DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error)
 	UpdateWorkspace(ctx context.Context, input gqlmodel.UpdateWorkspaceInput) (*gqlmodel.UpdateWorkspacePayload, error)
-	AddUserToWorkspace(ctx context.Context, input gqlmodel.AddUserToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error)
-	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error)
+	AddUsersToWorkspace(ctx context.Context, input gqlmodel.AddUsersToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
+	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
 	RemoveUserFromWorkspace(ctx context.Context, input gqlmodel.RemoveUserFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
 	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
 	UpdateUserOfWorkspace(ctx context.Context, input gqlmodel.UpdateUserOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
@@ -665,12 +665,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AddMemberToWorkspacePayload.workspace":
-		if e.complexity.AddMemberToWorkspacePayload.Workspace == nil {
+	case "AddUsersToWorkspacePayload.workspace":
+		if e.complexity.AddUsersToWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.AddMemberToWorkspacePayload.Workspace(childComplexity), true
+		return e.complexity.AddUsersToWorkspacePayload.Workspace(childComplexity), true
 
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
@@ -1445,17 +1445,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddIntegrationToWorkspace(childComplexity, args["input"].(gqlmodel.AddIntegrationToWorkspaceInput)), true
 
-	case "Mutation.addUserToWorkspace":
-		if e.complexity.Mutation.AddUserToWorkspace == nil {
+	case "Mutation.addUsersToWorkspace":
+		if e.complexity.Mutation.AddUsersToWorkspace == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addUserToWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addUsersToWorkspace_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddUserToWorkspace(childComplexity, args["input"].(gqlmodel.AddUserToWorkspaceInput)), true
+		return e.complexity.Mutation.AddUsersToWorkspace(childComplexity, args["input"].(gqlmodel.AddUsersToWorkspaceInput)), true
 
 	case "Mutation.createAsset":
 		if e.complexity.Mutation.CreateAsset == nil {
@@ -2801,7 +2801,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddCommentInput,
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
-		ec.unmarshalInputAddUserToWorkspaceInput,
+		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateFieldInput,
 		ec.unmarshalInputCreateIntegrationInput,
@@ -3191,7 +3191,7 @@ input MemberInput {
     role: Role!
 }
 
-input AddUserToWorkspaceInput {
+input AddUsersToWorkspaceInput {
     workspaceId: ID!
     users: [MemberInput!]!
 }
@@ -3238,7 +3238,7 @@ type UpdateWorkspacePayload {
     workspace: Workspace!
 }
 
-type AddMemberToWorkspacePayload {
+type AddUsersToWorkspacePayload {
     workspace: Workspace!
 }
 
@@ -3258,8 +3258,8 @@ extend type Mutation {
     createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
     deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
     updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-    addUserToWorkspace(input: AddUserToWorkspaceInput!): AddMemberToWorkspacePayload
-    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddMemberToWorkspacePayload
+    addUsersToWorkspace(input: AddUsersToWorkspaceInput!): AddUsersToWorkspacePayload
+    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
     removeUserFromWorkspace(input: RemoveUserFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
@@ -3994,13 +3994,13 @@ func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_addUserToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addUsersToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.AddUserToWorkspaceInput
+	var arg0 gqlmodel.AddUsersToWorkspaceInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNAddUserToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUserToWorkspaceInput(ctx, tmp)
+		arg0, err = ec.unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4965,8 +4965,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddMemberToWorkspacePayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+func (ec *executionContext) _AddUsersToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddUsersToWorkspacePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4996,9 +4996,9 @@ func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.C
 	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AddMemberToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AddUsersToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AddMemberToWorkspacePayload",
+		Object:     "AddUsersToWorkspacePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -10761,8 +10761,8 @@ func (ec *executionContext) fieldContext_Mutation_updateWorkspace(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addUserToWorkspace(ctx, field)
+func (ec *executionContext) _Mutation_addUsersToWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addUsersToWorkspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10775,7 +10775,7 @@ func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddUserToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddUserToWorkspaceInput))
+		return ec.resolvers.Mutation().AddUsersToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddUsersToWorkspaceInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10784,12 +10784,12 @@ func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.AddMemberToWorkspacePayload)
+	res := resTmp.(*gqlmodel.AddUsersToWorkspacePayload)
 	fc.Result = res
-	return ec.marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_addUsersToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10798,9 +10798,9 @@ func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AddMemberToWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddUsersToWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -10810,7 +10810,7 @@ func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addUserToWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_addUsersToWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -10840,9 +10840,9 @@ func (ec *executionContext) _Mutation_addIntegrationToWorkspace(ctx context.Cont
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.AddMemberToWorkspacePayload)
+	res := resTmp.(*gqlmodel.AddUsersToWorkspacePayload)
 	fc.Result = res
-	return ec.marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addIntegrationToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10854,9 +10854,9 @@ func (ec *executionContext) fieldContext_Mutation_addIntegrationToWorkspace(ctx 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AddMemberToWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddUsersToWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -20258,8 +20258,8 @@ func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAddUserToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddUserToWorkspaceInput, error) {
-	var it gqlmodel.AddUserToWorkspaceInput
+func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+	var it gqlmodel.AddUsersToWorkspaceInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -23071,19 +23071,19 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 
 // region    **************************** object.gotpl ****************************
 
-var addMemberToWorkspacePayloadImplementors = []string{"AddMemberToWorkspacePayload"}
+var addUsersToWorkspacePayloadImplementors = []string{"AddUsersToWorkspacePayload"}
 
-func (ec *executionContext) _AddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, addMemberToWorkspacePayloadImplementors)
+func (ec *executionContext) _AddUsersToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddUsersToWorkspacePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addUsersToWorkspacePayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AddMemberToWorkspacePayload")
+			out.Values[i] = graphql.MarshalString("AddUsersToWorkspacePayload")
 		case "workspace":
 
-			out.Values[i] = ec._AddMemberToWorkspacePayload_workspace(ctx, field, obj)
+			out.Values[i] = ec._AddUsersToWorkspacePayload_workspace(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -24734,10 +24734,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_updateWorkspace(ctx, field)
 			})
 
-		case "addUserToWorkspace":
+		case "addUsersToWorkspace":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addUserToWorkspace(ctx, field)
+				return ec._Mutation_addUsersToWorkspace(ctx, field)
 			})
 
 		case "addIntegrationToWorkspace":
@@ -27102,8 +27102,8 @@ func (ec *executionContext) unmarshalNAddIntegrationToWorkspaceInput2githubᚗco
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNAddUserToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUserToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddUserToWorkspaceInput, error) {
-	res, err := ec.unmarshalInputAddUserToWorkspaceInput(ctx, v)
+func (ec *executionContext) unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+	res, err := ec.unmarshalInputAddUsersToWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -28947,11 +28947,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
+func (ec *executionContext) marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddUsersToWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._AddMemberToWorkspacePayload(ctx, sel, v)
+	return ec._AddUsersToWorkspacePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
