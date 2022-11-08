@@ -121,11 +121,11 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 					errFlag = true
 					return
 				}
-				if f.Max() != nil && int(v) > *f.Max() {
+				if f.Max() != nil && v > *f.Max() {
 					errFlag = true
 					return
 				}
-				if f.Min() != nil && int(v) < *f.Min() {
+				if f.Min() != nil && v < *f.Min() {
 					errFlag = true
 					return
 				}
