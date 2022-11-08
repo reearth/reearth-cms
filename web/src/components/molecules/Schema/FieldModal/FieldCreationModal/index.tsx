@@ -16,7 +16,7 @@ import FieldValidationProps from "@reearth-cms/components/molecules/Schema/Field
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
+import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export type FormValues = {
   title: string;
@@ -80,8 +80,16 @@ const FieldCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+
+  const changeTab = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -131,6 +139,7 @@ const FieldCreationModal: React.FC<Props> = ({
         await onSubmit?.(values);
         form.resetFields();
         onClose?.(true);
+        setActiveTab("settings");
       })
       .catch(info => {
         console.log("Validate Failed:", info);
@@ -140,6 +149,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const handleClose = useCallback(() => {
     form.resetFields();
     onClose?.(true);
+    setActiveTab("settings");
   }, [onClose, form]);
 
   const handleLinkAsset = useCallback((_asset: Asset) => {
@@ -181,8 +191,8 @@ const FieldCreationModal: React.FC<Props> = ({
               );
             });
         }}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Settings")} key="setting" forceRender>
+        <Tabs activeKey={activeTab} onChange={changeTab}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}

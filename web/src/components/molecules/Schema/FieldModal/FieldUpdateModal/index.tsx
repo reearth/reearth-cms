@@ -17,7 +17,7 @@ import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-ap
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { Field, FieldType, fieldTypes } from "../../types";
+import { Field, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export interface FormValues {
   fieldId: string;
@@ -83,8 +83,16 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+
+  const changeTab = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -156,6 +164,7 @@ const FieldUpdateModal: React.FC<Props> = ({
         });
         form.resetFields();
         onClose?.(true);
+        setActiveTab("settings");
       })
       .catch(info => {
         console.log("Validate Failed:", info);
@@ -165,6 +174,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   const handleClose = useCallback(() => {
     form.resetFields();
     onClose?.(true);
+    setActiveTab("settings");
   }, [onClose, form]);
 
   const handleLinkAsset = useCallback((_asset: Asset) => {
@@ -206,8 +216,8 @@ const FieldUpdateModal: React.FC<Props> = ({
               );
             });
         }}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Setting")} key="setting" forceRender>
+        <Tabs activeKey={activeTab} onChange={changeTab}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
