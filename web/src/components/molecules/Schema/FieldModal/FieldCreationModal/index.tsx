@@ -170,16 +170,20 @@ const FieldCreationModal: React.FC<Props> = ({
         layout="vertical"
         initialValues={initialValues}
         onValuesChange={() => {
-          form
-            .validateFields()
-            .then(() => {
-              setButtonDisabled(false);
-            })
-            .catch(fieldsError => {
-              setButtonDisabled(
-                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-              );
-            });
+          setTimeout(() => {
+            console.log(form.getFieldsValue());
+
+            form
+              .validateFields()
+              .then(() => {
+                setButtonDisabled(false);
+              })
+              .catch(fieldsError => {
+                setButtonDisabled(
+                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+                );
+              });
+          });
         }}>
         <Tabs defaultActiveKey="settings">
           <TabPane tab={t("Settings")} key="setting" forceRender>
