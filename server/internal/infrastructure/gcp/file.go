@@ -228,7 +228,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getGCSObjectPath(uuid, objectName string) string {
-	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
