@@ -79,18 +79,12 @@ const AssetItem: React.FC<Props> = ({
   return (
     <Item name={name} label={label} extra={extra} rules={rules}>
       {assetValue ? (
-        assetValue.previewType === "IMAGE" ? (
-          <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
-            <img src={assetValue.url} alt={assetValue.fileName} />
-          </AssetButton>
-        ) : (
-          <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
-            <div>
-              <Icon icon="file" />
-              <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
-            </div>
-          </AssetButton>
-        )
+        <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
+          <div>
+            <Icon icon="file" />
+            <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
+          </div>
+        </AssetButton>
       ) : (
         <AssetButton onClick={handleClick}>
           <div>
