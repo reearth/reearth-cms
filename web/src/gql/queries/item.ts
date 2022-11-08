@@ -17,8 +17,8 @@ export const GET_ITEMS = gql`
 `;
 
 export const CREATE_ITEM = gql`
-  mutation CreateItem($schemaId: ID!, $fields: [ItemFieldInput!]!) {
-    createItem(input: { schemaId: $schemaId, fields: $fields }) {
+  mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
+    createItem(input: { modelId: $modelId, schemaId: $schemaId, fields: $fields }) {
       item {
         id
         schemaId
