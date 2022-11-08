@@ -76,7 +76,14 @@ const LinkAssetModal: React.FC<Props> = ({
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="link" />} onClick={() => onLink(asset)} />
+        <Button
+          type="link"
+          icon={<Icon icon="link" />}
+          onClick={() => {
+            onLink(asset);
+            onCancel();
+          }}
+        />
       ),
     },
     {

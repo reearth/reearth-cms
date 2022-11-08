@@ -76,12 +76,16 @@ const AssetItem: React.FC<Props> = ({
     setAssetValue(assetList.find(asset => asset.id === defaultValue));
   }, [defaultValue, assetList, setAssetValue]);
 
+  const getFile = (e: any) => {
+    console.log(e);
+  };
+
   return (
-    <Item name={name} label={label} extra={extra} rules={rules}>
+    <Item name={name} label={label} extra={extra} rules={rules} getValueFromEvent={getFile}>
       {assetValue ? (
-        <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
+        <AssetButton onClick={handleClick}>
           <div>
-            <Icon icon="file" />
+            <Icon icon="folder" size={24} />
             <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
           </div>
         </AssetButton>
