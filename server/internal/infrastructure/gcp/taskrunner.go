@@ -126,6 +126,7 @@ func (t *TaskRunner) buildRequest(url string, message []byte) *taskspb.CreateTas
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
 					HttpMethod: taskspb.HttpMethod_POST,
+					Headers:    map[string]string{"Content-Type": "application/json"},
 					Url:        url,
 					Body:       message,
 				},
