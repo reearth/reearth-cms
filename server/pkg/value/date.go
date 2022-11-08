@@ -6,6 +6,8 @@ import (
 
 const TypeDate Type = "date"
 
+type DateValue = time.Time
+
 type date struct{}
 
 func (d *date) New(v any) (any, error) {

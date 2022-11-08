@@ -4,9 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
-	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 var ErrInvalidKey = errors.New("invalid key")
@@ -16,137 +15,9 @@ type FieldBuilder struct {
 	err error
 }
 
-func NewFieldText(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldTextFrom(defaultValue, maxLength)
-
+func NewField(tp *TypeProperty) *FieldBuilder {
 	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				text: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldTextArea(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldTextAreaFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				textArea: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldRichText(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldRichTextFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				richText: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldMarkdown(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldMarkdownFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				markdown: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldAsset(defaultValue *id.AssetID) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			asset: FieldAssetFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldDate(defaultValue *time.Time) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			date: FieldDateFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldBool(defaultValue *bool) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			bool: FieldBoolFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldSelect(values []string, defaultValue *string) *FieldBuilder {
-	fs, err := FieldSelectFrom(values, defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				selectt: fs,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldTag(values []string, defaultValue []string) *FieldBuilder {
-	ft, err := FieldTagFrom(values, defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				tag: ft,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldInteger(defaultValue, min, max *int) *FieldBuilder {
-	ft, err := FieldIntegerFrom(defaultValue, min, max)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				integer: ft,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldReference(defaultValue model.ID) *FieldBuilder {
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				reference: FieldReferenceFrom(defaultValue),
-			},
-		},
-	}
-}
-
-func NewFieldURL(defaultValue *string) *FieldBuilder {
-	tp, err := FieldURLFrom(defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				url: tp,
-			},
-		},
-		err: err,
+		f: &Field{typeProperty: tp},
 	}
 }
 
@@ -160,6 +31,9 @@ func (b *FieldBuilder) Build() (*Field, error) {
 	if !b.f.key.IsValid() {
 		return nil, ErrInvalidKey
 	}
+	if b.f.typeProperty == nil {
+		return nil, errors.New("type property missing")
+	}
 	return b.f, nil
 }
 
@@ -172,7 +46,7 @@ func (b *FieldBuilder) MustBuild() *Field {
 }
 
 func (b *FieldBuilder) ID(id FieldID) *FieldBuilder {
-	b.f.id = id.Clone()
+	b.f.id = id
 	return b
 }
 
@@ -199,7 +73,7 @@ func (b *FieldBuilder) Description(description string) *FieldBuilder {
 }
 
 func (b *FieldBuilder) Key(key key.Key) *FieldBuilder {
-	b.f.key = key
+	b.err = b.f.SetKey(key)
 	return b
 }
 
@@ -210,5 +84,10 @@ func (b *FieldBuilder) RandomKey() *FieldBuilder {
 
 func (b *FieldBuilder) UpdatedAt(t time.Time) *FieldBuilder {
 	b.f.updatedAt = t
+	return b
+}
+
+func (b *FieldBuilder) DefaultValue(v *value.Value) *FieldBuilder {
+	b.err = b.f.SetDefaultValue(v)
 	return b
 }

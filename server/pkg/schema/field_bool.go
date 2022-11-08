@@ -1,13 +1,11 @@
 package schema
 
-type FieldBool struct {
-	defaultValue *bool
-}
+import "github.com/reearth/reearth-cms/server/pkg/value"
 
-func FieldBoolFrom(b *bool) *FieldBool {
-	return &FieldBool{
-		defaultValue: b,
-	}
+type FieldBool struct{}
+
+func NewFieldBool() *FieldBool {
+	return &FieldBool{}
 }
 
 func (f *FieldBool) TypeProperty() *TypeProperty {
@@ -16,6 +14,14 @@ func (f *FieldBool) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldBool) DefaultValue() *bool {
-	return f.defaultValue
+func (f *FieldBool) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Bool: func(_ bool) {
+			// noting to do
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Builder struct {
@@ -55,7 +54,9 @@ func (b *Builder) Fields(fields []*Field) *Builder {
 		b.i.fields = nil
 		return b
 	}
-	b.i.fields = slices.Clone(fields)
+	b.i.fields = lo.Filter(fields, func(i *Field, _ int) bool {
+		return i != nil
+	})
 	return b
 }
 

@@ -27,7 +27,7 @@ func New(t Type, v any) (*Value, error) {
 func NewOptional(t Type, v any) (*Value, error) {
 	if ty := types[t]; ty != nil {
 		if v == nil {
-			return &Value{t: t, v: v}, nil
+			return &Value{t: t}, nil
 		}
 
 		if w, err := ty.New(v); err != nil {
@@ -55,4 +55,16 @@ func (v *Value) Value() any {
 		return nil
 	}
 	return v.v
+}
+
+func (v *Value) IsEmpty() bool {
+	return v.v == nil
+}
+
+func (v *Value) Clone() *Value {
+	if v == nil {
+		return nil
+	}
+	v, _ = New(v.t, v.v)
+	return v
 }

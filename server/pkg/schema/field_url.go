@@ -1,33 +1,13 @@
 package schema
 
-import "net/url"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
+)
 
-type FieldURL struct {
-	defaultValue *string
-}
+type FieldURL struct{}
 
-func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
-	if defaultValue != nil && *defaultValue != "" {
-		if !IsUrl(*defaultValue) {
-			return nil, ErrFieldDefaultValue
-		}
-	}
-	return &FieldURL{
-		defaultValue: defaultValue,
-	}, nil
-}
-
-func MustFieldURLFrom(defaultValue *string) *FieldURL {
-	v, err := FieldURLFrom(defaultValue)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-func IsUrl(str string) bool {
-	u, err := url.Parse(str)
-	return err == nil && u.Scheme != "" && u.Host != ""
+func NewFieldURL() *FieldURL {
+	return &FieldURL{}
 }
 
 func (f *FieldURL) TypeProperty() *TypeProperty {
@@ -36,6 +16,14 @@ func (f *FieldURL) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldURL) DefaultValue() *string {
-	return f.defaultValue
+func (f *FieldURL) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		URL: func(u string) {
+			// nothing to do
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

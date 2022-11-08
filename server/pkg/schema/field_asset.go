@@ -2,16 +2,13 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldAsset struct {
-	defaultValue *id.AssetID
-}
+type FieldAsset struct{}
 
-func FieldAssetFrom(id *id.AssetID) *FieldAsset {
-	return &FieldAsset{
-		defaultValue: id.CloneRef(),
-	}
+func NewFieldAsset() *FieldAsset {
+	return &FieldAsset{}
 }
 
 func (f *FieldAsset) TypeProperty() *TypeProperty {
@@ -20,6 +17,14 @@ func (f *FieldAsset) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldAsset) DefaultValue() *id.AssetID {
-	return f.defaultValue
+func (f *FieldAsset) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Asset: func(_ id.AssetID) {
+			// noting to do
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

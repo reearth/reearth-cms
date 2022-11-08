@@ -2,16 +2,14 @@ package schema
 
 import (
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldDate struct {
-	defaultValue *time.Time
-}
+type FieldDate struct{}
 
-func FieldDateFrom(t *time.Time) *FieldDate {
-	return &FieldDate{
-		defaultValue: t,
-	}
+func NewFieldDate() *FieldDate {
+	return &FieldDate{}
 }
 
 func (f *FieldDate) TypeProperty() *TypeProperty {
@@ -20,6 +18,14 @@ func (f *FieldDate) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldDate) DefaultValue() *time.Time {
-	return f.defaultValue
+func (f *FieldDate) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Date: func(u time.Time) {
+			// noting to do
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

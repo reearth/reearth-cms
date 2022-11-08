@@ -7,6 +7,8 @@ import (
 
 const TypeInteger Type = "integer"
 
+type IntegerValue = int64
+
 type integer struct{}
 
 func (a *integer) New(v any) (any, error) {

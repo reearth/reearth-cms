@@ -2,6 +2,8 @@ package value
 
 const TypeBool Type = "bool"
 
+type BoolValue = bool
+
 type boolType struct{}
 
 func (*boolType) New(v any) (any, error) {

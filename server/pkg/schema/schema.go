@@ -43,14 +43,14 @@ func (s *Schema) HasFieldByKey(k string) bool {
 	return lo.SomeBy(s.fields, func(g *Field) bool { return g.Key().String() == k })
 }
 
-func (s *Schema) AddField(f Field) {
+func (s *Schema) AddField(f *Field) {
 	if s.fields == nil {
 		s.fields = []*Field{}
 	}
 	if s.HasField(f.ID()) {
 		return
 	}
-	s.fields = append(s.fields, &f)
+	s.fields = append(s.fields, f)
 }
 
 func (s *Schema) Field(fId FieldID) *Field {

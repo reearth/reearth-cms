@@ -1,42 +1,35 @@
 package schema
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
+)
 
 var (
-	ErrMinMaxInvalid     = errors.New("max must be larger then min")
-	ErrMinDefaultInvalid = errors.New("defaultValue must be larger then min")
-	ErrMaxDefaultInvalid = errors.New("max must be larger then defaultValue")
+	ErrMinMaxInvalid = errors.New("max must be larger than min")
 )
 
 type FieldInteger struct {
-	defaultValue *int
-	min          *int
-	max          *int
+	min *int64
+	max *int64
 }
 
-func FieldIntegerFrom(defaultValue, min, max *int) (*FieldInteger, error) {
+func NewFieldInteger(min, max *int64) (*FieldInteger, error) {
 	if min != nil && max != nil && *min > *max {
 		return nil, ErrMinMaxInvalid
 	}
-	if min != nil && defaultValue != nil && *min > *defaultValue {
-		return nil, ErrMinDefaultInvalid
-	}
-	if defaultValue != nil && max != nil && *defaultValue > *max {
-		return nil, ErrMaxDefaultInvalid
-	}
+
 	return &FieldInteger{
-		defaultValue: defaultValue,
-		min:          min,
-		max:          max,
+		min: min,
+		max: max,
 	}, nil
 }
 
-func MustFieldIntegerFrom(defaultValue, min, max *int) *FieldInteger {
-	v, err := FieldIntegerFrom(defaultValue, min, max)
-	if err != nil {
-		panic(err)
-	}
-	return v
+func MustFieldIntegerFrom(min, max *int64) *FieldInteger {
+	return lo.Must(NewFieldIntegerFrom(min, max))
 }
 
 func (f *FieldInteger) TypeProperty() *TypeProperty {
@@ -45,14 +38,27 @@ func (f *FieldInteger) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldInteger) DefaultValue() *int {
-	return f.defaultValue
-}
-
-func (f *FieldInteger) Min() *int {
+func (f *FieldInteger) Min() *int64 {
 	return f.min
 }
 
-func (f *FieldInteger) Max() *int {
+func (f *FieldInteger) Max() *int64 {
 	return f.max
+}
+
+func (f *FieldInteger) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Integer: func(u int64) {
+			if f.min != nil && *f.min > u {
+				err = fmt.Errorf("value must be larger than %d", *f.min)
+			}
+			if f.max != nil && u > *f.max {
+				err = fmt.Errorf("value must be less than %d", *f.max)
+			}
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

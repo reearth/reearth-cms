@@ -8,6 +8,8 @@ import (
 
 const TypeTag Type = "tag"
 
+type TagValue = []string
+
 type tag struct{}
 
 func (a *tag) New(v any) (any, error) {

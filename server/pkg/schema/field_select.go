@@ -1,51 +1,21 @@
 package schema
 
 import (
-	"errors"
 	"strings"
 
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
-)
-
-var (
-	ErrFieldValues       = errors.New("invalid values")
-	ErrFieldDefaultValue = errors.New("invalid default values")
 )
 
 type FieldSelect struct {
-	values       []string
-	defaultValue *string
+	values []string
 }
 
-func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
-	empty := len(values) == 0
-	emptyValue := lo.SomeBy(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
-	dups := lo.FindDuplicates(values)
-	if empty || emptyValue || len(dups) > 0 {
-		return nil, ErrFieldValues
-	}
-
-	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
-		return nil, ErrFieldDefaultValue
-	}
-	var v *string = nil
-	if defaultValue != nil {
-		v = new(string)
-		*v = strings.Clone(*defaultValue)
-	}
+func NewFieldSelect(values []string) *FieldSelect {
 	return &FieldSelect{
-		values:       slices.Clone(values),
-		defaultValue: v,
-	}, nil
-}
-
-func MustFieldSelectFrom(values []string, defaultValue *string) *FieldSelect {
-	v, err := FieldSelectFrom(values, defaultValue)
-	if err != nil {
-		panic(err)
+		values: lo.Uniq(util.Map(values, strings.TrimSpace)),
 	}
-	return v
 }
 
 func (f *FieldSelect) TypeProperty() *TypeProperty {
@@ -58,6 +28,16 @@ func (f *FieldSelect) Values() []string {
 	return f.values
 }
 
-func (f *FieldSelect) DefaultValue() *string {
-	return f.defaultValue
+func (f *FieldSelect) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Select: func(s string) {
+			if !lo.Contains(f.values, s) {
+				err = ErrInvalidDefaultValue
+			}
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

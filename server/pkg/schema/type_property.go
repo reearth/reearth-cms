@@ -1,15 +1,16 @@
 package schema
 
 import (
-	"time"
+	"errors"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/rerror"
 )
 
-// TypeProperty Represent special attributes for some field
-// only one of the type properties should be not nil
+var ErrInvalidDefaultValue = errors.New("invalid default value")
+
+// TypeProperty represents special attributes for some fields.
+// Only one of the type properties should be not nil.
 type TypeProperty struct {
 	text      *FieldText
 	textArea  *FieldTextArea
@@ -23,110 +24,6 @@ type TypeProperty struct {
 	integer   *FieldInteger
 	reference *FieldReference
 	url       *FieldURL
-}
-
-func NewFieldTypePropertyText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldTextFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		text: f,
-	}, nil
-}
-
-func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldTextAreaFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		textArea: f,
-	}, nil
-}
-
-func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldRichTextFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		richText: f,
-	}, nil
-}
-
-func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldMarkdownFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		markdown: f,
-	}, nil
-}
-
-func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {
-	return &TypeProperty{
-		asset: FieldAssetFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyDate(defaultValue *time.Time) *TypeProperty {
-	return &TypeProperty{
-		date: FieldDateFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyBool(defaultValue *bool) *TypeProperty {
-	return &TypeProperty{
-		bool: FieldBoolFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertySelect(values []string, defaultValue *string) (*TypeProperty, error) {
-	fs, err := FieldSelectFrom(values, defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		selectt: fs,
-	}, nil
-}
-
-func NewFieldTypePropertyTag(values []string, defaultValue []string) (*TypeProperty, error) {
-	ft, err := FieldTagFrom(values, defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		tag: ft,
-	}, nil
-}
-
-func NewFieldTypePropertyInteger(defaultValue, min, max *int) (*TypeProperty, error) {
-	ft, err := FieldIntegerFrom(defaultValue, min, max)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		integer: ft,
-	}, err
-}
-
-func NewFieldTypePropertyReference(defaultValue model.ID) *TypeProperty {
-	return &TypeProperty{
-		reference: FieldReferenceFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyURL(defaultValue *string) (*TypeProperty, error) {
-	tp, err := FieldURLFrom(defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		url: tp,
-	}, nil
 }
 
 // NOTE: pkg/item/match.go should be also updated when you add a new type
@@ -339,4 +236,30 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 		},
 	})
 	return
+}
+
+func (ty *TypeProperty) Validate(v *value.Value) error {
+	if v.Type() != ty.Type() {
+		return ErrInvalidDefaultValue
+	}
+
+	err := MatchTypeProperty1(ty, TypePropertyMatch1[error]{
+		// TODO
+		URL: func(ty *FieldURL) error {
+			return ty.Validate(v)
+		},
+	})
+
+	if err != nil {
+		if err == ErrInvalidDefaultValue {
+			return err
+		}
+
+		return &rerror.Error{
+			Label: ErrInvalidDefaultValue,
+			Err:   err,
+		}
+	}
+
+	return nil
 }

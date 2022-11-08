@@ -4,6 +4,8 @@ import "github.com/reearth/reearth-cms/server/pkg/id"
 
 const TypeReference Type = "reference"
 
+type ReferenceValue = id.ItemID
+
 type reference struct{}
 
 func (a *reference) New(v any) (any, error) {

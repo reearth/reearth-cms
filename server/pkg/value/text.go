@@ -5,6 +5,8 @@ const TypeTextArea Type = "textArea"
 const TypeRichText Type = "richText"
 const TypeMarkdown Type = "markdown"
 
+type TextValue = string
+
 type text struct{}
 
 func (*text) New(v any) (any, error) {

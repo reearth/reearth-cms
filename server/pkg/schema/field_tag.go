@@ -1,34 +1,19 @@
 package schema
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 type FieldTag struct {
-	values       []string
-	defaultValue []string
+	values []string
 }
 
-func FieldTagFrom(values []string, defaultValue []string) (*FieldTag, error) {
-	if len(values) == 0 {
-		return nil, ErrFieldValues
-	}
-	if !lo.Every(values, defaultValue) {
-		return nil, ErrFieldDefaultValue
-	}
+func NewFieldTag(values []string) *FieldTag {
 	return &FieldTag{
-		values:       slices.Clone(values),
-		defaultValue: slices.Clone(defaultValue),
-	}, nil
-}
-
-func MustFieldTagFrom(values []string, defaultValue []string) *FieldTag {
-	v, err := FieldTagFrom(values, defaultValue)
-	if err != nil {
-		panic(err)
+		values: slices.Clone(values),
 	}
-	return v
 }
 
 func (f *FieldTag) TypeProperty() *TypeProperty {
@@ -41,6 +26,16 @@ func (f *FieldTag) Values() []string {
 	return f.values
 }
 
-func (f *FieldTag) DefaultValue() []string {
-	return f.defaultValue
+func (f *FieldTag) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Tag: func(tags []string) {
+			if !lo.Every(f.values, tags) {
+				err = ErrInvalidDefaultValue
+			}
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

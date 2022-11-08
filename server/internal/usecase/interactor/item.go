@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -28,15 +27,11 @@ func NewItem(r *repo.Container) interfaces.Item {
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.List, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, error) {
-		return i.repos.Item.FindByIDs(ctx, ids)
-	})
+	return i.repos.Item.FindByIDs(ctx, ids)
 }
 
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (*item.Item, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
-		return i.repos.Item.FindByID(ctx, itemID)
-	})
+	return i.repos.Item.FindByID(ctx, itemID)
 }
 
 func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
@@ -63,16 +58,29 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 		if err != nil {
 			return nil, nil, err
 		}
+
 		sfids := s.Fields().IDs()
 		res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
 		return res.FilterFields(sfids), page, err
 	})
 }
 
-func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) ([]*version.Value[*item.Item], error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*version.Value[*item.Item], error) {
-		return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
+		if _, err := i.repos.Project.FindByID(ctx, projectID); err != nil {
+			return nil, nil, err
+		}
+
+		return i.repos.Item.FindByProject(ctx, projectID, p)
 	})
+}
+
+func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) ([]*version.Value[*item.Item], error) {
+	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+}
+
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, p)
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
@@ -86,14 +94,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if param.Fields != nil {
-			err = validateFields(param.Fields, s)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		fields, err := itemFieldsFromParams(param.Fields)
+		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
@@ -117,49 +118,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) error {
-	for _, field := range itemFields {
-		sf := s.Field(field.SchemaFieldID)
-		if sf == nil {
-			return interfaces.ErrFieldNotFound
-		}
-		if sf.Required() && field.Value == nil {
-			return errors.New("field is required")
-		}
-		err1 := errors.New("invalid field value")
-		errFlag := false
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Text: func(f *schema.FieldText) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
-			},
-			TextArea: func(f *schema.FieldTextArea) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
-			},
-			RichText: func(f *schema.FieldRichText) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
-			},
-			Markdown: func(f *schema.FieldMarkdown) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
-			},
-			Integer: func(f *schema.FieldInteger) {
-				if f.Max() != nil && field.Value.(int) > *f.Max() {
-					errFlag = true
-				}
-				if f.Min() != nil && field.Value.(int) < *f.Min() {
-					errFlag = true
-				}
-			},
-			URL: func(f *schema.FieldURL) {
-				errFlag = !schema.IsUrl(field.Value.(string))
-			},
-		})
-		if errFlag {
-			return err1
-		}
-	}
-	return nil
-}
-
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
 	if len(param.Fields) == 0 {
 		return nil, interfaces.ErrItemFieldRequired
@@ -171,66 +129,49 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
-		if err != nil {
-			return nil, err
-		}
-
-		if !operator.IsWritableProject(item.Project()) {
+		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if param.Fields != nil {
-			err = validateFields(param.Fields, s)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		fields, err := itemFieldsFromParams(param.Fields)
+		it, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
 
-		item.UpdateFields(fields)
-		if err := i.repos.Item.Save(ctx, item); err != nil {
+		fields, err := itemFieldsFromParams(param.Fields, s)
+		if err != nil {
 			return nil, err
 		}
 
-		return item, nil
+		it.UpdateFields(fields)
+		if err := i.repos.Item.Save(ctx, it); err != nil {
+			return nil, err
+		}
+
+		return it, nil
 	})
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		return i.repos.Item.Remove(ctx, itemID)
-	})
+	return i.repos.Item.Remove(ctx, itemID)
 }
 
-func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
-		if _, err := i.repos.Project.FindByID(ctx, projectID); err != nil {
-			return nil, nil, err
+func itemFieldsFromParams(Fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
+	return util.TryMap(Fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
+		sf := s.Field(f.SchemaFieldID)
+		if sf == nil {
+			return nil, nil
 		}
 
-		return i.repos.Item.FindByProject(ctx, projectID, p)
-	})
-}
-
-func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, error) {
-	return util.TryMap(Fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
 		v, err := value.New(f.ValueType, f.Value)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
+		}
+
+		if err := sf.Validate(v); err != nil {
+			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
 		return item.NewField(f.SchemaFieldID, v), nil
 	})
-}
-
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (item.List, *usecasex.PageInfo, error) {
-			return i.repos.Item.Search(ctx, q, p)
-		})
 }

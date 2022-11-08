@@ -1,10 +1,13 @@
 package schema
 
 import (
+	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Field struct {
@@ -16,6 +19,7 @@ type Field struct {
 	multiValue   bool
 	required     bool
 	updatedAt    time.Time
+	defaultValue *value.Value
 	typeProperty *TypeProperty
 }
 
@@ -43,8 +47,12 @@ func (f *Field) Key() key.Key {
 	return f.key
 }
 
-func (f *Field) SetKey(key key.Key) {
+func (f *Field) SetKey(key key.Key) error {
+	if !key.IsValid() {
+		return ErrInvalidKey
+	}
 	f.key = key
+	return nil
 }
 
 func (f *Field) Unique() bool {
@@ -59,6 +67,10 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
+func (f *Field) DefaultValue() *value.Value {
+	return f.defaultValue
+}
+
 func (f *Field) SetRequired(req bool) {
 	f.required = req
 }
@@ -69,6 +81,14 @@ func (f *Field) SetUnique(unique bool) {
 
 func (f *Field) SetMultiValue(mv bool) {
 	f.multiValue = mv
+}
+
+func (f *Field) SetDefaultValue(v *value.Value) error {
+	if err := f.typeProperty.Validate(v); err != nil {
+		return err
+	}
+	f.defaultValue = v
+	return nil
 }
 
 func (f *Field) CreatedAt() time.Time {
@@ -95,7 +115,7 @@ func (f *Field) TypeProperty() *TypeProperty {
 }
 
 func (f *Field) SetTypeProperty(tp *TypeProperty) {
-	if f.typeProperty != nil && tp != nil && f.typeProperty.Type() != tp.Type() {
+	if f.typeProperty == nil || f.typeProperty != nil && tp != nil && f.typeProperty.Type() != tp.Type() {
 		return
 	}
 	f.typeProperty = tp.Clone()
@@ -115,6 +135,38 @@ func (f *Field) Clone() *Field {
 		multiValue:   f.multiValue,
 		required:     f.required,
 		updatedAt:    f.updatedAt,
+		defaultValue: f.defaultValue.Clone(),
 		typeProperty: f.typeProperty.Clone(),
 	}
 }
+
+func (f *Field) Validate(v *value.Value) error {
+	if f.required && v.IsEmpty() {
+		return ErrValueRequired
+	}
+
+	return f.typeProperty.Validate(v)
+}
+
+func (f *Field) ValidateMultiple(vv []*value.Value) error {
+	if !f.multiValue && len(vv) > 1 {
+		return ErrValueShouldBeSingle
+	}
+
+	if f.required && len(vv) == 0 {
+		return ErrValueRequired
+	}
+
+	for _, v := range vv {
+		if err := f.Validate(v); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+var (
+	ErrValueRequired       = errors.New("value is missing but required")
+	ErrValueShouldBeSingle = errors.New("value should be single")
+)

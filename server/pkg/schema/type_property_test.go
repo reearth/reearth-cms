@@ -383,7 +383,7 @@ func TestNewFieldTypePropertyAsset(t *testing.T) {
 				defaultValue: nil,
 			},
 			want: &TypeProperty{
-				asset: FieldAssetFrom(nil),
+				asset: NewFieldAsset(nil),
 			},
 		},
 	}

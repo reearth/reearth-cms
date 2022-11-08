@@ -15,11 +15,11 @@ type CreateFieldParam struct {
 	Type         value.Type
 	Name         *string
 	Description  *string
-	Key          *string
+	Key          string
 	MultiValue   bool
 	Unique       bool
 	Required     bool
-	TypeProperty schema.TypeProperty
+	TypeProperty *schema.TypeProperty
 }
 
 type UpdateFieldParam struct {
@@ -31,7 +31,7 @@ type UpdateFieldParam struct {
 	MultiValue   *bool
 	Unique       *bool
 	Required     *bool
-	TypeProperty schema.TypeProperty
+	TypeProperty *schema.TypeProperty
 }
 
 var (

@@ -18,14 +18,13 @@ type ItemDocument struct {
 	Project   string
 	Schema    string
 	ModelID   string
-	Fields    []ItemFieldDoc
+	Fields    []ItemFieldDocument
 	Timestamp time.Time
 }
 
-type ItemFieldDoc struct {
+type ItemFieldDocument struct {
 	SchemaField string
-	ValueType   string
-	Value       any
+	Value       *ValueDocument
 }
 
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
@@ -55,11 +54,10 @@ func NewItem(ws *item.Item) (*ItemDocument, string) {
 		Schema:  ws.Schema().String(),
 		ModelID: ws.Model().String(),
 		Project: ws.Project().String(),
-		Fields: lo.Map(ws.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
-			return ItemFieldDoc{
+		Fields: lo.Map(ws.Fields(), func(f *item.Field, _ int) ItemFieldDocument {
+			return ItemFieldDocument{
 				SchemaField: f.SchemaFieldID().String(),
-				ValueType:   string(f.ValueType()),
-				Value:       f.Value(),
+				Value:       NewValue(f.Value()),
 			}
 		}),
 		Timestamp: ws.Timestamp(),
@@ -87,12 +85,18 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
-	fields, err := util.TryMap(d.Fields, func(f ItemFieldDoc) (*item.Field, error) {
+	fields, err := util.TryMap(d.Fields, func(f ItemFieldDocument) (*item.Field, error) {
 		sf, err := schema.FieldIDFrom(f.SchemaField)
 		if err != nil {
 			return nil, err
 		}
-		return item.NewField(sf, schema.Type(f.ValueType), f.Value), nil
+
+		v, err := f.Value.Model()
+		if err != nil {
+			return nil, err
+		}
+
+		return item.NewField(sf, v), nil
 	})
 	if err != nil {
 		return nil, err

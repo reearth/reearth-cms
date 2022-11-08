@@ -2,18 +2,22 @@ package value
 
 import (
 	"net/url"
-
-	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 const TypeURL Type = "url"
+
+type URLValue = string
 
 type urlType struct{}
 
 func (a *urlType) New(v any) (any, error) {
 	switch w := v.(type) {
 	case string:
-		return id.AssetIDFrom(w)
+		u, err := url.Parse(w)
+		if err != nil {
+			return nil, ErrInvalidValue
+		}
+		return u.String(), nil
 	case url.URL:
 		return w.String(), nil
 	case *string:

@@ -1,25 +1,23 @@
 package value
 
-import "time"
-
 type Match struct {
-	Text      func(string)
-	TextArea  func(string)
-	RichText  func(string)
-	Markdown  func(string)
-	Date      func(time.Time)
-	Asset     func(string)
-	Bool      func(bool)
-	Select    func(string)
-	Tag       func(string)
-	Integer   func(int)
-	Reference func(string)
-	URL       func(string)
-	Unknown   func(Type)
+	Text      func(TextValue)
+	TextArea  func(TextValue)
+	RichText  func(TextValue)
+	Markdown  func(TextValue)
+	Date      func(DateValue)
+	Asset     func(AssetValue)
+	Bool      func(BoolValue)
+	Select    func(SelectValue)
+	Tag       func(TagValue)
+	Integer   func(IntegerValue)
+	Reference func(ReferenceValue)
+	URL       func(URLValue)
 	Nil       func(Type)
 	Default   func()
 }
 
+// TODO: add test
 func (v *Value) Match(m Match) {
 	if v == nil {
 		if m.Default != nil {
@@ -31,68 +29,80 @@ func (v *Value) Match(m Match) {
 	if v.v == nil {
 		if m.Nil != nil {
 			m.Nil(v.Type())
+			return
 		}
+
+		if m.Default != nil {
+			m.Default()
+		}
+
 		return
 	}
 
 	switch v.t {
 	case TypeText:
 		if m.Text != nil {
-			m.Text(v.v.(string))
+			m.Text(v.v.(TextValue))
+			return
 		}
 	case TypeTextArea:
 		if m.TextArea != nil {
-			m.TextArea(v.v.(string))
+			m.TextArea(v.v.(TextValue))
+			return
 		}
 	case TypeRichText:
 		if m.RichText != nil {
-			m.RichText(v.v.(string))
+			m.RichText(v.v.(TextValue))
+			return
 		}
 	case TypeMarkdown:
 		if m.Markdown != nil {
-			m.Markdown(v.v.(string))
+			m.Markdown(v.v.(TextValue))
+			return
 		}
-	// TODO: think return val
 	case TypeDate:
 		if m.Date != nil {
-			m.Date(v.v.(time.Time))
+			m.Date(v.v.(DateValue))
+			return
 		}
 	case TypeAsset:
 		if m.Asset != nil {
-			m.Asset(v.v.(string))
+			m.Asset(v.v.(AssetValue))
+			return
 		}
 	case TypeBool:
 		if m.Bool != nil {
-			m.Bool(v.v.(bool))
+			m.Bool(v.v.(BoolValue))
+			return
 		}
 	case TypeSelect:
 		if m.Select != nil {
-			m.Select(v.v.(string))
+			m.Select(v.v.(SelectValue))
+			return
 		}
 	case TypeTag:
 		if m.Tag != nil {
-			m.Tag(v.v.(string))
+			m.Tag(v.v.(TagValue))
+			return
 		}
 	case TypeInteger:
 		if m.Integer != nil {
-			m.Integer(v.v.(int))
+			m.Integer(v.v.(IntegerValue))
+			return
 		}
 	case TypeReference:
 		if m.Reference != nil {
-			m.Reference(v.v.(string))
+			m.Reference(v.v.(ReferenceValue))
+			return
 		}
 	case TypeURL:
 		if m.URL != nil {
-			m.URL(v.v.(string))
+			m.URL(v.v.(URLValue))
+			return
 		}
-	case TypeUnknown:
-		if m.Unknown != nil {
-			m.Unknown(v.Type())
-		}
-	// TODO: add unit test for Match method
-	default:
-		if m.Default != nil {
-			m.Default()
-		}
+	}
+
+	if m.Default != nil {
+		m.Default()
 	}
 }

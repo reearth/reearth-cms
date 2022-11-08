@@ -81,6 +81,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 			wantErr: nil,
 		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -200,7 +201,7 @@ func TestNewFieldAsset(t *testing.T) {
 			want: &FieldBuilder{
 				f: &Field{
 					typeProperty: &TypeProperty{
-						asset: FieldAssetFrom(nil),
+						asset: NewFieldAsset(nil),
 					},
 				},
 				err: nil,
@@ -214,7 +215,7 @@ func TestNewFieldAsset(t *testing.T) {
 			want: &FieldBuilder{
 				f: &Field{
 					typeProperty: &TypeProperty{
-						asset: FieldAssetFrom(&aId),
+						asset: NewFieldAsset(&aId),
 					},
 				},
 				err: nil,

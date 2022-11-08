@@ -1,18 +1,20 @@
 package schema
 
+import (
+	"errors"
+
+	"github.com/reearth/reearth-cms/server/pkg/value"
+)
+
 type FieldRichText struct {
 	defaultValue *string
 	maxLength    *int
 }
 
-func FieldRichTextFrom(defaultValue *string, maxLength *int) (*FieldRichText, error) {
-	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
-		return nil, ErrInvalidTextDefault
-	}
+func NewFieldRichText(maxLength *int) *FieldRichText {
 	return &FieldRichText{
-		defaultValue: defaultValue,
-		maxLength:    maxLength,
-	}, nil
+		maxLength: maxLength,
+	}
 }
 
 func (f *FieldRichText) TypeProperty() *TypeProperty {
@@ -21,10 +23,20 @@ func (f *FieldRichText) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldRichText) DefaultValue() *string {
-	return f.defaultValue
-}
-
 func (f *FieldRichText) MaxLength() *int {
 	return f.maxLength
+}
+
+func (f *FieldRichText) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		TextArea: func(u string) {
+			if f.maxLength != nil && len(u) > *f.maxLength {
+				err = errors.New("text is too long")
+			}
+		},
+		Default: func() {
+			err = ErrInvalidDefaultValue
+		},
+	})
+	return
 }

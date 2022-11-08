@@ -27,7 +27,7 @@ func TestFieldAssetFrom(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, FieldAssetFrom(tc.args.id))
+			assert.Equal(t, tc.want, NewFieldAsset(tc.args.id))
 		})
 	}
 }
