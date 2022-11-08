@@ -2,9 +2,9 @@ package interactor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -126,16 +126,16 @@ func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam,
 				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
 			},
 			Integer: func(f *schema.FieldInteger) {
-				v, err := field.Value.(json.Number).Int64()
+				v, err := strconv.Atoi(fmt.Sprintf("%v", field.Value))
 				if err != nil {
 					errFlag = true
 					return
 				}
-				if f.Max() != nil && int(v) > *f.Max() {
+				if f.Max() != nil && v > *f.Max() {
 					errFlag = true
 					return
 				}
-				if f.Min() != nil && int(v) < *f.Min() {
+				if f.Min() != nil && v < *f.Min() {
 					errFlag = true
 					return
 				}
