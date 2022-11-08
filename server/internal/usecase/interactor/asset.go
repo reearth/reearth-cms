@@ -213,7 +213,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, toEventOperator(operator)); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, operator.EventOperator()); err != nil {
 				return nil, err
 			}
 
@@ -253,7 +253,7 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, toEventOperator(operator)); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.EventOperator()); err != nil {
 				return aid, err
 			}
 

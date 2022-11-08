@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -41,13 +42,16 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 		return AssetFilter400Response{}, err
 	}
 
-	itemList := lo.Map(assets, func(a *asset.Asset, _ int) integrationapi.Asset {
+	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
 		aa, err := toAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
-			return integrationapi.Asset{}
+			return integrationapi.Asset{}, err
 		}
-		return *aa
+		return *aa, nil
 	})
+	if err != nil {
+		return AssetFilter400Response{}, err
+	}
 
 	return AssetFilter200JSONResponse{
 		Items:      &itemList,

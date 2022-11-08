@@ -8,12 +8,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
@@ -91,31 +89,4 @@ func TestCommon_webhook(t *testing.T) {
 	}.Payload()).Times(1).Return(nil)
 	err = webhook(ctx, db, gw, workspace.ID(), ev)
 	assert.NoError(t, err)
-}
-
-func TestCommon_toEventOperator(t *testing.T) {
-	uId := id.NewUserID()
-	op := usecase.Operator{
-		User:        &uId,
-		Integration: nil,
-	}
-
-	eOp := toEventOperator(&op)
-
-	assert.NotNil(t, eOp.User())
-	assert.Nil(t, eOp.Integration())
-	assert.Equal(t, &uId, eOp.User())
-
-	iId := id.NewIntegrationID()
-	op = usecase.Operator{
-		User:        nil,
-		Integration: &iId,
-	}
-
-	eOp = toEventOperator(&op)
-
-	assert.Nil(t, eOp.User())
-	assert.NotNil(t, eOp.Integration())
-	assert.Equal(t, &iId, eOp.Integration())
-
 }

@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -73,15 +72,4 @@ func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID 
 
 	return nil
 
-}
-
-func toEventOperator(o *usecase.Operator) event.Operator {
-	var eOp event.Operator
-	if o.User != nil {
-		eOp = event.OperatorFromUser(*o.User)
-	}
-	if o.Integration != nil {
-		eOp = event.OperatorFromIntegration(*o.Integration)
-	}
-	return eOp
 }

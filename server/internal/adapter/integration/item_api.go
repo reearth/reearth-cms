@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -33,14 +34,17 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, err
 	}
 
-	itemList := lo.Map(items, func(i *item.Item, _ int) integrationapi.Item {
+	itemList, err := util.TryMap(items, func(i *item.Item) (integrationapi.Item, error) {
 		ver, err := uc.Item.FindAllVersionsByID(ctx, i.ID(), op)
 		if err != nil {
-			return integrationapi.Item{}
+			return integrationapi.Item{}, err
 		}
 
-		return toItem(i, ver[len(ver)-1], m[0].ID())
+		return toItem(i, ver[len(ver)-1], m[0].ID()), nil
 	})
+	if err != nil {
+		return ItemFilter400Response{}, err
+	}
 
 	return ItemFilter200JSONResponse{
 		Items:      &itemList,
