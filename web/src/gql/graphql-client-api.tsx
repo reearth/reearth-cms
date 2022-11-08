@@ -138,6 +138,7 @@ export type CreateIntegrationInput = {
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
+  modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
 };
 
@@ -310,6 +311,7 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  modelId: Scalars['ID'];
   project: Project;
   projectId: Scalars['ID'];
   schema: Schema;
@@ -1206,6 +1208,7 @@ export type WebhookPayload = {
 
 export type WebhookTrigger = {
   __typename?: 'WebhookTrigger';
+  onAssetDecompress?: Maybe<Scalars['Boolean']>;
   onAssetDeleted?: Maybe<Scalars['Boolean']>;
   onAssetUpload?: Maybe<Scalars['Boolean']>;
   onItemCreate?: Maybe<Scalars['Boolean']>;
@@ -1216,6 +1219,7 @@ export type WebhookTrigger = {
 };
 
 export type WebhookTriggerInput = {
+  onAssetDecompress?: InputMaybe<Scalars['Boolean']>;
   onAssetDeleted?: InputMaybe<Scalars['Boolean']>;
   onAssetUpload?: InputMaybe<Scalars['Boolean']>;
   onItemCreate?: InputMaybe<Scalars['Boolean']>;
@@ -1367,6 +1371,7 @@ export type GetItemsQueryVariables = Exact<{
 export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value: any }> } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
+  modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
@@ -2330,8 +2335,8 @@ export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
 export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
 export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
 export const CreateItemDocument = gql`
-    mutation CreateItem($schemaId: ID!, $fields: [ItemFieldInput!]!) {
-  createItem(input: {schemaId: $schemaId, fields: $fields}) {
+    mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
+  createItem(input: {modelId: $modelId, schemaId: $schemaId, fields: $fields}) {
     item {
       id
       schemaId
@@ -2359,6 +2364,7 @@ export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, C
  * @example
  * const [createItemMutation, { data, loading, error }] = useCreateItemMutation({
  *   variables: {
+ *      modelId: // value for 'modelId'
  *      schemaId: // value for 'schemaId'
  *      fields: // value for 'fields'
  *   },
