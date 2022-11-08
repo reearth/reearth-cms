@@ -5,11 +5,14 @@ type FieldMarkdown struct {
 	maxLength    *int
 }
 
-func FieldMarkdownFrom(defaultValue *string, maxLength *int) *FieldMarkdown {
+func FieldMarkdownFrom(defaultValue *string, maxLength *int) (*FieldMarkdown, error) {
+	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
+		return nil, ErrInvalidTextDefault
+	}
 	return &FieldMarkdown{
 		defaultValue: defaultValue,
 		maxLength:    maxLength,
-	}
+	}, nil
 }
 
 func (f *FieldMarkdown) TypeProperty() *TypeProperty {

@@ -5,11 +5,14 @@ type FieldRichText struct {
 	maxLength    *int
 }
 
-func FieldRichTextFrom(defaultValue *string, maxLength *int) *FieldRichText {
+func FieldRichTextFrom(defaultValue *string, maxLength *int) (*FieldRichText, error) {
+	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
+		return nil, ErrInvalidTextDefault
+	}
 	return &FieldRichText{
 		defaultValue: defaultValue,
 		maxLength:    maxLength,
-	}
+	}, nil
 }
 
 func (f *FieldRichText) TypeProperty() *TypeProperty {

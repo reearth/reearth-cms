@@ -490,14 +490,16 @@ func TestNewFieldTypePropertyInteger(t *testing.T) {
 }
 
 func TestNewFieldTypePropertyMarkdown(t *testing.T) {
+	tp, _ := FieldMarkdownFrom(nil, nil)
 	type args struct {
 		defaultValue *string
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr bool
 	}{
 		{
 			name: "test",
@@ -505,15 +507,27 @@ func TestNewFieldTypePropertyMarkdown(t *testing.T) {
 				defaultValue: nil,
 				maxLength:    nil,
 			},
-			want: &TypeProperty{markdown: FieldMarkdownFrom(nil, nil)},
+			want: &TypeProperty{markdown: tp},
+		},
+		{
+			name: "fail",
+			args: args{
+				defaultValue: lo.ToPtr("xxx"),
+				maxLength:    lo.ToPtr(2),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyMarkdown(tt.args.defaultValue, tt.args.maxLength))
+			got, err := NewFieldTypePropertyMarkdown(tt.args.defaultValue, tt.args.maxLength)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tt.want, got)
+			}
 		})
 	}
 }
@@ -545,14 +559,16 @@ func TestNewFieldTypePropertyReference(t *testing.T) {
 }
 
 func TestNewFieldTypePropertyRichText(t *testing.T) {
+	f, _ := FieldRichTextFrom(nil, nil)
 	type args struct {
 		defaultValue *string
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr bool
 	}{
 		{
 			name: "test",
@@ -560,15 +576,27 @@ func TestNewFieldTypePropertyRichText(t *testing.T) {
 				defaultValue: nil,
 				maxLength:    nil,
 			},
-			want: &TypeProperty{richText: FieldRichTextFrom(nil, nil)},
+			want: &TypeProperty{richText: f},
+		},
+		{
+			name: "fail",
+			args: args{
+				defaultValue: lo.ToPtr("xxx"),
+				maxLength:    lo.ToPtr(2),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyRichText(tt.args.defaultValue, tt.args.maxLength))
+			got, err := NewFieldTypePropertyRichText(tt.args.defaultValue, tt.args.maxLength)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tt.want, got)
+			}
 		})
 	}
 }
@@ -672,6 +700,7 @@ func TestNewFieldTypePropertyTag(t *testing.T) {
 }
 
 func TestNewFieldTypePropertyText(t *testing.T) {
+	f, _ := FieldTextFrom(nil, nil)
 	type args struct {
 		defaultValue *string
 		maxLength    *int
@@ -688,7 +717,7 @@ func TestNewFieldTypePropertyText(t *testing.T) {
 				maxLength:    nil,
 			},
 			want: &TypeProperty{
-				text: FieldTextFrom(nil, nil),
+				text: f,
 			},
 		},
 	}
@@ -696,21 +725,24 @@ func TestNewFieldTypePropertyText(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyText(tt.args.defaultValue, tt.args.maxLength))
+			res, err := NewFieldTypePropertyText(tt.args.defaultValue, tt.args.maxLength)
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, res)
 		})
 	}
 }
 
 func TestNewFieldTypePropertyTextArea(t *testing.T) {
+	ta, _ := FieldTextAreaFrom(nil, nil)
 	type args struct {
 		defaultValue *string
 		maxLength    *int
 	}
 	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
+		name    string
+		args    args
+		want    *TypeProperty
+		wantErr bool
 	}{
 		{
 			name: "test",
@@ -719,16 +751,29 @@ func TestNewFieldTypePropertyTextArea(t *testing.T) {
 				maxLength:    nil,
 			},
 			want: &TypeProperty{
-				textArea: FieldTextAreaFrom(nil, nil),
+				textArea: ta,
 			},
+		},
+		{
+			name: "fail",
+			args: args{
+				defaultValue: lo.ToPtr("xxxx"),
+				maxLength:    lo.ToPtr(3),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			f, err := NewFieldTypePropertyTextArea(tt.args.defaultValue, tt.args.maxLength)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, tt.want, f)
+			}
 
-			assert.Equal(t, tt.want, NewFieldTypePropertyTextArea(tt.args.defaultValue, tt.args.maxLength))
 		})
 	}
 }

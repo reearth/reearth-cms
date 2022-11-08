@@ -748,6 +748,9 @@ func TestField_SetTypeProperty333(t *testing.T) {
 }
 
 func TestField_SetTypeProperty(t *testing.T) {
+	tpText, _ := NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10))
+	tpText1, _ := NewFieldTypePropertyText(lo.ToPtr("test1"), lo.ToPtr(11))
+	tpTextarea, _ := NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11))
 	tests := []struct {
 		name string
 		f    *Field
@@ -757,20 +760,20 @@ func TestField_SetTypeProperty(t *testing.T) {
 		{
 			name: "empty field",
 			f:    &Field{},
-			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
-			want: NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			tp:   tpText,
+			want: tpText,
 		},
 		{
 			name: "field with same type",
-			f:    &Field{typeProperty: NewFieldTypePropertyText(lo.ToPtr("test1"), lo.ToPtr(11))},
-			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
-			want: NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
+			f:    &Field{typeProperty: tpText1},
+			tp:   tpText,
+			want: tpText,
 		},
 		{
 			name: "field with different type",
-			f:    &Field{typeProperty: NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11))},
-			tp:   NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10)),
-			want: NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11)),
+			f:    &Field{typeProperty: tpTextarea},
+			tp:   tpText,
+			want: tpTextarea,
 		},
 	}
 	for _, tc := range tests {

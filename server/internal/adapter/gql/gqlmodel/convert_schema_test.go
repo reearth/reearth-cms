@@ -200,6 +200,10 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 	tpURL, _ := schema.NewFieldTypePropertyURL(nil)
 	tpTag, _ := schema.NewFieldTypePropertyTag([]string{"v1"}, nil)
 	tpSelect, _ := schema.NewFieldTypePropertySelect([]string{"v1"}, nil)
+	tpText, _ := schema.NewFieldTypePropertyText(nil, nil)
+	tpTextarea, _ := schema.NewFieldTypePropertyTextArea(nil, nil)
+	tpRichtext, _ := schema.NewFieldTypePropertyRichText(nil, nil)
+	tpMarkdown, _ := schema.NewFieldTypePropertyMarkdown(nil, nil)
 	type args struct {
 		tp *schema.TypeProperty
 	}
@@ -215,17 +219,17 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "test",
-			args: args{tp: schema.NewFieldTypePropertyText(nil, nil)},
+			args: args{tp: tpText},
 			want: &SchemaFieldText{DefaultValue: nil, MaxLength: nil},
 		},
 		{
 			name: "test",
-			args: args{tp: schema.NewFieldTypePropertyTextArea(nil, nil)},
+			args: args{tp: tpTextarea},
 			want: &SchemaFieldTextArea{DefaultValue: nil, MaxLength: nil},
 		},
 		{
 			name: "test",
-			args: args{tp: schema.NewFieldTypePropertyMarkdown(nil, nil)},
+			args: args{tp: tpMarkdown},
 			want: &SchemaFieldMarkdown{DefaultValue: nil, MaxLength: nil},
 		},
 		{
@@ -245,7 +249,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "test",
-			args: args{tp: schema.NewFieldTypePropertyRichText(nil, nil)},
+			args: args{tp: tpRichtext},
 			want: &SchemaFieldRichText{DefaultValue: nil, MaxLength: nil},
 		},
 		{
