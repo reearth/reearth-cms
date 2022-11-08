@@ -384,8 +384,7 @@ func TestItem_Update(t *testing.T) {
 
 	itemUC := NewItem(db)
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
+		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: f1.SchemaFieldID(),
@@ -403,9 +402,8 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, i1, i)
 
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
-		Fields:   []interfaces.ItemFieldParam{},
+		ItemID: id1,
+		Fields: []interfaces.ItemFieldParam{},
 	}, op)
 	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
 }
@@ -625,6 +623,7 @@ func TestItem_Search(t *testing.T) {
 }
 
 func Test_validateFields(t *testing.T) {
+	// @TODO add test cases for required and unique
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
@@ -643,6 +642,7 @@ func Test_validateFields(t *testing.T) {
 	type args struct {
 		itemFields []interfaces.ItemFieldParam
 		s          *schema.Schema
+		mid        id.ModelID
 	}
 	tests := []struct {
 		name    string
@@ -777,7 +777,9 @@ func Test_validateFields(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			err := validateFields(tc.args.itemFields, tc.args.s)
+			ctx := context.Background()
+
+			err := validateFields(ctx, tc.args.itemFields, tc.args.s, tc.args.mid, nil)
 			if tc.wantErr {
 				assert.Error(t, err)
 			} else {

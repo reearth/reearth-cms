@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -67,7 +68,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 		if param.Fields != nil {
-			err = validateFields(param.Fields, s)
+			err = validateFields(ctx, param.Fields, s, param.ModelID, i.repos)
 			if err != nil {
 				return nil, err
 			}
@@ -91,7 +92,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) error {
+func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam, s *schema.Schema, mid id.ModelID, repos *repo.Container) error {
 	for _, field := range itemFields {
 		sf := s.Field(field.SchemaFieldID)
 		if sf == nil {
@@ -99,6 +100,15 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 		}
 		if sf.Required() && field.Value == nil {
 			return errors.New("field is required")
+		}
+		if sf.Unique() && field.Value != nil {
+			it, err := repos.Item.FindByModelAndValue(ctx, mid, field.Value)
+			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+				return err
+			}
+			if it != nil {
+				return interfaces.ErrFieldValueExist
+			}
 		}
 		err1 := errors.New("invalid field value")
 		errFlag := false
@@ -159,7 +169,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 		if param.Fields != nil {
-			err = validateFields(param.Fields, s)
+			err = validateFields(ctx, param.Fields, s, item.Model(), i.repos)
 			if err != nil {
 				return nil, err
 			}

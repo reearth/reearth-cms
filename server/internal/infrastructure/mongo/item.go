@@ -184,3 +184,18 @@ func sortItems(items []*version.Value[*item.Item]) {
 		return a.Value().Timestamp().Before(b.Value().Timestamp())
 	})
 }
+
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, a any) (*item.Item, error) {
+	return r.findOne(ctx, bson.M{
+		"modelid": modelID.String(),
+		"$or": []bson.M{
+			{
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"value": a,
+					},
+				},
+			},
+		},
+	})
+}
