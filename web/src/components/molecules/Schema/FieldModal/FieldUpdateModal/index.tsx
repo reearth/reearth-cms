@@ -162,20 +162,17 @@ const FieldUpdateModal: React.FC<Props> = ({
           ...values,
           fieldId: selectedField?.id,
         });
-        form.resetFields();
         onClose?.(true);
-        setActiveTab("settings");
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
   }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
 
-  const handleClose = useCallback(() => {
+  const resetModal = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
     setActiveTab("settings");
-  }, [onClose, form]);
+  }, [form]);
 
   const handleLinkAsset = useCallback((_asset: Asset) => {
     // TODO: implement link asset with FieldUpdateModal
@@ -197,9 +194,10 @@ const FieldUpdateModal: React.FC<Props> = ({
         ) : null
       }
       visible={open}
-      onCancel={handleClose}
+      onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}>
+      okButtonProps={{ disabled: buttonDisabled }}
+      afterClose={resetModal}>
       <Form
         form={form}
         layout="vertical"
