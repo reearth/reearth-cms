@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"strings"
+	"path/filepath"
 
 	"cloud.google.com/go/storage"
 	bufra "github.com/avvmoto/buf-readerat"
@@ -70,6 +70,8 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, rerror.ErrInternalBy(err)
 	}
 
+	name = filepath.Join(gcsAssetBasePath, name)
+
 	object := bucket.Object(name)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf(ctx, "gcs: upload delete err: %+v\n", err)
@@ -124,7 +126,6 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 	obj := bucket.Object(objectName)
-	// obj := bucket.Object(objectName)
 	attr, err := obj.Attrs(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -158,7 +159,7 @@ func getGCSObjectNameFromURL(assetBasePath string, path string) string {
 		return ""
 	}
 
-	p := sanitize.Path(strings.TrimPrefix(path, "/"+assetBasePath+"/"))
+	p := sanitize.Path(filepath.Join(assetBasePath, path))
 
 	return p
 }
