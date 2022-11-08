@@ -12,6 +12,7 @@ import (
 )
 
 func TestFieldBuilder_Build(t *testing.T) {
+	tp, _ := NewFieldTypePropertyText(nil, nil)
 	fId := NewFieldID()
 	tests := []struct {
 		name    string
@@ -63,7 +64,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 					unique:       false,
 					multiValue:   false,
 					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					typeProperty: tp,
 				},
 				err: nil,
 			},
@@ -75,7 +76,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 				unique:       false,
 				multiValue:   false,
 				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				typeProperty: tp,
 			},
 			wantErr: nil,
 		},
@@ -96,6 +97,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 }
 
 func TestFieldBuilder_MustBuild(t *testing.T) {
+	tp, _ := NewFieldTypePropertyText(nil, nil)
 	fId := NewFieldID()
 	tests := []struct {
 		name    string
@@ -147,7 +149,7 @@ func TestFieldBuilder_MustBuild(t *testing.T) {
 					unique:       false,
 					multiValue:   false,
 					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					typeProperty: tp,
 				},
 				err: nil,
 			},
@@ -159,7 +161,7 @@ func TestFieldBuilder_MustBuild(t *testing.T) {
 				unique:       false,
 				multiValue:   false,
 				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				typeProperty: tp,
 			},
 			wantErr: nil,
 		},
