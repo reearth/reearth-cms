@@ -28,9 +28,8 @@ type CreateItemParam struct {
 }
 
 type UpdateItemParam struct {
-	ItemID   item.ID
-	SchemaID schema.ID
-	Fields   []ItemFieldParam
+	ItemID item.ID
+	Fields []ItemFieldParam
 }
 
 type Item interface {
