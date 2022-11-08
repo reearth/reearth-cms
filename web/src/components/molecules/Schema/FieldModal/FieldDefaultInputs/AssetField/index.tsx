@@ -11,6 +11,7 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  defaultValue?: string;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -22,6 +23,7 @@ type Props = {
 const AssetField: React.FC<Props> = ({
   assetList,
   fileList,
+  defaultValue,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -39,6 +41,7 @@ const AssetField: React.FC<Props> = ({
     <AssetItem
       name="defaultValue"
       label={t("Set default value")}
+      defaultValue={defaultValue}
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loadingAssets}

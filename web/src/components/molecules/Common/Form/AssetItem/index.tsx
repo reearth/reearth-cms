@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
@@ -15,6 +15,7 @@ import useHooks from "./hooks";
 type Props = {
   assetList: Asset[];
   fileList: UploadFile[];
+  defaultValue?: string;
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
@@ -35,6 +36,7 @@ const AssetItem: React.FC<Props> = ({
   rules,
   assetList,
   fileList,
+  defaultValue,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -50,6 +52,7 @@ const AssetItem: React.FC<Props> = ({
   const { Item } = Form;
   const { visible, handleClick, handleCancel, displayUploadModal, hideUploadModal, handleUpload } =
     useHooks(fileList, createAssets, setFileList, setUploading, setUploadModalVisibility);
+  const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -69,14 +72,33 @@ const AssetItem: React.FC<Props> = ({
     fileList,
   };
 
+  useEffect(() => {
+    setAssetValue(assetList.find(asset => asset.id === defaultValue));
+  }, [defaultValue, assetList, setAssetValue]);
+
   return (
     <Item name={name} label={label} extra={extra} rules={rules}>
-      <AssetButton onClick={handleClick}>
-        <div>
-          <Icon icon="link" />
-          <div style={{ marginTop: 8 }}>{t("Asset")}</div>
-        </div>
-      </AssetButton>
+      {assetValue ? (
+        assetValue.previewType === "IMAGE" ? (
+          <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
+            <img src={assetValue.url} alt={assetValue.fileName} />
+          </AssetButton>
+        ) : (
+          <AssetButton onClick={handleClick} style={{ marginLeft: 8 }}>
+            <div>
+              <Icon icon="file" />
+              <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
+            </div>
+          </AssetButton>
+        )
+      ) : (
+        <AssetButton onClick={handleClick}>
+          <div>
+            <Icon icon="link" />
+            <div style={{ marginTop: 8 }}>{t("Asset")}</div>
+          </div>
+        </AssetButton>
+      )}
       <LinkAssetModal
         visible={visible}
         onCancel={handleCancel}
