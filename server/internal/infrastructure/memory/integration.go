@@ -39,6 +39,21 @@ func (r *Integration) FindByID(_ context.Context, iId id.IntegrationID) (*integr
 	return nil, rerror.ErrNotFound
 }
 
+func (r *Integration) FindByToken(_ context.Context, token string) (*integration.Integration, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	i := r.data.Find(func(_ id.IntegrationID, i *integration.Integration) bool {
+		return i.Token() == token
+	})
+
+	if i != nil {
+		return i, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Integration) FindByIDs(_ context.Context, iIds id.IntegrationIDList) (integration.List, error) {
 	if r.err != nil {
 		return nil, r.err

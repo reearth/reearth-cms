@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -27,6 +27,12 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    form.setFieldsValue({
+      role: selectedIntegrationMember?.integrationRole,
+    });
+  }, [form, selectedIntegrationMember]);
 
   const handleSubmit = useCallback(async () => {
     try {

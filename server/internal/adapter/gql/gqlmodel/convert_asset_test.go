@@ -18,20 +18,21 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 	uuid := uuid.New().String()
 	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedBy(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).Thread(thid).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).Thread(thid).MustBuild()
 
 	want1 := Asset{
-		ID:          ID(id1.String()),
-		ProjectID:   ID(pid1.String()),
-		CreatedAt:   id1.Timestamp(),
-		CreatedByID: ID(uid1.String()),
-		FileName:    "aaa.jpg",
-		Size:        1000,
-		PreviewType: ToPreviewType(&pti),
-		File:        ToAssetFile(f),
-		UUID:        uuid,
-		URL:         "xxx",
-		ThreadID:    ID(thid.String()),
+		ID:            ID(id1.String()),
+		ProjectID:     ID(pid1.String()),
+		CreatedAt:     id1.Timestamp(),
+		CreatedByID:   ID(uid1.String()),
+		CreatedByType: OperatorTypeUser,
+		FileName:      "aaa.jpg",
+		Size:          1000,
+		PreviewType:   ToPreviewType(&pti),
+		File:          ToAssetFile(f),
+		UUID:          uuid,
+		URL:           "xxx",
+		ThreadID:      ID(thid.String()),
 	}
 
 	var a2 *asset.Asset = nil

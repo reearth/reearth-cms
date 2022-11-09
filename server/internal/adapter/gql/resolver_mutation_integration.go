@@ -13,6 +13,7 @@ import (
 
 func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
 	op := getOperator(ctx)
+
 	res, err := usecases(ctx).Integration.Create(
 		ctx,
 		interfaces.CreateIntegrationParam{
@@ -38,6 +39,7 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	op := getOperator(ctx)
+
 	res, err := usecases(ctx).Integration.Update(
 		ctx,
 		iId,

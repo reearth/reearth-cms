@@ -21,9 +21,8 @@ const (
 )
 
 type CreateAssetParam struct {
-	ProjectID   idx.ID[id.Project]
-	CreatedByID idx.ID[id.User]
-	File        *file.File
+	ProjectID idx.ID[id.Project]
+	File      *file.File
 }
 
 type UpdateAssetParam struct {

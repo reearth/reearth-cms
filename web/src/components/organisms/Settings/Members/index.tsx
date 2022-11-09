@@ -55,6 +55,7 @@ const Members: React.FC = () => {
     me,
     owner,
     searchedUser,
+    handleSearchTerm,
     changeSearchedUser,
     handleUserSearch,
     handleMemberAddToWorkspace,
@@ -131,7 +132,12 @@ const Members: React.FC = () => {
           }
         />
         <ActionHeader>
-          <Search placeholder={t("search for a member")} allowClear style={{ width: 264 }} />
+          <Search
+            onSearch={handleSearchTerm}
+            placeholder={t("search for a member")}
+            allowClear
+            style={{ width: 264 }}
+          />
         </ActionHeader>
         <Table
           dataSource={dataSource}

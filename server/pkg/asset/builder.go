@@ -19,7 +19,7 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.project.IsNil() {
 		return nil, ErrNoProjectID
 	}
-	if b.a.createdBy.IsNil() {
+	if b.a.user.IsNil() && b.a.integration.IsNil() {
 		return nil, ErrNoUser
 	}
 	if b.a.thread.IsNil() {
@@ -62,8 +62,15 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	return b
 }
 
-func (b *Builder) CreatedBy(createdBy UserID) *Builder {
-	b.a.createdBy = createdBy
+func (b *Builder) CreatedByUser(createdBy UserID) *Builder {
+	b.a.user = &createdBy
+	b.a.integration = nil
+	return b
+}
+
+func (b *Builder) CreatedByIntegration(createdBy IntegrationID) *Builder {
+	b.a.integration = &createdBy
+	b.a.user = nil
 	return b
 }
 
