@@ -6,8 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type Field struct {

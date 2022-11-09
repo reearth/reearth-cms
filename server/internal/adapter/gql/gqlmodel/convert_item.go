@@ -4,6 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -48,21 +49,38 @@ func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
 	}
 }
 
-func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
+func ToItemFieldParam(field *ItemFieldInput) (*interfaces.ItemFieldParam, error) {
 	if field == nil {
-		return nil
+		return nil, nil
 	}
 
 	fid, err := ToID[id.Field](field.SchemaFieldID)
 	if err != nil {
-		return nil
+		return nil, err
+	}
+
+	v, err := value.New(FromValueType(field.Type), field.Value)
+	if err != nil {
+		return nil, err
 	}
 
 	return &interfaces.ItemFieldParam{
 		SchemaFieldID: fid,
-		ValueType:     FromValueType(field.Type),
-		Value:         field.Value,
+		Value:         v,
+	}, nil
+}
+
+func ToItemFieldParams(fields []*ItemFieldInput) (res []interfaces.ItemFieldParam, err error) {
+	for _, p := range fields {
+		f, err := ToItemFieldParam(p)
+		if err != nil {
+			return nil, err
+		}
+		if f != nil {
+			res = append(res, *f)
+		}
 	}
+	return
 }
 
 func ToItemQuery(iq ItemQuery) *item.Query {

@@ -120,3 +120,12 @@ func (a *integer) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueInteger() (r *IntegerValue) {
+	v.Match(Match{
+		Integer: func(v IntegerValue) {
+			r = &v
+		},
+	})
+	return
+}

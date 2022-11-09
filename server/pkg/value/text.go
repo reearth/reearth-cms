@@ -21,3 +21,39 @@ func (*text) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueText() (r *TextValue) {
+	v.Match(Match{
+		Text: func(v TextValue) {
+			r = &v
+		},
+	})
+	return
+}
+
+func (v *Value) ValueTextArea() (r *TextValue) {
+	v.Match(Match{
+		TextArea: func(v TextValue) {
+			r = &v
+		},
+	})
+	return
+}
+
+func (v *Value) ValueRichText() (r *TextValue) {
+	v.Match(Match{
+		RichText: func(v TextValue) {
+			r = &v
+		},
+	})
+	return
+}
+
+func (v *Value) ValueMarkdownText() (r *TextValue) {
+	v.Match(Match{
+		Markdown: func(v TextValue) {
+			r = &v
+		},
+	})
+	return
+}

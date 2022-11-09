@@ -28,3 +28,12 @@ func (a *reference) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueReference() (r *ReferenceValue) {
+	v.Match(Match{
+		Reference: func(v ReferenceValue) {
+			r = &v
+		},
+	})
+	return
+}

@@ -18,3 +18,12 @@ func (*selectType) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueSelect() (r *SelectValue) {
+	v.Match(Match{
+		Select: func(v SelectValue) {
+			r = &v
+		},
+	})
+	return
+}

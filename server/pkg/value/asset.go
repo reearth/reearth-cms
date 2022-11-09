@@ -31,3 +31,12 @@ func (a *asset) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueAsset() (r *AssetValue) {
+	v.Match(Match{
+		Asset: func(v AssetValue) {
+			r = &v
+		},
+	})
+	return
+}

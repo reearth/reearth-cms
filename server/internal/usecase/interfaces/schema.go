@@ -20,6 +20,7 @@ type CreateFieldParam struct {
 	Unique       bool
 	Required     bool
 	TypeProperty *schema.TypeProperty
+	DefaultValue *value.Value
 }
 
 type UpdateFieldParam struct {
@@ -32,6 +33,7 @@ type UpdateFieldParam struct {
 	Unique       *bool
 	Required     *bool
 	TypeProperty *schema.TypeProperty
+	DefaultValue *value.Value
 }
 
 var (

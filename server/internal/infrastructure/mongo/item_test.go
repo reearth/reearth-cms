@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
@@ -25,7 +26,7 @@ func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true)
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string

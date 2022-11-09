@@ -34,3 +34,12 @@ func (a *urlType) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueURL() (r *URLValue) {
+	v.Match(Match{
+		URL: func(v URLValue) {
+			r = &v
+		},
+	})
+	return
+}

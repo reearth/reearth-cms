@@ -18,8 +18,7 @@ var ErrItemFieldRequired = errors.New("item field required")
 
 type ItemFieldParam struct {
 	SchemaFieldID schema.FieldID
-	ValueType     value.Type
-	Value         any
+	Value         *value.Value
 }
 
 type CreateItemParam struct {

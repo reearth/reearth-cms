@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -156,22 +155,17 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	return i.repos.Item.Remove(ctx, itemID)
 }
 
-func itemFieldsFromParams(Fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
-	return util.TryMap(Fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
+func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
+	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
 		sf := s.Field(f.SchemaFieldID)
 		if sf == nil {
 			return nil, nil
 		}
 
-		v, err := value.New(f.ValueType, f.Value)
-		if err != nil {
+		if err := sf.Validate(f.Value); err != nil {
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		if err := sf.Validate(v); err != nil {
-			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
-		}
-
-		return item.NewField(f.SchemaFieldID, v), nil
+		return item.NewField(f.SchemaFieldID, f.Value), nil
 	})
 }

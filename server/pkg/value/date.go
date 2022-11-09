@@ -36,3 +36,12 @@ func (d *date) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueDate() (r *DateValue) {
+	v.Match(Match{
+		Date: func(v DateValue) {
+			r = &v
+		},
+	})
+	return
+}

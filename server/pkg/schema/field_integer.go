@@ -29,7 +29,7 @@ func NewFieldInteger(min, max *int64) (*FieldInteger, error) {
 }
 
 func MustFieldIntegerFrom(min, max *int64) *FieldInteger {
-	return lo.Must(NewFieldIntegerFrom(min, max))
+	return lo.Must(NewFieldInteger(min, max))
 }
 
 func (f *FieldInteger) TypeProperty() *TypeProperty {

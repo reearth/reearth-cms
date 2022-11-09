@@ -21,3 +21,12 @@ func (a *tag) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueTag() (r TagValue) {
+	v.Match(Match{
+		Tag: func(v TagValue) {
+			r = v
+		},
+	})
+	return
+}

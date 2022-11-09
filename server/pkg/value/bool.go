@@ -18,3 +18,12 @@ func (*boolType) New(v any) (any, error) {
 	}
 	return nil, ErrInvalidValue
 }
+
+func (v *Value) ValueBool() (r *BoolValue) {
+	v.Match(Match{
+		Bool: func(v BoolValue) {
+			r = &v
+		},
+	})
+	return
+}
