@@ -49,11 +49,6 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
-			// ctx, err = attachOperatorFromPublicAPIToken(ctx, cfg.Repos.Project, getPublicAPIToken(req))
-			// if err != nil {
-			// 	return err
-			// }
-
 			// get integration token if presented
 			token := getIntegrationToken(req)
 			if token != "" {
@@ -191,25 +186,6 @@ func getPublicAPIToken(req *http.Request) string {
 	}
 	return ""
 }
-
-// func attachOperatorFromPublicAPIToken(ctx context.Context, r repo.Project, token string) (context.Context, error) {
-// 	if token == "" {
-// 		return ctx, nil
-// 	}
-
-// 	p, err := r.FindByPublicAPIToken(ctx, token)
-// 	if err != nil {
-// 		return ctx, err
-// 	}
-
-// 	op := &usecase.Operator{
-// 		PublicAPIProject:   p,
-// 		ReadableWorkspaces: id.WorkspaceIDList{p.Workspace()},
-// 		ReadableProjects:   id.ProjectIDList{p.ID()},
-// 	}
-
-// 	return adapter.AttachOperator(ctx, op), nil
-// }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
