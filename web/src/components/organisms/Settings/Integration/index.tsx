@@ -23,6 +23,7 @@ const Integration: React.FC = () => {
     selectedIntegrationMember,
     handleSearchTerm,
   } = useHooks(workspaceId);
+
   return (
     <>
       <IntegrationTable

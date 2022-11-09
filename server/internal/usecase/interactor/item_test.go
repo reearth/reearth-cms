@@ -40,7 +40,7 @@ func TestItem_FindByID(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {
@@ -149,7 +149,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -164,7 +164,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -179,7 +179,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -192,7 +192,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -232,7 +232,7 @@ func TestItem_Create(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{pid},
 		WritableProjects: []id.ProjectID{pid},
 	}
@@ -285,7 +285,7 @@ func TestItem_Delete(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -314,7 +314,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -370,7 +370,7 @@ func TestItem_Update(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{i1.Project()},
 		WritableProjects: []id.ProjectID{i1.Project()},
 	}
@@ -426,7 +426,7 @@ func TestItem_FindByProject(t *testing.T) {
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	type args struct {
@@ -482,7 +482,7 @@ func TestItem_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -525,7 +525,7 @@ func TestItem_Search(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {

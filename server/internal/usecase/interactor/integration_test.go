@@ -33,7 +33,7 @@ func testSuite() testData {
 	uId := id.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},

@@ -2,7 +2,6 @@ import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback, Key } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -11,9 +10,7 @@ import {
   useGetAssetsQuery,
   useCreateAssetMutation,
   Maybe,
-  User,
   useDeleteAssetMutation,
-  useGetUserBySearchQuery,
   Asset as GQLAsset,
   AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -55,11 +52,6 @@ export default (projectId?: string) => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const gqlCache = useApolloClient().cache;
 
-  const { user } = useAuth();
-  const email = user?.email as string;
-  const userQuery = useGetUserBySearchQuery({ variables: { nameOrEmail: email } });
-  const currentUser = userQuery?.data?.searchUser as User;
-
   const { data, refetch, loading, fetchMore, networkStatus } = useGetAssetsQuery({
     variables: {
       projectId: projectId ?? "",
@@ -90,11 +82,11 @@ export default (projectId?: string) => {
   const createAssets = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
-        if (!projectId || !currentUser?.id) return;
+        if (!projectId) return;
         const results = await Promise.all(
           files.map(async file => {
             const result = await createAssetMutation({
-              variables: { projectId, createdById: currentUser?.id, file },
+              variables: { projectId, file },
             });
             if (result.errors || !result.data?.createAsset) {
               Notification.error({ message: t("Failed to add one or more assets.") });
@@ -106,7 +98,7 @@ export default (projectId?: string) => {
           await refetch();
         }
       })(),
-    [t, projectId, currentUser?.id, createAssetMutation, refetch],
+    [t, projectId, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -180,7 +172,6 @@ export default (projectId?: string) => {
   }, [data?.assets.nodes]);
 
   return {
-    currentUser,
     assetList,
     assetsPerPage,
     createAssets,

@@ -1,4 +1,5 @@
 export type IntegrationMember = {
+  id: string;
   integration: Integration;
   integrationRole: Role;
   invitedById: string;

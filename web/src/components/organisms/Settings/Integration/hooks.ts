@@ -51,6 +51,7 @@ export default (workspaceId?: string) => {
       ?.map<IntegrationMember | undefined>(member =>
         member && member.__typename === "WorkspaceIntegrationMember" && member.integration
           ? {
+              id: member.integration.id,
               active: member.active,
               integration: fromIntegration(member.integration),
               integrationRole: member.integrationRole,
