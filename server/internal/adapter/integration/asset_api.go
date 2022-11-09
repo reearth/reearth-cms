@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -27,14 +26,9 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	f := interfaces.AssetFilter{
-		Keyword: nil,
-		Sort:    &sort,
-		Pagination: usecasex.CursorPagination{
-			Before: nil,
-			After:  nil,
-			First:  lo.ToPtr(int64(1000)),
-			Last:   nil,
-		}.Wrap(),
+		Keyword:    nil,
+		Sort:       &sort,
+		Pagination: toPagination(request.Params.Page, request.Params.PerPage),
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
