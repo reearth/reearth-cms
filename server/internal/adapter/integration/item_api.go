@@ -22,12 +22,12 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return nil, err
 	}
 
-	p := &usecasex.Pagination{
+	p := usecasex.CursorPagination{
 		Before: nil,
 		After:  nil,
-		First:  lo.ToPtr(1000),
+		First:  lo.ToPtr(int64(1000)),
 		Last:   nil,
-	}
+	}.Wrap()
 
 	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
 	if err != nil {
@@ -50,7 +50,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		Items:      &itemList,
 		Page:       lo.ToPtr(1),
 		PerPage:    lo.ToPtr(1000),
-		TotalCount: lo.ToPtr(pi.TotalCount),
+		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
 

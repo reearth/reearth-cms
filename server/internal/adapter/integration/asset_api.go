@@ -29,12 +29,12 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	f := interfaces.AssetFilter{
 		Keyword: nil,
 		Sort:    &sort,
-		Pagination: &usecasex.Pagination{
+		Pagination: usecasex.CursorPagination{
 			Before: nil,
 			After:  nil,
-			First:  lo.ToPtr(1000),
+			First:  lo.ToPtr(int64(1000)),
 			Last:   nil,
-		},
+		}.Wrap(),
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
@@ -57,7 +57,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 		Items:      &itemList,
 		Page:       lo.ToPtr(1),
 		PerPage:    lo.ToPtr(1000),
-		TotalCount: lo.ToPtr(pi.TotalCount),
+		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
 
