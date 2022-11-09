@@ -25,18 +25,14 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
     [SetSelectedIntegration],
   );
 
-  const handleClose = useCallback(() => {
-    SetSelectedIntegration(undefined);
-    onClose();
-  }, [SetSelectedIntegration, onClose]);
-
   return (
     <Modal
+      afterClose={() => SetSelectedIntegration(undefined)}
       title={t("Connect Integration")}
       visible={open}
-      onCancel={handleClose}
+      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={handleClose}>
+        <Button key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={() => onSubmit(selectedIntegration)}>

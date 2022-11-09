@@ -6,6 +6,7 @@ export type Asset = {
   id: string;
   createdAt: string;
   createdBy: string;
+  createdByType: string;
   file: AssetFile;
   fileName: string;
   previewType?: PreviewType;

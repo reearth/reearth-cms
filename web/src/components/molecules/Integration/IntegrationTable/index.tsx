@@ -72,6 +72,12 @@ const IntegrationTable: React.FC<Props> = ({
     },
   };
 
+  const options = {
+    fullScreen: true,
+    reload: false,
+    setting: true,
+  };
+
   return (
     <Wrapper>
       <PageHeader
@@ -101,6 +107,7 @@ const IntegrationTable: React.FC<Props> = ({
           </EmptyTableWrapper>
         )}>
         <ProTable
+          options={options}
           dataSource={integrationMembers}
           columns={columns}
           search={false}

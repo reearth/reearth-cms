@@ -232,9 +232,13 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "OBJECT",
-              "name": "User",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "UNION",
+                "name": "Operator",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -249,6 +253,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "createdByType",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "OperatorType",
                 "ofType": null
               }
             },
@@ -320,9 +340,13 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "OBJECT",
-              "name": "Project",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Project",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -823,22 +847,6 @@
         "description": null,
         "fields": null,
         "inputFields": [
-          {
-            "name": "createdById",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "file",
             "description": null,
@@ -4747,6 +4755,50 @@
           },
           {
             "name": "WORKSPACE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "UNION",
+        "name": "Operator",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "Integration",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "User",
+            "ofType": null
+          }
+        ]
+      },
+      {
+        "kind": "ENUM",
+        "name": "OperatorType",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "Integration",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "User",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
