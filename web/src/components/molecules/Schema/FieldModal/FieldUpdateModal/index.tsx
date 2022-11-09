@@ -196,8 +196,6 @@ const FieldUpdateModal: React.FC<Props> = ({
         initialValues={initialValues}
         onValuesChange={() => {
           setTimeout(() => {
-            console.log(form.getFieldsValue());
-
             form
               .validateFields()
               .then(() => {
