@@ -94,13 +94,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam, s *schema.Schema, mid id.ModelID, repos *repo.Container) error {
 	var fieldsArg []repo.ItemFieldArg
 	for _, f := range itemFields {
-		fieldsArg = append(fieldsArg, repo.ItemFieldArg(f))
+		fieldsArg = append(fieldsArg, repo.ItemFieldArg{
+			SchemaFieldID: f.SchemaFieldID,
+			Value:         f.Value,
+		})
 	}
 	exists, err := repos.Item.FindByModelAndValue(ctx, mid, fieldsArg)
 	if err != nil {
 		return err
 	}
-	fmt.Println(exists)
 	for _, field := range itemFields {
 		sf := s.Field(field.SchemaFieldID)
 		if sf == nil {
@@ -110,7 +112,7 @@ func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam,
 			return errors.New("field is required")
 		}
 		if sf.Unique() && field.Value != nil {
-			if len(exists) > 0 && len(exists.ItemsBySchemaField(field.SchemaFieldID, field.Value, field.ValueType)) > 0 {
+			if len(exists) > 0 && len(exists.ItemsBySchemaField(field.SchemaFieldID, field.Value)) > 0 {
 				return interfaces.ErrFieldValueExist
 			}
 		}

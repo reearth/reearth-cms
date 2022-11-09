@@ -192,10 +192,9 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 			"modelid":            modelID.String(),
 			"fields.schemafield": f.SchemaFieldID.String(),
 			"fields.value":       f.Value,
-			"fields.valuetype":   f.ValueType,
 		})
 	}
-	filter := bson.M{"$and": filters}
+	filter := bson.M{"$or": filters}
 
 	return r.find(ctx, filter)
 }

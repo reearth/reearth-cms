@@ -199,7 +199,7 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.ValueType == ff.ValueType() && f.Value == ff.Value() && f.SchemaFieldID == ff.SchemaFieldID() {
+					if f.Value == ff.Value() && f.SchemaFieldID == ff.SchemaFieldID() {
 						res = append(res, it)
 					}
 				}

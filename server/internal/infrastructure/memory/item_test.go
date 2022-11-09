@@ -201,7 +201,6 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	_ = r.Save(ctx, i2)
 	got, _ := r.FindByModelAndValue(ctx, mid, []repo.ItemFieldArg{{
 		SchemaFieldID: f1.SchemaFieldID(),
-		ValueType:     f1.ValueType(),
 		Value:         f1.Value(),
 	}})
 	assert.Equal(t, 1, len(got))

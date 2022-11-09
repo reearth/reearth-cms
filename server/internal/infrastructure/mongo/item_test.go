@@ -441,7 +441,6 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				fields: []repo.ItemFieldArg{
 					{
 						SchemaFieldID: f2.SchemaFieldID(),
-						ValueType:     f2.ValueType(),
 						Value:         f2.Value(),
 					},
 				},
@@ -456,7 +455,6 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				fields: []repo.ItemFieldArg{
 					{
 						SchemaFieldID: f1.SchemaFieldID(),
-						ValueType:     f1.ValueType(),
 						Value:         f1.Value(),
 					},
 				},

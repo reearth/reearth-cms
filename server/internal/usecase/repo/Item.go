@@ -12,7 +12,6 @@ import (
 
 type ItemFieldArg struct {
 	SchemaFieldID schema.FieldID
-	ValueType     schema.Type
 	Value         any
 }
 
