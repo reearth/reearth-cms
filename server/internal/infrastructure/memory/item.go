@@ -188,18 +188,20 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	return res, nil, nil
 }
 
-func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, a any) (*item.Item, error) {
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.ItemFieldArg) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	var res *item.Item
+	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion()).Value()
 		if it.Model() == modelID {
-			for _, f := range it.Fields() {
-				if f.Value() == a {
-					res = it
+			for _, f := range fields {
+				for _, ff := range it.Fields() {
+					if f.ValueType == ff.ValueType() && f.Value == ff.Value() && f.SchemaFieldID == ff.SchemaFieldID() {
+						res = append(res, it)
+					}
 				}
 			}
 		}

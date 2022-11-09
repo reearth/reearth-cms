@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -14,6 +15,12 @@ func (l List) SortByID() List {
 		return a.ID().Compare(b.ID()) < 0
 	})
 	return m
+}
+
+func (l List) ItemsBySchemaField(fid id.FieldID, value any, vt schema.Type) List {
+	return lo.Filter(l, func(i *Item, _ int) bool {
+		return i.HasField(fid, value, vt)
+	})
 }
 
 func (l List) SortByTimestamp() List {

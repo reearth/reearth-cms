@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -81,4 +82,11 @@ func (i *Item) FindFieldByValue(v any) bool {
 		}
 	}
 	return false
+}
+
+func (i *Item) HasField(fid id.FieldID, value any, vt schema.Type) bool {
+	res := lo.Map(i.fields, func(f *Field, _ int) bool {
+		return f.SchemaFieldID() == fid && f.ValueType() == vt && f.Value() == value
+	})
+	return len(res) > 0
 }

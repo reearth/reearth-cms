@@ -185,17 +185,17 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, a any) (*item.Item, error) {
-	return r.findOne(ctx, bson.M{
-		"modelid": modelID.String(),
-		"$or": []bson.M{
-			{
-				"fields": bson.M{
-					"$elemMatch": bson.M{
-						"value": a,
-					},
-				},
-			},
-		},
-	})
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.ItemFieldArg) (item.List, error) {
+	filters := make([]bson.M, 0, len(fields))
+	for _, f := range fields {
+		filters = append(filters, bson.M{
+			"modelid":            modelID.String(),
+			"fields.schemafield": f.SchemaFieldID.String(),
+			"fields.value":       f.Value,
+			"fields.valuetype":   f.ValueType,
+		})
+	}
+	filter := bson.M{"$and": filters}
+
+	return r.find(ctx, filter)
 }

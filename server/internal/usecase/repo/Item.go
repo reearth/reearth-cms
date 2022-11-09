@@ -5,9 +5,16 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
+
+type ItemFieldArg struct {
+	SchemaFieldID schema.FieldID
+	ValueType     schema.Type
+	Value         any
+}
 
 type Item interface {
 	Filtered(ProjectFilter) Item
@@ -18,7 +25,7 @@ type Item interface {
 	FindByIDs(context.Context, id.ItemIDList) (item.List, error)
 	FindAllVersionsByID(context.Context, id.ItemID) ([]*version.Value[*item.Item], error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
-	FindByModelAndValue(context.Context, id.ModelID, any) (*item.Item, error)
+	FindByModelAndValue(context.Context, id.ModelID, []ItemFieldArg) (item.List, error)
 	Save(context.Context, *item.Item) error
 	Remove(context.Context, id.ItemID) error
 	Archive(context.Context, id.ItemID, id.ProjectID, bool) error

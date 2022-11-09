@@ -424,33 +424,45 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	i1, _ := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Build()
 	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
 	type args struct {
-		model id.ModelID
-		value any
+		model  id.ModelID
+		fields []repo.ItemFieldArg
 	}
 	tests := []struct {
 		Name     string
 		Input    args
 		RepoData item.List
-		Expected *item.Item
+		Expected int
 		WantErr  error
 	}{
 		{
-			Name: "mustn't find any item",
+			Name: "must not find any item",
 			Input: args{
 				model: mid,
-				value: "hoge",
+				fields: []repo.ItemFieldArg{
+					{
+						SchemaFieldID: f2.SchemaFieldID(),
+						ValueType:     f2.ValueType(),
+						Value:         f2.Value(),
+					},
+				},
 			},
 			RepoData: item.List{i1, i2},
-			WantErr:  rerror.ErrNotFound,
+			Expected: 0,
 		},
 		{
 			Name: "must find one item",
 			Input: args{
 				model: mid,
-				value: "foo",
+				fields: []repo.ItemFieldArg{
+					{
+						SchemaFieldID: f1.SchemaFieldID(),
+						ValueType:     f1.ValueType(),
+						Value:         f1.Value(),
+					},
+				},
 			},
 			RepoData: item.List{i1, i2},
-			Expected: i1,
+			Expected: 1,
 		},
 	}
 
@@ -471,13 +483,9 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.value)
-			if tc.WantErr != nil {
-				assert.Equal(tt, tc.WantErr, err)
-				return
-			}
-			assert.Equal(tt, tc.Expected.ID(), got.ID())
-
+			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields)
+			assert.Equal(tt, tc.WantErr, err)
+			assert.Equal(tt, tc.Expected, len(got))
 		})
 	}
 }
