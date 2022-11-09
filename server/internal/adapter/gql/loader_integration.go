@@ -27,6 +27,10 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 	}
 
 	op := getOperator(ctx)
+	if err != nil {
+		return nil, []error{err}
+	}
+
 	res, err := c.usecase.FindByIDs(ctx, sIds, op)
 	if err != nil {
 		return nil, []error{err}
@@ -39,6 +43,7 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 
 func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integration, error) {
 	op := getOperator(ctx)
+
 	res, err := c.usecase.FindByMe(ctx, op)
 	if err != nil {
 		return nil, err

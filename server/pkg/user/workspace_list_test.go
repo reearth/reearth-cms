@@ -3,6 +3,7 @@ package user
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,6 +45,33 @@ func TestWorkspaceList_FilterByUserRole(t *testing.T) {
 	assert.Equal(t, WorkspaceList{}, WorkspaceList{t1, t2}.FilterByUserRole(uid, RoleWriter))
 	assert.Equal(t, WorkspaceList{t2}, WorkspaceList{t1, t2}.FilterByUserRole(uid, RoleOwner))
 	assert.Equal(t, WorkspaceList(nil), WorkspaceList(nil).FilterByUserRole(uid, RoleOwner))
+}
+
+func TestWorkspaceList_FilterByIntegrationRole(t *testing.T) {
+	iid := id.NewIntegrationID()
+	tid1 := NewWorkspaceID()
+	tid2 := NewWorkspaceID()
+	t1 := &Workspace{
+		id: tid1,
+		members: &Members{
+			integrations: map[IntegrationID]Member{
+				iid: {Role: RoleReader},
+			},
+		},
+	}
+	t2 := &Workspace{
+		id: tid2,
+		members: &Members{
+			integrations: map[IntegrationID]Member{
+				iid: {Role: RoleWriter},
+			},
+		},
+	}
+
+	assert.Equal(t, WorkspaceList{t1}, WorkspaceList{t1, t2}.FilterByIntegrationRole(iid, RoleReader))
+	assert.Equal(t, WorkspaceList{}, WorkspaceList{t1, t2}.FilterByIntegrationRole(iid, RoleOwner))
+	assert.Equal(t, WorkspaceList{t2}, WorkspaceList{t1, t2}.FilterByIntegrationRole(iid, RoleWriter))
+	assert.Equal(t, WorkspaceList(nil), WorkspaceList(nil).FilterByIntegrationRole(iid, RoleOwner))
 }
 
 func TestWorkspaceList_FilterByUserRoleIncluding(t *testing.T) {

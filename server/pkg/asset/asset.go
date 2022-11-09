@@ -11,7 +11,8 @@ type Asset struct {
 	id          ID
 	project     ProjectID
 	createdAt   time.Time
-	createdBy   UserID
+	user        *UserID
+	integration *IntegrationID
 	fileName    string
 	size        uint64
 	previewType *PreviewType
@@ -38,8 +39,12 @@ func (a *Asset) CreatedAt() time.Time {
 	return a.createdAt
 }
 
-func (a *Asset) CreatedBy() UserID {
-	return a.createdBy
+func (a *Asset) User() *UserID {
+	return a.user
+}
+
+func (a *Asset) Integration() *IntegrationID {
+	return a.integration
 }
 
 func (a *Asset) FileName() string {
@@ -82,7 +87,8 @@ func (a *Asset) Clone() *Asset {
 		id:          a.id.Clone(),
 		project:     a.project.Clone(),
 		createdAt:   a.createdAt,
-		createdBy:   a.createdBy.Clone(),
+		user:        a.user.CloneRef(),
+		integration: a.integration.CloneRef(),
 		fileName:    a.fileName,
 		size:        a.size,
 		previewType: a.previewType,
