@@ -72,7 +72,7 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 	}
 
 	return result, usecasex.NewPageInfo(
-		len(result),
+		int64(len(result)),
 		startCursor,
 		endCursor,
 		true,

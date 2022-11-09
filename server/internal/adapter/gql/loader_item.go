@@ -60,7 +60,14 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, fir
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindBySchema(ctx, wid, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	p := (&gqlmodel.Pagination{
+		First:  first,
+		Last:   last,
+		After:  after,
+		Before: before,
+	}).Into()
+
+	res, pi, err := c.usecase.FindBySchema(ctx, wid, p, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +87,7 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, fir
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: pi.TotalCount,
+		TotalCount: int(pi.TotalCount),
 	}, nil
 }
 
@@ -90,7 +97,14 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByProject(ctx, pid, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	p := (&gqlmodel.Pagination{
+		First:  first,
+		Last:   last,
+		After:  after,
+		Before: before,
+	}).Into()
+
+	res, pi, err := c.usecase.FindByProject(ctx, pid, p, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -110,13 +124,13 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: pi.TotalCount,
+		TotalCount: int(pi.TotalCount),
 	}, nil
 }
 
-func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	q := gqlmodel.ToItemQuery(query)
-	res, pi, err := c.usecase.Search(ctx, q, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	res, pi, err := c.usecase.Search(ctx, q, p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +150,7 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, first
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: pi.TotalCount,
+		TotalCount: int(pi.TotalCount),
 	}, nil
 }
 
