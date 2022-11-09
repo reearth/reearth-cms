@@ -19,6 +19,5 @@ func TestFieldURL_TypeProperty(t *testing.T) {
 
 func TestFieldURL_Validate(t *testing.T) {
 	err := (&FieldURL{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

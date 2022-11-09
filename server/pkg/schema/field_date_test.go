@@ -19,6 +19,5 @@ func TestFieldDate_TypeProperty(t *testing.T) {
 
 func TestFieldDate_Validate(t *testing.T) {
 	err := (&FieldDate{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

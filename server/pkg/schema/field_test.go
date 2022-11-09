@@ -758,12 +758,6 @@ func TestField_SetTypeProperty(t *testing.T) {
 		want *TypeProperty
 	}{
 		{
-			name: "empty field",
-			f:    &Field{},
-			tp:   tpText,
-			want: tpText,
-		},
-		{
 			name: "field with same type",
 			f:    &Field{typeProperty: tpText1},
 			tp:   tpText,

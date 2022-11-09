@@ -11,7 +11,7 @@ import (
 func TestFieldTextArea_NewFieldTextArea(t *testing.T) {
 	m := lo.ToPtr(123)
 	u := NewFieldTextArea(m)
-	assert.Equal(t, &FieldTextArea{}, u)
+	assert.Equal(t, &FieldTextArea{maxLength: lo.ToPtr(123)}, u)
 }
 
 func TestFieldTextArea_TypeProperty(t *testing.T) {
@@ -20,12 +20,11 @@ func TestFieldTextArea_TypeProperty(t *testing.T) {
 }
 
 func TestFieldTextArea_MaxLength(t *testing.T) {
-	i := (&FieldTextArea{}).MaxLength()
+	i := (&FieldTextArea{maxLength: lo.ToPtr(123)}).MaxLength()
 	assert.Equal(t, lo.ToPtr(123), i)
 }
 
 func TestFieldTextArea_Validate(t *testing.T) {
 	err := (&FieldTextArea{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

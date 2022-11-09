@@ -10,7 +10,7 @@ import (
 func TestFieldSelect_NewFieldSelect(t *testing.T) {
 	v := []string{"v1"}
 	b := NewFieldSelect(v)
-	assert.Equal(t, &FieldSelect{}, b)
+	assert.Equal(t, &FieldSelect{values: v}, b)
 }
 
 func TestFieldSelect_TypeProperty(t *testing.T) {
@@ -20,6 +20,5 @@ func TestFieldSelect_TypeProperty(t *testing.T) {
 
 func TestFieldSelect_Validate(t *testing.T) {
 	err := (&FieldSelect{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

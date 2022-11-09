@@ -10,7 +10,7 @@ import (
 func TestFieldTag_NewFieldTag(t *testing.T) {
 	v := []string{"v1"}
 	b := NewFieldTag(v)
-	assert.Equal(t, &FieldTag{}, b)
+	assert.Equal(t, &FieldTag{values: v}, b)
 }
 
 func TestFieldTag_TypeProperty(t *testing.T) {
@@ -20,6 +20,5 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 
 func TestFieldTag_Validate(t *testing.T) {
 	err := (&FieldTag{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

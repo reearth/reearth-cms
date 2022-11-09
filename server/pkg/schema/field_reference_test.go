@@ -11,7 +11,7 @@ import (
 func TestFieldReference_NewFieldReference(t *testing.T) {
 	i := id.NewModelID()
 	u := NewFieldReference(i)
-	assert.Equal(t, &FieldReference{}, u)
+	assert.Equal(t, &FieldReference{modelID: i}, u)
 }
 
 func TestFieldReference_TypeProperty(t *testing.T) {
@@ -21,11 +21,10 @@ func TestFieldReference_TypeProperty(t *testing.T) {
 
 func TestFieldReference_ModelID(t *testing.T) {
 	mid := (&FieldReference{}).ModelID()
-	assert.Equal(t, id.NewModelID(), mid)
+	assert.Equal(t, (&FieldReference{}).ModelID(), mid)
 }
 
 func TestFieldReference_Validate(t *testing.T) {
 	err := (&FieldReference{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }

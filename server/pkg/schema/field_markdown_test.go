@@ -9,9 +9,9 @@ import (
 )
 
 func TestFieldMarkdown_NewFieldMarkdown(t *testing.T) {
-	m := lo.ToPtr(123)
+	m := lo.ToPtr(0)
 	u := NewFieldMarkdown(m)
-	assert.Equal(t, &FieldMarkdown{}, u)
+	assert.Equal(t, &FieldMarkdown{maxLength: lo.ToPtr(0)}, u)
 }
 
 func TestFieldMarkdown_TypeProperty(t *testing.T) {
@@ -20,12 +20,12 @@ func TestFieldMarkdown_TypeProperty(t *testing.T) {
 }
 
 func TestFieldMarkdown_MaxLength(t *testing.T) {
-	i := (&FieldMarkdown{}).MaxLength()
-	assert.Equal(t, lo.ToPtr(123), i)
+	var m int
+	i := (&FieldMarkdown{maxLength: lo.ToPtr(m)}).MaxLength()
+	assert.Equal(t, lo.ToPtr(m), i)
 }
 
 func TestFieldMarkdown_Validate(t *testing.T) {
 	err := (&FieldMarkdown{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }
