@@ -14,7 +14,7 @@ import (
 func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if ai := c.Request().Context().Value(adapter.ContextAuthInfo).(*appx.AuthInfo); ai != nil {
+			if ai, ok := c.Request().Context().Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
