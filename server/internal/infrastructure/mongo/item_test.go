@@ -216,7 +216,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got)
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -266,7 +266,7 @@ func TestItem_FindByProject(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}
@@ -408,7 +408,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.Search(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.Search(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, len(got))
 		})
 	}

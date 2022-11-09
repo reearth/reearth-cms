@@ -53,7 +53,7 @@ func (r *Project) FindByWorkspaces(_ context.Context, wids id.WorkspaceIDList, _
 	}
 
 	return result, usecasex.NewPageInfo(
-		len(result),
+		int64(len(result)),
 		startCursor,
 		endCursor,
 		true,

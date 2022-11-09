@@ -82,10 +82,10 @@ func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*us
 
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, workspaces.IDs(), &usecasex.Pagination{
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, workspaces.IDs(), usecasex.CursorPagination{
 			After: cur,
-			First: lo.ToPtr(100),
-		})
+			First: lo.ToPtr(int64(100)),
+		}.Wrap())
 		if err != nil {
 			return nil, err
 		}
