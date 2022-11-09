@@ -82,7 +82,7 @@ func TestToSchemaField(t *testing.T) {
 		},
 		{
 			name: "success",
-			schema: schema.NewFieldText(nil, nil).ID(fId).UpdatedAt(fId.Timestamp()).
+			schema: schema.NewFieldText(nil).ID(fId).UpdatedAt(fId.Timestamp()).
 				Name("N1").Description("D1").Key(key.New("K123456")).Options(true, true, true).MustBuild(),
 			want: &SchemaField{
 				ID:           IDFrom(fId),

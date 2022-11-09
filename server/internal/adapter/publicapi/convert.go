@@ -3,20 +3,26 @@ package publicapi
 import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 func ToItem(f *item.Item) Item {
-	panic("implement")
+	return Item{
+		ID:     f.ID().String(),
+		Fields: ToItemFields(f.Fields()),
+	}
 }
 
 func ToItemFields(f []*item.Field) map[string]any {
-	panic("implement")
+	return lo.SliceToMap(f, func(f *item.Field) (string, any) {
+		return f.SchemaFieldID().String(), f.Value()
+	})
 }
 
-func ToListResult[T any](pi *usecasex.PageInfo) ListResult[T] {
+func ToListResult[T any](pi *usecasex.PageInfo, limit, offset int) ListResult[T] {
 	return ListResult[T]{
-		TotalCount: pi.TotalCount,
-		// Limit: pi.Limit,
-		// Offset: pi.Offset,
+		TotalCount: int64(pi.TotalCount),
+		Limit:      lmit,
+		Offset:     offset,
 	}
 }

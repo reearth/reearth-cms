@@ -8,8 +8,8 @@ import (
 )
 
 func TestFieldInteger_NewFieldInteger(t *testing.T) {
-	min := int64(1)
-	max := lo.ToPtr(123)
-	u, _ := NewFieldInteger(min, max)
+	min := 1
+	max := 100
+	u, _ := NewFieldInteger(lo.ToPtr(int64(min)), lo.ToPtr(int64(max)))
 	assert.Equal(t, &FieldInteger{}, u)
 }
