@@ -54,8 +54,10 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("Local")} key="1">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        <TabPane tab={t("URL")} key="2" />
-        <TabPane tab={t("Google Drive")} key="3" />
+        {/* TODO: uncomment this once upload asset by url is implemented */}
+        {/* <TabPane tab={t("URL")} key="2" /> */}
+        {/* TODO: uncomment this once upload asset from google drive is implemented */}
+        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={handleCancel}>

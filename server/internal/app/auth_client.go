@@ -121,10 +121,10 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceLi
 
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), &usecasex.Pagination{
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
 			After: cur,
-			First: lo.ToPtr(100),
-		})
+			First: lo.ToPtr(int64(100)),
+		}.Wrap())
 		if err != nil {
 			return nil, nil, nil, err
 		}

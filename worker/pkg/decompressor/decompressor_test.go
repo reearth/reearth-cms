@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,16 +22,20 @@ func (*Buffer) Close() error {
 }
 
 func TestNewUnzipper(t *testing.T) {
-	zf, err := os.Open("testdata/test.zip")
-	require.NoError(t, err)
-	fInfo, err := zf.Stat()
-	require.NoError(t, err)
+	zf := lo.Must(os.Open("testdata/test.zip"))
+	fInfo := lo.Must(zf.Stat())
 
 	wFn := func(name string) (io.WriteCloser, error) {
 		return &Buffer{bytes.Buffer{}}, nil
 	}
-	_, err = New(zf, fInfo.Size(), "zip", wFn)
+	_, err := New(zf, fInfo.Size(), "zip", wFn)
 	assert.NoError(t, err)
+
+	f := lo.Must(os.Open("testdata/test1.txt"))
+	fInfo2 := lo.Must(f.Stat())
+	_, err2 := New(f, fInfo2.Size(), "txt", wFn)
+	// txt is not unsupported
+	assert.Same(t, ErrUnsupportedExtention, err2)
 }
 
 func TestDecompressor_Decompress(t *testing.T) {

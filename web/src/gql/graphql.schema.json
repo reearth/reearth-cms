@@ -1156,6 +1156,22 @@
             "deprecationReason": null
           },
           {
+            "name": "modelId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "schemaId",
             "description": null,
             "type": {
@@ -2472,6 +2488,22 @@
           },
           {
             "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "modelId",
             "description": null,
             "args": [],
             "type": {
@@ -9133,6 +9165,18 @@
         "description": null,
         "fields": [
           {
+            "name": "onAssetDecompress",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "onAssetDeleted",
             "description": null,
             "args": [],
@@ -9228,6 +9272,18 @@
         "description": null,
         "fields": null,
         "inputFields": [
+          {
+            "name": "onAssetDecompress",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "onAssetDeleted",
             "description": null,

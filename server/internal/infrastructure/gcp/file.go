@@ -23,7 +23,7 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	fileSizeLimit    int64  = 1024 * 1024 * 100 // about 100MB
+	fileSizeLimit    int64  = 1024 * 1024 * 1024 // about 1GB
 )
 
 type fileRepo struct {
@@ -228,7 +228,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getGCSObjectPath(uuid, objectName string) string {
-	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
