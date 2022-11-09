@@ -94,7 +94,8 @@ export default ({ workspaceId }: Props) => {
           : undefined,
       )
       .filter(
-        (user): user is Member => !!user && user.user.name.toLowerCase().includes(searchTerm ?? ""),
+        (user): user is Member =>
+          !!user && user.user.name.toLowerCase().includes(searchTerm?.toLowerCase() ?? ""),
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace, searchTerm]);
