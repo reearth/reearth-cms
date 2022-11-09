@@ -384,8 +384,7 @@ func TestItem_Update(t *testing.T) {
 
 	itemUC := NewItem(db)
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
+		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: f1.SchemaFieldID(),
@@ -403,9 +402,8 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, i1, i)
 
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
-		Fields:   []interfaces.ItemFieldParam{},
+		ItemID: id1,
+		Fields: []interfaces.ItemFieldParam{},
 	}, op)
 	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
 }

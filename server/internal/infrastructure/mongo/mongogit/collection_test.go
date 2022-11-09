@@ -243,9 +243,13 @@ func TestCollection_Paginate(t *testing.T) {
 	})
 
 	consumer := &mongox.SliceConsumer[d]{}
-	pi, err := col.Paginate(ctx, bson.M{}, version.Eq(version.Latest.OrVersion()), &usecasex.Pagination{
-		First: lo.ToPtr(2),
-	}, consumer)
+	pi, err := col.Paginate(
+		ctx,
+		bson.M{},
+		version.Eq(version.Latest.OrVersion()),
+		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		consumer,
+	)
 	assert.NoError(t, err)
 	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("a").Ref(), usecasex.Cursor("b").Ref(), false, false), pi)
 	assert.Equal(t, []d{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)

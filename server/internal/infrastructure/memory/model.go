@@ -57,7 +57,7 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 	}
 
 	return result, usecasex.NewPageInfo(
-		len(result),
+		int64(len(result)),
 		startCursor,
 		endCursor,
 		true,
