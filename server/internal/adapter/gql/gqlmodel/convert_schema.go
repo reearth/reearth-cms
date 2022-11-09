@@ -257,10 +257,3 @@ func pint642pint(i *int64) *int {
 	}
 	return lo.ToPtr(int(*i))
 }
-
-func pint2pint64(i *int) *int64 {
-	if i == nil {
-		return nil
-	}
-	return lo.ToPtr(int64(*i))
-}

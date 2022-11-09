@@ -40,7 +40,7 @@ func TestSchema_AddField(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tc.s.AddField(*tc.f)
+			tc.s.AddField(tc.f)
 			assert.Equal(t, tc.want, tc.s)
 		})
 	}

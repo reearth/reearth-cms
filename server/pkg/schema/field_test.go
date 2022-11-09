@@ -748,9 +748,9 @@ func TestField_SetTypeProperty333(t *testing.T) {
 }
 
 func TestField_SetTypeProperty(t *testing.T) {
-	tpText, _ := NewFieldTypePropertyText(lo.ToPtr("test"), lo.ToPtr(10))
-	tpText1, _ := NewFieldTypePropertyText(lo.ToPtr("test1"), lo.ToPtr(11))
-	tpTextarea, _ := NewFieldTypePropertyTextArea(lo.ToPtr("test1"), lo.ToPtr(11))
+	tpText := NewFieldText(lo.ToPtr(10)).TypeProperty()
+	tpText1 := NewFieldText(lo.ToPtr(11)).TypeProperty()
+	tpTextarea := NewFieldTextArea(lo.ToPtr(11)).TypeProperty()
 	tests := []struct {
 		name string
 		f    *Field

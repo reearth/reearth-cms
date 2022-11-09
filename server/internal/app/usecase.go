@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -19,8 +20,11 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, config interacto
 		} else {
 			r2 = r
 		}
+
 		uc := interactor.New(r2, g, config)
 		ctx = adapter.AttachUsecases(ctx, &uc)
+		ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Project, &uc))
+
 		return ctx
 	})
 }

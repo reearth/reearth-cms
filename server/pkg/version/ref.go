@@ -3,6 +3,7 @@ package version
 import "github.com/chrispappas/golang-generics-set/set"
 
 const Latest = Ref("latest")
+const Public = Ref("Public")
 
 type Ref string
 

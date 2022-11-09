@@ -2,57 +2,75 @@ package publicapi
 
 import (
 	"context"
-	"errors"
+	"net/http"
+	"strconv"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/labstack/echo/v4"
 )
 
-var ErrInvalidProject = errors.New("invalid project")
+var contextKey = struct{}{}
 
-type Controller struct {
-	project  repo.Project
-	usecases *interfaces.Container
+func AttachController(ctx context.Context, c *Controller) context.Context {
+	return context.WithValue(ctx, contextKey, c)
 }
 
-func NewController(project repo.Project, usecases *interfaces.Container) *Controller {
-	return &Controller{
-		project:  project,
-		usecases: usecases,
+func GetController(ctx context.Context) *Controller {
+	return ctx.Value(contextKey).(*Controller)
+}
+
+func Echo(e *echo.Group) {
+	e.GET("/:project/:model", PublicApiItemList())
+	e.GET("/:project/:model/:item", PublicApiItem())
+}
+
+func PublicApiItem() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(c.Request().Context())
+
+		res, err := ctrl.GetItem(ctx, c.Param("project"), c.Param("item"))
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
-func (c *Controller) checkProject(ctx context.Context, prj string) error {
-	o := adapter.Operator(ctx)
-	if o != nil {
-		if o.PublicAPIProject == nil {
-			return ErrInvalidProject
+func PublicApiItemList() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		p, err := listParamFromEchoContext(c)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, "invalid offset or limit")
 		}
 
-		pid, err := id.ProjectIDFrom(prj)
-		if err != nil || o.PublicAPIProject.ID() != pid {
-			return ErrInvalidProject
+		res, err := ctrl.GetItems(ctx, c.Param("project"), c.Param("model"), p)
+		if err != nil {
+			return err
 		}
 
-		return nil
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func listParamFromEchoContext(c echo.Context) (ListParam, error) {
+	var offset = 0
+	var limit = 0
+	var err error
+
+	if offsets := c.QueryParam("offset"); offsets != "" {
+		offset, err = strconv.Atoi(offsets)
 	}
 
-	pid, err := id.ProjectIDFrom(prj)
-	if err != nil {
-		return ErrInvalidProject
+	if limits := c.QueryParam("limit"); limits != "" {
+		limit, err = strconv.Atoi(limits)
 	}
 
-	pr, err := c.project.FindByID(ctx, pid)
-	if err != nil {
-		return ErrInvalidProject
-	}
-
-	if pr.Publication().Scope() != project.PublicationScopePublic {
-		return ErrInvalidProject
-	}
-
-	return nil
+	return ListParam{
+		Offset: offset,
+		Limit:  limit,
+	}, err
 }

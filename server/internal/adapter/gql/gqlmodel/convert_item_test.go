@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -73,8 +74,7 @@ func TestToItemParam(t *testing.T) {
 			},
 			want: &interfaces.ItemFieldParam{
 				SchemaFieldID: sfid,
-				ValueType:     value.TypeText,
-				Value:         "foo",
+				Value:         value.Must(value.TypeText, "foo"),
 			},
 		},
 		{
@@ -89,7 +89,7 @@ func TestToItemParam(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got := ToItemParam(tc.input)
+			got := lo.Must(ToItemFieldParam(tc.input))
 			assert.Equal(tt, tc.want, got)
 		})
 	}

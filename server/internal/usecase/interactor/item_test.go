@@ -41,7 +41,7 @@ func TestItem_FindByID(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {
@@ -114,8 +114,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
-	v1 := true
-	sf1 := schema.NewFieldBool(&v1).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewFieldBool().TypeProperty()).NewID().DefaultValue(value.Must(value.TypeBool, true)).Key(key.Random()).MustBuild()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
@@ -150,7 +149,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -165,7 +164,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -180,7 +179,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -193,7 +192,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -227,13 +226,21 @@ func TestItem_Create(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
-	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
-	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewFieldBool().TypeProperty()).
+		NewID().
+		DefaultValue(value.Must(value.TypeBool, true)).
+		Key(key.Random()).
+		MustBuild()
+	sf2 := schema.NewField(schema.NewFieldText(lo.ToPtr(10)).TypeProperty()).
+		NewID().
+		DefaultValue(value.Must(value.TypeText, "x")).
+		Key(key.Random()).
+		MustBuild()
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{pid},
 		WritableProjects: []id.ProjectID{pid},
 	}
@@ -249,13 +256,11 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: sf1.ID(),
-				ValueType:     value.TypeBool,
-				Value:         false,
+				Value:         value.Must(value.TypeBool, false),
 			},
 			{
 				SchemaFieldID: sf2.ID(),
-				ValueType:     value.TypeText,
-				Value:         "xxx",
+				Value:         value.Must(value.TypeText, "xxx"),
 			},
 		},
 		ModelID: id.NewModelID(),
@@ -286,7 +291,7 @@ func TestItem_Delete(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -315,7 +320,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -362,8 +367,8 @@ func TestItem_Update(t *testing.T) {
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
 	mid := id.NewModelID()
-	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
-	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewFieldBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewFieldText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 	f1 := item.NewField(sf1.ID(), value.Must(value.TypeBool, true))
 	f2 := item.NewField(sf2.ID(), value.Must(value.TypeText, "xxx"))
@@ -371,7 +376,7 @@ func TestItem_Update(t *testing.T) {
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{i1.Project()},
 		WritableProjects: []id.ProjectID{i1.Project()},
 	}
@@ -389,12 +394,10 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: f1.SchemaFieldID(),
-				ValueType:     f1.Value().Type(),
 				Value:         f1.Value(),
 			},
 			{
 				SchemaFieldID: f2.SchemaFieldID(),
-				ValueType:     f2.Value().Type(),
 				Value:         f2.Value(),
 			},
 		},
@@ -427,7 +430,7 @@ func TestItem_FindByProject(t *testing.T) {
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	type args struct {
@@ -483,7 +486,7 @@ func TestItem_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -526,7 +529,7 @@ func TestItem_Search(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {
@@ -619,169 +622,6 @@ func TestItem_Search(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
 
-		})
-	}
-}
-
-func Test_validateFields(t *testing.T) {
-	sid := id.NewSchemaID()
-	pid := id.NewProjectID()
-	wid := id.NewWorkspaceID()
-	sfInt := schema.NewFieldInteger(lo.ToPtr(6), lo.ToPtr(5), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfText := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(5)).NewID().Key(key.Random()).MustBuild()
-	sfTextArea := schema.NewFieldTextArea(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfRichText := schema.NewFieldRichText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfMarkdown := schema.NewFieldMarkdown(lo.ToPtr("x"), lo.ToPtr(20)).NewID().Key(key.Random()).MustBuild()
-	sfURL := schema.NewFieldURL(lo.ToPtr("http://xxx.aa")).NewID().Key(key.Random()).MustBuild()
-	s := schema.New().
-		ID(sid).
-		Workspace(wid).
-		Project(pid).
-		Fields(schema.FieldList{sfInt, sfText, sfTextArea, sfMarkdown, sfRichText, sfURL}).
-		MustBuild()
-	type args struct {
-		itemFields []interfaces.ItemFieldParam
-		s          *schema.Schema
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "all pass",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfInt.ID(),
-						ValueType:     value.TypeInteger,
-						Value:         9,
-					},
-					{
-						SchemaFieldID: sfText.ID(),
-						ValueType:     value.TypeText,
-						Value:         "foo",
-					},
-					{
-						SchemaFieldID: sfTextArea.ID(),
-						ValueType:     value.TypeTextArea,
-						Value:         "foo hoge",
-					},
-					{
-						SchemaFieldID: sfMarkdown.ID(),
-						ValueType:     value.TypeMarkdown,
-						Value:         "<h1>foo</h1>",
-					},
-					{
-						SchemaFieldID: sfRichText.ID(),
-						ValueType:     value.TypeRichText,
-						Value:         "hoge",
-					},
-					{
-						SchemaFieldID: sfURL.ID(),
-						ValueType:     value.TypeURL,
-						Value:         "https://example.com",
-					},
-				},
-				s: s,
-			},
-			wantErr: false,
-		},
-		{
-			name: "Integer fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfInt.ID(),
-						ValueType:     value.TypeInteger,
-						Value:         14,
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Text fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfText.ID(),
-						ValueType:     value.TypeText,
-						Value:         "foofoofoofoo",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Textarea fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfTextArea.ID(),
-						ValueType:     value.TypeTextArea,
-						Value:         "foo foo foo foo foo",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Markdown fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfMarkdown.ID(),
-						ValueType:     value.TypeMarkdown,
-						Value:         `<h1>foo</h1> <h1>foo</h1> <h1>foo</h1> `,
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Richtext fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfRichText.ID(),
-						ValueType:     value.TypeRichText,
-						Value:         "hoge hoge hoge hoge hoge hoge ",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Richtext fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						SchemaFieldID: sfURL.ID(),
-						ValueType:     value.TypeURL,
-						Value:         "example.com",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
-			err := validateFields(tc.args.itemFields, tc.args.s)
-			if tc.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
 		})
 	}
 }

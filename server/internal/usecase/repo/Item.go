@@ -12,7 +12,9 @@ import (
 type Item interface {
 	Filtered(ProjectFilter) Item
 	FindByID(context.Context, id.ItemID) (*item.Item, error)
+	FindPublicByID(context.Context, id.ItemID) (*item.Item, error)
 	FindByModel(context.Context, id.ModelID, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)
+	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)
 	Search(context.Context, *item.Query, *usecasex.Pagination) (item.List, *usecasex.PageInfo, error)

@@ -3,6 +3,7 @@ package schema
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,6 +20,8 @@ func TestFieldAsset_TypeProperty(t *testing.T) {
 
 func TestFieldAsset_Validate(t *testing.T) {
 	err := (&FieldAsset{}).Validate(&value.Value{})
-	assert.NoError(t, err)
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, err, ErrInvalidDefaultValue)
+
+	err = (&FieldAsset{}).Validate(value.Must(value.TypeAsset, id.MustAssetID("01ghdpq6m5xxgx7x29pkawegcg")))
+	assert.NoError(t, err, ErrInvalidDefaultValue)
 }

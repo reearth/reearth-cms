@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -19,15 +18,15 @@ func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
 		return Item{}, err
 	}
 
-	item, err := c.usecases.Item.FindByID(ctx, iid, adapter.Operator(ctx))
+	item, err := c.usecases.Item.FindPublicByID(ctx, iid, adapter.Operator(ctx))
 	if err != nil {
 		return Item{}, err
 	}
 
-	return ToItem(item), nil
+	return NewItem(item), nil
 }
 
-func (c *Controller) GetItems(ctx context.Context, prj, model string) (ListResult[Item], error) {
+func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], error) {
 	if err := c.checkProject(ctx, prj); err != nil {
 		return ListResult[Item]{}, err
 	}
@@ -37,14 +36,11 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string) (ListResul
 		return ListResult[Item]{}, err
 	}
 
-	items, pi, err := c.usecases.Item.FindByModel(ctx, mid, usecasex.NewPagination(
-		nil, nil, nil, nil, // TODO
-	), adapter.Operator(ctx))
+	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, mid, p.Pagination(), adapter.Operator(ctx))
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
 
-	res := ToListResult[Item](pi)
-	res.Results = util.Map(items, ToItem)
+	res := NewListResult(util.Map(items, NewItem), pi, p.Limit, p.Offset)
 	return res, nil
 }

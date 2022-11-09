@@ -38,7 +38,19 @@ func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (*item.Item, erro
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, version.Latest.OrVersion())
+	item, ok := r.data.Load(itemID, vor(false))
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
+}
+
+func (r *Item) FindPublicByID(ctx context.Context, itemID id.ItemID) (*item.Item, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	item, ok := r.data.Load(itemID, vor(true))
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
@@ -52,7 +64,7 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		it := v.Get(version.Latest.OrVersion()).Value()
+		it := v.Get(vor(false)).Value()
 		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
 			res = append(res, it)
 		}
@@ -68,7 +80,23 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, pagination *
 
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		it := v.Get(version.Latest.OrVersion()).Value()
+		it := v.Get(vor(false)).Value()
+		if it.Model() == modelID && r.f.CanRead(it.Project()) {
+			res = append(res, it)
+		}
+		return true
+	})
+	return res.SortByTimestamp(), nil, nil
+}
+
+func (r *Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(vor(true)).Value()
 		if it.Model() == modelID && r.f.CanRead(it.Project()) {
 			res = append(res, it)
 		}
@@ -84,7 +112,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		it := v.Get(version.Latest.OrVersion()).Value()
+		it := v.Get(vor(false)).Value()
 		if it.Project() == projectID {
 			res = append(res, it)
 		}
@@ -132,7 +160,7 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 		return r.err
 	}
 
-	item, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	item, _ := r.data.Load(itemID, vor(false))
 	if item == nil {
 		return rerror.ErrNotFound
 	}
@@ -149,7 +177,7 @@ func (r *Item) IsArchived(ctx context.Context, itemID id.ItemID) (bool, error) {
 		return false, r.err
 	}
 
-	i, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	i, _ := r.data.Load(itemID, vor(false))
 	if i == nil || !r.f.CanRead(i.Project()) {
 		return false, nil
 	}
@@ -162,7 +190,7 @@ func (r *Item) Archive(ctx context.Context, itemID id.ItemID, projectID id.Proje
 		return r.err
 	}
 
-	i, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	i, _ := r.data.Load(itemID, vor(false))
 	if i == nil {
 		return rerror.ErrNotFound
 	}
@@ -195,11 +223,21 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	}
 	var res item.List
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		it := v.Get(version.Latest.OrVersion()).Value()
+		it := v.Get(vor(false)).Value()
 		if it.FindFieldByValue(q.Q()) {
 			res = append(res, it)
 		}
 		return true
 	})
 	return res, nil, nil
+}
+
+func vor(public bool) version.VersionOrRef {
+	var v version.VersionOrRef
+	if public {
+		v = version.Public.OrVersion()
+	} else {
+		v = version.Latest.OrVersion()
+	}
+	return v
 }

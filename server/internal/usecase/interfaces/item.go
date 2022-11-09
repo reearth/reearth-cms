@@ -33,13 +33,15 @@ type UpdateItemParam struct {
 }
 
 type Item interface {
+	FindByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.List, error)
 	FindByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
-	FindByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) ([]*version.Value[*item.Item], error)
+	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
+	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (*item.Item, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (*item.Item, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error

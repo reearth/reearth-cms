@@ -1,14 +1,17 @@
 package usecase
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Operator struct {
-	User               user.ID
+	User               *user.ID
 	PublicAPIProject   *project.Project
+	Integration        *integration.ID
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
@@ -103,4 +106,15 @@ func (o *Operator) IsOwningProject(projects ...project.ID) bool {
 
 func (o *Operator) AddNewProject(p project.ID) {
 	o.OwningProjects = append(o.OwningProjects, p)
+}
+
+func (o *Operator) EventOperator() event.Operator {
+	var eOp event.Operator
+	if o.User != nil {
+		eOp = event.OperatorFromUser(*o.User)
+	}
+	if o.Integration != nil {
+		eOp = event.OperatorFromIntegration(*o.Integration)
+	}
+	return eOp
 }

@@ -26,7 +26,7 @@ func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true)
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
@@ -76,7 +76,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	iid := id.NewItemID()
 	sfid := schema.NewFieldID()
 	pid := id.NewProjectID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	now1 := time.Now().Truncate(time.Millisecond).UTC()
 	restore := util.MockNow(now1)
 	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
@@ -121,7 +121,7 @@ func TestItem_FindByIDs(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	tests := []struct {
@@ -172,7 +172,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()
@@ -277,7 +277,7 @@ func TestItem_Remove(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
+	fs := []*item.Field{item.NewField(sfid, value.Must(value.TypeBool, true))}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
@@ -365,8 +365,8 @@ func TestItem_Search(t *testing.T) {
 	sid := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, schema.TypeText, "foo")
-	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	f1 := item.NewField(sf1, value.Must(value.TypeText, "foo"))
+	f2 := item.NewField(sf2, value.Must(value.TypeText, "hoge"))
 	pid := id.NewProjectID()
 	i1, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
 	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
