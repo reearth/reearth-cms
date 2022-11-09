@@ -169,7 +169,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
 
-  const resetModal = useCallback(() => {
+  const handleModalReset = useCallback(() => {
     form.resetFields();
     setActiveTab("settings");
   }, [form]);
@@ -197,7 +197,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}
-      afterClose={resetModal}>
+      afterClose={handleModalReset}>
       <Form
         form={form}
         layout="vertical"
