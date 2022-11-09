@@ -23,5 +23,5 @@ func TestFieldAsset_Validate(t *testing.T) {
 	assert.Same(t, err, ErrInvalidDefaultValue)
 
 	err = (&FieldAsset{}).Validate(value.Must(value.TypeAsset, id.MustAssetID("01ghdpq6m5xxgx7x29pkawegcg")))
-	assert.NoError(t, err, ErrInvalidDefaultValue)
+	assert.NoError(t, err)
 }

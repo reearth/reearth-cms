@@ -8,11 +8,12 @@ import (
 
 func TestFieldBuilder_NewField(t *testing.T) {
 	fb := NewField(&TypeProperty{})
-	assert.Equal(t, &FieldBuilder{}, fb)
+	assert.Equal(t, &FieldBuilder{f: &Field{typeProperty: &TypeProperty{}}}, fb)
 }
 
 func TestFieldBuilder_Build(t *testing.T) {
-	fb, err := (&FieldBuilder{}).Build()
-	assert.Equal(t, &FieldBuilder{}, fb)
-	assert.Nil(t, nil, err)
+	fid := NewFieldID()
+	f, err := (&FieldBuilder{&Field{id: fid}, error}).Build()
+	assert.Equal(t, (&FieldBuilder{}).f, f)
+	assert.Nil(t, err)
 }

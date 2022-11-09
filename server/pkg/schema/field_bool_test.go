@@ -19,6 +19,5 @@ func TestFieldBool_TypeProperty(t *testing.T) {
 
 func TestFieldBool_Validate(t *testing.T) {
 	err := (&FieldBool{}).Validate(&value.Value{})
-	assert.NoError(t, err)
 	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
 }
