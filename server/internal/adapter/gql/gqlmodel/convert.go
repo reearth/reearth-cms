@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
@@ -20,16 +21,16 @@ func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
 	}
 }
 
-func ToPagination(pagination *Pagination) *usecasex.Pagination {
-	if pagination == nil {
+func (p *Pagination) Into() *usecasex.Pagination {
+	if p == nil {
 		return nil
 	}
-	return &usecasex.Pagination{
-		Before: pagination.Before,
-		After:  pagination.After,
-		First:  pagination.First,
-		Last:   pagination.Last,
-	}
+	return usecasex.CursorPagination{
+		Before: p.Before,
+		After:  p.After,
+		First:  pint2pint64(p.First),
+		Last:   pint2pint64(p.Last),
+	}.Wrap()
 }
 
 func FromFile(f *graphql.Upload) *file.File {
@@ -42,4 +43,11 @@ func FromFile(f *graphql.Upload) *file.File {
 		Size:        f.Size,
 		ContentType: f.ContentType,
 	}
+}
+
+func pint2pint64(i *int) *int64 {
+	if i == nil {
+		return nil
+	}
+	return lo.ToPtr(int64(*i))
 }

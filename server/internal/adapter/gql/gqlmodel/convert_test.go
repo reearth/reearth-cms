@@ -99,7 +99,7 @@ func TestToPageInfo(t *testing.T) {
 	}
 }
 
-func TestToPagination(t *testing.T) {
+func TestPagination_Into(t *testing.T) {
 	tests := []struct {
 		name string
 		args *Pagination
@@ -118,12 +118,12 @@ func TestToPagination(t *testing.T) {
 				After:  nil,
 				Before: nil,
 			},
-			want: &usecasex.Pagination{
+			want: usecasex.CursorPagination{
 				Before: nil,
 				After:  nil,
 				First:  nil,
 				Last:   nil,
-			},
+			}.Wrap(),
 		},
 		{
 			name: "success 2",
@@ -133,12 +133,12 @@ func TestToPagination(t *testing.T) {
 				After:  usecasex.CursorFromRef(lo.ToPtr("c1")),
 				Before: nil,
 			},
-			want: &usecasex.Pagination{
+			want: usecasex.CursorPagination{
 				Before: nil,
 				After:  usecasex.CursorFromRef(lo.ToPtr("c1")),
-				First:  lo.ToPtr(10),
+				First:  lo.ToPtr(int64(10)),
 				Last:   nil,
-			},
+			}.Wrap(),
 		},
 	}
 	for _, tt := range tests {
@@ -146,7 +146,7 @@ func TestToPagination(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToPagination(tt.args))
+			assert.Equal(t, tt.want, tt.args.Into())
 		})
 	}
 }

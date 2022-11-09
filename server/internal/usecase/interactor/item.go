@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -115,11 +116,18 @@ func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) er
 				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
 			},
 			Integer: func(f *schema.FieldInteger) {
-				if f.Max() != nil && field.Value.(int) > *f.Max() {
+				v, err := strconv.Atoi(fmt.Sprintf("%v", field.Value))
+				if err != nil {
 					errFlag = true
+					return
 				}
-				if f.Min() != nil && field.Value.(int) < *f.Min() {
+				if f.Max() != nil && v > *f.Max() {
 					errFlag = true
+					return
+				}
+				if f.Min() != nil && v < *f.Min() {
+					errFlag = true
+					return
 				}
 			},
 			URL: func(f *schema.FieldURL) {
@@ -139,11 +147,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
-		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
+		s, err := i.repos.Schema.FindByID(ctx, item.Schema())
 		if err != nil {
 			return nil, err
 		}
