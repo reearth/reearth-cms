@@ -44,7 +44,14 @@ func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmode
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, usecasex.NewPagination(first, last, before, after), getOperator(ctx))
+	p := (&gqlmodel.Pagination{
+		First:  first,
+		Last:   last,
+		After:  after,
+		Before: before,
+	}).Into()
+
+	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, p, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +71,7 @@ func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmode
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: pi.TotalCount,
+		TotalCount: int(pi.TotalCount),
 	}, nil
 }
 

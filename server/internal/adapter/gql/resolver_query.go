@@ -204,6 +204,10 @@ func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.I
 }
 
 func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, query, first, last, before, after)
-
+	return loaders(ctx).Item.Search(ctx, query, &gqlmodel.Pagination{
+		First:  first,
+		Last:   last,
+		After:  after,
+		Before: before,
+	})
 }

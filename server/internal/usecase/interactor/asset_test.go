@@ -279,7 +279,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
 				},
 				operator: op,
 			},
@@ -296,7 +296,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
 				},
 				operator: op,
 			},
@@ -314,7 +314,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			args: args{
 				pid: pid,
 				f: interfaces.AssetFilter{
-					Pagination: usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
 				},
 				operator: op,
 			},
