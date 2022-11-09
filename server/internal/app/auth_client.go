@@ -18,7 +18,8 @@ import (
 )
 
 var (
-	debugUserHeaderKey = "X-Reearth-Debug-User"
+	debugUserHeaderKey        = "X-Reearth-Debug-User"
+	debugIntegrationHeaderKey = "X-Reearth-Debug-Integration"
 )
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
@@ -62,16 +63,27 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
-			// get integration token if presented
-			token := getIntegrationToken(req)
-			if token != "" {
-				var i *integration.Integration
+			var i *integration.Integration
+			if token := getIntegrationToken(req); token != "" {
 				var err error
 				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
 				if err != nil {
 					return err
 				}
+			}
 
+			if val := req.Header.Get(debugIntegrationHeaderKey); cfg.Debug && val != "" {
+				iId, err := id.IntegrationIDFrom(val)
+				if err != nil {
+					return err
+				}
+				i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+				if err != nil {
+					return err
+				}
+			}
+
+			if i != nil {
 				op, err := generateIntegrationOperator(ctx, cfg, i)
 				if err != nil {
 					return err
@@ -190,16 +202,4 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		WritableProjects:   wp,
 		OwningProjects:     op,
 	}, nil
-}
-
-func AuthRequiredMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			ctx := c.Request().Context()
-			if adapter.Operator(ctx) == nil {
-				return echo.ErrUnauthorized
-			}
-			return next(c)
-		}
-	}
 }
