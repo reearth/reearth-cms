@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/rerror"
 )
@@ -30,7 +29,7 @@ func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDom
 	}
 }
 
-func (i *User) Fetch(ctx context.Context, ids []id.UserID, operator *usecase.Operator) ([]*user.User, error) {
+func (i *User) Fetch(ctx context.Context, ids []user.ID, operator *usecase.Operator) ([]*user.User, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.User, error) {
 		res, err := i.repos.User.FindByIDs(ctx, ids)
 		if err != nil {
@@ -42,7 +41,7 @@ func (i *User) Fetch(ctx context.Context, ids []id.UserID, operator *usecase.Ope
 			if err != nil {
 				return res, err
 			}
-			workspaceIDs := make([]id.WorkspaceID, 0, len(workspaces))
+			workspaceIDs := make([]user.WorkspaceID, 0, len(workspaces))
 			for _, t := range workspaces {
 				if t != nil {
 					workspaceIDs = append(workspaceIDs, t.ID())
@@ -89,6 +88,9 @@ func (i *User) GetUserBySubject(ctx context.Context, sub string) (u *user.User, 
 }
 
 func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operator *usecase.Operator) (u *user.User, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
 		if p.Password != nil {
 			if p.PasswordConfirmation == nil || *p.Password != *p.PasswordConfirmation {
@@ -98,7 +100,7 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 
 		var workspace *user.Workspace
 
-		u, err = i.repos.User.FindByID(ctx, operator.User)
+		u, err = i.repos.User.FindByID(ctx, *operator.User)
 		if err != nil {
 			return nil, err
 		}
@@ -171,9 +173,11 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 }
 
 func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *usecase.Operator) (u *user.User, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
-
-		u, err = i.repos.User.FindByID(ctx, operator.User)
+		u, err = i.repos.User.FindByID(ctx, *operator.User)
 		if err != nil {
 			return nil, err
 		}
@@ -199,9 +203,12 @@ func (i *User) SearchUser(ctx context.Context, nameOrEmail string, operator *use
 	})
 }
 
-func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase.Operator) (err error) {
+func (i *User) DeleteMe(ctx context.Context, userID user.ID, operator *usecase.Operator) (err error) {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		if userID.IsNil() || userID != operator.User {
+		if userID.IsNil() || userID != *operator.User {
 			return errors.New("invalid user id")
 		}
 
@@ -219,7 +226,7 @@ func (i *User) DeleteMe(ctx context.Context, userID id.UserID, operator *usecase
 		}
 
 		updatedWorkspaces := make([]*user.Workspace, 0, len(workspaces))
-		deletedWorkspaces := []id.WorkspaceID{}
+		deletedWorkspaces := []user.WorkspaceID{}
 
 		for _, workspace := range workspaces {
 			if !workspace.IsPersonal() && !workspace.Members().IsOnlyOwner(u.ID()) {

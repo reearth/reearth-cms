@@ -17,22 +17,22 @@ import (
 func TestEvent_FindByID(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	r := NewEvent()
 	ctx := context.Background()
-	//seed
+	// seed
 	err := r.Save(ctx, ev)
 	assert.NoError(t, err)
 
-	//found
+	// found
 	got, err := r.FindByID(ctx, eID1)
 	assert.NoError(t, err)
 	assert.Equal(t, ev, got)
 
-	//not found
+	// not found
 	eID2 := event.NewID()
 	got2, err := r.FindByID(ctx, eID2)
 	assert.Nil(t, got2)
@@ -42,7 +42,7 @@ func TestEvent_FindByID(t *testing.T) {
 func TestEvent_Save(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 

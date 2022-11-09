@@ -18,7 +18,7 @@ import (
 func TestEvent_Save(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Thread(id.NewThreadID()).Project(project.NewID()).Size(100).CreatedAt(now).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
+	a := asset.New().NewID().Thread(id.NewThreadID()).Project(project.NewID()).Size(100).CreatedAt(now).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
 	eID := event.NewID()
 	ev := event.New[any]().ID(eID).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(u.ID())).Object(a).MustBuild()
 

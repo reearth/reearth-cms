@@ -12,8 +12,15 @@ func (r *Resolver) Asset() AssetResolver {
 
 type assetResolver struct{ *Resolver }
 
-func (r *assetResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.User, error) {
-	return dataloaders(ctx).User.Load(obj.CreatedByID)
+func (r *assetResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (gqlmodel.Operator, error) {
+	switch obj.CreatedByType {
+	case gqlmodel.OperatorTypeUser:
+		return dataloaders(ctx).User.Load(obj.CreatedByID)
+	case gqlmodel.OperatorTypeIntegration:
+		return dataloaders(ctx).Integration.Load(obj.CreatedByID)
+	default:
+		return nil, nil
+	}
 }
 
 func (r *assetResolver) Project(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Project, error) {
