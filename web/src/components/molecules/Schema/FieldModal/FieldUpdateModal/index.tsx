@@ -17,7 +17,7 @@ import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-ap
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { Field, FieldType, fieldTypes } from "../../types";
+import { Field, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export interface FormValues {
   fieldId: string;
@@ -84,8 +84,16 @@ const FieldUpdateModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [assetValue, setAssetValue] = useState<string>();
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -162,7 +170,6 @@ const FieldUpdateModal: React.FC<Props> = ({
           ...values,
           fieldId: selectedField?.id,
         });
-        form.resetFields();
         onClose?.(true);
       })
       .catch(info => {
@@ -170,10 +177,10 @@ const FieldUpdateModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
 
-  const handleClose = useCallback(() => {
+  const handleModalReset = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
-  }, [onClose, form]);
+    setActiveTab("settings");
+  }, [form]);
 
   const handleLinkAsset = useCallback(
     (_asset: Asset) => {
@@ -199,27 +206,30 @@ const FieldUpdateModal: React.FC<Props> = ({
         ) : null
       }
       visible={open}
-      onCancel={handleClose}
+      onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}>
+      okButtonProps={{ disabled: buttonDisabled }}
+      afterClose={handleModalReset}>
       <Form
         form={form}
         layout="vertical"
         initialValues={initialValues}
         onValuesChange={() => {
-          form
-            .validateFields()
-            .then(() => {
-              setButtonDisabled(false);
-            })
-            .catch(fieldsError => {
-              setButtonDisabled(
-                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-              );
-            });
+          setTimeout(() => {
+            form
+              .validateFields()
+              .then(() => {
+                setButtonDisabled(false);
+              })
+              .catch(fieldsError => {
+                setButtonDisabled(
+                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+                );
+              });
+          });
         }}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Setting")} key="setting" forceRender>
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}

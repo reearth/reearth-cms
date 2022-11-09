@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
@@ -76,6 +77,13 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
+
+	integrationApi := api.Group("",
+		internalJWTMiddleware,
+		authMiddleware(cfg),
+		usecaseMiddleware)
+	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
+	integration.RegisterHandlers(integrationApi, integrationHandlers)
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())

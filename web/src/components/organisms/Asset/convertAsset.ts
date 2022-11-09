@@ -13,6 +13,7 @@ export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset | undefined 
     fileName: GQLAsset.fileName,
     createdAt: GQLAsset.createdAt.toString(),
     createdBy: GQLAsset.createdBy?.name ?? "",
+    createdByType: GQLAsset.createdByType,
     file: GQLAsset.file as AssetFile,
     previewType: GQLAsset.previewType as PreviewType,
     projectId: GQLAsset.projectId,
