@@ -13,15 +13,10 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	uid, err := gqlmodel.ToID[id.User](input.CreatedByID)
-	if err != nil {
-		return nil, err
-	}
 	uc := usecases(ctx).Asset
 	res, err := uc.Create(ctx, interfaces.CreateAssetParam{
-		ProjectID:   pid,
-		CreatedByID: uid,
-		File:        gqlmodel.FromFile(&input.File),
+		ProjectID: pid,
+		File:      gqlmodel.FromFile(&input.File),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
