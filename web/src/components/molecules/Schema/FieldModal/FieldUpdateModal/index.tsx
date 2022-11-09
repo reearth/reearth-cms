@@ -87,7 +87,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
 
-  const changeTab = useCallback(
+  const handleTabChange = useCallback(
     (key: string) => {
       setActiveTab(key as FieldModalTabs);
     },
@@ -214,7 +214,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               );
             });
         }}>
-        <Tabs activeKey={activeTab} onChange={changeTab}>
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
           <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
