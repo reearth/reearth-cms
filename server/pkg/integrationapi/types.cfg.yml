@@ -1,4 +1,4 @@
-package: integration
+package: integrationapi
 generate:
   models: true
 output: types.gen.go

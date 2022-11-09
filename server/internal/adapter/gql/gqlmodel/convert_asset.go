@@ -15,11 +15,23 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		url = urlResolver(a)
 	}
 
+	var createdBy ID
+	var createdByType OperatorType
+	if a.User() != nil {
+		createdBy = IDFrom(*a.User())
+		createdByType = OperatorTypeUser
+	}
+	if a.Integration() != nil {
+		createdBy = IDFrom(*a.Integration())
+		createdByType = OperatorTypeIntegration
+	}
+
 	return &Asset{
 		ID:          IDFrom(a.ID()),
 		ProjectID:   IDFrom(a.Project()),
 		CreatedAt:   a.CreatedAt(),
-		CreatedByID: IDFrom(a.CreatedBy()),
+		CreatedByID: createdBy,
+		CreatedByType: createdByType,
 		FileName:    a.FileName(),
 		Size:        int64(a.Size()),
 		PreviewType: ToPreviewType(a.PreviewType()),
@@ -88,7 +100,7 @@ func ToAssetFile(a *asset.File) *AssetFile {
 		Size:        int64(a.Size()),
 		ContentType: lo.ToPtr(a.ContentType()),
 		Path:        a.Path(),
-		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
+		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(c) }),
 	}
 }
 

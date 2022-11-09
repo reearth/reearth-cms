@@ -36,6 +36,14 @@ func (r *Workspace) FindByUser(ctx context.Context, id id.UserID) (user.Workspac
 	})
 }
 
+func (r *Workspace) FindByIntegration(ctx context.Context, id id.IntegrationID) (user.WorkspaceList, error) {
+	return r.find(ctx, bson.M{
+		"integrations." + strings.Replace(id.String(), ".", "", -1): bson.M{
+			"$exists": true,
+		},
+	})
+}
+
 func (r *Workspace) FindByIDs(ctx context.Context, ids id.WorkspaceIDList) (user.WorkspaceList, error) {
 	if len(ids) == 0 {
 		return nil, nil

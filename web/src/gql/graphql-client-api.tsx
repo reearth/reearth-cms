@@ -47,13 +47,14 @@ export type AddUserToWorkspaceInput = {
 export type Asset = Node & {
   __typename?: 'Asset';
   createdAt: Scalars['DateTime'];
-  createdBy?: Maybe<User>;
+  createdBy: Operator;
   createdById: Scalars['ID'];
+  createdByType: OperatorType;
   file: AssetFile;
   fileName: Scalars['String'];
   id: Scalars['ID'];
   previewType?: Maybe<PreviewType>;
-  project?: Maybe<Project>;
+  project: Project;
   projectId: Scalars['ID'];
   size: Scalars['FileSize'];
   thread?: Maybe<Thread>;
@@ -107,7 +108,6 @@ export type CommentPayload = {
 };
 
 export type CreateAssetInput = {
-  createdById: Scalars['ID'];
   file: Scalars['Upload'];
   projectId: Scalars['ID'];
 };
@@ -138,6 +138,7 @@ export type CreateIntegrationInput = {
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
+  modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
 };
 
@@ -310,6 +311,7 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  modelId: Scalars['ID'];
   project: Project;
   projectId: Scalars['ID'];
   schema: Schema;
@@ -653,6 +655,13 @@ export enum NodeType {
   Schema = 'Schema',
   User = 'USER',
   Workspace = 'WORKSPACE'
+}
+
+export type Operator = Integration | User;
+
+export enum OperatorType {
+  Integration = 'Integration',
+  User = 'User'
 }
 
 export type PageInfo = {
@@ -1206,6 +1215,7 @@ export type WebhookPayload = {
 
 export type WebhookTrigger = {
   __typename?: 'WebhookTrigger';
+  onAssetDecompress?: Maybe<Scalars['Boolean']>;
   onAssetDeleted?: Maybe<Scalars['Boolean']>;
   onAssetUpload?: Maybe<Scalars['Boolean']>;
   onItemCreate?: Maybe<Scalars['Boolean']>;
@@ -1216,6 +1226,7 @@ export type WebhookTrigger = {
 };
 
 export type WebhookTriggerInput = {
+  onAssetDecompress?: InputMaybe<Scalars['Boolean']>;
   onAssetDeleted?: InputMaybe<Scalars['Boolean']>;
   onAssetUpload?: InputMaybe<Scalars['Boolean']>;
   onItemCreate?: InputMaybe<Scalars['Boolean']>;
@@ -1264,23 +1275,22 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
-  createdById: Scalars['ID'];
   file: Scalars['Upload'];
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
 
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -1288,7 +1298,7 @@ export type UpdateAssetMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1367,6 +1377,7 @@ export type GetItemsQueryVariables = Exact<{
 export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value: any }> } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
+  modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
@@ -1726,10 +1737,38 @@ export const GetAssetsDocument = gql`
         projectId
         createdAt
         createdBy {
-          id
-          name
-          email
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+            description
+            logoUrl
+            iType
+            developer {
+              id
+              name
+              email
+            }
+            config {
+              token
+              webhooks {
+                id
+                name
+                url
+                active
+                createdAt
+                updatedAt
+              }
+            }
+            createdAt
+            updatedAt
+          }
         }
+        createdByType
         fileName
         size
         previewType
@@ -1762,10 +1801,38 @@ export const GetAssetsDocument = gql`
       projectId
       createdAt
       createdBy {
-        id
-        name
-        email
+        ... on User {
+          id
+          name
+          email
+        }
+        ... on Integration {
+          id
+          name
+          description
+          logoUrl
+          iType
+          developer {
+            id
+            name
+            email
+          }
+          config {
+            token
+            webhooks {
+              id
+              name
+              url
+              active
+              createdAt
+              updatedAt
+            }
+          }
+          createdAt
+          updatedAt
+        }
       }
+      createdByType
       fileName
       size
       previewType
@@ -1840,10 +1907,38 @@ export const GetAssetDocument = gql`
     projectId
     createdAt
     createdBy {
-      id
-      name
-      email
+      ... on User {
+        id
+        name
+        email
+      }
+      ... on Integration {
+        id
+        name
+        description
+        logoUrl
+        iType
+        developer {
+          id
+          name
+          email
+        }
+        config {
+          token
+          webhooks {
+            id
+            name
+            url
+            active
+            createdAt
+            updatedAt
+          }
+        }
+        createdAt
+        updatedAt
+      }
     }
+    createdByType
     fileName
     size
     previewType
@@ -1901,15 +1996,14 @@ export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
 export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
 export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
-  createAsset(
-    input: {projectId: $projectId, createdById: $createdById, file: $file}
-  ) {
+    mutation CreateAsset($projectId: ID!, $file: Upload!) {
+  createAsset(input: {projectId: $projectId, file: $file}) {
     asset {
       id
       projectId
       createdAt
       createdById
+      createdByType
       fileName
       size
       previewType
@@ -1955,7 +2049,6 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
  *   variables: {
  *      projectId: // value for 'projectId'
- *      createdById: // value for 'createdById'
  *      file: // value for 'file'
  *   },
  * });
@@ -1975,6 +2068,7 @@ export const UpdateAssetDocument = gql`
       projectId
       createdAt
       createdById
+      createdByType
       fileName
       size
       previewType
@@ -2330,8 +2424,8 @@ export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
 export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
 export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
 export const CreateItemDocument = gql`
-    mutation CreateItem($schemaId: ID!, $fields: [ItemFieldInput!]!) {
-  createItem(input: {schemaId: $schemaId, fields: $fields}) {
+    mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
+  createItem(input: {modelId: $modelId, schemaId: $schemaId, fields: $fields}) {
     item {
       id
       schemaId
@@ -2359,6 +2453,7 @@ export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, C
  * @example
  * const [createItemMutation, { data, loading, error }] = useCreateItemMutation({
  *   variables: {
+ *      modelId: // value for 'modelId'
  *      schemaId: // value for 'schemaId'
  *      fields: // value for 'fields'
  *   },

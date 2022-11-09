@@ -26,8 +26,13 @@ export default ({ workspaceId }: Props) => {
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState<string>();
   const [owner, setOwner] = useState(false);
   const t = useT();
+
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term);
+  }, []);
 
   const [searchedUser, changeSearchedUser] = useState<{
     id: string;
@@ -88,9 +93,12 @@ export default ({ workspaceId }: Props) => {
             }
           : undefined,
       )
-      .filter((user): user is Member => !!user)
+      .filter(
+        (user): user is Member =>
+          !!user && user.user.name.toLowerCase().includes(searchTerm?.toLowerCase() ?? ""),
+      )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
-  }, [currentWorkspace]);
+  }, [currentWorkspace, searchTerm]);
 
   const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
 
@@ -189,6 +197,7 @@ export default ({ workspaceId }: Props) => {
     workspaces,
     currentWorkspace,
     searchedUser,
+    handleSearchTerm,
     changeSearchedUser,
     handleUserSearch,
     handleMemberAddToWorkspace,
