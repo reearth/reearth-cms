@@ -13,7 +13,8 @@ type AssetDocument struct {
 	ID          string
 	Project     string
 	CreatedAt   time.Time
-	CreatedBy   string
+	User        *string
+	Integration *string
 	FileName    string
 	Size        uint64
 	PreviewType string
@@ -49,11 +50,20 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		file = f
 	}
 
+	var uid, iid *string
+	if a.User() != nil {
+		uid = a.User().StringRef()
+	}
+	if a.Integration() != nil {
+		iid = a.Integration().StringRef()
+	}
+
 	ad, id := &AssetDocument{
 		ID:          aid,
 		Project:     a.Project().String(),
 		CreatedAt:   a.CreatedAt(),
-		CreatedBy:   a.CreatedBy().String(),
+		User:        uid,
+		Integration: iid,
 		FileName:    a.FileName(),
 		Size:        a.Size(),
 		PreviewType: previewType,
@@ -74,27 +84,39 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
-	uid, err := id.UserIDFrom(d.CreatedBy)
-	if err != nil {
-		return nil, err
-	}
 	thid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
 
-	return asset.New().
+	ab := asset.New().
 		ID(aid).
 		Project(pid).
 		CreatedAt(d.CreatedAt).
-		CreatedBy(uid).
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
 		UUID(d.UUID).
-		Thread(thid).
-		Build()
+		Thread(thid)
+
+	if d.User != nil {
+		uid, err := id.UserIDFrom(*d.User)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.CreatedByUser(uid)
+	}
+
+	if d.Integration != nil {
+		iid, err := id.IntegrationIDFrom(*d.Integration)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.CreatedByIntegration(iid)
+	}
+
+	return ab.Build()
 }
 
 func ToFile(f *asset.File) *File {
@@ -123,7 +145,7 @@ func FromFile(f *File) *asset.File {
 		return nil
 	}
 
-	c := []*asset.File{}
+	var c []*asset.File
 	if f.Children != nil && len(f.Children) > 0 {
 		for _, v := range f.Children {
 			c = append(c, FromFile(v))

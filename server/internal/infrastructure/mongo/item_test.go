@@ -26,7 +26,7 @@ func TestItem_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Project(pid).MustBuild()
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
 		Input              id.ItemID
@@ -78,11 +78,11 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
 	now1 := time.Now().Truncate(time.Millisecond).UTC()
 	restore := util.MockNow(now1)
-	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
 	restore()
 	now2 := now1.Add(time.Second).UTC()
 	restore = util.MockNow(now2)
-	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Project(i1.Project()).MustBuild()
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).MustBuild()
 	restore()
 
 	init := mongotest.Connect(t)
@@ -121,8 +121,8 @@ func TestItem_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1 := item.New().NewID().Fields(fs).Schema(sid).Project(pid).MustBuild()
-	i2 := item.New().NewID().Fields(fs).Schema(sid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
 		Input              id.ItemIDList
@@ -172,10 +172,10 @@ func TestItem_FindBySchema(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1 := item.New().NewID().Fields(fs).Schema(sid).Project(pid).MustBuild()
-	i2 := item.New().NewID().Fields(fs).Schema(sid).Project(pid).MustBuild()
-	i3 := item.New().NewID().Fields(fs).Schema(sid).Project(id.NewProjectID()).MustBuild()
-	i4 := item.New().NewID().Fields(fs).Schema(id.NewSchemaID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()
+	i4 := item.New().NewID().Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
 
 	tests := []struct {
 		Name        string
@@ -215,7 +215,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got)
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -226,8 +226,8 @@ func TestItem_FindByProject(t *testing.T) {
 	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
 	pid := id.NewProjectID()
 	sid := id.NewSchemaID()
-	i1 := item.New().NewID().Schema(sid).Project(pid).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
 		Input              id.ProjectID
@@ -265,7 +265,7 @@ func TestItem_FindByProject(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got)
 		})
 	}
@@ -277,7 +277,7 @@ func TestItem_Remove(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Project(pid).Project(pid).MustBuild()
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
 
@@ -367,9 +367,9 @@ func TestItem_Search(t *testing.T) {
 	f1 := item.NewField(sf1, schema.TypeText, "foo")
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
 	pid := id.NewProjectID()
-	i1, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f1}).Project(pid).Build()
-	i3, _ := item.New().NewID().Schema(sid).Fields([]*item.Field{f2}).Project(pid).Build()
+	i1, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
+	i3, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
 	tests := []struct {
 		Name     string
 		Input    *item.Query
@@ -407,7 +407,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.Search(ctx, tc.Input, usecasex.NewPagination(lo.ToPtr(10), nil, nil, nil))
+			got, _, _ := repo.Search(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, len(got))
 		})
 	}

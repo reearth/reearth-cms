@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -17,14 +18,18 @@ import (
 )
 
 type Asset struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos     *repo.Container
+	gateways  *gateway.Container
+	eventFunc func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error)
 }
 
 func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
+		eventFunc: func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
+			return createEvent(ctx, r, g, wid, t, a, op)
+		},
 	}
 }
 
@@ -61,6 +66,10 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
@@ -90,17 +99,24 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			f := asset.NewFile().Name(inp.File.Path).Path(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
-			a, err := asset.New().
+			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
-				Thread(th.ID()).
-				Build()
+				Thread(th.ID())
+
+			if operator.User != nil {
+				ab.CreatedByUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				ab.CreatedByIntegration(*operator.Integration)
+			}
+
+			a, err := ab.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -117,6 +133,18 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())
 			if err != nil {
+				return nil, err
+			}
+
+			// create event
+			var eOp event.Operator
+			if operator.User != nil {
+				eOp = event.OperatorFromUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				eOp = event.OperatorFromIntegration(*operator.Integration)
+			}
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOp); err != nil {
 				return nil, err
 			}
 
@@ -148,6 +176,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -162,17 +194,27 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
 					Path(f.Name).
 					GuessContentType().
 					Build()
+			}), func(f *asset.File, _ int) bool {
+				return a.File().Path() != f.Path()
 			})
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
-
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, err
+			}
+
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, operator.EventOperator()); err != nil {
 				return nil, err
 			}
 
@@ -182,6 +224,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 }
 
 func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return aid, interfaces.ErrInvalidOperator
+	}
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -199,7 +244,21 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				}
 			}
 
-			return aid, i.repos.Asset.Delete(ctx, aid)
+			err = i.repos.Asset.Delete(ctx, aid)
+			if err != nil {
+				return aid, err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, asset.Project())
+			if err != nil {
+				return aid, err
+			}
+
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.EventOperator()); err != nil {
+				return aid, err
+			}
+
+			return aid, nil
 		},
 	)
 }

@@ -30,7 +30,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
-	CloudTasks   gcp.CloudTasksConfig
+	Task         gcp.TaskConfig
 	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs
@@ -156,9 +156,7 @@ func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
 	if !strings.HasPrefix(domain, "https://") && !strings.HasPrefix(domain, "http://") {
 		domain = "https://" + domain
 	}
-	if !strings.HasSuffix(domain, "/") {
-		domain = domain + "/"
-	}
+
 	return []appx.JWTProvider{{
 		ISS: domain,
 		AUD: a.AUD,

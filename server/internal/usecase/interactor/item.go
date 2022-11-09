@@ -2,12 +2,16 @@ package interactor
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -59,15 +63,20 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-
+		if param.Fields != nil {
+			err = validateFields(param.Fields, s)
+			if err != nil {
+				return nil, err
+			}
+		}
 		it, err := item.New().
 			NewID().
 			Schema(param.SchemaID).
 			Project(s.Project()).
+			Model(param.ModelID).
 			Fields(itemFieldsFromParams(param.Fields)).
 			Build()
 		if err != nil {
@@ -82,6 +91,56 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
+func validateFields(itemFields []interfaces.ItemFieldParam, s *schema.Schema) error {
+	for _, field := range itemFields {
+		sf := s.Field(field.SchemaFieldID)
+		if sf == nil {
+			return interfaces.ErrFieldNotFound
+		}
+		if sf.Required() && field.Value == nil {
+			return errors.New("field is required")
+		}
+		err1 := errors.New("invalid field value")
+		errFlag := false
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Text: func(f *schema.FieldText) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			TextArea: func(f *schema.FieldTextArea) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			RichText: func(f *schema.FieldRichText) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			Markdown: func(f *schema.FieldMarkdown) {
+				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
+			},
+			Integer: func(f *schema.FieldInteger) {
+				v, err := strconv.Atoi(fmt.Sprintf("%v", field.Value))
+				if err != nil {
+					errFlag = true
+					return
+				}
+				if f.Max() != nil && v > *f.Max() {
+					errFlag = true
+					return
+				}
+				if f.Min() != nil && v < *f.Min() {
+					errFlag = true
+					return
+				}
+			},
+			URL: func(f *schema.FieldURL) {
+				errFlag = !schema.IsUrl(field.Value.(string))
+			},
+		})
+		if errFlag {
+			return err1
+		}
+	}
+	return nil
+}
+
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (*item.Item, error) {
 	if len(param.Fields) == 0 {
 		return nil, interfaces.ErrItemFieldRequired
@@ -92,13 +151,20 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-
+		s, err := i.repos.Schema.FindByID(ctx, item.Schema())
+		if err != nil {
+			return nil, err
+		}
 		if !operator.IsWritableProject(item.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-
+		if param.Fields != nil {
+			err = validateFields(param.Fields, s)
+			if err != nil {
+				return nil, err
+			}
+		}
 		item.UpdateFields(itemFieldsFromParams(param.Fields))
-
 		if err := i.repos.Item.Save(ctx, item); err != nil {
 			return nil, err
 		}

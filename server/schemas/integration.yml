@@ -346,10 +346,17 @@ components:
           enum:
             - text
             - textArea
-            -
-        value:
-          type: string
-          example: 1
+            - richText
+            - markdown
+            - asset
+            - date
+            - bool
+            - select
+            - tag
+            - integer
+            - reference
+            - url
+        value: {}
     item:
       type: object
       properties:
@@ -410,6 +417,8 @@ components:
           format: uuid
         name:
           type: string
+        url:
+          type: string
         contentType:
           type: string
         previewType:
@@ -419,6 +428,7 @@ components:
             - geo
             - geo3d
             - model3d
+            - unknown
         totalSize:
           type: number
         file:
@@ -438,7 +448,7 @@ components:
           type: number
         contentType:
           type: string
-        url:
+        path:
           type: string
         children:
           type: array

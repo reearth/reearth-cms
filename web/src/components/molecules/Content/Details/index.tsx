@@ -1,3 +1,7 @@
+import { Dispatch, SetStateAction } from "react";
+
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
@@ -12,6 +16,17 @@ export type Props = {
   onBack: (modelId?: string) => void;
   itemId?: string;
   loading: boolean;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -23,6 +38,17 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onBack,
   itemId,
   loading,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetsReload,
+  onAssetSearchTerm,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
@@ -34,6 +60,17 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onItemUpdate={onItemUpdate}
         model={model}
         initialFormValues={initialFormValues}
+        assetList={assetList}
+        fileList={fileList}
+        loadingAssets={loadingAssets}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        createAssets={createAssets}
+        onAssetsReload={onAssetsReload}
+        onAssetSearchTerm={onAssetSearchTerm}
+        setFileList={setFileList}
+        setUploading={setUploading}
+        setUploadModalVisibility={setUploadModalVisibility}
       />
     </ContentWrapper>
   );

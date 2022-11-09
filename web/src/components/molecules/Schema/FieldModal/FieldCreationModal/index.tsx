@@ -1,20 +1,22 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback, useEffect, useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
+import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export type FormValues = {
   title: string;
@@ -33,6 +35,17 @@ export type Props = {
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
 };
 
 const initialValues: FormValues = {
@@ -52,11 +65,41 @@ const FieldCreationModal: React.FC<Props> = ({
   onClose,
   onSubmit,
   handleFieldKeyUnique,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetSearchTerm,
+  onAssetsReload,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -94,7 +137,6 @@ const FieldCreationModal: React.FC<Props> = ({
         }
 
         await onSubmit?.(values);
-        form.resetFields();
         onClose?.(true);
       })
       .catch(info => {
@@ -102,10 +144,14 @@ const FieldCreationModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit, selectedType]);
 
-  const handleClose = useCallback(() => {
+  const handleModalReset = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
-  }, [onClose, form]);
+    setActiveTab("settings");
+  }, [form]);
+
+  const handleLinkAsset = useCallback((_asset: Asset) => {
+    // TODO: implement link asset with FieldCreationModal
+  }, []);
 
   return (
     <Modal
@@ -123,11 +169,30 @@ const FieldCreationModal: React.FC<Props> = ({
         ) : null
       }
       visible={open}
-      onCancel={handleClose}
-      onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Settings")} key="setting" forceRender>
+      onCancel={() => onClose?.(true)}
+      onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}
+      afterClose={handleModalReset}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={() => {
+          setTimeout(() => {
+            form
+              .validateFields()
+              .then(() => {
+                setButtonDisabled(false);
+              })
+              .catch(fieldsError => {
+                setButtonDisabled(
+                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+                );
+              });
+          });
+        }}>
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -137,10 +202,13 @@ const FieldCreationModal: React.FC<Props> = ({
             <Form.Item
               name="key"
               label="Field Key"
+              extra={t(
+                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+              )}
               rules={[
-                { required: true, message: t("Please input the key of the field!") },
                 {
                   message: t("Key is not valid"),
+                  required: true,
                   validator: async (_, value) => {
                     if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value);
@@ -230,7 +298,22 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-            <FieldDefaultInputs selectedValues={selectedValues} selectedType={selectedType} />
+            <FieldDefaultInputs
+              selectedValues={selectedValues}
+              selectedType={selectedType}
+              assetList={assetList}
+              fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              createAssets={createAssets}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onAssetsReload={onAssetsReload}
+              onLink={handleLinkAsset}
+              setFileList={setFileList}
+              setUploading={setUploading}
+              setUploadModalVisibility={setUploadModalVisibility}
+            />
           </TabPane>
         </Tabs>
       </Form>

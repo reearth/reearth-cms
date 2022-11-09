@@ -66,20 +66,21 @@ type ComplexityRoot struct {
 	}
 
 	Asset struct {
-		CreatedAt   func(childComplexity int) int
-		CreatedBy   func(childComplexity int) int
-		CreatedByID func(childComplexity int) int
-		File        func(childComplexity int) int
-		FileName    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		PreviewType func(childComplexity int) int
-		Project     func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		Size        func(childComplexity int) int
-		Thread      func(childComplexity int) int
-		ThreadID    func(childComplexity int) int
-		URL         func(childComplexity int) int
-		UUID        func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		CreatedBy     func(childComplexity int) int
+		CreatedByID   func(childComplexity int) int
+		CreatedByType func(childComplexity int) int
+		File          func(childComplexity int) int
+		FileName      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PreviewType   func(childComplexity int) int
+		Project       func(childComplexity int) int
+		ProjectID     func(childComplexity int) int
+		Size          func(childComplexity int) int
+		Thread        func(childComplexity int) int
+		ThreadID      func(childComplexity int) int
+		URL           func(childComplexity int) int
+		UUID          func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -194,6 +195,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		Fields    func(childComplexity int) int
 		ID        func(childComplexity int) int
+		ModelID   func(childComplexity int) int
 		Project   func(childComplexity int) int
 		ProjectID func(childComplexity int) int
 		Schema    func(childComplexity int) int
@@ -515,13 +517,14 @@ type ComplexityRoot struct {
 	}
 
 	WebhookTrigger struct {
-		OnAssetDeleted  func(childComplexity int) int
-		OnAssetUpload   func(childComplexity int) int
-		OnItemCreate    func(childComplexity int) int
-		OnItemDelete    func(childComplexity int) int
-		OnItemPublish   func(childComplexity int) int
-		OnItemUnPublish func(childComplexity int) int
-		OnItemUpdate    func(childComplexity int) int
+		OnAssetDecompress func(childComplexity int) int
+		OnAssetDeleted    func(childComplexity int) int
+		OnAssetUpload     func(childComplexity int) int
+		OnItemCreate      func(childComplexity int) int
+		OnItemDelete      func(childComplexity int) int
+		OnItemPublish     func(childComplexity int) int
+		OnItemUnPublish   func(childComplexity int) int
+		OnItemUpdate      func(childComplexity int) int
 	}
 
 	Workspace struct {
@@ -550,7 +553,7 @@ type ComplexityRoot struct {
 type AssetResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Project, error)
 
-	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.User, error)
+	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (gqlmodel.Operator, error)
 
 	Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error)
 }
@@ -690,6 +693,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.CreatedByID(childComplexity), true
+
+	case "Asset.createdByType":
+		if e.complexity.Asset.CreatedByType == nil {
+			break
+		}
+
+		return e.complexity.Asset.CreatedByType(childComplexity), true
 
 	case "Asset.file":
 		if e.complexity.Asset.File == nil {
@@ -1103,6 +1113,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ID(childComplexity), true
+
+	case "Item.modelId":
+		if e.complexity.Item.ModelID == nil {
+			break
+		}
+
+		return e.complexity.Item.ModelID(childComplexity), true
 
 	case "Item.project":
 		if e.complexity.Item.Project == nil {
@@ -2635,6 +2652,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WebhookPayload.Webhook(childComplexity), true
 
+	case "WebhookTrigger.onAssetDecompress":
+		if e.complexity.WebhookTrigger.OnAssetDecompress == nil {
+			break
+		}
+
+		return e.complexity.WebhookTrigger.OnAssetDecompress(childComplexity), true
+
 	case "WebhookTrigger.onAssetDeleted":
 		if e.complexity.WebhookTrigger.OnAssetDeleted == nil {
 			break
@@ -2901,6 +2925,13 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../../schemas/_shared.graphql", Input: `# Built-in
 
+union Operator = User | Integration
+
+enum OperatorType {
+  User
+  Integration
+}
+
 scalar Upload
 scalar Any
 
@@ -2980,10 +3011,11 @@ schema {
 }`, BuiltIn: false},
 	{Name: "../../../schemas/asset.graphql", Input: `type Asset implements Node {
   id: ID!
-  project: Project
+  project: Project!
   projectId: ID!
   createdAt: DateTime!
-  createdBy: User
+  createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!
@@ -3013,7 +3045,6 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
-  createdById: ID!
   file: Upload!
 }
 
@@ -3623,7 +3654,9 @@ input UpdateFieldInput {
   title: String
   description: String
   key: String
-  # TODO: make sure what are the editable fields (isMultiValue, isUnique, isRequired)
+  required: Boolean
+  unique: Boolean
+  multiValue: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -3652,6 +3685,7 @@ extend type Mutation {
 	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
+  modelId: ID!
   projectId: ID!
   project: Project!
   schema: Schema!
@@ -3681,6 +3715,7 @@ input ItemFieldInput {
 
 input CreateItemInput {
   schemaId: ID!
+  modelId: ID!
   fields: [ItemFieldInput!]!
 }
 
@@ -3804,11 +3839,12 @@ extend type Mutation {
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger  {
+	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
@@ -3831,6 +3867,7 @@ input WebhookTriggerInput {
   onItemUpdate: Boolean
   onItemDelete: Boolean
   onAssetUpload: Boolean
+  onAssetDecompress: Boolean
   onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
@@ -5057,11 +5094,14 @@ func (ec *executionContext) _Asset_project(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Project)
 	fc.Result = res
-	return ec.marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
+	return ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5206,11 +5246,14 @@ func (ec *executionContext) _Asset_createdBy(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.User)
+	res := resTmp.(gqlmodel.Operator)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Asset_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5220,15 +5263,51 @@ func (ec *executionContext) fieldContext_Asset_createdBy(ctx context.Context, fi
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type Operator does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Asset_createdByType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_createdByType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedByType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.OperatorType)
+	fc.Result = res
+	return ec.marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_createdByType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type OperatorType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5745,6 +5824,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -5958,6 +6039,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -6593,6 +6676,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -7944,6 +8029,50 @@ func (ec *executionContext) fieldContext_Item_schemaId(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_modelId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ModelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_modelId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_projectId(ctx, field)
 	if err != nil {
@@ -8295,6 +8424,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -8494,6 +8625,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -8686,6 +8819,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -13693,6 +13828,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -16491,6 +16628,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -16994,6 +17133,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_id(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "project":
@@ -17234,6 +17375,8 @@ func (ec *executionContext) fieldContext_Webhook_trigger(ctx context.Context, fi
 				return ec.fieldContext_WebhookTrigger_onItemDelete(ctx, field)
 			case "onAssetUpload":
 				return ec.fieldContext_WebhookTrigger_onAssetUpload(ctx, field)
+			case "onAssetDecompress":
+				return ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
 			case "onAssetDeleted":
 				return ec.fieldContext_WebhookTrigger_onAssetDeleted(ctx, field)
 			case "onItemPublish":
@@ -17547,6 +17690,47 @@ func (ec *executionContext) _WebhookTrigger_onAssetUpload(ctx context.Context, f
 }
 
 func (ec *executionContext) fieldContext_WebhookTrigger_onAssetUpload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookTrigger",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebhookTrigger_onAssetDecompress(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnAssetDecompress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookTrigger_onAssetDecompress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebhookTrigger",
 		Field:      field,
@@ -20187,7 +20371,7 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "createdById", "file"}
+	fieldsInOrder := [...]string{"projectId", "file"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20199,14 +20383,6 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
 			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdById":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdById"))
-			it.CreatedByID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20393,7 +20569,7 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"schemaId", "fields"}
+	fieldsInOrder := [...]string{"schemaId", "modelId", "fields"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20405,6 +20581,14 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
 			it.SchemaID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "modelId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22041,7 +22225,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiValue", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22085,6 +22269,30 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
 			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "required":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
+			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "unique":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
+			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "multiValue":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
+			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22623,7 +22831,7 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onAssetUpload", "onAssetDeleted", "onItemPublish", "onItemUnPublish"}
+	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onAssetUpload", "onAssetDecompress", "onAssetDeleted", "onItemPublish", "onItemUnPublish"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22659,6 +22867,14 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetUpload"))
 			it.OnAssetUpload, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "onAssetDecompress":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDecompress"))
+			it.OnAssetDecompress, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22749,6 +22965,29 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Item(ctx, sel, obj)
+	case gqlmodel.Integration:
+		return ec._Integration(ctx, sel, &obj)
+	case *gqlmodel.Integration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Integration(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _Operator(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Operator) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.User:
+		return ec._User(ctx, sel, &obj)
+	case *gqlmodel.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
 	case gqlmodel.Integration:
 		return ec._Integration(ctx, sel, &obj)
 	case *gqlmodel.Integration:
@@ -22936,6 +23175,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Asset_project(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -22967,6 +23209,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Asset_createdBy(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -22974,6 +23219,13 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "createdByType":
+
+			out.Values[i] = ec._Asset_createdByType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "createdById":
 
 			out.Values[i] = ec._Asset_createdById(ctx, field, obj)
@@ -23658,7 +23910,7 @@ func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var integrationImplementors = []string{"Integration", "Node"}
+var integrationImplementors = []string{"Integration", "Operator", "Node"}
 
 func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Integration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, integrationImplementors)
@@ -23839,6 +24091,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		case "schemaId":
 
 			out.Values[i] = ec._Item_schemaId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "modelId":
+
+			out.Values[i] = ec._Item_modelId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -26154,7 +26413,7 @@ func (ec *executionContext) _UpdateWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
-var userImplementors = []string{"User", "Node"}
+var userImplementors = []string{"User", "Operator", "Node"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -26365,6 +26624,10 @@ func (ec *executionContext) _WebhookTrigger(ctx context.Context, sel ast.Selecti
 		case "onAssetUpload":
 
 			out.Values[i] = ec._WebhookTrigger_onAssetUpload(ctx, field, obj)
+
+		case "onAssetDecompress":
+
+			out.Values[i] = ec._WebhookTrigger_onAssetDecompress(ctx, field, obj)
 
 		case "onAssetDeleted":
 
@@ -27795,6 +28058,26 @@ func (ec *executionContext) unmarshalNNodeType2githubᚗcomᚋreearthᚋreearth�
 }
 
 func (ec *executionContext) marshalNNodeType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNodeType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.NodeType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Operator) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Operator(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, v interface{}) (gqlmodel.OperatorType, error) {
+	var res gqlmodel.OperatorType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.OperatorType) graphql.Marshaler {
 	return v
 }
 

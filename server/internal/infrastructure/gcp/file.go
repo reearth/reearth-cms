@@ -1,4 +1,4 @@
-package gcs
+package gcp
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	fileSizeLimit    int64  = 1024 * 1024 * 100 // about 100MB
+	fileSizeLimit    int64  = 1024 * 1024 * 1024 // about 1GB
 )
 
 type fileRepo struct {
@@ -144,10 +144,8 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	return f.delete(ctx, sn)
 }
 
-func (r *fileRepo) GetURL(a *asset.Asset) string {
-	uuid := a.UUID()
-	url, _ := url.JoinPath(r.host, gcsAssetBasePath, uuid[:2], uuid[2:], fileName(a.FileName()))
-	return url
+func (f *fileRepo) GetURL(a *asset.Asset) string {
+	return getURL(f.host, a.UUID(), a.FileName())
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
@@ -230,7 +228,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getGCSObjectPath(uuid, objectName string) string {
-	if uuid == "" || !IsValidUUID(uuid) || objectName == "" {
+	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
@@ -260,4 +258,9 @@ var re = regexp.MustCompile(`[^a-zA-Z0-9-.]`)
 func fileName(s string) string {
 	ss := re.ReplaceAllString(s, "-")
 	return strings.ToLower(ss)
+}
+
+func getURL(host, uuid, fName string) string {
+	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], fileName(fName))
+	return url
 }

@@ -1,19 +1,27 @@
 package schema
 
-import "github.com/reearth/reearthx/util"
+import (
+	"errors"
+
+	"github.com/reearth/reearthx/util"
+)
 
 var TypeText Type = "text"
+var ErrInvalidTextDefault = errors.New("invalid default value")
 
 type FieldText struct {
 	defaultValue *string
 	maxLength    *int
 }
 
-func FieldTextFrom(defaultValue *string, maxLength *int) *FieldText {
+func FieldTextFrom(defaultValue *string, maxLength *int) (*FieldText, error) {
+	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
+		return nil, ErrInvalidTextDefault
+	}
 	return &FieldText{
 		defaultValue: defaultValue,
 		maxLength:    maxLength,
-	}
+	}, nil
 }
 
 func (f *FieldText) TypeProperty() *TypeProperty {

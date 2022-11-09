@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -255,22 +256,24 @@ func TestWebhookBuilder_Trigger(t *testing.T) {
 			name:   "set",
 			fields: fields{w: &Webhook{}},
 			args: args{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}},
 			want: &WebhookBuilder{w: &Webhook{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}}},
 		},
 	}

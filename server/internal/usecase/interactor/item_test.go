@@ -20,6 +20,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,14 +33,14 @@ func TestNewItem(t *testing.T) {
 func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid).Project(id.NewProjectID()).Build()
+	i2, _ := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {
@@ -117,13 +118,13 @@ func TestItem_FindBySchema(t *testing.T) {
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2 := item.New().NewID().Schema(s1.ID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
+	i2 := item.New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{item.NewField(sf1.ID(), schema.TypeBool, "true")}).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3 := item.New().NewID().Schema(s2.ID()).Project(pid).MustBuild()
+	i3 := item.New().NewID().Schema(s2.ID()).Model(id.NewModelID()).Project(pid).MustBuild()
 	restore()
 
 	type args struct {
@@ -137,7 +138,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		seedItems   item.List
 		seedSchema  *schema.Schema
 		args        args
-		want        item.List
+		want        int
 		wantErr     error
 		mockItemErr bool
 	}{
@@ -148,12 +149,12 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -163,12 +164,12 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{},
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -178,12 +179,12 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             uid,
+					User:             &uid,
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
 			},
-			want:    item.List{},
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -191,7 +192,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -216,7 +217,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, len(got))
 		})
 	}
 }
@@ -225,11 +226,13 @@ func TestItem_Create(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
-	s := schema.New().ID(sid).Workspace(wid).Project(pid).MustBuild()
+	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{pid},
 		WritableProjects: []id.ProjectID{pid},
 	}
@@ -242,6 +245,19 @@ func TestItem_Create(t *testing.T) {
 	itemUC := NewItem(db)
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
+		Fields: []interfaces.ItemFieldParam{
+			{
+				SchemaFieldID: sf1.ID(),
+				ValueType:     schema.TypeBool,
+				Value:         false,
+			},
+			{
+				SchemaFieldID: sf2.ID(),
+				ValueType:     schema.TypeText,
+				Value:         "xxx",
+			},
+		},
+		ModelID: id.NewModelID(),
 	}, op)
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
@@ -254,6 +270,7 @@ func TestItem_Create(t *testing.T) {
 	memory.SetItemError(db.Item, wantErr)
 	item2, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
+		ModelID:  id.NewModelID(),
 		Fields:   nil,
 	}, op)
 	assert.Nil(t, item2)
@@ -263,12 +280,12 @@ func TestItem_Create(t *testing.T) {
 func TestItem_Delete(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -292,12 +309,12 @@ func TestItem_Delete(t *testing.T) {
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Build()
+	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 	ctx := context.Background()
 
@@ -341,27 +358,33 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 func TestItem_Update(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	f1 := item.NewField(id.NewFieldID(), schema.TypeBool, true)
-	f2 := item.NewField(id.NewFieldID(), schema.TypeText, "xxx")
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Fields([]*item.Field{f1}).Build()
-
+	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
+	mid := id.NewModelID()
+	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
+	f1 := item.NewField(sf1.ID(), schema.TypeBool, true)
+	f2 := item.NewField(sf2.ID(), schema.TypeText, "xxx")
+	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).MustBuild()
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             u.ID(),
+		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{i1.Project()},
 		WritableProjects: []id.ProjectID{i1.Project()},
 	}
 	ctx := context.Background()
 
 	db := memory.New()
-	err := db.Item.Save(ctx, i1)
+	err := db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db)
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
+		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
 			{
 				SchemaFieldID: f1.SchemaFieldID(),
@@ -379,9 +402,8 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, i1, i)
 
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:   id1,
-		SchemaID: sid,
-		Fields:   []interfaces.ItemFieldParam{},
+		ItemID: id1,
+		Fields: []interfaces.ItemFieldParam{},
 	}, op)
 	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
 }
@@ -393,18 +415,18 @@ func TestItem_FindByProject(t *testing.T) {
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Build()
+	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Build()
+	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	type args struct {
@@ -460,7 +482,7 @@ func TestItem_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -494,16 +516,16 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, schema.TypeText, "hoge")
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	i1, _ := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Project(pid).Fields([]*item.Field{f1}).Build()
+	i2, _ := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid1).Project(pid).Fields([]*item.Field{f2}).Build()
+	i3, _ := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Build()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
-		User: u.ID(),
+		User: lo.ToPtr(u.ID()),
 	}
 
 	tests := []struct {
@@ -596,6 +618,169 @@ func TestItem_Search(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, len(got))
 
+		})
+	}
+}
+
+func Test_validateFields(t *testing.T) {
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
+	wid := id.NewWorkspaceID()
+	sfInt := schema.NewFieldInteger(lo.ToPtr(6), lo.ToPtr(5), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	sfText := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(5)).NewID().Key(key.Random()).MustBuild()
+	sfTextArea := schema.NewFieldTextArea(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	sfRichText := schema.NewFieldRichText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
+	sfMarkdown := schema.NewFieldMarkdown(lo.ToPtr("x"), lo.ToPtr(20)).NewID().Key(key.Random()).MustBuild()
+	sfURL := schema.NewFieldURL(lo.ToPtr("http://xxx.aa")).NewID().Key(key.Random()).MustBuild()
+	s := schema.New().
+		ID(sid).
+		Workspace(wid).
+		Project(pid).
+		Fields(schema.FieldList{sfInt, sfText, sfTextArea, sfMarkdown, sfRichText, sfURL}).
+		MustBuild()
+	type args struct {
+		itemFields []interfaces.ItemFieldParam
+		s          *schema.Schema
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "all pass",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfInt.ID(),
+						ValueType:     schema.TypeInteger,
+						Value:         9,
+					},
+					{
+						SchemaFieldID: sfText.ID(),
+						ValueType:     schema.TypeText,
+						Value:         "foo",
+					},
+					{
+						SchemaFieldID: sfTextArea.ID(),
+						ValueType:     schema.TypeTextArea,
+						Value:         "foo hoge",
+					},
+					{
+						SchemaFieldID: sfMarkdown.ID(),
+						ValueType:     schema.TypeMarkdown,
+						Value:         "<h1>foo</h1>",
+					},
+					{
+						SchemaFieldID: sfRichText.ID(),
+						ValueType:     schema.TypeRichText,
+						Value:         "hoge",
+					},
+					{
+						SchemaFieldID: sfURL.ID(),
+						ValueType:     schema.TypeURL,
+						Value:         "https://example.com",
+					},
+				},
+				s: s,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Integer fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfInt.ID(),
+						ValueType:     schema.TypeInteger,
+						Value:         14,
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Text fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfText.ID(),
+						ValueType:     schema.TypeText,
+						Value:         "foofoofoofoo",
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Textarea fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfTextArea.ID(),
+						ValueType:     schema.TypeTextArea,
+						Value:         "foo foo foo foo foo",
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Markdown fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfMarkdown.ID(),
+						ValueType:     schema.TypeMarkdown,
+						Value:         `<h1>foo</h1> <h1>foo</h1> <h1>foo</h1> `,
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Richtext fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfRichText.ID(),
+						ValueType:     schema.TypeRichText,
+						Value:         "hoge hoge hoge hoge hoge hoge ",
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+		{
+			name: "Richtext fail",
+			args: args{
+				itemFields: []interfaces.ItemFieldParam{
+					{
+						SchemaFieldID: sfURL.ID(),
+						ValueType:     schema.TypeURL,
+						Value:         "example.com",
+					},
+				},
+				s: s,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			err := validateFields(tc.args.itemFields, tc.args.s)
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

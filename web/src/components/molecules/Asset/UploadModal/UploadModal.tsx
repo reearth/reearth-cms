@@ -11,6 +11,7 @@ import LocalTab from "./localTab";
 const { TabPane } = Tabs;
 
 type Props = {
+  alsoLink?: boolean;
   visible: boolean;
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
@@ -20,6 +21,7 @@ type Props = {
 };
 
 const UploadModal: React.FC<Props> = ({
+  alsoLink,
   visible,
   uploadProps,
   uploading,
@@ -52,8 +54,10 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("Local")} key="1">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        <TabPane tab={t("URL")} key="2" />
-        <TabPane tab={t("Google Drive")} key="3" />
+        {/* TODO: uncomment this once upload asset by url is implemented */}
+        {/* <TabPane tab={t("URL")} key="2" /> */}
+        {/* TODO: uncomment this once upload asset from google drive is implemented */}
+        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={handleCancel}>
@@ -64,7 +68,7 @@ const UploadModal: React.FC<Props> = ({
           onClick={handleUpload}
           disabled={fileList && fileList?.length === 0}
           loading={uploading}>
-          {uploading ? t("Uploading") : t("Upload")}
+          {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>
       </Footer>
     </Modal>

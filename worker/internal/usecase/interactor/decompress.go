@@ -2,21 +2,14 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"io"
 	"path"
 	"strings"
 
-	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
+	"github.com/reearth/reearthx/log"
 )
-
-type Usecase struct {
-	gateways *gateway.Container
-}
-
-func NewUsecase(g *gateway.Container) *Usecase {
-	return &Usecase{gateways: g}
-}
 
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
@@ -37,6 +30,10 @@ func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) err
 
 	de, err := decompressor.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
+		if errors.Is(err, decompressor.ErrUnsupportedExtention) {
+			log.Infof("unsupported extension: decompression skipped assetID=%s ext=%s", assetID, ext)
+			return nil
+		}
 		return err
 	}
 
