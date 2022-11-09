@@ -646,7 +646,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p2},
 			wantErr: nil,
