@@ -13,6 +13,7 @@ type EventDocument struct {
 	Timestamp   time.Time
 	User        *string
 	Integration *string
+	CMS         *bool
 	Type        string
 	Object      Document
 }
@@ -28,6 +29,7 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 		Timestamp:   e.Timestamp(),
 		User:        e.Operator().User().StringRef(),
 		Integration: e.Operator().Integration().StringRef(),
+		CMS:         e.Operator().CMSRef(),
 		Type:        string(e.Type()),
 		Object:      objDoc,
 	}, eId, nil
@@ -53,6 +55,8 @@ func (d *EventDocument) Model() (*event.Event[any], error) {
 		if iid := id.IntegrationIDFromRef(d.Integration); iid != nil {
 			o = event.OperatorFromIntegration(*iid)
 		}
+	} else if d.CMS != nil {
+		o = event.OperatorFromCMS()
 	}
 
 	e, err := event.New[any]().
