@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -68,6 +69,26 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			}
 
 			c.SetRequest(req.WithContext(ctx))
+			return next(c)
+		}
+	}
+}
+
+func M2MAuthMiddleware(cfg *ServerConfig, email string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := c.Request().Context()
+			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
+				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				}
+				op, err := generateMachineOperator(ctx, cfg)
+				if err != nil {
+					return err
+				}
+				ctx = adapter.AttachOperator(ctx, op)
+				c.SetRequest(c.Request().WithContext(ctx))
+			}
 			return next(c)
 		}
 	}
@@ -176,6 +197,14 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		ReadableProjects:   rp,
 		WritableProjects:   wp,
 		OwningProjects:     op,
+	}, nil
+}
+
+func generateMachineOperator(ctx context.Context, cfg *ServerConfig) (*usecase.Operator, error) {
+	return &usecase.Operator{
+		User:        nil,
+		Integration: nil,
+		Machine:     lo.ToPtr(true),
 	}, nil
 }
 
