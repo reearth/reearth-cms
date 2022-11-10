@@ -25,7 +25,7 @@ func TestTypeFrom(t *testing.T) {
 		{
 			name:  "other",
 			input: "xyz",
-			want:  "",
+			want:  TypePrivate,
 		},
 	}
 	for _, tt := range tests {
