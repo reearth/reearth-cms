@@ -15,7 +15,7 @@ func toPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination 
 		pp = int64(*perPage)
 	}
 	return usecasex.OffsetPagination{
-		Offset: p * pp,
+		Offset: (p - 1) * pp,
 		Limit:  pp,
 	}.Wrap()
 }

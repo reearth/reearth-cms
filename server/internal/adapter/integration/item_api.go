@@ -21,7 +21,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return nil, err
 	}
 
-	p := toPagination(request.Params.Page, request.Params.Page)
+	p := toPagination(request.Params.Page, request.Params.PerPage)
 
 	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
 	if err != nil {
@@ -42,8 +42,8 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 
 	return ItemFilter200JSONResponse{
 		Items:      &itemList,
-		Page:       lo.ToPtr(1),
-		PerPage:    lo.ToPtr(1000),
+		Page:       request.Params.Page,
+		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }

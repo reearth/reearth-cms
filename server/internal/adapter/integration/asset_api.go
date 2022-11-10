@@ -49,8 +49,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 
 	return AssetFilter200JSONResponse{
 		Items:      &itemList,
-		Page:       lo.ToPtr(1),
-		PerPage:    lo.ToPtr(1000),
+		Page:       request.Params.Page,
+		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
