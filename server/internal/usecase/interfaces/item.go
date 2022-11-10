@@ -13,7 +13,10 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-var ErrItemFieldRequired = errors.New("item field required")
+var (
+	ErrItemFieldRequired = errors.New("item field required")
+	ErrFieldValueExist   = errors.New("field value exist")
+)
 
 type ItemFieldParam struct {
 	SchemaFieldID schema.FieldID
