@@ -104,6 +104,12 @@ func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam,
 		return err
 	}
 	for _, field := range itemFields {
+		if field.ValueType == schema.TypeInteger {
+			field.Value, err = strconv.ParseInt(fmt.Sprintf("%v", field.Value), 10, 64)
+			if err != nil {
+				return err
+			}
+		}
 		sf := s.Field(field.SchemaFieldID)
 		if sf == nil {
 			return interfaces.ErrFieldNotFound
@@ -132,16 +138,12 @@ func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam,
 				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value)) > *f.MaxLength()
 			},
 			Integer: func(f *schema.FieldInteger) {
-				v, err := strconv.Atoi(fmt.Sprintf("%v", field.Value))
-				if err != nil {
+
+				if f.Max() != nil && int(field.Value.(int64)) > *f.Max() {
 					errFlag = true
 					return
 				}
-				if f.Max() != nil && v > *f.Max() {
-					errFlag = true
-					return
-				}
-				if f.Min() != nil && v < *f.Min() {
+				if f.Min() != nil && int(field.Value.(int64)) < *f.Min() {
 					errFlag = true
 					return
 				}
