@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -76,9 +76,9 @@ func TestList_ItemsBySchemaField(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
-	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
-	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
-	f3 := NewField(id.NewFieldID(), schema.TypeBool, true)
+	f1 := NewField(id.NewFieldID(), value.Must(value.TypeText, "foo"))
+	f2 := NewField(id.NewFieldID(), value.Must(value.TypeText, "hoge"))
+	f3 := NewField(id.NewFieldID(), value.Must(value.TypeBool, true))
 	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).MustBuild()
 	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).MustBuild()
 	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).MustBuild()

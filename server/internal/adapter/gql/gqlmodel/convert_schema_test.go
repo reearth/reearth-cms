@@ -37,8 +37,10 @@ func TestToSchema(t *testing.T) {
 			},
 		},
 		{
-			name:   "success",
-			schema: schema.New().ID(sId).Workspace(wId).Project(pId).Fields([]*schema.Field{schema.NewFieldText(nil, nil).ID(fId).Key(k).MustBuild()}).MustBuild(),
+			name: "success",
+			schema: schema.New().ID(sId).Workspace(wId).Project(pId).Fields([]*schema.Field{
+				schema.NewField(schema.NewFieldText(nil).TypeProperty()).ID(fId).Key(k).MustBuild(),
+			}).MustBuild(),
 			want: &Schema{
 				ID:        IDFrom(sId),
 				ProjectID: IDFrom(pId),
@@ -82,8 +84,14 @@ func TestToSchemaField(t *testing.T) {
 		},
 		{
 			name: "success",
-			schema: schema.NewFieldText(nil).ID(fId).UpdatedAt(fId.Timestamp()).
-				Name("N1").Description("D1").Key(key.New("K123456")).Options(true, true, true).MustBuild(),
+			schema: schema.NewField(schema.NewFieldText(nil).TypeProperty()).
+				ID(fId).
+				UpdatedAt(fId.Timestamp()).
+				Name("N1").
+				Description("D1").
+				Key(key.New("K123456")).
+				Options(true, true, true).
+				MustBuild(),
 			want: &SchemaField{
 				ID:           IDFrom(fId),
 				ModelID:      "",

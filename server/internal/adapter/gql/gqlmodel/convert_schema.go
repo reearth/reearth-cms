@@ -65,7 +65,7 @@ func ToSchemaTypeProperty(tp *schema.TypeProperty, dv *value.Value) (res SchemaF
 		},
 		Markdown: func(f *schema.FieldMarkdown) {
 			res = &SchemaFieldMarkdown{
-				DefaultValue: dv.ValueMarkdownText(),
+				DefaultValue: dv.ValueMarkdown(),
 				MaxLength:    f.MaxLength(),
 			}
 		},

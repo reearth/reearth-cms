@@ -3,19 +3,18 @@ package value
 import (
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBool_New(t *testing.T) {
-	want := true
-
-	v, err := (&boolType{}).New(want)
+	v, err := (&boolType{}).New(true)
 	assert.NoError(t, err)
-	assert.Equal(t, want, v)
+	assert.Equal(t, true, v)
 
-	v, err = (&boolType{}).New(&want)
+	v, err = (&boolType{}).New(lo.ToPtr(true))
 	assert.NoError(t, err)
-	assert.Equal(t, want, v)
+	assert.Equal(t, true, v)
 
 	v, err = (&boolType{}).New((*bool)(nil))
 	assert.NoError(t, err)
@@ -27,7 +26,9 @@ func TestBool_New(t *testing.T) {
 }
 
 func TestBool_ValueBool(t *testing.T) {
-	want := true
-	v := (&Value{t: TypeBool, v: want}).ValueBool()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeBool, v: true}).ValueBool()
+	assert.Equal(t, lo.ToPtr(true), v)
+
+	v = (&Value{}).ValueBool()
+	assert.Nil(t, v)
 }

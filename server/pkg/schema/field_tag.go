@@ -30,11 +30,11 @@ func (f *FieldTag) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Tag: func(tags []string) {
 			if !lo.Every(f.values, tags) {
-				err = ErrInvalidDefaultValue
+				err = ErrInvalidValue
 			}
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

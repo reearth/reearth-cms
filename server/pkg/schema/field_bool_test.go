@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldBool_NewFieldBool(t *testing.T) {
+func TestNewFieldBool(t *testing.T) {
 	b := NewFieldBool()
 	assert.Equal(t, &FieldBool{}, b)
 }
@@ -18,6 +18,6 @@ func TestFieldBool_TypeProperty(t *testing.T) {
 }
 
 func TestFieldBool_Validate(t *testing.T) {
-	err := (&FieldBool{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldBool{}).Validate(&value.Value{}))
+	assert.Nil(t, (&FieldBool{}).Validate(value.Must(value.TypeBool, true)))
 }

@@ -113,7 +113,7 @@ func (f *Field) TypeProperty() *TypeProperty {
 }
 
 func (f *Field) SetTypeProperty(tp *TypeProperty) {
-	if f.typeProperty == nil || f.typeProperty != nil && tp != nil && f.typeProperty.Type() != tp.Type() {
+	if f.typeProperty == nil || tp == nil || f.typeProperty.Type() != tp.Type() {
 		return
 	}
 	f.typeProperty = tp.Clone()
@@ -125,7 +125,7 @@ func (f *Field) Clone() *Field {
 	}
 
 	return &Field{
-		id:           f.id.Clone(),
+		id:           f.id,
 		name:         f.name,
 		description:  f.description,
 		key:          f.key,

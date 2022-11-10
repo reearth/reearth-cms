@@ -33,7 +33,9 @@ func TestReference_New(t *testing.T) {
 }
 
 func TestReference_ValueReference(t *testing.T) {
-	want := id.MustItemID("01ggrrt8aya669r0xaemt2djx7")
-	v := (&Value{t: TypeReference, v: want}).ValueReference()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeReference, v: id.MustItemID("01ggrrt8aya669r0xaemt2djx7")}).ValueReference()
+	assert.Equal(t, id.MustItemID("01ggrrt8aya669r0xaemt2djx7").Ref(), v)
+
+	v = (&Value{}).ValueReference()
+	assert.Nil(t, v)
 }

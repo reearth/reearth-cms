@@ -6,9 +6,14 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"golang.org/x/exp/slices"
 )
 
 var ErrInvalidKey = errors.New("invalid key")
+var ErrInvalidTypeProperty = errors.New("type property missing")
+var ErrUnsupportedUniqueField = errors.New("such field type can be unique")
+
+var unsupportedUniqueTypes = []value.Type{value.TypeTag}
 
 type FieldBuilder struct {
 	f   *Field
@@ -32,8 +37,12 @@ func (b *FieldBuilder) Build() (*Field, error) {
 		return nil, ErrInvalidKey
 	}
 	if b.f.typeProperty == nil {
-		return nil, errors.New("type property missing")
+		return nil, ErrInvalidTypeProperty
 	}
+	if b.f.unique && !IsUniqueSupported(b.f.Type()) {
+		return nil, ErrUnsupportedUniqueField
+	}
+
 	return b.f, nil
 }
 
@@ -90,4 +99,8 @@ func (b *FieldBuilder) UpdatedAt(t time.Time) *FieldBuilder {
 func (b *FieldBuilder) DefaultValue(v *value.Value) *FieldBuilder {
 	b.err = b.f.SetDefaultValue(v)
 	return b
+}
+
+func IsUniqueSupported(t value.Type) bool {
+	return !slices.Contains(unsupportedUniqueTypes, t)
 }

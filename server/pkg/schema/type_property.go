@@ -7,7 +7,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrInvalidDefaultValue = errors.New("invalid default value")
+var ErrInvalidValue = errors.New("invalid default value")
 
 // TypeProperty represents special attributes for some fields.
 // Only one of the type properties should be not nil.
@@ -61,29 +61,30 @@ type TypePropertyMatch1[T any] struct {
 }
 
 func (t *TypeProperty) Type() value.Type {
-	if t.text != nil {
+	switch {
+	case t.text != nil:
 		return value.TypeText
-	} else if t.textArea != nil {
+	case t.textArea != nil:
 		return value.TypeTextArea
-	} else if t.richText != nil {
+	case t.richText != nil:
 		return value.TypeRichText
-	} else if t.markdown != nil {
+	case t.markdown != nil:
 		return value.TypeMarkdown
-	} else if t.asset != nil {
+	case t.asset != nil:
 		return value.TypeAsset
-	} else if t.date != nil {
+	case t.date != nil:
 		return value.TypeDate
-	} else if t.bool != nil {
+	case t.bool != nil:
 		return value.TypeBool
-	} else if t.selectt != nil {
+	case t.selectt != nil:
 		return value.TypeSelect
-	} else if t.tag != nil {
+	case t.tag != nil:
 		return value.TypeTag
-	} else if t.integer != nil {
+	case t.integer != nil:
 		return value.TypeInteger
-	} else if t.reference != nil {
+	case t.reference != nil:
 		return value.TypeReference
-	} else if t.url != nil {
+	case t.url != nil:
 		return value.TypeURL
 	}
 	return ""
@@ -240,7 +241,7 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 
 func (ty *TypeProperty) Validate(v *value.Value) error {
 	if v.Type() != ty.Type() {
-		return ErrInvalidDefaultValue
+		return ErrInvalidValue
 	}
 
 	err := MatchTypeProperty1(ty, TypePropertyMatch1[error]{
@@ -251,12 +252,12 @@ func (ty *TypeProperty) Validate(v *value.Value) error {
 	})
 
 	if err != nil {
-		if err == ErrInvalidDefaultValue {
+		if err == ErrInvalidValue {
 			return err
 		}
 
 		return &rerror.Error{
-			Label: ErrInvalidDefaultValue,
+			Label: ErrInvalidValue,
 			Err:   err,
 		}
 	}

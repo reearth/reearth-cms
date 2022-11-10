@@ -57,7 +57,7 @@ func (f *FieldInteger) Validate(v *value.Value) (err error) {
 			}
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

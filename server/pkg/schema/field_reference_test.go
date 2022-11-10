@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldReference_NewFieldReference(t *testing.T) {
+func TestNewFieldReference(t *testing.T) {
 	i := id.NewModelID()
 	u := NewFieldReference(i)
 	assert.Equal(t, &FieldReference{modelID: i}, u)
@@ -25,6 +25,6 @@ func TestFieldReference_ModelID(t *testing.T) {
 }
 
 func TestFieldReference_Validate(t *testing.T) {
-	err := (&FieldReference{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldReference{}).Validate(&value.Value{}))
+	assert.NoError(t, (&FieldReference{}).Validate(value.Must(value.TypeReference, id.MustItemID("01ghgg0h5j8bcccd5xmak7sces"))))
 }

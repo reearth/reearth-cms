@@ -49,7 +49,7 @@ func (v *Value) ValueRichText() (r *TextValue) {
 	return
 }
 
-func (v *Value) ValueMarkdownText() (r *TextValue) {
+func (v *Value) ValueMarkdown() (r *TextValue) {
 	v.Match(Match{
 		Markdown: func(v TextValue) {
 			r = &v

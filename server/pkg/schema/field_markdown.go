@@ -1,46 +1,23 @@
 package schema
 
-import (
-	"errors"
-
-	"github.com/reearth/reearth-cms/server/pkg/value"
-)
+import "github.com/reearth/reearth-cms/server/pkg/value"
 
 type FieldMarkdown struct {
-	defaultValue *string
-	maxLength    *int
+	f *FieldText
 }
 
 func NewFieldMarkdown(maxLength *int) *FieldMarkdown {
-	return &FieldMarkdown{
-		maxLength: maxLength,
-	}
+	return &FieldMarkdown{f: NewFieldText(maxLength)}
 }
 
 func (f *FieldMarkdown) TypeProperty() *TypeProperty {
-	return &TypeProperty{
-		markdown: f,
-	}
-}
-
-func (f *FieldMarkdown) DefaultValue() *string {
-	return f.defaultValue
+	return &TypeProperty{markdown: f}
 }
 
 func (f *FieldMarkdown) MaxLength() *int {
-	return f.maxLength
+	return f.f.MaxLength()
 }
 
-func (f *FieldMarkdown) Validate(v *value.Value) (err error) {
-	v.Match(value.Match{
-		TextArea: func(u string) {
-			if f.maxLength != nil && len(u) > *f.maxLength {
-				err = errors.New("text is too long")
-			}
-		},
-		Default: func() {
-			err = ErrInvalidDefaultValue
-		},
-	})
-	return
+func (f *FieldMarkdown) Validate(v *value.Value) error {
+	return f.f.Validate(v)
 }

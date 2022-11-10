@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldTag_NewFieldTag(t *testing.T) {
+func TestNewFieldTag(t *testing.T) {
 	v := []string{"v1"}
 	b := NewFieldTag(v)
 	assert.Equal(t, &FieldTag{values: v}, b)
@@ -19,6 +19,7 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 }
 
 func TestFieldTag_Validate(t *testing.T) {
-	err := (&FieldTag{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldTag{}).Validate(&value.Value{}))
+	assert.Same(t, ErrInvalidValue, (&FieldTag{values: []string{"a", "c"}}).Validate(value.Must(value.TypeTag, []string{"a", "b"})))
+	assert.NoError(t, (&FieldTag{values: []string{"a", "c"}}).Validate(value.Must(value.TypeTag, []string{"a", "c"})))
 }

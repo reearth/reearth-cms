@@ -92,8 +92,8 @@ func TestItem_Filtered(t *testing.T) {
 }
 
 func TestItem_HasField(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
-	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
+	f1 := NewField(id.NewFieldID(), value.Must(value.TypeText, "foo"))
+	f2 := NewField(id.NewFieldID(), value.Must(value.TypeText, "hoge"))
 	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).MustBuild()
 
 	type args struct {

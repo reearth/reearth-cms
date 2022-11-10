@@ -612,16 +612,17 @@ func TestField_SetDescription(t *testing.T) {
 }
 
 func TestField_SetKey(t *testing.T) {
-
 	tests := []struct {
-		name string
-		arg  key.Key
-		want Field
+		name    string
+		arg     key.Key
+		want    Field
+		wantErr error
 	}{
 		{
-			name: "success",
-			arg:  key.New(""),
-			want: Field{},
+			name:    "fail",
+			arg:     key.New(""),
+			want:    Field{},
+			wantErr: ErrInvalidKey,
 		},
 		{
 			name: "success with value",
@@ -635,8 +636,14 @@ func TestField_SetKey(t *testing.T) {
 			t.Parallel()
 
 			f := Field{}
-			f.SetKey(tc.arg)
-			assert.Equal(t, tc.want, f)
+			err := f.SetKey(tc.arg)
+
+			if tc.wantErr == nil {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.want, f)
+			} else {
+				assert.ErrorIs(t, err, tc.wantErr)
+			}
 		})
 	}
 }

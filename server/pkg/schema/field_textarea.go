@@ -1,41 +1,27 @@
 package schema
 
-import (
-	"errors"
-
-	"github.com/reearth/reearth-cms/server/pkg/value"
-)
+import "github.com/reearth/reearth-cms/server/pkg/value"
 
 type FieldTextArea struct {
-	maxLength *int
+	f *FieldText
 }
 
 func NewFieldTextArea(maxLength *int) *FieldTextArea {
-	return &FieldTextArea{
-		maxLength: maxLength,
-	}
+	return &FieldTextArea{f: NewFieldText(maxLength)}
+}
+
+func (*FieldTextArea) Type() value.Type {
+	return value.TypeTextArea
 }
 
 func (f *FieldTextArea) TypeProperty() *TypeProperty {
-	return &TypeProperty{
-		textArea: f,
-	}
+	return &TypeProperty{textArea: f}
 }
 
 func (f *FieldTextArea) MaxLength() *int {
-	return f.maxLength
+	return f.f.MaxLength()
 }
 
-func (f *FieldTextArea) Validate(v *value.Value) (err error) {
-	v.Match(value.Match{
-		TextArea: func(u string) {
-			if f.maxLength != nil && len(u) > *f.maxLength {
-				err = errors.New("text is too long")
-			}
-		},
-		Default: func() {
-			err = ErrInvalidDefaultValue
-		},
-	})
-	return
+func (f *FieldTextArea) Validate(v *value.Value) error {
+	return f.f.Validate(v)
 }

@@ -8,18 +8,17 @@ import (
 )
 
 func TestText_New(t *testing.T) {
-	var w string
-	v, err := (&text{}).New((w))
+	v, err := (&text{}).New(("aaa"))
 	assert.NoError(t, err)
-	assert.Equal(t, "", v)
+	assert.Equal(t, "aaa", v)
 
-	v, err = (&text{}).New((lo.ToPtr(w)))
+	v, err = (&text{}).New((lo.ToPtr("aaa")))
 	assert.NoError(t, err)
-	assert.Equal(t, "", v)
+	assert.Equal(t, "aaa", v)
 
-	v, err = (&text{}).New((*string)(nil))
+	v, err = (&text{}).New(lo.ToPtr("aaa"))
 	assert.NoError(t, err)
-	assert.Nil(t, v)
+	assert.Equal(t, "aaa", v)
 
 	v, err = (&text{}).New(nil)
 	assert.Same(t, ErrInvalidValue, err)
@@ -27,25 +26,33 @@ func TestText_New(t *testing.T) {
 }
 
 func TestText_ValueText(t *testing.T) {
-	var want string
-	v := (&Value{t: TypeText, v: want}).ValueText()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeText, v: "aaa"}).ValueText()
+	assert.Equal(t, lo.ToPtr("aaa"), v)
+
+	v = (&Value{}).ValueMarkdown()
+	assert.Nil(t, v)
 }
 
 func TestText_ValueTextArea(t *testing.T) {
-	var want string
-	v := (&Value{t: TypeTextArea, v: want}).ValueTextArea()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeTextArea, v: "aaa"}).ValueTextArea()
+	assert.Equal(t, lo.ToPtr("aaa"), v)
+
+	v = (&Value{}).ValueTextArea()
+	assert.Nil(t, v)
 }
 
 func TestText_ValueRichText(t *testing.T) {
-	var want string
-	v := (&Value{t: TypeRichText, v: want}).ValueRichText()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeRichText, v: "aaa"}).ValueRichText()
+	assert.Equal(t, lo.ToPtr("aaa"), v)
+
+	v = (&Value{}).ValueRichText()
+	assert.Nil(t, v)
 }
 
-func TestText_ValueMarkdownText(t *testing.T) {
-	var want string
-	v := (&Value{t: TypeMarkdown, v: want}).ValueMarkdownText()
-	assert.Equal(t, &want, v)
+func TestText_ValueMarkdown(t *testing.T) {
+	v := (&Value{t: TypeMarkdown, v: "aaa"}).ValueMarkdown()
+	assert.Equal(t, lo.ToPtr("aaa"), v)
+
+	v = (&Value{}).ValueMarkdown()
+	assert.Nil(t, v)
 }

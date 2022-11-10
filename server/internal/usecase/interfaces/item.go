@@ -15,8 +15,11 @@ import (
 )
 
 var (
-	ErrItemFieldRequired = errors.New("item field required")
-	ErrFieldValueExist   = errors.New("field value exist")
+	ErrItemFieldRequired      = errors.New("item field required")
+	ErrFieldValueExist        = errors.New("field value exist")
+	ErrDuplicatedItemValue    = errors.New("duplicated item value")
+	ErrInvalidField           = errors.New("invalid field")
+	ErrUnsupportedUniqueField = errors.New("unsupported unique field")
 )
 
 type ItemFieldParam struct {

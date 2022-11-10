@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type ValueDocument struct {
@@ -66,4 +67,13 @@ func NewValue(vv *value.Value) *ValueDocument {
 
 func (d ValueDocument) Model() (*value.Value, error) {
 	return value.New(value.Type(d.Type), d.Value)
+}
+
+func (d ValueDocument) EqFilter() any {
+	if d.Type == string(value.TypeTag) {
+		return nil // not supported
+	}
+	return bson.M{
+		"$eq": d.Value,
+	}
 }

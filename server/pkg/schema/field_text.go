@@ -1,13 +1,11 @@
 package schema
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
 )
-
-var ErrInvalidTextDefault = errors.New("invalid default value")
 
 type FieldText struct {
 	maxLength *int
@@ -33,11 +31,11 @@ func (f *FieldText) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Text: func(u string) {
 			if f.maxLength != nil && len(u) > *f.maxLength {
-				err = errors.New("text is too long")
+				err = fmt.Errorf("value must be shorter than %d characters", *f.maxLength)
 			}
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

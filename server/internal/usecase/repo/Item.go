@@ -6,13 +6,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 type FieldAndValue struct {
 	SchemaFieldID schema.FieldID
-	Value         any
+	Value         *value.Value
 }
 
 type Item interface {

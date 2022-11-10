@@ -9,7 +9,6 @@ import (
 )
 
 func TestDate_New(t *testing.T) {
-
 	v, err := (&date{}).New(time.Time{})
 	assert.NoError(t, err)
 	assert.Equal(t, time.Time{}, v)
@@ -43,7 +42,10 @@ func TestDate_New(t *testing.T) {
 }
 
 func TestDate_Valuedate(t *testing.T) {
-	want := time.Time{}
+	want := time.Now()
 	v := (&Value{t: TypeDate, v: want}).ValueDate()
 	assert.Equal(t, &want, v)
+
+	v = (&Value{}).ValueDate()
+	assert.Nil(t, v)
 }

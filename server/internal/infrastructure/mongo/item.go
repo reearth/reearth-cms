@@ -229,17 +229,24 @@ func sortItems(items []*version.Value[*item.Item]) {
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.List, error) {
 	filters := make([]bson.M, 0, len(fields))
 	for _, f := range fields {
+		e := mongodoc.NewValue(f.Value).EqFilter()
+		if e == nil {
+			continue
+		}
+
 		filters = append(filters, bson.M{
-			"modelid": modelID.String(),
+			"model": modelID.String(),
 			"fields": bson.M{
 				"$elemMatch": bson.M{
-					"value":       f.Value,
+					"value":       e,
 					"schemafield": f.SchemaFieldID.String(),
 				},
 			},
 		})
 	}
-	filter := bson.M{"$or": filters}
+	if len(filters) == 0 {
+		return nil, nil
+	}
 
-	return r.find(ctx, filter)
+	return r.find(ctx, bson.M{"$or": filters}, false)
 }

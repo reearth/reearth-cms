@@ -22,7 +22,7 @@ func (f *FieldURL) Validate(v *value.Value) (err error) {
 			// nothing to do
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

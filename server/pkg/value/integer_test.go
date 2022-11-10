@@ -9,130 +9,115 @@ import (
 )
 
 func TestInteger_New(t *testing.T) {
-	var vfloat64 float64
-	var vfloat32 float32
-	var vint int
-	var vint8 int8
-	var vint16 int16
-	var vint32 int32
-	var vint64 int64
-	var vuint uint
-	var vuint8 uint8
-	var vuint16 uint16
-	var vuint32 uint32
-	var vuint64 uint64
-	var vuintptr uintptr
-	var vjson json.Number
-
-	v, err := (&integer{}).New(vfloat64)
+	v, err := (&integer{}).New(float64(1.1))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(1), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vfloat64))
+	v, err = (&integer{}).New(lo.ToPtr(float64(1.1)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(1), v)
 
-	v, err = (&integer{}).New(vfloat32)
+	v, err = (&integer{}).New(float32(1.1))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(1), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vfloat32))
+	v, err = (&integer{}).New(lo.ToPtr(float32(1.1)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(1), v)
 
-	v, err = (&integer{}).New(vint)
+	v, err = (&integer{}).New(100)
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vint))
+	v, err = (&integer{}).New(lo.ToPtr(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vint8)
+	v, err = (&integer{}).New(int8(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vint8))
+	v, err = (&integer{}).New(lo.ToPtr(int8(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vint16)
+	v, err = (&integer{}).New(int16(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vint16))
+	v, err = (&integer{}).New(lo.ToPtr(int16(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vint32)
+	v, err = (&integer{}).New(int32(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vint32))
+	v, err = (&integer{}).New(lo.ToPtr(int32(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vint64)
+	v, err = (&integer{}).New(int64(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vint64))
+	v, err = (&integer{}).New(lo.ToPtr(int64(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuint)
+	v, err = (&integer{}).New(uint(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuint))
+	v, err = (&integer{}).New(lo.ToPtr(uint(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuint8)
+	v, err = (&integer{}).New(uint8(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuint8))
+	v, err = (&integer{}).New(lo.ToPtr(uint8(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuint16)
+	v, err = (&integer{}).New(uint16(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuint16))
+	v, err = (&integer{}).New(lo.ToPtr(uint16(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuint32)
+	v, err = (&integer{}).New(uint32(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuint32))
+	v, err = (&integer{}).New(lo.ToPtr(uint32(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuint64)
+	v, err = (&integer{}).New(uint64(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuint64))
+	v, err = (&integer{}).New(lo.ToPtr(uint64(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(vuintptr)
+	v, err = (&integer{}).New(uintptr(100))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, err = (&integer{}).New(lo.ToPtr(vuintptr))
+	v, err = (&integer{}).New(lo.ToPtr(uintptr(100)))
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), v)
+	assert.Equal(t, int64(100), v)
 
-	v, _ = (&integer{}).New(vjson)
-	assert.Equal(t, nil, v)
+	v, _ = (&integer{}).New(json.Number("100"))
+	assert.Equal(t, int64(100), v)
 
-	v, _ = (&integer{}).New(lo.ToPtr(vjson))
-	assert.Equal(t, nil, v)
+	v, _ = (&integer{}).New(lo.ToPtr(json.Number("100")))
+	assert.Equal(t, int64(100), v)
 
 	v, err = (&integer{}).New("123")
 	assert.NoError(t, err)
@@ -160,7 +145,9 @@ func TestInteger_New(t *testing.T) {
 }
 
 func TestInteger_ValueInteger(t *testing.T) {
-	var vint64 int64
-	v := (&Value{t: TypeInteger, v: vint64}).ValueInteger()
-	assert.Equal(t, lo.ToPtr(vint64), v)
+	v := (&Value{t: TypeInteger, v: int64(100)}).ValueInteger()
+	assert.Equal(t, lo.ToPtr(int64(100)), v)
+
+	v = (&Value{}).ValueInteger()
+	assert.Nil(t, v)
 }

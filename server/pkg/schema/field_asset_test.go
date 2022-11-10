@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldAsset_NewFieldAsset(t *testing.T) {
+func TestNewFieldAsset(t *testing.T) {
 	a := NewFieldAsset()
 	assert.Equal(t, &FieldAsset{}, a)
 }
@@ -20,7 +20,7 @@ func TestFieldAsset_TypeProperty(t *testing.T) {
 
 func TestFieldAsset_Validate(t *testing.T) {
 	err := (&FieldAsset{}).Validate(&value.Value{})
-	assert.Same(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, err, ErrInvalidValue)
 
 	err = (&FieldAsset{}).Validate(value.Must(value.TypeAsset, id.MustAssetID("01ghdpq6m5xxgx7x29pkawegcg")))
 	assert.NoError(t, err)

@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -67,11 +68,20 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return nil, err
 	}
 
+	fields, err := util.TryMap(*request.Body.Fields, func(f integrationapi.Field) (interfaces.ItemFieldParam, error) {
+		v, err := toItemFieldParam(f)
+		if err != nil {
+			return interfaces.ItemFieldParam{}, fmt.Errorf("field %s: %w", f.Id, err)
+		}
+		return v, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	cp := interfaces.CreateItemParam{
 		SchemaID: m[0].Schema(),
-		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return toItemFieldParam(f)
-		}),
+		Fields:   fields,
 	}
 
 	i, err := uc.Item.Create(ctx, cp, op)

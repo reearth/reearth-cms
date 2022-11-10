@@ -8,7 +8,6 @@ import (
 )
 
 func TestSelect_New(t *testing.T) {
-	var want string
 	v, err := (&selectType{}).New("test")
 	assert.NoError(t, err)
 	assert.Equal(t, "test", v)
@@ -17,9 +16,9 @@ func TestSelect_New(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Nil(t, v)
 
-	v, err = (&selectType{}).New(lo.ToPtr(want))
+	v, err = (&selectType{}).New(lo.ToPtr("test"))
 	assert.NoError(t, err)
-	assert.Equal(t, want, v)
+	assert.Equal(t, "test", v)
 
 	v, err = (&selectType{}).New(nil)
 	assert.Same(t, ErrInvalidValue, err)
@@ -27,7 +26,9 @@ func TestSelect_New(t *testing.T) {
 }
 
 func TestSelect_ValueSelect(t *testing.T) {
-	var want string
-	v := (&Value{t: TypeSelect, v: want}).ValueSelect()
-	assert.Equal(t, &want, v)
+	v := (&Value{t: TypeSelect, v: "a"}).ValueSelect()
+	assert.Equal(t, lo.ToPtr("a"), v)
+
+	v = (&Value{}).ValueSelect()
+	assert.Nil(t, v)
 }

@@ -32,11 +32,11 @@ func (f *FieldSelect) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Select: func(s string) {
 			if !lo.Contains(f.values, s) {
-				err = ErrInvalidDefaultValue
+				err = ErrInvalidValue
 			}
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

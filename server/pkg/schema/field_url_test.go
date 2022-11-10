@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldURL_NewFieldURL(t *testing.T) {
+func TestNewFieldURL(t *testing.T) {
 	u := NewFieldURL()
 	assert.Equal(t, &FieldURL{}, u)
 }
@@ -18,6 +18,6 @@ func TestFieldURL_TypeProperty(t *testing.T) {
 }
 
 func TestFieldURL_Validate(t *testing.T) {
-	err := (&FieldURL{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldURL{}).Validate(&value.Value{}))
+	assert.NoError(t, (&FieldURL{}).Validate(value.Must(value.TypeURL, "https://example.com")))
 }

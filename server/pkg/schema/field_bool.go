@@ -20,7 +20,7 @@ func (f *FieldBool) Validate(v *value.Value) (err error) {
 			// noting to do
 		},
 		Default: func() {
-			err = ErrInvalidDefaultValue
+			err = ErrInvalidValue
 		},
 	})
 	return

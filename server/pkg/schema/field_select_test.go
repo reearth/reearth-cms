@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldSelect_NewFieldSelect(t *testing.T) {
+func TestNewFieldSelect(t *testing.T) {
 	v := []string{"v1"}
 	b := NewFieldSelect(v)
 	assert.Equal(t, &FieldSelect{values: v}, b)
@@ -19,6 +19,7 @@ func TestFieldSelect_TypeProperty(t *testing.T) {
 }
 
 func TestFieldSelect_Validate(t *testing.T) {
-	err := (&FieldSelect{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldSelect{}).Validate(&value.Value{}))
+	assert.Same(t, ErrInvalidValue, (&FieldSelect{values: []string{"a", "b", "c"}}).Validate(value.Must(value.TypeSelect, "aaa")))
+	assert.NoError(t, (&FieldSelect{values: []string{"a", "b", "c"}}).Validate(value.Must(value.TypeSelect, "c")))
 }

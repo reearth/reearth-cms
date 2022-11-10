@@ -2,12 +2,13 @@ package schema
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldDate_NewFieldDate(t *testing.T) {
+func TestNewFieldDate(t *testing.T) {
 	b := NewFieldDate()
 	assert.Equal(t, &FieldDate{}, b)
 }
@@ -18,6 +19,6 @@ func TestFieldDate_TypeProperty(t *testing.T) {
 }
 
 func TestFieldDate_Validate(t *testing.T) {
-	err := (&FieldDate{}).Validate(&value.Value{})
-	assert.ErrorIs(t, err, ErrInvalidDefaultValue)
+	assert.Same(t, ErrInvalidValue, (&FieldDate{}).Validate(&value.Value{}))
+	assert.NoError(t, (&FieldDate{}).Validate(value.Must(value.TypeDate, time.Now())))
 }
