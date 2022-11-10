@@ -29,7 +29,7 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 		Timestamp:   e.Timestamp(),
 		User:        e.Operator().User().StringRef(),
 		Integration: e.Operator().Integration().StringRef(),
-		CMS:         e.Operator().MachineRef(),
+		Machine:     e.Operator().Machine(),
 		Type:        string(e.Type()),
 		Object:      objDoc,
 	}, eId, nil
