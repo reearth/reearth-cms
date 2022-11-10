@@ -241,3 +241,25 @@ func vor(public bool) version.VersionOrRef {
 	}
 	return v
 }
+
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	var res item.List
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		it := v.Get(version.Latest.OrVersion()).Value()
+		if it.Model() == modelID {
+			for _, f := range fields {
+				for _, ff := range it.Fields() {
+					if f.Value == ff.Value() && f.SchemaFieldID == ff.SchemaFieldID() {
+						res = append(res, it)
+					}
+				}
+			}
+		}
+		return true
+	})
+	return res, nil
+}

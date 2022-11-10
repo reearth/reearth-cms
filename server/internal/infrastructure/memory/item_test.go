@@ -183,3 +183,29 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
 }
+
+func TestItem_FindByModelAndValue(t *testing.T) {
+	ctx := context.Background()
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	pid := id.NewProjectID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	mid := id.NewModelID()
+	i, _ := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Build()
+
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, i2)
+	got, _ := r.FindByModelAndValue(ctx, mid, []repo.FieldAndValue{{
+		SchemaFieldID: f1.SchemaFieldID(),
+		Value:         f1.Value(),
+	}})
+	assert.Equal(t, 1, len(got))
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.Save(ctx, i))
+}
