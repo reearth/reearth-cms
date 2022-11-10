@@ -51,10 +51,10 @@ export const GET_ASSETS = gql`
           size
           previewType
           file {
-            name
-            size
-            contentType
-            path
+            ...FileFragment
+            children {
+              ...FileFragment
+            }
           }
           uuid
           url
@@ -115,10 +115,10 @@ export const GET_ASSETS = gql`
         size
         previewType
         file {
-          name
-          size
-          contentType
-          path
+          ...FileFragment
+          children {
+            ...FileFragment
+          }
         }
         uuid
         url
@@ -145,6 +145,12 @@ export const GET_ASSETS = gql`
       }
       totalCount
     }
+  }
+  fragment FileFragment on AssetFile {
+    name
+    size
+    contentType
+    path
   }
 `;
 
@@ -191,10 +197,10 @@ export const GET_ASSET = gql`
       size
       previewType
       file {
-        name
-        size
-        contentType
-        path
+        ...FileFragment
+        children {
+          ...FileFragment
+        }
       }
       uuid
       url
@@ -213,6 +219,12 @@ export const GET_ASSET = gql`
         }
       }
     }
+  }
+  fragment FileFragment on AssetFile {
+    name
+    size
+    contentType
+    path
   }
 `;
 
