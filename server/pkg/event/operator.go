@@ -36,7 +36,7 @@ func (o Operator) Machine() bool {
 	return o.isMachine
 }
 
-func (o Operator) MachineRef() *bool {
+func (o Operator) Machine() bool {
 	return &o.isMachine
 }
 
