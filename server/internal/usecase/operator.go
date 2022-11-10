@@ -11,7 +11,7 @@ import (
 type Operator struct {
 	User               *user.ID
 	Integration        *integration.ID
-	Machine            *bool
+	Machine            bool
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
