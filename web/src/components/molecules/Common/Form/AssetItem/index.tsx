@@ -88,7 +88,7 @@ const AssetItem: React.FC<Props> = ({
       ) : (
         <AssetButton onClick={handleClick}>
           <div>
-            <Icon icon="link" />
+            <Icon icon="LinkOutlined" size={24} />
             <div style={{ marginTop: 8 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
@@ -116,6 +116,7 @@ const AssetItem: React.FC<Props> = ({
 const AssetButton = styled(Button)`
   width: 100px;
   height: 100px;
+  border: 1px dashed #d9d9d9;
 `;
 
 export default AssetItem;

@@ -31,6 +31,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   FolderOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -77,6 +78,7 @@ export default {
   listBullets: ListBullets,
   numberNine: NumberNine,
   link: Link,
+  LinkOutlined: LinkOutlined,
   more: MoreOutlined,
   minusCircle: MinusCircleOutlined,
   delete: DeleteOutlined,
