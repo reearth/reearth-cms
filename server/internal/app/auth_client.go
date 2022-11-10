@@ -17,18 +17,19 @@ import (
 	"github.com/samber/lo"
 )
 
+var (
+	debugUserHeaderKey        = "X-Reearth-Debug-User"
+	debugIntegrationHeaderKey = "X-Reearth-Debug-Integration"
+)
+
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			req := c.Request()
 			ctx := req.Context()
 
-			// get sub from context
-			ai := adapter.GetAuthInfo(ctx)
-
-			// find or create user
-			if ai != nil {
-				var u *user.User
+			var u *user.User
+			if ai := adapter.GetAuthInfo(ctx); ai != nil {
 				var err error
 				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
 				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
@@ -39,7 +40,20 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				if err != nil {
 					return err
 				}
-
+			}
+			if cfg.Debug {
+				if val := req.Header.Get(debugUserHeaderKey); val != "" {
+					uId, err := id.UserIDFrom(val)
+					if err != nil {
+						return err
+					}
+					u, err = cfg.Repos.User.FindByID(ctx, uId)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			if u != nil {
 				op, err := generateUserOperator(ctx, cfg, u)
 				if err != nil {
 					return err
@@ -49,16 +63,27 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
-			// get integration token if presented
-			token := getIntegrationToken(req)
-			if token != "" {
-				var i *integration.Integration
+			var i *integration.Integration
+			if token := getIntegrationToken(req); token != "" {
 				var err error
 				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
 				if err != nil {
 					return err
 				}
-
+			}
+			if cfg.Debug {
+				if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
+					iId, err := id.IntegrationIDFrom(val)
+					if err != nil {
+						return err
+					}
+					i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			if i != nil {
 				op, err := generateIntegrationOperator(ctx, cfg, i)
 				if err != nil {
 					return err
@@ -177,16 +202,4 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		WritableProjects:   wp,
 		OwningProjects:     op,
 	}, nil
-}
-
-func AuthRequiredMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			ctx := c.Request().Context()
-			if adapter.Operator(ctx) == nil {
-				return echo.ErrUnauthorized
-			}
-			return next(c)
-		}
-	}
 }
