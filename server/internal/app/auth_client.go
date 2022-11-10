@@ -74,7 +74,7 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
-func M2MAuthMiddleware(cfg *ServerConfig, email string) echo.MiddlewareFunc {
+func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			ctx := c.Request().Context()
@@ -82,7 +82,7 @@ func M2MAuthMiddleware(cfg *ServerConfig, email string) echo.MiddlewareFunc {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
-				op, err := generateMachineOperator(ctx, cfg)
+				op, err := generateMachineOperator(ctx)
 				if err != nil {
 					return err
 				}
@@ -200,7 +200,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generateMachineOperator(ctx context.Context, cfg *ServerConfig) (*usecase.Operator, error) {
+func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
 	return &usecase.Operator{
 		User:        nil,
 		Integration: nil,
