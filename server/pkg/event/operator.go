@@ -36,10 +36,6 @@ func (o Operator) Machine() bool {
 	return o.isMachine
 }
 
-func (o Operator) Machine() bool {
-	return &o.isMachine
-}
-
 func (o Operator) validate() bool {
 	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine()
 }

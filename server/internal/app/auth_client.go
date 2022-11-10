@@ -204,7 +204,7 @@ func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
 	return &usecase.Operator{
 		User:        nil,
 		Integration: nil,
-		Machine:     lo.ToPtr(true),
+		Machine:     true,
 	}, nil
 }
 
