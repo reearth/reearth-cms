@@ -92,9 +92,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func validateFields(ctx context.Context, itemFields []interfaces.ItemFieldParam, s *schema.Schema, mid id.ModelID, repos *repo.Container) error {
-	var fieldsArg []repo.ItemFieldArg
+	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {
-		fieldsArg = append(fieldsArg, repo.ItemFieldArg{
+		fieldsArg = append(fieldsArg, repo.FieldAndValue{
 			SchemaFieldID: f.SchemaFieldID,
 			Value:         f.Value,
 		})

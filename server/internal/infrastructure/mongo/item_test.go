@@ -425,7 +425,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
 	type args struct {
 		model  id.ModelID
-		fields []repo.ItemFieldArg
+		fields []repo.FieldAndValue
 	}
 	tests := []struct {
 		Name     string
@@ -438,7 +438,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 			Name: "must not find any item",
 			Input: args{
 				model: mid,
-				fields: []repo.ItemFieldArg{
+				fields: []repo.FieldAndValue{
 					{
 						SchemaFieldID: f2.SchemaFieldID(),
 						Value:         f2.Value(),
@@ -452,7 +452,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 			Name: "must find one item",
 			Input: args{
 				model: mid,
-				fields: []repo.ItemFieldArg{
+				fields: []repo.FieldAndValue{
 					{
 						SchemaFieldID: f1.SchemaFieldID(),
 						Value:         f1.Value(),

@@ -188,7 +188,7 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	return res, nil, nil
 }
 
-func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.ItemFieldArg) (item.List, error) {
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}

@@ -199,7 +199,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
-	got, _ := r.FindByModelAndValue(ctx, mid, []repo.ItemFieldArg{{
+	got, _ := r.FindByModelAndValue(ctx, mid, []repo.FieldAndValue{{
 		SchemaFieldID: f1.SchemaFieldID(),
 		Value:         f1.Value(),
 	}})

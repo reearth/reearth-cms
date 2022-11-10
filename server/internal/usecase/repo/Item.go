@@ -10,7 +10,7 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-type ItemFieldArg struct {
+type FieldAndValue struct {
 	SchemaFieldID schema.FieldID
 	Value         any
 }
@@ -24,7 +24,7 @@ type Item interface {
 	FindByIDs(context.Context, id.ItemIDList) (item.List, error)
 	FindAllVersionsByID(context.Context, id.ItemID) ([]*version.Value[*item.Item], error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
-	FindByModelAndValue(context.Context, id.ModelID, []ItemFieldArg) (item.List, error)
+	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue) (item.List, error)
 	Save(context.Context, *item.Item) error
 	Remove(context.Context, id.ItemID) error
 	Archive(context.Context, id.ItemID, id.ProjectID, bool) error
