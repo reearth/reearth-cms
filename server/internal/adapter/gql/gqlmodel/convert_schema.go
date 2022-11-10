@@ -218,6 +218,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t ValueType) (tpRe
 		x := tp.Integer
 		if x == nil {
 			err = errors.New("invalid type property")
+			return
 		}
 		tp1, err := schema.NewFieldInteger(pint2pint64(x.Min), pint2pint64(x.Max))
 		if err != nil {
@@ -228,6 +229,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t ValueType) (tpRe
 		x := tp.Reference
 		if x == nil {
 			err = errors.New("invalid type property")
+			return
 		}
 		mId, err := ToID[id.Model](x.ModelID)
 		if err != nil {
@@ -238,6 +240,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t ValueType) (tpRe
 		x := tp.URL
 		if x == nil {
 			err = errors.New("invalid type property")
+			return
 		}
 		dv, err = value.New(FromValueType(t), x.DefaultValue)
 		if err != nil {

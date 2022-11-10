@@ -204,13 +204,13 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func getPublicAPIToken(req *http.Request) string {
-	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
-	if strings.HasPrefix(token, "key_") {
-		return token
-	}
-	return ""
-}
+// func getPublicAPIToken(req *http.Request) string {
+// 	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
+// 	if strings.HasPrefix(token, "key_") {
+// 		return token
+// 	}
+// 	return ""
+// }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
