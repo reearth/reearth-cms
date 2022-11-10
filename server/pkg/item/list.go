@@ -16,6 +16,12 @@ func (l List) SortByID() List {
 	return m
 }
 
+func (l List) ItemsBySchemaField(fid id.FieldID, value any) List {
+	return lo.Filter(l, func(i *Item, _ int) bool {
+		return i.HasField(fid, value)
+	})
+}
+
 func (l List) SortByTimestamp() List {
 	m := slices.Clone(l)
 	slices.SortFunc(m, func(a, b *Item) bool {

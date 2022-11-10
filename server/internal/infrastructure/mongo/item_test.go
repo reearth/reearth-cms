@@ -412,3 +412,78 @@ func TestItem_Search(t *testing.T) {
 		})
 	}
 }
+
+func TestItem_FindByModelAndValue(t *testing.T) {
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	sf2 := id.NewFieldID()
+	f1 := item.NewField(sf1, schema.TypeText, "foo")
+	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	pid := id.NewProjectID()
+	mid := id.NewModelID()
+	i1, _ := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Build()
+	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
+	type args struct {
+		model  id.ModelID
+		fields []repo.FieldAndValue
+	}
+	tests := []struct {
+		Name     string
+		Input    args
+		RepoData item.List
+		Expected int
+		WantErr  error
+	}{
+		{
+			Name: "must not find any item",
+			Input: args{
+				model: mid,
+				fields: []repo.FieldAndValue{
+					{
+						SchemaFieldID: f2.SchemaFieldID(),
+						Value:         f2.Value(),
+					},
+				},
+			},
+			RepoData: item.List{i1, i2},
+			Expected: 0,
+		},
+		{
+			Name: "must find one item",
+			Input: args{
+				model: mid,
+				fields: []repo.FieldAndValue{
+					{
+						SchemaFieldID: f1.SchemaFieldID(),
+						Value:         f1.Value(),
+					},
+				},
+			},
+			RepoData: item.List{i1, i2},
+			Expected: 1,
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.RepoData {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields)
+			assert.Equal(tt, tc.WantErr, err)
+			assert.Equal(tt, tc.Expected, len(got))
+		})
+	}
+}
