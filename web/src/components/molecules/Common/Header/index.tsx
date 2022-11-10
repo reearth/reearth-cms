@@ -63,7 +63,7 @@ const HeaderMolecule: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id === personalWorkspace?.id)
             ?.map(workspace => ({
-              label: workspace.name,
+              label: <MenuText>{workspace.name}</MenuText>,
               key: workspace.id,
               icon: (
                 <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="small">

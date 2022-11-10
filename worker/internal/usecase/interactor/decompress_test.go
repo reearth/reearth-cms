@@ -8,7 +8,6 @@ import (
 
 	wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
 
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
@@ -35,18 +34,9 @@ func TestUsecase_Decompress(t *testing.T) {
 	content = lo.Must(io.ReadAll(f))
 	_ = f.Close()
 	assert.Equal(t, "hello2", string(content))
-}
 
-func TestUsecase_Decompress_Error(t *testing.T) {
-	fs := mockFs()
-	mCMS := NewCMS()
-	fileGateway, err := wfs.NewFile(fs, "")
-	require.NoError(t, err)
-
-	uc := NewUsecase(gateway.NewGateway(fileGateway, mCMS))
-
-	// tar.gz is not unsupported
-	assert.Same(t, decompressor.ErrUnsupportedExtention, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
+	// unsupported extenstion doesn't return error
+	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
 }
 
 func mockFs() afero.Fs {

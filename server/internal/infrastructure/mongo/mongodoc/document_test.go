@@ -15,9 +15,9 @@ import (
 
 func TestNewDocument(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
 
-	//should success
+	// should success
 	assetDoc, _ := NewAsset(a)
 	expected := Document{Object: lo.Must(bson.Marshal(assetDoc)), Type: "asset"}
 	doc, id, err := NewDocument(a)
@@ -25,7 +25,7 @@ func TestNewDocument(t *testing.T) {
 	assert.Equal(t, assetDoc.ID, id)
 	assert.NoError(t, err)
 
-	//should return error
+	// should return error
 	unsupportedDoc := struct {
 		Hoge string
 		Fuga int64
@@ -43,16 +43,16 @@ func TestNewDocument(t *testing.T) {
 func TestModelFrom(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).CreatedBy(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
 
-	//should success
+	// should success
 	doc, _, err := NewDocument(a)
 	assert.NoError(t, err)
 	a2, err := ModelFrom(doc)
 	assert.NoError(t, err)
 	assert.Equal(t, a, a2)
 
-	//should retunr error
+	// should retunr error
 	doc2 := Document{Type: "hoge", Object: lo.Must(bson.Marshal(struct{}{}))}
 	got, err := ModelFrom(doc2)
 	assert.Equal(t, ErrInvalidDoc, err)

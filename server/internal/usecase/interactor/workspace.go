@@ -42,6 +42,9 @@ func (i *Workspace) FindByUser(ctx context.Context, id id.UserID, operator *usec
 }
 
 func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		if len(strings.TrimSpace(name)) == 0 {
 			return nil, user.ErrInvalidName
@@ -55,7 +58,7 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 			return nil, err
 		}
 
-		if err := workspace.Members().JoinUser(firstUser, user.RoleOwner, operator.User); err != nil {
+		if err := workspace.Members().JoinUser(firstUser, user.RoleOwner, *operator.User); err != nil {
 			return nil, err
 		}
 
@@ -69,6 +72,9 @@ func (i *Workspace) Create(ctx context.Context, name string, firstUser id.UserID
 }
 
 func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
@@ -77,7 +83,7 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -97,6 +103,9 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 }
 
 func (i *Workspace) AddUserMember(ctx context.Context, workspaceID id.WorkspaceID, users map[id.UserID]user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, workspaceID)
 		if err != nil {
@@ -105,7 +114,7 @@ func (i *Workspace) AddUserMember(ctx context.Context, workspaceID id.WorkspaceI
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -115,7 +124,7 @@ func (i *Workspace) AddUserMember(ctx context.Context, workspaceID id.WorkspaceI
 		}
 
 		for _, m := range ul {
-			err = workspace.Members().JoinUser(m.ID(), users[m.ID()], operator.User)
+			err = workspace.Members().JoinUser(m.ID(), users[m.ID()], *operator.User)
 			if err != nil {
 				return nil, err
 			}
@@ -131,12 +140,15 @@ func (i *Workspace) AddUserMember(ctx context.Context, workspaceID id.WorkspaceI
 }
 
 func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID, iId id.IntegrationID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, wId)
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -145,7 +157,7 @@ func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID
 			return nil, err
 		}
 
-		err = workspace.Members().AddIntegration(iId, role, operator.User)
+		err = workspace.Members().AddIntegration(iId, role, *operator.User)
 		if err != nil {
 			return nil, err
 		}
@@ -160,6 +172,9 @@ func (i *Workspace) AddIntegrationMember(ctx context.Context, wId id.WorkspaceID
 }
 
 func (i *Workspace) RemoveUser(ctx context.Context, id id.WorkspaceID, u id.UserID, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
@@ -168,11 +183,11 @@ func (i *Workspace) RemoveUser(ctx context.Context, id id.WorkspaceID, u id.User
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u == operator.User {
+		if u == *operator.User {
 			return nil, interfaces.ErrOwnerCannotLeaveTheWorkspace
 		}
 
@@ -191,12 +206,15 @@ func (i *Workspace) RemoveUser(ctx context.Context, id id.WorkspaceID, u id.User
 }
 
 func (i *Workspace) RemoveIntegration(ctx context.Context, wId id.WorkspaceID, iId id.IntegrationID, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(wId).Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, wId)
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -215,6 +233,9 @@ func (i *Workspace) RemoveIntegration(ctx context.Context, wId id.WorkspaceID, i
 }
 
 func (i *Workspace) UpdateUser(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
@@ -223,11 +244,11 @@ func (i *Workspace) UpdateUser(ctx context.Context, id id.WorkspaceID, u id.User
 		if workspace.IsPersonal() {
 			return nil, user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if u == operator.User {
+		if u == *operator.User {
 			return nil, interfaces.ErrCannotChangeOwnerRole
 		}
 
@@ -246,12 +267,15 @@ func (i *Workspace) UpdateUser(ctx context.Context, id id.WorkspaceID, u id.User
 }
 
 func (i *Workspace) UpdateIntegration(ctx context.Context, wId id.WorkspaceID, iId id.IntegrationID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(wId).Transaction(), func() (*user.Workspace, error) {
 		workspace, err := i.repos.Workspace.FindByID(ctx, wId)
 		if err != nil {
 			return nil, err
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return nil, interfaces.ErrOperationDenied
 		}
 		err = workspace.Members().UpdateIntegrationRole(iId, role)
@@ -269,6 +293,9 @@ func (i *Workspace) UpdateIntegration(ctx context.Context, wId id.WorkspaceID, i
 }
 
 func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *usecase.Operator) error {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
 		workspace, err := i.repos.Workspace.FindByID(ctx, id)
 		if err != nil {
@@ -277,7 +304,7 @@ func (i *Workspace) Remove(ctx context.Context, id id.WorkspaceID, operator *use
 		if workspace.IsPersonal() {
 			return user.ErrCannotModifyPersonalWorkspace
 		}
-		if workspace.Members().UserRole(operator.User) != user.RoleOwner {
+		if workspace.Members().UserRole(*operator.User) != user.RoleOwner {
 			return interfaces.ErrOperationDenied
 		}
 
