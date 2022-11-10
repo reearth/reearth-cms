@@ -20,13 +20,13 @@ func TestOperator(t *testing.T) {
 
 	assert.Equal(t, uID, *uOp.User())
 	assert.Nil(t, uOp.Integration())
-	assert.False(t, uOp.isMachine)
+	assert.False(t, uOp.Machine())
 
 	assert.Equal(t, iID, *iOp.Integration())
 	assert.Nil(t, iOp.User())
-	assert.False(t, uOp.isMachine)
+	assert.False(t, uOp.Machine())
 
-	assert.True(t, cmsOp.isMachine)
+	assert.True(t, cmsOp.Machine())
 	assert.Nil(t, cmsOp.User())
 	assert.Nil(t, cmsOp.Integration())
 
