@@ -23,7 +23,7 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	fileSizeLimit    int64  = 1024 * 1024 * 1024 // about 1GB
+	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // about 10GB
 )
 
 type fileRepo struct {
