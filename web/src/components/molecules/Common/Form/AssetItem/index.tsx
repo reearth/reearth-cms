@@ -76,12 +76,8 @@ const AssetItem: React.FC<Props> = ({
     setAssetValue(assetList.find(asset => asset.id === defaultValue));
   }, [defaultValue, assetList, setAssetValue]);
 
-  const getFile = (e: any) => {
-    console.log(e);
-  };
-
   return (
-    <Item name={name} label={label} extra={extra} rules={rules} getValueFromEvent={getFile}>
+    <Item name={name} label={label} extra={extra} rules={rules}>
       {assetValue ? (
         <AssetButton onClick={handleClick}>
           <div>
