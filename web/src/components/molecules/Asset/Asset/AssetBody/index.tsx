@@ -113,7 +113,7 @@ const AssetBody: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && (
           <Card title={t("Unzip File")}>
-            <UnzipFileList style={{ minHeight: "400px" }} />
+            <UnzipFileList file={asset.file} style={{ minHeight: "200px" }} />
           </Card>
         )}
         <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />
