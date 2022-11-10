@@ -29,7 +29,7 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 		Timestamp:   e.Timestamp(),
 		User:        e.Operator().User().StringRef(),
 		Integration: e.Operator().Integration().StringRef(),
-		CMS:         e.Operator().CMSRef(),
+		CMS:         e.Operator().MachineRef(),
 		Type:        string(e.Type()),
 		Object:      objDoc,
 	}, eId, nil
@@ -56,7 +56,7 @@ func (d *EventDocument) Model() (*event.Event[any], error) {
 			o = event.OperatorFromIntegration(*iid)
 		}
 	} else if d.CMS != nil {
-		o = event.OperatorFromCMS()
+		o = event.OperatorFromMachine()
 	}
 
 	e, err := event.New[any]().

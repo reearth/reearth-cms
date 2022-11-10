@@ -3,7 +3,7 @@ package event
 type Operator struct {
 	user        *UserID
 	integration *IntegrationID
-	isCMS       bool
+	isMachine   bool
 }
 
 func OperatorFromUser(user UserID) Operator {
@@ -18,9 +18,9 @@ func OperatorFromIntegration(integration IntegrationID) Operator {
 	}
 }
 
-func OperatorFromCMS() Operator {
+func OperatorFromMachine() Operator {
 	return Operator{
-		isCMS: true,
+		isMachine: true,
 	}
 }
 
@@ -32,14 +32,14 @@ func (o Operator) Integration() *IntegrationID {
 	return o.integration.CloneRef()
 }
 
-func (o Operator) CMS() bool {
-	return o.isCMS
+func (o Operator) Machine() bool {
+	return o.isMachine
 }
 
-func (o Operator) CMSRef() *bool {
-	return &o.isCMS
+func (o Operator) MachineRef() *bool {
+	return &o.isMachine
 }
 
 func (o Operator) validate() bool {
-	return !o.user.IsNil() || !o.integration.IsNil() || o.CMS()
+	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine()
 }

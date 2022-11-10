@@ -214,7 +214,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, event.OperatorFromCMS()); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, operator.EventOperator()); err != nil {
 				return nil, err
 			}
 
