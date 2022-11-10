@@ -41,18 +41,18 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 					return err
 				}
 			}
-
-			if val := req.Header.Get(debugUserHeaderKey); cfg.Debug && val != "" {
-				uId, err := id.UserIDFrom(val)
-				if err != nil {
-					return err
-				}
-				u, err = cfg.Repos.User.FindByID(ctx, uId)
-				if err != nil {
-					return err
+			if cfg.Debug {
+				if val := req.Header.Get(debugUserHeaderKey); val != "" {
+					uId, err := id.UserIDFrom(val)
+					if err != nil {
+						return err
+					}
+					u, err = cfg.Repos.User.FindByID(ctx, uId)
+					if err != nil {
+						return err
+					}
 				}
 			}
-
 			if u != nil {
 				op, err := generateUserOperator(ctx, cfg, u)
 				if err != nil {
@@ -71,18 +71,18 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 					return err
 				}
 			}
-
-			if val := req.Header.Get(debugIntegrationHeaderKey); cfg.Debug && val != "" {
-				iId, err := id.IntegrationIDFrom(val)
-				if err != nil {
-					return err
-				}
-				i, err = cfg.Repos.Integration.FindByID(ctx, iId)
-				if err != nil {
-					return err
+			if cfg.Debug {
+				if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
+					iId, err := id.IntegrationIDFrom(val)
+					if err != nil {
+						return err
+					}
+					i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+					if err != nil {
+						return err
+					}
 				}
 			}
-
 			if i != nil {
 				op, err := generateIntegrationOperator(ctx, cfg, i)
 				if err != nil {
