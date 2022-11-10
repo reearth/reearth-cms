@@ -17,7 +17,6 @@ type Match struct {
 	Default   func()
 }
 
-// TODO: add test
 func (v *Value) Match(m Match) {
 	if v == nil {
 		if m.Default != nil {

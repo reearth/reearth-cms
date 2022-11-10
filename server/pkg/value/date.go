@@ -15,7 +15,7 @@ func (d *date) New(v any) (any, error) {
 	case int64:
 		return time.UnixMilli(w), nil
 	case string:
-		return time.Parse(w, time.RFC3339)
+		return time.Parse(time.RFC3339, w)
 	case time.Time:
 		return w, nil
 	case *int64:
@@ -29,9 +29,6 @@ func (d *date) New(v any) (any, error) {
 		}
 		return d.New(*w)
 	case *time.Time:
-		if w == nil {
-			return nil, nil
-		}
 		return *w, nil
 	}
 	return nil, ErrInvalidValue

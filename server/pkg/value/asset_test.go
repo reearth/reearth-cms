@@ -43,3 +43,9 @@ func TestAsset_New(t *testing.T) {
 	assert.Same(t, ErrInvalidValue, err)
 	assert.Nil(t, v)
 }
+
+func TestAsset_ValueAsset(t *testing.T) {
+	want := id.MustAssetID("01ggrrt8aya669r0xaemt2djx7")
+	v := (&Value{t: TypeAsset, v: want}).ValueAsset()
+	assert.Equal(t, &want, v)
+}
