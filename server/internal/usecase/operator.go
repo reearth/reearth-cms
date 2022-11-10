@@ -116,7 +116,7 @@ func (o *Operator) EventOperator() event.Operator {
 	if o.Integration != nil {
 		eOp = event.OperatorFromIntegration(*o.Integration)
 	}
-	if o.Machine != nil {
+	if o.Machine {
 		eOp = event.OperatorFromMachine()
 	}
 	return eOp
