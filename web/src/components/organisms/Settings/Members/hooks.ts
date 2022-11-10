@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { User } from "@reearth-cms/components/molecules/Member/types";
+import { Member, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetWorkspacesQuery,
-  useAddUserToWorkspaceMutation,
+  useAddUsersToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
   Role,
   useRemoveMemberFromWorkspaceMutation,
   Workspace,
   useGetUserBySearchLazyQuery,
+  MemberInput as GQLMemberInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -34,11 +36,8 @@ export default ({ workspaceId }: Props) => {
     setSearchTerm(term);
   }, []);
 
-  const [searchedUser, changeSearchedUser] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  }>();
+  const [searchedUser, changeSearchedUser] = useState<User>();
+  const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
 
   const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
@@ -82,6 +81,16 @@ export default ({ workspaceId }: Props) => {
     [searchUserQuery],
   );
 
+  const handleUserAdd = useCallback(() => {
+    if (
+      searchedUser &&
+      searchedUser?.id !== data?.me?.id &&
+      !searchedUserList.find(user => user.id === searchedUser.id)
+    ) {
+      changeSearchedUserList([...searchedUserList, searchedUser]);
+    }
+  }, [data?.me?.id, searchedUser, searchedUserList]);
+
   const workspaceUserMembers = useMemo((): Member[] | undefined => {
     return currentWorkspace?.members
       ?.map<Member | undefined>(member =>
@@ -100,30 +109,28 @@ export default ({ workspaceId }: Props) => {
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace, searchTerm]);
 
-  const [addUserToWorkspaceMutation] = useAddUserToWorkspaceMutation();
+  const [addUsersToWorkspaceMutation] = useAddUsersToWorkspaceMutation();
 
-  const handleMemberAddToWorkspace = useCallback(
-    async (userIds: string[]) => {
-      const results = await Promise.all(
-        userIds.map(async userId => {
-          if (!workspaceId) return;
-          const result = await addUserToWorkspaceMutation({
-            variables: { userId, workspaceId, role: Role.Reader },
-            refetchQueries: ["GetWorkspaces"],
-          });
-          const workspace = result.data?.addUserToWorkspace?.workspace;
-          if (result.errors || !workspace) {
-            Notification.error({ message: t("Failed to add one or more members.") });
-            return;
-          }
-          setWorkspace(workspace);
-        }),
-      );
-      if (results) {
-        Notification.success({ message: t("Successfully added member(s) to the workspace!") });
-      }
-    },
-    [workspaceId, addUserToWorkspaceMutation, setWorkspace, t],
+  const handleUsersAddToWorkspace = useCallback(
+    (users: MemberInput[]) =>
+      (async () => {
+        if (!workspaceId) return;
+        const result = await addUsersToWorkspaceMutation({
+          variables: { workspaceId, users: users as GQLMemberInput[] },
+          refetchQueries: ["GetWorkspaces"],
+        });
+        const workspace = result.data?.addUsersToWorkspace?.workspace;
+        if (result.errors || !workspace) {
+          Notification.error({ message: t("Failed to add one or more members.") });
+          return;
+        }
+        setWorkspace(workspace);
+
+        if (result) {
+          Notification.success({ message: t("Successfully added member(s) to the workspace!") });
+        }
+      })(),
+    [workspaceId, addUsersToWorkspaceMutation, setWorkspace, t],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
@@ -199,8 +206,11 @@ export default ({ workspaceId }: Props) => {
     searchedUser,
     handleSearchTerm,
     changeSearchedUser,
+    searchedUserList,
+    changeSearchedUserList,
     handleUserSearch,
-    handleMemberAddToWorkspace,
+    handleUserAdd,
+    handleUsersAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
     handleMemberRemoveFromWorkspace,
     handleRoleModalClose,
