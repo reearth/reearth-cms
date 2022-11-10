@@ -413,7 +413,7 @@ func TestAsset_Create(t *testing.T) {
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
-						Size:    1024*1024*1024 + 1,
+						Size:    10*1024*1024*1024 + 1,
 					},
 				},
 				operator: op,
