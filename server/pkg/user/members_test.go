@@ -79,8 +79,9 @@ func TestMembers_HasIntegration(t *testing.T) {
 		{
 			Name: "existing integration",
 			M: &Members{integrations: map[IntegrationID]Member{iId1: {
-				Role:     RoleOwner,
-				Disabled: false,
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: ID{},
 			}}},
 			iId:      iId1,
 			Expected: true,
