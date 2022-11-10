@@ -623,24 +623,32 @@ func TestItem_Search(t *testing.T) {
 }
 
 func Test_validateFields(t *testing.T) {
+	// @TODO add test cases for required and unique
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	wid := id.NewWorkspaceID()
+	mid := id.NewModelID()
 	sfInt := schema.NewFieldInteger(lo.ToPtr(6), lo.ToPtr(5), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	sfText := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(5)).NewID().Key(key.Random()).MustBuild()
 	sfTextArea := schema.NewFieldTextArea(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	sfRichText := schema.NewFieldRichText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	sfMarkdown := schema.NewFieldMarkdown(lo.ToPtr("x"), lo.ToPtr(20)).NewID().Key(key.Random()).MustBuild()
 	sfURL := schema.NewFieldURL(lo.ToPtr("http://xxx.aa")).NewID().Key(key.Random()).MustBuild()
+	i := item.New().NewID().Fields([]*item.Field{item.NewField(sfText.ID(), sfText.Type(), "foo")}).Model(mid).Schema(sid).Project(pid).MustBuild()
 	s := schema.New().
 		ID(sid).
 		Workspace(wid).
 		Project(pid).
 		Fields(schema.FieldList{sfInt, sfText, sfTextArea, sfMarkdown, sfRichText, sfURL}).
 		MustBuild()
+	ctx := context.Background()
+	db := memory.New()
+	err := db.Item.Save(ctx, i)
+	assert.Nil(t, err)
 	type args struct {
 		itemFields []interfaces.ItemFieldParam
 		s          *schema.Schema
+		mid        id.ModelID
 	}
 	tests := []struct {
 		name    string
@@ -775,7 +783,8 @@ func Test_validateFields(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			err := validateFields(tc.args.itemFields, tc.args.s)
+
+			err := validateFields(ctx, tc.args.itemFields, tc.args.s, tc.args.mid, db)
 			if tc.wantErr {
 				assert.Error(t, err)
 			} else {

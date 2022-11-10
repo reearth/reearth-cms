@@ -82,3 +82,12 @@ func (i *Item) FindFieldByValue(v any) bool {
 	}
 	return false
 }
+
+func (i *Item) HasField(fid id.FieldID, value any) bool {
+	for _, field := range i.fields {
+		if field.schemaFieldID == fid && field.value == value {
+			return true
+		}
+	}
+	return false
+}
