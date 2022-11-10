@@ -301,7 +301,6 @@ func TestMembers_IntegrationIDs(t *testing.T) {
 	lo.Must0(m.AddIntegration(i2, RoleWriter, u1))
 
 	assert.Equal(t, IntegrationIDList{i1, i2}, m.IntegrationIDs())
-
 }
 
 func TestMembers_Join(t *testing.T) {

@@ -90,3 +90,54 @@ func TestItem_Filtered(t *testing.T) {
 		})
 	}
 }
+
+func TestItem_HasField(t *testing.T) {
+	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
+	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
+	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).MustBuild()
+
+	type args struct {
+		fid   id.FieldID
+		value any
+	}
+	tests := []struct {
+		name string
+		item *Item
+		args args
+		want bool
+	}{
+		{
+			name: "true: must find a field",
+			args: args{
+				fid:   f1.SchemaFieldID(),
+				value: f1.Value(),
+			},
+			item: i1,
+			want: true,
+		},
+		{
+			name: "false: no existed value",
+			args: args{
+				fid:   f1.SchemaFieldID(),
+				value: "xxx",
+			},
+			item: i1,
+			want: false,
+		},
+		{
+			name: "false: no existed ID",
+			args: args{
+				fid:   id.NewFieldID(),
+				value: f1.Value(),
+			},
+			item: i1,
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			assert.Equal(t, tt.want, tt.item.HasField(tt.args.fid, tt.args.value))
+		})
+	}
+}

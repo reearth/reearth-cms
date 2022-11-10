@@ -52,8 +52,8 @@ const WebhookCard: React.FC<Props> = ({
       }
       extra={
         <>
-          <Icon icon="settings" onClick={() => onWebhookSettings(webhook.id)} />
-          <Icon icon="delete" onClick={handleWebhookDelete} />
+          <Icon icon="settings" size={16} onClick={() => onWebhookSettings(webhook.id)} />
+          <Icon icon="delete" size={16} onClick={handleWebhookDelete} style={{ marginLeft: 12 }} />
         </>
       }>
       {webhook.url}
