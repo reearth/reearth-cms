@@ -1,9 +1,10 @@
 type Asset implements Node {
   id: ID!
-  project: Project
+  project: Project!
   projectId: ID!
   createdAt: DateTime!
-  createdBy: User
+  createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!
@@ -33,7 +34,6 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
-  createdById: ID!
   file: Upload!
 }
 

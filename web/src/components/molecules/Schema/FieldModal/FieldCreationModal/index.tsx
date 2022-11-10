@@ -16,7 +16,7 @@ import FieldValidationProps from "@reearth-cms/components/molecules/Schema/Field
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { CreationFieldTypePropertyInput, FieldType, fieldTypes } from "../../types";
+import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export type FormValues = {
   title: string;
@@ -80,8 +80,16 @@ const FieldCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -129,7 +137,6 @@ const FieldCreationModal: React.FC<Props> = ({
         }
 
         await onSubmit?.(values);
-        form.resetFields();
         onClose?.(true);
       })
       .catch(info => {
@@ -137,10 +144,10 @@ const FieldCreationModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit, selectedType]);
 
-  const handleClose = useCallback(() => {
+  const handleModalReset = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
-  }, [onClose, form]);
+    setActiveTab("settings");
+  }, [form]);
 
   const handleLinkAsset = useCallback((_asset: Asset) => {
     // TODO: implement link asset with FieldCreationModal
@@ -162,27 +169,30 @@ const FieldCreationModal: React.FC<Props> = ({
         ) : null
       }
       visible={open}
-      onCancel={handleClose}
+      onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}>
+      okButtonProps={{ disabled: buttonDisabled }}
+      afterClose={handleModalReset}>
       <Form
         form={form}
         layout="vertical"
         initialValues={initialValues}
         onValuesChange={() => {
-          form
-            .validateFields()
-            .then(() => {
-              setButtonDisabled(false);
-            })
-            .catch(fieldsError => {
-              setButtonDisabled(
-                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-              );
-            });
+          setTimeout(() => {
+            form
+              .validateFields()
+              .then(() => {
+                setButtonDisabled(false);
+              })
+              .catch(fieldsError => {
+                setButtonDisabled(
+                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+                );
+              });
+          });
         }}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Settings")} key="setting" forceRender>
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}

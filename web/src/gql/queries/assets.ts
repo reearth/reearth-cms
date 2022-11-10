@@ -15,10 +15,38 @@ export const GET_ASSETS = gql`
           projectId
           createdAt
           createdBy {
-            id
-            name
-            email
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+              description
+              logoUrl
+              iType
+              developer {
+                id
+                name
+                email
+              }
+              config {
+                token
+                webhooks {
+                  id
+                  name
+                  url
+                  active
+                  createdAt
+                  updatedAt
+                }
+              }
+              createdAt
+              updatedAt
+            }
           }
+          createdByType
           fileName
           size
           previewType
@@ -51,10 +79,38 @@ export const GET_ASSETS = gql`
         projectId
         createdAt
         createdBy {
-          id
-          name
-          email
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+            description
+            logoUrl
+            iType
+            developer {
+              id
+              name
+              email
+            }
+            config {
+              token
+              webhooks {
+                id
+                name
+                url
+                active
+                createdAt
+                updatedAt
+              }
+            }
+            createdAt
+            updatedAt
+          }
         }
+        createdByType
         fileName
         size
         previewType
@@ -99,10 +155,38 @@ export const GET_ASSET = gql`
       projectId
       createdAt
       createdBy {
-        id
-        name
-        email
+        ... on User {
+          id
+          name
+          email
+        }
+        ... on Integration {
+          id
+          name
+          description
+          logoUrl
+          iType
+          developer {
+            id
+            name
+            email
+          }
+          config {
+            token
+            webhooks {
+              id
+              name
+              url
+              active
+              createdAt
+              updatedAt
+            }
+          }
+          createdAt
+          updatedAt
+        }
       }
+      createdByType
       fileName
       size
       previewType
@@ -133,13 +217,14 @@ export const GET_ASSET = gql`
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
-    createAsset(input: { projectId: $projectId, createdById: $createdById, file: $file }) {
+  mutation CreateAsset($projectId: ID!, $file: Upload!) {
+    createAsset(input: { projectId: $projectId, file: $file }) {
       asset {
         id
         projectId
         createdAt
         createdById
+        createdByType
         fileName
         size
         previewType
@@ -178,6 +263,7 @@ export const UPDATE_ASSET = gql`
         projectId
         createdAt
         createdById
+        createdByType
         fileName
         size
         previewType
