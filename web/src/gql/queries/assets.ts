@@ -54,6 +54,18 @@ export const GET_ASSETS = gql`
             ...FileFragment
             children {
               ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                  children {
+                    ...FileFragment
+                    children {
+                      ...FileFragment
+                    }
+                  }
+                }
+              }
             }
           }
           uuid
@@ -118,6 +130,18 @@ export const GET_ASSETS = gql`
           ...FileFragment
           children {
             ...FileFragment
+            children {
+              ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                  children {
+                    ...FileFragment
+                  }
+                }
+              }
+            }
           }
         }
         uuid
@@ -200,6 +224,18 @@ export const GET_ASSET = gql`
         ...FileFragment
         children {
           ...FileFragment
+          children {
+            ...FileFragment
+            children {
+              ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                }
+              }
+            }
+          }
         }
       }
       uuid
