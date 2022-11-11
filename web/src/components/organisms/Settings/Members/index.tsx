@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { useParams } from "react-router-dom";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -47,7 +46,6 @@ const columns = [
 
 const Members: React.FC = () => {
   const t = useT();
-  const { workspaceId } = useParams();
 
   const { confirm } = Modal;
 
@@ -57,8 +55,11 @@ const Members: React.FC = () => {
     searchedUser,
     handleSearchTerm,
     changeSearchedUser,
+    searchedUserList,
+    changeSearchedUserList,
     handleUserSearch,
-    handleMemberAddToWorkspace,
+    handleUserAdd,
+    handleUsersAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,
@@ -69,7 +70,7 @@ const Members: React.FC = () => {
     handleMemberAddModalOpen,
     MemberAddModalShown,
     workspaceUserMembers,
-  } = useHooks({ workspaceId });
+  } = useHooks();
 
   const handleMemberDelete = useCallback(
     (member: Member) => {
@@ -154,10 +155,13 @@ const Members: React.FC = () => {
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
+        searchedUserList={searchedUserList}
+        changeSearchedUserList={changeSearchedUserList}
         onClose={handleMemberAddModalClose}
-        handleUserSearch={handleUserSearch}
+        onUserSearch={handleUserSearch}
+        onUserAdd={handleUserAdd}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAddToWorkspace}
+        onSubmit={handleUsersAddToWorkspace}
       />
     </>
   );
