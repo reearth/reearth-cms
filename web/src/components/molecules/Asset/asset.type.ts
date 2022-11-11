@@ -18,7 +18,7 @@ export type Asset = {
 };
 
 export type AssetFile = {
-  files?: AssetFile[];
+  children?: AssetFile[];
   contentType?: string;
   name: string;
   path: string;
