@@ -15,7 +15,7 @@ import (
 
 var (
 	modelIndexes       = []string{"project", "workspace"}
-	modelUniqueIndexes = []string{"id", "key"}
+	modelUniqueIndexes = []string{"id"}
 )
 
 type Model struct {
