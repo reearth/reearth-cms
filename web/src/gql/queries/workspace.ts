@@ -40,9 +40,9 @@ export const DELETE_WORKSPACE = gql`
   }
 `;
 
-export const ADD_USER_TO_WORKSPACE = gql`
-  mutation AddUserToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-    addUserToWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
+export const ADD_USERS_TO_WORKSPACE = gql`
+  mutation AddUsersToWorkspace($workspaceId: ID!, $users: [MemberInput!]!) {
+    addUsersToWorkspace(input: { workspaceId: $workspaceId, users: $users }) {
       workspace {
         id
         ...WorkspaceFragment

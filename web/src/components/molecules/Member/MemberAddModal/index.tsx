@@ -7,47 +7,42 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { User } from "@reearth-cms/components/molecules/Member/types";
+import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
+  names: User[];
 }
 
 export interface Props {
   open?: boolean;
-  handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
+  onUserSearch: (nameOrEmail: string) => "" | Promise<any>;
+  onUserAdd: () => void;
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: (userIds: string[]) => void;
-  searchedUser:
-    | {
-        id: string;
-        name: string;
-        email: string;
-      }
-    | undefined;
-  changeSearchedUser: React.Dispatch<
-    React.SetStateAction<
-      | {
-          id: string;
-          name: string;
-          email: string;
-        }
-      | undefined
-    >
-  >;
+  onSubmit?: (users: MemberInput[]) => void;
+  searchedUser: User | undefined;
+  changeSearchedUser: (user: User | undefined) => void;
+  searchedUserList: User[];
+  changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
 const initialValues: FormValues = {
   name: "",
+  names: [],
 };
 
 const MemberAddModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
-  handleUserSearch,
+  onUserSearch,
+  onUserAdd,
   searchedUser,
   changeSearchedUser,
+  searchedUserList,
+  changeSearchedUserList,
 }) => {
   const t = useT();
   const { Search } = Input;
@@ -56,29 +51,43 @@ const MemberAddModal: React.FC<Props> = ({
   const handleMemberNameChange = useCallback(
     (e: any) => {
       form.setFieldValue("name", e);
-      handleUserSearch?.(e);
+      onUserSearch?.(e);
     },
-    [handleUserSearch, form],
+    [onUserSearch, form],
   );
 
-  const handleMemberRemove = useCallback(() => {
-    form.resetFields();
-    changeSearchedUser(undefined);
-  }, [changeSearchedUser, form]);
+  const handleMemberRemove = useCallback(
+    (userId: string) => {
+      changeSearchedUserList((oldList: User[]) =>
+        oldList.filter((user: User) => user.id !== userId),
+      );
+    },
+    [changeSearchedUserList],
+  );
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async () => {
-        if (searchedUser?.id) await onSubmit?.([searchedUser.id]);
+      .then(() => {
+        if (searchedUserList?.length > 0) {
+          onSubmit?.(
+            searchedUserList.map(user => {
+              return {
+                userId: user.id,
+                role: "READER",
+              };
+            }),
+          );
+        }
         changeSearchedUser(undefined);
+        changeSearchedUserList([]);
         onClose?.(true);
         form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onSubmit, searchedUser?.id, onClose, changeSearchedUser]);
+  }, [form, searchedUserList, changeSearchedUser, changeSearchedUserList, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
@@ -95,7 +104,11 @@ const MemberAddModal: React.FC<Props> = ({
         <Button key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} disabled={!searchedUser}>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={searchedUserList.length === 0}>
           {t("Add to workspace")}
         </Button>,
       ]}>
@@ -105,7 +118,7 @@ const MemberAddModal: React.FC<Props> = ({
             <Search size="large" onSearch={handleMemberNameChange} type="text" />
           </Form.Item>
           {searchedUser && (
-            <SearchedUSerResult>
+            <SearchedUserResult>
               <SearchedUserAvatar>
                 <Avatar
                   style={{
@@ -118,11 +131,33 @@ const MemberAddModal: React.FC<Props> = ({
               <SearchedUserName>{searchedUser.name}</SearchedUserName>
               <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
 
-              <IconButton onClick={handleMemberRemove}>
-                <Icon icon="close" />
+              <IconButton onClick={onUserAdd}>
+                <Icon icon="userAdd" />
               </IconButton>
-            </SearchedUSerResult>
+            </SearchedUserResult>
           )}
+          <Form.Item
+            name="names"
+            label={`${t("Selected Members")} (${searchedUserList.length})`}
+            style={{ marginTop: "16px" }}>
+            {searchedUserList &&
+              searchedUserList?.length > 0 &&
+              searchedUserList
+                .filter(user => Boolean(user))
+                .map(user => (
+                  <SearchedUserResult key={user?.id} style={{ marginBottom: "6px" }}>
+                    <SearchedUserAvatar>
+                      <UserAvatar>{user?.name.charAt(0)}</UserAvatar>
+                    </SearchedUserAvatar>
+                    <SearchedUserName>{user?.name}</SearchedUserName>
+                    <SearchedUserEmail>{user?.email}</SearchedUserEmail>
+
+                    <IconButton onClick={() => handleMemberRemove(user.id)}>
+                      <Icon icon="close" />
+                    </IconButton>
+                  </SearchedUserResult>
+                ))}
+          </Form.Item>
         </Form>
       )}
     </Modal>
@@ -159,7 +194,7 @@ const SearchedUserEmail = styled.div`
   text-overflow: ellipsis;
 `;
 
-const SearchedUSerResult = styled.div`
+const SearchedUserResult = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -170,4 +205,8 @@ const SearchedUSerResult = styled.div`
   border-radius: 8px;
 `;
 
+const UserAvatar = styled(Avatar)`
+  color: #fff;
+  background-color: #3f3d45;
+`;
 export default MemberAddModal;
