@@ -176,7 +176,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.User == nil && operator.Integration == nil && !operator.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 

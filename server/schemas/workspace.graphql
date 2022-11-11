@@ -40,10 +40,14 @@ input UpdateWorkspaceInput {
     name: String!
 }
 
-input AddUserToWorkspaceInput {
-    workspaceId: ID!
+input MemberInput {
     userId: ID!
     role: Role!
+}
+
+input AddUsersToWorkspaceInput {
+    workspaceId: ID!
+    users: [MemberInput!]!
 }
 
 input AddIntegrationToWorkspaceInput {
@@ -88,7 +92,7 @@ type UpdateWorkspacePayload {
     workspace: Workspace!
 }
 
-type AddMemberToWorkspacePayload {
+type AddUsersToWorkspacePayload {
     workspace: Workspace!
 }
 
@@ -108,8 +112,8 @@ extend type Mutation {
     createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
     deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
     updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-    addUserToWorkspace(input: AddUserToWorkspaceInput!): AddMemberToWorkspacePayload
-    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddMemberToWorkspacePayload
+    addUsersToWorkspace(input: AddUsersToWorkspaceInput!): AddUsersToWorkspacePayload
+    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
     removeUserFromWorkspace(input: RemoveUserFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload

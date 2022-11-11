@@ -22,25 +22,25 @@ export const fieldTypes: {
   Asset: {
     icon: "asset",
     title: "Asset",
-    description: "Description",
+    description: "Asset file",
     color: "#FF9C6E",
   },
   Select: {
     icon: "listBullets",
     title: "Option",
-    description: "Description",
+    description: "Multiple select",
     color: "#7CB305",
   },
   Integer: {
     icon: "numberNine",
     title: "Int",
-    description: "Description",
+    description: "Integer",
     color: "#36CFC9",
   },
   URL: {
     icon: "link",
     title: "URL",
-    description: "Description",
+    description: "http/https URL",
     color: "#9254DE",
   },
 };
