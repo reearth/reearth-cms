@@ -9264,7 +9264,7 @@
             "deprecationReason": null
           },
           {
-            "name": "onAssetDeleted",
+            "name": "onAssetDelete",
             "description": null,
             "args": [],
             "type": {
@@ -9372,7 +9372,7 @@
             "deprecationReason": null
           },
           {
-            "name": "onAssetDeleted",
+            "name": "onAssetDelete",
             "description": null,
             "type": {
               "kind": "SCALAR",
