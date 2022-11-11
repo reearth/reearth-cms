@@ -25,9 +25,8 @@ func MarshalJSON(obj any, version string, urlResolver asset.URLResolver) ([]byte
 	switch o := (obj).(type) {
 	case *asset.Asset:
 		res = ToAsset(o, urlResolver)
-	// TODO: add later
 	case *item.Item:
-		break
+		// res =
 	case *schema.Schema:
 		break
 	case *project.Project:
