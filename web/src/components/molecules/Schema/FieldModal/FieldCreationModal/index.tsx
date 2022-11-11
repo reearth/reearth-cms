@@ -80,9 +80,11 @@ const FieldCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [assetValue, setAssetValue] = useState<string>();
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const defaultValue: string = Form.useWatch("defaultValue", form);
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -100,6 +102,12 @@ const FieldCreationModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
+
+  useEffect(() => {
+    if (selectedType === "Asset") {
+      setAssetValue(defaultValue);
+    }
+  }, [selectedType, defaultValue]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -120,7 +128,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Asset") {
           values.typeProperty = {
-            asset: { defaultValue: values.defaultValue.uid },
+            asset: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Select") {
           values.typeProperty = {
@@ -149,9 +157,13 @@ const FieldCreationModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
-  const handleLinkAsset = useCallback((_asset: Asset) => {
-    // TODO: implement link asset with FieldCreationModal
-  }, []);
+  const handleLinkAsset = useCallback(
+    (_asset: Asset) => {
+      form.setFieldValue("defaultValue", _asset.id);
+      setAssetValue(_asset.id);
+    },
+    [form],
+  );
 
   return (
     <Modal
@@ -302,6 +314,7 @@ const FieldCreationModal: React.FC<Props> = ({
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
+              defaultValue={assetValue}
               fileList={fileList}
               loadingAssets={loadingAssets}
               uploading={uploading}

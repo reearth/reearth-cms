@@ -19,6 +19,7 @@ export interface Props {
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
+  defaultValue?: string;
   uploadModalVisibility: boolean;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onLink: (asset: Asset) => void;
@@ -33,6 +34,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
   assetList,
+  defaultValue,
   fileList,
   loadingAssets,
   uploading,
@@ -53,6 +55,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
     ) : selectedType === "Asset" ? (
       <AssetField
         assetList={assetList}
+        defaultValue={defaultValue}
         fileList={fileList}
         loadingAssets={loadingAssets}
         uploading={uploading}
