@@ -20,6 +20,7 @@ export const integrationFragment = gql`
         name
         url
         active
+        secret
         trigger {
           onItemCreate
           onItemUpdate
