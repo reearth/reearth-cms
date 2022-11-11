@@ -172,6 +172,9 @@ type RefOrVerRef string
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
 
+// CommentIdParam defines model for commentIdParam.
+type CommentIdParam = id.CommentID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -277,13 +280,13 @@ type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
-// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
-type AssetCommentUpdateJSONBody struct {
+// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
+type AssetCommentCreateJSONBody struct {
 	Content *string `json:"content,omitempty"`
 }
 
-// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
-type AssetCommentCreateJSONBody struct {
+// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
+type AssetCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
 }
 
@@ -299,8 +302,8 @@ type ItemPublishJSONRequestBody = RefOrVer
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody
 
-// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
-type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
-
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
+
+// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
+type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody

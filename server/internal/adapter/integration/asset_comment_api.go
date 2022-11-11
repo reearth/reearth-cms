@@ -93,5 +93,5 @@ func (s Server) AssetCommentDelete(ctx context.Context, request AssetCommentDele
 		return nil, err
 	}
 
-	return AssetCommentDelete200JSONResponse{Id: cID}, nil
+	return AssetCommentDelete200JSONResponse{Id: cID.Ref()}, nil
 }
