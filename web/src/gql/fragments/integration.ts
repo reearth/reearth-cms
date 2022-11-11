@@ -27,7 +27,8 @@ export const integrationFragment = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
         createdAt
         updatedAt

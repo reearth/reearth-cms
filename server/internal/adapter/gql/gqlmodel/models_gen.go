@@ -801,22 +801,22 @@ type WebhookTrigger struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type WebhookTriggerInput struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type Workspace struct {
