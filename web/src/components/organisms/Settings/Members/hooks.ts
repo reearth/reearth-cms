@@ -19,11 +19,7 @@ import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export type RoleUnion = "READER" | "WRITER" | "OWNER";
 
-type Props = {
-  workspaceId: string | undefined;
-};
-
-export default ({ workspaceId }: Props) => {
+export default () => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
@@ -42,6 +38,7 @@ export default ({ workspaceId }: Props) => {
   const { data, loading } = useGetWorkspacesQuery();
   const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
   const workspaces = data?.me?.workspaces as Workspace[];
+  const workspaceId = currentWorkspace?.id;
 
   const isOwner = useMemo(
     () => currentWorkspace?.members?.find(m => m.userId === me?.id && m.role === "OWNER"),
@@ -124,12 +121,13 @@ export default ({ workspaceId }: Props) => {
           Notification.error({ message: t("Failed to add one or more members.") });
           return;
         }
+        setWorkspace(workspace);
 
         if (result.data) {
           Notification.success({ message: t("Successfully added member(s) to the workspace!") });
         }
       })(),
-    [workspaceId, addUsersToWorkspaceMutation, t],
+    [workspaceId, addUsersToWorkspaceMutation, setWorkspace, t],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
