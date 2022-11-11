@@ -18,12 +18,12 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
-  handleUserSearch: (nameOrEmail: string) => "" | Promise<any>;
-  handleUserAdd: () => void;
+  onUserSearch: (nameOrEmail: string) => "" | Promise<any>;
+  onUserAdd: () => void;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (users: MemberInput[]) => void;
   searchedUser: User | undefined;
-  changeSearchedUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+  changeSearchedUser: (user: User | undefined) => void;
   searchedUserList: User[];
   changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
 }
@@ -37,8 +37,8 @@ const MemberAddModal: React.FC<Props> = ({
   open,
   onClose,
   onSubmit,
-  handleUserSearch,
-  handleUserAdd,
+  onUserSearch,
+  onUserAdd,
   searchedUser,
   changeSearchedUser,
   searchedUserList,
@@ -51,17 +51,18 @@ const MemberAddModal: React.FC<Props> = ({
   const handleMemberNameChange = useCallback(
     (e: any) => {
       form.setFieldValue("name", e);
-      handleUserSearch?.(e);
+      onUserSearch?.(e);
     },
-    [handleUserSearch, form],
+    [onUserSearch, form],
   );
 
   const handleMemberRemove = useCallback(
     (userId: string) => {
-      const list = searchedUserList.filter(user => user.id !== userId);
-      changeSearchedUserList(list);
+      changeSearchedUserList((oldList: User[]) =>
+        oldList.filter((user: User) => user.id !== userId),
+      );
     },
-    [changeSearchedUserList, searchedUserList],
+    [changeSearchedUserList],
   );
 
   const handleSubmit = useCallback(() => {
@@ -130,7 +131,7 @@ const MemberAddModal: React.FC<Props> = ({
               <SearchedUserName>{searchedUser.name}</SearchedUserName>
               <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
 
-              <IconButton onClick={handleUserAdd}>
+              <IconButton onClick={onUserAdd}>
                 <Icon icon="userAdd" />
               </IconButton>
             </SearchedUserResult>

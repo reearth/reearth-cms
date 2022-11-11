@@ -84,7 +84,7 @@ export default ({ workspaceId }: Props) => {
   const handleUserAdd = useCallback(() => {
     if (
       searchedUser &&
-      searchedUser?.id !== data?.me?.id &&
+      searchedUser.id !== data?.me?.id &&
       !searchedUserList.find(user => user.id === searchedUser.id)
     ) {
       changeSearchedUserList([...searchedUserList, searchedUser]);
@@ -124,13 +124,12 @@ export default ({ workspaceId }: Props) => {
           Notification.error({ message: t("Failed to add one or more members.") });
           return;
         }
-        setWorkspace(workspace);
 
-        if (result) {
+        if (result.data) {
           Notification.success({ message: t("Successfully added member(s) to the workspace!") });
         }
       })(),
-    [workspaceId, addUsersToWorkspaceMutation, setWorkspace, t],
+    [workspaceId, addUsersToWorkspaceMutation, t],
   );
 
   const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();

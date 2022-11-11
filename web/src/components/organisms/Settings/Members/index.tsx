@@ -160,8 +160,8 @@ const Members: React.FC = () => {
         searchedUserList={searchedUserList}
         changeSearchedUserList={changeSearchedUserList}
         onClose={handleMemberAddModalClose}
-        handleUserSearch={handleUserSearch}
-        handleUserAdd={handleUserAdd}
+        onUserSearch={handleUserSearch}
+        onUserAdd={handleUserAdd}
         changeSearchedUser={changeSearchedUser}
         onSubmit={handleUsersAddToWorkspace}
       />
