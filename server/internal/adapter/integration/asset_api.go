@@ -84,7 +84,7 @@ func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObjec
 	op := adapter.Operator(ctx)
 	aId, err := uc.Asset.Delete(ctx, id.AssetID(request.AssetId), op)
 	if err != nil {
-		return AssetDelete400Response{}, nil
+		return AssetDelete400Response{}, err
 	}
 	return AssetDelete200JSONResponse{
 		Id: &aId,
