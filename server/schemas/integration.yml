@@ -1,13 +1,15 @@
 openapi: 3.0.3
+x-stoplight:
+  id: fghsq1e1xf098
 info:
   title: ReEarth-CMS Integration API
   description: ReEarth-CMS Integration API
   version: 1.0.0
 servers:
-  - url: 'https//cms.reearth.io/api/v1'
+  - url: https//cms.reearth.io/api/v1
     description: main server for accessing the cms integration api
 paths:
-  /models/{modelId}/items:
+  '/models/{modelId}/items':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
     get:
@@ -73,7 +75,7 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /items/{itemId}:
+  '/items/{itemId}':
     parameters:
       - $ref: '#/components/parameters/itemIdParam'
     get:
@@ -98,7 +100,7 @@ paths:
     post:
       operationId: ItemUpdate
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Update an item.
       description: Update an item.
       parameters:
@@ -143,11 +145,11 @@ paths:
                     format: uuid
         '400':
           description: Invalid request parameter value
-        '404':
-          description: Not found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /models/{modelId}/items/{itemId}/refs:
+        '404':
+          description: Not found
+  '/models/{modelId}/items/{itemId}/refs':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
       - $ref: '#/components/parameters/itemIdParam'
@@ -174,13 +176,13 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /projects/{projectId}/assets:
+  '/projects/{projectId}/assets':
     parameters:
       - $ref: '#/components/parameters/projectIdParam'
     get:
       operationId: AssetFilter
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Returns a list of assets.
       description: Returns a list of assets with filtering and ordering.
       parameters:
@@ -216,7 +218,7 @@ paths:
     post:
       operationId: AssetCreate
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Returns a list of assets.
       description: Returns a list of assets with filtering and ordering.
       requestBody:
@@ -239,7 +241,7 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  /projects/{projectId}/assets/{assetId}:
+  '/projects/{projectId}/assets/{assetId}':
     parameters:
       - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
@@ -274,6 +276,114 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectId}/assets/{assetId}/comments':
+    parameters:
+      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetCommentFilter
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: asset comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: AssetCommentCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authorId:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    patch:
+      operationId: AssetCommentUpdate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authorId:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: AssetCommentDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: delete an asset comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+
 components:
   parameters:
     projectIdParam:
@@ -324,7 +434,7 @@ components:
     sortDirParam:
       name: dir
       in: query
-      description: Used to define the order direction of the response list, will be ignored if the order is not presented
+      description: 'Used to define the order direction of the response list, will be ignored if the order is not presented'
       required: false
       schema:
         type: string
@@ -370,7 +480,7 @@ components:
           x-go-type: id.FieldID
           type: string
           format: uuid
-          example: ""
+          example: ''
         type:
           type: string
           enum:
@@ -416,7 +526,7 @@ components:
         fields:
           type: array
           items:
-            $ref: "#/components/schemas/field"
+            $ref: '#/components/schemas/field'
         createdAt:
           type: string
           format: date
@@ -467,6 +577,24 @@ components:
           type: string
           format: date
         updatedAt:
+          type: string
+          format: date
+    comment:
+      type: object
+      properties:
+        id:
+          x-go-type: id.CommentID
+          type: string
+          format: uuid
+        authorName:
+          type: string
+        authorId:
+          x-go-type: id.UserID
+          type: string
+          format: uuid
+        content:
+          type: string
+        createdAt:
           type: string
           format: date
     file:

@@ -120,6 +120,15 @@ type Asset struct {
 // AssetPreviewType defines model for Asset.PreviewType.
 type AssetPreviewType string
 
+// Comment defines model for comment.
+type Comment struct {
+	AuthorId   *id.UserID          `json:"authorId,omitempty"`
+	AuthorName *string             `json:"authorName,omitempty"`
+	Content    *string             `json:"content,omitempty"`
+	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
+	Id         *id.CommentID       `json:"id,omitempty"`
+}
+
 // Field defines model for field.
 type Field struct {
 	Id    *id.FieldID  `json:"id,omitempty"`
@@ -269,6 +278,18 @@ type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
+// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
+type AssetCommentUpdateJSONBody struct {
+	AuthorId *string `json:"authorId,omitempty"`
+	Content  *string `json:"content,omitempty"`
+}
+
+// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
+type AssetCommentCreateJSONBody struct {
+	AuthorId *string `json:"authorId,omitempty"`
+	Content  *string `json:"content,omitempty"`
+}
+
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
 
@@ -280,3 +301,9 @@ type ItemPublishJSONRequestBody = RefOrVer
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody
+
+// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
+type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
+
+// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
+type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
