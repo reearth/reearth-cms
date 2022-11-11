@@ -34,7 +34,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// basic middleware
 	logger := rlog.NewEcho()
 	e.Logger = logger
-	e.Use(logger.AccessLogger(), middleware.Recover(), otelecho.Middleware("reearth-cms"), middleware.BodyLimit("10G"))
+	e.Use(
+		logger.AccessLogger(),
+		middleware.Recover(),
+		otelecho.Middleware("reearth-cms"),
+	)
 	origins := allowedOrigins(cfg)
 	if len(origins) > 0 {
 		e.Use(
