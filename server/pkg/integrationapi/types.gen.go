@@ -122,11 +122,10 @@ type AssetPreviewType string
 
 // Comment defines model for comment.
 type Comment struct {
-	AuthorId   *id.UserID          `json:"authorId,omitempty"`
-	AuthorName *string             `json:"authorName,omitempty"`
-	Content    *string             `json:"content,omitempty"`
-	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
-	Id         *id.CommentID       `json:"id,omitempty"`
+	AuthorId  *id.UserID          `json:"authorId,omitempty"`
+	Content   *string             `json:"content,omitempty"`
+	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
+	Id        *id.CommentID       `json:"id,omitempty"`
 }
 
 // Field defines model for field.
@@ -172,9 +171,6 @@ type RefOrVerRef string
 
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
-
-// CommentIdParam defines model for commentIdParam.
-type CommentIdParam = id.CommentID
 
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
@@ -283,14 +279,12 @@ type AssetCreateMultipartBody struct {
 
 // AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
 type AssetCommentUpdateJSONBody struct {
-	AuthorId *string `json:"authorId,omitempty"`
-	Content  *string `json:"content,omitempty"`
+	Content *string `json:"content,omitempty"`
 }
 
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
-	AuthorId *string `json:"authorId,omitempty"`
-	Content  *string `json:"content,omitempty"`
+	Content *string `json:"content,omitempty"`
 }
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.

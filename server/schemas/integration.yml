@@ -279,7 +279,7 @@ paths:
       - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
-      operationId: AssetCommentFilter
+      operationId: AssetCommentList
       security:
         - bearerAuth: []
       responses:
@@ -294,15 +294,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/comment'
-                  totalCount:
-                    type: integer
-                    minimum: 0
-                  page:
-                    type: integer
-                    minimum: 1
-                  perPage:
-                    type: integer
-                    minimum: 1
         '400':
           description: Invalid request parameter value
         '401':
@@ -318,8 +309,6 @@ paths:
             schema:
               type: object
               properties:
-                authorId:
-                  type: string
                 content:
                   type: string
       responses:
@@ -333,10 +322,17 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectId}/assets/{assetId}/comments/{commentId}':
+    parameters:
+      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/assetIdParam'
+      - $ref: '#/components/parameters/commentIdParam'
     patch:
       operationId: AssetCommentUpdate
       security:
         - bearerAuth: []
+      summary: Update AssetComment
+      description: ''
       requestBody:
         required: true
         content:
@@ -344,13 +340,11 @@ paths:
             schema:
               type: object
               properties:
-                authorId:
-                  type: string
                 content:
                   type: string
       responses:
         '200':
-          description: ''
+          description: Update An asset comment
           content:
             application/json:
               schema:
@@ -381,28 +375,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/projects/{projectId}/assets/{assetId}/comments/{commentId}':
-    parameters:
-      - $ref: '#/components/parameters/projectIdParam'
-      - $ref: '#/components/parameters/assetIdParam'
-      - $ref: '#/components/parameters/commentIdParam'
-    get:
-      operationId: AssetCommentGet
-      security:
-        - bearerAuth: []
-      summary: Get AssetComment
-      description: ''
-      responses:
-        '200':
-          description: An asset comment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/comment'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
 
 components:
   parameters:
@@ -615,8 +587,6 @@ components:
           x-go-type: id.CommentID
           type: string
           format: uuid
-        authorName:
-          type: string
         authorId:
           x-go-type: id.UserID
           type: string

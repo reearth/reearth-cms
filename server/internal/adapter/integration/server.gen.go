@@ -56,20 +56,17 @@ type ServerInterface interface {
 	// (GET /projects/{projectId}/assets/{assetId})
 	AssetGet(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
 
-	// (DELETE /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentDelete(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
-
 	// (GET /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentFilter(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
-
-	// (PATCH /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentUpdate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
+	AssetCommentList(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
 
 	// (POST /projects/{projectId}/assets/{assetId}/comments)
 	AssetCommentCreate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
-	// Get AssetComment
-	// (GET /projects/{projectId}/assets/{assetId}/comments/{commentId})
-	AssetCommentGet(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error
+
+	// (DELETE /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentDelete(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error
+	// Update AssetComment
+	// (PATCH /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentUpdate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -362,8 +359,8 @@ func (w *ServerInterfaceWrapper) AssetGet(ctx echo.Context) error {
 	return err
 }
 
-// AssetCommentDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx echo.Context) error {
+// AssetCommentList converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetCommentList(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId ProjectIdParam
@@ -384,59 +381,7 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.AssetCommentDelete(ctx, projectId, assetId)
-	return err
-}
-
-// AssetCommentFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetCommentFilter(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	// ------------- Path parameter "assetId" -------------
-	var assetId AssetIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "assetId", runtime.ParamLocationPath, ctx.Param("assetId"), &assetId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{""})
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.AssetCommentFilter(ctx, projectId, assetId)
-	return err
-}
-
-// AssetCommentUpdate converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	// ------------- Path parameter "assetId" -------------
-	var assetId AssetIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "assetId", runtime.ParamLocationPath, ctx.Param("assetId"), &assetId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{""})
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.AssetCommentUpdate(ctx, projectId, assetId)
+	err = w.Handler.AssetCommentList(ctx, projectId, assetId)
 	return err
 }
 
@@ -466,8 +411,8 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx echo.Context) error {
 	return err
 }
 
-// AssetCommentGet converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetCommentGet(ctx echo.Context) error {
+// AssetCommentDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId ProjectIdParam
@@ -496,7 +441,41 @@ func (w *ServerInterfaceWrapper) AssetCommentGet(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.AssetCommentGet(ctx, projectId, assetId, commentId)
+	err = w.Handler.AssetCommentDelete(ctx, projectId, assetId, commentId)
+	return err
+}
+
+// AssetCommentUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetId", runtime.ParamLocationPath, ctx.Param("assetId"), &assetId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "commentId", runtime.ParamLocationPath, ctx.Param("commentId"), &commentId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.AssetCommentUpdate(ctx, projectId, assetId, commentId)
 	return err
 }
 
@@ -538,11 +517,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.DELETE(baseURL+"/projects/:projectId/assets/:assetId", wrapper.AssetDelete)
 	router.GET(baseURL+"/projects/:projectId/assets/:assetId", wrapper.AssetGet)
-	router.DELETE(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentDelete)
-	router.GET(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentFilter)
-	router.PATCH(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentUpdate)
+	router.GET(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentList)
 	router.POST(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentCreate)
-	router.GET(baseURL+"/projects/:projectId/assets/:assetId/comments/:commentId", wrapper.AssetCommentGet)
+	router.DELETE(baseURL+"/projects/:projectId/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete)
+	router.PATCH(baseURL+"/projects/:projectId/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate)
 
 }
 
@@ -902,9 +880,79 @@ func (response AssetGet401Response) VisitAssetGetResponse(w http.ResponseWriter)
 	return nil
 }
 
+type AssetCommentListRequestObject struct {
+	ProjectId ProjectIdParam `json:"projectId"`
+	AssetId   AssetIdParam   `json:"assetId"`
+}
+
+type AssetCommentListResponseObject interface {
+	VisitAssetCommentListResponse(w http.ResponseWriter) error
+}
+
+type AssetCommentList200JSONResponse struct {
+	Comments *[]Comment `json:"comments,omitempty"`
+}
+
+func (response AssetCommentList200JSONResponse) VisitAssetCommentListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetCommentList400Response struct {
+}
+
+func (response AssetCommentList400Response) VisitAssetCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetCommentList401Response = UnauthorizedErrorResponse
+
+func (response AssetCommentList401Response) VisitAssetCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetCommentCreateRequestObject struct {
+	ProjectId ProjectIdParam `json:"projectId"`
+	AssetId   AssetIdParam   `json:"assetId"`
+	Body      *AssetCommentCreateJSONRequestBody
+}
+
+type AssetCommentCreateResponseObject interface {
+	VisitAssetCommentCreateResponse(w http.ResponseWriter) error
+}
+
+type AssetCommentCreate200JSONResponse Comment
+
+func (response AssetCommentCreate200JSONResponse) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetCommentCreate400Response struct {
+}
+
+func (response AssetCommentCreate400Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetCommentCreate401Response = UnauthorizedErrorResponse
+
+func (response AssetCommentCreate401Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type AssetCommentDeleteRequestObject struct {
 	ProjectId ProjectIdParam `json:"projectId"`
 	AssetId   AssetIdParam   `json:"assetId"`
+	CommentId CommentIdParam `json:"commentId"`
 }
 
 type AssetCommentDeleteResponseObject interface {
@@ -945,47 +993,10 @@ func (response AssetCommentDelete404Response) VisitAssetCommentDeleteResponse(w 
 	return nil
 }
 
-type AssetCommentFilterRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	AssetId   AssetIdParam   `json:"assetId"`
-}
-
-type AssetCommentFilterResponseObject interface {
-	VisitAssetCommentFilterResponse(w http.ResponseWriter) error
-}
-
-type AssetCommentFilter200JSONResponse struct {
-	Comments   *[]Comment `json:"comments,omitempty"`
-	Page       *int       `json:"page,omitempty"`
-	PerPage    *int       `json:"perPage,omitempty"`
-	TotalCount *int       `json:"totalCount,omitempty"`
-}
-
-func (response AssetCommentFilter200JSONResponse) VisitAssetCommentFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetCommentFilter400Response struct {
-}
-
-func (response AssetCommentFilter400Response) VisitAssetCommentFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetCommentFilter401Response = UnauthorizedErrorResponse
-
-func (response AssetCommentFilter401Response) VisitAssetCommentFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
 type AssetCommentUpdateRequestObject struct {
 	ProjectId ProjectIdParam `json:"projectId"`
 	AssetId   AssetIdParam   `json:"assetId"`
+	CommentId CommentIdParam `json:"commentId"`
 	Body      *AssetCommentUpdateJSONRequestBody
 }
 
@@ -1013,74 +1024,6 @@ func (response AssetCommentUpdate400Response) VisitAssetCommentUpdateResponse(w 
 type AssetCommentUpdate401Response = UnauthorizedErrorResponse
 
 func (response AssetCommentUpdate401Response) VisitAssetCommentUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type AssetCommentCreateRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	AssetId   AssetIdParam   `json:"assetId"`
-	Body      *AssetCommentCreateJSONRequestBody
-}
-
-type AssetCommentCreateResponseObject interface {
-	VisitAssetCommentCreateResponse(w http.ResponseWriter) error
-}
-
-type AssetCommentCreate200JSONResponse Comment
-
-func (response AssetCommentCreate200JSONResponse) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetCommentCreate400Response struct {
-}
-
-func (response AssetCommentCreate400Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetCommentCreate401Response = UnauthorizedErrorResponse
-
-func (response AssetCommentCreate401Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type AssetCommentGetRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	AssetId   AssetIdParam   `json:"assetId"`
-	CommentId CommentIdParam `json:"commentId"`
-}
-
-type AssetCommentGetResponseObject interface {
-	VisitAssetCommentGetResponse(w http.ResponseWriter) error
-}
-
-type AssetCommentGet200JSONResponse Comment
-
-func (response AssetCommentGet200JSONResponse) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetCommentGet400Response struct {
-}
-
-func (response AssetCommentGet400Response) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetCommentGet401Response = UnauthorizedErrorResponse
-
-func (response AssetCommentGet401Response) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
@@ -1118,20 +1061,17 @@ type StrictServerInterface interface {
 	// (GET /projects/{projectId}/assets/{assetId})
 	AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error)
 
-	// (DELETE /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error)
-
 	// (GET /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentFilter(ctx context.Context, request AssetCommentFilterRequestObject) (AssetCommentFilterResponseObject, error)
-
-	// (PATCH /projects/{projectId}/assets/{assetId}/comments)
-	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
+	AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error)
 
 	// (POST /projects/{projectId}/assets/{assetId}/comments)
 	AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error)
-	// Get AssetComment
-	// (GET /projects/{projectId}/assets/{assetId}/comments/{commentId})
-	AssetCommentGet(ctx context.Context, request AssetCommentGetRequestObject) (AssetCommentGetResponseObject, error)
+
+	// (DELETE /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error)
+	// Update AssetComment
+	// (PATCH /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx echo.Context, args interface{}) (interface{}, error)
@@ -1428,84 +1368,26 @@ func (sh *strictHandler) AssetGet(ctx echo.Context, projectId ProjectIdParam, as
 	return nil
 }
 
-// AssetCommentDelete operation middleware
-func (sh *strictHandler) AssetCommentDelete(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error {
-	var request AssetCommentDeleteRequestObject
+// AssetCommentList operation middleware
+func (sh *strictHandler) AssetCommentList(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error {
+	var request AssetCommentListRequestObject
 
 	request.ProjectId = projectId
 	request.AssetId = assetId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentDelete(ctx.Request().Context(), request.(AssetCommentDeleteRequestObject))
+		return sh.ssi.AssetCommentList(ctx.Request().Context(), request.(AssetCommentListRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentDelete")
+		handler = middleware(handler, "AssetCommentList")
 	}
 
 	response, err := handler(ctx, request)
 
 	if err != nil {
 		return err
-	} else if validResponse, ok := response.(AssetCommentDeleteResponseObject); ok {
-		return validResponse.VisitAssetCommentDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentFilter operation middleware
-func (sh *strictHandler) AssetCommentFilter(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error {
-	var request AssetCommentFilterRequestObject
-
-	request.ProjectId = projectId
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentFilter(ctx.Request().Context(), request.(AssetCommentFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentFilterResponseObject); ok {
-		return validResponse.VisitAssetCommentFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentUpdate operation middleware
-func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error {
-	var request AssetCommentUpdateRequestObject
-
-	request.ProjectId = projectId
-	request.AssetId = assetId
-
-	var body AssetCommentUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentUpdate(ctx.Request().Context(), request.(AssetCommentUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
-		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
+	} else if validResponse, ok := response.(AssetCommentListResponseObject); ok {
+		return validResponse.VisitAssetCommentListResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("Unexpected response type: %T", response)
 	}
@@ -1544,27 +1426,60 @@ func (sh *strictHandler) AssetCommentCreate(ctx echo.Context, projectId ProjectI
 	return nil
 }
 
-// AssetCommentGet operation middleware
-func (sh *strictHandler) AssetCommentGet(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error {
-	var request AssetCommentGetRequestObject
+// AssetCommentDelete operation middleware
+func (sh *strictHandler) AssetCommentDelete(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error {
+	var request AssetCommentDeleteRequestObject
 
 	request.ProjectId = projectId
 	request.AssetId = assetId
 	request.CommentId = commentId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentGet(ctx.Request().Context(), request.(AssetCommentGetRequestObject))
+		return sh.ssi.AssetCommentDelete(ctx.Request().Context(), request.(AssetCommentDeleteRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentGet")
+		handler = middleware(handler, "AssetCommentDelete")
 	}
 
 	response, err := handler(ctx, request)
 
 	if err != nil {
 		return err
-	} else if validResponse, ok := response.(AssetCommentGetResponseObject); ok {
-		return validResponse.VisitAssetCommentGetResponse(ctx.Response())
+	} else if validResponse, ok := response.(AssetCommentDeleteResponseObject); ok {
+		return validResponse.VisitAssetCommentDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetCommentUpdate operation middleware
+func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error {
+	var request AssetCommentUpdateRequestObject
+
+	request.ProjectId = projectId
+	request.AssetId = assetId
+	request.CommentId = commentId
+
+	var body AssetCommentUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentUpdate(ctx.Request().Context(), request.(AssetCommentUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
+		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("Unexpected response type: %T", response)
 	}
@@ -1574,37 +1489,36 @@ func (sh *strictHandler) AssetCommentGet(ctx echo.Context, projectId ProjectIdPa
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"AP//GZwHm4kxAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
