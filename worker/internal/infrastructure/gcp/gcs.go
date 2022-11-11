@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"cloud.google.com/go/storage"
-	bufra "github.com/avvmoto/buf-readerat"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearthx/rerror"
@@ -18,7 +17,6 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	cacheSize               = 10 * 1024 * 1024
 )
 
 type fileRepo struct {
@@ -83,30 +81,15 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	return writer, nil
 }
 
-// GCSReaderAt is a struct which implements io.ReadAt interface and internally it has buffer to prevent lot's of IO call
-type GCSReaderAt struct {
-	cache *bufra.BufReaderAt
-}
-
+// GCSReaderAt is a struct which implements io.ReadAt interface
 func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
 		log.Errorf(ctx, "gcs: rawGCSReaderAt err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
-	r := bufra.NewBufReaderAt(rowReaderAt, cacheSize)
 
-	return &GCSReaderAt{
-		cache: r,
-	}, size, nil
-}
-
-func (g *GCSReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
-	return g.cache.ReadAt(p, off)
-}
-
-func (g *GCSReaderAt) Close() error {
-	return nil
+	return rowReaderAt, size, nil
 }
 
 type rawGCSReaderAt struct {
@@ -114,8 +97,8 @@ type rawGCSReaderAt struct {
 	obj *storage.ObjectHandle
 }
 
-// newRawGCSReaderAt implements io.ReadAt but calls IO a lot, should be wrapped by something which uses buffer
-func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io.ReaderAt, int64, error) {
+// newRawGCSReaderAt implements io.ReadAt
+func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	if objectName == "" {
 		return nil, 0, rerror.ErrNotFound
 	}
@@ -142,6 +125,10 @@ func (g *rawGCSReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
 	defer rc.Close()
 
 	return rc.Read(b)
+}
+
+func (g *rawGCSReaderAt) Close() error {
+	return nil
 }
 
 // helpers
