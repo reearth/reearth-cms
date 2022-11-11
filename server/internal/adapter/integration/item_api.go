@@ -26,12 +26,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, rerror.ErrNotFound
 	}
 
-	p := usecasex.CursorPagination{
-		Before: nil,
-		After:  nil,
-		First:  lo.ToPtr(int64(1000)),
-		Last:   nil,
-	}.Wrap()
+	p := toPagination(request.Params.Page, request.Params.PerPage)
 
 	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
 	if err != nil {
@@ -52,8 +47,8 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 
 	return ItemFilter200JSONResponse{
 		Items:      &itemList,
-		Page:       lo.ToPtr(1),
-		PerPage:    lo.ToPtr(1000),
+		Page:       request.Params.Page,
+		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
@@ -94,6 +89,33 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	}
 
 	return ItemCreate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+}
+
+func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if request.Body.Fields == nil {
+		return ItemUpdate400Response{}, errors.New("missing fields")
+	}
+
+	up := interfaces.UpdateItemParam{
+		ItemID: id.ItemID(request.ItemId),
+		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
+			return toItemFieldParam(f)
+		}),
+	}
+	i, err := uc.Item.Update(ctx, up, op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	ver, err := uc.Item.FindAllVersionsByID(ctx, i.ID(), op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	return ItemUpdate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {

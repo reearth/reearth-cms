@@ -5,7 +5,6 @@ go 1.19
 require (
 	cloud.google.com/go/pubsub v1.3.1
 	cloud.google.com/go/storage v1.26.0
-	github.com/avvmoto/buf-readerat v0.0.0-20171115124131-a17c8cb89270
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -16,6 +15,7 @@ require (
 	github.com/spf13/afero v1.9.2
 	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.34.0
+	golang.org/x/net v0.1.0
 	google.golang.org/appengine v1.6.7
 )
 
@@ -49,7 +49,6 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983 // indirect
-	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/sys v0.1.0 // indirect
