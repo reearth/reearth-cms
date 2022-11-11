@@ -8,6 +8,10 @@ func (s Server) AssetCommentFilter(ctx context.Context, request AssetCommentFilt
 	panic("implement me")
 }
 
+func (s Server) AssetCommentGet(ctx context.Context, request AssetCommentGetRequestObject) (AssetCommentGetResponseObject, error) {
+	panic("implement me")
+}
+
 func (s Server) AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error) {
 	panic("implement me")
 }

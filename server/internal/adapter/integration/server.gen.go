@@ -67,6 +67,9 @@ type ServerInterface interface {
 
 	// (POST /projects/{projectId}/assets/{assetId}/comments)
 	AssetCommentCreate(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam) error
+	// Get AssetComment
+	// (GET /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentGet(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -463,6 +466,40 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx echo.Context) error {
 	return err
 }
 
+// AssetCommentGet converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetCommentGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "assetId", runtime.ParamLocationPath, ctx.Param("assetId"), &assetId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "commentId", runtime.ParamLocationPath, ctx.Param("commentId"), &commentId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.AssetCommentGet(ctx, projectId, assetId, commentId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -505,6 +542,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentFilter)
 	router.PATCH(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentUpdate)
 	router.POST(baseURL+"/projects/:projectId/assets/:assetId/comments", wrapper.AssetCommentCreate)
+	router.GET(baseURL+"/projects/:projectId/assets/:assetId/comments/:commentId", wrapper.AssetCommentGet)
 
 }
 
@@ -1013,6 +1051,40 @@ func (response AssetCommentCreate401Response) VisitAssetCommentCreateResponse(w 
 	return nil
 }
 
+type AssetCommentGetRequestObject struct {
+	ProjectId ProjectIdParam `json:"projectId"`
+	AssetId   AssetIdParam   `json:"assetId"`
+	CommentId CommentIdParam `json:"commentId"`
+}
+
+type AssetCommentGetResponseObject interface {
+	VisitAssetCommentGetResponse(w http.ResponseWriter) error
+}
+
+type AssetCommentGet200JSONResponse Comment
+
+func (response AssetCommentGet200JSONResponse) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetCommentGet400Response struct {
+}
+
+func (response AssetCommentGet400Response) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetCommentGet401Response = UnauthorizedErrorResponse
+
+func (response AssetCommentGet401Response) VisitAssetCommentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -1057,6 +1129,9 @@ type StrictServerInterface interface {
 
 	// (POST /projects/{projectId}/assets/{assetId}/comments)
 	AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error)
+	// Get AssetComment
+	// (GET /projects/{projectId}/assets/{assetId}/comments/{commentId})
+	AssetCommentGet(ctx context.Context, request AssetCommentGetRequestObject) (AssetCommentGetResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx echo.Context, args interface{}) (interface{}, error)
@@ -1469,39 +1544,67 @@ func (sh *strictHandler) AssetCommentCreate(ctx echo.Context, projectId ProjectI
 	return nil
 }
 
+// AssetCommentGet operation middleware
+func (sh *strictHandler) AssetCommentGet(ctx echo.Context, projectId ProjectIdParam, assetId AssetIdParam, commentId CommentIdParam) error {
+	var request AssetCommentGetRequestObject
+
+	request.ProjectId = projectId
+	request.AssetId = assetId
+	request.CommentId = commentId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentGet(ctx.Request().Context(), request.(AssetCommentGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentGetResponseObject); ok {
+		return validResponse.VisitAssetCommentGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xaTXPbNhD9Kxi0R1qUm/Sim2onHXcmiaeOe/H4AJNLCTEJMAtQtqPRf+9gQVKUROq7",
-	"iZ36klgkAL7dfXi7WHLKI53lWoGyhg+mPBcoMrCA9EsYA/YivnQX3e8YTIQyt1IrPuAX50wnzI6BGUgh",
-	"shAzmsADLt39XNgxD7gSGfBBtRYPOMLXQiLEfGCxgICbaAyZcOsnGjNh+YAXhXQj7VPuphqLUo14wB9P",
-	"RvqkvCjj3pCWPOezWcClhWwXpG58O1C/0jFxXrgVPcxMx5DugpMmsAdpx1It3slRf4Gow9vlc45pxQda",
-	"0puRixF02HBtIGZWlzgJshtdwfxaAD7NcZa35qBiSESRWj44DXgmlcyKjP6ucCgLI0APAvDyaDj8Wu1Q",
-	"fu8HPBOPJZZ+fzMyH5pd4lxOaY30g8Z7k4sI2mNdP21ttJeieVlO8vFESLZzo2AICdPIJoAdrkRI2t3I",
-	"U2HBOMKCcr67mV/Ii7tURvx2mYQOm9FozyVuwBdDIhWQ3zTGgCyWCJEbVLkaweRaGWCpNDZgDzJN2R0w",
-	"OVIanSAkjcnSMKUtyxEMKAtxh6mxxA5THciGoYJ+0cVOG3c1sM2sDpxu+Q6gEYKwEA+bYWleK/K4/LsF",
-	"ODHHP57yxbUShR1rlN8gfoeocdWcYRSBMczqe1DOzZk0RqqRo5RUE5HK2DuEoM6TEOUm1Dmglf5ZkVYW",
-	"lP1MkKbL0IKGEU2pc8asSN0s4IlMaZlfHXsH/JdwnhbDEktIY1yqiQ/JVVVQWiDnCBMJD5VJVThk5pVp",
-	"BNr/+8Y9jxSe/irUvdIPqiVADSXaA3JDIgJutRXplfzWRK6K7M4pXpMl2zi7wLTF/lk9Ut9RYnNB1FkG",
-	"qiX6nmd7mXVtAL1NfpGPXeEoGXYEdu3FmDNve6nQK65JJKTxqmP8o+BRZLljNOfBrs997xYug77ERAuP",
-	"ThPcf0ME4fKNjMaf/dVM4H3seBjwqgws/XGnderkh1KImy9GJFQ+YVL2AQRF+c1xo43IE5EWDkuHL/zu",
-	"XVKIsUxjBEVusZCZbTd4ub5AFE8NInRKTfeGdnm67YZp30httlGhusp/jMZyAvGCmCciNVAv4bwOQu2j",
-	"hZDGZgevOSK2uG0v1le1cl0qH1KpughgdbSpjVm/WoshCMniChtn7KaHE0BD2XEjtjaCICSf8B/AVZJQ",
-	"0KY7VFsEZS8YjtMQFSjt05XjhQdwBwIBh4XfBUQYYiZdni87tjb31YRUiV6tGf6GdwLt+OTswxW7cKqB",
-	"ggq74eWFW0RaUrr1o2of89Nev9d3tuoclMglH/A3vX7vDff7lYCHFOpw6s+CMw8pBUub1rmYlnbk5I6w",
-	"5/7eUjX0W7/fKFRo1+Z5KiOaG34xPuLzoqxNyPc/aS4HaBYsedUbxITyZ+FZwN96wEtnFV+VMXeyAGNZ",
-	"3SFgXpJp3mmXSNQOCVdrQ5r5dvWJH7VliS5UvEArPrhZJNTN7ex25uoh28YYW6AylXE9HrRE7U/KUc2O",
-	"x027EfMhYX1Qmt0eGO11kuoDshqy4Y+L1aZIBNwUWSbwadX7plcq8Q5+brZz3OK5Ni1hviaZXR9lP+bQ",
-	"QJM//9Dx0wE7+jh5tX1rL577Z6/c7OLmMmXc5JBKDRNOy5JjFtYBWq8udOZ2B3EaT70blsjUglNnJlTs",
-	"j+pSjdq5+Z7G7szNebdgFmw1uG6fbDF+3trbZnCzBbfF+OPJ51KyrOK11c6qeLpctVF/cDBd292r246b",
-	"B9KR+UwX3px6bL+1ZbgxXQ/ZX1efPjIC6yhXGEDmTh7mxaSDxe2yR1ZY6J4308Lq1jqjIw9/1e6ttPtF",
-	"cWuNZNcVe1id2Q4hWHCkMuUKLLXNXUIozyEs0bj6Qqo9S1y645oZH8DldZyoj4+vdcQuotYS07KYKFuu",
-	"JpzWzddZSB2xXSoKP2G3koJ6zD9ZTfEj6wTfxnxphULJHHod9OIqAw9+j9Jg6ZVrtxgfcattUWNkRWpl",
-	"LtCGicbsJBZWrC8zfCO7bvvcSSXoTd7mDtzsv1Trciv8rGzboNvhtPx6ZW0nkDjxbFqBzY9jnr1mzPt4",
-	"LS71fbr/H7UP1sDNuXbhAy9qp263DcLyxazZuB/Kt5jPZlusfau6rklOprPqhfQL75Z3B6ouH48YqCZZ",
-	"tiq8Gl5+eaVXxZHnmxS/v7DQq7VovJ56daf+OC2b5iciO3zb8aN7NDX3V+n1XLnU2oRrRvbIzbjXyH6f",
-	"NhuNwEklEovIMiEV87epmSXowz53crJjYFFmmGy8hBe5LD/u8a/7TRhGmekhgEA77kkdilyGk1NXhPwb",
-	"AAD//8t0woKULgAA",
+	"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",
+	"AP//GZwHm4kxAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

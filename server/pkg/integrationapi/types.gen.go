@@ -173,6 +173,9 @@ type RefOrVerRef string
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
 
+// CommentIdParam defines model for commentIdParam.
+type CommentIdParam = id.CommentID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 

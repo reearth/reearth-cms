@@ -381,6 +381,28 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/projects/{projectId}/assets/{assetId}/comments/{commentId}':
+    parameters:
+      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/assetIdParam'
+      - $ref: '#/components/parameters/commentIdParam'
+    get:
+      operationId: AssetCommentGet
+      security:
+        - bearerAuth: []
+      summary: Get AssetComment
+      description: ''
+      responses:
+        '200':
+          description: An asset comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
 components:
   parameters:
@@ -416,6 +438,15 @@ components:
       required: true
       schema:
         x-go-type: id.AssetID
+        type: string
+        format: uuid
+    commentIdParam:
+      name: commentId
+      in: path
+      description: ID of the selected comment
+      required: true
+      schema:
+        x-go-type: id.CommentID
         type: string
         format: uuid
     sortParam:
