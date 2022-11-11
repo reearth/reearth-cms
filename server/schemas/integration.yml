@@ -95,6 +95,36 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: ItemUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: Update an item.
+      description: Update an item.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+      responses:
+        '200':
+          description: An item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
     delete:
       operationId: ItemDelete
       security:

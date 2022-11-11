@@ -27,18 +27,18 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	}
 
 	return &Asset{
-		ID:          IDFrom(a.ID()),
-		ProjectID:   IDFrom(a.Project()),
-		CreatedAt:   a.CreatedAt(),
-		CreatedByID: createdBy,
+		ID:            IDFrom(a.ID()),
+		ProjectID:     IDFrom(a.Project()),
+		CreatedAt:     a.CreatedAt(),
+		CreatedByID:   createdBy,
 		CreatedByType: createdByType,
-		FileName:    a.FileName(),
-		Size:        int64(a.Size()),
-		PreviewType: ToPreviewType(a.PreviewType()),
-		File:        ToAssetFile(a.File()),
-		UUID:        a.UUID(),
-		URL:         url,
-		ThreadID:    IDFrom(a.Thread()),
+		FileName:      a.FileName(),
+		Size:          int64(a.Size()),
+		PreviewType:   ToPreviewType(a.PreviewType()),
+		File:          ToAssetFile(a.File()),
+		UUID:          a.UUID(),
+		URL:           url,
+		ThreadID:      IDFrom(a.Thread()),
 	}
 }
 
