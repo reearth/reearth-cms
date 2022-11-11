@@ -12,7 +12,7 @@ import {
   PreviewTypeSelect,
 } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
-import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileListComponent";
+import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
