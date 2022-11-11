@@ -1,5 +1,7 @@
 package integration
 
+import "strings"
+
 type Type string
 
 const (
@@ -9,12 +11,12 @@ const (
 )
 
 func TypeFrom(s string) Type {
-	switch s {
+	switch strings.ToLower(s) {
 	case "public":
 		return TypePublic
 	case "private":
 		return TypePrivate
 	default:
-		return ""
+		return TypePrivate
 	}
 }

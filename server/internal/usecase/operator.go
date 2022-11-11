@@ -11,6 +11,7 @@ import (
 type Operator struct {
 	User               *user.ID
 	Integration        *integration.ID
+	Machine            bool
 	ReadableWorkspaces user.WorkspaceIDList
 	WritableWorkspaces user.WorkspaceIDList
 	OwningWorkspaces   user.WorkspaceIDList
@@ -114,6 +115,9 @@ func (o *Operator) EventOperator() event.Operator {
 	}
 	if o.Integration != nil {
 		eOp = event.OperatorFromIntegration(*o.Integration)
+	}
+	if o.Machine {
+		eOp = event.OperatorFromMachine()
 	}
 	return eOp
 }

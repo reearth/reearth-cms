@@ -33,7 +33,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// basic middleware
 	logger := rlog.NewEcho()
 	e.Logger = logger
-	e.Use(logger.AccessLogger(), middleware.Recover(), otelecho.Middleware("reearth-cms"), middleware.BodyLimit("10G"))
+	e.Use(
+		logger.AccessLogger(),
+		middleware.Recover(),
+		otelecho.Middleware("reearth-cms"),
+	)
 	origins := allowedOrigins(cfg)
 	if len(origins) > 0 {
 		e.Use(
@@ -52,7 +56,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
 	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
