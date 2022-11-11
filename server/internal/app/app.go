@@ -83,7 +83,6 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	)
 
 	integrationApi := api.Group("",
-		internalJWTMiddleware,
 		authMiddleware(cfg),
 		usecaseMiddleware)
 	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
