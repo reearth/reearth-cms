@@ -57,7 +57,13 @@ export default ({ integrationId }: Params) => {
   });
 
   const handleWebhookCreate = useCallback(
-    async (data: { name: string; url: string; active: boolean; trigger: WebhookTrigger }) => {
+    async (data: {
+      name: string;
+      url: string;
+      active: boolean;
+      trigger: WebhookTrigger;
+      secret: string;
+    }) => {
       if (!integrationId) return;
       const webhook = await createNewWebhook({
         variables: {
@@ -66,6 +72,7 @@ export default ({ integrationId }: Params) => {
           url: data.url,
           active: data.active,
           trigger: data.trigger,
+          secret: data.secret,
         },
       });
       if (webhook.errors || !webhook.data?.createWebhook) {
@@ -110,6 +117,7 @@ export default ({ integrationId }: Params) => {
       url: string;
       active: boolean;
       trigger: WebhookTrigger;
+      secret?: string;
     }) => {
       if (!integrationId) return;
       const webhook = await updateWebhook({
@@ -120,6 +128,7 @@ export default ({ integrationId }: Params) => {
           active: data.active,
           trigger: data.trigger,
           url: data.url,
+          secret: data.secret,
         },
       });
       if (webhook.errors || !webhook.data?.updateWebhook) {

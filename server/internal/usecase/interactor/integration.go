@@ -155,6 +155,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				Name(param.Name).
 				Url(&param.URL).
 				Active(param.Active).
+				Secret(param.Secret).
 				Trigger(integration.WebhookTrigger(*param.Trigger)).
 				Build()
 
@@ -207,6 +208,10 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 
 			if param.Trigger != nil {
 				w.SetTrigger(integration.WebhookTrigger(*param.Trigger))
+			}
+
+			if param.Secret != nil {
+				w.SetSecret(*param.Secret)
 			}
 
 			w.SetUpdatedAt(time.Now())

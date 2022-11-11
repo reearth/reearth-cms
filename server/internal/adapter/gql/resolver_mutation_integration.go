@@ -95,6 +95,7 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
 			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDelete, false),
 		},
+		Secret: input.Secret,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -125,6 +126,7 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
 			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDelete, false),
 		},
+		Secret: input.Secret,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

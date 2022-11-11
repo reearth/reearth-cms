@@ -15,6 +15,7 @@ type Webhook {
   url: URL!
   active: Boolean!
   trigger: WebhookTrigger!
+  secret: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -38,6 +39,7 @@ input CreateWebhookInput {
   url: URL!
   active: Boolean!
   trigger: WebhookTriggerInput!
+  secret: String!
 }
 
 input UpdateWebhookInput {
@@ -47,6 +49,7 @@ input UpdateWebhookInput {
   url: URL
   active: Boolean
   trigger: WebhookTriggerInput
+  secret: String
 }
 
 input DeleteWebhookInput {

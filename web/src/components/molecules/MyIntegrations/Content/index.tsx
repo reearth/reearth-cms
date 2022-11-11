@@ -20,6 +20,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret: string;
   }) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -28,6 +29,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret?: string;
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
