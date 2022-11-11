@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, Dispatch, SetStateAction, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -59,11 +59,12 @@ const ContentForm: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { Option } = Select;
-
+  const [formValues, setFormValues] = useState<any>();
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
+    setFormValues(initialFormValues);
   }, [form, initialFormValues]);
 
   const handleBack = useCallback(() => {
@@ -91,12 +92,16 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const handleLink = useCallback((_asset: Asset) => {
-    // TODO: implement link asset with content
-  }, []);
+  const handleLink = useCallback(
+    (_asset: Asset, fieldId: string) => {
+      setFormValues({ ...formValues, [fieldId]: _asset.id });
+      form.setFieldValue(fieldId, _asset.id);
+    },
+    [form, formValues, setFormValues],
+  );
 
   return (
-    <Form form={form} layout="vertical" initialValues={initialFormValues}>
+    <Form form={form} layout="vertical" initialValues={formValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -147,6 +152,7 @@ const ContentForm: React.FC<Props> = ({
                   message: t("Please input field!"),
                 },
               ]}
+              defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
               label={field.title}
               assetList={assetList}
@@ -157,7 +163,7 @@ const ContentForm: React.FC<Props> = ({
               createAssets={createAssets}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}
-              onLink={handleLink}
+              onLink={_asset => handleLink(_asset, field.id)}
               setFileList={setFileList}
               setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
