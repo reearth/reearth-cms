@@ -783,8 +783,9 @@ func Test_validateFields(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-
-			err := validateFields(ctx, tc.args.itemFields, tc.args.s, tc.args.mid, db)
+			testFields, err := itemFieldsFromParams(tc.args.itemFields)
+			assert.NoError(tt, err)
+			err = validateFields(ctx, testFields, tc.args.s, tc.args.mid, db)
 			if tc.wantErr {
 				assert.Error(t, err)
 			} else {
