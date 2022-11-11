@@ -16,18 +16,18 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
   const [treeData, setTreeData] = useState<DataNode[]>([]);
 
   const getTreeData = useCallback(
-    (assetFile: AssetFile, key = ""): DataNode[] =>
+    (assetFile: AssetFile, key?: string): DataNode[] =>
       assetFile?.children?.map((file: AssetFile, index: number) => {
         let children: DataNode[] = [];
+        const parentKey = key ? key + "-" + index.toString() : index.toString();
+
         if (file.children && file.children.length > 0) {
-          children = getTreeData(
-            file,
-            key === "" ? index.toString() : key + "-" + index.toString(),
-          );
+          children = getTreeData(file, parentKey + "-" + index.toString());
         }
+
         return {
           title: file.name,
-          key: key === "" ? index.toString() : key + "-" + index.toString(),
+          key: parentKey,
           children: children,
         };
       }) || [],
