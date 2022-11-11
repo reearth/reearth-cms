@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -18,7 +19,10 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 	uc := adapter.Usecases(ctx)
 	m, err := uc.Model.FindByIDs(ctx, []id.ModelID{id.ModelID(request.ModelId)}, op)
 	if err != nil {
-		return nil, err
+		return ItemFilter400Response{}, err
+	}
+	if len(m) == 0 {
+		return ItemFilter400Response{}, rerror.ErrNotFound
 	}
 
 	p := toPagination(request.Params.Page, request.Params.PerPage)
@@ -56,9 +60,13 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, errors.New("missing fields")
 	}
 
-	m, err := uc.Model.FindByIDs(ctx, []id.ModelID{id.ModelID(request.ModelId)}, op)
+	mId := id.ModelID(request.ModelId)
+	m, err := uc.Model.FindByIDs(ctx, []id.ModelID{mId}, op)
 	if err != nil {
 		return nil, err
+	}
+	if len(m) == 0 {
+		return ItemCreate400Response{}, rerror.ErrNotFound
 	}
 
 	cp := interfaces.CreateItemParam{
@@ -66,6 +74,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
 			return toItemFieldParam(f)
 		}),
+		ModelID: mId,
 	}
 
 	i, err := uc.Item.Create(ctx, cp, op)
