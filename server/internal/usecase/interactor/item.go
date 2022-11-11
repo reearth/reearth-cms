@@ -217,7 +217,7 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, er
 	var err error
 	res := lo.Map(Fields, func(f interfaces.ItemFieldParam, _ int) *item.Field {
 		v := f.Value
-		if f.ValueType == schema.TypeInteger {
+		if f.ValueType == schema.TypeInteger && f.Value != "" {
 			v, err = strconv.ParseInt(fmt.Sprintf("%v", f.Value), 10, 64)
 		}
 		return item.NewField(
