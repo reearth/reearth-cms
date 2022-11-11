@@ -22,7 +22,7 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
         const parentKey = key ? key + "-" + index.toString() : index.toString();
 
         if (file.children && file.children.length > 0) {
-          children = getTreeData(file, parentKey + "-" + index.toString());
+          children = getTreeData(file, parentKey);
         }
 
         return {
