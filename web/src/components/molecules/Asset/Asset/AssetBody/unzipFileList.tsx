@@ -15,8 +15,8 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
   const [selectedKeys, setSelectedKeys] = useState<DataNode["key"][]>([]);
   const [treeData, setTreeData] = useState<DataNode[]>([]);
 
-  const getTreeData = useCallback((assetFile: AssetFile, key = ""): DataNode[] => {
-    return (
+  const getTreeData = useCallback(
+    (assetFile: AssetFile, key = ""): DataNode[] =>
       assetFile?.children?.map((file: AssetFile, index: number) => {
         let children: DataNode[] = [];
         if (file.children && file.children.length > 0) {
@@ -30,9 +30,9 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
           key: key === "" ? index.toString() : key + "-" + index.toString(),
           children: children,
         };
-      }) || []
-    );
-  }, []);
+      }) || [],
+    [],
+  );
 
   useEffect(() => {
     setTreeData(getTreeData(file));
