@@ -574,8 +574,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 		usersSeeds []*user.User
 		args       struct {
 			wId      id.WorkspaceID
-			uId      id.UserID
-			role     user.Role
+			users    map[id.UserID]user.Role
 			operator *usecase.Operator
 		}
 		wantErr          error
@@ -588,17 +587,14 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id1,
-				uId:      id.NewUserID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{id.NewUserID(): user.RoleReader},
 				operator: op,
 			},
-			wantErr: rerror.ErrNotFound,
-			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
+			want: user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Add",
@@ -606,13 +602,11 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id2,
-				uId:      u.ID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
 				operator: op,
 			},
 			wantErr: nil,
@@ -624,13 +618,11 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id3,
-				uId:      u.ID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
@@ -640,10 +632,13 @@ func TestWorkspace_AddMember(t *testing.T) {
 			name: "mock error",
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
-			}{operator: op},
+			}{
+				wId:      id3,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
+				operator: op,
+			},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -668,7 +663,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 			}
 			workspaceUC := NewWorkspace(db)
 
-			got, err := workspaceUC.AddUserMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			got, err := workspaceUC.AddUserMember(ctx, tc.args.wId, tc.args.users, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
