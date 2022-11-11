@@ -12,7 +12,7 @@ import {
   PreviewTypeSelect,
 } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
-import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/unzipFileList";
+import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
@@ -112,8 +112,11 @@ const AssetBody: React.FC<Props> = ({
           {renderPreview()}
         </Card>
         {displayUnzipFileList && (
-          <Card title={t("Unzip File")}>
-            <UnzipFileList style={{ minHeight: "400px" }} />
+          <Card title={asset.fileName}>
+            <UnzipFileList
+              file={asset.file}
+              style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
+            />
           </Card>
         )}
         <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />
@@ -137,6 +140,9 @@ const BodyContainer = styled.div`
   padding: 16px 24px;
   display: flex;
   flex-direction: row;
+  .ant-tree-show-line .ant-tree-switcher {
+    background-color: transparent;
+  }
 `;
 
 const BodyWrapper = styled.div`

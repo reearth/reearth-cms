@@ -35,8 +35,10 @@ const CardHeader = styled.div`
   font-size: 24px;
 `;
 
-const Title = styled.h5`
+const Title = styled.p`
   margin: 0;
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 const Toolbar = styled.div`
