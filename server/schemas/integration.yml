@@ -1,6 +1,4 @@
 openapi: 3.0.3
-x-stoplight:
-  id: fghsq1e1xf098
 info:
   title: ReEarth-CMS Integration API
   description: ReEarth-CMS Integration API
@@ -618,4 +616,3 @@ components:
   securitySchemes:
     bearerAuth:
       type: http
-      scheme: bearer
