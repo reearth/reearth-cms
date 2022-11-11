@@ -13,7 +13,7 @@ var (
 	ErrUnsupportedExtention = errors.New("unsupoprted extention type")
 )
 
-const limit = 1024 * 1024 * 1024 * 10 // 10GB
+const limit = 1024 * 1024 * 1024 * 30 // 30GB
 
 type decompressor struct {
 	r   *zip.Reader
