@@ -81,6 +81,33 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	return ItemCreate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
 }
 
+func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if request.Body.Fields == nil {
+		return ItemUpdate400Response{}, errors.New("missing fields")
+	}
+
+	up := interfaces.UpdateItemParam{
+		ItemID: id.ItemID(request.ItemId),
+		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
+			return toItemFieldParam(f)
+		}),
+	}
+	i, err := uc.Item.Update(ctx, up, op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	ver, err := uc.Item.FindAllVersionsByID(ctx, i.ID(), op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	return ItemUpdate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+}
+
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
