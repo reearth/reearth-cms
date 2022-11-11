@@ -8,21 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
-	"github.com/reearth/reearthx/appx"
 )
-
-func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if ai, ok := c.Request().Context().Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
-				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
-				}
-			}
-			return next(c)
-		}
-	}
-}
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {

@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -27,14 +26,9 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	f := interfaces.AssetFilter{
-		Keyword: nil,
-		Sort:    &sort,
-		Pagination: usecasex.CursorPagination{
-			Before: nil,
-			After:  nil,
-			First:  lo.ToPtr(int64(1000)),
-			Last:   nil,
-		}.Wrap(),
+		Keyword:    nil,
+		Sort:       &sort,
+		Pagination: toPagination(request.Params.Page, request.Params.PerPage),
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
@@ -55,8 +49,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 
 	return AssetFilter200JSONResponse{
 		Items:      &itemList,
-		Page:       lo.ToPtr(1),
-		PerPage:    lo.ToPtr(1000),
+		Page:       request.Params.Page,
+		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
@@ -90,7 +84,7 @@ func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObjec
 	op := adapter.Operator(ctx)
 	aId, err := uc.Asset.Delete(ctx, id.AssetID(request.AssetId), op)
 	if err != nil {
-		return AssetDelete400Response{}, nil
+		return AssetDelete400Response{}, err
 	}
 	return AssetDelete200JSONResponse{
 		Id: &aId,
