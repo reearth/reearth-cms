@@ -42,14 +42,13 @@ type AddIntegrationToWorkspaceInput struct {
 	Role          Role `json:"role"`
 }
 
-type AddMemberToWorkspacePayload struct {
-	Workspace *Workspace `json:"workspace"`
+type AddUsersToWorkspaceInput struct {
+	WorkspaceID ID             `json:"workspaceId"`
+	Users       []*MemberInput `json:"users"`
 }
 
-type AddUserToWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
+type AddUsersToWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
 }
 
 type Asset struct {
@@ -353,6 +352,11 @@ type Me struct {
 	Workspaces    []*Workspace   `json:"workspaces"`
 	MyWorkspace   *Workspace     `json:"myWorkspace"`
 	Integrations  []*Integration `json:"integrations"`
+}
+
+type MemberInput struct {
+	UserID ID   `json:"userId"`
+	Role   Role `json:"role"`
 }
 
 type Model struct {
@@ -801,22 +805,22 @@ type WebhookTrigger struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type WebhookTriggerInput struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type Workspace struct {

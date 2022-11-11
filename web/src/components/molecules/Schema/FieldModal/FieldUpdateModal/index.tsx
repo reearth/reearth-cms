@@ -83,6 +83,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [assetValue, setAssetValue] = useState<string>();
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
@@ -105,6 +106,12 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
+    if (selectedType === "Asset") {
+      setAssetValue(selectedField?.typeProperty.assetDefaultValue);
+    }
+  }, [selectedField, selectedType]);
+
+  useEffect(() => {
     form.setFieldsValue({
       fieldId: selectedField?.id,
       title: selectedField?.title,
@@ -116,7 +123,8 @@ const FieldUpdateModal: React.FC<Props> = ({
       defaultValue:
         selectedField?.typeProperty.defaultValue ||
         selectedField?.typeProperty.selectDefaultValue ||
-        selectedField?.typeProperty.integerDefaultValue,
+        selectedField?.typeProperty.integerDefaultValue ||
+        selectedField?.typeProperty.assetDefaultValue,
       min: selectedField?.typeProperty.min,
       max: selectedField?.typeProperty.max,
       maxLength: selectedField?.typeProperty.maxLength,
@@ -142,7 +150,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Asset") {
           values.typeProperty = {
-            asset: { defaultValue: values.defaultValue.uid },
+            asset: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Select") {
           values.typeProperty = {
@@ -174,9 +182,13 @@ const FieldUpdateModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
-  const handleLinkAsset = useCallback((_asset: Asset) => {
-    // TODO: implement link asset with FieldUpdateModal
-  }, []);
+  const handleLinkAsset = useCallback(
+    (_asset: Asset) => {
+      form.setFieldValue("defaultValue", _asset.id);
+      setAssetValue(_asset.id);
+    },
+    [form],
+  );
 
   return (
     <Modal
@@ -327,6 +339,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
+              defaultValue={assetValue}
               fileList={fileList}
               loadingAssets={loadingAssets}
               uploading={uploading}

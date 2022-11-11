@@ -89,6 +89,9 @@ export default () => {
           case "Integer":
             initialValues[field.id] = field.typeProperty.integerDefaultValue;
             break;
+          case "Asset":
+            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;

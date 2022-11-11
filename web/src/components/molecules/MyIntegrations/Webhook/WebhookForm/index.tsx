@@ -51,7 +51,8 @@ const WebhookForm: React.FC<Props> = ({
 
   const assetOptions: CheckboxOptionType[] = [
     { label: t("Upload"), value: "onAssetUpload" },
-    { label: t("Delete"), value: "onAssetDeleted" },
+    { label: t("Decompress"), value: "onAssetDecompress" },
+    { label: t("Delete"), value: "onAssetDelete" },
   ];
 
   const handleSubmit = useCallback(async () => {

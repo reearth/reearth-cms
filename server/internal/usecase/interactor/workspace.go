@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/usecasex"
+	"golang.org/x/exp/maps"
 )
 
 type Workspace struct {
@@ -101,12 +102,12 @@ func (i *Workspace) Update(ctx context.Context, id id.WorkspaceID, name string, 
 	})
 }
 
-func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.UserID, role user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
+func (i *Workspace) AddUserMember(ctx context.Context, workspaceID id.WorkspaceID, users map[id.UserID]user.Role, operator *usecase.Operator) (_ *user.Workspace, err error) {
 	if operator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.Workspace, error) {
-		workspace, err := i.repos.Workspace.FindByID(ctx, id)
+		workspace, err := i.repos.Workspace.FindByID(ctx, workspaceID)
 		if err != nil {
 			return nil, err
 		}
@@ -117,14 +118,16 @@ func (i *Workspace) AddUserMember(ctx context.Context, id id.WorkspaceID, u id.U
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		_, err = i.repos.User.FindByID(ctx, u)
+		ul, err := i.repos.User.FindByIDs(ctx, maps.Keys(users))
 		if err != nil {
 			return nil, err
 		}
 
-		err = workspace.Members().JoinUser(u, role, *operator.User)
-		if err != nil {
-			return nil, err
+		for _, m := range ul {
+			err = workspace.Members().JoinUser(m.ID(), users[m.ID()], *operator.User)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		err = i.repos.Workspace.Save(ctx, workspace)

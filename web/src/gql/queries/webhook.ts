@@ -29,7 +29,8 @@ export const CREATE_WEBHOOK = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
         createdAt
         updatedAt
@@ -69,7 +70,8 @@ export const UPDATE_WEBHOOK = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
         createdAt
         updatedAt
