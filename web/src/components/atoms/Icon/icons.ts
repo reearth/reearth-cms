@@ -30,6 +30,7 @@ import {
   ArrowLeftOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -85,4 +86,5 @@ export default {
   modelMenuClose: MenuFoldOutlined,
   modelMenuOpen: MenuUnfoldOutlined,
   dot: Dot,
+  userAdd: UserAddOutlined,
 };
