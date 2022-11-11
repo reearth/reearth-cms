@@ -64,6 +64,7 @@ func ToWebhook(w *integration.Webhook) *Webhook {
 			OnAssetDecompress: lo.ToPtr(w.Trigger()[event.AssetDecompress]),
 			OnAssetDelete:     lo.ToPtr(w.Trigger()[event.AssetDelete]),
 		},
+		Secret:    w.Secret(),
 		CreatedAt: w.CreatedAt(),
 		UpdatedAt: w.UpdatedAt(),
 	}
