@@ -507,6 +507,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
+		Secret    func(childComplexity int) int
 		Trigger   func(childComplexity int) int
 		URL       func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -2624,6 +2625,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Webhook.Name(childComplexity), true
 
+	case "Webhook.secret":
+		if e.complexity.Webhook.Secret == nil {
+			break
+		}
+
+		return e.complexity.Webhook.Secret(childComplexity), true
+
 	case "Webhook.trigger":
 		if e.complexity.Webhook.Trigger == nil {
 			break
@@ -3861,6 +3869,7 @@ type Webhook {
   url: URL!
   active: Boolean!
   trigger: WebhookTrigger!
+  secret: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -3884,6 +3893,7 @@ input CreateWebhookInput {
   url: URL!
   active: Boolean!
   trigger: WebhookTriggerInput!
+  secret: String!
 }
 
 input UpdateWebhookInput {
@@ -3893,6 +3903,7 @@ input UpdateWebhookInput {
   url: URL
   active: Boolean
   trigger: WebhookTriggerInput
+  secret: String
 }
 
 input DeleteWebhookInput {
@@ -7869,6 +7880,8 @@ func (ec *executionContext) fieldContext_IntegrationConfig_webhooks(ctx context.
 				return ec.fieldContext_Webhook_active(ctx, field)
 			case "trigger":
 				return ec.fieldContext_Webhook_trigger(ctx, field)
+			case "secret":
+				return ec.fieldContext_Webhook_secret(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Webhook_createdAt(ctx, field)
 			case "updatedAt":
@@ -17395,6 +17408,50 @@ func (ec *executionContext) fieldContext_Webhook_trigger(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Webhook_secret(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Webhook) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Webhook_secret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Secret, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Webhook_secret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Webhook",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Webhook_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Webhook) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Webhook_createdAt(ctx, field)
 	if err != nil {
@@ -17532,6 +17589,8 @@ func (ec *executionContext) fieldContext_WebhookPayload_webhook(ctx context.Cont
 				return ec.fieldContext_Webhook_active(ctx, field)
 			case "trigger":
 				return ec.fieldContext_Webhook_trigger(ctx, field)
+			case "secret":
+				return ec.fieldContext_Webhook_secret(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Webhook_createdAt(ctx, field)
 			case "updatedAt":
@@ -20742,7 +20801,7 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"integrationId", "name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "name", "url", "active", "trigger", "secret"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20786,6 +20845,14 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trigger"))
 			it.Trigger, err = ec.unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "secret":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
+			it.Secret, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22760,7 +22827,7 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"integrationId", "webhookId", "name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "webhookId", "name", "url", "active", "trigger", "secret"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22812,6 +22879,14 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trigger"))
 			it.Trigger, err = ec.unmarshalOWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "secret":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
+			it.Secret, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26575,6 +26650,13 @@ func (ec *executionContext) _Webhook(ctx context.Context, sel ast.SelectionSet, 
 		case "trigger":
 
 			out.Values[i] = ec._Webhook_trigger(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "secret":
+
+			out.Values[i] = ec._Webhook_secret(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

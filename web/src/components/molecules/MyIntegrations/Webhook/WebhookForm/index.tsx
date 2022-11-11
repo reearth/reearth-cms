@@ -21,6 +21,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret: string;
   }) => Promise<void>;
   onWebhookUpdate: (data: {
     webhookId: string;
@@ -28,6 +29,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret?: string;
   }) => Promise<void>;
 };
 
@@ -65,12 +67,13 @@ const WebhookForm: React.FC<Props> = ({
       // TODO: refactor
       values.active = false;
       if (webhookInitialValues?.id) {
-        await onWebhookUpdate({
+        const val = {
           ...values,
           active: webhookInitialValues.active,
           webhookId: webhookInitialValues.id,
           trigger,
-        });
+        };
+        await onWebhookUpdate(val);
         onBack?.();
       } else {
         await onWebhookCreate?.({ ...values, trigger });
@@ -105,16 +108,24 @@ const WebhookForm: React.FC<Props> = ({
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
-                  required: true,
-                  message: t("Please input the name of the webhook!"),
-                },
-                {
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
                     if (!validateURL(value) && value.length > 0) return Promise.reject();
 
                     return Promise.resolve();
                   },
+                },
+              ]}>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="secret"
+              label={t("Secret")}
+              extra={t("This secret will be used to sign Webhook request")}
+              rules={[
+                {
+                  required: true,
+                  message: t("Please input secret!"),
                 },
               ]}>
               <Input />

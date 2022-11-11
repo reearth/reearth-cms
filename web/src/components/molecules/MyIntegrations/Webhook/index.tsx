@@ -15,6 +15,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret: string;
   }) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -23,6 +24,7 @@ export type Props = {
     url: string;
     active: boolean;
     trigger: WebhookTrigger;
+    secret?: string;
   }) => Promise<void>;
   onWebhookSelect: (id: string) => void;
 };
@@ -47,7 +49,13 @@ const Webhook: React.FC<Props> = ({
   }, [onWebhookSelect]);
 
   const handleWebhookCreate = useCallback(
-    async (data: { name: string; url: string; active: boolean; trigger: WebhookTrigger }) => {
+    async (data: {
+      name: string;
+      url: string;
+      active: boolean;
+      trigger: WebhookTrigger;
+      secret: string;
+    }) => {
       await onWebhookCreate(data);
       handleBack();
     },
