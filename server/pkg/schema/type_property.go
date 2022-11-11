@@ -245,8 +245,43 @@ func (ty *TypeProperty) Validate(v *value.Value) error {
 	}
 
 	err := MatchTypeProperty1(ty, TypePropertyMatch1[error]{
-		// TODO
+		Text: func(f *FieldText) error {
+			return ty.Validate(v)
+		},
+		TextArea: func(f *FieldTextArea) error {
+			return ty.Validate(v)
+		},
+		RichText: func(f *FieldRichText) error {
+			return ty.Validate(v)
+		},
+		Markdown: func(f *FieldMarkdown) error {
+			return ty.Validate(v)
+		},
+		Asset: func(f *FieldAsset) error {
+			return ty.Validate(v)
+		},
+		Date: func(f *FieldDate) error {
+			return ty.Validate(v)
+		},
+		Bool: func(f *FieldBool) error {
+			return ty.Validate(v)
+		},
+		Select: func(f *FieldSelect) error {
+			return ty.Validate(v)
+		},
+		Tag: func(f *FieldTag) error {
+			return ty.Validate(v)
+		},
+		Integer: func(f *FieldInteger) error {
+			return ty.Validate(v)
+		},
+		Reference: func(f *FieldReference) error {
+			return ty.Validate(v)
+		},
 		URL: func(ty *FieldURL) error {
+			return ty.Validate(v)
+		},
+		Default: func() error {
 			return ty.Validate(v)
 		},
 	})
