@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -411,7 +410,7 @@ func TestThread_UpdateComment(t *testing.T) {
 				content:  "updated",
 				operator: &usecase.Operator{},
 			},
-			wantErr: repo.ErrOperationDenied,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name: "workspaces operation success",
@@ -509,7 +508,7 @@ func TestThread_DeleteComment(t *testing.T) {
 			name:    "workspaces operation denied",
 			seed:    th1,
 			args:    args{commentId: c1.ID(), operator: &usecase.Operator{}},
-			wantErr: repo.ErrOperationDenied,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name:    "workspaces operation success",

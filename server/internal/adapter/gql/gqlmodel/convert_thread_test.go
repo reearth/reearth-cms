@@ -37,10 +37,11 @@ func TestConvertThread_ToComment(t *testing.T) {
 	comment1 := thread.NewComment(cid1, operator.OperatorFromUser(uid1), c1)
 
 	want1 := Comment{
-		ID:        ID(cid1.String()),
-		AuthorID:  ID(uid1.String()),
-		Content:   c1,
-		CreatedAt: cid1.Timestamp(),
+		ID:         ID(cid1.String()),
+		AuthorID:   ID(uid1.String()),
+		AuthorType: OperatorTypeUser,
+		Content:    c1,
+		CreatedAt:  cid1.Timestamp(),
 	}
 
 	got1 := ToComment(comment1)

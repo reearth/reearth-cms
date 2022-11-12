@@ -21,7 +21,7 @@ func TestComment_CommentType(t *testing.T) {
 	}
 
 	assert.Equal(t, cid, got.ID())
-	assert.Equal(t, uid, got.Author())
+	assert.Equal(t, uid, *got.Author().User())
 	assert.Equal(t, c, got.Content())
 	assert.Equal(t, mocknow, got.CreatedAt())
 }
