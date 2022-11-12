@@ -14,7 +14,7 @@ func TestOperator_EventOperator(t *testing.T) {
 		Integration: nil,
 	}
 
-	eOp := op.EventOperator()
+	eOp := op.Operator()
 
 	assert.NotNil(t, eOp.User())
 	assert.Nil(t, eOp.Integration())
@@ -26,7 +26,7 @@ func TestOperator_EventOperator(t *testing.T) {
 		Integration: &iId,
 	}
 
-	eOp = op.EventOperator()
+	eOp = op.Operator()
 
 	assert.Nil(t, eOp.User())
 	assert.NotNil(t, eOp.Integration())

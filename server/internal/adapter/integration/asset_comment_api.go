@@ -66,8 +66,7 @@ func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpda
 		return AssetCommentUpdate400Response{}, err
 	}
 
-	threadID := asset.Thread()
-	_, comment, err := uc.Thread.UpdateComment(ctx, threadID, cID, *request.Body.Content, op)
+	_, comment, err := uc.Thread.UpdateComment(ctx, asset.Thread(), cID, *request.Body.Content, op)
 	if err != nil {
 		return nil, err
 	}

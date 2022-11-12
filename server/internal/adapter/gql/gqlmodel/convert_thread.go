@@ -22,10 +22,22 @@ func ToComment(c *thread.Comment) *Comment {
 		return nil
 	}
 
+	var authorID ID
+	var authorType OperatorType
+	if c.Author().User() != nil {
+		authorID = IDFrom(*c.Author().User())
+		authorType = OperatorTypeUser
+	}
+	if c.Author().Integration() != nil {
+		authorID = IDFrom(*c.Author().Integration())
+		authorType = OperatorTypeIntegration
+	}
+
 	return &Comment{
-		ID:        IDFrom(c.ID()),
-		AuthorID:  IDFrom(c.Author()),
-		Content:   c.Content(),
-		CreatedAt: c.CreatedAt(),
+		ID:         IDFrom(c.ID()),
+		AuthorID:   authorID,
+		AuthorType: authorType,
+		Content:    c.Content(),
+		CreatedAt:  c.CreatedAt(),
 	}
 }

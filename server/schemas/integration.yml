@@ -588,9 +588,14 @@ components:
           type: string
           format: uuid
         authorId:
-          x-go-type: id.UserID
           type: string
+          x-go-type: any
           format: uuid
+        authorType:
+          type: string
+          enum:
+            - user
+            - integrtaion
         content:
           type: string
         createdAt:

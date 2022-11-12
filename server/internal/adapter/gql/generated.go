@@ -104,11 +104,12 @@ type ComplexityRoot struct {
 	}
 
 	Comment struct {
-		Author    func(childComplexity int) int
-		AuthorID  func(childComplexity int) int
-		Content   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
+		Author     func(childComplexity int) int
+		AuthorID   func(childComplexity int) int
+		AuthorType func(childComplexity int) int
+		Content    func(childComplexity int) int
+		CreatedAt  func(childComplexity int) int
+		ID         func(childComplexity int) int
 	}
 
 	CommentPayload struct {
@@ -559,7 +560,7 @@ type AssetResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error)
 }
 type CommentResolver interface {
-	Author(ctx context.Context, obj *gqlmodel.Comment) (*gqlmodel.User, error)
+	Author(ctx context.Context, obj *gqlmodel.Comment) (gqlmodel.Operator, error)
 }
 type IntegrationResolver interface {
 	Developer(ctx context.Context, obj *gqlmodel.Integration) (*gqlmodel.User, error)
@@ -869,6 +870,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Comment.AuthorID(childComplexity), true
+
+	case "Comment.authorType":
+		if e.complexity.Comment.AuthorType == nil {
+			break
+		}
+
+		return e.complexity.Comment.AuthorType(childComplexity), true
 
 	case "Comment.content":
 		if e.complexity.Comment.Content == nil {
@@ -3937,7 +3945,8 @@ extend type Mutation {
 
 type Comment {
   id: ID!
-  author: User
+  author: Operator!
+  authorType: OperatorType!
   authorId: ID!
   content: String!
   createdAt: DateTime!
@@ -3979,10 +3988,11 @@ type DeleteCommentPayload {
 
 extend type Mutation {
   createThread(input: CreateThreadInput!): ThreadPayload
-  addComment(input: AddCommentInput!):CommentPayload
+  addComment(input: AddCommentInput!): CommentPayload
   updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -6373,11 +6383,14 @@ func (ec *executionContext) _Comment_author(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.User)
+	res := resTmp.(gqlmodel.Operator)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_author(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6387,15 +6400,51 @@ func (ec *executionContext) fieldContext_Comment_author(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type Operator does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Comment_authorType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Comment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Comment_authorType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthorType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.OperatorType)
+	fc.Result = res
+	return ec.marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Comment_authorType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Comment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type OperatorType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6630,6 +6679,8 @@ func (ec *executionContext) fieldContext_CommentPayload_comment(ctx context.Cont
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "author":
 				return ec.fieldContext_Comment_author(ctx, field)
+			case "authorType":
+				return ec.fieldContext_Comment_authorType(ctx, field)
 			case "authorId":
 				return ec.fieldContext_Comment_authorId(ctx, field)
 			case "content":
@@ -16530,6 +16581,8 @@ func (ec *executionContext) fieldContext_Thread_comments(ctx context.Context, fi
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "author":
 				return ec.fieldContext_Comment_author(ctx, field)
+			case "authorType":
+				return ec.fieldContext_Comment_authorType(ctx, field)
 			case "authorId":
 				return ec.fieldContext_Comment_authorId(ctx, field)
 			case "content":
@@ -23573,6 +23626,9 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Comment_author(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -23580,6 +23636,13 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 				return innerFunc(ctx)
 
 			})
+		case "authorType":
+
+			out.Values[i] = ec._Comment_authorType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "authorId":
 
 			out.Values[i] = ec._Comment_authorId(ctx, field, obj)

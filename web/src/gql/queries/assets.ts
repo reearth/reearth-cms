@@ -76,10 +76,17 @@ export const GET_ASSETS = gql`
             comments {
               id
               author {
-                id
-                name
-                email
+                ... on User {
+                  id
+                  name
+                  email
+                }
+                ... on Integration {
+                  id
+                  name
+                }
               }
+              authorId
               content
               createdAt
             }
@@ -152,10 +159,17 @@ export const GET_ASSETS = gql`
           comments {
             id
             author {
-              id
-              name
-              email
+              ... on User {
+                id
+                name
+                email
+              }
+              ... on Integration {
+                id
+                name
+              }
             }
+            authorId
             content
             createdAt
           }
@@ -246,10 +260,17 @@ export const GET_ASSET = gql`
         comments {
           id
           author {
-            id
-            name
-            email
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+            }
           }
+          authorId
           content
           createdAt
         }
@@ -290,10 +311,17 @@ export const CREATE_ASSET = gql`
           comments {
             id
             author {
-              id
-              name
-              email
+              ... on User {
+                id
+                name
+                email
+              }
+              ... on Integration {
+                id
+                name
+              }
             }
+            authorId
             content
             createdAt
           }
@@ -329,10 +357,17 @@ export const UPDATE_ASSET = gql`
           comments {
             id
             author {
-              id
-              name
-              email
+              ... on User {
+                id
+                name
+                email
+              }
+              ... on Integration {
+                id
+                name
+              }
             }
+            authorId
             content
             createdAt
           }

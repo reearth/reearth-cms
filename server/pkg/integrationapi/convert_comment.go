@@ -10,10 +10,21 @@ func ToComment(c *thread.Comment) *Comment {
 		return nil
 	}
 
+	var authorID any
+	var authorType CommentAuthorType
+	if c.Author().User() != nil {
+		authorID = c.Author().User().Ref()
+		authorType = User
+	}
+	if c.Author().Integration() != nil {
+		authorID = c.Author().Integration().Ref()
+		authorType = Integrtaion
+	}
 	return &Comment{
-		Id:        c.ID().Ref(),
-		AuthorId:  c.Author().Ref(),
-		Content:   lo.ToPtr(c.Content()),
-		CreatedAt: ToDate(c.CreatedAt()),
+		Id:         c.ID().Ref(),
+		AuthorId:   &authorID,
+		AuthorType: &authorType,
+		Content:    lo.ToPtr(c.Content()),
+		CreatedAt:  ToDate(c.CreatedAt()),
 	}
 }

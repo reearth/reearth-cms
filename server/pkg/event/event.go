@@ -2,6 +2,8 @@ package event
 
 import (
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 )
 
 type Type string
@@ -20,7 +22,7 @@ const (
 type Event[T any] struct {
 	id        ID
 	timestamp time.Time
-	operator  Operator
+	operator  operator.Operator
 	ty        Type
 	object    T
 }
@@ -37,7 +39,7 @@ func (e *Event[T]) Timestamp() time.Time {
 	return e.timestamp
 }
 
-func (e *Event[T]) Operator() Operator {
+func (e *Event[T]) Operator() operator.Operator {
 	return e.operator
 }
 

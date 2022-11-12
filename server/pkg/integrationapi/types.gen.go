@@ -21,6 +21,12 @@ const (
 	Unknown AssetPreviewType = "unknown"
 )
 
+// Defines values for CommentAuthorType.
+const (
+	Integrtaion CommentAuthorType = "integrtaion"
+	User        CommentAuthorType = "user"
+)
+
 // Defines values for FieldType.
 const (
 	FieldTypeAsset     FieldType = "asset"
@@ -122,11 +128,15 @@ type AssetPreviewType string
 
 // Comment defines model for comment.
 type Comment struct {
-	AuthorId  *id.UserID          `json:"authorId,omitempty"`
-	Content   *string             `json:"content,omitempty"`
-	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
-	Id        *id.CommentID       `json:"id,omitempty"`
+	AuthorId   *any                `json:"authorId,omitempty"`
+	AuthorType *CommentAuthorType  `json:"authorType,omitempty"`
+	Content    *string             `json:"content,omitempty"`
+	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
+	Id         *id.CommentID       `json:"id,omitempty"`
 }
+
+// CommentAuthorType defines model for Comment.AuthorType.
+type CommentAuthorType string
 
 // Field defines model for field.
 type Field struct {
