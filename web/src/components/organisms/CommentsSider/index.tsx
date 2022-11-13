@@ -4,8 +4,8 @@ import ThreadSider from "@reearth-cms/components/molecules/Common/ThreadSider";
 import useHooks from "./hooks";
 
 export interface Props {
-  threadId: string;
-  comments: Comment[];
+  threadId?: string;
+  comments?: Comment[];
 }
 
 const CommentsSider: React.FC<Props> = ({ threadId, comments }) => {

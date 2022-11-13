@@ -7,17 +7,11 @@ import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
-import {
-  PreviewType,
-  PreviewTypeSelect,
-} from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
-import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
+import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
-import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 import SVGPreview from "./svgPreview";
@@ -39,14 +33,11 @@ export let viewerRef: Viewer | undefined;
 const AssetBody: React.FC<Props> = ({
   asset,
   selectedPreviewType,
-  handleTypeChange,
   isModalVisible,
   handleModalCancel,
   handleFullScreen,
 }) => {
-  const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
   const displayUnzipFileList = assetFileExt === "zip";
   const isSVG = assetFileExt === "svg";
@@ -121,17 +112,6 @@ const AssetBody: React.FC<Props> = ({
         )}
         <DownloadButton type="ghost" filename={asset.fileName} url={asset.url} displayDefaultIcon />
       </BodyWrapper>
-      <SideBarWrapper>
-        <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect
-            style={{ width: "75%" }}
-            value={selectedPreviewType}
-            onTypeChange={handleTypeChange}
-          />
-        </SideBarCard>
-        <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>{asset.createdBy}</SideBarCard>
-      </SideBarWrapper>
     </BodyContainer>
   );
 };
@@ -154,13 +134,6 @@ const Image = styled.img`
   width: 100%;
   height: 500px;
   object-fit: contain;
-`;
-
-const SideBarWrapper = styled.div`
-  padding: 8px;
-  width: 30%;
-  display: flex;
-  flex-direction: column;
 `;
 
 export default AssetBody;

@@ -10,7 +10,7 @@ import Thread from "./Thread";
 
 export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-  comments: Comment[];
+  comments?: Comment[];
 };
 
 const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
@@ -21,6 +21,7 @@ const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
     <StyledSider
       collapsible
       width={300}
+      collapsedWidth={54}
       collapsed={collapsed}
       onCollapse={value => setCollapsed(value)}
       trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
@@ -47,7 +48,7 @@ const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
 
 const StyledSider = styled(Sider)`
   background-color: #fff;
-
+  height: 100%;
   .ant-layout-sider-trigger {
     background-color: #fff;
     border-top: 1px solid #f0f0f0;
@@ -84,6 +85,11 @@ const CollapsedSider = styled.div`
 
 const NotCollapsedSider = styled.div`
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  height: 100%;
+  border-right: 1px solid #f0f0f0;
 `;
 
 const SiderTitle = styled.h1`
@@ -91,9 +97,7 @@ const SiderTitle = styled.h1`
 `;
 
 const CommentsContainer = styled.div`
-display: flex,
-flex-direction: column,
-justify-content: space-between,
+  overflow: auto;
 `;
 
 export default ThreadSider;

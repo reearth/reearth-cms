@@ -5,13 +5,13 @@ import { Editor } from "./Editor";
 
 type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-  comments: Comment[];
+  comments?: Comment[];
 };
 
 export const Thread: React.FC<Props> = ({ comments, onCommentCreate }) => {
   return (
     <>
-      {comments?.length > 0 && <CommentList comments={comments} />}
+      {comments && <CommentList comments={comments} />}
       <Editor onCommentCreate={onCommentCreate} />
     </>
   );
