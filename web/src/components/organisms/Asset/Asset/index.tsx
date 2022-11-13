@@ -53,7 +53,7 @@ const Asset: React.FC = () => {
         handleModalCancel={handleModalCancel}
         handleFullScreen={handleFullScreen}
       />
-      <CommentsSider comments={asset.thread?.comments} threadId={asset.threadId} />
+      <CommentsSider comments={asset?.comments} threadId={asset.threadId} />
     </Wrapper>
   ) : (
     <Wrapper>not found</Wrapper>

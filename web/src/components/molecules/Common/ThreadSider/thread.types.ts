@@ -1,5 +1,3 @@
-import { User } from "../Header";
-
 export type Thread = {
   id: string;
   comments: CommentItem[];
@@ -7,7 +5,7 @@ export type Thread = {
 
 export type CommentItem = {
   id: string;
-  author: User;
+  author: string;
   authorId: string;
   content: string;
   createdAt: string;

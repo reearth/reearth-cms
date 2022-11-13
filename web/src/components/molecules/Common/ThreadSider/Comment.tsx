@@ -3,8 +3,7 @@ import moment from "moment";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-
-import { CommentItem } from "./thread.types";
+import { Comment as CommentItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
   comment: CommentItem;
@@ -15,10 +14,10 @@ const Comment: React.FC<Props> = ({ comment }) => {
 
   return (
     <AntDComment
-      author={<a>{comment.author.name}</a>}
+      author={<a>{comment.author}</a>}
       avatar={
         <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-          {comment.author.name.charAt(0)}
+          {comment.author.charAt(0)}
         </Avatar>
       }
       content={<>{comment.content}</>}

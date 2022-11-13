@@ -1,7 +1,7 @@
 import List from "@reearth-cms/components/atoms/List";
+import { Comment as CommentItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 import Comment from "./Comment";
-import { CommentItem } from "./thread.types";
 
 type Props = {
   comments: CommentItem[];

@@ -3,14 +3,14 @@ import { useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Sider from "@reearth-cms/components/atoms/Sider";
+import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { useT } from "@reearth-cms/i18n";
 
 import Thread from "./Thread";
-import { CommentItem } from "./thread.types";
 
 export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-  comments: CommentItem[];
+  comments: Comment[];
 };
 
 const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {

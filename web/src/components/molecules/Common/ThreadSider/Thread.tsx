@@ -1,10 +1,11 @@
+import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+
 import { CommentList } from "./CommentList";
 import { Editor } from "./Editor";
-import { CommentItem } from "./thread.types";
 
 type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-  comments: CommentItem[];
+  comments: Comment[];
 };
 
 export const Thread: React.FC<Props> = ({ comments, onCommentCreate }) => {

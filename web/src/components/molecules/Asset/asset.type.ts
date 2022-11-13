@@ -1,5 +1,3 @@
-import { Thread } from "../Common/ThreadSider/thread.types";
-
 import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
@@ -16,7 +14,6 @@ export type Asset = {
   size: number;
   url: string;
   threadId: string;
-  thread: Thread;
   comments: Comment[];
 };
 
