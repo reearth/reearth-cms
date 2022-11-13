@@ -3,13 +3,13 @@ import moment from "moment";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Comment as CommentItem } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
-  comment: CommentItem;
+  comment: Comment;
 };
 
-const Comment: React.FC<Props> = ({ comment }) => {
+const CommentMoecule: React.FC<Props> = ({ comment }) => {
   const fromNow = moment(comment.createdAt?.toString()).fromNow();
 
   return (
@@ -32,4 +32,4 @@ const Comment: React.FC<Props> = ({ comment }) => {
   );
 };
 
-export default Comment;
+export default CommentMoecule;
