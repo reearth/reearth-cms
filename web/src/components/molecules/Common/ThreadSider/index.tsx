@@ -14,14 +14,24 @@ export type Props = {
 };
 
 const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const t = useT();
 
   return (
-    <StyledSider width={300} collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+    <StyledSider
+      collapsible
+      width={300}
+      collapsed={collapsed}
+      onCollapse={value => setCollapsed(value)}
+      trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
       {collapsed ? (
         <CollapsedSider>
-          <Icon icon="message" />
+          <Icon
+            onClick={() => {
+              setCollapsed(false);
+            }}
+            icon="message"
+          />
         </CollapsedSider>
       ) : (
         <NotCollapsedSider>
@@ -37,17 +47,31 @@ const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
 
 const StyledSider = styled(Sider)`
   background-color: #fff;
+
   .ant-layout-sider-trigger {
     background-color: #fff;
+    border-top: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
     color: #002140;
     text-align: left;
-    padding: 0 24px;
+    padding: 0 20px;
+    margin: 0;
+    height: 38px;
+    line-height: 38px;
+    cursor: pointer;
   }
   .ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
+    height: calc(100% + 12px);
+  }
+  .ant-menu-inline {
+    border-right: 1px solid white;
+
+    & > li {
+      padding: 0 20px;
+    }
+  }
+  .ant-menu-vertical {
+    border-right: none;
   }
 `;
 
