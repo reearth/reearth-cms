@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
-import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/AssetWrapper";
+import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import CommentsSider from "@reearth-cms/components/organisms/CommentsSider";
 
 import useHooks from "./hooks";
