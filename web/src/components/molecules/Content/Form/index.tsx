@@ -1,15 +1,16 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, Dispatch, SetStateAction, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Upload from "@reearth-cms/components/atoms/Upload";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -23,6 +24,17 @@ export interface Props {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -33,14 +45,26 @@ const ContentForm: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   onBack,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetsReload,
+  onAssetSearchTerm,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
 }) => {
   const t = useT();
   const { Option } = Select;
-
+  const [formValues, setFormValues] = useState<any>();
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
+    setFormValues(initialFormValues);
   }, [form, initialFormValues]);
 
   const handleBack = useCallback(() => {
@@ -68,8 +92,16 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
+  const handleLink = useCallback(
+    (_asset: Asset, fieldId: string) => {
+      setFormValues({ ...formValues, [fieldId]: _asset.id });
+      form.setFieldValue(fieldId, _asset.id);
+    },
+    [form, formValues, setFormValues],
+  );
+
   return (
-    <Form form={form} layout="vertical" initialValues={initialFormValues}>
+    <Form form={form} layout="vertical" initialValues={formValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -112,7 +144,7 @@ const ContentForm: React.FC<Props> = ({
               />
             </Form.Item>
           ) : field.type === "Asset" ? (
-            <Form.Item
+            <AssetItem
               extra={field.description}
               rules={[
                 {
@@ -120,15 +152,22 @@ const ContentForm: React.FC<Props> = ({
                   message: t("Please input field!"),
                 },
               ]}
+              defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
-              label={field.title}>
-              <Upload action="/upload.do" listType="picture-card">
-                <div>
-                  <Icon icon="link" />
-                  <div style={{ marginTop: 8 }}>{t("Asset")}</div>
-                </div>
-              </Upload>
-            </Form.Item>
+              label={field.title}
+              assetList={assetList}
+              fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              createAssets={createAssets}
+              onAssetsReload={onAssetsReload}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onLink={_asset => handleLink(_asset, field.id)}
+              setFileList={setFileList}
+              setUploading={setUploading}
+              setUploadModalVisibility={setUploadModalVisibility}
+            />
           ) : field.type === "Select" ? (
             <Form.Item extra={field.description} name={field.id} label={field.title}>
               <Select>

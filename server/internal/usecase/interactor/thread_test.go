@@ -208,7 +208,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 	wid2 := id.WorkspaceID{}
 	uid := id.NewUserID()
 	op := &usecase.Operator{
-		User:               uid,
+		User:               &uid,
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
@@ -230,7 +230,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 			name: "Save error: invalid workspace id",
 			arg:  wid2,
 			operator: &usecase.Operator{
-				User:               uid,
+				User:               &uid,
 				ReadableWorkspaces: nil,
 				WritableWorkspaces: nil,
 				OwningWorkspaces:   []id.WorkspaceID{wid2},
@@ -279,7 +279,7 @@ func TestThread_AddComment(t *testing.T) {
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
 	uid := id.NewUserID()
 	op := &usecase.Operator{
-		User:               uid,
+		User:               &uid,
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
@@ -298,13 +298,13 @@ func TestThread_AddComment(t *testing.T) {
 		mockError bool
 	}{
 		{
-			name: "workspaces operation denied",
+			name: "workspaces invalid operator",
 			seed: th1,
 			args: args{
 				content:  c1.Content(),
 				operator: &usecase.Operator{},
 			},
-			wantErr: interfaces.ErrOperationDenied,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name: "workspaces operation success",
@@ -382,7 +382,7 @@ func TestThread_UpdateComment(t *testing.T) {
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 	uid := id.NewUserID()
 	op := &usecase.Operator{
-		User:               uid,
+		User:               &uid,
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
@@ -485,7 +485,7 @@ func TestThread_DeleteComment(t *testing.T) {
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 	uid := id.NewUserID()
 	op := &usecase.Operator{
-		User:               uid,
+		User:               &uid,
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},

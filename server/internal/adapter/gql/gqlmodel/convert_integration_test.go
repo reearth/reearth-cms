@@ -83,7 +83,7 @@ func TestToIntegration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got := ToIntegration(tt.integration, tt.user)
+			got := ToIntegration(tt.integration, &tt.user)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -141,7 +141,7 @@ func TestToWebhook(t *testing.T) {
 					OnItemUnPublish:   lo.ToPtr(false),
 					OnAssetUpload:     lo.ToPtr(false),
 					OnAssetDecompress: lo.ToPtr(false),
-					OnAssetDeleted:    lo.ToPtr(false),
+					OnAssetDelete:     lo.ToPtr(false),
 				},
 				CreatedAt: wId.Timestamp(),
 				UpdatedAt: now,
@@ -175,7 +175,7 @@ func TestToWebhook(t *testing.T) {
 					OnItemUnPublish:   lo.ToPtr(true),
 					OnAssetUpload:     lo.ToPtr(true),
 					OnAssetDecompress: lo.ToPtr(true),
-					OnAssetDeleted:    lo.ToPtr(true),
+					OnAssetDelete:     lo.ToPtr(true),
 				},
 				CreatedAt: wId.Timestamp(),
 				UpdatedAt: now,
@@ -244,7 +244,7 @@ func TestToWebhooks(t *testing.T) {
 						OnItemUnPublish:   lo.ToPtr(false),
 						OnAssetUpload:     lo.ToPtr(false),
 						OnAssetDecompress: lo.ToPtr(false),
-						OnAssetDeleted:    lo.ToPtr(false),
+						OnAssetDelete:     lo.ToPtr(false),
 					},
 					CreatedAt: wId.Timestamp(),
 					UpdatedAt: now,
@@ -262,7 +262,7 @@ func TestToWebhooks(t *testing.T) {
 						OnItemUnPublish:   lo.ToPtr(true),
 						OnAssetUpload:     lo.ToPtr(true),
 						OnAssetDecompress: lo.ToPtr(true),
-						OnAssetDeleted:    lo.ToPtr(true),
+						OnAssetDelete:     lo.ToPtr(true),
 					},
 					CreatedAt: wId.Timestamp(),
 					UpdatedAt: now,

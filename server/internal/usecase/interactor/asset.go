@@ -66,6 +66,10 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
@@ -95,17 +99,24 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 
 			f := asset.NewFile().Name(inp.File.Path).Path(inp.File.Path).Size(uint64(inp.File.Size)).ContentType(inp.File.ContentType).Build()
 
-			a, err := asset.New().
+			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				CreatedBy(inp.CreatedByID).
 				FileName(path.Base(inp.File.Path)).
 				Size(uint64(inp.File.Size)).
 				File(f).
 				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
-				Thread(th.ID()).
-				Build()
+				Thread(th.ID())
+
+			if operator.User != nil {
+				ab.CreatedByUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				ab.CreatedByIntegration(*operator.Integration)
+			}
+
+			a, err := ab.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -126,8 +137,14 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOperator); err != nil {
+			var eOp event.Operator
+			if operator.User != nil {
+				eOp = event.OperatorFromUser(*operator.User)
+			}
+			if operator.Integration != nil {
+				eOp = event.OperatorFromIntegration(*operator.Integration)
+			}
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOp); err != nil {
 				return nil, err
 			}
 
@@ -159,6 +176,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.User == nil && operator.Integration == nil && !operator.Machine {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -173,16 +194,17 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
 					Path(f.Name).
 					GuessContentType().
 					Build()
+			}), func(f *asset.File, _ int) bool {
+				return a.File().Path() != f.Path()
 			})
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
-
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -192,8 +214,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, eOperator); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, operator.EventOperator()); err != nil {
 				return nil, err
 			}
 
@@ -203,6 +224,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 }
 
 func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return aid, interfaces.ErrInvalidOperator
+	}
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -230,8 +254,7 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			eOperator := event.OperatorFromUser(operator.User) //TODO: change operator after integration API is implemented
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, eOperator); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.EventOperator()); err != nil {
 				return aid, err
 			}
 

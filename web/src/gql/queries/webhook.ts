@@ -7,6 +7,7 @@ export const CREATE_WEBHOOK = gql`
     $url: URL!
     $active: Boolean!
     $trigger: WebhookTriggerInput!
+    $secret: String!
   ) {
     createWebhook(
       input: {
@@ -15,6 +16,7 @@ export const CREATE_WEBHOOK = gql`
         url: $url
         active: $active
         trigger: $trigger
+        secret: $secret
       }
     ) {
       webhook {
@@ -29,8 +31,10 @@ export const CREATE_WEBHOOK = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
+        secret
         createdAt
         updatedAt
       }
@@ -46,6 +50,7 @@ export const UPDATE_WEBHOOK = gql`
     $url: URL!
     $active: Boolean!
     $trigger: WebhookTriggerInput!
+    $secret: String
   ) {
     updateWebhook(
       input: {
@@ -55,6 +60,7 @@ export const UPDATE_WEBHOOK = gql`
         url: $url
         active: $active
         trigger: $trigger
+        secret: $secret
       }
     ) {
       webhook {
@@ -69,8 +75,10 @@ export const UPDATE_WEBHOOK = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
+        secret
         createdAt
         updatedAt
       }

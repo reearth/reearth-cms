@@ -25,9 +25,12 @@ func NewIntegration(r *repo.Container) interfaces.Integration {
 }
 
 func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
-			in, err := i.repos.Integration.FindByUser(ctx, operator.User)
+			in, err := i.repos.Integration.FindByUser(ctx, *operator.User)
 			if err != nil {
 				return nil, err
 			}
@@ -36,6 +39,9 @@ func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (
 }
 
 func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) (integration.List, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (integration.List, error) {
 			in, err := i.repos.Integration.FindByIDs(ctx, ids)
@@ -43,19 +49,22 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 				return nil, err
 			}
 			in = util.Filter(in, func(item *integration.Integration) bool {
-				return item.Type() == integration.TypePublic || item.Developer() == operator.User
+				return item.Type() == integration.TypePublic || item.Developer() == *operator.User
 			})
 			return in, err
 		})
 }
 
 func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
 			in, err := integration.New().
 				NewID().
 				Type(param.Type).
-				Developer(operator.User).
+				Developer(*operator.User).
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
 				GenerateToken().
@@ -74,6 +83,9 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 }
 
 func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param interfaces.UpdateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Integration, error) {
 			in, err := i.repos.Integration.FindByID(ctx, iId)
@@ -81,7 +93,7 @@ func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param int
 				return nil, err
 			}
 
-			if in.Developer() != operator.User {
+			if in.Developer() != *operator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -107,13 +119,16 @@ func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param int
 }
 
 func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID, operator *usecase.Operator) error {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
 			in, err := i.repos.Integration.FindByID(ctx, integrationId)
 			if err != nil {
 				return err
 			}
-			if in.Developer() != operator.User {
+			if in.Developer() != *operator.User {
 				return interfaces.ErrOperationDenied
 			}
 			return i.repos.Integration.Remove(ctx, integrationId)
@@ -121,6 +136,9 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 }
 
 func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, param interfaces.CreateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Webhook, error) {
 			in, err := i.repos.Integration.FindByID(ctx, iId)
@@ -128,7 +146,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				return nil, err
 			}
 
-			if in.Developer() != operator.User {
+			if in.Developer() != *operator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -137,6 +155,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				Name(param.Name).
 				Url(&param.URL).
 				Active(param.Active).
+				Secret(param.Secret).
 				Trigger(integration.WebhookTrigger(*param.Trigger)).
 				Build()
 
@@ -156,6 +175,9 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 }
 
 func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, param interfaces.UpdateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (*integration.Webhook, error) {
 			in, err := i.repos.Integration.FindByID(ctx, iId)
@@ -163,7 +185,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 				return nil, err
 			}
 
-			if in.Developer() != operator.User {
+			if in.Developer() != *operator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -188,6 +210,10 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 				w.SetTrigger(integration.WebhookTrigger(*param.Trigger))
 			}
 
+			if param.Secret != nil {
+				w.SetSecret(*param.Secret)
+			}
+
 			w.SetUpdatedAt(time.Now())
 
 			in.UpdateWebhook(wId, w)
@@ -202,6 +228,9 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 }
 
 func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, operator *usecase.Operator) error {
+	if operator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
 			in, err := i.repos.Integration.FindByID(ctx, iId)
@@ -209,7 +238,7 @@ func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wI
 				return err
 			}
 
-			if in.Developer() != operator.User {
+			if in.Developer() != *operator.User {
 				return interfaces.ErrOperationDenied
 			}
 

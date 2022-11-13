@@ -8,13 +8,13 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToIntegration(i *integration.Integration, uId id.UserID) *Integration {
+func ToIntegration(i *integration.Integration, uId *id.UserID) *Integration {
 	if i == nil {
 		return nil
 	}
 
 	var c *IntegrationConfig = nil
-	if i.Developer() == uId {
+	if uId != nil && i.Developer() == *uId {
 		c = &IntegrationConfig{
 			Token:    i.Token(),
 			Webhooks: ToWebhooks(i.Webhooks()),
@@ -62,8 +62,9 @@ func ToWebhook(w *integration.Webhook) *Webhook {
 			OnItemUnPublish:   lo.ToPtr(w.Trigger()[event.ItemUnpublish]),
 			OnAssetUpload:     lo.ToPtr(w.Trigger()[event.AssetCreate]),
 			OnAssetDecompress: lo.ToPtr(w.Trigger()[event.AssetDecompress]),
-			OnAssetDeleted:    lo.ToPtr(w.Trigger()[event.AssetDelete]),
+			OnAssetDelete:     lo.ToPtr(w.Trigger()[event.AssetDelete]),
 		},
+		Secret:    w.Secret(),
 		CreatedAt: w.CreatedAt(),
 		UpdatedAt: w.UpdatedAt(),
 	}

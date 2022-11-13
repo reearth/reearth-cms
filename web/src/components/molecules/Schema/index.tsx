@@ -42,7 +42,7 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader title={model?.name} subTitle={`#${model?.key}`} />
+          <PageHeader title={model?.name} subTitle={model?.key ? `#${model.key}` : null} />
           <ModelFieldListWrapper>
             <ModelFieldList
               fields={model?.schema.fields}

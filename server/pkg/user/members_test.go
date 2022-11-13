@@ -31,7 +31,7 @@ func TestNewFixedMembersWith(t *testing.T) {
 	assert.Equal(t, true, m.Fixed())
 }
 
-func TestMembers_ContainsUser(t *testing.T) {
+func TestMembers_HasUser(t *testing.T) {
 	uid1 := NewID()
 	uid2 := NewID()
 
@@ -59,7 +59,49 @@ func TestMembers_ContainsUser(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			t.Parallel()
-			res := tt.M.ContainsUser(tt.UID)
+			res := tt.M.HasUser(tt.UID)
+			assert.Equal(t, tt.Expected, res)
+		})
+	}
+}
+
+func TestMembers_HasIntegration(t *testing.T) {
+	iId1 := id.NewIntegrationID()
+	iId2 := id.NewIntegrationID()
+
+	tests := []struct {
+		Name     string
+		M        *Members
+		iId      IntegrationID
+		Expected bool
+	}{
+		{
+			Name: "existing integration",
+			M: &Members{integrations: map[IntegrationID]Member{iId1: {
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: ID{},
+			}}},
+			iId:      iId1,
+			Expected: true,
+		},
+		{
+			Name: "not existing user",
+			M: &Members{integrations: map[IntegrationID]Member{iId1: {
+				Role:      RoleOwner,
+				Disabled:  false,
+				InvitedBy: ID{},
+			}}},
+			iId:      iId2,
+			Expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Parallel()
+			res := tt.M.HasIntegration(tt.iId)
 			assert.Equal(t, tt.Expected, res)
 		})
 	}
@@ -130,7 +172,7 @@ func TestMembers_Leave(t *testing.T) {
 			t.Parallel()
 			err := tt.M.Leave(tt.UID)
 			if tt.err == nil {
-				assert.False(t, tt.M.ContainsUser(tt.UID))
+				assert.False(t, tt.M.HasUser(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)
 			}
@@ -259,7 +301,6 @@ func TestMembers_IntegrationIDs(t *testing.T) {
 	lo.Must0(m.AddIntegration(i2, RoleWriter, u1))
 
 	assert.Equal(t, IntegrationIDList{i1, i2}, m.IntegrationIDs())
-
 }
 
 func TestMembers_Join(t *testing.T) {
@@ -311,7 +352,7 @@ func TestMembers_Join(t *testing.T) {
 			t.Parallel()
 			err := tt.M.JoinUser(tt.UID, tt.JoinRole, NewID())
 			if tt.err == nil {
-				assert.True(t, tt.M.ContainsUser(tt.UID))
+				assert.True(t, tt.M.HasUser(tt.UID))
 				assert.Equal(t, tt.ExpectedRole, tt.M.UserRole(tt.UID))
 			} else {
 				assert.Equal(t, tt.err, err)

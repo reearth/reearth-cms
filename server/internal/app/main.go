@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/net/http2"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -82,7 +83,7 @@ func (w *WebServer) Run() {
 	log.Infof("server started%s at http://%s\n", debugLog, w.address)
 
 	go func() {
-		err := w.appServer.Start(w.address)
+		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
 		log.Fatalln(err.Error())
 	}()
 

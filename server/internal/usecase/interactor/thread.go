@@ -54,6 +54,9 @@ func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *useca
 }
 
 func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+	if op.User == nil {
+		return nil, nil, interfaces.ErrInvalidOperator
+	}
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
@@ -67,7 +70,7 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 				return nil, nil, interfaces.ErrOperationDenied
 			}
 
-			comment := thread.NewComment(thread.NewCommentID(), op.User, content)
+			comment := thread.NewComment(thread.NewCommentID(), *op.User, content)
 			if err := th.AddComment(comment); err != nil {
 				return nil, nil, err
 			}

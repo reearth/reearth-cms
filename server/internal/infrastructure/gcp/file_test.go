@@ -18,7 +18,7 @@ func TestFile_GetURL(t *testing.T) {
 
 	u := newUUID()
 	n := "xxx.yyy"
-	a := asset.New().NewID().Project(id.NewProjectID()).CreatedBy(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
 
 	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], fileName(n))
 	assert.NoError(t, err)

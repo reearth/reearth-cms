@@ -20,6 +20,7 @@ export const integrationFragment = gql`
         name
         url
         active
+        secret
         trigger {
           onItemCreate
           onItemUpdate
@@ -27,7 +28,8 @@ export const integrationFragment = gql`
           onItemPublish
           onItemUnPublish
           onAssetUpload
-          onAssetDeleted
+          onAssetDecompress
+          onAssetDelete
         }
         createdAt
         updatedAt

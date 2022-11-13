@@ -8,6 +8,7 @@ export type Asset = {
   id: string;
   createdAt: string;
   createdBy: string;
+  createdByType: string;
   file: AssetFile;
   fileName: string;
   previewType?: PreviewType;
@@ -20,7 +21,7 @@ export type Asset = {
 };
 
 export type AssetFile = {
-  files?: AssetFile[];
+  children?: AssetFile[];
   contentType?: string;
   name: string;
   path: string;

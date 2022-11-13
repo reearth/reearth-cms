@@ -33,8 +33,10 @@ export default () => {
       schemaId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
+      if (!currentModel?.id) return;
       const item = await createNewItem({
         variables: {
+          modelId: currentModel.id,
           schemaId: data.schemaId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
         },
@@ -86,6 +88,9 @@ export default () => {
             break;
           case "Integer":
             initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            break;
+          case "Asset":
+            initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;

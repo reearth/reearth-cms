@@ -18,6 +18,11 @@ export type Member = {
   };
 };
 
+export type MemberInput = {
+  userId: string;
+  role: Role;
+};
+
 export type Role = "WRITER" | "READER" | "OWNER";
 
 export type Workspace = {

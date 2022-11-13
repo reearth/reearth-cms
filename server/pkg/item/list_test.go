@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -69,4 +70,59 @@ func TestList_Filtered(t *testing.T) {
 
 	got := il.FilterFields(sfl)
 	assert.Equal(t, want, got)
+}
+
+func TestList_ItemsBySchemaField(t *testing.T) {
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
+	mid := id.NewModelID()
+	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
+	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
+	f3 := NewField(id.NewFieldID(), schema.TypeBool, true)
+	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).MustBuild()
+	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).MustBuild()
+	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).MustBuild()
+	type args struct {
+		fid   id.FieldID
+		value any
+	}
+	tests := []struct {
+		name      string
+		l         List
+		args      args
+		wantCount int
+	}{
+		{
+			name: "must find 2",
+			l:    List{i1, i2, i3},
+			args: args{
+				fid:   f1.SchemaFieldID(),
+				value: f1.Value(),
+			},
+			wantCount: 2,
+		},
+		{
+			name: "must find 1",
+			l:    List{i1, i2, i3},
+			args: args{
+				fid:   f3.SchemaFieldID(),
+				value: f3.Value(),
+			},
+			wantCount: 1,
+		},
+		{
+			name: "must find 0",
+			l:    List{i1, i2, i3},
+			args: args{
+				fid:   id.NewFieldID(),
+				value: "xxx",
+			},
+			wantCount: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.wantCount, len(tt.l.ItemsBySchemaField(tt.args.fid, tt.args.value)))
+		})
+	}
 }

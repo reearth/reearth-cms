@@ -26,6 +26,7 @@ type UpdateIntegrationParam struct {
 type CreateWebhookParam struct {
 	Name    string
 	URL     url.URL
+	Secret  string
 	Active  bool
 	Trigger *WebhookTriggerParam
 }
@@ -35,6 +36,7 @@ type UpdateWebhookParam struct {
 	URL     *url.URL
 	Active  *bool
 	Trigger *WebhookTriggerParam
+	Secret  *string
 }
 
 type WebhookTriggerParam map[event.Type]bool

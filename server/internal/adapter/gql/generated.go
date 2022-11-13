@@ -61,25 +61,26 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AddMemberToWorkspacePayload struct {
+	AddUsersToWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
 
 	Asset struct {
-		CreatedAt   func(childComplexity int) int
-		CreatedBy   func(childComplexity int) int
-		CreatedByID func(childComplexity int) int
-		File        func(childComplexity int) int
-		FileName    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		PreviewType func(childComplexity int) int
-		Project     func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		Size        func(childComplexity int) int
-		Thread      func(childComplexity int) int
-		ThreadID    func(childComplexity int) int
-		URL         func(childComplexity int) int
-		UUID        func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		CreatedBy     func(childComplexity int) int
+		CreatedByID   func(childComplexity int) int
+		CreatedByType func(childComplexity int) int
+		File          func(childComplexity int) int
+		FileName      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PreviewType   func(childComplexity int) int
+		Project       func(childComplexity int) int
+		ProjectID     func(childComplexity int) int
+		Size          func(childComplexity int) int
+		Thread        func(childComplexity int) int
+		ThreadID      func(childComplexity int) int
+		URL           func(childComplexity int) int
+		UUID          func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -274,7 +275,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddComment                     func(childComplexity int, input gqlmodel.AddCommentInput) int
 		AddIntegrationToWorkspace      func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
-		AddUserToWorkspace             func(childComplexity int, input gqlmodel.AddUserToWorkspaceInput) int
+		AddUsersToWorkspace            func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
 		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
 		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
@@ -506,6 +507,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
+		Secret    func(childComplexity int) int
 		Trigger   func(childComplexity int) int
 		URL       func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -517,7 +519,7 @@ type ComplexityRoot struct {
 
 	WebhookTrigger struct {
 		OnAssetDecompress func(childComplexity int) int
-		OnAssetDeleted    func(childComplexity int) int
+		OnAssetDelete     func(childComplexity int) int
 		OnAssetUpload     func(childComplexity int) int
 		OnItemCreate      func(childComplexity int) int
 		OnItemDelete      func(childComplexity int) int
@@ -552,7 +554,7 @@ type ComplexityRoot struct {
 type AssetResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Project, error)
 
-	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.User, error)
+	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (gqlmodel.Operator, error)
 
 	Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error)
 }
@@ -585,8 +587,8 @@ type MutationResolver interface {
 	CreateWorkspace(ctx context.Context, input gqlmodel.CreateWorkspaceInput) (*gqlmodel.CreateWorkspacePayload, error)
 	DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error)
 	UpdateWorkspace(ctx context.Context, input gqlmodel.UpdateWorkspaceInput) (*gqlmodel.UpdateWorkspacePayload, error)
-	AddUserToWorkspace(ctx context.Context, input gqlmodel.AddUserToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error)
-	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddMemberToWorkspacePayload, error)
+	AddUsersToWorkspace(ctx context.Context, input gqlmodel.AddUsersToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
+	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
 	RemoveUserFromWorkspace(ctx context.Context, input gqlmodel.RemoveUserFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
 	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
 	UpdateUserOfWorkspace(ctx context.Context, input gqlmodel.UpdateUserOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
@@ -665,12 +667,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AddMemberToWorkspacePayload.workspace":
-		if e.complexity.AddMemberToWorkspacePayload.Workspace == nil {
+	case "AddUsersToWorkspacePayload.workspace":
+		if e.complexity.AddUsersToWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.AddMemberToWorkspacePayload.Workspace(childComplexity), true
+		return e.complexity.AddUsersToWorkspacePayload.Workspace(childComplexity), true
 
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
@@ -692,6 +694,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.CreatedByID(childComplexity), true
+
+	case "Asset.createdByType":
+		if e.complexity.Asset.CreatedByType == nil {
+			break
+		}
+
+		return e.complexity.Asset.CreatedByType(childComplexity), true
 
 	case "Asset.file":
 		if e.complexity.Asset.File == nil {
@@ -1445,17 +1454,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddIntegrationToWorkspace(childComplexity, args["input"].(gqlmodel.AddIntegrationToWorkspaceInput)), true
 
-	case "Mutation.addUserToWorkspace":
-		if e.complexity.Mutation.AddUserToWorkspace == nil {
+	case "Mutation.addUsersToWorkspace":
+		if e.complexity.Mutation.AddUsersToWorkspace == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_addUserToWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addUsersToWorkspace_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddUserToWorkspace(childComplexity, args["input"].(gqlmodel.AddUserToWorkspaceInput)), true
+		return e.complexity.Mutation.AddUsersToWorkspace(childComplexity, args["input"].(gqlmodel.AddUsersToWorkspaceInput)), true
 
 	case "Mutation.createAsset":
 		if e.complexity.Mutation.CreateAsset == nil {
@@ -2616,6 +2625,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Webhook.Name(childComplexity), true
 
+	case "Webhook.secret":
+		if e.complexity.Webhook.Secret == nil {
+			break
+		}
+
+		return e.complexity.Webhook.Secret(childComplexity), true
+
 	case "Webhook.trigger":
 		if e.complexity.Webhook.Trigger == nil {
 			break
@@ -2651,12 +2667,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WebhookTrigger.OnAssetDecompress(childComplexity), true
 
-	case "WebhookTrigger.onAssetDeleted":
-		if e.complexity.WebhookTrigger.OnAssetDeleted == nil {
+	case "WebhookTrigger.onAssetDelete":
+		if e.complexity.WebhookTrigger.OnAssetDelete == nil {
 			break
 		}
 
-		return e.complexity.WebhookTrigger.OnAssetDeleted(childComplexity), true
+		return e.complexity.WebhookTrigger.OnAssetDelete(childComplexity), true
 
 	case "WebhookTrigger.onAssetUpload":
 		if e.complexity.WebhookTrigger.OnAssetUpload == nil {
@@ -2801,7 +2817,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddCommentInput,
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
-		ec.unmarshalInputAddUserToWorkspaceInput,
+		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateFieldInput,
 		ec.unmarshalInputCreateIntegrationInput,
@@ -2823,6 +2839,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteWorkspaceInput,
 		ec.unmarshalInputItemFieldInput,
 		ec.unmarshalInputItemQuery,
+		ec.unmarshalInputMemberInput,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishModelInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
@@ -2917,6 +2934,13 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../../schemas/_shared.graphql", Input: `# Built-in
 
+union Operator = User | Integration
+
+enum OperatorType {
+  User
+  Integration
+}
+
 scalar Upload
 scalar Any
 
@@ -2996,10 +3020,11 @@ schema {
 }`, BuiltIn: false},
 	{Name: "../../../schemas/asset.graphql", Input: `type Asset implements Node {
   id: ID!
-  project: Project
+  project: Project!
   projectId: ID!
   createdAt: DateTime!
-  createdBy: User
+  createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!
@@ -3029,7 +3054,6 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
-  createdById: ID!
   file: Upload!
 }
 
@@ -3185,10 +3209,14 @@ input UpdateWorkspaceInput {
     name: String!
 }
 
-input AddUserToWorkspaceInput {
-    workspaceId: ID!
+input MemberInput {
     userId: ID!
     role: Role!
+}
+
+input AddUsersToWorkspaceInput {
+    workspaceId: ID!
+    users: [MemberInput!]!
 }
 
 input AddIntegrationToWorkspaceInput {
@@ -3233,7 +3261,7 @@ type UpdateWorkspacePayload {
     workspace: Workspace!
 }
 
-type AddMemberToWorkspacePayload {
+type AddUsersToWorkspacePayload {
     workspace: Workspace!
 }
 
@@ -3253,8 +3281,8 @@ extend type Mutation {
     createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
     deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
     updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-    addUserToWorkspace(input: AddUserToWorkspaceInput!): AddMemberToWorkspacePayload
-    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddMemberToWorkspacePayload
+    addUsersToWorkspace(input: AddUsersToWorkspaceInput!): AddUsersToWorkspacePayload
+    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
     removeUserFromWorkspace(input: RemoveUserFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
@@ -3828,11 +3856,11 @@ extend type Mutation {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
-  onAssetUpload: Boolean
-  onAssetDecompress: Boolean
-  onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
+  onAssetUpload: Boolean
+  onAssetDecompress: Boolean
+  onAssetDelete: Boolean
 }
 
 type Webhook {
@@ -3841,6 +3869,7 @@ type Webhook {
   url: URL!
   active: Boolean!
   trigger: WebhookTrigger!
+  secret: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -3851,11 +3880,11 @@ input WebhookTriggerInput {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
-  onAssetUpload: Boolean
-  onAssetDecompress: Boolean
-  onAssetDeleted: Boolean
   onItemPublish: Boolean
   onItemUnPublish: Boolean
+  onAssetUpload: Boolean
+  onAssetDecompress: Boolean
+  onAssetDelete: Boolean
 }
 
 input CreateWebhookInput {
@@ -3864,6 +3893,7 @@ input CreateWebhookInput {
   url: URL!
   active: Boolean!
   trigger: WebhookTriggerInput!
+  secret: String!
 }
 
 input UpdateWebhookInput {
@@ -3873,6 +3903,7 @@ input UpdateWebhookInput {
   url: URL
   active: Boolean
   trigger: WebhookTriggerInput
+  secret: String
 }
 
 input DeleteWebhookInput {
@@ -3989,13 +4020,13 @@ func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_addUserToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addUsersToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.AddUserToWorkspaceInput
+	var arg0 gqlmodel.AddUsersToWorkspaceInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNAddUserToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUserToWorkspaceInput(ctx, tmp)
+		arg0, err = ec.unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4960,8 +4991,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddMemberToWorkspacePayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+func (ec *executionContext) _AddUsersToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddUsersToWorkspacePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4991,9 +5022,9 @@ func (ec *executionContext) _AddMemberToWorkspacePayload_workspace(ctx context.C
 	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AddMemberToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AddUsersToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AddMemberToWorkspacePayload",
+		Object:     "AddUsersToWorkspacePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5079,11 +5110,14 @@ func (ec *executionContext) _Asset_project(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Project)
 	fc.Result = res
-	return ec.marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
+	return ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5228,11 +5262,14 @@ func (ec *executionContext) _Asset_createdBy(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.User)
+	res := resTmp.(gqlmodel.Operator)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Asset_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5242,15 +5279,51 @@ func (ec *executionContext) fieldContext_Asset_createdBy(ctx context.Context, fi
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type Operator does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Asset_createdByType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_createdByType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedByType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.OperatorType)
+	fc.Result = res
+	return ec.marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_createdByType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type OperatorType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5767,6 +5840,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -5980,6 +6055,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -6615,6 +6692,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -7801,6 +7880,8 @@ func (ec *executionContext) fieldContext_IntegrationConfig_webhooks(ctx context.
 				return ec.fieldContext_Webhook_active(ctx, field)
 			case "trigger":
 				return ec.fieldContext_Webhook_trigger(ctx, field)
+			case "secret":
+				return ec.fieldContext_Webhook_secret(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Webhook_createdAt(ctx, field)
 			case "updatedAt":
@@ -10756,8 +10837,8 @@ func (ec *executionContext) fieldContext_Mutation_updateWorkspace(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addUserToWorkspace(ctx, field)
+func (ec *executionContext) _Mutation_addUsersToWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addUsersToWorkspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10770,7 +10851,7 @@ func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddUserToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddUserToWorkspaceInput))
+		return ec.resolvers.Mutation().AddUsersToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddUsersToWorkspaceInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10779,12 +10860,12 @@ func (ec *executionContext) _Mutation_addUserToWorkspace(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.AddMemberToWorkspacePayload)
+	res := resTmp.(*gqlmodel.AddUsersToWorkspacePayload)
 	fc.Result = res
-	return ec.marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_addUsersToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10793,9 +10874,9 @@ func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AddMemberToWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddUsersToWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -10805,7 +10886,7 @@ func (ec *executionContext) fieldContext_Mutation_addUserToWorkspace(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addUserToWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_addUsersToWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -10835,9 +10916,9 @@ func (ec *executionContext) _Mutation_addIntegrationToWorkspace(ctx context.Cont
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.AddMemberToWorkspacePayload)
+	res := resTmp.(*gqlmodel.AddUsersToWorkspacePayload)
 	fc.Result = res
-	return ec.marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addIntegrationToWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10849,9 +10930,9 @@ func (ec *executionContext) fieldContext_Mutation_addIntegrationToWorkspace(ctx 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_AddMemberToWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AddMemberToWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddUsersToWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -13765,6 +13846,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -16563,6 +16646,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdAt(ctx, field)
 			case "createdBy":
 				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
 			case "fileName":
@@ -17306,18 +17391,62 @@ func (ec *executionContext) fieldContext_Webhook_trigger(ctx context.Context, fi
 				return ec.fieldContext_WebhookTrigger_onItemUpdate(ctx, field)
 			case "onItemDelete":
 				return ec.fieldContext_WebhookTrigger_onItemDelete(ctx, field)
-			case "onAssetUpload":
-				return ec.fieldContext_WebhookTrigger_onAssetUpload(ctx, field)
-			case "onAssetDecompress":
-				return ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
-			case "onAssetDeleted":
-				return ec.fieldContext_WebhookTrigger_onAssetDeleted(ctx, field)
 			case "onItemPublish":
 				return ec.fieldContext_WebhookTrigger_onItemPublish(ctx, field)
 			case "onItemUnPublish":
 				return ec.fieldContext_WebhookTrigger_onItemUnPublish(ctx, field)
+			case "onAssetUpload":
+				return ec.fieldContext_WebhookTrigger_onAssetUpload(ctx, field)
+			case "onAssetDecompress":
+				return ec.fieldContext_WebhookTrigger_onAssetDecompress(ctx, field)
+			case "onAssetDelete":
+				return ec.fieldContext_WebhookTrigger_onAssetDelete(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WebhookTrigger", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Webhook_secret(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Webhook) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Webhook_secret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Secret, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Webhook_secret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Webhook",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17460,6 +17589,8 @@ func (ec *executionContext) fieldContext_WebhookPayload_webhook(ctx context.Cont
 				return ec.fieldContext_Webhook_active(ctx, field)
 			case "trigger":
 				return ec.fieldContext_Webhook_trigger(ctx, field)
+			case "secret":
+				return ec.fieldContext_Webhook_secret(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Webhook_createdAt(ctx, field)
 			case "updatedAt":
@@ -17594,6 +17725,88 @@ func (ec *executionContext) fieldContext_WebhookTrigger_onItemDelete(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _WebhookTrigger_onItemPublish(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookTrigger_onItemPublish(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnItemPublish, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookTrigger_onItemPublish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookTrigger",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebhookTrigger_onItemUnPublish(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookTrigger_onItemUnPublish(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnItemUnPublish, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookTrigger_onItemUnPublish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookTrigger",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WebhookTrigger_onAssetUpload(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WebhookTrigger_onAssetUpload(ctx, field)
 	if err != nil {
@@ -17676,8 +17889,8 @@ func (ec *executionContext) fieldContext_WebhookTrigger_onAssetDecompress(ctx co
 	return fc, nil
 }
 
-func (ec *executionContext) _WebhookTrigger_onAssetDeleted(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WebhookTrigger_onAssetDeleted(ctx, field)
+func (ec *executionContext) _WebhookTrigger_onAssetDelete(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookTrigger_onAssetDelete(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -17690,7 +17903,7 @@ func (ec *executionContext) _WebhookTrigger_onAssetDeleted(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OnAssetDeleted, nil
+		return obj.OnAssetDelete, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17704,89 +17917,7 @@ func (ec *executionContext) _WebhookTrigger_onAssetDeleted(ctx context.Context, 
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WebhookTrigger_onAssetDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WebhookTrigger",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WebhookTrigger_onItemPublish(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WebhookTrigger_onItemPublish(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OnItemPublish, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WebhookTrigger_onItemPublish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WebhookTrigger",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WebhookTrigger_onItemUnPublish(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WebhookTrigger) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WebhookTrigger_onItemUnPublish(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OnItemUnPublish, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WebhookTrigger_onItemUnPublish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WebhookTrigger_onAssetDelete(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WebhookTrigger",
 		Field:      field,
@@ -20253,14 +20384,14 @@ func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAddUserToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddUserToWorkspaceInput, error) {
-	var it gqlmodel.AddUserToWorkspaceInput
+func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+	var it gqlmodel.AddUsersToWorkspaceInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "userId", "role"}
+	fieldsInOrder := [...]string{"workspaceId", "users"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20275,19 +20406,11 @@ func (ec *executionContext) unmarshalInputAddUserToWorkspaceInput(ctx context.Co
 			if err != nil {
 				return it, err
 			}
-		case "userId":
+		case "users":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "role":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
+			it.Users, err = ec.unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20304,7 +20427,7 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "createdById", "file"}
+	fieldsInOrder := [...]string{"projectId", "file"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20316,14 +20439,6 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
 			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdById":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdById"))
-			it.CreatedByID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20686,7 +20801,7 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"integrationId", "name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "name", "url", "active", "trigger", "secret"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20730,6 +20845,14 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trigger"))
 			it.Trigger, err = ec.unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "secret":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
+			it.Secret, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21150,6 +21273,42 @@ func (ec *executionContext) unmarshalInputItemQuery(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
 			it.Q, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj interface{}) (gqlmodel.MemberInput, error) {
+	var it gqlmodel.MemberInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId", "role"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "role":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22668,7 +22827,7 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"integrationId", "webhookId", "name", "url", "active", "trigger"}
+	fieldsInOrder := [...]string{"integrationId", "webhookId", "name", "url", "active", "trigger", "secret"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22723,6 +22882,14 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "secret":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
+			it.Secret, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -22772,7 +22939,7 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onAssetUpload", "onAssetDecompress", "onAssetDeleted", "onItemPublish", "onItemUnPublish"}
+	fieldsInOrder := [...]string{"onItemCreate", "onItemUpdate", "onItemDelete", "onItemPublish", "onItemUnPublish", "onAssetUpload", "onAssetDecompress", "onAssetDelete"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22803,6 +22970,22 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
+		case "onItemPublish":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemPublish"))
+			it.OnItemPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "onItemUnPublish":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemUnPublish"))
+			it.OnItemUnPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "onAssetUpload":
 			var err error
 
@@ -22819,27 +23002,11 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "onAssetDeleted":
+		case "onAssetDelete":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDeleted"))
-			it.OnAssetDeleted, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "onItemPublish":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemPublish"))
-			it.OnItemPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "onItemUnPublish":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemUnPublish"))
-			it.OnItemUnPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDelete"))
+			it.OnAssetDelete, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22906,6 +23073,29 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Item(ctx, sel, obj)
+	case gqlmodel.Integration:
+		return ec._Integration(ctx, sel, &obj)
+	case *gqlmodel.Integration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Integration(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _Operator(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Operator) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.User:
+		return ec._User(ctx, sel, &obj)
+	case *gqlmodel.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
 	case gqlmodel.Integration:
 		return ec._Integration(ctx, sel, &obj)
 	case *gqlmodel.Integration:
@@ -23038,19 +23228,19 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 
 // region    **************************** object.gotpl ****************************
 
-var addMemberToWorkspacePayloadImplementors = []string{"AddMemberToWorkspacePayload"}
+var addUsersToWorkspacePayloadImplementors = []string{"AddUsersToWorkspacePayload"}
 
-func (ec *executionContext) _AddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, addMemberToWorkspacePayloadImplementors)
+func (ec *executionContext) _AddUsersToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AddUsersToWorkspacePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addUsersToWorkspacePayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AddMemberToWorkspacePayload")
+			out.Values[i] = graphql.MarshalString("AddUsersToWorkspacePayload")
 		case "workspace":
 
-			out.Values[i] = ec._AddMemberToWorkspacePayload_workspace(ctx, field, obj)
+			out.Values[i] = ec._AddUsersToWorkspacePayload_workspace(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -23093,6 +23283,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Asset_project(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -23124,6 +23317,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Asset_createdBy(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -23131,6 +23327,13 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "createdByType":
+
+			out.Values[i] = ec._Asset_createdByType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "createdById":
 
 			out.Values[i] = ec._Asset_createdById(ctx, field, obj)
@@ -23815,7 +24018,7 @@ func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var integrationImplementors = []string{"Integration", "Node"}
+var integrationImplementors = []string{"Integration", "Operator", "Node"}
 
 func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Integration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, integrationImplementors)
@@ -24701,10 +24904,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_updateWorkspace(ctx, field)
 			})
 
-		case "addUserToWorkspace":
+		case "addUsersToWorkspace":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addUserToWorkspace(ctx, field)
+				return ec._Mutation_addUsersToWorkspace(ctx, field)
 			})
 
 		case "addIntegrationToWorkspace":
@@ -26318,7 +26521,7 @@ func (ec *executionContext) _UpdateWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
-var userImplementors = []string{"User", "Node"}
+var userImplementors = []string{"User", "Operator", "Node"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -26451,6 +26654,13 @@ func (ec *executionContext) _Webhook(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "secret":
+
+			out.Values[i] = ec._Webhook_secret(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createdAt":
 
 			out.Values[i] = ec._Webhook_createdAt(ctx, field, obj)
@@ -26526,6 +26736,14 @@ func (ec *executionContext) _WebhookTrigger(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._WebhookTrigger_onItemDelete(ctx, field, obj)
 
+		case "onItemPublish":
+
+			out.Values[i] = ec._WebhookTrigger_onItemPublish(ctx, field, obj)
+
+		case "onItemUnPublish":
+
+			out.Values[i] = ec._WebhookTrigger_onItemUnPublish(ctx, field, obj)
+
 		case "onAssetUpload":
 
 			out.Values[i] = ec._WebhookTrigger_onAssetUpload(ctx, field, obj)
@@ -26534,17 +26752,9 @@ func (ec *executionContext) _WebhookTrigger(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._WebhookTrigger_onAssetDecompress(ctx, field, obj)
 
-		case "onAssetDeleted":
+		case "onAssetDelete":
 
-			out.Values[i] = ec._WebhookTrigger_onAssetDeleted(ctx, field, obj)
-
-		case "onItemPublish":
-
-			out.Values[i] = ec._WebhookTrigger_onItemPublish(ctx, field, obj)
-
-		case "onItemUnPublish":
-
-			out.Values[i] = ec._WebhookTrigger_onItemUnPublish(ctx, field, obj)
+			out.Values[i] = ec._WebhookTrigger_onAssetDelete(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -27069,8 +27279,8 @@ func (ec *executionContext) unmarshalNAddIntegrationToWorkspaceInput2githubᚗco
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNAddUserToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUserToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddUserToWorkspaceInput, error) {
-	res, err := ec.unmarshalInputAddUserToWorkspaceInput(ctx, v)
+func (ec *executionContext) unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+	res, err := ec.unmarshalInputAddUsersToWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -27798,6 +28008,28 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ec._Me(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.MemberInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.MemberInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNMemberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNMemberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInput(ctx context.Context, v interface{}) (*gqlmodel.MemberInput, error) {
+	res, err := ec.unmarshalInputMemberInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNModel2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Model) graphql.Marshaler {
 	return ec._Model(ctx, sel, &v)
 }
@@ -27963,6 +28195,26 @@ func (ec *executionContext) unmarshalNNodeType2githubᚗcomᚋreearthᚋreearth�
 }
 
 func (ec *executionContext) marshalNNodeType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNodeType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.NodeType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Operator) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Operator(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, v interface{}) (gqlmodel.OperatorType, error) {
+	var res gqlmodel.OperatorType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.OperatorType) graphql.Marshaler {
 	return v
 }
 
@@ -28892,11 +29144,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOAddMemberToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddMemberToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddMemberToWorkspacePayload) graphql.Marshaler {
+func (ec *executionContext) marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddUsersToWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._AddMemberToWorkspacePayload(ctx, sel, v)
+	return ec._AddUsersToWorkspacePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {

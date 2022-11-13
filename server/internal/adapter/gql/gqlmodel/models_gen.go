@@ -19,6 +19,10 @@ type Node interface {
 	GetID() ID
 }
 
+type Operator interface {
+	IsOperator()
+}
+
 type SchemaFieldTypeProperty interface {
 	IsSchemaFieldTypeProperty()
 }
@@ -38,31 +42,31 @@ type AddIntegrationToWorkspaceInput struct {
 	Role          Role `json:"role"`
 }
 
-type AddMemberToWorkspacePayload struct {
+type AddUsersToWorkspaceInput struct {
+	WorkspaceID ID             `json:"workspaceId"`
+	Users       []*MemberInput `json:"users"`
+}
+
+type AddUsersToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
-type AddUserToWorkspaceInput struct {
-	WorkspaceID ID   `json:"workspaceId"`
-	UserID      ID   `json:"userId"`
-	Role        Role `json:"role"`
-}
-
 type Asset struct {
-	ID          ID           `json:"id"`
-	Project     *Project     `json:"project"`
-	ProjectID   ID           `json:"projectId"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	CreatedBy   *User        `json:"createdBy"`
-	CreatedByID ID           `json:"createdById"`
-	FileName    string       `json:"fileName"`
-	Size        int64        `json:"size"`
-	PreviewType *PreviewType `json:"previewType"`
-	File        *AssetFile   `json:"file"`
-	UUID        string       `json:"uuid"`
-	Thread      *Thread      `json:"thread"`
-	ThreadID    ID           `json:"threadId"`
-	URL         string       `json:"url"`
+	ID            ID           `json:"id"`
+	Project       *Project     `json:"project"`
+	ProjectID     ID           `json:"projectId"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	CreatedBy     Operator     `json:"createdBy"`
+	CreatedByType OperatorType `json:"createdByType"`
+	CreatedByID   ID           `json:"createdById"`
+	FileName      string       `json:"fileName"`
+	Size          int64        `json:"size"`
+	PreviewType   *PreviewType `json:"previewType"`
+	File          *AssetFile   `json:"file"`
+	UUID          string       `json:"uuid"`
+	Thread        *Thread      `json:"thread"`
+	ThreadID      ID           `json:"threadId"`
+	URL           string       `json:"url"`
 }
 
 func (Asset) IsNode()        {}
@@ -102,9 +106,8 @@ type CommentPayload struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID   ID             `json:"projectId"`
-	CreatedByID ID             `json:"createdById"`
-	File        graphql.Upload `json:"file"`
+	ProjectID ID             `json:"projectId"`
+	File      graphql.Upload `json:"file"`
 }
 
 type CreateAssetPayload struct {
@@ -160,6 +163,7 @@ type CreateWebhookInput struct {
 	URL           url.URL              `json:"url"`
 	Active        bool                 `json:"active"`
 	Trigger       *WebhookTriggerInput `json:"trigger"`
+	Secret        string               `json:"secret"`
 }
 
 type CreateWorkspaceInput struct {
@@ -271,6 +275,8 @@ type Integration struct {
 	UpdatedAt   time.Time          `json:"updatedAt"`
 }
 
+func (Integration) IsOperator() {}
+
 func (Integration) IsNode()        {}
 func (this Integration) GetID() ID { return this.ID }
 
@@ -347,6 +353,11 @@ type Me struct {
 	Workspaces    []*Workspace   `json:"workspaces"`
 	MyWorkspace   *Workspace     `json:"myWorkspace"`
 	Integrations  []*Integration `json:"integrations"`
+}
+
+type MemberInput struct {
+	UserID ID   `json:"userId"`
+	Role   Role `json:"role"`
 }
 
 type Model struct {
@@ -748,6 +759,7 @@ type UpdateWebhookInput struct {
 	URL           *url.URL             `json:"url"`
 	Active        *bool                `json:"active"`
 	Trigger       *WebhookTriggerInput `json:"trigger"`
+	Secret        *string              `json:"secret"`
 }
 
 type UpdateWorkspaceInput struct {
@@ -765,6 +777,8 @@ type User struct {
 	Email string `json:"email"`
 }
 
+func (User) IsOperator() {}
+
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
 
@@ -781,6 +795,7 @@ type Webhook struct {
 	URL       url.URL         `json:"url"`
 	Active    bool            `json:"active"`
 	Trigger   *WebhookTrigger `json:"trigger"`
+	Secret    string          `json:"secret"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
@@ -793,22 +808,22 @@ type WebhookTrigger struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type WebhookTriggerInput struct {
 	OnItemCreate      *bool `json:"onItemCreate"`
 	OnItemUpdate      *bool `json:"onItemUpdate"`
 	OnItemDelete      *bool `json:"onItemDelete"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDeleted    *bool `json:"onAssetDeleted"`
 	OnItemPublish     *bool `json:"onItemPublish"`
 	OnItemUnPublish   *bool `json:"onItemUnPublish"`
+	OnAssetUpload     *bool `json:"onAssetUpload"`
+	OnAssetDecompress *bool `json:"onAssetDecompress"`
+	OnAssetDelete     *bool `json:"onAssetDelete"`
 }
 
 type Workspace struct {
@@ -974,6 +989,47 @@ func (e *NodeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e NodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OperatorType string
+
+const (
+	OperatorTypeUser        OperatorType = "User"
+	OperatorTypeIntegration OperatorType = "Integration"
+)
+
+var AllOperatorType = []OperatorType{
+	OperatorTypeUser,
+	OperatorTypeIntegration,
+}
+
+func (e OperatorType) IsValid() bool {
+	switch e {
+	case OperatorTypeUser, OperatorTypeIntegration:
+		return true
+	}
+	return false
+}
+
+func (e OperatorType) String() string {
+	return string(e)
+}
+
+func (e *OperatorType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OperatorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OperatorType", str)
+	}
+	return nil
+}
+
+func (e OperatorType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

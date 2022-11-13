@@ -1,4 +1,5 @@
 export type IntegrationMember = {
+  id: string;
   integration: Integration;
   integrationRole: Role;
   invitedById: string;
@@ -42,7 +43,7 @@ export type WebhookTrigger = {
   onItemUpdate?: boolean | null;
   onItemDelete?: boolean | null;
   onAssetUpload?: boolean | null;
-  onAssetDeleted?: boolean | null;
+  onAssetDelete?: boolean | null;
   onItemPublish?: boolean | null;
   onItemUnPublish?: boolean | null;
 };

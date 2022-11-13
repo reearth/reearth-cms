@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
@@ -32,7 +33,11 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	// basic middleware
 	logger := rlog.NewEcho()
 	e.Logger = logger
-	e.Use(logger.AccessLogger(), middleware.Recover(), otelecho.Middleware("reearth-cms"))
+	e.Use(
+		logger.AccessLogger(),
+		middleware.Recover(),
+		otelecho.Middleware("reearth-cms"),
+	)
 	origins := allowedOrigins(cfg)
 	if len(origins) > 0 {
 		e.Use(
@@ -51,7 +56,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, false),
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
 	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
@@ -76,6 +81,12 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
+
+	integrationApi := api.Group("",
+		authMiddleware(cfg),
+		usecaseMiddleware)
+	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
+	integration.RegisterHandlers(integrationApi, integrationHandlers)
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())

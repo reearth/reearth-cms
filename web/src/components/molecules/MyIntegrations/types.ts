@@ -28,8 +28,9 @@ export type WebhookTrigger = {
   onItemCreate?: boolean | null;
   onItemUpdate?: boolean | null;
   onItemDelete?: boolean | null;
-  onAssetUpload?: boolean | null;
-  onAssetDeleted?: boolean | null;
   onItemPublish?: boolean | null;
   onItemUnPublish?: boolean | null;
+  onAssetUpload?: boolean | null;
+  onAssetDecompress?: boolean | null;
+  onAssetDelete?: boolean | null;
 };

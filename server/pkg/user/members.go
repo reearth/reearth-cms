@@ -85,11 +85,16 @@ func (m *Members) Integrations() map[IntegrationID]Member {
 }
 
 func (m *Members) IntegrationIDs() IntegrationIDList {
-	return lo.Keys(m.integrations)
+	return IntegrationIDList(lo.Keys(m.integrations)).Sort()
 }
 
-func (m *Members) ContainsUser(u ID) bool {
+func (m *Members) HasUser(u ID) bool {
 	_, ok := m.users[u]
+	return ok
+}
+
+func (m *Members) HasIntegration(i IntegrationID) bool {
+	_, ok := m.integrations[i]
 	return ok
 }
 

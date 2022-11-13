@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"strings"
+	"path/filepath"
 
 	"cloud.google.com/go/storage"
-	bufra "github.com/avvmoto/buf-readerat"
 	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearthx/rerror"
@@ -18,7 +17,6 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	cacheSize               = 10 * 1024 * 1024
 )
 
 type fileRepo struct {
@@ -70,6 +68,8 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, rerror.ErrInternalBy(err)
 	}
 
+	name = filepath.Join(gcsAssetBasePath, name)
+
 	object := bucket.Object(name)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf(ctx, "gcs: upload delete err: %+v\n", err)
@@ -81,30 +81,15 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	return writer, nil
 }
 
-// GCSReaderAt is a struct which implements io.ReadAt interface and internally it has buffer to prevent lot's of IO call
-type GCSReaderAt struct {
-	cache *bufra.BufReaderAt
-}
-
+// GCSReaderAt is a struct which implements io.ReadAt interface
 func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
 		log.Errorf(ctx, "gcs: rawGCSReaderAt err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
-	r := bufra.NewBufReaderAt(rowReaderAt, cacheSize)
 
-	return &GCSReaderAt{
-		cache: r,
-	}, size, nil
-}
-
-func (g *GCSReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
-	return g.cache.ReadAt(p, off)
-}
-
-func (g *GCSReaderAt) Close() error {
-	return nil
+	return rowReaderAt, size, nil
 }
 
 type rawGCSReaderAt struct {
@@ -112,8 +97,8 @@ type rawGCSReaderAt struct {
 	obj *storage.ObjectHandle
 }
 
-// newRawGCSReaderAt implements io.ReadAt but calls IO a lot, should be wrapped by something which uses buffer
-func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io.ReaderAt, int64, error) {
+// newRawGCSReaderAt implements io.ReadAt
+func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	if objectName == "" {
 		return nil, 0, rerror.ErrNotFound
 	}
@@ -124,7 +109,6 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (io
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 	obj := bucket.Object(objectName)
-	// obj := bucket.Object(objectName)
 	attr, err := obj.Attrs(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -143,6 +127,10 @@ func (g *rawGCSReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
 	return rc.Read(b)
 }
 
+func (g *rawGCSReaderAt) Close() error {
+	return nil
+}
+
 // helpers
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx)
@@ -158,7 +146,7 @@ func getGCSObjectNameFromURL(assetBasePath string, path string) string {
 		return ""
 	}
 
-	p := sanitize.Path(strings.TrimPrefix(path, "/"+assetBasePath+"/"))
+	p := sanitize.Path(filepath.Join(assetBasePath, path))
 
 	return p
 }

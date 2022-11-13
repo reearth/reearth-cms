@@ -13,6 +13,7 @@ import (
 
 func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error) {
 	op := getOperator(ctx)
+
 	res, err := usecases(ctx).Integration.Create(
 		ctx,
 		interfaces.CreateIntegrationParam{
@@ -38,6 +39,7 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	op := getOperator(ctx)
+
 	res, err := usecases(ctx).Integration.Update(
 		ctx,
 		iId,
@@ -91,8 +93,9 @@ func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.Cre
 			event.ItemUnpublish:   lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 			event.AssetCreate:     lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
 			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
-			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDelete, false),
 		},
+		Secret: input.Secret,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -121,8 +124,9 @@ func (r *mutationResolver) UpdateWebhook(ctx context.Context, input gqlmodel.Upd
 			event.ItemUnpublish:   lo.FromPtrOr(input.Trigger.OnItemUnPublish, false),
 			event.AssetCreate:     lo.FromPtrOr(input.Trigger.OnAssetUpload, false),
 			event.AssetDecompress: lo.FromPtrOr(input.Trigger.OnAssetDecompress, false),
-			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDeleted, false),
+			event.AssetDelete:     lo.FromPtrOr(input.Trigger.OnAssetDelete, false),
 		},
+		Secret: input.Secret,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

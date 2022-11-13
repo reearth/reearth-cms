@@ -184,3 +184,21 @@ func sortItems(items []*version.Value[*item.Item]) {
 		return a.Value().Timestamp().Before(b.Value().Timestamp())
 	})
 }
+
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.List, error) {
+	filters := make([]bson.M, 0, len(fields))
+	for _, f := range fields {
+		filters = append(filters, bson.M{
+			"modelid": modelID.String(),
+			"fields": bson.M{
+				"$elemMatch": bson.M{
+					"value":       f.Value,
+					"schemafield": f.SchemaFieldID.String(),
+				},
+			},
+		})
+	}
+	filter := bson.M{"$or": filters}
+
+	return r.find(ctx, filter)
+}
