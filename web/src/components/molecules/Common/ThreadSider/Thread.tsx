@@ -11,7 +11,7 @@ type Props = {
 export const Thread: React.FC<Props> = ({ comments, onCommentCreate }) => {
   return (
     <>
-      {comments && <CommentList comments={comments} />}
+      {comments && comments?.length > 0 && <CommentList comments={comments} />}
       <Editor onCommentCreate={onCommentCreate} />
     </>
   );
