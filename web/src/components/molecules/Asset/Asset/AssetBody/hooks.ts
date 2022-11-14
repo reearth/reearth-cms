@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default () => {
+export default (url: string) => {
   const [svgRender, setSvgRender] = useState<boolean>(true);
 
   const handleCodeSourceClick = () => {
@@ -11,5 +11,7 @@ export default () => {
     setSvgRender(true);
   };
 
-  return { svgRender, handleCodeSourceClick, handleRenderClick };
+  const [viewerUrl, setViewerUrl] = useState(url);
+
+  return { svgRender, handleCodeSourceClick, handleRenderClick, viewerUrl, setViewerUrl };
 };

@@ -7,6 +7,8 @@ import { AssetFile } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
   file: AssetFile;
+  viewerUrl: string;
+  setViewerUrl: (url: string) => void;
   style?: CSSProperties;
 };
 
@@ -14,7 +16,7 @@ type FileNode = DataNode & {
   file: AssetFile;
 };
 
-const UnzipFileList: React.FC<Props> = ({ file, style }) => {
+const UnzipFileList: React.FC<Props> = ({ file, viewerUrl, setViewerUrl, style }) => {
   const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
@@ -43,8 +45,8 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
     setTreeData(getTreeData(file));
   }, [file, getTreeData]);
 
-  const previewFile = (_file: AssetFile) => {
-    // TODO: implement preview file
+  const previewFile = (file: AssetFile) => {
+    setViewerUrl(viewerUrl.split("/").splice(-1).join("/") + "/" + file.path);
   };
 
   const onSelect: TreeProps<FileNode>["onSelect"] = (keys: Key[], { node: { file } }) => {
