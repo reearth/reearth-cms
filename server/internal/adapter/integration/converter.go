@@ -22,9 +22,13 @@ func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Paginatio
 }
 
 func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
+	var v any = f.Value
+	if f.Value != nil {
+		v = *f.Value
+	}
 	return interfaces.ItemFieldParam{
 		SchemaFieldID: *f.Id,
 		ValueType:     integrationapi.FromSchemaFieldType(f.Type),
-		Value:         f.Value,
+		Value:         v,
 	}
 }

@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"mime"
+	"net/http"
+	"os"
+	"path"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -761,6 +766,30 @@ func TestAsset_Delete(t *testing.T) {
 			assert.Equal(t, rerror.ErrNotFound, err)
 		})
 	}
+}
+
+func TestAsset_getExtenalFile(t *testing.T) {
+	URL := "https://cms.com/test.txt"
+	f := lo.Must(os.Open("testdata/test.txt"))
+	defer f.Close()
+	z := lo.Must(io.ReadAll(f))
+
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {
+		res := httpmock.NewBytesResponse(200, z)
+		res.Header.Set("Content-Type", mime.TypeByExtension(path.Ext(URL)))
+		return res, nil
+	})
+
+	expected := file.File{Path: "/test.txt", Content: f}
+
+	got, err := getExternalFile(context.Background(), URL)
+	assert.NoError(t, err)
+	assert.Equal(t, expected.Path, got.Path)
+	assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
+
 }
 
 type file2 struct {

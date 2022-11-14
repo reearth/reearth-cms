@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
@@ -8,6 +6,8 @@ import { useT } from "@reearth-cms/i18n";
 import useHooks from "./hooks";
 
 const ContentDetails: React.FC = () => {
+  const t = useT();
+
   const {
     itemId,
     currentModel,
@@ -18,21 +18,20 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleNavigateToModel,
   } = useHooks();
-  const { projectId } = useParams();
+
   const {
     assetList,
     fileList,
     loading,
     uploading,
     uploadModalVisibility,
-    createAssets,
-    handleAssetsReload,
-    handleSearchTerm,
     setFileList,
     setUploading,
     setUploadModalVisibility,
-  } = useAssetHooks(projectId);
-  const t = useT();
+    handleAssetCreate,
+    handleAssetsReload,
+    handleSearchTerm,
+  } = useAssetHooks();
 
   return (
     <ContentDetailsMolecule
@@ -49,7 +48,7 @@ const ContentDetails: React.FC = () => {
       loadingAssets={loading}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
-      createAssets={createAssets}
+      createAssets={handleAssetCreate}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}

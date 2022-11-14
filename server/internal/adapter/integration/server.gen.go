@@ -40,9 +40,6 @@ type ServerInterface interface {
 
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx echo.Context, modelId ModelIdParam) error
-	// Set ref and version.
-	// (POST /models/{modelId}/items/{itemId}/refs)
-	ItemPublish(ctx echo.Context, modelId ModelIdParam, itemId ItemIdParam) error
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
@@ -207,32 +204,6 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.ItemCreate(ctx, modelId)
-	return err
-}
-
-// ItemPublish converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemPublish(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "modelId", runtime.ParamLocationPath, ctx.Param("modelId"), &modelId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{""})
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ItemPublish(ctx, modelId, itemId)
 	return err
 }
 
@@ -503,7 +474,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/items/:itemId", wrapper.ItemUpdate)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
-	router.POST(baseURL+"/models/:modelId/items/:itemId/refs", wrapper.ItemPublish)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.DELETE(baseURL+"/projects/:projectId/assets/:assetId", wrapper.AssetDelete)
@@ -697,40 +667,6 @@ func (response ItemCreate401Response) VisitItemCreateResponse(w http.ResponseWri
 	return nil
 }
 
-type ItemPublishRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	ItemId  ItemIdParam  `json:"itemId"`
-	Body    *ItemPublishJSONRequestBody
-}
-
-type ItemPublishResponseObject interface {
-	VisitItemPublishResponse(w http.ResponseWriter) error
-}
-
-type ItemPublish200JSONResponse VersionedItem
-
-func (response ItemPublish200JSONResponse) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemPublish400Response struct {
-}
-
-func (response ItemPublish400Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemPublish401Response = UnauthorizedErrorResponse
-
-func (response ItemPublish401Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
 type AssetFilterRequestObject struct {
 	ProjectId ProjectIdParam `json:"projectId"`
 	Params    AssetFilterParams
@@ -770,8 +706,9 @@ func (response AssetFilter401Response) VisitAssetFilterResponse(w http.ResponseW
 }
 
 type AssetCreateRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	Body      *multipart.Reader
+	ProjectId     ProjectIdParam `json:"projectId"`
+	JSONBody      *AssetCreateJSONRequestBody
+	MultipartBody *multipart.Reader
 }
 
 type AssetCreateResponseObject interface {
@@ -1035,9 +972,6 @@ type StrictServerInterface interface {
 
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
-	// Set ref and version.
-	// (POST /models/{modelId}/items/{itemId}/refs)
-	ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error)
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
@@ -1216,38 +1150,6 @@ func (sh *strictHandler) ItemCreate(ctx echo.Context, modelId ModelIdParam) erro
 	return nil
 }
 
-// ItemPublish operation middleware
-func (sh *strictHandler) ItemPublish(ctx echo.Context, modelId ModelIdParam, itemId ItemIdParam) error {
-	var request ItemPublishRequestObject
-
-	request.ModelId = modelId
-	request.ItemId = itemId
-
-	var body ItemPublishJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemPublish(ctx.Request().Context(), request.(ItemPublishRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemPublish")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemPublishResponseObject); ok {
-		return validResponse.VisitItemPublishResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // AssetFilter operation middleware
 func (sh *strictHandler) AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error {
 	var request AssetFilterRequestObject
@@ -1279,11 +1181,19 @@ func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam)
 	var request AssetCreateRequestObject
 
 	request.ProjectId = projectId
-
-	if reader, err := ctx.Request().MultipartReader(); err != nil {
-		return err
-	} else {
-		request.Body = reader
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "application/json") {
+		var body AssetCreateJSONRequestBody
+		if err := ctx.Bind(&body); err != nil {
+			return err
+		}
+		request.JSONBody = &body
+	}
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "multipart/form-data") {
+		if reader, err := ctx.Request().MultipartReader(); err != nil {
+			return err
+		} else {
+			request.MultipartBody = reader
+		}
 	}
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
@@ -1478,36 +1388,35 @@ func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, projectId ProjectI
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

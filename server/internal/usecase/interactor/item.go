@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -16,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -56,7 +58,7 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 
 	sfids := s.Fields().IDs()
 	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
-	return filterFields(res, sfids), page, err
+	return res.FilterFields(sfids), page, err
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.VersionedList, error) {
@@ -77,8 +79,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-
-		fields, err := itemFieldsFromParams(param.Fields)
+		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +149,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		fields, err := itemFieldsFromParams(param.Fields)
+		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
@@ -190,25 +191,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
 	return i.repos.Item.Remove(ctx, itemID)
-}
-
-func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, error) {
-	var err error
-	res := lo.Map(Fields, func(f interfaces.ItemFieldParam, _ int) *item.Field {
-		v := f.Value
-		if f.ValueType == schema.TypeInteger && f.Value != "" {
-			v, err = strconv.ParseInt(fmt.Sprintf("%v", f.Value), 10, 64)
-		}
-		return item.NewField(
-			f.SchemaFieldID,
-			f.ValueType,
-			v,
-		)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
 }
 
 func filterChangedFields(oldFields []*item.Field, newFields []*item.Field) []*item.Field {
@@ -286,14 +268,27 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 	return nil
 }
 
-func filterFields(l item.VersionedList, lids id.FieldIDList) item.VersionedList {
-	return lo.Map(l, func(i item.Versioned, _ int) item.Versioned {
-		return version.NewValue(
-			i.Version(),
-			i.Parents(),
-			i.Refs(),
-			i.Value().FilterFields(lids),
-		)
+func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
+	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
+		v := f.Value
+		sf := s.Field(f.SchemaFieldID)
+		if sf.Type() == schema.TypeInteger {
+			strV := fmt.Sprintf("%v", f.Value)
+			if len(strings.TrimSpace(strV)) != 0 {
+				v2, err := strconv.ParseInt(strV, 10, 64)
+				if err != nil {
+					return nil, err
+				}
+				v = v2
+			} else {
+				v = nil
+			}
+		}
+		return item.NewField(
+			f.SchemaFieldID,
+			sf.Type(),
+			v,
+		), nil
 	})
 }
 

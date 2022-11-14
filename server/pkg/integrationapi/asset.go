@@ -1,8 +1,6 @@
 package integrationapi
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/samber/lo"
 )
@@ -12,17 +10,12 @@ func NewAsset(a *asset.Asset, url string) (*Asset, error) {
 		return nil, nil
 	}
 
-	pt, err := ToPreviewType(a.PreviewType())
-	if err != nil {
-		return nil, err
-	}
-
 	return &Asset{
 		Id:          a.ID().Ref(),
 		ContentType: lo.ToPtr(a.File().ContentType()),
 		CreatedAt:   ToDate(a.CreatedAt()),
 		Name:        lo.ToPtr(a.File().Name()),
-		PreviewType: pt,
+		PreviewType: ToPreviewType(a.PreviewType()),
 		ProjectId:   a.Project().Ref(),
 		TotalSize:   lo.ToPtr(float32(a.Size())),
 		Url:         lo.ToPtr(url),
@@ -46,19 +39,22 @@ func ToFile(f *asset.File) File {
 	}
 }
 
-func ToPreviewType(pt *asset.PreviewType) (*AssetPreviewType, error) {
+func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 	if pt == nil {
-		return nil, nil
+		return lo.ToPtr(Unknown)
 	}
 	switch *pt {
 	case asset.PreviewTypeGeo:
-		return lo.ToPtr(Geo), nil
+		return lo.ToPtr(Geo)
 	case asset.PreviewTypeGeo3d:
-		return lo.ToPtr(Geo3d), nil
+		return lo.ToPtr(Geo3d)
 	case asset.PreviewTypeModel3d:
-		return lo.ToPtr(Model3d), nil
+		return lo.ToPtr(Model3d)
 	case asset.PreviewTypeImage:
-		return lo.ToPtr(Image), nil
+		return lo.ToPtr(Image)
+	case asset.PreviewTypeUnknown:
+		return lo.ToPtr(Unknown)
+	default:
+		return lo.ToPtr(Unknown)
 	}
-	return nil, errors.New("invalid preview type")
 }

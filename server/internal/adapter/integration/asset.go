@@ -60,14 +60,24 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	f, err := file.FromMultipart(request.Body, "file")
-	if err != nil {
-		return AssetCreate400Response{}, err
+	var f *file.File
+	var err error
+	if request.MultipartBody != nil {
+		f, err = file.FromMultipart(request.MultipartBody, "file")
+		if err != nil {
+			return AssetCreate400Response{}, err
+		}
+	}
+
+	var url string
+	if request.JSONBody != nil {
+		url = *request.JSONBody.Url
 	}
 
 	cp := interfaces.CreateAssetParam{
 		ProjectID: id.ProjectID(request.ProjectId),
 		File:      f,
+		URL:       url,
 	}
 	a, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {

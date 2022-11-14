@@ -127,8 +127,3 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 
 	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i)), nil
 }
-
-func (s Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {
-	// TODO implement me
-	panic("implement me")
-}

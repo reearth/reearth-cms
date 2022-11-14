@@ -151,33 +151,33 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/models/{modelId}/items/{itemId}/refs':
-    parameters:
-      - $ref: '#/components/parameters/modelIdParam'
-      - $ref: '#/components/parameters/itemIdParam'
-    post:
-      operationId: ItemPublish
-      security:
-        - bearerAuth: []
-      summary: Set ref and version.
-      description: Set ref and version for the selected item.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/refOrVersion'
-      responses:
-        '200':
-          description: An item
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/versionedItem'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
+  # '/models/{modelId}/items/{itemId}/refs':
+  #   parameters:
+  #     - $ref: '#/components/parameters/modelIdParam'
+  #     - $ref: '#/components/parameters/itemIdParam'
+  #   post:
+  #     operationId: ItemPublish
+  #     security:
+  #       - bearerAuth: []
+  #     summary: Set ref and version.
+  #     description: Set ref and version for the selected item.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/refOrVersion'
+  #     responses:
+  #       '200':
+  #         description: An item
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/versionedItem'
+  #       '400':
+  #         description: Invalid request parameter value
+  #       '401':
+  #         $ref: '#/components/responses/UnauthorizedError'
   '/projects/{projectId}/assets':
     parameters:
       - $ref: '#/components/parameters/projectIdParam'
@@ -232,6 +232,12 @@ paths:
                 file:
                   type: string
                   format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
       responses:
         '200':
           description: assets list
