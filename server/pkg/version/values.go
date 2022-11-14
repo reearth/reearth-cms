@@ -163,3 +163,9 @@ func (v Values[V]) validate() bool {
 	}
 	return true
 }
+
+func UnwrapValues[T any](v []*Value[T]) []T {
+	return lo.Map(v, func(v *Value[T], _ int) T {
+		return v.Value()
+	})
+}

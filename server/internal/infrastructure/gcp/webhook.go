@@ -27,7 +27,7 @@ func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) (
 		obj = w.Event.Object()
 	}
 
-	ed, err := integration.NewWebhook(obj, "", urlResolver)
+	ed, err := integration.New(obj, "", urlResolver)
 	if err != nil {
 		return nil, err
 	}

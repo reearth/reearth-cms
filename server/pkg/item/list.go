@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -35,3 +36,7 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 		return i.FilterFields(lids)
 	})
 }
+
+type Versioned = *version.Value[*Item]
+
+type VersionedList = []*version.Value[*Item]

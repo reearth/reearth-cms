@@ -7,37 +7,33 @@ import (
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 )
 
 var (
 	ErrUnsupportedEntity = errors.New("unsupported entity")
 )
 
-func New(obj any, version string, urlResolver asset.URLResolver) (res any, err error) {
+func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) {
 	// note: version is not used currently
 
-	switch o := (obj).(type) {
+	switch o := obj.(type) {
 	case *asset.Asset:
 		res, err = NewAsset(o, urlResolver(o))
 	case *item.Item:
-		break
+		res = NewItem(o)
+	case *version.Value[*item.Item]:
+		res = NewVersionedItem(o)
 	// TODO: add later
 	// case *schema.Schema:
-	// 	break
 	// case *project.Project:
-	// 	break
 	// case *model.Model:
-	// 	break
 	// case *thread.Thread:
-	// 	break
 	// case *integration.Integration:
-	// 	break
 	// case *user.Workspace:
-	// 	break
 	// case *user.User:
-	// 	break
 	default:
-		return nil, ErrUnsupportedEntity
+		err = ErrUnsupportedEntity
 	}
 
 	return

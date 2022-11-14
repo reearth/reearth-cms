@@ -306,3 +306,7 @@ func TestValues_UpdateRef(t *testing.T) {
 		})
 	}
 }
+
+func TestUnwrapValues(t *testing.T) {
+	assert.Equal(t, []int{1, 2, 3}, UnwrapValues([]*Value[int]{{value: 1}, {value: 2}, {value: 3}}))
+}
