@@ -4,13 +4,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
-
-type VersionedItem = version.Value[Item]
 
 type Item struct {
 	id        ID
@@ -20,6 +19,8 @@ type Item struct {
 	fields    []*Field
 	timestamp time.Time
 }
+
+type Versioned = *version.Value[*Item]
 
 func (i *Item) ID() ID {
 	return i.id
@@ -45,11 +46,32 @@ func (i *Item) Timestamp() time.Time {
 	return i.timestamp
 }
 
+func (i *Item) Field(f FieldID) *Field {
+	ff, _ := lo.Find(i.fields, func(g *Field) bool {
+		return g.SchemaFieldID() == f
+	})
+	return ff
+}
+
 func (i *Item) UpdateFields(fields []*Field) {
 	if fields == nil {
 		return
 	}
-	i.fields = slices.Clone(fields)
+
+	newFields := lo.Filter(fields, func(field *Field, _ int) bool {
+		return i.Field(field.schemaFieldID) == nil
+	})
+	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		ff, found := lo.Find(fields, func(g *Field) bool {
+			return g.SchemaFieldID() == f.SchemaFieldID()
+		})
+
+		if !found {
+			return f, true
+		}
+
+		return ff, true
+	}), newFields...)
 	i.timestamp = util.Now()
 }
 
@@ -90,4 +112,9 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 		}
 	}
 	return false
+}
+
+type ItemAndSchema struct {
+	Item   *Item
+	Schema *schema.Schema
 }

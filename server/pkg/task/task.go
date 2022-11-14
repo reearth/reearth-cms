@@ -33,8 +33,9 @@ func (t *CompressAssetPayload) Payload() Payload {
 }
 
 type WebhookPayload struct {
-	Webhook *integration.Webhook
-	Event   *event.Event[any]
+	Webhook  *integration.Webhook
+	Event    *event.Event[any]
+	Override any
 }
 
 func (t WebhookPayload) Payload() Payload {

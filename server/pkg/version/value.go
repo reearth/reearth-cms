@@ -87,3 +87,7 @@ func (v *Value[T]) DeleteRefs(refs ...Ref) {
 func (v *Value[T]) validate() bool {
 	return !v.version.IsZero() && !v.Parents().Has(v.version)
 }
+
+func ValueFrom[T, K any](v *Value[T], vv K) *Value[K] {
+	return NewValue(v.Version(), v.Parents(), v.Refs(), vv)
+}

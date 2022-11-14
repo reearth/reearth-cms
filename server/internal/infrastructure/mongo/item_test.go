@@ -65,7 +65,7 @@ func TestItem_FindByID(t *testing.T) {
 			if tc.WantErr {
 				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
-				assert.Equal(tt, tc.Expected.ID(), got.ID())
+				assert.Equal(tt, tc.Expected.ID(), got.Value().ID())
 			}
 		})
 	}
@@ -94,14 +94,14 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	got1, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), i1),
 	}, got1)
 	assert.NoError(t, r.Save(ctx, i2))
 
 	got2, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(got2[0].Version(), nil, nil, i1),
 		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), i2),
 	}, got2)
@@ -160,7 +160,7 @@ func TestItem_FindByIDs(t *testing.T) {
 			}
 
 			got, _ := repo.FindByIDs(ctx, tc.Input)
-			assert.Equal(tt, tc.Expected, got)
+			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
 }
@@ -216,7 +216,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			})
 
 			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
-			assert.Equal(tt, tc.Expected, got)
+			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
 	}
@@ -229,9 +229,10 @@ func TestItem_FindByProject(t *testing.T) {
 	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
 	tests := []struct {
-		Name               string
-		Input              id.ProjectID
-		RepoData, Expected item.List
+		Name     string
+		Input    id.ProjectID
+		RepoData item.List
+		Expected item.List
 	}{
 		{
 			Name:     "must find two items (first 10)",
@@ -266,7 +267,7 @@ func TestItem_FindByProject(t *testing.T) {
 			}
 
 			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
-			assert.Equal(tt, tc.Expected, got)
+			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
 }

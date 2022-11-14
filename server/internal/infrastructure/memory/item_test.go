@@ -22,7 +22,7 @@ func TestItem_FindByID(t *testing.T) {
 
 	out, err := r.FindByID(ctx, i.ID())
 	assert.NoError(t, err)
-	assert.Equal(t, i, out)
+	assert.Equal(t, i, out.Value())
 
 	out2, err := r.FindByID(ctx, id.ItemID{})
 	assert.Nil(t, out2)
@@ -48,7 +48,7 @@ func TestItem_Remove(t *testing.T) {
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
 	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
-	assert.Equal(t, item.List{i2}, data)
+	assert.Equal(t, item.List{i2}, data.Unwrap())
 
 	err = r.Remove(ctx, i1.ID())
 	assert.Equal(t, rerror.ErrNotFound, err)
@@ -73,7 +73,7 @@ func TestItem_Save(t *testing.T) {
 
 	_ = r.Save(ctx, i)
 	got, _ := r.FindByID(ctx, i.ID())
-	assert.Equal(t, i, got)
+	assert.Equal(t, i, got.Value())
 
 	err := r.Save(ctx, i2)
 	assert.Equal(t, repo.ErrOperationDenied, err)
@@ -95,7 +95,7 @@ func TestItem_FindByIDs(t *testing.T) {
 	il := item.List{i}
 	out, err := r.FindByIDs(ctx, ids)
 	assert.NoError(t, err)
-	assert.Equal(t, il, out)
+	assert.Equal(t, il, out.Unwrap())
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
@@ -106,7 +106,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	v, err := r.FindAllVersionsByID(ctx, i.ID())
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), i),
 	}, v)
 
@@ -135,7 +135,7 @@ func TestItem_FindBySchema(t *testing.T) {
 
 	got, _, err := r.FindBySchema(ctx, sid1, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.List{i1}, got)
+	assert.Equal(t, item.List{i1}, got.Unwrap())
 
 	got, _, err = r.FindBySchema(ctx, sid2, nil)
 	assert.NoError(t, err)
@@ -156,7 +156,7 @@ func TestItem_FindByProject(t *testing.T) {
 
 	got, _, err := r.FindByProject(ctx, pid, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.List{i1, i2}, got)
+	assert.Equal(t, item.List{i1, i2}, got.Unwrap())
 }
 
 func TestItem_FindByFieldValue(t *testing.T) {

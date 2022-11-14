@@ -33,7 +33,7 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: '#/components/schemas/item'
+                      $ref: '#/components/schemas/versionedItem'
                   totalCount:
                     type: integer
                     minimum: 0
@@ -61,14 +61,21 @@ paths:
                 fields:
                   type: array
                   items:
-                    $ref: '#/components/schemas/field'
+                    type: object
+                    properties:
+                      id:
+                        x-go-type: id.FieldID
+                        type: string
+                      type:
+                        $ref: '#/components/schemas/valueType'
+                      value: {}
       responses:
         '200':
           description: A JSON array of user names
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/item'
+                $ref: '#/components/schemas/versionedItem'
         '400':
           description: Invalid request parameter value
         '401':
@@ -90,19 +97,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/item'
+                $ref: '#/components/schemas/versionedItem'
         '400':
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    post:
+    patch:
       operationId: ItemUpdate
       security:
         - bearerAuth: []
       summary: Update an item.
       description: Update an item.
-      parameters:
-        - $ref: '#/components/parameters/refParam'
       requestBody:
         required: true
         content:
@@ -120,7 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/item'
+                $ref: '#/components/schemas/versionedItem'
         '400':
           description: Invalid request parameter value
         '401':
@@ -140,40 +145,39 @@ paths:
                   id:
                     x-go-type: id.ItemID
                     type: string
-                    format: uuid
         '400':
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/models/{modelId}/items/{itemId}/refs':
-    parameters:
-      - $ref: '#/components/parameters/modelIdParam'
-      - $ref: '#/components/parameters/itemIdParam'
-    post:
-      operationId: ItemPublish
-      security:
-        - bearerAuth: []
-      summary: Set ref and version.
-      description: Set ref and version for the selected item.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/refOrVer'
-      responses:
-        '200':
-          description: An item
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/item'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
+  # '/models/{modelId}/items/{itemId}/refs':
+  #   parameters:
+  #     - $ref: '#/components/parameters/modelIdParam'
+  #     - $ref: '#/components/parameters/itemIdParam'
+  #   post:
+  #     operationId: ItemPublish
+  #     security:
+  #       - bearerAuth: []
+  #     summary: Set ref and version.
+  #     description: Set ref and version for the selected item.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/refOrVersion'
+  #     responses:
+  #       '200':
+  #         description: An item
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/versionedItem'
+  #       '400':
+  #         description: Invalid request parameter value
+  #       '401':
+  #         $ref: '#/components/responses/UnauthorizedError'
   '/projects/{projectId}/assets':
     parameters:
       - $ref: '#/components/parameters/projectIdParam'
@@ -228,6 +232,12 @@ paths:
                 file:
                   type: string
                   format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
       responses:
         '200':
           description: assets list
@@ -239,9 +249,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}':
+  '/assets/{assetId}':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetGet
@@ -269,14 +278,12 @@ paths:
                   id:
                     x-go-type: id.AssetID
                     type: string
-                    format: uuid
         '400':
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}/comments':
+  '/assets/{assetId}/comments':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetCommentList
@@ -322,9 +329,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}/comments/{commentId}':
+  '/assets/{assetId}/comments/{commentId}':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
       - $ref: '#/components/parameters/commentIdParam'
     patch:
@@ -368,7 +374,6 @@ paths:
                   id:
                     x-go-type: id.CommentID
                     type: string
-                    format: uuid
         '400':
           description: Invalid request parameter value
         '401':
@@ -393,7 +398,6 @@ components:
       schema:
         x-go-type: id.ModelID
         type: string
-        format: uuid
     itemIdParam:
       name: itemId
       in: path
@@ -402,7 +406,6 @@ components:
       schema:
         x-go-type: id.ItemID
         type: string
-        format: uuid
     assetIdParam:
       name: assetId
       in: path
@@ -411,7 +414,6 @@ components:
       schema:
         x-go-type: id.AssetID
         type: string
-        format: uuid
     commentIdParam:
       name: commentId
       in: path
@@ -420,7 +422,6 @@ components:
       schema:
         x-go-type: id.CommentID
         type: string
-        format: uuid
     sortParam:
       name: sort
       in: query
@@ -474,37 +475,55 @@ components:
           - latest
           - public
   schemas:
-    field:
+    schema:
+      type: object
+      properties:
+        id:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+    valueType:
+      type: string
+      enum:
+        - text
+        - textArea
+        - richText
+        - markdown
+        - asset
+        - date
+        - bool
+        - select
+        - tag
+        - integer
+        - reference
+        - url
+    schemaField:
       type: object
       properties:
         id:
           x-go-type: id.FieldID
           type: string
-          format: uuid
-          example: ''
         type:
+          $ref: '#/components/schemas/valueType'
+        key:
           type: string
-          enum:
-            - text
-            - textArea
-            - richText
-            - markdown
-            - asset
-            - date
-            - bool
-            - select
-            - tag
-            - integer
-            - reference
-            - url
-        value: {}
-    item:
+        required:
+          type: boolean
+    version:
       type: object
       properties:
-        id:
-          x-go-type: id.ItemID
-          type: string
-          format: uuid
         version:
           type: string
           format: uuid
@@ -517,13 +536,15 @@ components:
           type: array
           items:
             type: string
-        archived:
-          type: boolean
-          default: false
-        modelId:
-          x-go-type: id.ModelID
+            format: uuid
+    item:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
           type: string
-          format: uuid
+        modelId:
+          type: string
         fields:
           type: array
           items:
@@ -534,7 +555,46 @@ components:
         updatedAt:
           type: string
           format: date
-    refOrVer:
+    versionedItem:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        modelId:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+        version:
+          type: string
+          format: uuid
+        parents:
+          type: array
+          items:
+            type: string
+            format: uuid
+        refs:
+          type: array
+          items:
+            type: string
+    field:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: '#/components/schemas/valueType'
+        value: {}
+    refOrVersion:
       type: object
       properties:
         ref:
@@ -542,7 +602,7 @@ components:
           enum:
             - latest
             - public
-        ver:
+        version:
           type: string
           format: uuid
     asset:
@@ -551,11 +611,9 @@ components:
         id:
           x-go-type: id.AssetID
           type: string
-          format: uuid
         projectId:
           x-go-type: id.ProjectID
           type: string
-          format: uuid
         name:
           type: string
         url:
@@ -586,11 +644,9 @@ components:
         id:
           x-go-type: id.CommentID
           type: string
-          format: uuid
         authorId:
           type: string
           x-go-type: any
-          format: uuid
         authorType:
           type: string
           enum:

@@ -1,8 +1,10 @@
 package file
 
 import (
+	"errors"
 	"io"
 	"io/fs"
+	"mime/multipart"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -13,6 +15,38 @@ type File struct {
 	Path        string
 	Size        int64
 	ContentType string
+}
+
+func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, error) {
+	if formName == "" {
+		formName = "file"
+	}
+
+	for {
+		p, err := multipartReader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		if p.FormName() != formName {
+			if err := p.Close(); err != nil {
+				return nil, err
+			}
+			continue
+		}
+
+		return &File{
+			Content:     p,
+			Path:        p.FileName(),
+			Size:        0,
+			ContentType: p.Header.Get("Content-Type"),
+		}, nil
+	}
+
+	return nil, errors.New("file not found")
 }
 
 type Iterator interface {

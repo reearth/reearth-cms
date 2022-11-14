@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,12 +12,14 @@ import (
 )
 
 type Thread struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewThread(r *repo.Container) interfaces.Thread {
+func NewThread(r *repo.Container, g *gateway.Container) interfaces.Thread {
 	return &Thread{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 

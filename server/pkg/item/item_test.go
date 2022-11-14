@@ -11,35 +11,59 @@ import (
 )
 
 func TestItem_UpdateFields(t *testing.T) {
-	f := NewField(id.NewFieldID(), schema.TypeText, "test")
 	now := time.Now()
 	defer util.MockNow(now)()
+	f := NewField(id.NewFieldID(), schema.TypeText, "test")
+	fid, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 
 	tests := []struct {
-		name  string
-		input []*Field
-		want  *Item
+		name   string
+		target *Item
+		input  []*Field
+		want   *Item
 	}{
 		{
-			name:  "should update fields",
-			input: []*Field{f},
+			name:   "should update fields",
+			input:  []*Field{f},
+			target: &Item{},
 			want: &Item{
 				fields:    []*Field{f},
 				timestamp: now,
 			},
 		},
 		{
-			name:  "nil fields",
-			input: nil,
-			want:  &Item{},
+			name: "should update fields",
+			input: []*Field{
+				NewField(fid, schema.TypeText, "test2"),
+				NewField(fid3, schema.TypeText, "test!!"),
+			},
+			target: &Item{
+				fields: []*Field{
+					NewField(fid, schema.TypeText, "test"),
+					NewField(fid2, schema.TypeText, "test!"),
+				},
+			},
+			want: &Item{
+				fields: []*Field{
+					NewField(fid, schema.TypeText, "test2"),
+					NewField(fid2, schema.TypeText, "test!"),
+					NewField(fid3, schema.TypeText, "test!!"),
+				},
+				timestamp: now,
+			},
+		},
+		{
+			name:   "nil fields",
+			input:  nil,
+			target: &Item{},
+			want:   &Item{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			i := &Item{}
-			i.UpdateFields(tt.input)
-			assert.Equal(t, tt.want, i)
+			tt.target.UpdateFields(tt.input)
+			assert.Equal(t, tt.want, tt.target)
 		})
 	}
 }

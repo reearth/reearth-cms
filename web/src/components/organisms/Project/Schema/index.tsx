@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
@@ -17,20 +15,19 @@ export type FormValues = {
 const ProjectSchema: React.FC = () => {
   const t = useT();
 
-  const { projectId } = useParams();
   const {
     assetList,
     fileList,
     loading,
     uploading,
     uploadModalVisibility,
-    createAssets,
-    handleSearchTerm,
-    handleAssetsReload,
     setFileList,
     setUploading,
     setUploadModalVisibility,
-  } = useAssetHooks(projectId);
+    handleAssetCreate,
+    handleSearchTerm,
+    handleAssetsReload,
+  } = useAssetHooks();
 
   const {
     fieldCreationModalShown,
@@ -76,7 +73,7 @@ const ProjectSchema: React.FC = () => {
           loadingAssets={loading}
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
-          createAssets={createAssets}
+          createAssets={handleAssetCreate}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
@@ -97,7 +94,7 @@ const ProjectSchema: React.FC = () => {
           loadingAssets={loading}
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
-          createAssets={createAssets}
+          createAssets={handleAssetCreate}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
