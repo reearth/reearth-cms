@@ -64,6 +64,8 @@ export default Schema;
 
 const Content = styled.div`
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
   background: #fafafa;
 `;
 

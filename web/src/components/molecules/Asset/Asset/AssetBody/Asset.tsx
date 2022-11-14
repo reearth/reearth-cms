@@ -26,12 +26,12 @@ type Props = {
   asset: Asset;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  handleModalCancel: () => void;
-  handleFullScreen: () => void;
-  handleTypeChange: (
+  onModalCancel: () => void;
+  onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
   ) => void | undefined;
+  onChangeToFullScreen: () => void;
 };
 
 export let viewerRef: Viewer | undefined;
@@ -39,10 +39,10 @@ export let viewerRef: Viewer | undefined;
 const AssetMolecule: React.FC<Props> = ({
   asset,
   selectedPreviewType,
-  handleTypeChange,
   isModalVisible,
-  handleModalCancel,
-  handleFullScreen,
+  onTypeChange,
+  onModalCancel,
+  onChangeToFullScreen,
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
@@ -105,8 +105,8 @@ const AssetMolecule: React.FC<Props> = ({
               isSVG={isSVG}
               handleCodeSourceClick={handleCodeSourceClick}
               handleRenderClick={handleRenderClick}
-              handleFullScreen={handleFullScreen}
-              handleModalCancel={handleModalCancel}
+              handleFullScreen={onChangeToFullScreen}
+              handleModalCancel={onModalCancel}
             />
           }>
           {renderPreview()}
@@ -126,7 +126,7 @@ const AssetMolecule: React.FC<Props> = ({
           <PreviewTypeSelect
             style={{ width: "75%" }}
             value={selectedPreviewType}
-            onTypeChange={handleTypeChange}
+            onTypeChange={onTypeChange}
           />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
@@ -137,9 +137,10 @@ const AssetMolecule: React.FC<Props> = ({
 };
 
 const BodyContainer = styled.div`
-  padding: 16px 24px;
   display: flex;
   flex-direction: row;
+  width: 100%;
+  height: calc(100% - 72px);
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
@@ -148,6 +149,9 @@ const BodyContainer = styled.div`
 const BodyWrapper = styled.div`
   padding: 16px 24px;
   width: 70%;
+  height: 100%;
+  overflow-y: auto;
+  flex: 1;
 `;
 
 const Image = styled.img`
@@ -158,9 +162,10 @@ const Image = styled.img`
 
 const SideBarWrapper = styled.div`
   padding: 8px;
-  width: 30%;
-  display: flex;
-  flex-direction: column;
+  width: 272px;
+  // height: 100%;
+  // display: flex;
+  // flex-direction: column;
 `;
 
 export default AssetMolecule;

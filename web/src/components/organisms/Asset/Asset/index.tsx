@@ -37,10 +37,10 @@ const Asset: React.FC = () => {
       commentsPanel={<CommentsPanel comments={asset?.comments} threadId={asset?.threadId} />}
       asset={asset}
       selectedPreviewType={selectedPreviewType}
-      handleTypeChange={handleTypeChange}
       isModalVisible={isModalVisible}
-      handleModalCancel={handleModalCancel}
-      handleFullScreen={handleFullScreen}
+      onTypeChange={handleTypeChange}
+      onModalCancel={handleModalCancel}
+      onChangeToFullScreen={handleFullScreen}
       onBack={handleBack}
       onSave={handleSave}
     />

@@ -14,12 +14,12 @@ export type Props = {
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
   commentsPanel?: JSX.Element;
-  handleTypeChange: (
+  onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
   ) => void | undefined;
-  handleModalCancel: () => void;
-  handleFullScreen: () => void;
+  onModalCancel: () => void;
+  onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
 };
@@ -29,9 +29,9 @@ const AssetWrapper: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   commentsPanel,
-  handleTypeChange,
-  handleModalCancel,
-  handleFullScreen,
+  onTypeChange,
+  onModalCancel,
+  onChangeToFullScreen,
   onBack,
   onSave,
 }) => {
@@ -39,20 +39,20 @@ const AssetWrapper: React.FC<Props> = ({
 
   return asset ? (
     <ComplexInnerContents
-      left={
+      center={
         <Wrapper>
           <PageHeader
             title={`${t("Asset")}/${asset?.fileName}`}
-            onBack={onBack}
             extra={<Button onClick={onSave}>{t("Save")}</Button>}
+            onBack={onBack}
           />
           <AssetMolecule
             asset={asset}
             selectedPreviewType={selectedPreviewType}
-            handleTypeChange={handleTypeChange}
             isModalVisible={isModalVisible}
-            handleModalCancel={handleModalCancel}
-            handleFullScreen={handleFullScreen}
+            onTypeChange={onTypeChange}
+            onModalCancel={onModalCancel}
+            onChangeToFullScreen={onChangeToFullScreen}
           />
         </Wrapper>
       }
@@ -63,9 +63,10 @@ const AssetWrapper: React.FC<Props> = ({
   );
 };
 
+export default AssetWrapper;
+
 const Wrapper = styled.div`
   width: 100%;
+  height: 100%;
   background-color: white;
-  min-height: 100%;
 `;
-export default AssetWrapper;

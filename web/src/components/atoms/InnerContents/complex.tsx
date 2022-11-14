@@ -12,7 +12,7 @@ const ComplexInnerContents: React.FC<Props> = ({ left, center, right }) => {
     <PaddedContent>
       <Main>
         {left}
-        {center}
+        <Center>{center}</Center>
       </Main>
       <Right>{right}</Right>
     </PaddedContent>
@@ -30,6 +30,12 @@ const PaddedContent = styled.div`
 const Main = styled.div`
   display: flex;
   margin-right: 10px;
+  flex: 1;
+`;
+
+const Center = styled.div`
+  max-height: 100%;
+  display: flex;
   flex: 1;
 `;
 
