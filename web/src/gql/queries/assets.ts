@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { threadFragment } from "@reearth-cms/gql/fragments";
+
 export const GET_ASSETS = gql`
   query GetAssets(
     $projectId: ID!
@@ -71,25 +73,7 @@ export const GET_ASSETS = gql`
           uuid
           url
           thread {
-            id
-            workspaceId
-            comments {
-              id
-              author {
-                ... on User {
-                  id
-                  name
-                  email
-                }
-                ... on Integration {
-                  id
-                  name
-                }
-              }
-              authorId
-              content
-              createdAt
-            }
+            ...threadFragment
           }
         }
       }
@@ -154,25 +138,7 @@ export const GET_ASSETS = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              ... on User {
-                id
-                name
-                email
-              }
-              ... on Integration {
-                id
-                name
-              }
-            }
-            authorId
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
       pageInfo {
@@ -190,6 +156,7 @@ export const GET_ASSETS = gql`
     contentType
     path
   }
+  ${threadFragment}
 `;
 
 export const GET_ASSET = gql`
@@ -255,25 +222,7 @@ export const GET_ASSET = gql`
       uuid
       url
       thread {
-        id
-        workspaceId
-        comments {
-          id
-          author {
-            ... on User {
-              id
-              name
-              email
-            }
-            ... on Integration {
-              id
-              name
-            }
-          }
-          authorId
-          content
-          createdAt
-        }
+        ...threadFragment
       }
     }
   }
@@ -306,25 +255,7 @@ export const CREATE_ASSET = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              ... on User {
-                id
-                name
-                email
-              }
-              ... on Integration {
-                id
-                name
-              }
-            }
-            authorId
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
     }
@@ -352,25 +283,7 @@ export const UPDATE_ASSET = gql`
         uuid
         url
         thread {
-          id
-          workspaceId
-          comments {
-            id
-            author {
-              ... on User {
-                id
-                name
-                email
-              }
-              ... on Integration {
-                id
-                name
-              }
-            }
-            authorId
-            content
-            createdAt
-          }
+          ...threadFragment
         }
       }
     }

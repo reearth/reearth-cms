@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback, Key } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -36,8 +36,9 @@ function pagination(
   };
 }
 
-export default (projectId?: string) => {
+export default () => {
   const t = useT();
+  const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
@@ -79,7 +80,7 @@ export default (projectId?: string) => {
     }
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
-  const createAssets = useCallback(
+  const handleAssetCreate = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
         if (!projectId) return;
@@ -102,7 +103,7 @@ export default (projectId?: string) => {
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
-  const deleteAssets = useCallback(
+  const handleAssetDelete = useCallback(
     (assetIds: string[]) =>
       (async () => {
         if (!projectId) return;
@@ -144,6 +145,10 @@ export default (projectId?: string) => {
     refetch();
   }, [refetch]);
 
+  const handleNavigateToAsset = (asset: Asset) => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
+  };
+
   useEffect(() => {
     if (sort || searchTerm) {
       selectAsset([]);
@@ -174,23 +179,23 @@ export default (projectId?: string) => {
   return {
     assetList,
     assetsPerPage,
-    createAssets,
-    deleteAssets,
-    navigate,
     selection,
-    setSelection,
     fileList,
-    setFileList,
     uploading,
-    setUploading,
     isLoading: loading ?? isRefetching,
     selectedAssets,
+    uploadModalVisibility,
+    loading,
+    setSelection,
+    setFileList,
+    setUploading,
+    setUploadModalVisibility,
+    handleAssetCreate,
+    handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
-    uploadModalVisibility,
-    setUploadModalVisibility,
     handleAssetsReload,
-    loading,
+    handleNavigateToAsset,
   };
 };

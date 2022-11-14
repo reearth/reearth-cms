@@ -11,6 +11,8 @@ const ContentList: React.FC = () => {
     currentModel,
     contentTableFields,
     contentTableColumns,
+    collapsed,
+    collapse,
     handleModelSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
@@ -20,14 +22,18 @@ const ContentList: React.FC = () => {
 
   return (
     <ContentListMolecule
+      collapsed={collapsed}
       itemsDataLoading={itemsDataLoading}
-      onItemsReload={handleItemsReload}
-      onItemEdit={handleNavigateToItemEditForm}
-      onItemAdd={handleNavigateToItemForm}
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleModelSelect} />}
+      modelsMenu={
+        <ModelsMenu title={t("Content")} collapsed={collapsed} onModelSelect={handleModelSelect} />
+      }
+      onCollapse={collapse}
+      onItemsReload={handleItemsReload}
+      onItemEdit={handleNavigateToItemEditForm}
+      onItemAdd={handleNavigateToItemForm}
     />
   );
 };

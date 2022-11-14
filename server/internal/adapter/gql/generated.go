@@ -3718,7 +3718,7 @@ extend type Mutation {
 type ItemField {
   schemaFieldId: ID!
   type: SchemaFiledType!
-  value: Any!
+  value: Any
 }
 
 type VersionedItem {
@@ -8823,14 +8823,11 @@ func (ec *executionContext) _ItemField_value(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNAny2interface(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24463,9 +24460,6 @@ func (ec *executionContext) _ItemField(ctx context.Context, sel ast.SelectionSet
 
 			out.Values[i] = ec._ItemField_value(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29206,6 +29200,22 @@ func (ec *executionContext) marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._AddUsersToWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalAny(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalAny(v)
+	return res
 }
 
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {

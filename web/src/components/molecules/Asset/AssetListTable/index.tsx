@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { Dispatch, Key, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -142,25 +141,19 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   };
 
   return (
-    <AssetListTableWrapper>
-      <ProTable
-        dataSource={assetList}
-        columns={columns}
-        search={false}
-        rowKey="id"
-        options={options}
-        pagination={pagination}
-        toolbar={handleToolbarEvents}
-        rowSelection={rowSelection}
-        tableStyle={{ overflowX: "scroll" }}
-        loading={loading}
-      />
-    </AssetListTableWrapper>
+    <ProTable
+      dataSource={assetList}
+      columns={columns}
+      search={false}
+      rowKey="id"
+      options={options}
+      pagination={pagination}
+      toolbar={handleToolbarEvents}
+      rowSelection={rowSelection}
+      tableStyle={{ overflowX: "scroll" }}
+      loading={loading}
+    />
   );
 };
-
-const AssetListTableWrapper = styled.div`
-  padding: 16px 24px;
-`;
 
 export default AssetListTable;
