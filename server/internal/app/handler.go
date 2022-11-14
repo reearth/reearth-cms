@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
+	"github.com/reearth/reearthx/log"
 )
 
 func NotifyHandler() echo.HandlerFunc {
@@ -26,6 +27,7 @@ func NotifyHandler() echo.HandlerFunc {
 
 		ctx := c.Request().Context()
 
+		log.Infof("notified: assetID=%s type=%s", input.AssetID, input.Type)
 		assetUC := adapter.Usecases(ctx).Asset
 		controller := rhttp.NewTaskController(assetUC)
 		if err := controller.Notify(ctx, input); err != nil {
