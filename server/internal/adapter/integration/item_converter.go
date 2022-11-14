@@ -5,12 +5,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
 
-func toItem(i *item.Item, ver *version.Value[*item.Item], mId model.ID) integrationapi.Item {
+func toItem(i *item.Item, ver *version.Value[*item.Item]) integrationapi.Item {
 	fs := lo.Map(i.Fields(), func(f *item.Field, _ int) integrationapi.Field {
 		return integrationapi.Field{
 			Id:    f.SchemaFieldID().Ref(),
@@ -26,7 +25,7 @@ func toItem(i *item.Item, ver *version.Value[*item.Item], mId model.ID) integrat
 	})
 	return integrationapi.Item{
 		Id:        lo.ToPtr(i.ID()),
-		ModelId:   lo.ToPtr(mId),
+		ModelId:   lo.ToPtr(i.Model()),
 		Archived:  lo.ToPtr(ver.Value() == nil),
 		Fields:    &fs,
 		CreatedAt: &types.Date{Time: i.Timestamp()},
