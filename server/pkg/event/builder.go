@@ -3,6 +3,7 @@ package event
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/samber/lo"
 )
 
@@ -15,7 +16,7 @@ func New[T any]() *Builder[T] {
 }
 
 func (b *Builder[T]) Build() (*Event[T], error) {
-	if b.i.id.IsNil() || !b.i.operator.validate() {
+	if b.i.id.IsNil() || !b.i.operator.Validate() {
 		return nil, ErrInvalidID
 	}
 	return b.i, nil
@@ -45,7 +46,7 @@ func (b *Builder[T]) Type(t Type) *Builder[T] {
 	return b
 }
 
-func (b *Builder[T]) Operator(o Operator) *Builder[T] {
+func (b *Builder[T]) Operator(o operator.Operator) *Builder[T] {
 	b.i.operator = o
 	return b
 }

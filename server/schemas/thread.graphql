@@ -7,7 +7,8 @@ type Thread {
 
 type Comment {
   id: ID!
-  author: User
+  author: Operator!
+  authorType: OperatorType!
   authorId: ID!
   content: String!
   createdAt: DateTime!
@@ -49,7 +50,7 @@ type DeleteCommentPayload {
 
 extend type Mutation {
   createThread(input: CreateThreadInput!): ThreadPayload
-  addComment(input: AddCommentInput!):CommentPayload
+  addComment(input: AddCommentInput!): CommentPayload
   updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }

@@ -93,11 +93,12 @@ type AssetFile struct {
 }
 
 type Comment struct {
-	ID        ID        `json:"id"`
-	Author    *User     `json:"author"`
-	AuthorID  ID        `json:"authorId"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID         ID           `json:"id"`
+	Author     Operator     `json:"author"`
+	AuthorType OperatorType `json:"authorType"`
+	AuthorID   ID           `json:"authorId"`
+	Content    string       `json:"content"`
+	CreatedAt  time.Time    `json:"createdAt"`
 }
 
 type CommentPayload struct {

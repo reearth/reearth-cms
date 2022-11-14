@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -44,9 +45,9 @@ func TestCommon_createEvent(t *testing.T) {
 	lo.Must0(db.Integration.Save(ctx, integration))
 	mRunner.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(nil)
 
-	ev, err := createEvent(ctx, db, gw, workspace.ID(), event.Type(event.AssetCreate), a, event.OperatorFromUser(uID))
+	ev, err := createEvent(ctx, db, gw, workspace.ID(), event.Type(event.AssetCreate), a, operator.OperatorFromUser(uID))
 	assert.NoError(t, err)
-	expectedEv := event.New[any]().ID(ev.ID()).Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
+	expectedEv := event.New[any]().ID(ev.ID()).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(uID)).Object(a).MustBuild()
 	assert.Equal(t, expectedEv, ev)
 }
 
@@ -58,7 +59,7 @@ func TestCommon_webhook(t *testing.T) {
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").Url(lo.Must(url.Parse("https://example.com"))).Active(true).Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
 	lo.Must0(workspace.Members().AddIntegration(integration.ID(), user.RoleOwner, uID))
-	ev := event.New[any]().NewID().Timestamp(now).Type(event.AssetCreate).Operator(event.OperatorFromUser(uID)).Object(a).MustBuild()
+	ev := event.New[any]().NewID().Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(uID)).Object(a).MustBuild()
 
 	db := memory.New()
 	mockCtrl := gomock.NewController(t)

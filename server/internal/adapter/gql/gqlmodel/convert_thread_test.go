@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -33,13 +34,14 @@ func TestConvertThread_ToComment(t *testing.T) {
 	uid1 := id.NewUserID()
 	c1 := "xxx"
 
-	comment1 := thread.NewComment(cid1, uid1, c1)
+	comment1 := thread.NewComment(cid1, operator.OperatorFromUser(uid1), c1)
 
 	want1 := Comment{
-		ID:        ID(cid1.String()),
-		AuthorID:  ID(uid1.String()),
-		Content:   c1,
-		CreatedAt: cid1.Timestamp(),
+		ID:         ID(cid1.String()),
+		AuthorID:   ID(uid1.String()),
+		AuthorType: OperatorTypeUser,
+		Content:    c1,
+		CreatedAt:  cid1.Timestamp(),
 	}
 
 	got1 := ToComment(comment1)

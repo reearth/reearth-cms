@@ -93,8 +93,9 @@ export enum AssetSortType {
 
 export type Comment = {
   __typename?: 'Comment';
-  author?: Maybe<User>;
+  author: Operator;
   authorId: Scalars['ID'];
+  authorType: OperatorType;
   content: Scalars['String'];
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
@@ -1282,7 +1283,7 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type FileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
 
@@ -1291,7 +1292,7 @@ export type GetAssetQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, createdAt: Date, updatedAt: Date }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1299,7 +1300,7 @@ export type CreateAssetMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } } | null };
 
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -1307,7 +1308,7 @@ export type UpdateAssetMutationVariables = Exact<{
 }>;
 
 
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: Date, author?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdById: string, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1818,10 +1819,17 @@ export const GetAssetsDocument = gql`
           comments {
             id
             author {
-              id
-              name
-              email
+              ... on User {
+                id
+                name
+                email
+              }
+              ... on Integration {
+                id
+                name
+              }
             }
+            authorId
             content
             createdAt
           }
@@ -1894,10 +1902,17 @@ export const GetAssetsDocument = gql`
         comments {
           id
           author {
-            id
-            name
-            email
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+            }
           }
+          authorId
           content
           createdAt
         }
@@ -2012,10 +2027,17 @@ export const GetAssetDocument = gql`
       comments {
         id
         author {
-          id
-          name
-          email
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+          }
         }
+        authorId
         content
         createdAt
       }
@@ -2077,10 +2099,17 @@ export const CreateAssetDocument = gql`
         comments {
           id
           author {
-            id
-            name
-            email
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+            }
           }
+          authorId
           content
           createdAt
         }
@@ -2142,10 +2171,17 @@ export const UpdateAssetDocument = gql`
         comments {
           id
           author {
-            id
-            name
-            email
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+            }
           }
+          authorId
           content
           createdAt
         }
