@@ -221,7 +221,7 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, er
 		v := f.Value
 		if f.ValueType == schema.TypeInteger {
 			strV := fmt.Sprintf("%v", f.Value)
-			if len(strV) > 0 && len(strings.TrimSpace(strV)) == 0 {
+			if len(strV) > 0 && len(strings.TrimSpace(strV)) != 0 {
 				v, err = strconv.ParseInt(strV, 10, 64)
 			} else {
 				v = nil
