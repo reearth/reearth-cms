@@ -67,7 +67,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-		fields, err := itemFieldsFromParams(param.Fields)
+		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,6 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 		if sf == nil {
 			return interfaces.ErrFieldNotFound
 		}
-		field.UpdateType(sf.Type())
 		if sf.Required() && field.Value() == nil {
 			return errors.New("field is required")
 		}
@@ -175,7 +174,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if !operator.IsWritableProject(item.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-		fields, err := itemFieldsFromParams(param.Fields)
+		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
@@ -215,11 +214,12 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	})
 }
 
-func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, error) {
+func itemFieldsFromParams(Fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
 	var err error
 	res := lo.Map(Fields, func(f interfaces.ItemFieldParam, _ int) *item.Field {
 		v := f.Value
-		if f.ValueType == schema.TypeInteger {
+		sf := s.Field(f.SchemaFieldID)
+		if sf.Type() == schema.TypeInteger {
 			strV := fmt.Sprintf("%v", f.Value)
 			if len(strV) > 0 && len(strings.TrimSpace(strV)) != 0 {
 				v, err = strconv.ParseInt(strV, 10, 64)
@@ -229,7 +229,7 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, er
 		}
 		return item.NewField(
 			f.SchemaFieldID,
-			f.ValueType,
+			sf.Type(),
 			v,
 		)
 	})
