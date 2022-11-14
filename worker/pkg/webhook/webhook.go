@@ -44,7 +44,7 @@ func Send(ctx context.Context, w *Webhook) error {
 	now := util.Now()
 	signature := Sign(b, []byte(w.Secret), now, "v1")
 
-	req.Header.Set("Rearth-Signature", signature)
+	req.Header.Set("Reearth-Signature", signature)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {

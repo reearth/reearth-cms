@@ -41,7 +41,7 @@ func TestSend(t *testing.T) {
 	httpmock.RegisterResponder("POST", endpoint1, func(req *http.Request) (*http.Response, error) {
 
 		//check signature
-		sign := req.Header.Get("Rearth-Signature")
+		sign := req.Header.Get("Reearth-Signature")
 		rawSign := lo.Must(hex.DecodeString(strings.Split(sign, ",")[2]))
 
 		expectedSign := Sign(lo.Must(io.ReadAll(req.Body)), []byte(w.Secret), util.Now(), "v1")
