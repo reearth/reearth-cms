@@ -87,7 +87,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return nil, err
 	}
 
-	return ItemCreate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemCreate200JSONResponse(toItem(i, ver[len(ver)-1], mId)), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -114,7 +114,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemUpdate200JSONResponse(toItem(i, ver[len(ver)-1], i.Model())), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -146,7 +146,7 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return nil, err
 	}
 
-	return ItemGet200JSONResponse(toItem(itm, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemGet200JSONResponse(toItem(itm, ver[len(ver)-1], itm.Model())), nil
 }
 
 func (s Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {

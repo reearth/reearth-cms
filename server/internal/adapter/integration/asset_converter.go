@@ -47,10 +47,6 @@ func toFile(multipartReader *multipart.Reader) (*file.File, error) {
 }
 
 func toAsset(a *asset.Asset, aUrl string) (*integrationapi.Asset, error) {
-	pt, err := toPreviewType(a.PreviewType())
-	if err != nil {
-		return nil, err
-	}
 	return &integrationapi.Asset{
 		ContentType: lo.ToPtr(a.File().ContentType()),
 		CreatedAt:   &types.Date{Time: a.CreatedAt()},
@@ -63,26 +59,29 @@ func toAsset(a *asset.Asset, aUrl string) (*integrationapi.Asset, error) {
 		},
 		Id:          a.ID().Ref(),
 		Name:        lo.ToPtr(a.FileName()),
-		PreviewType: pt,
+		PreviewType: toPreviewType(a.PreviewType()),
 		ProjectId:   a.Project().Ref(),
 		TotalSize:   lo.ToPtr(float32(a.Size())),
 		UpdatedAt:   &types.Date{Time: a.CreatedAt()},
 	}, nil
 }
 
-func toPreviewType(pt *asset.PreviewType) (*integrationapi.AssetPreviewType, error) {
+func toPreviewType(pt *asset.PreviewType) *integrationapi.AssetPreviewType {
 	if pt == nil {
-		return nil, nil
+		return lo.ToPtr(integrationapi.Unknown)
 	}
 	switch *pt {
 	case asset.PreviewTypeGeo:
-		return lo.ToPtr(integrationapi.Geo), nil
+		return lo.ToPtr(integrationapi.Geo)
 	case asset.PreviewTypeGeo3d:
-		return lo.ToPtr(integrationapi.Geo3d), nil
+		return lo.ToPtr(integrationapi.Geo3d)
 	case asset.PreviewTypeModel3d:
-		return lo.ToPtr(integrationapi.Model3d), nil
+		return lo.ToPtr(integrationapi.Model3d)
 	case asset.PreviewTypeImage:
-		return lo.ToPtr(integrationapi.Image), nil
+		return lo.ToPtr(integrationapi.Image)
+	case asset.PreviewTypeUnknown:
+		return lo.ToPtr(integrationapi.Unknown)
+	default:
+		return lo.ToPtr(integrationapi.Unknown)
 	}
-	return nil, errors.New("invalid preview type")
 }
