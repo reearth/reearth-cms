@@ -4,13 +4,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
-
-type VersionedItem = version.Value[Item]
 
 type Item struct {
 	id        ID
@@ -20,6 +19,8 @@ type Item struct {
 	fields    []*Field
 	timestamp time.Time
 }
+
+type Versioned = *version.Value[*Item]
 
 func (i *Item) ID() ID {
 	return i.id
@@ -90,4 +91,9 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 		}
 	}
 	return false
+}
+
+type ItemAndSchema struct {
+	Item   *Item
+	Schema *schema.Schema
 }

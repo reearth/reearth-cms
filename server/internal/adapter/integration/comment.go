@@ -28,7 +28,7 @@ func (s Server) AssetCommentList(ctx context.Context, request AssetCommentListRe
 	}
 
 	comments := lo.Map(th.Comments(), func(c *thread.Comment, _ int) integrationapi.Comment {
-		return *integrationapi.ToComment(c)
+		return *integrationapi.NewComment(c)
 	})
 
 	return AssetCommentList200JSONResponse{Comments: &comments}, nil
@@ -51,7 +51,7 @@ func (s Server) AssetCommentCreate(ctx context.Context, request AssetCommentCrea
 		return nil, err
 	}
 
-	return AssetCommentCreate200JSONResponse(*integrationapi.ToComment(comment)), nil
+	return AssetCommentCreate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
 func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error) {
@@ -71,7 +71,7 @@ func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpda
 		return nil, err
 	}
 
-	return AssetCommentUpdate200JSONResponse(*integrationapi.ToComment(comment)), nil
+	return AssetCommentUpdate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
 func (s Server) AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error) {

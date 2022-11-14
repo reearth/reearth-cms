@@ -26,7 +26,7 @@ import (
 
 func TestNewItem(t *testing.T) {
 	r := repo.Container{}
-	i := NewItem(&r)
+	i := NewItem(&r, nil)
 	assert.NotNil(t, i)
 }
 
@@ -96,7 +96,8 @@ func TestItem_FindByID(t *testing.T) {
 				err := db.Item.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, err := itemUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -104,7 +105,7 @@ func TestItem_FindByID(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, got.Value())
 		})
 	}
 }
@@ -209,7 +210,8 @@ func TestItem_FindBySchema(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -242,8 +244,9 @@ func TestItem_Create(t *testing.T) {
 	err := db.Schema.Save(ctx, s)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
-	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+	itemv, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
 		Fields: []interfaces.ItemFieldParam{
 			{
@@ -259,6 +262,7 @@ func TestItem_Create(t *testing.T) {
 		},
 		ModelID: id.NewModelID(),
 	}, op)
+	item := itemv.Value()
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 
@@ -293,7 +297,8 @@ func TestItem_Delete(t *testing.T) {
 	err := db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
 
@@ -322,12 +327,13 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	err := db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 
 	// first version
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
 	}, res)
 
@@ -337,7 +343,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(res[0].Version(), nil, nil, i1),
 		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
 	}, res)
@@ -382,7 +388,8 @@ func TestItem_Update(t *testing.T) {
 	err = db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
@@ -399,7 +406,7 @@ func TestItem_Update(t *testing.T) {
 		},
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i1, i)
+	assert.Equal(t, i1, i.Value())
 
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: id1,
@@ -495,7 +502,8 @@ func TestItem_FindByProject(t *testing.T) {
 			}
 			err := db.Project.Save(ctx, tc.seedProject)
 			assert.NoError(t, err)
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.FindByProject(ctx, tc.args.id, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -503,7 +511,7 @@ func TestItem_FindByProject(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, got.Unwrap())
 		})
 	}
 }
@@ -608,7 +616,8 @@ func TestItem_Search(t *testing.T) {
 				err := db.Item.Save(ctx, seed)
 				assert.Nil(t, err)
 			}
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {

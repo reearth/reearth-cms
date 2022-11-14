@@ -33,16 +33,13 @@ type ServerInterface interface {
 	ItemGet(ctx echo.Context, itemId ItemIdParam, params ItemGetParams) error
 	// Update an item.
 	// (POST /items/{itemId})
-	ItemUpdate(ctx echo.Context, itemId ItemIdParam, params ItemUpdateParams) error
+	ItemUpdate(ctx echo.Context, itemId ItemIdParam) error
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
 
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx echo.Context, modelId ModelIdParam) error
-	// Set ref and version.
-	// (POST /models/{modelId}/items/{itemId}/refs)
-	ItemPublish(ctx echo.Context, modelId ModelIdParam, itemId ItemIdParam) error
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
@@ -132,17 +129,8 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{""})
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemUpdateParams
-	// ------------- Optional query parameter "ref" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "ref", ctx.QueryParams(), &params.Ref)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter ref: %s", err))
-	}
-
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ItemUpdate(ctx, itemId, params)
+	err = w.Handler.ItemUpdate(ctx, itemId)
 	return err
 }
 
@@ -216,32 +204,6 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.ItemCreate(ctx, modelId)
-	return err
-}
-
-// ItemPublish converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemPublish(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "modelId", runtime.ParamLocationPath, ctx.Param("modelId"), &modelId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{""})
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ItemPublish(ctx, modelId, itemId)
 	return err
 }
 
@@ -512,7 +474,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/items/:itemId", wrapper.ItemUpdate)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
-	router.POST(baseURL+"/models/:modelId/items/:itemId/refs", wrapper.ItemPublish)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.DELETE(baseURL+"/projects/:projectId/assets/:assetId", wrapper.AssetDelete)
@@ -578,7 +539,7 @@ type ItemGetResponseObject interface {
 	VisitItemGetResponse(w http.ResponseWriter) error
 }
 
-type ItemGet200JSONResponse Item
+type ItemGet200JSONResponse VersionedItem
 
 func (response ItemGet200JSONResponse) VisitItemGetResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -604,7 +565,6 @@ func (response ItemGet401Response) VisitItemGetResponse(w http.ResponseWriter) e
 
 type ItemUpdateRequestObject struct {
 	ItemId ItemIdParam `json:"itemId"`
-	Params ItemUpdateParams
 	Body   *ItemUpdateJSONRequestBody
 }
 
@@ -612,7 +572,7 @@ type ItemUpdateResponseObject interface {
 	VisitItemUpdateResponse(w http.ResponseWriter) error
 }
 
-type ItemUpdate200JSONResponse Item
+type ItemUpdate200JSONResponse VersionedItem
 
 func (response ItemUpdate200JSONResponse) VisitItemUpdateResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -646,10 +606,10 @@ type ItemFilterResponseObject interface {
 }
 
 type ItemFilter200JSONResponse struct {
-	Items      *[]Item `json:"items,omitempty"`
-	Page       *int    `json:"page,omitempty"`
-	PerPage    *int    `json:"perPage,omitempty"`
-	TotalCount *int    `json:"totalCount,omitempty"`
+	Items      *[]VersionedItem `json:"items,omitempty"`
+	Page       *int             `json:"page,omitempty"`
+	PerPage    *int             `json:"perPage,omitempty"`
+	TotalCount *int             `json:"totalCount,omitempty"`
 }
 
 func (response ItemFilter200JSONResponse) VisitItemFilterResponse(w http.ResponseWriter) error {
@@ -683,7 +643,7 @@ type ItemCreateResponseObject interface {
 	VisitItemCreateResponse(w http.ResponseWriter) error
 }
 
-type ItemCreate200JSONResponse Item
+type ItemCreate200JSONResponse VersionedItem
 
 func (response ItemCreate200JSONResponse) VisitItemCreateResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -703,40 +663,6 @@ func (response ItemCreate400Response) VisitItemCreateResponse(w http.ResponseWri
 type ItemCreate401Response = UnauthorizedErrorResponse
 
 func (response ItemCreate401Response) VisitItemCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemPublishRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	ItemId  ItemIdParam  `json:"itemId"`
-	Body    *ItemPublishJSONRequestBody
-}
-
-type ItemPublishResponseObject interface {
-	VisitItemPublishResponse(w http.ResponseWriter) error
-}
-
-type ItemPublish200JSONResponse Item
-
-func (response ItemPublish200JSONResponse) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemPublish400Response struct {
-}
-
-func (response ItemPublish400Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemPublish401Response = UnauthorizedErrorResponse
-
-func (response ItemPublish401Response) VisitItemPublishResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
@@ -1046,9 +972,6 @@ type StrictServerInterface interface {
 
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
-	// Set ref and version.
-	// (POST /models/{modelId}/items/{itemId}/refs)
-	ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error)
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
@@ -1140,11 +1063,10 @@ func (sh *strictHandler) ItemGet(ctx echo.Context, itemId ItemIdParam, params It
 }
 
 // ItemUpdate operation middleware
-func (sh *strictHandler) ItemUpdate(ctx echo.Context, itemId ItemIdParam, params ItemUpdateParams) error {
+func (sh *strictHandler) ItemUpdate(ctx echo.Context, itemId ItemIdParam) error {
 	var request ItemUpdateRequestObject
 
 	request.ItemId = itemId
-	request.Params = params
 
 	var body ItemUpdateJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -1222,38 +1144,6 @@ func (sh *strictHandler) ItemCreate(ctx echo.Context, modelId ModelIdParam) erro
 		return err
 	} else if validResponse, ok := response.(ItemCreateResponseObject); ok {
 		return validResponse.VisitItemCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("Unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemPublish operation middleware
-func (sh *strictHandler) ItemPublish(ctx echo.Context, modelId ModelIdParam, itemId ItemIdParam) error {
-	var request ItemPublishRequestObject
-
-	request.ModelId = modelId
-	request.ItemId = itemId
-
-	var body ItemPublishJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemPublish(ctx.Request().Context(), request.(ItemPublishRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemPublish")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemPublishResponseObject); ok {
-		return validResponse.VisitItemPublishResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("Unexpected response type: %T", response)
 	}
@@ -1498,37 +1388,35 @@ func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, projectId ProjectI
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"//+bxOUKGTAAAA==",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

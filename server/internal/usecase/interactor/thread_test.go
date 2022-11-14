@@ -97,7 +97,7 @@ func TestThread_FindByID(t *testing.T) {
 				err := db.Thread.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 
 			got, err := threadUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -190,7 +190,7 @@ func TestThread_FindByIDs(t *testing.T) {
 				err := db.Thread.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 
 			got, err := threadUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
 			if tc.wantErr != nil {
@@ -256,7 +256,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 
 			th, err := threadUC.CreateThread(ctx, tc.arg, tc.operator)
 			if tc.wantErr != nil {
@@ -348,7 +348,7 @@ func TestThread_AddComment(t *testing.T) {
 			err := db.Thread.Save(ctx, thread)
 			assert.NoError(t, err)
 
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 			if tc.mockError && tc.wantErr != nil {
 				thid := id.NewThreadID()
 				_, _, err := threadUC.AddComment(ctx, thid, tc.args.content, tc.args.operator)
@@ -457,7 +457,7 @@ func TestThread_UpdateComment(t *testing.T) {
 			err := db.Thread.Save(ctx, thread)
 			assert.NoError(t, err)
 
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 			if tc.mockError && tc.wantErr != nil {
 				thid := id.NewThreadID()
 				_, _, err := threadUC.UpdateComment(ctx, thid, tc.args.comment.ID(), tc.args.content, tc.args.operator)
@@ -543,7 +543,7 @@ func TestThread_DeleteComment(t *testing.T) {
 			err := db.Thread.Save(ctx, thread1)
 			assert.NoError(t, err)
 
-			threadUC := NewThread(db)
+			threadUC := NewThread(db, nil)
 			if tc.mockError && tc.wantErr != nil {
 				thid := id.NewThreadID()
 				_, err := threadUC.DeleteComment(ctx, thid, tc.args.commentId, tc.args.operator)
