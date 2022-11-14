@@ -6,12 +6,19 @@ export const threadFragment = gql`
     workspaceId
     comments {
       id
-      content
       author {
-        id
-        name
-        email
+        ... on User {
+          id
+          name
+          email
+        }
+        ... on Integration {
+          id
+          name
+        }
       }
+      authorId
+      content
       createdAt
     }
   }

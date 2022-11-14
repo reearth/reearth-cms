@@ -6,10 +6,17 @@ export const ADD_COMMENT = gql`
       comment {
         id
         author {
-          id
-          name
-          email
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+          }
         }
+        authorType
         authorId
         content
         createdAt
@@ -24,10 +31,17 @@ export const UPDATE_COMMENT = gql`
       comment {
         id
         author {
-          id
-          name
-          email
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+          }
         }
+        authorType
         authorId
         content
         createdAt
