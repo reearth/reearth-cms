@@ -12,7 +12,7 @@ type Item implements Node {
 type ItemField {
   schemaFieldId: ID!
   type: SchemaFiledType!
-  value: Any!
+  value: Any
 }
 
 type VersionedItem {
