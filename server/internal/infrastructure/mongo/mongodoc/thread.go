@@ -2,6 +2,7 @@ package mongodoc
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
@@ -14,9 +15,10 @@ type ThreadDocument struct {
 }
 
 type Comment struct {
-	ID      string
-	Author  string
-	Content string
+	ID          string
+	User        *string
+	Integration *string
+	Content     string
 }
 
 type ThreadConsumer = mongox.SliceFuncConsumer[*ThreadDocument, *thread.Thread]
@@ -65,9 +67,10 @@ func NewComment(c *thread.Comment) *Comment {
 	}
 
 	return &Comment{
-		ID:      c.ID().String(),
-		Author:  c.Author().String(),
-		Content: c.Content(),
+		ID:          c.ID().String(),
+		User:        c.Author().User().StringRef(),
+		Integration: c.Author().Integration().StringRef(),
+		Content:     c.Content(),
 	}
 }
 
@@ -81,10 +84,16 @@ func (c *Comment) Model() *thread.Comment {
 		return nil
 	}
 
-	uid, err := id.UserIDFrom(c.Author)
-	if err != nil {
-		return nil
+	var author operator.Operator
+	if c.User != nil {
+		if uid := id.UserIDFromRef(c.User); uid != nil {
+			author = operator.OperatorFromUser(*uid)
+		}
+	} else if c.Integration != nil {
+		if iid := id.IntegrationIDFromRef(c.Integration); iid != nil {
+			author = operator.OperatorFromIntegration(*iid)
+		}
 	}
 
-	return thread.NewComment(cid, uid, c.Content)
+	return thread.NewComment(cid, author, c.Content)
 }

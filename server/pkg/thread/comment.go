@@ -2,15 +2,17 @@ package thread
 
 import (
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 )
 
 type Comment struct {
 	id      CommentID
-	author  UserID
+	author  operator.Operator
 	content string
 }
 
-func NewComment(id CommentID, author UserID, content string) *Comment {
+func NewComment(id CommentID, author operator.Operator, content string) *Comment {
 	return &Comment{
 		id:      id,
 		author:  author,
@@ -22,7 +24,7 @@ func (c *Comment) ID() CommentID {
 	return c.id
 }
 
-func (c *Comment) Author() UserID {
+func (c *Comment) Author() operator.Operator {
 	return c.author
 }
 

@@ -54,7 +54,7 @@ func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *useca
 }
 
 func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
-	if op.User == nil {
+	if op.User == nil && op.Integration == nil {
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 	return Run2(
@@ -70,7 +70,7 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 				return nil, nil, interfaces.ErrOperationDenied
 			}
 
-			comment := thread.NewComment(thread.NewCommentID(), *op.User, content)
+			comment := thread.NewComment(thread.NewCommentID(), op.Operator(), content)
 			if err := th.AddComment(comment); err != nil {
 				return nil, nil, err
 			}
@@ -85,6 +85,9 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 }
 
 func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+	if op.User == nil && op.Integration == nil {
+		return nil, nil, interfaces.ErrInvalidOperator
+	}
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
@@ -112,6 +115,9 @@ func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.Com
 }
 
 func (i *Thread) DeleteComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, op *usecase.Operator) (*thread.Thread, error) {
+	if op.User == nil && op.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),

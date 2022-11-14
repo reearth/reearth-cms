@@ -3,7 +3,6 @@ package integrationapi
 //go:generate go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen --config=types.cfg.yml ../../schemas/integration.yml
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -20,7 +19,7 @@ var (
 	ErrUnsupportedEntity = errors.New("unsupported entity")
 )
 
-func MarshalJSON(obj any, version string, urlResolver asset.URLResolver) ([]byte, error) {
+func ToIntegrationAPI(obj any, version string, urlResolver asset.URLResolver) (any, error) {
 	var res any
 	switch o := (obj).(type) {
 	case *asset.Asset:
@@ -45,5 +44,5 @@ func MarshalJSON(obj any, version string, urlResolver asset.URLResolver) ([]byte
 		return nil, ErrUnsupportedEntity
 	}
 
-	return json.Marshal(res)
+	return res, nil
 }

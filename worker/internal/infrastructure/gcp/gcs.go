@@ -9,10 +9,9 @@ import (
 	"path/filepath"
 
 	"cloud.google.com/go/storage"
-	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
-	"google.golang.org/appengine/log"
 )
 
 const (
@@ -64,7 +63,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		log.Errorf(ctx, "gcs: upload bucket err: %+v\n", err)
+		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return nil, rerror.ErrInternalBy(err)
 	}
 
@@ -72,7 +71,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 
 	object := bucket.Object(name)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
-		log.Errorf(ctx, "gcs: upload delete err: %+v\n", err)
+		log.Errorf("gcs: upload delete err: %+v\n", err)
 		return nil, gateway.ErrFailedToUploadFile
 	}
 
@@ -85,7 +84,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
-		log.Errorf(ctx, "gcs: rawGCSReaderAt err: %+v\n", err)
+		log.Errorf("gcs: rawGCSReaderAt err: ObjectName=%s, err=%+v\n", objectName, err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 
@@ -105,7 +104,7 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (ga
 
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		log.Errorf(ctx, "gcs: read bucket err: %+v\n", err)
+		log.Errorf("gcs: read bucket err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 	obj := bucket.Object(objectName)
@@ -146,7 +145,7 @@ func getGCSObjectNameFromURL(assetBasePath string, path string) string {
 		return ""
 	}
 
-	p := sanitize.Path(filepath.Join(assetBasePath, path))
+	p := filepath.Join(assetBasePath, path)
 
 	return p
 }

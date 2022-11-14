@@ -253,7 +253,7 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-var re = regexp.MustCompile(`[^a-zA-Z0-9-.]`)
+var re = regexp.MustCompile(`[^a-zA-Z0-9-_.]`)
 
 func fileName(s string) string {
 	ss := re.ReplaceAllString(s, "-")

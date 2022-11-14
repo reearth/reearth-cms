@@ -93,11 +93,12 @@ type AssetFile struct {
 }
 
 type Comment struct {
-	ID        ID        `json:"id"`
-	Author    *User     `json:"author"`
-	AuthorID  ID        `json:"authorId"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID         ID           `json:"id"`
+	Author     Operator     `json:"author"`
+	AuthorType OperatorType `json:"authorType"`
+	AuthorID   ID           `json:"authorId"`
+	Content    string       `json:"content"`
+	CreatedAt  time.Time    `json:"createdAt"`
 }
 
 type CommentPayload struct {
@@ -163,6 +164,7 @@ type CreateWebhookInput struct {
 	URL           url.URL              `json:"url"`
 	Active        bool                 `json:"active"`
 	Trigger       *WebhookTriggerInput `json:"trigger"`
+	Secret        string               `json:"secret"`
 }
 
 type CreateWorkspaceInput struct {
@@ -758,6 +760,7 @@ type UpdateWebhookInput struct {
 	URL           *url.URL             `json:"url"`
 	Active        *bool                `json:"active"`
 	Trigger       *WebhookTriggerInput `json:"trigger"`
+	Secret        *string              `json:"secret"`
 }
 
 type UpdateWorkspaceInput struct {
@@ -793,6 +796,7 @@ type Webhook struct {
 	URL       url.URL         `json:"url"`
 	Active    bool            `json:"active"`
 	Trigger   *WebhookTrigger `json:"trigger"`
+	Secret    string          `json:"secret"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 }

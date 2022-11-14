@@ -7,8 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -274,7 +274,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 }
 
 func TestThread_AddComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
 	uid := id.NewUserID()
@@ -376,8 +376,8 @@ func TestThread_AddComment(t *testing.T) {
 }
 
 func TestThread_UpdateComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
-	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "test")
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "test")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 	uid := id.NewUserID()
@@ -410,7 +410,7 @@ func TestThread_UpdateComment(t *testing.T) {
 				content:  "updated",
 				operator: &usecase.Operator{},
 			},
-			wantErr: repo.ErrOperationDenied,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name: "workspaces operation success",
@@ -479,8 +479,8 @@ func TestThread_UpdateComment(t *testing.T) {
 }
 
 func TestThread_DeleteComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "aaa")
-	c2 := thread.NewComment(thread.NewCommentID(), id.NewUserID(), "test")
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "test")
 	wid := id.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
 	uid := id.NewUserID()
@@ -508,7 +508,7 @@ func TestThread_DeleteComment(t *testing.T) {
 			name:    "workspaces operation denied",
 			seed:    th1,
 			args:    args{commentId: c1.ID(), operator: &usecase.Operator{}},
-			wantErr: repo.ErrOperationDenied,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name:    "workspaces operation success",

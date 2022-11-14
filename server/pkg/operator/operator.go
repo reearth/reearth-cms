@@ -1,4 +1,4 @@
-package event
+package operator
 
 type Operator struct {
 	user        *UserID
@@ -36,6 +36,6 @@ func (o Operator) Machine() bool {
 	return o.isMachine
 }
 
-func (o Operator) validate() bool {
+func (o Operator) Validate() bool {
 	return !o.user.IsNil() || !o.integration.IsNil() || o.Machine()
 }

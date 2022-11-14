@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +36,7 @@ func TestThread_Comments(t *testing.T) {
 }
 
 func TestThread_HasComment(t *testing.T) {
-	c := NewComment(NewCommentID(), NewUserID(), "test")
+	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
@@ -60,7 +61,7 @@ func TestThread_AddComment(t *testing.T) {
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
 	})
-	c := NewComment(NewCommentID(), NewUserID(), "test")
+	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	err := thread.AddComment(c)
 	assert.NoError(t, err)
 	assert.True(t, thread.HasComment(c.id))
@@ -70,7 +71,7 @@ func TestThread_AddComment(t *testing.T) {
 }
 
 func TestThread_UpdateComment(t *testing.T) {
-	c := NewComment(NewCommentID(), NewUserID(), "test")
+	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
@@ -89,7 +90,7 @@ func TestThread_UpdateComment(t *testing.T) {
 }
 
 func TestThread_DeleteComment(t *testing.T) {
-	c := NewComment(NewCommentID(), NewUserID(), "test")
+	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
@@ -107,7 +108,7 @@ func TestThread_DeleteComment(t *testing.T) {
 }
 
 func TestThread_Comment(t *testing.T) {
-	c := NewComment(NewCommentID(), NewUserID(), "test")
+	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
