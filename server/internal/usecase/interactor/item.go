@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -18,43 +19,46 @@ import (
 )
 
 type Item struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewItem(r *repo.Container) interfaces.Item {
+func NewItem(r *repo.Container, g *gateway.Container) interfaces.Item {
 	return &Item{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.List, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, error) {
-		return i.repos.Item.FindByIDs(ctx, ids)
-	})
+	return i.repos.Item.FindByIDs(ctx, ids)
 }
 
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (*item.Item, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
-		return i.repos.Item.FindByID(ctx, itemID)
-	})
+	return i.repos.Item.FindByID(ctx, itemID)
+}
+
+func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	if _, err := i.repos.Project.FindByID(ctx, projectID); err != nil {
+		return nil, nil, err
+	}
+
+	return i.repos.Item.FindByProject(ctx, projectID, p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
-		s, err := i.repos.Schema.FindByID(ctx, schemaID)
-		if err != nil {
-			return nil, nil, err
-		}
-		sfids := s.Fields().IDs()
-		res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
-		return res.FilterFields(sfids), page, err
-	})
+	s, err := i.repos.Schema.FindByID(ctx, schemaID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	sfids := s.Fields().IDs()
+	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
+	return res.FilterFields(sfids), page, err
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) ([]*version.Value[*item.Item], error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*version.Value[*item.Item], error) {
-		return i.repos.Item.FindAllVersionsByID(ctx, itemID)
-	})
+	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
@@ -63,19 +67,23 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
+
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
+
 		fields, err := itemFieldsFromParams(param.Fields)
 		if err != nil {
 			return nil, err
 		}
+
 		if param.Fields != nil {
 			err = validateFields(ctx, fields, s, param.ModelID, i.repos)
 			if err != nil {
 				return nil, err
 			}
 		}
+
 		it, err := item.New().
 			NewID().
 			Schema(param.SchemaID).
@@ -103,10 +111,12 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 			Value:         f.Value(),
 		})
 	}
+
 	exists, err := repos.Item.FindByModelAndValue(ctx, mid, fieldsArg)
 	if err != nil {
 		return err
 	}
+
 	for _, field := range fields {
 		sf := s.Field(field.SchemaFieldID())
 		if sf == nil {
@@ -198,19 +208,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		return i.repos.Item.Remove(ctx, itemID)
-	})
-}
-
-func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().Transaction(), func() (item.List, *usecasex.PageInfo, error) {
-		if _, err := i.repos.Project.FindByID(ctx, projectID); err != nil {
-			return nil, nil, err
-		}
-
-		return i.repos.Item.FindByProject(ctx, projectID, p)
-	})
+	return i.repos.Item.Remove(ctx, itemID)
 }
 
 func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, error) {

@@ -463,7 +463,9 @@ func TestAsset_Create(t *testing.T) {
 				gateways: &gateway.Container{
 					File:       f,
 					TaskRunner: runnerGw,
-				}, eventFunc: mockEventFunc}
+				},
+				eventFunc: mockEventFunc,
+			}
 
 			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {

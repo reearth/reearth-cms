@@ -22,14 +22,14 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 
 	return interfaces.Container{
 		Asset:       NewAsset(r, g),
-		Workspace:   NewWorkspace(r),
+		Workspace:   NewWorkspace(r, g),
 		User:        NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
-		Project:     NewProject(r),
-		Item:        NewItem(r),
-		Model:       NewModel(r),
-		Schema:      NewSchema(r),
-		Integration: NewIntegration(r),
-		Thread:      NewThread(r),
+		Project:     NewProject(r, g),
+		Item:        NewItem(r, g),
+		Model:       NewModel(r, g),
+		Schema:      NewSchema(r, g),
+		Integration: NewIntegration(r, g),
+		Thread:      NewThread(r, g),
 	}
 }
 

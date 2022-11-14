@@ -26,7 +26,7 @@ import (
 
 func TestNewItem(t *testing.T) {
 	r := repo.Container{}
-	i := NewItem(&r)
+	i := NewItem(&r, nil)
 	assert.NotNil(t, i)
 }
 
@@ -96,7 +96,7 @@ func TestItem_FindByID(t *testing.T) {
 				err := db.Item.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
 
 			got, err := itemUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -209,7 +209,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
 
 			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -242,7 +242,7 @@ func TestItem_Create(t *testing.T) {
 	err := db.Schema.Save(ctx, s)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
 		Fields: []interfaces.ItemFieldParam{
@@ -293,7 +293,7 @@ func TestItem_Delete(t *testing.T) {
 	err := db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
 
@@ -322,7 +322,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	err := db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
 
 	// first version
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
@@ -382,7 +382,7 @@ func TestItem_Update(t *testing.T) {
 	err = db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
-	itemUC := NewItem(db)
+	itemUC := NewItem(db, nil)
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
@@ -495,7 +495,7 @@ func TestItem_FindByProject(t *testing.T) {
 			}
 			err := db.Project.Save(ctx, tc.seedProject)
 			assert.NoError(t, err)
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
 
 			got, _, err := itemUC.FindByProject(ctx, tc.args.id, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -608,7 +608,7 @@ func TestItem_Search(t *testing.T) {
 				err := db.Item.Save(ctx, seed)
 				assert.Nil(t, err)
 			}
-			itemUC := NewItem(db)
+			itemUC := NewItem(db, nil)
 
 			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {
