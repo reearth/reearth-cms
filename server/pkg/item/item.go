@@ -46,11 +46,32 @@ func (i *Item) Timestamp() time.Time {
 	return i.timestamp
 }
 
+func (i *Item) Field(f FieldID) *Field {
+	ff, _ := lo.Find(i.fields, func(g *Field) bool {
+		return g.SchemaFieldID() == f
+	})
+	return ff
+}
+
 func (i *Item) UpdateFields(fields []*Field) {
 	if fields == nil {
 		return
 	}
-	i.fields = slices.Clone(fields)
+
+	newFields := lo.Filter(fields, func(field *Field, _ int) bool {
+		return i.Field(field.schemaFieldID) == nil
+	})
+	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		ff, found := lo.Find(fields, func(g *Field) bool {
+			return g.SchemaFieldID() == f.SchemaFieldID()
+		})
+
+		if !found {
+			return f, true
+		}
+
+		return ff, true
+	}), newFields...)
 	i.timestamp = util.Now()
 }
 
