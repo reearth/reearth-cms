@@ -29,7 +29,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	f := interfaces.AssetFilter{
 		Keyword:    nil,
 		Sort:       &sort,
-		Pagination: toPagination(request.Params.Page, request.Params.PerPage),
+		Pagination: fromPagination(request.Params.Page, request.Params.PerPage),
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
@@ -38,7 +38,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := toAsset(a, uc.Asset.GetURL(a))
+		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
 			return integrationapi.Asset{}, err
 		}
@@ -63,7 +63,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	var f *file.File
 	var err error
 	if request.MultipartBody != nil {
-		f, err = toFile(request.MultipartBody)
+		f, err = file.FromMultipart(request.MultipartBody, "file")
 		if err != nil {
 			return AssetCreate400Response{}, err
 		}
@@ -83,7 +83,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
@@ -110,7 +110,7 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 	if err != nil {
 		return AssetGet400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetGet400Response{}, err
 	}

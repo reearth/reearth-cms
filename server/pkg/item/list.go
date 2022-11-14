@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -34,4 +35,27 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 	return lo.Map(l, func(i *Item, _ int) *Item {
 		return i.FilterFields(lids)
 	})
+}
+
+type VersionedList []*version.Value[*Item]
+
+func (l VersionedList) SortByTimestamp() VersionedList {
+	m := slices.Clone(l)
+	slices.SortFunc(m, func(a, b Versioned) bool {
+		return a.Value().timestamp.Before(b.Value().Timestamp())
+	})
+	return m
+}
+
+func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {
+	return lo.Map(l, func(a Versioned, _ int) Versioned {
+		return version.ValueFrom(a, a.Value().FilterFields(fields))
+	})
+}
+
+func (l VersionedList) Unwrap() List {
+	if l == nil {
+		return nil
+	}
+	return version.UnwrapValues(l)
 }

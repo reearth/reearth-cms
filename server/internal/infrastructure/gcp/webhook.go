@@ -20,7 +20,14 @@ type webhookData struct {
 }
 
 func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) ([]byte, error) {
-	ed, err := integration.ToIntegrationAPI(w.Event.Object(), "", urlResolver)
+	var obj any
+	if w.Override != nil {
+		obj = w.Override
+	} else {
+		obj = w.Event.Object()
+	}
+
+	ed, err := integration.New(obj, "", urlResolver)
 	if err != nil {
 		return nil, err
 	}
@@ -33,5 +40,6 @@ func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) (
 		EventType: string(w.Event.Type()),
 		EventData: ed,
 	}
+
 	return json.Marshal(d)
 }

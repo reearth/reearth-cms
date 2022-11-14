@@ -1,11 +1,12 @@
 package integration
 
 import (
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/usecasex"
 )
 
-func toPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination {
+func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination {
 	p := int64(1)
 	if page != nil && *page > 0 {
 		p = int64(*page)
@@ -18,4 +19,16 @@ func toPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination 
 		Offset: (p - 1) * pp,
 		Limit:  pp,
 	}.Wrap()
+}
+
+func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
+	var v any = f.Value
+	if f.Value != nil {
+		v = *f.Value
+	}
+	return interfaces.ItemFieldParam{
+		SchemaFieldID: *f.Id,
+		ValueType:     integrationapi.FromSchemaFieldType(f.Type),
+		Value:         v,
+	}
 }

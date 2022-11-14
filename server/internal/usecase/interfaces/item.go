@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -36,13 +35,13 @@ type UpdateItemParam struct {
 }
 
 type Item interface {
-	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.List, error)
-	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
-	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
-	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.List, *usecasex.PageInfo, error)
-	FindByID(context.Context, id.ItemID, *usecase.Operator) (*item.Item, error)
-	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) ([]*version.Value[*item.Item], error)
-	Create(context.Context, CreateItemParam, *usecase.Operator) (*item.Item, error)
-	Update(context.Context, UpdateItemParam, *usecase.Operator) (*item.Item, error)
+	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
+	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
+	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
+	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
+	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
 }

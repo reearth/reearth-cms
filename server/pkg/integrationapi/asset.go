@@ -5,14 +5,9 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
+func NewAsset(a *asset.Asset, url string) (*Asset, error) {
 	if a == nil {
-		return nil
-	}
-
-	var url string
-	if urlResolver != nil {
-		url = urlResolver(a)
+		return nil, nil
 	}
 
 	return &Asset{
@@ -25,7 +20,7 @@ func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
 		TotalSize:   lo.ToPtr(float32(a.Size())),
 		Url:         lo.ToPtr(url),
 		File:        lo.ToPtr(ToFile(a.File())),
-	}
+	}, nil
 }
 
 func ToFile(f *asset.File) File {
@@ -44,26 +39,22 @@ func ToFile(f *asset.File) File {
 	}
 }
 
-func ToPreviewType(p *asset.PreviewType) *AssetPreviewType {
-	if p == nil {
-		return nil
+func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
+	if pt == nil {
+		return lo.ToPtr(Unknown)
 	}
-
-	var p2 AssetPreviewType
-	switch *p {
-	case asset.PreviewTypeImage:
-		p2 = Image
+	switch *pt {
 	case asset.PreviewTypeGeo:
-		p2 = Geo
+		return lo.ToPtr(Geo)
 	case asset.PreviewTypeGeo3d:
-		p2 = Geo3d
+		return lo.ToPtr(Geo3d)
 	case asset.PreviewTypeModel3d:
-		p2 = Model3d
+		return lo.ToPtr(Model3d)
+	case asset.PreviewTypeImage:
+		return lo.ToPtr(Image)
 	case asset.PreviewTypeUnknown:
-		p2 = Unknown
+		return lo.ToPtr(Unknown)
 	default:
-		return nil
+		return lo.ToPtr(Unknown)
 	}
-
-	return &p2
 }
