@@ -26,13 +26,19 @@ func TestFile_GetURL(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func TestFile_GetFSObjectPath(t *testing.T) {
+func TestFile_GetGCSObjectPath(t *testing.T) {
 	u := newUUID()
 	n := "xxx.yyy"
 	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "xxx.yyy"), getGCSObjectPath(u, n))
 
 	n = "ああああ.yyy"
-	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "----.yyy"), getGCSObjectPath(u, n))
+	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "-.yyy"), getGCSObjectPath(u, n))
+
+	n = "test---one.yyy"
+	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "test-one.yyy"), getGCSObjectPath(u, n))
+
+	n = "test...one.yyy"
+	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "test.one.yyy"), getGCSObjectPath(u, n))
 
 	assert.Equal(t, "", getGCSObjectPath("", ""))
 }
