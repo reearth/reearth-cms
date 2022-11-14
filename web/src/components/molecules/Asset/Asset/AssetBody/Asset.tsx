@@ -45,7 +45,9 @@ const AssetMolecule: React.FC<Props> = ({
   onChangeToFullScreen,
 }) => {
   const t = useT();
-  const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
+  const { svgRender, handleCodeSourceClick, handleRenderClick, viewerUrl, setViewerUrl } = useHooks(
+    asset.url,
+  );
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
   const displayUnzipFileList = assetFileExt === "zip";
@@ -76,7 +78,7 @@ const AssetMolecule: React.FC<Props> = ({
               geocoder: false,
             }}
             tilesetProps={{
-              url: asset.url,
+              url: viewerUrl,
             }}
             onGetViewer={getViewer}
           />
@@ -115,6 +117,8 @@ const AssetMolecule: React.FC<Props> = ({
           <Card title={asset.fileName}>
             <UnzipFileList
               file={asset.file}
+              viewerUrl={viewerUrl}
+              setViewerUrl={setViewerUrl}
               style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
             />
           </Card>
