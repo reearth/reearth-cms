@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -807,6 +808,6 @@ func (r *mockRunner) Run(context.Context, task.Payload) error {
 	return nil
 }
 
-func mockEventFunc(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
+func mockEventFunc(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error) {
 	return nil, nil
 }

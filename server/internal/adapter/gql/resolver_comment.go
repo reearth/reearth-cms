@@ -12,6 +12,13 @@ func (r *Resolver) Comment() CommentResolver {
 
 type commentResolver struct{ *Resolver }
 
-func (r *commentResolver) Author(ctx context.Context, obj *gqlmodel.Comment) (*gqlmodel.User, error) {
-	return dataloaders(ctx).User.Load(obj.AuthorID)
+func (r *commentResolver) Author(ctx context.Context, obj *gqlmodel.Comment) (gqlmodel.Operator, error) {
+	switch obj.AuthorType {
+	case gqlmodel.OperatorTypeUser:
+		return dataloaders(ctx).User.Load(obj.AuthorID)
+	case gqlmodel.OperatorTypeIntegration:
+		return dataloaders(ctx).Integration.Load(obj.AuthorID)
+	default:
+		return nil, nil
+	}
 }
