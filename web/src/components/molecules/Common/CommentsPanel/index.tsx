@@ -2,10 +2,11 @@ import styled from "@emotion/styled";
 import { useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Sider from "@reearth-cms/components/atoms/Sider";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 
+import Editor from "./Editor";
 import Thread from "./Thread";
 
 export type Props = {
@@ -18,76 +19,44 @@ const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments }) => {
   const t = useT();
 
   return (
-    <StyledSider
+    <Sidebar
       collapsible
-      width={300}
+      width={274}
       collapsedWidth={54}
       collapsed={collapsed}
       onCollapse={value => setCollapsed(value)}
       trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
-      {collapsed ? (
-        <CollapsedSider>
-          <Icon icon="message" />
-        </CollapsedSider>
-      ) : (
-        <NotCollapsedSider>
-          <SiderTitle>{t("Comments")}</SiderTitle>
-          <CommentsContainer>
-            <Thread comments={comments} onCommentCreate={onCommentCreate} />
-          </CommentsContainer>
-        </NotCollapsedSider>
-      )}
-    </StyledSider>
+      <ContentWrapper>
+        {collapsed ? (
+          <StyledIcon icon="message" />
+        ) : (
+          <>
+            <ThreadWrapper>
+              <Title>{t("Comments")}</Title>
+              <CommentsContainer>
+                <Thread comments={comments} />
+              </CommentsContainer>
+            </ThreadWrapper>
+            <Editor onCommentCreate={onCommentCreate} />
+          </>
+        )}
+      </ContentWrapper>
+    </Sidebar>
   );
 };
 
-const StyledSider = styled(Sider)`
-  background-color: #fff;
-  height: 100%;
-  .ant-layout-sider-trigger {
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
-    border-right: 1px solid #f0f0f0;
-    color: #002140;
-    text-align: left;
-    padding: 0 20px;
-    margin: 0;
-    height: 38px;
-    line-height: 38px;
-    cursor: pointer;
-  }
-  .ant-layout-sider-children {
-    height: calc(100% + 12px);
-  }
-  .ant-menu-inline {
-    border-right: 1px solid white;
+export default CommentsPanel;
 
-    & > li {
-      padding: 0 20px;
-    }
-  }
-  .ant-menu-vertical {
-    border-right: none;
-  }
+const StyledIcon = styled(Icon)`
+  padding: 12px 20px;
 `;
 
-const CollapsedSider = styled.div`
-  display: flex;
-  justify-content: center;
-  font-size: 18px;
-  padding-top: 20px;
-`;
-
-const NotCollapsedSider = styled.div`
+const ThreadWrapper = styled.div`
   padding: 12px;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  height: 100%;
-  border-right: 1px solid #f0f0f0;
+  overflow: auto;
 `;
 
-const SiderTitle = styled.h1`
+const Title = styled.h3`
   font-size: 18px;
 `;
 
@@ -95,4 +64,9 @@ const CommentsContainer = styled.div`
   overflow: auto;
 `;
 
-export default CommentsPanel;
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+`;

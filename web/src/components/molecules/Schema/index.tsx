@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import Sider from "@reearth-cms/components/atoms/Sider";
+import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -31,7 +31,6 @@ const Schema: React.FC<Props> = ({
     <ComplexInnerContents
       left={
         <Sidebar
-          collapsible
           collapsed={collapsed}
           onCollapse={onCollapse}
           collapsedWidth={54}
@@ -77,34 +76,4 @@ const FieldListWrapper = styled.div`
   width: 272px;
   padding: 12px;
   overflow-y: auto;
-`;
-
-const Sidebar = styled(Sider)`
-  background-color: #fff;
-
-  .ant-layout-sider-trigger {
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
-    border-right: 1px solid #f0f0f0;
-    color: #002140;
-    text-align: left;
-    padding: 0 20px;
-    margin: 0;
-    height: 38px;
-    line-height: 38px;
-    cursor: pointer;
-  }
-  .ant-layout-sider-children {
-    height: calc(100% + 12px);
-  }
-  .ant-menu-inline {
-    border-right: 1px solid white;
-
-    & > li {
-      padding: 0 20px;
-    }
-  }
-  .ant-menu-vertical {
-    border-right: none;
-  }
 `;

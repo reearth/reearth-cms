@@ -35,4 +35,5 @@ const Main = styled.div`
 
 const Right = styled.div`
   // overflow-y: auto;
+  display: flex;
 `;

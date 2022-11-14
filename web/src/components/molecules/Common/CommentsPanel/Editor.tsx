@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,7 +12,7 @@ type EditorProps = {
   onCommentCreate: (content: string) => Promise<void>;
 };
 
-export const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
+const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const t = useT();
@@ -29,15 +30,31 @@ export const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
   }, [form, onCommentCreate]);
 
   return (
-    <Form form={form} layout="vertical">
+    <StyledForm form={form} layout="vertical">
       <Form.Item name="content">
-        <TextArea rows={4} />
+        <TextArea rows={4} maxLength={100} showCount autoSize />
       </Form.Item>
-      <Form.Item>
-        <Button htmlType="submit" loading={submitting} onClick={handleSubmit} type="primary">
-          {t("Add Comment")}
+      <StyledFormItem>
+        <Button
+          htmlType="submit"
+          loading={submitting}
+          onClick={handleSubmit}
+          type="primary"
+          size="small"
+          style={{ float: "right", marginRight: "8px" }}>
+          {t("Comment")}
         </Button>
-      </Form.Item>
-    </Form>
+      </StyledFormItem>
+    </StyledForm>
   );
 };
+
+export default Editor;
+
+const StyledForm = styled(Form)`
+  padding: 12px;
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  margin-bottom: 16px;
+`;
