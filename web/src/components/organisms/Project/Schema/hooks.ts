@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -24,6 +24,12 @@ export default () => {
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
+
+  useEffect(() => {
+    if (!modelId && currentModel) {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
+    }
+  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
