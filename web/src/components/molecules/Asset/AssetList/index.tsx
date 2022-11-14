@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Dispatch, Key, SetStateAction } from "react";
 
+import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -11,13 +12,16 @@ import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Com
 type Props = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
-  createAssets: (files: UploadFile[]) => Promise<void>;
   fileList: UploadFile[];
-  onSearchTerm: (term?: string) => void;
-  onEdit: (asset: Asset) => void;
   selection: {
     selectedRowKeys: Key[];
   };
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  loading: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onSearchTerm: (term?: string) => void;
+  onEdit: (asset: Asset) => void;
   setSelection: Dispatch<
     SetStateAction<{
       selectedRowKeys: Key[];
@@ -26,28 +30,25 @@ type Props = {
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
   onAssetsReload: () => void;
-  loading: boolean;
 };
 
 const AssetList: React.FC<Props> = ({
   assetList,
   assetsPerPage,
-  createAssets,
   fileList,
+  selection,
+  uploading,
+  uploadModalVisibility,
+  loading,
+  createAssets,
   onSearchTerm,
   onEdit,
-  selection,
   setSelection,
   setFileList,
   setUploading,
   setUploadModalVisibility,
-  uploading,
-  uploadModalVisibility,
   onAssetsReload,
-  loading,
 }) => {
   const displayUploadModal = () => {
     setUploadModalVisibility(true);
@@ -86,39 +87,47 @@ const AssetList: React.FC<Props> = ({
   };
 
   return (
-    <Wrapper>
-      <PageHeader
-        title="Asset"
-        extra={
-          <UploadAsset
-            fileList={fileList}
-            uploading={uploading}
-            uploadProps={uploadProps}
-            uploadModalVisibility={uploadModalVisibility}
-            displayUploadModal={displayUploadModal}
-            hideUploadModal={hideUploadModal}
-            handleUpload={handleUpload}
+    <ComplexInnerContents
+      center={
+        <Wrapper>
+          <StyledPageHeader
+            title="Asset"
+            extra={
+              <UploadAsset
+                fileList={fileList}
+                uploading={uploading}
+                uploadProps={uploadProps}
+                uploadModalVisibility={uploadModalVisibility}
+                displayUploadModal={displayUploadModal}
+                hideUploadModal={hideUploadModal}
+                handleUpload={handleUpload}
+              />
+            }
           />
-        }
-      />
-      <AssetListTable
-        assetList={assetList}
-        assetsPerPage={assetsPerPage}
-        onEdit={onEdit}
-        onSearchTerm={onSearchTerm}
-        selection={selection}
-        setSelection={setSelection}
-        onAssetsReload={onAssetsReload}
-        loading={loading}
-      />
-    </Wrapper>
+          <AssetListTable
+            assetList={assetList}
+            assetsPerPage={assetsPerPage}
+            onEdit={onEdit}
+            onSearchTerm={onSearchTerm}
+            selection={selection}
+            setSelection={setSelection}
+            onAssetsReload={onAssetsReload}
+            loading={loading}
+          />
+        </Wrapper>
+      }
+    />
   );
 };
 
+export default AssetList;
+
 const Wrapper = styled.div`
-  margin: 16px;
-  background-color: white;
-  min-height: 100%;
+  background: #fff;
+  width: 100%;
+  height: 100%;
 `;
 
-export default AssetList;
+const StyledPageHeader = styled(PageHeader)`
+  margin: 0 8px;
+`;

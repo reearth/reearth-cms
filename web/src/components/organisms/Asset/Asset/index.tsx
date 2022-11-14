@@ -1,32 +1,29 @@
-import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 
-import Button from "@reearth-cms/components/atoms/Button";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
-import { useT } from "@reearth-cms/i18n";
+import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
-  const t = useT();
   const navigate = useNavigate();
   const { workspaceId, projectId, assetId } = useParams();
   const {
     asset,
-    updateAsset,
     isLoading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
 
   const handleSave = async () => {
     if (assetId) {
-      await updateAsset(assetId, selectedPreviewType);
+      await handleAssetUpdate(assetId, selectedPreviewType);
+      handleBack();
     }
   };
 
@@ -36,31 +33,19 @@ const Asset: React.FC = () => {
 
   return isLoading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
-  ) : asset ? (
-    <Wrapper>
-      <PageHeader
-        title={`${t("Asset")}/${asset?.fileName}`}
-        onBack={handleBack}
-        extra={<Button onClick={handleSave}>{t("Save")}</Button>}
-      />
-      <AssetBody
-        asset={asset}
-        selectedPreviewType={selectedPreviewType}
-        handleTypeChange={handleTypeChange}
-        isModalVisible={isModalVisible}
-        handleModalCancel={handleModalCancel}
-        handleFullScreen={handleFullScreen}
-      />
-    </Wrapper>
   ) : (
-    <Wrapper>not found</Wrapper>
+    <AssetWrapper
+      commentsPanel={<CommentsPanel comments={asset?.comments} threadId={asset?.threadId} />}
+      asset={asset}
+      selectedPreviewType={selectedPreviewType}
+      isModalVisible={isModalVisible}
+      onTypeChange={handleTypeChange}
+      onModalCancel={handleModalCancel}
+      onChangeToFullScreen={handleFullScreen}
+      onBack={handleBack}
+      onSave={handleSave}
+    />
   );
 };
-
-const Wrapper = styled.div`
-  margin: 16px;
-  background-color: white;
-  min-height: 100%;
-`;
 
 export default Asset;
