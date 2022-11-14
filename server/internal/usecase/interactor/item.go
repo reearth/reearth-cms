@@ -272,6 +272,9 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
 		v := f.Value
 		sf := s.Field(f.SchemaFieldID)
+		if sf == nil {
+			return nil, interfaces.ErrFieldNotFound
+		}
 		if sf.Type() == schema.TypeInteger {
 			strV := fmt.Sprintf("%v", f.Value)
 			if len(strings.TrimSpace(strV)) != 0 {
