@@ -7,7 +7,6 @@ import (
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 )
 
 var (
@@ -22,8 +21,10 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 		res, err = NewAsset(o, urlResolver(o))
 	case *item.Item:
 		res = NewItem(o)
-	case *version.Value[*item.Item]:
+	case item.Versioned:
 		res = NewVersionedItem(o)
+	case item.ItemAndSchema:
+		res = NewItemAndSchema(o)
 	// TODO: add later
 	// case *schema.Schema:
 	// case *project.Project:

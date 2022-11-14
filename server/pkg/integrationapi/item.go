@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver *version.Value[*item.Item]) Item {
+func NewVersionedItem(ver item.Versioned) Item {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})

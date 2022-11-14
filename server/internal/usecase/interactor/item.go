@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -19,11 +20,12 @@ import (
 )
 
 type Item struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos       *repo.Container
+	gateways    *gateway.Container
+	ignoreEvent bool
 }
 
-func NewItem(r *repo.Container, g *gateway.Container) interfaces.Item {
+func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	return &Item{
 		repos:    r,
 		gateways: g,
@@ -59,6 +61,10 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
+}
+
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, p)
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
@@ -104,12 +110,21 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if err := i.event(ctx, Event{
+			Workspace: s.Workspace(),
+			Type:      event.ItemCreate,
+			Object:    vi,
+			WebhookObject: item.ItemAndSchema{
+				Item:   vi.Value(),
+				Schema: s,
+			},
+			Operator: operator.Operator(),
+		}); err != nil {
+			return nil, err
+		}
+
 		return vi, nil
 	})
-}
-
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, q, p)
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
@@ -123,13 +138,13 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		item := itemv.Value()
-		s, err := i.repos.Schema.FindByID(ctx, item.Schema())
+		it := itemv.Value()
+		s, err := i.repos.Schema.FindByID(ctx, it.Schema())
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsWritableProject(item.Project()) {
+		if !operator.IsWritableProject(it.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -139,20 +154,33 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		//TODO: create item.FieldList model and move this check there
-		changedFields := filterChangedFields(item.Fields(), fields)
+		changedFields := filterChangedFields(it.Fields(), fields)
 		if len(changedFields) == 0 {
 			return itemv, nil
 		}
 
 		if param.Fields != nil {
-			err = validateFields(ctx, changedFields, s, item.Model(), i.repos)
+			err = validateFields(ctx, changedFields, s, it.Model(), i.repos)
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		item.UpdateFields(fields)
-		if err := i.repos.Item.Save(ctx, item); err != nil {
+		it.UpdateFields(fields)
+		if err := i.repos.Item.Save(ctx, it); err != nil {
+			return nil, err
+		}
+
+		if err := i.event(ctx, Event{
+			Workspace: s.Workspace(),
+			Type:      event.ItemUpdate,
+			Object:    itemv,
+			WebhookObject: item.ItemAndSchema{
+				Item:   it,
+				Schema: s,
+			},
+			Operator: operator.Operator(),
+		}); err != nil {
 			return nil, err
 		}
 
@@ -267,4 +295,13 @@ func filterFields(l item.VersionedList, lids id.FieldIDList) item.VersionedList 
 			i.Value().FilterFields(lids),
 		)
 	})
+}
+
+func (i *Item) event(ctx context.Context, e Event) error {
+	if i.ignoreEvent {
+		return nil
+	}
+
+	_, err := createEvent(ctx, i.repos, i.gateways, e)
+	return err
 }

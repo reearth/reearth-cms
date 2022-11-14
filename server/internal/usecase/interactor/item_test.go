@@ -97,6 +97,7 @@ func TestItem_FindByID(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, err := itemUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -210,6 +211,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			}
 
 			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -243,6 +245,7 @@ func TestItem_Create(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 	itemv, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
 		Fields: []interfaces.ItemFieldParam{
@@ -295,6 +298,7 @@ func TestItem_Delete(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
 
@@ -324,6 +328,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 
 	// first version
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
@@ -384,6 +389,7 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
 	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: id1,
 		Fields: []interfaces.ItemFieldParam{
@@ -497,6 +503,7 @@ func TestItem_FindByProject(t *testing.T) {
 			err := db.Project.Save(ctx, tc.seedProject)
 			assert.NoError(t, err)
 			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.FindByProject(ctx, tc.args.id, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
@@ -610,6 +617,7 @@ func TestItem_Search(t *testing.T) {
 				assert.Nil(t, err)
 			}
 			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {

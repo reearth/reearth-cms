@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -90,4 +91,9 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 		}
 	}
 	return false
+}
+
+type ItemAndSchema struct {
+	Item   *Item
+	Schema *schema.Schema
 }
