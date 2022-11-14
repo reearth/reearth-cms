@@ -25,7 +25,7 @@ type FileEntry struct {
 type File interface {
 	ReadAsset(context.Context, string, string) (io.ReadCloser, error)
 	GetAssetFiles(context.Context, string) ([]FileEntry, error)
-	UploadAsset(context.Context, *file.File) (string, error)
+	UploadAsset(context.Context, *file.File) (string, int64, error)
 	DeleteAsset(context.Context, string, string) error
 	GetURL(*asset.Asset) string
 }

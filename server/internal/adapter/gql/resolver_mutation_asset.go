@@ -14,10 +14,15 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 	uc := usecases(ctx).Asset
-	res, err := uc.Create(ctx, interfaces.CreateAssetParam{
+	params := interfaces.CreateAssetParam{
 		ProjectID: pid,
-		File:      gqlmodel.FromFile(&input.File),
-	}, getOperator(ctx))
+		File:      gqlmodel.FromFile(input.File),
+	}
+	if input.URL != nil {
+		params.URL = *input.URL
+	}
+
+	res, err := uc.Create(ctx, params, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
