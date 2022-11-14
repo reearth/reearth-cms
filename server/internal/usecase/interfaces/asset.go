@@ -23,6 +23,7 @@ const (
 type CreateAssetParam struct {
 	ProjectID idx.ID[id.Project]
 	File      *file.File
+	URL       string
 }
 
 type UpdateAssetParam struct {
