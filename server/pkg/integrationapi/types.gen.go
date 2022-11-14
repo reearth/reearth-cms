@@ -21,6 +21,12 @@ const (
 	Unknown AssetPreviewType = "unknown"
 )
 
+// Defines values for CommentAuthorType.
+const (
+	Integrtaion CommentAuthorType = "integrtaion"
+	User        CommentAuthorType = "user"
+)
+
 // Defines values for FieldType.
 const (
 	FieldTypeAsset     FieldType = "asset"
@@ -120,6 +126,18 @@ type Asset struct {
 // AssetPreviewType defines model for Asset.PreviewType.
 type AssetPreviewType string
 
+// Comment defines model for comment.
+type Comment struct {
+	AuthorId   *any                `json:"authorId,omitempty"`
+	AuthorType *CommentAuthorType  `json:"authorType,omitempty"`
+	Content    *string             `json:"content,omitempty"`
+	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
+	Id         *id.CommentID       `json:"id,omitempty"`
+}
+
+// CommentAuthorType defines model for Comment.AuthorType.
+type CommentAuthorType string
+
 // Field defines model for field.
 type Field struct {
 	Id    *id.FieldID  `json:"id,omitempty"`
@@ -163,6 +181,9 @@ type RefOrVerRef string
 
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
+
+// CommentIdParam defines model for commentIdParam.
+type CommentIdParam = id.CommentID
 
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
@@ -269,6 +290,16 @@ type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
+// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
+type AssetCommentCreateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
+
+// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
+type AssetCommentUpdateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
+
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
 
@@ -280,3 +311,9 @@ type ItemPublishJSONRequestBody = RefOrVer
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody
+
+// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
+type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
+
+// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
+type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody

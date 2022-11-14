@@ -1,4 +1,4 @@
-package event
+package operator
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 
 func TestOperator(t *testing.T) {
 	uID := user.NewID()
-	iID := NewIntegrationIDForTest()
+	iID := NewIntegrationID()
 
 	uOp := OperatorFromUser(uID)
 	iOp := OperatorFromIntegration(iID)
@@ -30,8 +30,8 @@ func TestOperator(t *testing.T) {
 	assert.Nil(t, cmsOp.User())
 	assert.Nil(t, cmsOp.Integration())
 
-	assert.True(t, uOp.validate())
-	assert.True(t, iOp.validate())
-	assert.True(t, cmsOp.validate())
+	assert.True(t, uOp.Validate())
+	assert.True(t, iOp.Validate())
+	assert.True(t, cmsOp.Validate())
 
 }

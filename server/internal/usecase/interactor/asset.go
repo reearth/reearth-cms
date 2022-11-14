@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
@@ -20,14 +21,14 @@ import (
 type Asset struct {
 	repos     *repo.Container
 	gateways  *gateway.Container
-	eventFunc func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error)
+	eventFunc func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error)
 }
 
 func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
-		eventFunc: func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op event.Operator) (*event.Event[any], error) {
+		eventFunc: func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error) {
 			return createEvent(ctx, r, g, wid, t, a, op)
 		},
 	}
@@ -65,8 +66,8 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 	return i.gateways.File.GetURL(a)
 }
 
-func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
-	if operator.User == nil && operator.Integration == nil {
+func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, err error) {
+	if op.User == nil && op.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -80,7 +81,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 	}
 
 	return Run1(
-		ctx, operator, i.repos,
+		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(prj.Workspace()).Transaction(),
 		func() (*asset.Asset, error) {
 			uuid, err := i.gateways.File.UploadAsset(ctx, inp.File)
@@ -109,11 +110,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 				UUID(uuid).
 				Thread(th.ID())
 
-			if operator.User != nil {
-				ab.CreatedByUser(*operator.User)
+			if op.User != nil {
+				ab.CreatedByUser(*op.User)
 			}
-			if operator.Integration != nil {
-				ab.CreatedByIntegration(*operator.Integration)
+			if op.Integration != nil {
+				ab.CreatedByIntegration(*op.Integration)
 			}
 
 			a, err := ab.Build()
@@ -137,14 +138,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, ope
 			}
 
 			// create event
-			var eOp event.Operator
-			if operator.User != nil {
-				eOp = event.OperatorFromUser(*operator.User)
-			}
-			if operator.Integration != nil {
-				eOp = event.OperatorFromIntegration(*operator.Integration)
-			}
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, eOp); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, op.Operator()); err != nil {
 				return nil, err
 			}
 
@@ -175,13 +169,13 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
-	if operator.User == nil && operator.Integration == nil && !operator.Machine {
+func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
+	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
 	return Run1(
-		ctx, operator, i.repos,
+		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, a)
@@ -214,7 +208,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, operator *usecase
 				return nil, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, operator.EventOperator()); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, op.Operator()); err != nil {
 				return nil, err
 			}
 
@@ -254,7 +248,7 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.EventOperator()); err != nil {
+			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.Operator()); err != nil {
 				return aid, err
 			}
 

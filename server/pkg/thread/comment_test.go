@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,12 +16,12 @@ func TestComment_CommentType(t *testing.T) {
 
 	got := Comment{
 		id:      cid,
-		author:  uid,
+		author:  operator.OperatorFromUser(uid),
 		content: c,
 	}
 
 	assert.Equal(t, cid, got.ID())
-	assert.Equal(t, uid, got.Author())
+	assert.Equal(t, uid, *got.Author().User())
 	assert.Equal(t, c, got.Content())
 	assert.Equal(t, mocknow, got.CreatedAt())
 }
@@ -42,7 +43,7 @@ func TestComment_CreatedAt(t *testing.T) {
 func TestComment_Clone(t *testing.T) {
 	comment := (&Comment{
 		id:      NewCommentID(),
-		author:  NewUserID(),
+		author:  operator.OperatorFromUser(NewUserID()),
 		content: "test",
 	})
 	assert.Nil(t, (*Comment)(nil).Clone())
