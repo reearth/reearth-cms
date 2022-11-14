@@ -40,8 +40,7 @@ const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
           loading={submitting}
           onClick={handleSubmit}
           type="primary"
-          size="small"
-          style={{ float: "right", marginRight: "8px" }}>
+          size="small">
           {t("Comment")}
         </Button>
       </StyledFormItem>
@@ -56,5 +55,6 @@ const StyledForm = styled(Form)`
 `;
 
 const StyledFormItem = styled(Form.Item)`
-  margin-bottom: 16px;
+  margin: 0 4px 4px 0;
+  float: right;
 `;
