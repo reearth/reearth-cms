@@ -25,7 +25,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, rerror.ErrNotFound
 	}
 
-	p := toPagination(request.Params.Page, request.Params.PerPage)
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
 
 	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
 	if err != nil {
@@ -38,7 +38,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 			return integrationapi.Item{}, err
 		}
 
-		return toItem(i, ver[len(ver)-1], m[0].ID()), nil
+		return integrationapi.NewItem(i, ver[len(ver)-1], m[0].ID()), nil
 	})
 	if err != nil {
 		return ItemFilter400Response{}, err
@@ -72,7 +72,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	cp := interfaces.CreateItemParam{
 		SchemaID: m[0].Schema(),
 		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return toItemFieldParam(f)
+			return fromItemFieldParam(f)
 		}),
 		ModelID: mId,
 	}
@@ -87,7 +87,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return nil, err
 	}
 
-	return ItemCreate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemCreate200JSONResponse(integrationapi.NewItem(i, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -101,7 +101,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 	up := interfaces.UpdateItemParam{
 		ItemID: id.ItemID(request.ItemId),
 		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return toItemFieldParam(f)
+			return fromItemFieldParam(f)
 		}),
 	}
 	i, err := uc.Item.Update(ctx, up, op)
@@ -114,7 +114,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(toItem(i, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewItem(i, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -146,7 +146,7 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return nil, err
 	}
 
-	return ItemGet200JSONResponse(toItem(itm, ver[len(ver)-1], id.NewModelID())), nil
+	return ItemGet200JSONResponse(integrationapi.NewItem(itm, ver[len(ver)-1], id.NewModelID())), nil
 }
 
 func (s Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {

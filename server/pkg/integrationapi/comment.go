@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToComment(c *thread.Comment) *Comment {
+func NewComment(c *thread.Comment) *Comment {
 	if c == nil {
 		return nil
 	}

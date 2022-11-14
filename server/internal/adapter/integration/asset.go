@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/util"
@@ -28,7 +29,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	f := interfaces.AssetFilter{
 		Keyword:    nil,
 		Sort:       &sort,
-		Pagination: toPagination(request.Params.Page, request.Params.PerPage),
+		Pagination: fromPagination(request.Params.Page, request.Params.PerPage),
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
@@ -37,7 +38,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := toAsset(a, uc.Asset.GetURL(a))
+		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
 			return integrationapi.Asset{}, err
 		}
@@ -59,7 +60,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	f, err := toFile(request.Body)
+	f, err := file.FromMultipart(request.Body, "file")
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
@@ -72,7 +73,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
@@ -99,7 +100,7 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 	if err != nil {
 		return AssetGet400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetGet400Response{}, err
 	}

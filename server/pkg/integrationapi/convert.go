@@ -18,7 +18,7 @@ func New(obj any, version string, urlResolver asset.URLResolver) (res any, err e
 
 	switch o := (obj).(type) {
 	case *asset.Asset:
-		res = ToAsset(o, urlResolver)
+		res, err = NewAsset(o, urlResolver(o))
 	case *item.Item:
 		break
 	// TODO: add later
