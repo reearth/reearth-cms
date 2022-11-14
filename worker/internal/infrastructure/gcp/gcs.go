@@ -104,7 +104,7 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (ga
 
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		log.Errorf(ctx, "gcs: read bucket err: %+v\n", err)
+		log.Errorf("gcs: read bucket err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 	obj := bucket.Object(objectName)
