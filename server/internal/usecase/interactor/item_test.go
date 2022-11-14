@@ -104,7 +104,7 @@ func TestItem_FindByID(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, got.Value())
 		})
 	}
 }
@@ -243,7 +243,7 @@ func TestItem_Create(t *testing.T) {
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
-	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+	itemv, err := itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: sid,
 		Fields: []interfaces.ItemFieldParam{
 			{
@@ -259,6 +259,7 @@ func TestItem_Create(t *testing.T) {
 		},
 		ModelID: id.NewModelID(),
 	}, op)
+	item := itemv.Value()
 	assert.NoError(t, err)
 	assert.NotNil(t, item)
 
@@ -327,7 +328,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	// first version
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
 	}, res)
 
@@ -337,7 +338,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
-	assert.Equal(t, []*version.Value[*item.Item]{
+	assert.Equal(t, item.VersionedList{
 		version.NewValue(res[0].Version(), nil, nil, i1),
 		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
 	}, res)
@@ -399,7 +400,7 @@ func TestItem_Update(t *testing.T) {
 		},
 	}, op)
 	assert.NoError(t, err)
-	assert.Equal(t, i1, i)
+	assert.Equal(t, i1, i.Value())
 
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: id1,
@@ -503,7 +504,7 @@ func TestItem_FindByProject(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.want, got.Unwrap())
 		})
 	}
 }

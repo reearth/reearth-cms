@@ -37,6 +37,19 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 	})
 }
 
-type Versioned = *version.Value[*Item]
+type VersionedList []*version.Value[*Item]
 
-type VersionedList = []*version.Value[*Item]
+func (l VersionedList) SortByTimestamp() VersionedList {
+	m := slices.Clone(l)
+	slices.SortFunc(m, func(a, b Versioned) bool {
+		return a.Value().timestamp.Before(b.Value().Timestamp())
+	})
+	return m
+}
+
+func (l VersionedList) Unwrap() List {
+	if l == nil {
+		return nil
+	}
+	return version.UnwrapValues(l)
+}

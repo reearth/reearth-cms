@@ -10,8 +10,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type VersionedItem = version.Value[Item]
-
 type Item struct {
 	id        ID
 	schema    SchemaID
@@ -20,6 +18,8 @@ type Item struct {
 	fields    []*Field
 	timestamp time.Time
 }
+
+type Versioned = *version.Value[*Item]
 
 func (i *Item) ID() ID {
 	return i.id
