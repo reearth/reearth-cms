@@ -51,7 +51,7 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 		}
 
 		if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
-			log.Errorf("failed to send webhook. xwebhook: %#v err:%s", w, err.Error())
+			log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
 			return err
 		}
 

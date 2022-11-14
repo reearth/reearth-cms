@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"cloud.google.com/go/storage"
-	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/appengine/log"
@@ -146,7 +145,7 @@ func getGCSObjectNameFromURL(assetBasePath string, path string) string {
 		return ""
 	}
 
-	p := sanitize.Path(filepath.Join(assetBasePath, path))
+	p := filepath.Join(assetBasePath, path)
 
 	return p
 }
