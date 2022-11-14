@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
+import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -29,7 +29,7 @@ export default (assetId?: string) => {
   }, [rawAsset]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
-  const updateAsset = useCallback(
+  const handleAssetUpdate = useCallback(
     (assetId: string, previewType?: PreviewType) =>
       (async () => {
         if (!assetId) return;
@@ -71,11 +71,11 @@ export default (assetId?: string) => {
 
   return {
     asset,
-    updateAsset,
     isLoading: loading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   };

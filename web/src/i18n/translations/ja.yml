@@ -22,6 +22,7 @@ Language: ''
 Asset Type: ''
 Created Time: ''
 Created By: ''
+Asset: アセット
 Source Code: ''
 Render: ''
 PNG/JPEG/TIFF/SVG: ''
@@ -46,7 +47,8 @@ Cancel: キャンセル
 Uploading: ''
 Upload and Link: ''
 Upload: ''
-Asset: アセット
+Comment: ''
+Comments: ''
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
@@ -194,6 +196,8 @@ Successfully added one or more assets!: ''
 Failed to delete one or more assets.: ''
 One or more assets were successfully deleted!: ''
 Successfully created workspace!: ''
+Failed to create comment.: ''
+Successfully created comment!: ''
 Failed to create item.: ''
 Successfully created Item!: ''
 Failed to update item.: ''

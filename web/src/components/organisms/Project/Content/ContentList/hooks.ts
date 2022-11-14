@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
@@ -10,6 +10,7 @@ export default () => {
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
   const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
+  const [collapsed, collapse] = useState(false);
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
@@ -69,6 +70,8 @@ export default () => {
     itemsDataLoading,
     contentTableFields,
     contentTableColumns,
+    collapsed,
+    collapse,
     handleModelSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
