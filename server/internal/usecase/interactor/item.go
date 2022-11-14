@@ -112,6 +112,7 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 		if sf == nil {
 			return interfaces.ErrFieldNotFound
 		}
+		field.UpdateType(sf.Type())
 		if sf.Required() && field.Value() == nil {
 			return errors.New("field is required")
 		}

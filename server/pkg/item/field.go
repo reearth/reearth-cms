@@ -23,3 +23,7 @@ func (f *Field) ValueType() schema.Type {
 func (f *Field) Value() any {
 	return f.value
 }
+
+func (f *Field) UpdateType(t schema.Type) {
+	f.valueType = t
+}
