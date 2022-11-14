@@ -102,7 +102,7 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    post:
+    patch:
       operationId: ItemUpdate
       security:
         - bearerAuth: []
