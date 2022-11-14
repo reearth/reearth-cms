@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"google.golang.org/api/iterator"
 )
 
@@ -57,16 +58,17 @@ func NewFile(bucketName, base, cacheControl, host string) (gateway.File, error) 
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
-	p := getGCSObjectPath(u, fn)
-	if p == "" {
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, p string) (io.ReadCloser, error) {
+	op := getGCSObjectPath(u, p)
+	if op == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	sn := sanitize.Path(p)
+	sn := sanitize.Path(op)
 	if sn == "" {
 		return nil, rerror.ErrNotFound
 	}
+
 	return f.read(ctx, sn)
 }
 
@@ -148,8 +150,8 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.host, a.UUID(), a.FileName())
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
-	if filename == "" {
+func (f *fileRepo) read(ctx context.Context, path string) (io.ReadCloser, error) {
+	if path == "" {
 		return nil, rerror.ErrNotFound
 	}
 
@@ -159,7 +161,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	reader, err := bucket.Object(filename).NewReader(ctx)
+	reader, err := bucket.Object(path).NewReader(ctx)
 	if err != nil {
 		if errors.Is(err, storage.ErrObjectNotExist) {
 			return nil, rerror.ErrNotFound
@@ -227,12 +229,17 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-func getGCSObjectPath(uuid, objectName string) string {
+func getGCSObjectPath(uuid, objectPath string) string {
 	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
-	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], fileName(objectName))
+	ss := strings.Split(objectPath, "/")
+	ss = lo.Map(ss, func(s string, _ int) string {
+		return fileName(s)
+	})
+
+	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], strings.Join(ss, "/"))
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {

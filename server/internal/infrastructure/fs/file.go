@@ -43,13 +43,13 @@ func NewFile(fs afero.Fs, urlBase, host string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
-	if u == "" || fn == "" {
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, p string) (io.ReadCloser, error) {
+	if u == "" || p == "" {
 		return nil, rerror.ErrNotFound
 	}
 
-	p := getFSObjectPath(u, fn)
-	sn := sanitize.Path(p)
+	op := getFSObjectPath(u, p)
+	sn := sanitize.Path(op)
 
 	return f.read(ctx, sn)
 }
@@ -184,12 +184,14 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-func getFSObjectPath(uuid, objectName string) string {
+func getFSObjectPath(uuid, objectPath string) string {
 	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
-	p := path.Join(assetDir, uuid[:2], uuid[2:], objectName)
+	ss := strings.Split(objectPath, "/")
+
+	p := path.Join(assetDir, uuid[:2], uuid[2:], strings.Join(ss, "/"))
 	return sanitize.Path(p)
 }
 

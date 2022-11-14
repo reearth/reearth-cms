@@ -138,6 +138,9 @@ func TestFile_GetFSObjectPath(t *testing.T) {
 	n := "xxx.yyy"
 	assert.Equal(t, path.Join(assetDir, u[:2], u[2:], "xxx.yyy"), getFSObjectPath(u, n))
 
+	n = "xxx/yyy.zzz"
+	assert.Equal(t, path.Join(assetDir, u[:2], u[2:], "xxx/yyy.zzz"), getFSObjectPath(u, n))
+
 	u1 := ""
 	n1 := ""
 	assert.Equal(t, "", getFSObjectPath(u1, n1))
