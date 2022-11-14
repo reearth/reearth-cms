@@ -33,8 +33,16 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 	}
 }
 
-func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, t event.Type, o any, op operator.Operator) (*event.Event[any], error) {
-	ev, err := event.New[any]().NewID().Object(o).Type(t).Timestamp(util.Now()).Operator(op).Build()
+type Event struct {
+	Workspace     id.WorkspaceID
+	Type          event.Type
+	Operator      operator.Operator
+	Object        any
+	WebhookObject any
+}
+
+func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, e Event) (*event.Event[any], error) {
+	ev, err := event.New[any]().NewID().Object(e.Object).Type(e.Type).Timestamp(util.Now()).Operator(e.Operator).Build()
 	if err != nil {
 		return nil, err
 	}
@@ -43,15 +51,19 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, w
 		return nil, err
 	}
 
-	if err := webhook(ctx, r, g, wsID, ev); err != nil {
+	if err := webhook(ctx, r, g, e, ev); err != nil {
 		return nil, err
 	}
 
 	return ev, nil
 }
 
-func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID id.WorkspaceID, ev *event.Event[any]) error {
-	ws, err := r.Workspace.FindByID(ctx, wsID)
+func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Event, ev *event.Event[any]) error {
+	if g == nil || g.TaskRunner == nil {
+		return nil
+	}
+
+	ws, err := r.Workspace.FindByID(ctx, e.Workspace)
 	if err != nil {
 		return err
 	}
@@ -64,13 +76,13 @@ func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID 
 
 	for _, w := range integrations.ActiveWebhooks(ev.Type()) {
 		if err := g.TaskRunner.Run(ctx, task.WebhookPayload{
-			Webhook: w,
-			Event:   ev,
+			Webhook:  w,
+			Event:    ev,
+			Override: e.WebhookObject,
 		}.Payload()); err != nil {
 			return err
 		}
 	}
 
 	return nil
-
 }

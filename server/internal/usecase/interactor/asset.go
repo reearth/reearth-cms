@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
@@ -19,18 +18,15 @@ import (
 )
 
 type Asset struct {
-	repos     *repo.Container
-	gateways  *gateway.Container
-	eventFunc func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error)
+	repos       *repo.Container
+	gateways    *gateway.Container
+	ignoreEvent bool
 }
 
 func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
-		eventFunc: func(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error) {
-			return createEvent(ctx, r, g, wid, t, a, op)
-		},
 	}
 }
 
@@ -118,19 +114,20 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, err
 			}
 
-			// taskPayload for runner
 			taskPayload := task.DecompressAssetPayload{
 				AssetID: a.ID().String(),
 				Path:    a.RootPath(),
 			}
-
-			err = i.gateways.TaskRunner.Run(ctx, taskPayload.Payload())
-			if err != nil {
+			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
 				return nil, err
 			}
 
-			// create event
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetCreate, a, op.Operator()); err != nil {
+			if err := i.event(ctx, Event{
+				Workspace: prj.Workspace(),
+				Type:      event.AssetCreate,
+				Object:    a,
+				Operator:  op.Operator(),
+			}); err != nil {
 				return nil, err
 			}
 
@@ -200,7 +197,12 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 				return nil, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, op.Operator()); err != nil {
+			if err := i.event(ctx, Event{
+				Workspace: prj.Workspace(),
+				Type:      event.AssetDecompress,
+				Object:    a,
+				Operator:  op.Operator(),
+			}); err != nil {
 				return nil, err
 			}
 
@@ -241,11 +243,25 @@ func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Op
 				return aid, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.Operator()); err != nil {
+			if err := i.event(ctx, Event{
+				Workspace: prj.Workspace(),
+				Type:      event.AssetDelete,
+				Object:    asset,
+				Operator:  operator.Operator(),
+			}); err != nil {
 				return aid, err
 			}
 
 			return aid, nil
 		},
 	)
+}
+
+func (i *Asset) event(ctx context.Context, e Event) error {
+	if i.ignoreEvent {
+		return nil
+	}
+
+	_, err := createEvent(ctx, i.repos, i.gateways, e)
+	return err
 }
