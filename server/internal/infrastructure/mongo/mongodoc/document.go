@@ -3,6 +3,7 @@ package mongodoc
 import (
 	"errors"
 
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,6 +39,10 @@ func NewDocument(obj any) (doc Document, id string, err error) {
 	case *item.Item:
 		ty = "item"
 		res, id = NewItem(m)
+	case item.Versioned:
+		ty = "item"
+		res, id = NewItem(m.Value())
+		res = mongogit.NewDocument(version.ValueFrom(m, res))
 	case *schema.Schema:
 		ty = "schema"
 		res, id = NewSchema(m)

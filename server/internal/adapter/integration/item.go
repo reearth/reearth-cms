@@ -55,12 +55,19 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, rerror.ErrNotFound
 	}
 
+	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
+	for _, f := range *request.Body.Fields {
+		fields = append(fields, interfaces.ItemFieldParam{
+			SchemaFieldID: *f.Id,
+			ValueType:     integrationapi.FromSchemaFieldType(f.Type),
+			Value:         f.Value,
+		})
+	}
+
 	cp := interfaces.CreateItemParam{
 		SchemaID: m[0].Schema(),
-		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return fromItemFieldParam(f)
-		}),
-		ModelID: mId,
+		Fields:   fields,
+		ModelID:  mId,
 	}
 
 	i, err := uc.Item.Create(ctx, cp, op)

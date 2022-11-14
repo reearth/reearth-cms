@@ -27,26 +27,26 @@ const (
 	User        CommentAuthorType = "user"
 )
 
-// Defines values for FieldType.
+// Defines values for RefOrVersionRef.
 const (
-	FieldTypeAsset     FieldType = "asset"
-	FieldTypeBool      FieldType = "bool"
-	FieldTypeDate      FieldType = "date"
-	FieldTypeInteger   FieldType = "integer"
-	FieldTypeMarkdown  FieldType = "markdown"
-	FieldTypeReference FieldType = "reference"
-	FieldTypeRichText  FieldType = "richText"
-	FieldTypeSelect    FieldType = "select"
-	FieldTypeTag       FieldType = "tag"
-	FieldTypeText      FieldType = "text"
-	FieldTypeTextArea  FieldType = "textArea"
-	FieldTypeUrl       FieldType = "url"
+	RefOrVersionRefLatest RefOrVersionRef = "latest"
+	RefOrVersionRefPublic RefOrVersionRef = "public"
 )
 
-// Defines values for RefOrVerRef.
+// Defines values for ValueType.
 const (
-	RefOrVerRefLatest RefOrVerRef = "latest"
-	RefOrVerRefPublic RefOrVerRef = "public"
+	ValueTypeAsset     ValueType = "asset"
+	ValueTypeBool      ValueType = "bool"
+	ValueTypeDate      ValueType = "date"
+	ValueTypeInteger   ValueType = "integer"
+	ValueTypeMarkdown  ValueType = "markdown"
+	ValueTypeReference ValueType = "reference"
+	ValueTypeRichText  ValueType = "richText"
+	ValueTypeSelect    ValueType = "select"
+	ValueTypeTag       ValueType = "tag"
+	ValueTypeText      ValueType = "text"
+	ValueTypeTextArea  ValueType = "textArea"
+	ValueTypeUrl       ValueType = "url"
 )
 
 // Defines values for RefParam.
@@ -73,12 +73,6 @@ const (
 	ItemGetParamsRefPublic ItemGetParamsRef = "public"
 )
 
-// Defines values for ItemUpdateParamsRef.
-const (
-	ItemUpdateParamsRefLatest ItemUpdateParamsRef = "latest"
-	ItemUpdateParamsRefPublic ItemUpdateParamsRef = "public"
-)
-
 // Defines values for ItemFilterParamsSort.
 const (
 	ItemFilterParamsSortCreatedAt ItemFilterParamsSort = "createdAt"
@@ -93,8 +87,8 @@ const (
 
 // Defines values for ItemFilterParamsRef.
 const (
-	Latest ItemFilterParamsRef = "latest"
-	Public ItemFilterParamsRef = "public"
+	ItemFilterParamsRefLatest ItemFilterParamsRef = "latest"
+	ItemFilterParamsRefPublic ItemFilterParamsRef = "public"
 )
 
 // Defines values for AssetFilterParamsSort.
@@ -141,12 +135,9 @@ type CommentAuthorType string
 // Field defines model for field.
 type Field struct {
 	Id    *id.FieldID  `json:"id,omitempty"`
-	Type  *FieldType   `json:"type,omitempty"`
+	Type  *ValueType   `json:"type,omitempty"`
 	Value *interface{} `json:"value,omitempty"`
 }
-
-// FieldType defines model for Field.Type.
-type FieldType string
 
 // File defines model for file.
 type File struct {
@@ -159,7 +150,51 @@ type File struct {
 
 // Item defines model for item.
 type Item struct {
-	Archived  *bool                 `json:"archived,omitempty"`
+	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
+	Fields    *[]Field            `json:"fields,omitempty"`
+	Id        *id.ItemID          `json:"id,omitempty"`
+	ModelId   *id.ModelID         `json:"modelId,omitempty"`
+	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+}
+
+// RefOrVersion defines model for refOrVersion.
+type RefOrVersion struct {
+	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
+	Version *openapi_types.UUID `json:"version,omitempty"`
+}
+
+// RefOrVersionRef defines model for RefOrVersion.Ref.
+type RefOrVersionRef string
+
+// Schema defines model for schema.
+type Schema struct {
+	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
+	Fields    *[]SchemaField      `json:"fields,omitempty"`
+	Id        *id.SchemaID        `json:"id,omitempty"`
+	ProjectId *id.ProjectID       `json:"projectId,omitempty"`
+	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+}
+
+// SchemaField defines model for schemaField.
+type SchemaField struct {
+	Id       *id.FieldID `json:"id,omitempty"`
+	Key      *string     `json:"key,omitempty"`
+	Required *bool       `json:"required,omitempty"`
+	Type     *ValueType  `json:"type,omitempty"`
+}
+
+// ValueType defines model for valueType.
+type ValueType string
+
+// Version defines model for version.
+type Version struct {
+	Parents *[]openapi_types.UUID `json:"parents,omitempty"`
+	Refs    *[]openapi_types.UUID `json:"refs,omitempty"`
+	Version *openapi_types.UUID   `json:"version,omitempty"`
+}
+
+// VersionedItem defines model for versionedItem.
+type VersionedItem struct {
 	CreatedAt *openapi_types.Date   `json:"createdAt,omitempty"`
 	Fields    *[]Field              `json:"fields,omitempty"`
 	Id        *id.ItemID            `json:"id,omitempty"`
@@ -169,15 +204,6 @@ type Item struct {
 	UpdatedAt *openapi_types.Date   `json:"updatedAt,omitempty"`
 	Version   *openapi_types.UUID   `json:"version,omitempty"`
 }
-
-// RefOrVer defines model for refOrVer.
-type RefOrVer struct {
-	Ref *RefOrVerRef        `json:"ref,omitempty"`
-	Ver *openapi_types.UUID `json:"ver,omitempty"`
-}
-
-// RefOrVerRef defines model for RefOrVer.Ref.
-type RefOrVerRef string
 
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
@@ -223,15 +249,6 @@ type ItemUpdateJSONBody struct {
 	Fields *[]Field `json:"fields,omitempty"`
 }
 
-// ItemUpdateParams defines parameters for ItemUpdate.
-type ItemUpdateParams struct {
-	// Ref Used to select a ref or ver
-	Ref *ItemUpdateParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-}
-
-// ItemUpdateParamsRef defines parameters for ItemUpdate.
-type ItemUpdateParamsRef string
-
 // ItemFilterParams defines parameters for ItemFilter.
 type ItemFilterParams struct {
 	// Sort Used to define the order of the response list
@@ -261,7 +278,11 @@ type ItemFilterParamsRef string
 
 // ItemCreateJSONBody defines parameters for ItemCreate.
 type ItemCreateJSONBody struct {
-	Fields *[]Field `json:"fields,omitempty"`
+	Fields *[]struct {
+		Id    *id.FieldID  `json:"id,omitempty"`
+		Type  *ValueType   `json:"type,omitempty"`
+		Value *interface{} `json:"value,omitempty"`
+	} `json:"fields,omitempty"`
 }
 
 // AssetFilterParams defines parameters for AssetFilter.
@@ -307,7 +328,7 @@ type ItemUpdateJSONRequestBody ItemUpdateJSONBody
 type ItemCreateJSONRequestBody ItemCreateJSONBody
 
 // ItemPublishJSONRequestBody defines body for ItemPublish for application/json ContentType.
-type ItemPublishJSONRequestBody = RefOrVer
+type ItemPublishJSONRequestBody = RefOrVersion
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody

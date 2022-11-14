@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver item.Versioned) Item {
+func NewVersionedItem(ver item.Versioned) VersionedItem {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -16,18 +16,24 @@ func NewVersionedItem(ver item.Versioned) Item {
 		return string(r)
 	})
 
-	i := NewItem(ver.Value())
-	i.Parents = &ps
-	i.Refs = &rs
-	i.Version = lo.ToPtr(types.UUID(ver.Version()))
-	return i
+	ii := NewItem(ver.Value())
+	return VersionedItem{
+		Id:        ii.Id,
+		CreatedAt: ii.CreatedAt,
+		UpdatedAt: ii.UpdatedAt,
+		Fields:    ii.Fields,
+		ModelId:   ii.ModelId,
+		Parents:   &ps,
+		Refs:      &rs,
+		Version:   lo.ToPtr(types.UUID(ver.Version())),
+	}
 }
 
 func NewItem(i *item.Item) Item {
 	fs := lo.Map(i.Fields(), func(f *item.Field, _ int) Field {
 		return Field{
 			Id:    f.SchemaFieldID().Ref(),
-			Type:  lo.ToPtr(FieldType(f.ValueType())),
+			Type:  lo.ToPtr(ValueType(f.ValueType())),
 			Value: lo.ToPtr(f.Value()),
 		}
 	})
@@ -41,34 +47,34 @@ func NewItem(i *item.Item) Item {
 	}
 }
 
-func FromSchemaFieldType(t *FieldType) schema.Type {
+func FromSchemaFieldType(t *ValueType) schema.Type {
 	if t == nil {
 		return ""
 	}
 	switch *t {
-	case FieldTypeText:
+	case ValueTypeText:
 		return schema.TypeText
-	case FieldTypeTextArea:
+	case ValueTypeTextArea:
 		return schema.TypeTextArea
-	case FieldTypeRichText:
+	case ValueTypeRichText:
 		return schema.TypeRichText
-	case FieldTypeMarkdown:
+	case ValueTypeMarkdown:
 		return schema.TypeMarkdown
-	case FieldTypeAsset:
+	case ValueTypeAsset:
 		return schema.TypeAsset
-	case FieldTypeDate:
+	case ValueTypeDate:
 		return schema.TypeDate
-	case FieldTypeBool:
+	case ValueTypeBool:
 		return schema.TypeBool
-	case FieldTypeSelect:
+	case ValueTypeSelect:
 		return schema.TypeSelect
-	case FieldTypeTag:
+	case ValueTypeTag:
 		return schema.TypeTag
-	case FieldTypeInteger:
+	case ValueTypeInteger:
 		return schema.TypeInteger
-	case FieldTypeReference:
+	case ValueTypeReference:
 		return schema.TypeReference
-	case FieldTypeUrl:
+	case ValueTypeUrl:
 		return schema.TypeURL
 	default:
 		return ""

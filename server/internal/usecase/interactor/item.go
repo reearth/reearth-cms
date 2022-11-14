@@ -133,18 +133,18 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
-		itemv, err := i.repos.Item.FindByID(ctx, param.ItemID)
+		it, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
 
-		it := itemv.Value()
-		s, err := i.repos.Schema.FindByID(ctx, it.Schema())
+		itv := it.Value()
+		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsWritableProject(it.Project()) {
+		if !operator.IsWritableProject(itv.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -154,29 +154,29 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		//TODO: create item.FieldList model and move this check there
-		changedFields := filterChangedFields(it.Fields(), fields)
+		changedFields := filterChangedFields(itv.Fields(), fields)
 		if len(changedFields) == 0 {
-			return itemv, nil
+			return it, nil
 		}
 
 		if param.Fields != nil {
-			err = validateFields(ctx, changedFields, s, it.Model(), i.repos)
+			err = validateFields(ctx, changedFields, s, itv.Model(), i.repos)
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		it.UpdateFields(fields)
-		if err := i.repos.Item.Save(ctx, it); err != nil {
+		itv.UpdateFields(fields)
+		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}
 
 		if err := i.event(ctx, Event{
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
-			Object:    itemv,
+			Object:    it,
 			WebhookObject: item.ItemAndSchema{
-				Item:   it,
+				Item:   itv,
 				Schema: s,
 			},
 			Operator: operator.Operator(),
@@ -184,7 +184,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		return itemv, nil
+		return it, nil
 	})
 }
 
