@@ -249,9 +249,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}':
+  '/assets/{assetId}':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetGet
@@ -283,9 +282,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}/comments':
+  '/assets/{assetId}/comments':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetCommentList
@@ -331,9 +329,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectId}/assets/{assetId}/comments/{commentId}':
+  '/assets/{assetId}/comments/{commentId}':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
       - $ref: '#/components/parameters/assetIdParam'
       - $ref: '#/components/parameters/commentIdParam'
     patch:
