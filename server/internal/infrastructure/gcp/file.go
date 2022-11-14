@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"path"
 	"regexp"
@@ -270,12 +269,4 @@ func fileName(s string) string {
 func getURL(host, uuid, fName string) string {
 	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], fileName(fName))
 	return url
-}
-
-func (f *fileRepo) client(ctx context.Context) (client *http.Client) {
-	if client == nil {
-		client = http.DefaultClient
-	}
-
-	return
 }
