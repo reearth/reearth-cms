@@ -23,6 +23,7 @@ const Asset: React.FC = () => {
   const handleSave = async () => {
     if (assetId) {
       await handleAssetUpdate(assetId, selectedPreviewType);
+      handleBack();
     }
   };
 
