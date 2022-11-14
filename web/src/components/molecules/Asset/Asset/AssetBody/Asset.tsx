@@ -163,9 +163,6 @@ const Image = styled.img`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
-  // height: 100%;
-  // display: flex;
-  // flex-direction: column;
 `;
 
 export default AssetMolecule;
