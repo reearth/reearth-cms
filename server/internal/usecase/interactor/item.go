@@ -178,7 +178,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-		//TODO: create item.FieldList model and move this check there
+		// TODO: create item.FieldList model and move this check there
 		changedFields := filterChangedFields(item.Fields(), fields)
 		if len(changedFields) == 0 {
 			return item, nil
@@ -221,7 +221,7 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam, s *schema.Schema) 
 		sf := s.Field(f.SchemaFieldID)
 		if sf.Type() == schema.TypeInteger {
 			strV := fmt.Sprintf("%v", f.Value)
-			if len(strV) > 0 && len(strings.TrimSpace(strV)) != 0 {
+			if len(strings.TrimSpace(strV)) != 0 {
 				v, err = strconv.ParseInt(strV, 10, 64)
 			} else {
 				v = nil
