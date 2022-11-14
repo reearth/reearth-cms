@@ -285,6 +285,11 @@ type AssetFilterParamsSort string
 // AssetFilterParamsDir defines parameters for AssetFilter.
 type AssetFilterParamsDir string
 
+// AssetCreateJSONBody defines parameters for AssetCreate.
+type AssetCreateJSONBody struct {
+	Url *string `json:"url,omitempty"`
+}
+
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
@@ -308,6 +313,9 @@ type ItemCreateJSONRequestBody ItemCreateJSONBody
 
 // ItemPublishJSONRequestBody defines body for ItemPublish for application/json ContentType.
 type ItemPublishJSONRequestBody = RefOrVer
+
+// AssetCreateJSONRequestBody defines body for AssetCreate for application/json ContentType.
+type AssetCreateJSONRequestBody AssetCreateJSONBody
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody

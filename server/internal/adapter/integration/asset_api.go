@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/util"
@@ -59,14 +60,24 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	f, err := toFile(request.Body)
-	if err != nil {
-		return AssetCreate400Response{}, err
+	var f *file.File
+	var err error
+	if request.MultipartBody != nil {
+		f, err = toFile(request.MultipartBody)
+		if err != nil {
+			return AssetCreate400Response{}, err
+		}
+	}
+
+	var url string
+	if request.JSONBody != nil {
+		url = *request.JSONBody.Url
 	}
 
 	cp := interfaces.CreateAssetParam{
 		ProjectID: id.ProjectID(request.ProjectId),
 		File:      f,
+		URL:       url,
 	}
 	a, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
