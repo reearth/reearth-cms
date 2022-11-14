@@ -153,7 +153,7 @@ type Item struct {
 	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
 	Fields    *[]Field            `json:"fields,omitempty"`
 	Id        *id.ItemID          `json:"id,omitempty"`
-	ModelId   *id.ModelID         `json:"modelId,omitempty"`
+	ModelId   *string             `json:"modelId,omitempty"`
 	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
 }
 
@@ -198,7 +198,7 @@ type VersionedItem struct {
 	CreatedAt *openapi_types.Date   `json:"createdAt,omitempty"`
 	Fields    *[]Field              `json:"fields,omitempty"`
 	Id        *id.ItemID            `json:"id,omitempty"`
-	ModelId   *id.ModelID           `json:"modelId,omitempty"`
+	ModelId   *string               `json:"modelId,omitempty"`
 	Parents   *[]openapi_types.UUID `json:"parents,omitempty"`
 	Refs      *[]string             `json:"refs,omitempty"`
 	UpdatedAt *openapi_types.Date   `json:"updatedAt,omitempty"`

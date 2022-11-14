@@ -547,7 +547,6 @@ components:
           x-go-type: id.ItemID
           type: string
         modelId:
-          x-go-type: id.ModelID
           type: string
         fields:
           type: array
@@ -566,7 +565,6 @@ components:
           x-go-type: id.ItemID
           type: string
         modelId:
-          x-go-type: id.ModelID
           type: string
         fields:
           type: array

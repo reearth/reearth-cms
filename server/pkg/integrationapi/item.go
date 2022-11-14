@@ -40,7 +40,7 @@ func NewItem(i *item.Item) Item {
 
 	return Item{
 		Id:        i.ID().Ref(),
-		ModelId:   i.Model().Ref(),
+		ModelId:   i.Model().Ref().StringRef(),
 		Fields:    &fs,
 		CreatedAt: ToDate(i.ID().Timestamp()),
 		UpdatedAt: ToDate(i.Timestamp()),
