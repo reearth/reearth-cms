@@ -13,7 +13,7 @@ export type Props = {
   asset?: Asset;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  commentsSider?: JSX.Element;
+  commentsPanel?: JSX.Element;
   handleTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
@@ -28,7 +28,7 @@ const AssetWrapper: React.FC<Props> = ({
   asset,
   selectedPreviewType,
   isModalVisible,
-  commentsSider,
+  commentsPanel,
   handleTypeChange,
   handleModalCancel,
   handleFullScreen,
@@ -56,7 +56,7 @@ const AssetWrapper: React.FC<Props> = ({
           />
         </Wrapper>
       }
-      right={commentsSider}
+      right={commentsPanel}
     />
   ) : (
     <Wrapper>not found</Wrapper>

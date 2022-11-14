@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
-import CommentsSider from "@reearth-cms/components/organisms/CommentsSider";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 
 import useHooks from "./hooks";
 
@@ -11,18 +11,18 @@ const Asset: React.FC = () => {
   const { workspaceId, projectId, assetId } = useParams();
   const {
     asset,
-    updateAsset,
     isLoading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
 
   const handleSave = async () => {
     if (assetId) {
-      await updateAsset(assetId, selectedPreviewType);
+      await handleAssetUpdate(assetId, selectedPreviewType);
     }
   };
 
@@ -34,7 +34,7 @@ const Asset: React.FC = () => {
     <Loading spinnerSize="large" minHeight="100vh" />
   ) : (
     <AssetWrapper
-      commentsSider={<CommentsSider comments={asset?.comments} threadId={asset?.threadId} />}
+      commentsPanel={<CommentsPanel comments={asset?.comments} threadId={asset?.threadId} />}
       asset={asset}
       selectedPreviewType={selectedPreviewType}
       handleTypeChange={handleTypeChange}

@@ -29,7 +29,7 @@ export default (assetId?: string) => {
   }, [rawAsset]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
-  const updateAsset = useCallback(
+  const handleAssetUpdate = useCallback(
     (assetId: string, previewType?: PreviewType) =>
       (async () => {
         if (!assetId) return;
@@ -71,11 +71,11 @@ export default (assetId?: string) => {
 
   return {
     asset,
-    updateAsset,
     isLoading: loading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   };

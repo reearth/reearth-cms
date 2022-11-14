@@ -13,7 +13,7 @@ export type Props = {
   comments?: Comment[];
 };
 
-const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
+const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments }) => {
   const [collapsed, setCollapsed] = useState(true);
   const t = useT();
 
@@ -24,15 +24,10 @@ const ThreadSider: React.FC<Props> = ({ onCommentCreate, comments }) => {
       collapsedWidth={54}
       collapsed={collapsed}
       onCollapse={value => setCollapsed(value)}
-      trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
+      trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
       {collapsed ? (
         <CollapsedSider>
-          <Icon
-            onClick={() => {
-              setCollapsed(false);
-            }}
-            icon="message"
-          />
+          <Icon icon="message" />
         </CollapsedSider>
       ) : (
         <NotCollapsedSider>
@@ -100,4 +95,4 @@ const CommentsContainer = styled.div`
   overflow: auto;
 `;
 
-export default ThreadSider;
+export default CommentsPanel;

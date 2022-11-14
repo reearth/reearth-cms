@@ -36,7 +36,7 @@ const Schema: React.FC<Props> = ({
           onCollapse={onCollapse}
           collapsedWidth={54}
           width={208}
-          trigger={<Icon icon={collapsed ? "modelMenuOpen" : "modelMenuClose"} />}>
+          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
           {modelsMenu}
         </Sidebar>
       }
