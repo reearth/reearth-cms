@@ -84,7 +84,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
 	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
 	if err != nil {
-		log.Errorf("gcs: rawGCSReaderAt err: %+v\n", err)
+		log.Errorf("gcs: rawGCSReaderAt err: ObjectName=%s, err=%+v\n", objectName, err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
 
