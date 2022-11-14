@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/appx"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -69,6 +71,9 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				var err error
 				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
 				if err != nil {
+					if errors.Is(err, rerror.ErrNotFound) {
+						return echo.ErrUnauthorized
+					}
 					return err
 				}
 			}

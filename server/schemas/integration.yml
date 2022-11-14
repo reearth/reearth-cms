@@ -228,6 +228,12 @@ paths:
                 file:
                   type: string
                   format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
       responses:
         '200':
           description: assets list

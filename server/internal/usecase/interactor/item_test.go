@@ -783,7 +783,7 @@ func Test_validateFields(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			testFields, err := itemFieldsFromParams(tc.args.itemFields)
+			testFields, err := itemFieldsFromParams(tc.args.itemFields, s)
 			assert.NoError(tt, err)
 			err = validateFields(ctx, testFields, tc.args.s, tc.args.mid, db)
 			if tc.wantErr {

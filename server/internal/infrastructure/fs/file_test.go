@@ -68,7 +68,7 @@ func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
 	f, _ := NewFile(fs, "https://example.com/assets", "")
 
-	u, err := f.UploadAsset(context.Background(), &file.File{
+	u, _, err := f.UploadAsset(context.Background(), &file.File{
 		Path:    "aaa.txt",
 		Content: io.NopCloser(strings.NewReader("aaa")),
 	})
@@ -77,17 +77,17 @@ func TestFile_UploadAsset(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, p, "aaa.txt")
 
-	u1, err1 := f.UploadAsset(context.Background(), nil)
+	u1, _, err1 := f.UploadAsset(context.Background(), nil)
 	assert.Equal(t, "", u1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 
-	u2, err2 := f.UploadAsset(context.Background(), &file.File{
+	u2, _, err2 := f.UploadAsset(context.Background(), &file.File{
 		Size: fileSizeLimit + 1,
 	})
 	assert.Equal(t, "", u2)
 	assert.Same(t, gateway.ErrFileTooLarge, err2)
 
-	u3, err3 := f.UploadAsset(context.Background(), &file.File{
+	u3, _, err3 := f.UploadAsset(context.Background(), &file.File{
 		Content: nil,
 	})
 	assert.Equal(t, "", u3)

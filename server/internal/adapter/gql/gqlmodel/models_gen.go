@@ -107,8 +107,9 @@ type CommentPayload struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID ID             `json:"projectId"`
-	File      graphql.Upload `json:"file"`
+	ProjectID ID              `json:"projectId"`
+	File      *graphql.Upload `json:"file"`
+	URL       *string         `json:"url"`
 }
 
 type CreateAssetPayload struct {
