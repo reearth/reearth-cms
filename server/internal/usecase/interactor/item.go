@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -218,8 +219,11 @@ func itemFieldsFromParams(Fields []interfaces.ItemFieldParam) ([]*item.Field, er
 	var err error
 	res := lo.Map(Fields, func(f interfaces.ItemFieldParam, _ int) *item.Field {
 		v := f.Value
-		if f.ValueType == schema.TypeInteger && f.Value != "" {
-			v, err = strconv.ParseInt(fmt.Sprintf("%v", f.Value), 10, 64)
+		if f.ValueType == schema.TypeInteger {
+			strV := fmt.Sprintf("%v", f.Value)
+			if len(strV) > 0 && len(strings.TrimSpace(strV)) == 0 {
+				v, err = strconv.ParseInt(strV, 10, 64)
+			}
 		}
 		return item.NewField(
 			f.SchemaFieldID,
