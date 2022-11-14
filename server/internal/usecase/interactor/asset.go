@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
@@ -35,13 +36,8 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
-	return Run1(
-		ctx, operator, i.repos,
-		Usecase().Transaction(),
-		func() (*asset.Asset, error) {
-			return i.repos.Asset.FindByID(ctx, aid)
-		},
-	)
+	return i.repos.Asset.FindByID(ctx, aid)
+
 }
 
 func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) (asset.List, error) {
@@ -49,17 +45,11 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *us
 }
 
 func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, operator *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
-	return Run2(
-		ctx, operator, i.repos,
-		Usecase().Transaction(),
-		func() ([]*asset.Asset, *usecasex.PageInfo, error) {
-			return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-				Sort:       filter.Sort,
-				Keyword:    filter.Keyword,
-				Pagination: filter.Pagination,
-			})
-		},
-	)
+	return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
+		Sort:       filter.Sort,
+		Keyword:    filter.Keyword,
+		Pagination: filter.Pagination,
+	})
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
@@ -147,39 +137,68 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 }
 
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	a, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
+	if err != nil {
+		return nil, err
+	}
+	p, err := i.repos.Project.FindByID(ctx, a.Project())
+	if err != nil {
+		return nil, err
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().Transaction(),
+		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (*asset.Asset, error) {
-			asset, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
-			if err != nil {
+			if err := isUpdatable(a, operator, p); err != nil {
 				return nil, err
 			}
 
 			if inp.PreviewType != nil {
-				asset.UpdatePreviewType(inp.PreviewType)
+				a.UpdatePreviewType(inp.PreviewType)
 			}
 
-			if err := i.repos.Asset.Save(ctx, asset); err != nil {
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
 
-			return asset, nil
+			return a, nil
 		},
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
+func isUpdatable(a *asset.Asset, operator *usecase.Operator, p *project.Project) error {
+	isOwned := a.User() == operator.User || a.Integration() == operator.Integration
+	isMaintainer := operator.IsMaintainingWorkspace(p.Workspace())
+	if !isMaintainer && !isOwned {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
+func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
 	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
+	a, err := i.repos.Asset.FindByID(ctx, aId)
+	if err != nil {
+		return nil, err
+	}
+	p, err := i.repos.Project.FindByID(ctx, a.Project())
+	if err != nil {
+		return nil, err
+	}
+
 	return Run1(
 		ctx, op, i.repos,
-		Usecase().Transaction(),
+		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, a)
-			if err != nil {
+			if err := isUpdatable(a, op, p); err != nil {
 				return nil, err
 			}
 
@@ -203,12 +222,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 				return nil, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return nil, err
-			}
-
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDecompress, a, op.Operator()); err != nil {
+			if _, err := i.eventFunc(ctx, p.Workspace(), event.AssetDecompress, a, op.Operator()); err != nil {
 				return nil, err
 			}
 
@@ -217,42 +231,45 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 	)
 }
 
-func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
+func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
 	if operator.User == nil && operator.Integration == nil {
-		return aid, interfaces.ErrInvalidOperator
+		return aId, interfaces.ErrInvalidOperator
 	}
+	a, err := i.repos.Asset.FindByID(ctx, aId)
+	if err != nil {
+		return aId, err
+	}
+	p, err := i.repos.Project.FindByID(ctx, a.Project())
+	if err != nil {
+		return aId, err
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().Transaction(),
+		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (id.AssetID, error) {
-			asset, err := i.repos.Asset.FindByID(ctx, aid)
-			if err != nil {
-				return aid, err
+			if err := isUpdatable(a, operator, p); err != nil {
+				return aId, err
 			}
 
-			uuid := asset.UUID()
-			filename := asset.FileName()
+			uuid := a.UUID()
+			filename := a.FileName()
 			if uuid != "" && filename != "" {
 				if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
-					return aid, err
+					return aId, err
 				}
 			}
 
-			err = i.repos.Asset.Delete(ctx, aid)
+			err = i.repos.Asset.Delete(ctx, aId)
 			if err != nil {
-				return aid, err
+				return aId, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, asset.Project())
-			if err != nil {
-				return aid, err
+			if _, err := i.eventFunc(ctx, p.Workspace(), event.AssetDelete, a, operator.Operator()); err != nil {
+				return aId, err
 			}
 
-			if _, err := i.eventFunc(ctx, prj.Workspace(), event.AssetDelete, asset, operator.Operator()); err != nil {
-				return aid, err
-			}
-
-			return aid, nil
+			return aId, nil
 		},
 	)
 }

@@ -392,7 +392,7 @@ func TestWorkspace_Remove(t *testing.T) {
 	op := &usecase.Operator{
 		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2, id3},
-		OwningWorkspaces:   []id.WorkspaceID{id1},
+		OwningWorkspaces:   []id.WorkspaceID{id1, id4, id5, id6},
 	}
 
 	tests := []struct {
@@ -486,6 +486,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				operator *usecase.Operator
 				project  *project.Project
 			}{
+				wId:      id5,
 				operator: op,
 			},
 			wantErr:          errors.New("test"),
@@ -558,14 +559,16 @@ func TestWorkspace_AddMember(t *testing.T) {
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
+	id4 := id.NewWorkspaceID()
+	w4 := user.NewWorkspace().ID(id3).Name("W4").Members(map[user.ID]user.Member{id.NewUserID(): {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
 	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 
 	op := &usecase.Operator{
 		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
-		OwningWorkspaces:   []id.WorkspaceID{id1},
+		OwningWorkspaces:   []id.WorkspaceID{id1, id2, id3},
 	}
 
 	tests := []struct {
@@ -627,6 +630,21 @@ func TestWorkspace_AddMember(t *testing.T) {
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
 			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
+		},
+		{
+			name:  "op denied",
+			seeds: []*user.Workspace{w4},
+			args: struct {
+				wId      id.WorkspaceID
+				users    map[id.UserID]user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id4,
+				users:    map[id.UserID]user.Role{id.NewUserID(): user.RoleReader},
+				operator: op,
+			},
+			wantErr:          interfaces.ErrOperationDenied,
+			mockWorkspaceErr: false,
 		},
 		{
 			name: "mock error",
@@ -841,7 +859,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 	op := &usecase.Operator{
 		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
-		OwningWorkspaces:   []id.WorkspaceID{id1},
+		OwningWorkspaces:   []id.WorkspaceID{id1, id2, id3},
 	}
 
 	tests := []struct {
@@ -919,7 +937,10 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				uId      id.UserID
 				role     user.Role
 				operator *usecase.Operator
-			}{operator: op},
+			}{
+				wId:      id3,
+				operator: op,
+			},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},

@@ -58,41 +58,40 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operato
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (_ *item.Item, err error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
-		if err != nil {
-			return nil, err
-		}
-		if !operator.IsWritableProject(s.Project()) {
-			return nil, interfaces.ErrOperationDenied
-		}
-		fields, err := itemFieldsFromParams(param.Fields)
-		if err != nil {
-			return nil, err
-		}
-		if param.Fields != nil {
-			err = validateFields(ctx, fields, s, param.ModelID, i.repos)
+	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+	if err != nil {
+		return nil, err
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()),
+		func() (_ *item.Item, err error) {
+			fields, err := itemFieldsFromParams(param.Fields)
 			if err != nil {
 				return nil, err
 			}
-		}
-		it, err := item.New().
-			NewID().
-			Schema(param.SchemaID).
-			Project(s.Project()).
-			Model(param.ModelID).
-			Fields(fields).
-			Build()
-		if err != nil {
-			return nil, err
-		}
+			if param.Fields != nil {
+				err = validateFields(ctx, fields, s, param.ModelID, i.repos)
+				if err != nil {
+					return nil, err
+				}
+			}
+			it, err := item.New().
+				NewID().
+				Schema(param.SchemaID).
+				Project(s.Project()).
+				Model(param.ModelID).
+				Fields(fields).
+				Build()
+			if err != nil {
+				return nil, err
+			}
 
-		if err := i.repos.Item.Save(ctx, it); err != nil {
-			return nil, err
-		}
+			if err := i.repos.Item.Save(ctx, it); err != nil {
+				return nil, err
+			}
 
-		return it, nil
-	})
+			return it, nil
+		})
 }
 
 func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema, mid id.ModelID, repos *repo.Container) error {
@@ -160,45 +159,51 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	if len(param.Fields) == 0 {
 		return nil, interfaces.ErrItemFieldRequired
 	}
+	itm, err := i.repos.Item.FindByID(ctx, param.ItemID)
+	if err != nil {
+		return nil, err
+	}
+	s, err := i.repos.Schema.FindByID(ctx, itm.Schema())
+	if err != nil {
+		return nil, err
+	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*item.Item, error) {
-		item, err := i.repos.Item.FindByID(ctx, param.ItemID)
-		if err != nil {
-			return nil, err
-		}
-		s, err := i.repos.Schema.FindByID(ctx, item.Schema())
-		if err != nil {
-			return nil, err
-		}
-		if !operator.IsWritableProject(item.Project()) {
-			return nil, interfaces.ErrOperationDenied
-		}
-		fields, err := itemFieldsFromParams(param.Fields)
-		if err != nil {
-			return nil, err
-		}
-		//TODO: create item.FieldList model and move this check there
-		changedFields := filterChangedFields(item.Fields(), fields)
-		if len(changedFields) == 0 {
-			return item, nil
-		}
-		if param.Fields != nil {
-			err = validateFields(ctx, changedFields, s, item.Model(), i.repos)
+	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()),
+		func() (*item.Item, error) {
+			fields, err := itemFieldsFromParams(param.Fields)
 			if err != nil {
 				return nil, err
 			}
-		}
-		item.UpdateFields(fields)
-		if err := i.repos.Item.Save(ctx, item); err != nil {
-			return nil, err
-		}
+			// TODO: create item.FieldList model and move this check there
+			changedFields := filterChangedFields(itm.Fields(), fields)
+			if len(changedFields) == 0 {
+				return itm, nil
+			}
+			if param.Fields != nil {
+				err = validateFields(ctx, changedFields, s, itm.Model(), i.repos)
+				if err != nil {
+					return nil, err
+				}
+			}
+			itm.UpdateFields(fields)
+			if err := i.repos.Item.Save(ctx, itm); err != nil {
+				return nil, err
+			}
 
-		return item, nil
-	})
+			return itm, nil
+		})
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+	itm, err := i.repos.Item.FindByID(ctx, itemID)
+	if err != nil {
+		return err
+	}
+	s, err := i.repos.Schema.FindByID(ctx, itm.Schema())
+	if err != nil {
+		return err
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() error {
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }

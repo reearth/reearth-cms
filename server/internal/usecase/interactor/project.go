@@ -44,7 +44,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *us
 }
 
 func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.WorkspaceID).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.WorkspaceID).Transaction(),
 		func() (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
@@ -77,7 +77,7 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
 		func() (_ *project.Project, err error) {
 			if p.Name != nil {
 				proj.UpdateName(*p.Name)
@@ -130,7 +130,7 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
+	return Run0(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
 		func() error {
 			if !operator.IsOwningWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied

@@ -60,7 +60,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
 			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
@@ -126,7 +126,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 		return nil, err
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
 			if param.Name != nil {
 				m.SetName(*param.Name)
@@ -176,7 +176,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		return err
 	}
 
-	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run0(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func() error {
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
 				return err
@@ -195,7 +195,7 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 		return false, err
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ bool, err error) {
 			m.SetPublic(b)
 
