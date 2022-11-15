@@ -30,6 +30,9 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.model.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.thread.IsNil() {
+		return nil, ErrInvalidID
+	}
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
@@ -71,6 +74,11 @@ func (b *Builder) Model(mid ModelID) *Builder {
 
 func (b *Builder) Project(pid ProjectID) *Builder {
 	b.i.project = pid
+	return b
+}
+
+func (b *Builder) Thread(tid ThreadID) *Builder {
+	b.i.thread = tid
 	return b
 }
 

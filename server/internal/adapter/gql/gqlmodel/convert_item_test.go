@@ -15,10 +15,11 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
+	tid := id.NewThreadID()
 	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Project(pid).Fields(fs).Model(mid).Build()
+	i := item.New().ID(iid).Schema(sid).Project(pid).Fields(fs).Model(mid).Thread(tid).MustBuild()
 	tests := []struct {
 		name  string
 		input *item.Item
@@ -32,6 +33,7 @@ func TestToItem(t *testing.T) {
 				ProjectID: IDFrom(pid),
 				ModelID:   IDFrom(mid),
 				SchemaID:  IDFrom(sid),
+				ThreadID:  IDFrom(tid),
 				CreatedAt: i.Timestamp(),
 				Fields: []*ItemField{
 					{
@@ -101,7 +103,7 @@ func TestToVersionedItem(t *testing.T) {
 	sfid := id.NewFieldID()
 	ref := "a"
 	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Build()
+	i := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
 	tests := []struct {

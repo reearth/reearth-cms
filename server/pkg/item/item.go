@@ -18,6 +18,7 @@ type Item struct {
 	project   ProjectID
 	fields    []*Field
 	timestamp time.Time
+	thread    ThreadID
 }
 
 type Versioned = *version.Value[*Item]
@@ -51,6 +52,10 @@ func (i *Item) Field(f FieldID) *Field {
 		return g.SchemaFieldID() == f
 	})
 	return ff
+}
+
+func (i *Item) Thread() ThreadID {
+	return i.thread
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

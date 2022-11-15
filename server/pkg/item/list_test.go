@@ -79,9 +79,9 @@ func TestList_ItemsBySchemaField(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
 	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
 	f3 := NewField(id.NewFieldID(), schema.TypeBool, true)
-	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).MustBuild()
-	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).MustBuild()
-	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).MustBuild()
+	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	type args struct {
 		fid   id.FieldID
 		value any

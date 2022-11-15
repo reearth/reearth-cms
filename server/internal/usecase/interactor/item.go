@@ -96,6 +96,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Schema(param.SchemaID).
 			Project(s.Project()).
 			Model(param.ModelID).
+			Thread(id.NewThreadID()).
 			Fields(fields).
 			Build()
 		if err != nil {
