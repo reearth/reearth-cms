@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { Dispatch, Key, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -136,15 +137,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   const AlertOptions = (props: any) => {
     return (
       <Space size={16}>
-        <a
-          onClick={props.onCleanSelected}
-          style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <DeselectButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
-        </a>
+        </DeselectButton>
         <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
-        <a style={{ color: "#FF7875" }} onClick={() => onAssetDelete?.(props.selectedRowKeys)}>
+        <DeleteButton onClick={() => onAssetDelete?.(props.selectedRowKeys)}>
           <Icon icon="delete" /> {t("Delete")}
-        </a>
+        </DeleteButton>
       </Space>
     );
   };
@@ -167,3 +166,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 };
 
 export default AssetListTable;
+
+const DeselectButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DeleteButton = styled.a`
+  color: #ff7875;
+`;

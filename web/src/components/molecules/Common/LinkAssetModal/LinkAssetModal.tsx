@@ -53,7 +53,7 @@ const LinkAssetModal: React.FC<Props> = ({
   handleUpload,
 }) => {
   const t = useT();
-  const [hovered, setHovered] = useState<string>();
+  const [hoveredAssetId, setHoveredAssetId] = useState<string>();
 
   const options: OptionConfig = {
     search: true,
@@ -82,13 +82,13 @@ const LinkAssetModal: React.FC<Props> = ({
       title: "",
       render: (_, asset) => {
         const link =
-          (asset.id === linkedAsset?.id && hovered !== asset.id) ||
-          (asset.id !== linkedAsset?.id && hovered === asset.id);
+          (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
+          (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
         return (
           <Button
             type="link"
-            onMouseEnter={() => setHovered(asset.id)}
-            onMouseLeave={() => setHovered(undefined)}
+            onMouseEnter={() => setHoveredAssetId(asset.id)}
+            onMouseLeave={() => setHoveredAssetId(undefined)}
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
               onLink(link ? asset : undefined);

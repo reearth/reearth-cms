@@ -33,14 +33,14 @@ import {
   FolderOutlined,
   LinkOutlined,
   UserAddOutlined,
+  ClearOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
-import Clear from "./Icons/clear.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
-import Unlink from "./Icons/linkSlashSolid.svg";
+import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
 import MarkDown from "./Icons/markDown.svg";
@@ -83,7 +83,7 @@ export default {
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,
-  unlinkSolid: Unlink,
+  unlinkSolid: UnlinkSolid,
   LinkOutlined: LinkOutlined,
   more: MoreOutlined,
   minusCircle: MinusCircleOutlined,
@@ -96,5 +96,5 @@ export default {
   folder: FolderOutlined,
   dot: Dot,
   userAdd: UserAddOutlined,
-  clear: Clear,
+  clear: ClearOutlined,
 };

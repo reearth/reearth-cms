@@ -67,7 +67,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={handleDownload}
-      disabled={!selected}
+      disabled={!selected || selected.length <= 0}
       {...props}>
       {title ?? t("Download")}
     </Button>
