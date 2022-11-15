@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { Dispatch, Key, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,6 +12,7 @@ import ProTable, {
   TableRowSelection,
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
@@ -19,6 +21,7 @@ import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reear
 export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
+  loading: boolean;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
@@ -30,20 +33,22 @@ export type AssetListTableProps = {
     }>
   >;
   onAssetsReload: () => void;
-  loading: boolean;
+  onAssetDelete: (assetIds: string[]) => Promise<void>;
 };
 
 const AssetListTable: React.FC<AssetListTableProps> = ({
   assetList,
   assetsPerPage,
+  selection,
+  loading,
   onEdit,
   onSearchTerm,
-  selection,
   setSelection,
   onAssetsReload,
-  loading,
+  onAssetDelete,
 }) => {
   const t = useT();
+
   const columns: ProColumns<Asset>[] = [
     {
       title: "",
@@ -94,17 +99,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       dataIndex: "id",
       key: "id",
     },
-    {
-      title: t("Action"),
-      render: (_, asset) => (
-        <DownloadButton
-          type="link"
-          filename={asset.fileName}
-          url={asset?.url}
-          displayDefaultIcon={false}
-        />
-      ),
-    },
   ];
 
   const options: OptionConfig = {
@@ -140,10 +134,25 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     },
   };
 
+  const AlertOptions = (props: any) => {
+    return (
+      <Space size={16}>
+        <DeselectButton onClick={props.onCleanSelected}>
+          <Icon icon="clear" /> {t("Deselect")}
+        </DeselectButton>
+        <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
+        <DeleteButton onClick={() => onAssetDelete?.(props.selectedRowKeys)}>
+          <Icon icon="delete" /> {t("Delete")}
+        </DeleteButton>
+      </Space>
+    );
+  };
+
   return (
     <ProTable
       dataSource={assetList}
       columns={columns}
+      tableAlertOptionRender={AlertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -157,3 +166,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 };
 
 export default AssetListTable;
+
+const DeselectButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DeleteButton = styled.a`
+  color: #ff7875;
+`;

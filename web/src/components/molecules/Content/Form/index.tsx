@@ -21,14 +21,14 @@ export interface Props {
   initialFormValues: any;
   loading: boolean;
   model?: Model;
-  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
-  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onBack: (modelId?: string) => void;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
+  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onBack: (modelId?: string) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -42,14 +42,14 @@ const ContentForm: React.FC<Props> = ({
   model,
   initialFormValues,
   loading,
-  onItemCreate,
-  onItemUpdate,
-  onBack,
   assetList,
   fileList,
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  onItemCreate,
+  onItemUpdate,
+  onBack,
   createAssets,
   onAssetsReload,
   onAssetSearchTerm,
@@ -93,9 +93,9 @@ const ContentForm: React.FC<Props> = ({
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
   const handleLink = useCallback(
-    (_asset: Asset, fieldId: string) => {
-      setFormValues({ ...formValues, [fieldId]: _asset.id });
-      form.setFieldValue(fieldId, _asset.id);
+    (fieldId: string, _asset?: Asset) => {
+      setFormValues({ ...formValues, [fieldId]: _asset?.id });
+      form.setFieldValue(fieldId, _asset?.id);
     },
     [form, formValues, setFormValues],
   );
@@ -163,7 +163,7 @@ const ContentForm: React.FC<Props> = ({
               createAssets={createAssets}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}
-              onLink={_asset => handleLink(_asset, field.id)}
+              onLink={_asset => handleLink(field.id, _asset)}
               setFileList={setFileList}
               setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
