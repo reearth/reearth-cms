@@ -13,16 +13,26 @@ import (
 type VersionedItem = version.Value[Item]
 
 type Item struct {
-	id        ID
-	schema    SchemaID
-	model     ModelID
-	project   ProjectID
-	fields    []*Field
-	timestamp time.Time
+	id          ID
+	schema      SchemaID
+	model       ModelID
+	project     ProjectID
+	fields      []*Field
+	timestamp   time.Time
+	user        *UserID
+	integration *IntegrationID
 }
 
 func (i *Item) ID() ID {
 	return i.id
+}
+
+func (i *Item) User() *UserID {
+	return i.user
+}
+
+func (i *Item) Integration() *IntegrationID {
+	return i.integration
 }
 
 func (i *Item) Fields() []*Field {

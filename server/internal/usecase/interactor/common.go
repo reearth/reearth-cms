@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -73,4 +74,13 @@ func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, wsID 
 
 	return nil
 
+}
+
+func updatable(ownerUser *id.UserID, ownerIntegration *id.IntegrationID, wId id.WorkspaceID, operator *usecase.Operator) error {
+	isOwned := ownerUser == operator.User || ownerIntegration == operator.Integration
+	isMaintainer := operator.IsMaintainingWorkspace(wId)
+	if !isMaintainer && !isOwned {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
 }

@@ -50,6 +50,16 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
+func (b *Builder) User(id UserID) *Builder {
+	b.i.user = id
+	return b
+}
+
+func (b *Builder) Integration(id IntegrationID) *Builder {
+	b.i.integration = id
+	return b
+}
+
 func (b *Builder) Fields(fields []*Field) *Builder {
 	if len(fields) == 0 {
 		b.i.fields = nil

@@ -6,6 +6,8 @@ type ID = id.ItemID
 type ProjectID = id.ProjectID
 type SchemaID = id.SchemaID
 type ModelID = id.ModelID
+type UserID = id.UserID
+type IntegrationID = id.IntegrationID
 
 var NewID = id.NewItemID
 

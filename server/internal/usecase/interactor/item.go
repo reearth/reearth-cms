@@ -58,6 +58,9 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operato
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (*item.Item, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 	if err != nil {
 		return nil, err
@@ -75,13 +78,20 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 					return nil, err
 				}
 			}
-			it, err := item.New().
+			ib := item.New().
 				NewID().
 				Schema(param.SchemaID).
 				Project(s.Project()).
 				Model(param.ModelID).
-				Fields(fields).
-				Build()
+				Fields(fields)
+			if operator.User != nil {
+				ib = ib.User(*operator.User)
+			}
+			if operator.Integration != nil {
+				ib = ib.Integration(*operator.Integration)
+			}
+
+			it, err := ib.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -170,6 +180,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()),
 		func() (*item.Item, error) {
+			if err := updatable(itm.User(), itm.Integration(), s.Workspace(), operator); err != nil {
+				return nil, err
+			}
 			fields, err := itemFieldsFromParams(param.Fields)
 			if err != nil {
 				return nil, err
@@ -204,6 +217,9 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() error {
+		if err := updatable(itm.User(), itm.Integration(), s.Workspace(), operator); err != nil {
+			return err
+		}
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }

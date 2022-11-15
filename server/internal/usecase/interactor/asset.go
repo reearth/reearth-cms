@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/usecasex"
@@ -154,7 +153,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 		ctx, operator, i.repos,
 		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (*asset.Asset, error) {
-			if err := isUpdatable(a, operator, p); err != nil {
+			if err := updatable(a.User(), a.Integration(), p.Workspace(), operator); err != nil {
 				return nil, err
 			}
 
@@ -169,15 +168,6 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 			return a, nil
 		},
 	)
-}
-
-func isUpdatable(a *asset.Asset, operator *usecase.Operator, p *project.Project) error {
-	isOwned := a.User() == operator.User || a.Integration() == operator.Integration
-	isMaintainer := operator.IsMaintainingWorkspace(p.Workspace())
-	if !isMaintainer && !isOwned {
-		return interfaces.ErrOperationDenied
-	}
-	return nil
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
@@ -198,7 +188,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 		ctx, op, i.repos,
 		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (*asset.Asset, error) {
-			if err := isUpdatable(a, op, p); err != nil {
+			if err := updatable(a.User(), a.Integration(), p.Workspace(), op); err != nil {
 				return nil, err
 			}
 
@@ -248,7 +238,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 		ctx, operator, i.repos,
 		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
 		func() (id.AssetID, error) {
-			if err := isUpdatable(a, operator, p); err != nil {
+			if err := updatable(a.User(), a.Integration(), p.Workspace(), operator); err != nil {
 				return aId, err
 			}
 
