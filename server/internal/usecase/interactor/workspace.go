@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -15,12 +16,14 @@ import (
 
 type Workspace struct {
 	repos       *repo.Container
+	gateways    *gateway.Container
 	transaction usecasex.Transaction
 }
 
-func NewWorkspace(r *repo.Container) interfaces.Workspace {
+func NewWorkspace(r *repo.Container, g *gateway.Container) interfaces.Workspace {
 	return &Workspace{
 		repos:       r,
+		gateways:    g,
 		transaction: r.Transaction,
 	}
 }

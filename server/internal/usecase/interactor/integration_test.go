@@ -597,5 +597,5 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 
 func TestNewIntegration(t *testing.T) {
 	r := memory.New()
-	assert.Equal(t, &Integration{repos: r}, NewIntegration(r))
+	assert.Equal(t, &Integration{repos: r}, NewIntegration(r, nil))
 }

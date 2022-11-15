@@ -91,12 +91,12 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 	return fileEntries, nil
 }
 
-func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
 	if file == nil {
-		return "", gateway.ErrInvalidFile
+		return "", 0, gateway.ErrInvalidFile
 	}
 	if file.Size >= fileSizeLimit {
-		return "", gateway.ErrFileTooLarge
+		return "", 0, gateway.ErrFileTooLarge
 	}
 
 	uuid := newUUID()
@@ -104,10 +104,10 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, er
 	p := getFSObjectPath(uuid, file.Path)
 
 	if err := f.upload(ctx, p, file.Content); err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return uuid, nil
+	return uuid, file.Size, nil
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {

@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -28,16 +28,16 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	f := interfaces.AssetFilter{
 		Keyword:    nil,
 		Sort:       &sort,
-		Pagination: toPagination(request.Params.Page, request.Params.PerPage),
+		Pagination: fromPagination(request.Params.Page, request.Params.PerPage),
 	}
 
-	assets, pi, err := uc.Asset.FindByProject(ctx, id.ProjectID(request.ProjectId), f, op)
+	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
 	if err != nil {
 		return AssetFilter400Response{}, err
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := toAsset(a, uc.Asset.GetURL(a))
+		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 		if err != nil {
 			return integrationapi.Asset{}, err
 		}
@@ -59,20 +59,30 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	f, err := toFile(request.Body)
-	if err != nil {
-		return AssetCreate400Response{}, err
+	var f *file.File
+	var err error
+	if request.MultipartBody != nil {
+		f, err = file.FromMultipart(request.MultipartBody, "file")
+		if err != nil {
+			return AssetCreate400Response{}, err
+		}
+	}
+
+	var url string
+	if request.JSONBody != nil {
+		url = *request.JSONBody.Url
 	}
 
 	cp := interfaces.CreateAssetParam{
-		ProjectID: id.ProjectID(request.ProjectId),
+		ProjectID: request.ProjectId,
 		File:      f,
+		URL:       url,
 	}
 	a, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
@@ -82,7 +92,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
-	aId, err := uc.Asset.Delete(ctx, id.AssetID(request.AssetId), op)
+	aId, err := uc.Asset.Delete(ctx, request.AssetId, op)
 	if err != nil {
 		return AssetDelete400Response{}, err
 	}
@@ -95,11 +105,11 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	a, err := uc.Asset.FindByID(ctx, id.AssetID(request.AssetId), op)
+	a, err := uc.Asset.FindByID(ctx, request.AssetId, op)
 	if err != nil {
 		return AssetGet400Response{}, err
 	}
-	aa, err := toAsset(a, uc.Asset.GetURL(a))
+	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetGet400Response{}, err
 	}

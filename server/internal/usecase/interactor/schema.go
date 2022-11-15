@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -13,12 +14,14 @@ import (
 )
 
 type Schema struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewSchema(r *repo.Container) interfaces.Schema {
+func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 	return &Schema{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
