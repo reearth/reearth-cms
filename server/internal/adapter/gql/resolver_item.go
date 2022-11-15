@@ -19,3 +19,7 @@ func (i itemResolver) Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmode
 func (i itemResolver) Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Schema, error) {
 	return dataloaders(ctx).Schema.Load(obj.SchemaID)
 }
+
+func (i itemResolver) Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error) {
+	return dataloaders(ctx).Thread.Load(obj.ThreadID)
+}
