@@ -36,6 +36,7 @@ import {
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
+import Clear from "./Icons/clear.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
@@ -91,4 +92,5 @@ export default {
   folder: FolderOutlined,
   dot: Dot,
   userAdd: UserAddOutlined,
+  clear: Clear,
 };
