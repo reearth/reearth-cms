@@ -7,18 +7,24 @@ import { AssetFile } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
   file: AssetFile;
+  assetBaseUrl: string;
+  setAssetUrl: (url: string) => void;
   style?: CSSProperties;
 };
 
-const UnzipFileList: React.FC<Props> = ({ file, style }) => {
-  const [expandedKeys, setExpandedKeys] = useState<DataNode["key"][]>(["0"]);
-  const [selectedKeys, setSelectedKeys] = useState<DataNode["key"][]>([]);
-  const [treeData, setTreeData] = useState<DataNode[]>([]);
+type FileNode = DataNode & {
+  file: AssetFile;
+};
+
+const UnzipFileList: React.FC<Props> = ({ file, assetBaseUrl, setAssetUrl, style }) => {
+  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
+  const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
+  const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   const getTreeData = useCallback(
-    (assetFile: AssetFile, parentKey?: string): DataNode[] =>
+    (assetFile: AssetFile, parentKey?: string): FileNode[] =>
       assetFile?.children?.map((file: AssetFile, index: number) => {
-        let children: DataNode[] = [];
+        let children: FileNode[] = [];
         const key = parentKey ? parentKey + "-" + index.toString() : index.toString();
 
         if (file.children && file.children.length > 0) {
@@ -29,6 +35,7 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
           title: file.name,
           key: key,
           children: children,
+          file: file,
         };
       }) || [],
     [],
@@ -38,9 +45,20 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
     setTreeData(getTreeData(file));
   }, [file, getTreeData]);
 
-  const onSelect: TreeProps["onSelect"] = (keys: Key[]) => {
-    setSelectedKeys(keys);
-  };
+  const previewFile = useCallback(
+    (file: AssetFile) => {
+      setAssetUrl(assetBaseUrl + file.path);
+    },
+    [assetBaseUrl, setAssetUrl],
+  );
+
+  const onSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+    (keys: Key[], { node: { file } }: { node: FileNode }) => {
+      previewFile(file);
+      setSelectedKeys(keys);
+    },
+    [previewFile],
+  );
 
   const onExpand: TreeProps["onExpand"] = (keys: Key[]) => {
     setExpandedKeys([...keys]);
@@ -55,6 +73,7 @@ const UnzipFileList: React.FC<Props> = ({ file, style }) => {
       onExpand={onExpand}
       treeData={treeData}
       style={style}
+      multiple={false}
       showLine
     />
   );
