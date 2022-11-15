@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
+import { useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
@@ -46,6 +47,8 @@ const AssetMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
+  const [assetUrl, setAssetUrl] = useState(asset.url);
+  const assetBaseUrl = assetUrl.slice(0, assetUrl.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
   const displayUnzipFileList = assetFileExt === "zip";
@@ -76,16 +79,16 @@ const AssetMolecule: React.FC<Props> = ({
               geocoder: false,
             }}
             tilesetProps={{
-              url: asset.url,
+              url: assetUrl,
             }}
             onGetViewer={getViewer}
           />
         );
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         return isSVG ? (
-          <SVGPreview url={asset.url} svgRender={svgRender} />
+          <SVGPreview url={assetUrl} svgRender={svgRender} />
         ) : (
-          <Image src={asset.url} alt="asset-preview" />
+          <Image src={assetUrl} alt="asset-preview" />
         );
       default:
         return <ViewerNotSupported />;
@@ -99,7 +102,7 @@ const AssetMolecule: React.FC<Props> = ({
           title={asset.fileName}
           toolbar={
             <PreviewToolbar
-              url={asset.url}
+              url={assetUrl}
               selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
               isSVG={isSVG}
@@ -115,6 +118,8 @@ const AssetMolecule: React.FC<Props> = ({
           <Card title={asset.fileName}>
             <UnzipFileList
               file={asset.file}
+              assetBaseUrl={assetBaseUrl}
+              setAssetUrl={setAssetUrl}
               style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
             />
           </Card>
