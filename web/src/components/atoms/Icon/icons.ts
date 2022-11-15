@@ -40,6 +40,8 @@ import Clear from "./Icons/clear.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
+import Unlink from "./Icons/linkSlashSolid.svg";
+import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
@@ -80,6 +82,8 @@ export default {
   listBullets: ListBullets,
   numberNine: NumberNine,
   link: Link,
+  linkSolid: LinkSolid,
+  unlinkSolid: Unlink,
   LinkOutlined: LinkOutlined,
   more: MoreOutlined,
   minusCircle: MinusCircleOutlined,
