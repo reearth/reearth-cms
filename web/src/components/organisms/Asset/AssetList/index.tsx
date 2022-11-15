@@ -16,6 +16,7 @@ const AssetList: React.FC = () => {
     setUploading,
     setUploadModalVisibility,
     handleAssetCreate,
+    handleAssetDelete,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
@@ -30,14 +31,15 @@ const AssetList: React.FC = () => {
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       loading={loading}
-      createAssets={handleAssetCreate}
+      onAssetCreate={handleAssetCreate}
+      onAssetDelete={handleAssetDelete}
+      onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onEdit={handleNavigateToAsset}
       setSelection={setSelection}
       setFileList={setFileList}
       setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
-      onAssetsReload={handleAssetsReload}
     />
   );
 };

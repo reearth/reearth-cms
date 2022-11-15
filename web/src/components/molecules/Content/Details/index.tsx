@@ -10,10 +10,7 @@ import { Model } from "@reearth-cms/components/molecules/Schema/types";
 export type Props = {
   model?: Model;
   modelsMenu: React.ReactNode;
-  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
-  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   initialFormValues: { [key: string]: any };
-  onBack: (modelId?: string) => void;
   itemId?: string;
   loading: boolean;
   assetList: Asset[];
@@ -21,6 +18,9 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
+  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onBack: (modelId?: string) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -32,10 +32,7 @@ export type Props = {
 const ContentDetailsMolecule: React.FC<Props> = ({
   model,
   modelsMenu: ModelsMenu,
-  onItemCreate,
-  onItemUpdate,
   initialFormValues,
-  onBack,
   itemId,
   loading,
   assetList,
@@ -43,6 +40,9 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  onItemCreate,
+  onItemUpdate,
+  onBack,
   createAssets,
   onAssetsReload,
   onAssetSearchTerm,
@@ -54,10 +54,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
     <ContentWrapper modelsMenu={ModelsMenu}>
       <ContentForm
         loading={loading}
-        onBack={onBack}
         itemId={itemId}
-        onItemCreate={onItemCreate}
-        onItemUpdate={onItemUpdate}
         model={model}
         initialFormValues={initialFormValues}
         assetList={assetList}
@@ -65,6 +62,9 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         loadingAssets={loadingAssets}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
+        onBack={onBack}
+        onItemCreate={onItemCreate}
+        onItemUpdate={onItemUpdate}
         createAssets={createAssets}
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}
