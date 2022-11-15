@@ -5,7 +5,6 @@ import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import Switch from "@reearth-cms/components/atoms/Switch";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -30,17 +29,6 @@ const IntegrationTable: React.FC<Props> = ({
       dataIndex: ["integration", "name"],
       key: "name",
       filters: [],
-    },
-    {
-      title: t("State"),
-      key: "state",
-      render: (_, integrationMember) => (
-        <Switch
-          checked={integrationMember.active}
-          checkedChildren={t("ON")}
-          unCheckedChildren={t("OFF")}
-        />
-      ),
     },
     {
       title: t("Role"),
