@@ -117,7 +117,7 @@ const AssetMolecule: React.FC<Props> = ({
           <Card title={asset.fileName}>
             <UnzipFileList
               file={asset.file}
-              viewerUrl={viewerUrl}
+              assetUrl={asset.url}
               setViewerUrl={setViewerUrl}
               style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
             />
