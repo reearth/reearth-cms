@@ -119,7 +119,7 @@ func TestProject_Fetch(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -233,7 +233,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -318,7 +318,7 @@ func TestProject_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -448,7 +448,7 @@ func TestProject_Update(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Update(ctx, tc.args.upp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -523,7 +523,7 @@ func TestProject_CheckAlias(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.CheckAlias(ctx, tc.args.alias)
 			if tc.wantErr != nil {
@@ -635,7 +635,7 @@ func TestProject_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			err := projectUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {

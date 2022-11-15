@@ -123,7 +123,7 @@ func TestModel_CheckKey(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.CheckKey(ctx, tt.args.pId, tt.args.s)
 			if tt.wantErr != nil {
@@ -214,7 +214,7 @@ func TestModel_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -266,7 +266,7 @@ func TestModel_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.operator))
 		})
@@ -312,7 +312,7 @@ func TestModel_FindByIDs(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 			got, err := u.FindByIDs(ctx, tt.args.ids, tt.args.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
@@ -365,7 +365,7 @@ func TestModel_FindByProject(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, got1, err := u.FindByProject(ctx, tt.args.projectID, tt.args.pagination, tt.args.operator)
 			if tt.wantErr != nil {
@@ -419,7 +419,7 @@ func TestModel_Publish(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Publish(ctx, tt.args.modelID, tt.args.b, tt.args.operator)
 			if tt.wantErr != nil {
@@ -471,7 +471,7 @@ func TestModel_Update(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Update(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -500,7 +500,7 @@ func TestNewModel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, NewModel(tt.args.r))
+			assert.Equal(t, tt.want, NewModel(tt.args.r, nil))
 		})
 	}
 }

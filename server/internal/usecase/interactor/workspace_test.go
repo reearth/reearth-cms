@@ -22,7 +22,7 @@ func TestWorkspace_Create(t *testing.T) {
 	db := memory.New()
 
 	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
-	workspaceUC := NewWorkspace(db)
+	workspaceUC := NewWorkspace(db, nil)
 	op := &usecase.Operator{User: lo.ToPtr(u.ID())}
 	workspace, err := workspaceUC.Create(ctx, "workspace name", u.ID(), op)
 
@@ -143,7 +143,7 @@ func TestWorkspace_Fetch(t *testing.T) {
 				err := db.Workspace.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -240,7 +240,7 @@ func TestWorkspace_FindByUser(t *testing.T) {
 				err := db.Workspace.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.FindByUser(ctx, tc.args.userID, tc.args.operator)
 			if tc.wantErr != nil {
@@ -354,7 +354,7 @@ func TestWorkspace_Update(t *testing.T) {
 				err := db.Workspace.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.Update(ctx, tc.args.wId, tc.args.newName, tc.args.operator)
 			if tc.wantErr != nil {
@@ -533,7 +533,7 @@ func TestWorkspace_Remove(t *testing.T) {
 				err := db.Workspace.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -679,7 +679,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 				err := db.User.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.AddUserMember(ctx, tc.args.wId, tc.args.users, tc.args.operator)
 			if tc.wantErr != nil {
@@ -825,7 +825,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				err := db.User.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.RemoveUser(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
 			if tc.wantErr != nil {
@@ -964,7 +964,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				err := db.User.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.UpdateUser(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
 			if tc.wantErr != nil {

@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-
-	"github.com/kennygrant/sanitize"
 )
 
 var (
@@ -46,9 +44,7 @@ func (uz *decompressor) Decompress() error {
 			}
 			defer rc.Close()
 
-			sPath := sanitize.Path(f.Name)
-
-			w, err := uz.wFn(sPath)
+			w, err := uz.wFn(f.Name)
 			if err != nil {
 				return err
 			}

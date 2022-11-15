@@ -34,7 +34,8 @@ enum PreviewType {
 
 input CreateAssetInput {
   projectId: ID!
-  file: Upload!
+  file: Upload
+  url: String
 }
 
 input UpdateAssetInput {
