@@ -20,7 +20,7 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   createAssets: (files: UploadFile[]) => Promise<void>;
-  onLink: (asset: Asset) => void;
+  onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
@@ -88,14 +88,15 @@ const AssetItem: React.FC<Props> = ({
       ) : (
         <AssetButton onClick={handleClick}>
           <div>
-            <Icon icon="LinkOutlined" size={24} />
-            <div style={{ marginTop: 8 }}>{t("Asset")}</div>
+            <Icon icon="linkSolid" size={14} />
+            <div style={{ marginTop: 4 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
       )}
       <LinkAssetModal
         visible={visible}
         onCancel={handleCancel}
+        linkedAsset={assetValue}
         assetList={assetList}
         fileList={fileList}
         loading={loadingAssets}

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -18,13 +20,14 @@ type Props = {
   visible: boolean;
   onCancel: () => void;
   // table props
+  linkedAsset?: Asset;
   assetList: Asset[];
   fileList: UploadFile<File>[];
   loading: boolean;
   uploading: boolean;
   uploadProps: UploadProps;
   uploadModalVisibility: boolean;
-  onLink: (asset: Asset) => void;
+  onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
@@ -35,6 +38,7 @@ type Props = {
 const LinkAssetModal: React.FC<Props> = ({
   visible,
   onCancel,
+  linkedAsset,
   assetList,
   fileList,
   loading,
@@ -49,6 +53,7 @@ const LinkAssetModal: React.FC<Props> = ({
   handleUpload,
 }) => {
   const t = useT();
+  const [hoveredAssetId, setHoveredAssetId] = useState<string>();
 
   const options: OptionConfig = {
     search: true,
@@ -75,16 +80,23 @@ const LinkAssetModal: React.FC<Props> = ({
   const columns: ProColumns<Asset>[] = [
     {
       title: "",
-      render: (_, asset) => (
-        <Button
-          type="link"
-          icon={<Icon icon="link" />}
-          onClick={() => {
-            onLink(asset);
-            onCancel();
-          }}
-        />
-      ),
+      render: (_, asset) => {
+        const link =
+          (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
+          (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
+        return (
+          <Button
+            type="link"
+            onMouseEnter={() => setHoveredAssetId(asset.id)}
+            onMouseLeave={() => setHoveredAssetId(undefined)}
+            icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
+            onClick={() => {
+              onLink(link ? asset : undefined);
+              onCancel();
+            }}
+          />
+        );
+      },
     },
     {
       title: t("File"),

@@ -37,7 +37,8 @@ Size: ''
 Preview Type: ''
 Created At: ''
 ID: ''
-Action: アクション
+Deselect: ''
+Delete: 削除
 Upload Asset: ''
 Click or drag files to this area to upload: ''
 Single or multiple file upload is supported: ''
@@ -88,9 +89,6 @@ select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
 Name: 名前
-State: ステート
-'ON': ''
-'OFF': ''
 Creator: 作成者
 No Integration yet: まだインテグレーションはありません
 Create a new: ''
@@ -112,7 +110,6 @@ Please input the title of the integration!: インテグレーションの名前
 Integration Token: インテグレーショントークン
 Create new integration: 新規インテグレーション作成
 Update: アップデート
-Delete: 削除
 Publish: ''
 Unpublish: ''
 Decompress: ''

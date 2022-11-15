@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction } from "react";
+import { Dispatch, Key, SetStateAction, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -19,7 +19,8 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
   setSelection: Dispatch<
@@ -41,7 +42,8 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
-  createAssets,
+  onAssetCreate,
+  onAssetDelete,
   onSearchTerm,
   onEdit,
   setSelection,
@@ -50,21 +52,22 @@ const AssetList: React.FC<Props> = ({
   setUploadModalVisibility,
   onAssetsReload,
 }) => {
-  const displayUploadModal = () => {
+  const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
-  };
-  const hideUploadModal = () => {
+  }, [setUploadModalVisibility]);
+
+  const hideUploadModal = useCallback(() => {
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
-  };
+  }, [setFileList, setUploading, setUploadModalVisibility]);
 
-  const handleUpload = () => {
+  const handleUpload = useCallback(() => {
     setUploading(true);
-    createAssets(fileList).finally(() => {
+    onAssetCreate(fileList).finally(() => {
       hideUploadModal();
     });
-  };
+  }, [fileList, setUploading, onAssetCreate, hideUploadModal]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -107,12 +110,13 @@ const AssetList: React.FC<Props> = ({
           <AssetListTable
             assetList={assetList}
             assetsPerPage={assetsPerPage}
+            selection={selection}
+            loading={loading}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
-            selection={selection}
             setSelection={setSelection}
             onAssetsReload={onAssetsReload}
-            loading={loading}
+            onAssetDelete={onAssetDelete}
           />
         </Wrapper>
       }

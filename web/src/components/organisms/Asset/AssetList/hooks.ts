@@ -113,7 +113,7 @@ export default () => {
               variables: { assetId },
               refetchQueries: ["GetAssets"],
             });
-            if (result.errors || result.data?.deleteAsset) {
+            if (result.errors) {
               Notification.error({ message: t("Failed to delete one or more assets.") });
             }
           }),
