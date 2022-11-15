@@ -45,14 +45,20 @@ const UnzipFileList: React.FC<Props> = ({ file, assetBaseUrl, setAssetUrl, style
     setTreeData(getTreeData(file));
   }, [file, getTreeData]);
 
-  const previewFile = (file: AssetFile) => {
-    setAssetUrl(assetBaseUrl + file.path);
-  };
+  const previewFile = useCallback(
+    (file: AssetFile) => {
+      setAssetUrl(assetBaseUrl + file.path);
+    },
+    [assetBaseUrl, setAssetUrl],
+  );
 
-  const onSelect: TreeProps<FileNode>["onSelect"] = (keys: Key[], { node: { file } }) => {
-    previewFile(file);
-    setSelectedKeys(keys);
-  };
+  const onSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+    (keys: Key[], { node: { file } }: { node: FileNode }) => {
+      previewFile(file);
+      setSelectedKeys(keys);
+    },
+    [previewFile],
+  );
 
   const onExpand: TreeProps["onExpand"] = (keys: Key[]) => {
     setExpandedKeys([...keys]);
