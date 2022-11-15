@@ -1,11 +1,11 @@
 package app
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
 )
 
 type WebConfig map[string]string
@@ -32,5 +32,5 @@ func webConfig(e *echo.Echo, wc WebConfig, a []AuthConfig) {
 		return c.JSON(http.StatusOK, config)
 	})
 
-	log.Printf("cfg: ReEarth web config endpoint is available")
+	log.Printf("web: ReEarth web config endpoint is available")
 }
