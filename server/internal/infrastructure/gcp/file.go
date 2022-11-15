@@ -63,11 +63,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 		return nil, rerror.ErrNotFound
 	}
 
-	sn := sanitize.Path(p)
-	if sn == "" {
-		return nil, rerror.ErrNotFound
-	}
-	return f.read(ctx, sn)
+	return f.read(ctx, p)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -117,13 +113,10 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 
 	uuid := newUUID()
 
-	// あああああ.png
 	p := getGCSObjectPath(uuid, file.Path)
 	if p == "" {
 		return "", 0, gateway.ErrInvalidFile
 	}
-
-	// uuid1/uuid2/_____.png
 
 	size, err := f.upload(ctx, p, file.Content)
 	if err != nil {
@@ -259,7 +252,7 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-var re = regexp.MustCompile(`[^a-zA-Z0-9-_.]`)
+var re = regexp.MustCompile(`[^a-zA-Z0-9-_./]`)
 
 func fileName(s string) string {
 	ss := re.ReplaceAllString(s, "-")

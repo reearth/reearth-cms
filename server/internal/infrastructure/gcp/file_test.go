@@ -44,3 +44,7 @@ func TestFile_IsValidUUID(t *testing.T) {
 	u1 := "xxxxxx"
 	assert.Equal(t, false, IsValidUUID(u1))
 }
+
+func TestFileName(t *testing.T) {
+	assert.Equal(t, "a-_/b--", fileName("a-_/b*あ"))
+}
