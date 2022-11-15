@@ -48,7 +48,7 @@ const AssetMolecule: React.FC<Props> = ({
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
-  const assetBaseUrl = assetUrl.slice(0, assetUrl.lastIndexOf("/"));
+  const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
   const displayUnzipFileList = assetFileExt === "zip";
