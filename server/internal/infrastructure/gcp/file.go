@@ -63,11 +63,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 		return nil, rerror.ErrNotFound
 	}
 
-	sn := sanitize.Path(p)
-	if sn == "" {
-		return nil, rerror.ErrNotFound
-	}
-	return f.read(ctx, sn)
+	return f.read(ctx, p)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -107,28 +103,26 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 	return fileEntries, nil
 }
 
-func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
 	if file == nil {
-		return "", gateway.ErrInvalidFile
+		return "", 0, gateway.ErrInvalidFile
 	}
 	if file.Size >= fileSizeLimit {
-		return "", gateway.ErrFileTooLarge
+		return "", 0, gateway.ErrFileTooLarge
 	}
 
 	uuid := newUUID()
 
-	// あああああ.png
 	p := getGCSObjectPath(uuid, file.Path)
 	if p == "" {
-		return "", gateway.ErrInvalidFile
+		return "", 0, gateway.ErrInvalidFile
 	}
 
-	// uuid1/uuid2/_____.png
-
-	if err := f.upload(ctx, p, file.Content); err != nil {
-		return "", err
+	size, err := f.upload(ctx, p, file.Content)
+	if err != nil {
+		return "", 0, err
 	}
-	return uuid, nil
+	return uuid, size, nil
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
@@ -171,21 +165,21 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 	return reader, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
+func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
 	if filename == "" {
-		return gateway.ErrInvalidFile
+		return 0, gateway.ErrInvalidFile
 	}
 
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
-		return rerror.ErrInternalBy(err)
+		return 0, rerror.ErrInternalBy(err)
 	}
 
 	object := bucket.Object(filename)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload delete err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
+		return 0, gateway.ErrFailedToUploadFile
 	}
 
 	writer := object.NewWriter(ctx)
@@ -193,15 +187,20 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	if _, err := io.Copy(writer, content); err != nil {
 		log.Errorf("gcs: upload err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
+		return 0, gateway.ErrFailedToUploadFile
 	}
 
 	if err := writer.Close(); err != nil {
 		log.Errorf("gcs: upload close err: %+v\n", err)
-		return gateway.ErrFailedToUploadFile
+		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	return nil
+	attr, err := object.Attrs(ctx)
+	if err != nil {
+		return 0, rerror.ErrInternalBy(err)
+	}
+
+	return int64(attr.Size), nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {
@@ -253,7 +252,7 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-var re = regexp.MustCompile(`[^a-zA-Z0-9-_.]`)
+var re = regexp.MustCompile(`[^a-zA-Z0-9-_./]`)
 
 func fileName(s string) string {
 	ss := re.ReplaceAllString(s, "-")

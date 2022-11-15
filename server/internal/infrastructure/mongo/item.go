@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/exp/slices"
 )
 
 var (
@@ -43,39 +42,13 @@ func (r *Item) Init() error {
 	return createIndexes(context.Background(), r.client.Client(), itemIndexes, nil)
 }
 
-func (r *Item) FindByID(ctx context.Context, id id.ItemID) (*item.Item, error) {
+func (r *Item) FindByID(ctx context.Context, id id.ItemID) (item.Versioned, error) {
 	return r.findOne(ctx, bson.M{
 		"id": id.String(),
 	})
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	res, pi, err := r.paginate(ctx, bson.M{
-		"schema": schemaID.String(),
-	}, pagination)
-	return res.SortByTimestamp(), pi, err
-}
-
-func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(projectID) {
-		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
-	}
-	res, pi, err := r.paginate(ctx, bson.M{
-		"project": projectID.String(),
-	}, pagination)
-	return res.SortByTimestamp(), pi, err
-}
-
-func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	return i.paginate(ctx, bson.M{
-		"project": query.Project().String(),
-		"fields.value": bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"},
-		},
-	}, pagination)
-}
-
-func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, error) {
+func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -93,7 +66,51 @@ func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.List, err
 	return filterItems(ids, res), nil
 }
 
-func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*version.Value[*item.Item], error) {
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	res, pi, err := r.paginate(ctx, bson.M{
+		"schema": schemaID.String(),
+	}, pagination)
+	return res.SortByTimestamp(), pi, err
+}
+
+func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(projectID) {
+		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
+	}
+	res, pi, err := r.paginate(ctx, bson.M{
+		"project": projectID.String(),
+	}, pagination)
+	return res.SortByTimestamp(), pi, err
+}
+
+func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.VersionedList, error) {
+	filters := make([]bson.M, 0, len(fields))
+	for _, f := range fields {
+		filters = append(filters, bson.M{
+			"modelid": modelID.String(),
+			"fields": bson.M{
+				"$elemMatch": bson.M{
+					"value":       f.Value,
+					"schemafield": f.SchemaFieldID.String(),
+				},
+			},
+		})
+	}
+	filter := bson.M{"$or": filters}
+
+	return r.find(ctx, filter)
+}
+
+func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.paginate(ctx, bson.M{
+		"project": query.Project().String(),
+		"fields.value": bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"},
+		},
+	}, pagination)
+}
+
+func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(bson.M{
 		"id": itemID.String(),
@@ -101,9 +118,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) ([]*ve
 		return nil, err
 	}
 
-	res := slices.Clone(c.Result)
-	sortItems(res)
-	return res, nil
+	return item.VersionedList(c.Result).SortByTimestamp(), nil
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {
@@ -132,8 +147,8 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 	}, b)
 }
 
-func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (item.List, *usecasex.PageInfo, error) {
-	c := mongodoc.NewItemConsumer()
+func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	c := mongodoc.NewVersionedItemConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), version.Eq(version.Latest.OrVersion()), pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
@@ -141,16 +156,16 @@ func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex
 	return c.Result, pageInfo, nil
 }
 
-func (r *Item) find(ctx context.Context, filter interface{}) (item.List, error) {
-	c := mongodoc.NewItemConsumer()
+func (r *Item) find(ctx context.Context, filter interface{}) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(version.Latest.OrVersion()), c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
 }
 
-func (r *Item) findOne(ctx context.Context, filter interface{}) (*item.Item, error) {
-	c := mongodoc.NewItemConsumer()
+func (r *Item) findOne(ctx context.Context, filter interface{}) (item.Versioned, error) {
+	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), version.Eq(version.Latest.OrVersion()), c); err != nil {
 		return nil, err
 	}
@@ -158,11 +173,11 @@ func (r *Item) findOne(ctx context.Context, filter interface{}) (*item.Item, err
 	return c.Result[0], nil
 }
 
-func filterItems(ids []id.ItemID, rows item.List) item.List {
-	res := make(item.List, 0, len(ids))
+func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {
+	res := make(item.VersionedList, 0, len(ids))
 	for _, id := range ids {
 		for _, r := range rows {
-			if r.ID() == id {
+			if r.Value().ID() == id {
 				res = append(res, r)
 				break
 			}
@@ -177,28 +192,4 @@ func (r *Item) readFilter(filter interface{}) interface{} {
 
 func (r *Item) writeFilter(filter interface{}) interface{} {
 	return applyProjectFilter(filter, r.f.Writable)
-}
-
-func sortItems(items []*version.Value[*item.Item]) {
-	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) bool {
-		return a.Value().Timestamp().Before(b.Value().Timestamp())
-	})
-}
-
-func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.List, error) {
-	filters := make([]bson.M, 0, len(fields))
-	for _, f := range fields {
-		filters = append(filters, bson.M{
-			"modelid": modelID.String(),
-			"fields": bson.M{
-				"$elemMatch": bson.M{
-					"value":       f.Value,
-					"schemafield": f.SchemaFieldID.String(),
-				},
-			},
-		})
-	}
-	filter := bson.M{"$or": filters}
-
-	return r.find(ctx, filter)
 }

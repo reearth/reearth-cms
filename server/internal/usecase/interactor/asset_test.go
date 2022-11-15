@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"mime"
+	"net/http"
+	"os"
+	"path"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -18,10 +23,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -458,12 +461,15 @@ func TestAsset_Create(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
+
 			assetUC := Asset{
 				repos: db,
 				gateways: &gateway.Container{
 					File:       f,
 					TaskRunner: runnerGw,
-				}, eventFunc: mockEventFunc}
+				},
+				ignoreEvent: true,
+			}
 
 			got, err := assetUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -655,7 +661,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				gateways: &gateway.Container{
 					File: fileGw,
 				},
-				eventFunc: mockEventFunc,
+				ignoreEvent: true,
 			}
 			got, err := assetUC.UpdateFiles(ctx, tc.assetID, op)
 			if tc.wantErr != nil {
@@ -744,9 +750,9 @@ func TestAsset_Delete(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			assetUC := Asset{
-				repos:     db,
-				gateways:  &gateway.Container{},
-				eventFunc: mockEventFunc,
+				repos:       db,
+				gateways:    &gateway.Container{},
+				ignoreEvent: true,
 			}
 			id, err := assetUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -760,6 +766,30 @@ func TestAsset_Delete(t *testing.T) {
 			assert.Equal(t, rerror.ErrNotFound, err)
 		})
 	}
+}
+
+func TestAsset_getExtenalFile(t *testing.T) {
+	URL := "https://cms.com/test.txt"
+	f := lo.Must(os.Open("testdata/test.txt"))
+	defer f.Close()
+	z := lo.Must(io.ReadAll(f))
+
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {
+		res := httpmock.NewBytesResponse(200, z)
+		res.Header.Set("Content-Type", mime.TypeByExtension(path.Ext(URL)))
+		return res, nil
+	})
+
+	expected := file.File{Path: "/test.txt", Content: f}
+
+	got, err := getExternalFile(context.Background(), URL)
+	assert.NoError(t, err)
+	assert.Equal(t, expected.Path, got.Path)
+	assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
+
 }
 
 type file2 struct {
@@ -806,8 +836,4 @@ func NewMockRunner() gateway.TaskRunner {
 
 func (r *mockRunner) Run(context.Context, task.Payload) error {
 	return nil
-}
-
-func mockEventFunc(ctx context.Context, wid id.WorkspaceID, t event.Type, a *asset.Asset, op operator.Operator) (*event.Event[any], error) {
-	return nil, nil
 }

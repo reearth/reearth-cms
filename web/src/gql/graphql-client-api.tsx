@@ -108,8 +108,9 @@ export type CommentPayload = {
 };
 
 export type CreateAssetInput = {
-  file: Scalars['Upload'];
+  file?: InputMaybe<Scalars['Upload']>;
   projectId: Scalars['ID'];
+  url?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateAssetPayload = {

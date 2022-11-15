@@ -15,7 +15,7 @@ type Props = {
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  onLink: (asset: Asset) => void;
+  onLink: (asset?: Asset) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
   setUploading: Dispatch<SetStateAction<boolean>>;
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;

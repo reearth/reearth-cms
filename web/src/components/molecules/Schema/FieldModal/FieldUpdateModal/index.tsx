@@ -183,9 +183,9 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form]);
 
   const handleLinkAsset = useCallback(
-    (_asset: Asset) => {
-      form.setFieldValue("defaultValue", _asset.id);
-      setAssetValue(_asset.id);
+    (_asset?: Asset) => {
+      form.setFieldValue("defaultValue", _asset?.id);
+      setAssetValue(_asset?.id);
     },
     [form],
   );

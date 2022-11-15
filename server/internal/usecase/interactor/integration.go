@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -15,12 +16,14 @@ import (
 )
 
 type Integration struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewIntegration(r *repo.Container) interfaces.Integration {
+func NewIntegration(r *repo.Container, g *gateway.Container) interfaces.Integration {
 	return &Integration{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 

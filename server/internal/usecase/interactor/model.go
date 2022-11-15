@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -18,12 +19,14 @@ import (
 )
 
 type Model struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewModel(r *repo.Container) interfaces.Model {
+func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	return &Model{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
