@@ -30,6 +30,13 @@ export type Asset = {
   comments: Comment[];
 };
 
+export type Comment = {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
+};
+
 type DownloadButtonProps = {
   title?: string;
   selected?: Asset[];
