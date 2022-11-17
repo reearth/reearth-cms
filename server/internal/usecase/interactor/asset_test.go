@@ -572,7 +572,8 @@ func TestAsset_Update(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			db.Project.Save(ctx, p)
+			err := db.Project.Save(ctx, p)
+			assert.NoError(t, err)
 			for _, p := range tc.seeds {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -660,7 +661,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", ""))
 
-			db.Project.Save(ctx, proj)
+			err := db.Project.Save(ctx, proj)
+			assert.NoError(t, err)
 			for _, p := range tc.seedAssets {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.Nil(t, err)
