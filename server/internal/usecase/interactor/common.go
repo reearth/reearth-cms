@@ -88,10 +88,11 @@ func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Eve
 	return nil
 }
 
-func updatable(ownerUser *id.UserID, ownerIntegration *id.IntegrationID, wId id.WorkspaceID, operator *usecase.Operator) error {
+func updatable(ownerUser *id.UserID, ownerIntegration *id.IntegrationID, pId id.ProjectID, operator *usecase.Operator) error {
 	isOwned := ownerUser == operator.User || ownerIntegration == operator.Integration
-	isMaintainer := operator.IsMaintainingWorkspace(wId)
-	if !isMaintainer && !isOwned {
+	isWriter := operator.IsWritableProject(pId)
+	isMaintainer := operator.IsMaintainingProject(pId)
+	if !isMaintainer && !(isOwned && isWriter) {
 		return interfaces.ErrOperationDenied
 	}
 	return nil

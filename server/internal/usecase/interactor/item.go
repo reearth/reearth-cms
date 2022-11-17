@@ -73,12 +73,17 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	if operator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
-	if err != nil {
-		return nil, err
-	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() (item.Versioned, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsWritableWorkspace(s.Workspace()) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
 		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
@@ -137,22 +142,26 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	if len(param.Fields) == 0 {
 		return nil, interfaces.ErrItemFieldRequired
 	}
-	itm, err := i.repos.Item.FindByID(ctx, param.ItemID)
-	if err != nil {
-		return nil, err
-	}
 
-	itv := itm.Value()
-	s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
-	if err != nil {
-		return nil, err
-	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+		itm, err := i.repos.Item.FindByID(ctx, param.ItemID)
+		if err != nil {
+			return nil, err
+		}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() (item.Versioned, error) {
-		if err := updatable(itv.User(), itv.Integration(), s.Workspace(), operator); err != nil {
+		itv := itm.Value()
+		if !operator.CanUpdate(itv) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
+		if err != nil {
 			return nil, err
 		}
 
@@ -197,20 +206,20 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	itm, err := i.repos.Item.FindByID(ctx, itemID)
-	if err != nil {
-		return err
+	if operator.User == nil && operator.Integration == nil {
+		return interfaces.ErrInvalidOperator
 	}
 
-	itv := itm.Value()
-	s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
-	if err != nil {
-		return err
-	}
-	return Run0(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() error {
-		if err := updatable(itv.User(), itv.Integration(), s.Workspace(), operator); err != nil {
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+		itm, err := i.repos.Item.FindByID(ctx, itemID)
+		if err != nil {
 			return err
 		}
+
+		if !operator.CanUpdate(itm.Value()) {
+			return interfaces.ErrOperationDenied
+		}
+
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }

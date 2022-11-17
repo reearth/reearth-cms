@@ -522,7 +522,8 @@ func TestAsset_Update(t *testing.T) {
 	op := &usecase.Operator{
 		User:             &uid,
 		Integration:      nil,
-		OwningWorkspaces: []idx.ID[id.Workspace]{ws.ID()},
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{pid1},
 	}
 
 	type args struct {
@@ -608,7 +609,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 	op := &usecase.Operator{
 		User:             &uid,
-		OwningWorkspaces: []idx.ID[id.Workspace]{ws.ID()},
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{proj.ID()},
 	}
 
 	tests := []struct {
@@ -703,7 +705,8 @@ func TestAsset_Delete(t *testing.T) {
 
 	op := &usecase.Operator{
 		User:             &uid,
-		OwningWorkspaces: []idx.ID[id.Workspace]{ws.ID()},
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{proj1.ID()},
 	}
 
 	type args struct {

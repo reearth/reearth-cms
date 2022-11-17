@@ -162,21 +162,17 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	a, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
-	if err != nil {
-		return nil, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return nil, err
-	}
-
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
+		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
-			if err := updatable(a.User(), a.Integration(), p.Workspace(), operator); err != nil {
+			a, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
+			if err != nil {
 				return nil, err
+			}
+
+			if !operator.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
 			}
 
 			if inp.PreviewType != nil {
@@ -197,21 +193,17 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	a, err := i.repos.Asset.FindByID(ctx, aId)
-	if err != nil {
-		return nil, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return nil, err
-	}
-
 	return Run1(
 		ctx, op, i.repos,
-		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
+		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
-			if err := updatable(a.User(), a.Integration(), p.Workspace(), op); err != nil {
+			a, err := i.repos.Asset.FindByID(ctx, aId)
+			if err != nil {
 				return nil, err
+			}
+
+			if !op.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
 			}
 
 			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
@@ -234,6 +226,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 				return nil, err
 			}
 
+			p, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, err
+			}
+
 			if err := i.event(ctx, Event{
 				Workspace: p.Workspace(),
 				Type:      event.AssetDecompress,
@@ -252,21 +249,18 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 	if operator.User == nil && operator.Integration == nil {
 		return aId, interfaces.ErrInvalidOperator
 	}
-	a, err := i.repos.Asset.FindByID(ctx, aId)
-	if err != nil {
-		return aId, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, a.Project())
-	if err != nil {
-		return aId, err
-	}
 
 	return Run1(
 		ctx, operator, i.repos,
-		Usecase().Transaction().WithWritableWorkspaces(p.Workspace()),
+		Usecase().Transaction(),
 		func() (id.AssetID, error) {
-			if err := updatable(a.User(), a.Integration(), p.Workspace(), operator); err != nil {
+			a, err := i.repos.Asset.FindByID(ctx, aId)
+			if err != nil {
 				return aId, err
+			}
+
+			if !operator.CanUpdate(a) {
+				return aId, interfaces.ErrOperationDenied
 			}
 
 			uuid := a.UUID()
@@ -278,6 +272,11 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			}
 
 			err = i.repos.Asset.Delete(ctx, aId)
+			if err != nil {
+				return aId, err
+			}
+
+			p, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
 				return aId, err
 			}

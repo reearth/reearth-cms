@@ -289,12 +289,13 @@ func TestItem_Delete(t *testing.T) {
 	pid := id.NewProjectID()
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).MustBuild()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(pid).Build()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		User:             lo.ToPtr(u.ID()),
-		OwningWorkspaces: []idx.ID[id.Workspace]{wid},
+		OwningWorkspaces: []id.WorkspaceID{wid},
+		OwningProjects:   []id.ProjectID{pid},
 	}
 	ctx := context.Background()
 
