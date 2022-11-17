@@ -83,7 +83,7 @@ export default () => {
   const handleAssetCreate = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
-        if (!projectId) return;
+        if (!projectId) return [];
         const results = await Promise.all(
           files.map(async file => {
             const result = await createAssetMutation({
@@ -91,13 +91,17 @@ export default () => {
             });
             if (result.errors || !result.data?.createAsset) {
               Notification.error({ message: t("Failed to add one or more assets.") });
+              return;
             }
+            return convertAsset(result.data.createAsset.asset as GQLAsset);
           }),
         );
         if (results) {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
+          return results.filter(Boolean);
         }
+        return [];
       })(),
     [t, projectId, createAssetMutation, refetch],
   );

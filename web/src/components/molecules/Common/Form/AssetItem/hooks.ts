@@ -1,10 +1,12 @@
 import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 export default (
   fileList: UploadFile[],
-  createAssets: (files: UploadFile[]) => Promise<void>,
+  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
+  onLink: (asset?: Asset) => void,
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>,
   setUploading: Dispatch<SetStateAction<boolean>>,
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
@@ -30,10 +32,10 @@ export default (
 
   const handleUpload = useCallback(async () => {
     setUploading(true);
-    await createAssets(fileList);
+    const assets = await createAssets(fileList);
+    onLink(assets[0]);
     hideUploadModal();
-    // TODO: link the uploaded asset with content after uploading is done
-  }, [createAssets, fileList, hideUploadModal, setUploading]);
+  }, [createAssets, fileList, hideUploadModal, onLink, setUploading]);
 
   return {
     visible,
