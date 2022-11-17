@@ -7,6 +7,7 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
 
 import LocalTab from "./localTab";
+import UrlTab from "./UrlTab";
 
 const { TabPane } = Tabs;
 
@@ -16,6 +17,8 @@ type Props = {
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
   uploading: boolean;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   handleUpload: () => void;
   handleCancel: () => void;
 };
@@ -26,6 +29,8 @@ const UploadModal: React.FC<Props> = ({
   uploadProps,
   uploading,
   fileList,
+  uploadUrl,
+  setUploadUrl,
   handleUpload,
   handleCancel,
 }) => {
@@ -54,8 +59,9 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("Local")} key="1">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        {/* TODO: uncomment this once upload asset by url is implemented */}
-        {/* <TabPane tab={t("URL")} key="2" /> */}
+        <TabPane tab={t("URL")} key="2">
+          <UrlTab setUploadUrl={setUploadUrl} />
+        </TabPane>
         {/* TODO: uncomment this once upload asset from google drive is implemented */}
         {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
@@ -66,7 +72,7 @@ const UploadModal: React.FC<Props> = ({
         <Button
           type="primary"
           onClick={handleUpload}
-          disabled={fileList && fileList?.length === 0}
+          disabled={fileList.length === 0 && !uploadUrl}
           loading={uploading}>
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>

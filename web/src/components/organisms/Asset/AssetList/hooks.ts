@@ -45,6 +45,7 @@ export default () => {
     selectedRowKeys: [],
   });
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
+  const [uploadUrl, setUploadUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -97,6 +98,26 @@ export default () => {
         if (results) {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
+        }
+      })(),
+    [t, projectId, createAssetMutation, refetch],
+  );
+
+  const handleAssetCreateFromUrl = useCallback(
+    (url: string) =>
+      (async () => {
+        if (!projectId) return;
+        const result = await createAssetMutation({
+          variables: { projectId, file: null, url },
+        });
+        if (result.errors || !result.data?.createAsset) {
+          Notification.error({ message: t("Failed to add one or more assets.") });
+          return;
+        }
+        if (result.data?.createAsset) {
+          Notification.success({ message: t("Successfully added one or more assets!") });
+          await refetch();
+          return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
       })(),
     [t, projectId, createAssetMutation, refetch],
@@ -181,6 +202,7 @@ export default () => {
     assetsPerPage,
     selection,
     fileList,
+    uploadUrl,
     uploading,
     isLoading: loading ?? isRefetching,
     selectedAssets,
@@ -188,9 +210,11 @@ export default () => {
     loading,
     setSelection,
     setFileList,
+    setUploadUrl,
     setUploading,
     setUploadModalVisibility,
     handleAssetCreate,
+    handleAssetCreateFromUrl,
     handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,

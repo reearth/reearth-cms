@@ -19,7 +19,10 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
@@ -42,7 +45,10 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
+  uploadUrl,
+  setUploadUrl,
   onAssetCreate,
+  onAssetCreateFromUrl,
   onAssetDelete,
   onSearchTerm,
   onEdit,
@@ -60,14 +66,20 @@ const AssetList: React.FC<Props> = ({
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
-  }, [setFileList, setUploading, setUploadModalVisibility]);
+    setUploadUrl("");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl]);
 
-  const handleUpload = useCallback(() => {
+  const handleUpload = useCallback(async () => {
     setUploading(true);
-    onAssetCreate(fileList).finally(() => {
-      hideUploadModal();
-    });
-  }, [fileList, setUploading, onAssetCreate, hideUploadModal]);
+
+    if (!uploadUrl) {
+      await onAssetCreate(fileList);
+    } else {
+      await onAssetCreateFromUrl(uploadUrl);
+    }
+
+    hideUploadModal();
+  }, [setUploading, uploadUrl, hideUploadModal, onAssetCreate, fileList, onAssetCreateFromUrl]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -100,6 +112,8 @@ const AssetList: React.FC<Props> = ({
                 fileList={fileList}
                 uploading={uploading}
                 uploadProps={uploadProps}
+                uploadUrl={uploadUrl}
+                setUploadUrl={setUploadUrl}
                 uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 hideUploadModal={hideUploadModal}
