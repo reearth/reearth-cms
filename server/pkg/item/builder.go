@@ -82,6 +82,11 @@ func (b *Builder) Thread(tid ThreadID) *Builder {
 	return b
 }
 
+func (b *Builder) NewThread() *Builder {
+	b.i.thread = NewThreadID()
+	return b
+}
+
 func (b *Builder) Timestamp(createdAt time.Time) *Builder {
 	b.i.timestamp = createdAt
 	return b

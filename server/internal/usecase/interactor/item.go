@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -91,12 +92,21 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			}
 		}
 
+		th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
+
+		if err != nil {
+			return nil, err
+		}
+		if err := i.repos.Thread.Save(ctx, th); err != nil {
+			return nil, err
+		}
+
 		it, err := item.New().
 			NewID().
 			Schema(param.SchemaID).
 			Project(s.Project()).
 			Model(param.ModelID).
-			Thread(id.NewThreadID()).
+			Thread(th.ID()).
 			Fields(fields).
 			Build()
 		if err != nil {

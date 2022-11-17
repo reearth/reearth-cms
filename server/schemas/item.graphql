@@ -6,7 +6,7 @@ type Item implements Node {
   projectId: ID!
   schema: Schema!
   project: Project!
-  thread: Thread
+  thread: Thread!
   fields: [ItemField!]!
   createdAt: DateTime!
 }

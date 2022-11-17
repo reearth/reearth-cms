@@ -188,3 +188,8 @@ func TestBuilder_Build(t *testing.T) {
 		})
 	}
 }
+
+func TestBuilder_NewThread(t *testing.T) {
+	b := New().NewThread()
+	assert.NotNil(t, b.i.thread)
+}
