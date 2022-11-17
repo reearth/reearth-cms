@@ -38,6 +38,23 @@ func TestNewUnzipper(t *testing.T) {
 	assert.Same(t, ErrUnsupportedExtention, err2)
 }
 
+func TestNewSevenZipUnzipper(t *testing.T) {
+	zf := lo.Must(os.Open("testdata/test.7z"))
+	fInfo := lo.Must(zf.Stat())
+
+	wFn := func(name string) (io.WriteCloser, error) {
+		return &Buffer{bytes.Buffer{}}, nil
+	}
+	_, err := NewSevenZip(zf, fInfo.Size(), "7z", wFn)
+	assert.NoError(t, err)
+
+	f := lo.Must(os.Open("testdata/test1.txt"))
+	fInfo2 := lo.Must(f.Stat())
+	_, err2 := NewSevenZip(f, fInfo2.Size(), "txt", wFn)
+	// txt is not unsupported
+	assert.Same(t, ErrUnsupportedExtention, err2)
+}
+
 func TestDecompressor_Decompress(t *testing.T) {
 	zf, err := os.Open("testdata/test.zip")
 	require.NoError(t, err)

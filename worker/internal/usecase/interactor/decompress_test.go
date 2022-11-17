@@ -56,6 +56,23 @@ func mockFs() afero.Fs {
 	return fs
 }
 
+func mockSevenZipFs() afero.Fs {
+	fs := afero.NewMemMapFs()
+	zf := lo.Must(os.Open("testdata/test.7z"))
+
+	zf2 := lo.Must(fs.Create("test.7z"))
+	_ = lo.Must(io.Copy(zf2, zf))
+	_ = zf2.Close()
+
+	zf3 := lo.Must(fs.Create("test.tar.gz"))
+	_ = lo.Must(io.Copy(zf3, zf))
+	_ = zf3.Close()
+
+	_ = zf.Close()
+
+	return fs
+}
+
 type mockCMS struct {
 }
 

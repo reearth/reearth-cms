@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+
+	"github.com/bodgit/sevenzip"
 )
 
 var (
@@ -18,6 +20,11 @@ type decompressor struct {
 	wFn func(name string) (io.WriteCloser, error)
 }
 
+type SevenZipDecompressor struct {
+	r   *sevenzip.Reader
+	wFn func(name string) (io.WriteCloser, error)
+}
+
 func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*decompressor, error) {
 	if ext == "zip" {
 		zr, err := zip.NewReader(r, size)
@@ -26,6 +33,20 @@ func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteC
 		}
 		return &decompressor{
 			r:   zr,
+			wFn: wFn,
+		}, nil
+	}
+	return nil, ErrUnsupportedExtention
+}
+
+func NewSevenZip(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteCloser, error)) (*SevenZipDecompressor, error) {
+	if ext == "7z" {
+		szr, err := sevenzip.NewReader(r, size)
+		if err != nil {
+			return nil, err
+		}
+		return &SevenZipDecompressor{
+			r:   szr,
 			wFn: wFn,
 		}, nil
 	}
