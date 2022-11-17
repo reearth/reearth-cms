@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -237,6 +238,7 @@ func TestItem_Create(t *testing.T) {
 		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{pid},
 		WritableProjects: []id.ProjectID{pid},
+		OwningWorkspaces: []id.WorkspaceID{s.Workspace()},
 	}
 	ctx := context.Background()
 
@@ -282,19 +284,24 @@ func TestItem_Create(t *testing.T) {
 }
 
 func TestItem_Delete(t *testing.T) {
+	wid := id.NewWorkspaceID()
 	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).MustBuild()
 	id1 := id.NewItemID()
 	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
 
-	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		User:             lo.ToPtr(u.ID()),
+		OwningWorkspaces: []idx.ID[id.Workspace]{wid},
 	}
 	ctx := context.Background()
 
 	db := memory.New()
-	err := db.Item.Save(ctx, i1)
+	err := db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
@@ -379,6 +386,7 @@ func TestItem_Update(t *testing.T) {
 		User:             lo.ToPtr(u.ID()),
 		ReadableProjects: []id.ProjectID{i1.Project()},
 		WritableProjects: []id.ProjectID{i1.Project()},
+		OwningWorkspaces: []idx.ID[id.Workspace]{wid},
 	}
 	ctx := context.Background()
 

@@ -51,12 +51,12 @@ func (b *Builder) NewID() *Builder {
 }
 
 func (b *Builder) User(id UserID) *Builder {
-	b.i.user = id
+	b.i.user = &id
 	return b
 }
 
 func (b *Builder) Integration(id IntegrationID) *Builder {
-	b.i.integration = id
+	b.i.integration = &id
 	return b
 }
 

@@ -97,6 +97,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Project(s.Project()).
 			Model(param.ModelID).
 			Fields(fields)
+
 		if operator.User != nil {
 			ib = ib.User(*operator.User)
 		}
@@ -143,26 +144,27 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	if err != nil {
 		return nil, err
 	}
-	s, err := i.repos.Schema.FindByID(ctx, itm.Schema())
+
+	itv := itm.Value()
+	s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 	if err != nil {
 		return nil, err
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() (item.Versioned, error) {
-		if err := updatable(itm.User(), itm.Integration(), s.Workspace(), operator); err != nil {
+		if err := updatable(itv.User(), itv.Integration(), s.Workspace(), operator); err != nil {
 			return nil, err
 		}
 
-		itv := itm.Value()
 		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
 
-		//TODO: create item.FieldList model and move this check there
+		// TODO: create item.FieldList model and move this check there
 		changedFields := filterChangedFields(itv.Fields(), fields)
 		if len(changedFields) == 0 {
-			return it, nil
+			return itm, nil
 		}
 
 		if param.Fields != nil {
@@ -190,7 +192,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		return it, nil
+		return itm, nil
 	})
 }
 
@@ -199,12 +201,14 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	if err != nil {
 		return err
 	}
-	s, err := i.repos.Schema.FindByID(ctx, itm.Schema())
+
+	itv := itm.Value()
+	s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 	if err != nil {
 		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction().WithWritableWorkspaces(s.Workspace()), func() error {
-		if err := updatable(itm.User(), itm.Integration(), s.Workspace(), operator); err != nil {
+		if err := updatable(itv.User(), itv.Integration(), s.Workspace(), operator); err != nil {
 			return err
 		}
 		return i.repos.Item.Remove(ctx, itemID)
@@ -313,7 +317,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 	})
 }
 
-func (i *Item) event(ctx context.Context, e Event) error {
+func (i Item) event(ctx context.Context, e Event) error {
 	if i.ignoreEvent {
 		return nil
 	}
