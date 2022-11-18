@@ -47,7 +47,11 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 			p := &propertyDateTime{}
 			for i, v := range tt.args {
 				got1, got2 := p.ToValue(v)
-				assert.Equal(t, tt.want1, got1, "test %d", i)
+				if tt.want1 != nil {
+					assert.Equal(t, tt.want1.(time.Time).Unix(), got1.(time.Time).Unix(), "test %d", i)
+				} else {
+					assert.Nil(t, got1, "test %d", i)
+				}
 				assert.Equal(t, tt.want2, got2, "test %d", i)
 			}
 		})
