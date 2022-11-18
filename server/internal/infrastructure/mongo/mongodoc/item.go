@@ -14,12 +14,14 @@ import (
 )
 
 type ItemDocument struct {
-	ID        string
-	Project   string
-	Schema    string
-	ModelID   string
-	Fields    []ItemFieldDoc
-	Timestamp time.Time
+	ID          string
+	Project     string
+	Schema      string
+	ModelID     string
+	Fields      []ItemFieldDoc
+	Timestamp   time.Time
+	User        string
+	Integration string
 }
 
 type ItemFieldDoc struct {
@@ -38,36 +40,38 @@ type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDo
 
 func NewVersionedItemConsumer() *VersionedItemConsumer {
 	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Value[*item.Item], error) {
-		item, err := d.Data.Model()
+		itm, err := d.Data.Model()
 		if err != nil {
 			return nil, err
 		}
 
-		v := mongogit.ToValue(d.Meta, item)
+		v := mongogit.ToValue(d.Meta, itm)
 		return v, nil
 	})
 }
 
-func NewItem(ws *item.Item) (*ItemDocument, string) {
-	id := ws.ID().String()
+func NewItem(i *item.Item) (*ItemDocument, string) {
+	itmId := i.ID().String()
 	return &ItemDocument{
-		ID:      id,
-		Schema:  ws.Schema().String(),
-		ModelID: ws.Model().String(),
-		Project: ws.Project().String(),
-		Fields: lo.Map(ws.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
+		ID:      itmId,
+		Schema:  i.Schema().String(),
+		ModelID: i.Model().String(),
+		Project: i.Project().String(),
+		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
 			return ItemFieldDoc{
 				SchemaField: f.SchemaFieldID().String(),
 				ValueType:   string(f.ValueType()),
 				Value:       f.Value(),
 			}
 		}),
-		Timestamp: ws.Timestamp(),
-	}, id
+		Timestamp:   i.Timestamp(),
+		User:        i.User().String(),
+		Integration: i.Integration().String(),
+	}, itmId
 }
 
 func (d *ItemDocument) Model() (*item.Item, error) {
-	iid, err := id.ItemIDFrom(d.ID)
+	itmId, err := id.ItemIDFrom(d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,14 +102,31 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
-	return item.New().
-		ID(iid).
+	ib := item.New().
+		ID(itmId).
 		Project(pid).
 		Schema(sid).
 		Model(mid).
 		Fields(fields).
-		Timestamp(d.Timestamp).
-		Build()
+		Timestamp(d.Timestamp)
+
+	if len(d.User) != 0 {
+		uId, err := id.UserIDFrom(d.User)
+		if err != nil {
+			return nil, err
+		}
+		ib = ib.User(uId)
+	}
+
+	if len(d.Integration) != 0 {
+		iId, err := id.IntegrationIDFrom(d.Integration)
+		if err != nil {
+			return nil, err
+		}
+		ib = ib.Integration(iId)
+	}
+
+	return ib.Build()
 }
 
 func NewItems(items item.List) ([]*ItemDocument, []string) {
@@ -115,9 +136,9 @@ func NewItems(items item.List) ([]*ItemDocument, []string) {
 		if d == nil {
 			continue
 		}
-		r, id := NewItem(d)
+		r, itmId := NewItem(d)
 		res = append(res, r)
-		ids = append(ids, id)
+		ids = append(ids, itmId)
 	}
 	return res, ids
 }
