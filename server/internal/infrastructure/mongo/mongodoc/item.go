@@ -20,8 +20,8 @@ type ItemDocument struct {
 	ModelID     string
 	Fields      []ItemFieldDoc
 	Timestamp   time.Time
-	User        string
-	Integration string
+	User        *string
+	Integration *string
 }
 
 type ItemFieldDoc struct {
@@ -65,8 +65,8 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 			}
 		}),
 		Timestamp:   i.Timestamp(),
-		User:        i.User().String(),
-		Integration: i.Integration().String(),
+		User:        i.User().StringRef(),
+		Integration: i.Integration().StringRef(),
 	}, itmId
 }
 
@@ -110,20 +110,12 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		Fields(fields).
 		Timestamp(d.Timestamp)
 
-	if len(d.User) != 0 {
-		uId, err := id.UserIDFrom(d.User)
-		if err != nil {
-			return nil, err
-		}
-		ib = ib.User(uId)
+	if uId := id.UserIDFromRef(d.User); uId != nil {
+		ib = ib.User(*uId)
 	}
 
-	if len(d.Integration) != 0 {
-		iId, err := id.IntegrationIDFrom(d.Integration)
-		if err != nil {
-			return nil, err
-		}
-		ib = ib.Integration(iId)
+	if iId := id.IntegrationIDFromRef(d.Integration); iId != nil {
+		ib = ib.Integration(*iId)
 	}
 
 	return ib.Build()
