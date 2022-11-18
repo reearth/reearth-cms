@@ -157,7 +157,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 
 	dbField := s.Field(fId)
 
-	tp, err := ToSchemaTypeProperty(input.TypeProperty, gqlmodel.ToType(dbField.Type()))
+	tp, err := ToSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()))
 	if err != nil {
 		return nil, err
 	}

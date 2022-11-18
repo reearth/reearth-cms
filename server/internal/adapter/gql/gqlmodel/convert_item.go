@@ -22,8 +22,8 @@ func ToItem(i *item.Item) *Item {
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
-				Type:          ToType(f.Type()),
-				Value:         f.Value().Value().Interface(),
+				Type:          ToValueType(f.Type()),
+				Value:         ToValue(f.Value()),
 			}
 		}),
 	}
@@ -60,7 +60,7 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 
 	return &interfaces.ItemFieldParam{
 		Field: fid,
-		Type:  FromSchemaFieldType(field.Type),
+		Type:  FromValueType(field.Type),
 		Value: field.Value,
 	}
 }

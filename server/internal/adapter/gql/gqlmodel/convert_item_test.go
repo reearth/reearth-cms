@@ -89,10 +89,10 @@ func TestToItemParam(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got := ToItemParam(tc.input)
-			assert.Equal(tt, tc.want, got)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -126,9 +126,9 @@ func TestToVersionedItem(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			got := ToVersionedItem(tc.args)
-			assert.Equal(tt, tc.want, got)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -167,11 +167,10 @@ func TestToItemQuery(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got := ToItemQuery(tc.input)
-			assert.Equal(tt, tc.want, got)
-
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

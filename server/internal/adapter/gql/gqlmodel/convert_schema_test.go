@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -108,83 +107,6 @@ func TestToSchemaField(t *testing.T) {
 
 			got := ToSchemaField(tt.schema)
 			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestToSchemaFieldType(t *testing.T) {
-	tests := []struct {
-		name string
-		t    value.Type
-		want SchemaFiledType
-	}{
-		{
-			name: "TypeText",
-			t:    value.TypeText,
-			want: SchemaFiledTypeText,
-		},
-		{
-			name: "TypeTextArea",
-			t:    value.TypeTextArea,
-			want: SchemaFiledTypeTextArea,
-		},
-		{
-			name: "TypeRichText",
-			t:    value.TypeRichText,
-			want: SchemaFiledTypeRichText,
-		},
-		{
-			name: "TypeMarkdown",
-			t:    value.TypeMarkdown,
-			want: SchemaFiledTypeMarkdownText,
-		},
-		{
-			name: "TypeAsset",
-			t:    value.TypeAsset,
-			want: SchemaFiledTypeAsset,
-		},
-		{
-			name: "TypeDate",
-			t:    value.TypeDateTime,
-			want: SchemaFiledTypeDate,
-		},
-		{
-			name: "TypeBool",
-			t:    value.TypeBool,
-			want: SchemaFiledTypeBool,
-		},
-		{
-			name: "TypeSelect",
-			t:    value.TypeSelect,
-			want: SchemaFiledTypeSelect,
-		},
-		{
-			name: "TypeInteger",
-			t:    value.TypeInteger,
-			want: SchemaFiledTypeInteger,
-		},
-		{
-			name: "TypeReference",
-			t:    value.TypeReference,
-			want: SchemaFiledTypeReference,
-		},
-		{
-			name: "TypeURL",
-			t:    value.TypeURL,
-			want: SchemaFiledTypeURL,
-		},
-		{
-			name: "TypeURL",
-			t:    "some value",
-			want: "",
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, ToType(tt.t))
 		})
 	}
 }

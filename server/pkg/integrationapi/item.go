@@ -3,7 +3,6 @@ package integrationapi
 import (
 	"github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -33,8 +32,8 @@ func NewItem(i *item.Item) Item {
 	fs := lo.Map(i.Fields(), func(f *item.Field, _ int) Field {
 		return Field{
 			Id:    f.FieldID().Ref(),
-			Type:  lo.ToPtr(ValueType(f.Type())),
-			Value: lo.ToPtr(f.Value().Value().Interface()),
+			Type:  lo.ToPtr(ToValueType(f.Type())),
+			Value: lo.ToPtr(ToValue(f.Value())),
 		}
 	})
 
@@ -44,37 +43,5 @@ func NewItem(i *item.Item) Item {
 		Fields:    &fs,
 		CreatedAt: ToDate(i.ID().Timestamp()),
 		UpdatedAt: ToDate(i.Timestamp()),
-	}
-}
-
-func FromSchemaFieldType(t *ValueType) value.Type {
-	if t == nil {
-		return ""
-	}
-	switch *t {
-	case ValueTypeText:
-		return value.TypeText
-	case ValueTypeTextArea:
-		return value.TypeTextArea
-	case ValueTypeRichText:
-		return value.TypeRichText
-	case ValueTypeMarkdown:
-		return value.TypeMarkdown
-	case ValueTypeAsset:
-		return value.TypeAsset
-	case ValueTypeDate:
-		return value.TypeDateTime
-	case ValueTypeBool:
-		return value.TypeBool
-	case ValueTypeSelect:
-		return value.TypeSelect
-	case ValueTypeInteger:
-		return value.TypeInteger
-	case ValueTypeReference:
-		return value.TypeReference
-	case ValueTypeUrl:
-		return value.TypeURL
-	default:
-		return ""
 	}
 }
