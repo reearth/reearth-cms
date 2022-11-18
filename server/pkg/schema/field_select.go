@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -14,50 +15,52 @@ var (
 )
 
 type FieldSelect struct {
-	values       []string
-	defaultValue *string
+	values []string
 }
 
-func FieldSelectFrom(values []string, defaultValue *string) (*FieldSelect, error) {
-	empty := len(values) == 0
-	emptyValue := lo.SomeBy(values, func(v string) bool { return len(strings.TrimSpace(v)) == 0 })
-	dups := lo.FindDuplicates(values)
-	if empty || emptyValue || len(dups) > 0 {
-		return nil, ErrFieldValues
-	}
-
-	if defaultValue != nil && !lo.Contains(values, *defaultValue) {
-		return nil, ErrFieldDefaultValue
-	}
-	var v *string = nil
-	if defaultValue != nil {
-		v = new(string)
-		*v = strings.Clone(*defaultValue)
-	}
+func NewSelect(values []string) *FieldSelect {
 	return &FieldSelect{
-		values:       slices.Clone(values),
-		defaultValue: v,
-	}, nil
-}
-
-func MustFieldSelectFrom(values []string, defaultValue *string) *FieldSelect {
-	v, err := FieldSelectFrom(values, defaultValue)
-	if err != nil {
-		panic(err)
+		values: lo.Uniq(lo.FilterMap(values, func(v string, _ int) (string, bool) {
+			s := strings.TrimSpace(v)
+			return s, len(s) > 0
+		})),
 	}
-	return v
 }
 
 func (f *FieldSelect) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:       f.Type(),
 		selectt: f,
 	}
 }
 
 func (f *FieldSelect) Values() []string {
-	return f.values
+	return slices.Clone(f.values)
 }
 
-func (f *FieldSelect) DefaultValue() *string {
-	return f.defaultValue
+func (*FieldSelect) Type() value.Type {
+	return value.TypeSelect
+}
+
+func (f *FieldSelect) Clone() *FieldSelect {
+	if f == nil {
+		return nil
+	}
+	return &FieldSelect{
+		values: slices.Clone(f.values),
+	}
+}
+
+func (f *FieldSelect) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Select: func(a value.String) {
+			if !slices.Contains(f.values, a) {
+				err = ErrInvalidValue
+			}
+		},
+		Default: func() {
+			err = ErrInvalidValue
+		},
+	})
+	return
 }

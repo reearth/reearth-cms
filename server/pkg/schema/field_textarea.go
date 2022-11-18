@@ -1,30 +1,41 @@
 package schema
 
+import "github.com/reearth/reearth-cms/server/pkg/value"
+
 type FieldTextArea struct {
-	defaultValue *string
-	maxLength    *int
+	s *FieldString
 }
 
-func FieldTextAreaFrom(defaultValue *string, maxLength *int) (*FieldTextArea, error) {
-	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
-		return nil, ErrInvalidTextDefault
-	}
+func NewTextArea(maxLength *int) *FieldTextArea {
 	return &FieldTextArea{
-		defaultValue: defaultValue,
-		maxLength:    maxLength,
-	}, nil
+		s: NewString(value.TypeTextArea, maxLength),
+	}
 }
 
 func (f *FieldTextArea) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:        f.Type(),
 		textArea: f,
 	}
 }
 
-func (f *FieldTextArea) DefaultValue() *string {
-	return f.defaultValue
+func (f *FieldTextArea) MaxLength() *int {
+	return f.s.MaxLength()
 }
 
-func (f *FieldTextArea) MaxLength() *int {
-	return f.maxLength
+func (f *FieldTextArea) Type() value.Type {
+	return f.s.Type()
+}
+
+func (f *FieldTextArea) Clone() *FieldTextArea {
+	if f == nil {
+		return nil
+	}
+	return &FieldTextArea{
+		s: f.s.Clone(),
+	}
+}
+
+func (f *FieldTextArea) Validate(v *value.Value) error {
+	return f.s.Validate(v)
 }
