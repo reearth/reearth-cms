@@ -6,67 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewOptional(t *testing.T) {
-	type args struct {
-		t Type
-		v *Value
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want *Optional
-	}{
-		{
-			name: "default type",
-			args: args{
-				t: TypeString,
-				v: TypeString.ValueFrom("foo", nil),
-			},
-			want: &Optional{t: TypeString, v: TypeString.ValueFrom("foo", nil)},
-		},
-		{
-			name: "custom type",
-			args: args{
-				t: Type("foo"),
-				v: &Value{t: Type("foo"), v: "a"},
-			},
-			want: &Optional{t: Type("foo"), v: &Value{t: Type("foo"), v: "a"}},
-		},
-		{
-			name: "nil value",
-			args: args{
-				t: Type("foo"),
-			},
-			want: &Optional{t: Type("foo"), v: nil},
-		},
-		{
-			name: "invalid value",
-			args: args{
-				t: TypeNumber,
-				v: TypeString.ValueFrom("foo", nil),
-			},
-			want: nil,
-		},
-		{
-			name: "invalid type",
-			args: args{
-				t: TypeUnknown,
-				v: TypeString.ValueFrom("foo", nil),
-			},
-			want: nil,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, NewOptional(tt.args.t, tt.args.v))
-		})
-	}
-}
-
 func TestOptionalFrom(t *testing.T) {
 	type args struct {
 		v *Value
@@ -337,7 +276,6 @@ func TestOptional_Clone(t *testing.T) {
 func TestOptional_Cast(t *testing.T) {
 	type args struct {
 		t Type
-		p TypeRegistry
 	}
 
 	tests := []struct {
@@ -388,7 +326,7 @@ func TestOptional_Cast(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t, tt.args.p))
+			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))
 		})
 	}
 }

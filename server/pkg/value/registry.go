@@ -60,4 +60,5 @@ type TypeProperty interface {
 	ToValue(any) (any, bool)
 	ToInterface(any) (any, bool)
 	Validate(any) bool
+	Equal(any, any) bool
 }

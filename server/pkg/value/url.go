@@ -35,6 +35,12 @@ func (*propertyURL) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyURL) Equal(v, w any) bool {
+	vv := v.(URL)
+	ww := v.(URL)
+	return vv.String() == ww.String()
+}
+
 func (v *Value) ValueURL() (vv URL, ok bool) {
 	if v == nil {
 		return

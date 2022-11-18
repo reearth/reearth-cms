@@ -74,12 +74,19 @@ func (v *Value) Validate() bool {
 	return valid
 }
 
-func (v *Value) Cast(t Type, p TypeRegistry) *Value {
+func (v *Value) Equal(w *Value) bool {
+	if v == nil || w == nil || v.t != w.t {
+		return false
+	}
+	return v.p.Find(v.t).Equal(v.v, w.v)
+}
+
+func (v *Value) Cast(t Type) *Value {
 	if v.IsEmpty() {
 		return nil
 	}
 	if v.t == t {
 		return v.Clone()
 	}
-	return t.ValueFrom(v.v, p)
+	return t.ValueFrom(v.v, v.p)
 }

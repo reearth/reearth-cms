@@ -380,10 +380,55 @@ func TestValue_Validate(t *testing.T) {
 	}
 }
 
+func TestValue_Equal(t *testing.T) {
+	type args struct {
+		v *Value
+	}
+
+	tests := []struct {
+		name   string
+		target *Value
+		args   args
+		want   bool
+	}{
+		{
+			name:   "diff type",
+			target: &Value{t: TypeNumber, v: 1.1},
+			args:   args{v: TypeString.Value("1.1")},
+			want:   false,
+		},
+		{
+			name:   "same type",
+			target: &Value{t: TypeNumber, v: 1.1},
+			args:   args{v: TypeNumber.Value(1.1)},
+			want:   true,
+		},
+		{
+			name:   "empty",
+			target: &Value{},
+			args:   args{v: TypeString.Value("")},
+			want:   false,
+		},
+		{
+			name:   "nil",
+			target: nil,
+			args:   args{v: TypeString.Value("")},
+			want:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.target.Equal(tt.args.v))
+		})
+	}
+}
+
 func TestValue_Cast(t *testing.T) {
 	type args struct {
 		t Type
-		p TypeRegistry
 	}
 
 	tests := []struct {
@@ -428,7 +473,7 @@ func TestValue_Cast(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t, tt.args.p))
+			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))
 		})
 	}
 }

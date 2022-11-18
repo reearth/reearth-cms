@@ -9,7 +9,10 @@ func (t Type) Default() bool {
 }
 
 func (t Type) None() *Optional {
-	return NewOptional(t, nil)
+	if t == TypeUnknown {
+		return nil
+	}
+	return &Optional{t: t}
 }
 
 func (t Type) Value(i any) *Value {

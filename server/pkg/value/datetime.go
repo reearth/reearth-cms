@@ -58,6 +58,12 @@ func (*propertyDateTime) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyDateTime) Equal(v, w any) bool {
+	vv := v.(DateTime)
+	ww := v.(DateTime)
+	return vv.Equal(ww)
+}
+
 func (v *Value) ValueDateTime() (vv DateTime, ok bool) {
 	if v == nil {
 		return

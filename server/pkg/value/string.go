@@ -49,6 +49,12 @@ func (*propertyString) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyString) Equal(v, w any) bool {
+	vv := v.(String)
+	ww := v.(String)
+	return vv == ww
+}
+
 func (v *Value) ValueString() (vv String, ok bool) {
 	if v == nil {
 		return
