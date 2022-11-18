@@ -41,7 +41,7 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		},
 		{
 			name:  "nan",
-			args:  []any{math.NaN(), json.Number("NaN")},
+			args:  []any{math.NaN()},
 			want1: math.NaN(),
 			want2: true,
 		},

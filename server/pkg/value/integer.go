@@ -2,6 +2,7 @@ package value
 
 import (
 	"encoding/json"
+	"math"
 	"strconv"
 	"time"
 )
@@ -15,9 +16,13 @@ type Integer = int64
 func (p *propertyInteger) ToValue(i any) (any, bool) {
 	switch v := i.(type) {
 	case float64:
-		return Integer(v), true
+		if !math.IsNaN(v) {
+			return Integer(v), true
+		}
 	case float32:
-		return Integer(v), true
+		if !math.IsNaN(float64(v)) {
+			return Integer(v), true
+		}
 	case int:
 		return Integer(v), true
 	case int8:
