@@ -71,13 +71,13 @@ func TestType_None(t *testing.T) {
 }
 
 func TestType_ValueFrom(t *testing.T) {
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		Type("foo"): &tpmock{},
 	}
 
 	type args struct {
 		i any
-		p *TypeRegistry
+		p TypeRegistry
 	}
 
 	tests := []struct {

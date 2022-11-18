@@ -48,7 +48,7 @@ func TestValue_IsEmpty(t *testing.T) {
 
 func TestValue_Clone(t *testing.T) {
 	tp := &tpmock{}
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		Type("hoge"): tp,
 	}
 
@@ -104,7 +104,7 @@ func TestValue_Clone(t *testing.T) {
 
 func TestValue_Some(t *testing.T) {
 	tp := &tpmock{}
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		Type("hoge"): tp,
 	}
 
@@ -230,7 +230,7 @@ func TestValue_Type(t *testing.T) {
 
 func TestValue_TypeProperty(t *testing.T) {
 	tp := &tpmock{}
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		Type("hoge"): tp,
 	}
 
@@ -283,7 +283,7 @@ func TestValue_TypeProperty(t *testing.T) {
 
 func TestValue_Interface(t *testing.T) {
 	tp := &tpmock{}
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		"foo": tp,
 	}
 
@@ -329,7 +329,7 @@ func TestValue_Interface(t *testing.T) {
 
 func TestValue_Validate(t *testing.T) {
 	tp := &tpmock{}
-	tpm := &TypeRegistry{
+	tpm := TypeRegistry{
 		"foo": tp,
 	}
 
@@ -376,7 +376,7 @@ func TestValue_Validate(t *testing.T) {
 func TestValue_Cast(t *testing.T) {
 	type args struct {
 		t Type
-		p *TypeRegistry
+		p TypeRegistry
 	}
 
 	tests := []struct {

@@ -12,7 +12,7 @@ func (t Type) None() *Optional {
 	return NewOptional(t, nil)
 }
 
-func (t Type) ValueFrom(i any, p *TypeRegistry) *Value {
+func (t Type) ValueFrom(i any, p TypeRegistry) *Value {
 	if v, ok := p.ToValue(t, i); ok {
 		return &Value{p: p, v: v, t: t}
 	}

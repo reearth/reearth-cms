@@ -61,7 +61,7 @@ func (ov *Optional) Clone() *Optional {
 }
 
 // Cast tries to convert the value to the new type and generates a new Optional.
-func (ov *Optional) Cast(t Type, p *TypeRegistry) *Optional {
+func (ov *Optional) Cast(t Type, p TypeRegistry) *Optional {
 	if ov == nil || ov.t == TypeUnknown {
 		return nil
 	}

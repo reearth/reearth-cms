@@ -3,10 +3,10 @@ package value
 type Value struct {
 	t Type
 	v any
-	p *TypeRegistry
+	p TypeRegistry
 }
 
-func New(t Type, v any, p *TypeRegistry) *Value {
+func New(t Type, v any, p TypeRegistry) *Value {
 	return t.ValueFrom(v, p)
 }
 
@@ -70,7 +70,7 @@ func (v *Value) Validate() bool {
 	return valid
 }
 
-func (v *Value) Cast(t Type, p *TypeRegistry) *Value {
+func (v *Value) Cast(t Type, p TypeRegistry) *Value {
 	if v.IsEmpty() {
 		return nil
 	}

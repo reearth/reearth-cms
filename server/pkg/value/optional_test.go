@@ -337,7 +337,7 @@ func TestOptional_Clone(t *testing.T) {
 func TestOptional_Cast(t *testing.T) {
 	type args struct {
 		t Type
-		p *TypeRegistry
+		p TypeRegistry
 	}
 
 	tests := []struct {
