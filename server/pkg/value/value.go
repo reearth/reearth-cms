@@ -6,7 +6,11 @@ type Value struct {
 	p TypeRegistry
 }
 
-func New(t Type, v any, p TypeRegistry) *Value {
+func New(t Type, v any) *Value {
+	return NewWithTypeRegistry(t, v, nil)
+}
+
+func NewWithTypeRegistry(t Type, v any, p TypeRegistry) *Value {
 	return t.ValueFrom(v, p)
 }
 

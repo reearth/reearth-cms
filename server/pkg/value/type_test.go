@@ -70,6 +70,50 @@ func TestType_None(t *testing.T) {
 	}
 }
 
+func TestType_Value(t *testing.T) {
+	type args struct {
+		i any
+	}
+
+	tests := []struct {
+		name string
+		tr   Type
+		args args
+		want *Value
+	}{
+		{
+			name: "default type",
+			tr:   TypeString,
+			args: args{
+				i: "hoge",
+			},
+			want: &Value{t: TypeString, v: "hoge"},
+		},
+		{
+			name: "nil",
+			tr:   TypeString,
+			args: args{},
+			want: nil,
+		},
+		{
+			name: "unknown type",
+			tr:   TypeUnknown,
+			args: args{
+				i: "hoge",
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.tr.Value(tt.args.i))
+		})
+	}
+}
+
 func TestType_ValueFrom(t *testing.T) {
 	tpm := TypeRegistry{
 		Type("foo"): &tpmock{},

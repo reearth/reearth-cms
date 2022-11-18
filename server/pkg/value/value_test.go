@@ -10,7 +10,14 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, &Value{
 		t: TypeString,
 		v: "a",
-	}, New(TypeString, "a", nil))
+	}, New(TypeString, "a"))
+}
+
+func TestNewWithTypeRegistry(t *testing.T) {
+	assert.Equal(t, &Value{
+		t: TypeString,
+		v: "a",
+	}, NewWithTypeRegistry(TypeString, "a", nil))
 }
 
 func TestValue_IsEmpty(t *testing.T) {
