@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 func ToSchemaTypeProperty(tp *gqlmodel.SchemaFieldTypePropertyInput, t gqlmodel.SchemaFiledType) (*schema.TypeProperty, error) {
@@ -62,12 +63,6 @@ func ToSchemaTypeProperty(tp *gqlmodel.SchemaFieldTypePropertyInput, t gqlmodel.
 			return nil, errors.New("invalid type property")
 		}
 		tpRes, err = schema.NewFieldTypePropertySelect(x.Values, x.DefaultValue)
-	case gqlmodel.SchemaFiledTypeTag:
-		x := tp.Tag
-		if x == nil {
-			return nil, errors.New("invalid type property")
-		}
-		tpRes, err = schema.NewFieldTypePropertyTag(x.Values, x.DefaultValue)
 	case gqlmodel.SchemaFiledTypeInteger:
 		x := tp.Integer
 		if x == nil {
@@ -117,7 +112,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
 		SchemaId:     m[0].Schema(),
-		Type:         schema.Type(input.Type),
+		Type:         value.Type(input.Type),
 		Name:         &input.Title,
 		Description:  input.Description,
 		Key:          &input.Key,
@@ -162,7 +157,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 
 	dbField := s.Field(fId)
 
-	tp, err := ToSchemaTypeProperty(input.TypeProperty, gqlmodel.ToSchemaFieldType(dbField.Type()))
+	tp, err := ToSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()))
 	if err != nil {
 		return nil, err
 	}

@@ -3,9 +3,6 @@ package interactor
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -79,14 +76,14 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if !operator.IsWritableProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
+
 		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
 		}
 
 		if param.Fields != nil {
-			err = validateFields(ctx, fields, s, param.ModelID, i.repos)
-			if err != nil {
+			if err := validateFields(ctx, fields, s, param.ModelID, i.repos); err != nil {
 				return nil, err
 			}
 		}
@@ -196,7 +193,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 func filterChangedFields(oldFields []*item.Field, newFields []*item.Field) []*item.Field {
 	return lo.FlatMap(oldFields, func(of *item.Field, _ int) []*item.Field {
 		return lo.Filter(newFields, func(nf *item.Field, _ int) bool {
-			return of.SchemaFieldID() == nf.SchemaFieldID() && of.Value() != nf.Value()
+			return of.FieldID() == nf.FieldID() && of.Value() != nf.Value()
 		})
 	})
 }
@@ -205,8 +202,8 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range fields {
 		fieldsArg = append(fieldsArg, repo.FieldAndValue{
-			SchemaFieldID: f.SchemaFieldID(),
-			Value:         f.Value(),
+			Field: f.FieldID(),
+			Value: f.Value().Value(),
 		})
 	}
 
@@ -216,7 +213,7 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 	}
 
 	for _, field := range fields {
-		sf := s.Field(field.SchemaFieldID())
+		sf := s.Field(field.FieldID())
 		if sf == nil {
 			return interfaces.ErrFieldNotFound
 		}
@@ -227,70 +224,78 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 
 		items := item.List(version.UnwrapValues(exists))
 		if sf.Unique() && field.Value() != nil {
-			if len(exists) > 0 && len(items.ItemsBySchemaField(field.SchemaFieldID(), field.Value())) > 0 {
+			if len(exists) > 0 && len(items.ItemsByField(field.FieldID(), field.Value())) > 0 {
 				return interfaces.ErrFieldValueExist
 			}
 		}
 
-		err1 := errors.New("invalid field value")
 		errFlag := false
+
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Text: func(f *schema.FieldText) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value())) > *f.MaxLength()
+				if f.MaxLength() == nil {
+					return
+				}
+				vv, ok := field.Value().Value().ValueString()
+				errFlag = !ok || len(vv) > *f.MaxLength()
 			},
 			TextArea: func(f *schema.FieldTextArea) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value())) > *f.MaxLength()
+				if f.MaxLength() == nil {
+					return
+				}
+				vv, ok := field.Value().Value().ValueString()
+				errFlag = !ok || len(vv) > *f.MaxLength()
 			},
 			RichText: func(f *schema.FieldRichText) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value())) > *f.MaxLength()
+				if f.MaxLength() == nil {
+					return
+				}
+				vv, ok := field.Value().Value().ValueString()
+				errFlag = !ok || len(vv) > *f.MaxLength()
 			},
 			Markdown: func(f *schema.FieldMarkdown) {
-				errFlag = f.MaxLength() != nil && len(fmt.Sprintf("%v", field.Value())) > *f.MaxLength()
+				if f.MaxLength() == nil {
+					return
+				}
+				vv, ok := field.Value().Value().ValueString()
+				errFlag = !ok || len(vv) > *f.MaxLength()
 			},
 			Integer: func(f *schema.FieldInteger) {
-				if f.Max() != nil && int(field.Value().(int64)) > *f.Max() {
+				v, _ := field.Value().Value().ValueInteger()
+				if f.Max() != nil && int(v) > *f.Max() {
 					errFlag = true
 					return
 				}
-				if f.Min() != nil && int(field.Value().(int64)) < *f.Min() {
+				if f.Min() != nil && int(v) < *f.Min() {
 					errFlag = true
 					return
 				}
-			},
-			URL: func(f *schema.FieldURL) {
-				errFlag = !schema.IsUrl(field.Value().(string))
 			},
 		})
+
 		if errFlag {
-			return err1
+			return errors.New("invalid field value")
 		}
 	}
+
 	return nil
 }
 
 func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
-		v := f.Value
-		sf := s.Field(f.SchemaFieldID)
+		sf := s.Field(f.Field)
 		if sf == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
-		if sf.Type() == schema.TypeInteger {
-			strV := fmt.Sprintf("%v", f.Value)
-			if len(strings.TrimSpace(strV)) != 0 {
-				v2, err := strconv.ParseInt(strV, 10, 64)
-				if err != nil {
-					return nil, err
-				}
-				v = v2
-			} else {
-				v = nil
-			}
+
+		v := sf.Type().Value(f.Value)
+		if v == nil {
+			return nil, interfaces.ErrInvalidValue
 		}
+
 		return item.NewField(
-			f.SchemaFieldID,
-			sf.Type(),
-			v,
+			f.Field,
+			v.Some(),
 		), nil
 	})
 }

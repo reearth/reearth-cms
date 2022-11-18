@@ -34,6 +34,12 @@ func (*propertyReference) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyReference) Equal(v, w any) bool {
+	vv := v.(Reference)
+	ww := v.(Reference)
+	return vv == ww
+}
+
 func (v *Value) ValueReference() (vv Reference, ok bool) {
 	if v == nil {
 		return

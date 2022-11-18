@@ -5,16 +5,6 @@ type Optional struct {
 	v *Value
 }
 
-func NewOptional(t Type, v *Value) *Optional {
-	if t == TypeUnknown || (v != nil && v.Type() != t) {
-		return nil
-	}
-	return &Optional{
-		t: t,
-		v: v,
-	}
-}
-
 func OptionalFrom(v *Value) *Optional {
 	if v.Type() == TypeUnknown {
 		return nil
@@ -61,14 +51,17 @@ func (ov *Optional) Clone() *Optional {
 }
 
 // Cast tries to convert the value to the new type and generates a new Optional.
-func (ov *Optional) Cast(t Type, p TypeRegistry) *Optional {
+func (ov *Optional) Cast(t Type) *Optional {
 	if ov == nil || ov.t == TypeUnknown {
 		return nil
 	}
+
 	if ov.v == nil {
-		return NewOptional(t, nil)
+		return t.None()
 	}
 
-	nv := ov.v.Cast(t, p)
-	return NewOptional(t, nv)
+	return &Optional{
+		t: t,
+		v: ov.v.Cast(t),
+	}
 }

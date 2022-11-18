@@ -14,7 +14,7 @@ func TestType_Default(t *testing.T) {
 	}{
 		{
 			name: "default",
-			tr:   TypeString,
+			tr:   TypeText,
 			want: true,
 		},
 		{
@@ -46,8 +46,8 @@ func TestType_None(t *testing.T) {
 	}{
 		{
 			name: "default",
-			tr:   TypeString,
-			want: &Optional{t: TypeString},
+			tr:   TypeText,
+			want: &Optional{t: TypeText},
 		},
 		{
 			name: "custom",
@@ -70,6 +70,50 @@ func TestType_None(t *testing.T) {
 	}
 }
 
+func TestType_Value(t *testing.T) {
+	type args struct {
+		i any
+	}
+
+	tests := []struct {
+		name string
+		tr   Type
+		args args
+		want *Value
+	}{
+		{
+			name: "default type",
+			tr:   TypeText,
+			args: args{
+				i: "hoge",
+			},
+			want: &Value{t: TypeText, v: "hoge"},
+		},
+		{
+			name: "nil",
+			tr:   TypeText,
+			args: args{},
+			want: nil,
+		},
+		{
+			name: "unknown type",
+			tr:   TypeUnknown,
+			args: args{
+				i: "hoge",
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.tr.Value(tt.args.i))
+		})
+	}
+}
+
 func TestType_ValueFrom(t *testing.T) {
 	tpm := TypeRegistry{
 		Type("foo"): &tpmock{},
@@ -88,11 +132,11 @@ func TestType_ValueFrom(t *testing.T) {
 	}{
 		{
 			name: "default type",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{
 				i: "hoge",
 			},
-			want: &Value{t: TypeString, v: "hoge"},
+			want: &Value{t: TypeText, v: "hoge"},
 		},
 		{
 			name: "custom type",
@@ -105,7 +149,7 @@ func TestType_ValueFrom(t *testing.T) {
 		},
 		{
 			name: "nil",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{},
 			want: nil,
 		},
