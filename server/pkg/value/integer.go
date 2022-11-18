@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var TypeInteger Type = "integer"
+const TypeInteger Type = "integer"
 
 type propertyInteger struct{}
 

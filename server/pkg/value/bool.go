@@ -2,7 +2,7 @@ package value
 
 import "strconv"
 
-var TypeBool Type = "bool"
+const TypeBool Type = "bool"
 
 type propertyBool struct{}
 

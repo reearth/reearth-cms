@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-var TypeDateTime Type = "date"
+const TypeDateTime Type = "date"
 
 type propertyDateTime struct{}
 

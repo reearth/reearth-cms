@@ -6,7 +6,12 @@ import (
 	"time"
 )
 
-var TypeString Type = "string"
+const TypeString Type = "string"
+const TypeText Type = "text"
+const TypeTextArea Type = "textArea"
+const TypeRichText Type = "richText"
+const TypeMarkdown Type = "markdown"
+const TypeSelect Type = "select"
 
 type propertyString struct{}
 

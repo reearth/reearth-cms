@@ -2,11 +2,19 @@ package value
 
 var defaultTypes = &TypeRegistry{
 	Registry: map[Type]TypeProperty{
-		TypeBool:     &propertyBool{},
-		TypeString:   &propertyString{},
-		TypeNumber:   &propertyNumber{},
-		TypeInteger:  &propertyInteger{},
-		TypeDateTime: &propertyDateTime{},
+		TypeAsset:     &propertyAsset{},
+		TypeBool:      &propertyBool{},
+		TypeDateTime:  &propertyDateTime{},
+		TypeInteger:   &propertyInteger{},
+		TypeNumber:    &propertyNumber{},
+		TypeString:    &propertyString{},
+		TypeText:      &propertyString{},
+		TypeTextArea:  &propertyString{},
+		TypeRichText:  &propertyString{},
+		TypeMarkdown:  &propertyString{},
+		TypeSelect:    &propertyString{},
+		TypeReference: &propertyReference{},
+		TypeURL:       &propertyURL{},
 	},
 }
 

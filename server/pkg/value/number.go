@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var TypeNumber Type = "number"
+const TypeNumber Type = "number"
 
 type propertyNumber struct{}
 
