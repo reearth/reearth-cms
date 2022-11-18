@@ -14,7 +14,7 @@ func TestType_Default(t *testing.T) {
 	}{
 		{
 			name: "default",
-			tr:   TypeString,
+			tr:   TypeText,
 			want: true,
 		},
 		{
@@ -46,8 +46,8 @@ func TestType_None(t *testing.T) {
 	}{
 		{
 			name: "default",
-			tr:   TypeString,
-			want: &Optional{t: TypeString},
+			tr:   TypeText,
+			want: &Optional{t: TypeText},
 		},
 		{
 			name: "custom",
@@ -83,15 +83,15 @@ func TestType_Value(t *testing.T) {
 	}{
 		{
 			name: "default type",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{
 				i: "hoge",
 			},
-			want: &Value{t: TypeString, v: "hoge"},
+			want: &Value{t: TypeText, v: "hoge"},
 		},
 		{
 			name: "nil",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{},
 			want: nil,
 		},
@@ -132,11 +132,11 @@ func TestType_ValueFrom(t *testing.T) {
 	}{
 		{
 			name: "default type",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{
 				i: "hoge",
 			},
-			want: &Value{t: TypeString, v: "hoge"},
+			want: &Value{t: TypeText, v: "hoge"},
 		},
 		{
 			name: "custom type",
@@ -149,7 +149,7 @@ func TestType_ValueFrom(t *testing.T) {
 		},
 		{
 			name: "nil",
-			tr:   TypeString,
+			tr:   TypeText,
 			args: args{},
 			want: nil,
 		},

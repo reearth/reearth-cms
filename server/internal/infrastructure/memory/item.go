@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -180,11 +181,21 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	if r.err != nil {
 		return nil, nil, r.err
 	}
+
 	var res item.VersionedList
+	qq := q.Q()
+
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
-		if itv.SearchField(q.Q()) != nil {
+		if _, ok := lo.Find(itv.Fields(), func(f *item.Field) bool {
+			if s, ok := f.Value().Value().ValueString(); ok {
+				if strings.Contains(s, qq) {
+					return true
+				}
+			}
+			return false
+		}); ok {
 			res = append(res, it)
 		}
 		return true

@@ -40,7 +40,6 @@ type TypePropertyDocument struct {
 	Date      *FieldDatePropertyDocument      `bson:",omitempty"`
 	Bool      *FieldBoolPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
-	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
 	Url       *FieldURLPropertyDocument       `bson:",omitempty"`
@@ -74,10 +73,6 @@ type FieldBoolPropertyDocument struct {
 type FieldSelectPropertyDocument struct {
 	Values       []string
 	DefaultValue *string
-}
-type FieldTagPropertyDocument struct {
-	Values       []string
-	DefaultValue []string
 }
 type FieldIntegerPropertyDocument struct {
 	DefaultValue *int

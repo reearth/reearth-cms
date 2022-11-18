@@ -8,16 +8,16 @@ import (
 
 func TestNew(t *testing.T) {
 	assert.Equal(t, &Value{
-		t: TypeString,
+		t: TypeText,
 		v: "a",
-	}, New(TypeString, "a"))
+	}, New(TypeText, "a"))
 }
 
 func TestNewWithTypeRegistry(t *testing.T) {
 	assert.Equal(t, &Value{
-		t: TypeString,
+		t: TypeText,
 		v: "a",
-	}, NewWithTypeRegistry(TypeString, "a", nil))
+	}, NewWithTypeRegistry(TypeText, "a", nil))
 }
 
 func TestValue_IsEmpty(t *testing.T) {
@@ -67,11 +67,11 @@ func TestValue_Clone(t *testing.T) {
 		{
 			name: "ok",
 			value: &Value{
-				t: TypeString,
+				t: TypeText,
 				v: "foo",
 			},
 			want: &Value{
-				t: TypeString,
+				t: TypeText,
 				v: "foo",
 			},
 		},
@@ -123,13 +123,13 @@ func TestValue_Some(t *testing.T) {
 		{
 			name: "ok",
 			value: &Value{
-				t: TypeString,
+				t: TypeText,
 				v: "foo",
 			},
 			want: &Optional{
-				t: TypeString,
+				t: TypeText,
 				v: &Value{
-					t: TypeString,
+					t: TypeText,
 					v: "foo",
 				},
 			},
@@ -179,7 +179,7 @@ func TestValue_Value(t *testing.T) {
 	}{
 		{
 			name:  "ok",
-			value: &Value{t: TypeString, v: "a"},
+			value: &Value{t: TypeText, v: "a"},
 			want:  "a",
 		},
 		{
@@ -212,8 +212,8 @@ func TestValue_Type(t *testing.T) {
 	}{
 		{
 			name:  "ok",
-			value: &Value{t: TypeString, v: "a"},
-			want:  TypeString,
+			value: &Value{t: TypeText, v: "a"},
+			want:  TypeText,
 		},
 		{
 			name:  "empty",
@@ -250,9 +250,9 @@ func TestValue_TypeProperty(t *testing.T) {
 			name: "default type",
 			value: &Value{
 				v: "string",
-				t: TypeString,
+				t: TypeText,
 			},
-			want: defaultTypes.Get(TypeString),
+			want: defaultTypes.Get(TypeText),
 		},
 		{
 			name: "custom type",
@@ -301,7 +301,7 @@ func TestValue_Interface(t *testing.T) {
 	}{
 		{
 			name:  "string",
-			value: &Value{t: TypeString, v: "hoge"},
+			value: &Value{t: TypeText, v: "hoge"},
 			want:  "hoge",
 		},
 		{
@@ -347,7 +347,7 @@ func TestValue_Validate(t *testing.T) {
 	}{
 		{
 			name:  "string",
-			value: &Value{t: TypeString, v: "hoge"},
+			value: &Value{t: TypeText, v: "hoge"},
 			want:  true,
 		},
 		{
@@ -394,7 +394,7 @@ func TestValue_Equal(t *testing.T) {
 		{
 			name:   "diff type",
 			target: &Value{t: TypeNumber, v: 1.1},
-			args:   args{v: TypeString.Value("1.1")},
+			args:   args{v: TypeText.Value("1.1")},
 			want:   false,
 		},
 		{
@@ -406,13 +406,13 @@ func TestValue_Equal(t *testing.T) {
 		{
 			name:   "empty",
 			target: &Value{},
-			args:   args{v: TypeString.Value("")},
+			args:   args{v: TypeText.Value("")},
 			want:   false,
 		},
 		{
 			name:   "nil",
 			target: nil,
-			args:   args{v: TypeString.Value("")},
+			args:   args{v: TypeText.Value("")},
 			want:   false,
 		},
 	}
@@ -440,8 +440,8 @@ func TestValue_Cast(t *testing.T) {
 		{
 			name:   "diff type",
 			target: &Value{t: TypeNumber, v: 1.1},
-			args:   args{t: TypeString},
-			want:   &Value{t: TypeString, v: "1.1"},
+			args:   args{t: TypeText},
+			want:   &Value{t: TypeText, v: "1.1"},
 		},
 		{
 			name:   "same type",
@@ -458,13 +458,13 @@ func TestValue_Cast(t *testing.T) {
 		{
 			name:   "empty",
 			target: &Value{},
-			args:   args{t: TypeString},
+			args:   args{t: TypeText},
 			want:   nil,
 		},
 		{
 			name:   "nil",
 			target: nil,
-			args:   args{t: TypeString},
+			args:   args{t: TypeText},
 			want:   nil,
 		},
 	}

@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-const TypeString Type = "string"
 const TypeText Type = "text"
 const TypeTextArea Type = "textArea"
 const TypeRichText Type = "richText"

@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -94,20 +93,6 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 		fields:    fields,
 		timestamp: i.timestamp,
 	}
-}
-
-func (i *Item) SearchField(v string) *Field {
-	if i == nil {
-		return nil
-	}
-	for _, f := range i.fields {
-		if s, ok := f.value.Value().Cast(value.TypeString).ValueString(); ok {
-			if s == v {
-				return f
-			}
-		}
-	}
-	return nil
 }
 
 func (i *Item) HasField(fid id.FieldID, value any) bool {

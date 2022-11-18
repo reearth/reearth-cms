@@ -6,7 +6,6 @@ var defaultTypes = TypeRegistry{
 	TypeDateTime:  &propertyDateTime{},
 	TypeInteger:   &propertyInteger{},
 	TypeNumber:    &propertyNumber{},
-	TypeString:    &propertyString{},
 	TypeText:      &propertyString{},
 	TypeTextArea:  &propertyString{},
 	TypeRichText:  &propertyString{},
