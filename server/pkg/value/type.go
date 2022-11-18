@@ -13,7 +13,7 @@ func (t Type) None() *Optional {
 }
 
 func (t Type) ValueFrom(i any, p *TypeRegistry) *Value {
-	if v, ok := p.I2V(t, i); ok {
+	if v, ok := p.ToValue(t, i); ok {
 		return &Value{p: p, v: v, t: t}
 	}
 	return nil

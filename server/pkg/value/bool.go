@@ -6,7 +6,9 @@ var TypeBool Type = "bool"
 
 type propertyBool struct{}
 
-func (p *propertyBool) I2V(i interface{}) (interface{}, bool) {
+type Bool = bool
+
+func (p *propertyBool) ToValue(i any) (any, bool) {
 	switch v := i.(type) {
 	case bool:
 		return v, true
@@ -16,22 +18,27 @@ func (p *propertyBool) I2V(i interface{}) (interface{}, bool) {
 		}
 	case *bool:
 		if v != nil {
-			return p.I2V(*v)
+			return p.ToValue(*v)
 		}
 	case *string:
 		if v != nil {
-			return p.I2V(*v)
+			return p.ToValue(*v)
 		}
 	}
+
+	if v, ok := defaultTypes.Get(TypeInteger).ToValue(i); ok {
+		return v.(Integer) > 0, true
+	}
+
 	return nil, false
 }
 
-func (*propertyBool) V2I(v interface{}) (interface{}, bool) {
+func (*propertyBool) ToInterface(v any) (any, bool) {
 	return v, true
 }
 
-func (*propertyBool) Validate(i interface{}) bool {
-	_, ok := i.(bool)
+func (*propertyBool) Validate(i any) bool {
+	_, ok := i.(Bool)
 	return ok
 }
 
@@ -39,6 +46,6 @@ func (v *Value) ValueBool() (vv bool, ok bool) {
 	if v == nil {
 		return
 	}
-	vv, ok = v.v.(bool)
+	vv, ok = v.v.(Bool)
 	return
 }

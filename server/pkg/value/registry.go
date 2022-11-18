@@ -3,8 +3,9 @@ package value
 var defaultTypes = &TypeRegistry{
 	Registry: map[Type]TypeProperty{
 		TypeBool:     &propertyBool{},
-		TypeNumber:   &propertyNumber{},
 		TypeString:   &propertyString{},
+		TypeNumber:   &propertyNumber{},
+		TypeInteger:  &propertyInteger{},
 		TypeDateTime: &propertyDateTime{},
 	},
 }
@@ -27,20 +28,20 @@ func (r *TypeRegistry) Get(t Type) TypeProperty {
 	return r.Registry[t]
 }
 
-func (r *TypeRegistry) I2V(t Type, v any) (any, bool) {
+func (r *TypeRegistry) ToValue(t Type, v any) (any, bool) {
 	tp := r.Find(t)
 	if tp == nil {
 		return nil, false
 	}
-	return tp.I2V(v)
+	return tp.ToValue(v)
 }
 
-func (r *TypeRegistry) V2I(t Type, v any) (any, bool) {
+func (r *TypeRegistry) ToInterface(t Type, v any) (any, bool) {
 	tp := r.Find(t)
 	if tp == nil {
 		return nil, false
 	}
-	return tp.V2I(v)
+	return tp.ToInterface(v)
 }
 
 func (r *TypeRegistry) Validate(t Type, v any) (bool, bool) {
@@ -52,7 +53,7 @@ func (r *TypeRegistry) Validate(t Type, v any) (bool, bool) {
 }
 
 type TypeProperty interface {
-	I2V(any) (any, bool)
-	V2I(any) (any, bool)
+	ToValue(any) (any, bool)
+	ToInterface(any) (any, bool)
 	Validate(any) bool
 }

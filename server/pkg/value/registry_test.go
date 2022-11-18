@@ -4,10 +4,15 @@ type tpmock struct {
 	TypeProperty
 }
 
-func (*tpmock) I2V(i any) (any, bool) {
+func (*tpmock) ToValue(i any) (any, bool) {
 	return i.(string) + "a", true
 }
 
-func (*tpmock) V2I(v any) (any, bool) {
+func (*tpmock) ToInterface(v any) (any, bool) {
 	return v.(string) + "bar", true
+}
+
+func (*tpmock) Validate(v any) bool {
+	_, ok := v.(string)
+	return ok
 }

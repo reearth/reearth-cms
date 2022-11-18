@@ -2,10 +2,16 @@ package value
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNew(t *testing.T) {
+	assert.Equal(t, &Value{
+		t: TypeString,
+		v: "a",
+	}, New(TypeString, "a", nil))
+}
 
 func TestValue_IsEmpty(t *testing.T) {
 	tests := []struct {
@@ -329,6 +335,54 @@ func TestValue_Interface(t *testing.T) {
 	}
 }
 
+func TestValue_Validate(t *testing.T) {
+	tp := &tpmock{}
+	tpm := &TypeRegistry{
+		Registry: map[Type]TypeProperty{
+			"foo": tp,
+		},
+	}
+
+	tests := []struct {
+		name  string
+		value *Value
+		want  bool
+	}{
+		{
+			name:  "string",
+			value: &Value{t: TypeString, v: "hoge"},
+			want:  true,
+		},
+		{
+			name: "custom",
+			value: &Value{
+				p: tpm,
+				t: Type("foo"),
+				v: "foo",
+			},
+			want: true,
+		},
+		{
+			name:  "empty",
+			value: &Value{},
+			want:  false,
+		},
+		{
+			name:  "nil",
+			value: nil,
+			want:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.value.Validate())
+		})
+	}
+}
+
 func TestValue_Cast(t *testing.T) {
 	type args struct {
 		t Type
@@ -355,14 +409,8 @@ func TestValue_Cast(t *testing.T) {
 		},
 		{
 			name:   "failed to cast",
-			target: &Value{t: TypeDateTime, v: time.Time{}},
-			args:   args{t: TypeBool},
-			want:   nil,
-		},
-		{
-			name:   "invalid value",
-			target: &Value{t: TypeNumber},
-			args:   args{t: TypeString},
+			target: &Value{t: TypeBool, v: true},
+			args:   args{t: TypeDateTime},
 			want:   nil,
 		},
 		{

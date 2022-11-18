@@ -6,56 +6,62 @@ import (
 	"time"
 )
 
-var TypeNumber Type = "number"
+var TypeInteger Type = "integer"
 
-type propertyNumber struct{}
+type propertyInteger struct{}
 
-type Number = float64
+type Integer = int64
 
-func (p *propertyNumber) ToValue(i any) (any, bool) {
+func (p *propertyInteger) ToValue(i any) (any, bool) {
 	switch v := i.(type) {
 	case float64:
-		return Number(v), true
+		return Integer(v), true
 	case float32:
-		return Number(v), true
+		return Integer(v), true
 	case int:
-		return Number(v), true
+		return Integer(v), true
 	case int8:
-		return Number(v), true
+		return Integer(v), true
 	case int16:
-		return Number(v), true
+		return Integer(v), true
 	case int32:
-		return Number(v), true
+		return Integer(v), true
 	case int64:
-		return Number(v), true
+		return Integer(v), true
 	case uint:
-		return Number(v), true
+		return Integer(v), true
 	case uint8:
-		return Number(v), true
+		return Integer(v), true
 	case uint16:
-		return Number(v), true
+		return Integer(v), true
 	case uint32:
-		return Number(v), true
+		return Integer(v), true
 	case uint64:
-		return Number(v), true
+		return Integer(v), true
 	case uintptr:
-		return Number(v), true
+		return Integer(v), true
 	case json.Number:
+		if i, err := v.Int64(); err == nil {
+			return i, true
+		}
 		if f, err := v.Float64(); err == nil {
-			return f, true
+			return Integer(f), true
 		}
 	case string:
+		if vv, err := strconv.ParseInt(v, 0, 64); err == nil {
+			return Integer(vv), true
+		}
 		if vv, err := strconv.ParseFloat(v, 64); err == nil {
-			return vv, true
+			return Integer(vv), true
 		}
 	case bool:
 		if v {
-			return Number(1), true
+			return Integer(1), true
 		} else {
-			return Number(0), true
+			return Integer(0), true
 		}
 	case time.Time:
-		return Number(v.Unix()), true
+		return Integer(v.Unix()), true
 	case *float64:
 		if v != nil {
 			return p.ToValue(*v)
@@ -128,19 +134,19 @@ func (p *propertyNumber) ToValue(i any) (any, bool) {
 	return nil, false
 }
 
-func (*propertyNumber) ToInterface(v any) (any, bool) {
+func (*propertyInteger) ToInterface(v any) (any, bool) {
 	return v, true
 }
 
-func (*propertyNumber) Validate(i any) bool {
-	_, ok := i.(Number)
+func (*propertyInteger) Validate(i any) bool {
+	_, ok := i.(Integer)
 	return ok
 }
 
-func (v *Value) ValueNumber() (vv Number, ok bool) {
+func (v *Value) ValueInteger() (vv Integer, ok bool) {
 	if v == nil {
 		return
 	}
-	vv, ok = v.v.(Number)
+	vv, ok = v.v.(Integer)
 	return
 }

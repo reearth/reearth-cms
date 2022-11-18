@@ -8,33 +8,60 @@ var TypeDateTime Type = "date"
 
 type propertyDateTime struct{}
 
-type typeDateTime = time.Time
+type DateTime = time.Time
 
-func (p *propertyDateTime) I2V(i any) (any, bool) {
+var timeLayouts = []string{
+	time.RFC3339Nano,
+	time.RFC3339,
+}
+
+func (p *propertyDateTime) ToValue(i any) (any, bool) {
 	switch v := i.(type) {
 	case time.Time:
 		return v, true
+	case string:
+		for _, l := range timeLayouts {
+			if tt, err := time.Parse(l, v); err == nil {
+				return tt, true
+			}
+		}
 	case *time.Time:
 		if v != nil {
-			return p.I2V(*v)
+			return p.ToValue(*v)
+		}
+	case *string:
+		if v != nil {
+			return p.ToValue(*v)
 		}
 	}
+
+	if _, ok := i.(bool); ok {
+		return nil, false
+	}
+	if _, ok := i.(*bool); ok {
+		return nil, false
+	}
+
+	if v, ok := defaultTypes.Get(TypeInteger).ToValue(i); ok {
+		return time.Unix(v.(Integer), 0), true
+	}
+
 	return nil, false
 }
 
-func (*propertyDateTime) V2I(v any) (any, bool) {
+func (*propertyDateTime) ToInterface(v any) (any, bool) {
 	return v, true
 }
 
 func (*propertyDateTime) Validate(i any) bool {
-	_, ok := i.(typeDateTime)
+	_, ok := i.(DateTime)
 	return ok
 }
 
-func (v *Value) ValueDateTime() (vv typeDateTime, ok bool) {
+func (v *Value) ValueDateTime() (vv DateTime, ok bool) {
 	if v == nil {
 		return
 	}
-	vv, ok = v.v.(typeDateTime)
+	vv, ok = v.v.(DateTime)
 	return
 }

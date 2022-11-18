@@ -55,7 +55,7 @@ func (v *Value) Interface() any {
 		return nil
 	}
 
-	if i, ok := v.p.V2I(v.t, v.v); ok {
+	if i, ok := v.p.ToInterface(v.t, v.v); ok {
 		return i
 	}
 	return nil
