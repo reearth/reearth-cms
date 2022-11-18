@@ -568,7 +568,7 @@ func TestAsset_Update(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
@@ -656,7 +656,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
