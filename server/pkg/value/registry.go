@@ -1,42 +1,38 @@
 package value
 
-var defaultTypes = &TypeRegistry{
-	Registry: map[Type]TypeProperty{
-		TypeAsset:     &propertyAsset{},
-		TypeBool:      &propertyBool{},
-		TypeDateTime:  &propertyDateTime{},
-		TypeInteger:   &propertyInteger{},
-		TypeNumber:    &propertyNumber{},
-		TypeString:    &propertyString{},
-		TypeText:      &propertyString{},
-		TypeTextArea:  &propertyString{},
-		TypeRichText:  &propertyString{},
-		TypeMarkdown:  &propertyString{},
-		TypeSelect:    &propertyString{},
-		TypeReference: &propertyReference{},
-		TypeURL:       &propertyURL{},
-	},
+var defaultTypes = TypeRegistry{
+	TypeAsset:     &propertyAsset{},
+	TypeBool:      &propertyBool{},
+	TypeDateTime:  &propertyDateTime{},
+	TypeInteger:   &propertyInteger{},
+	TypeNumber:    &propertyNumber{},
+	TypeString:    &propertyString{},
+	TypeText:      &propertyString{},
+	TypeTextArea:  &propertyString{},
+	TypeRichText:  &propertyString{},
+	TypeMarkdown:  &propertyString{},
+	TypeSelect:    &propertyString{},
+	TypeReference: &propertyReference{},
+	TypeURL:       &propertyURL{},
 }
 
-type TypeRegistry struct {
-	Registry map[Type]TypeProperty
-}
+type TypeRegistry map[Type]TypeProperty
 
-func (r *TypeRegistry) Find(t Type) (tp TypeProperty) {
-	if r != nil && r.Registry != nil {
-		tp = r.Registry[t]
+func (r TypeRegistry) Find(t Type) (tp TypeProperty) {
+	if r != nil {
+		tp = r[t]
 	}
-	if tp == nil && r != defaultTypes {
+	if tp == nil {
 		tp = defaultTypes.Get(t)
 	}
 	return tp
 }
 
-func (r *TypeRegistry) Get(t Type) TypeProperty {
-	return r.Registry[t]
+func (r TypeRegistry) Get(t Type) TypeProperty {
+	return r[t]
 }
 
-func (r *TypeRegistry) ToValue(t Type, v any) (any, bool) {
+func (r TypeRegistry) ToValue(t Type, v any) (any, bool) {
 	tp := r.Find(t)
 	if tp == nil {
 		return nil, false
@@ -44,7 +40,7 @@ func (r *TypeRegistry) ToValue(t Type, v any) (any, bool) {
 	return tp.ToValue(v)
 }
 
-func (r *TypeRegistry) ToInterface(t Type, v any) (any, bool) {
+func (r TypeRegistry) ToInterface(t Type, v any) (any, bool) {
 	tp := r.Find(t)
 	if tp == nil {
 		return nil, false
@@ -52,7 +48,7 @@ func (r *TypeRegistry) ToInterface(t Type, v any) (any, bool) {
 	return tp.ToInterface(v)
 }
 
-func (r *TypeRegistry) Validate(t Type, v any) (bool, bool) {
+func (r TypeRegistry) Validate(t Type, v any) (bool, bool) {
 	tp := r.Find(t)
 	if tp == nil {
 		return false, false

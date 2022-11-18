@@ -72,9 +72,7 @@ func TestType_None(t *testing.T) {
 
 func TestType_ValueFrom(t *testing.T) {
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			Type("foo"): &tpmock{},
-		},
+		Type("foo"): &tpmock{},
 	}
 
 	type args struct {

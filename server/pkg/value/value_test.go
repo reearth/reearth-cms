@@ -49,9 +49,7 @@ func TestValue_IsEmpty(t *testing.T) {
 func TestValue_Clone(t *testing.T) {
 	tp := &tpmock{}
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			Type("hoge"): tp,
-		},
+		Type("hoge"): tp,
 	}
 
 	tests := []struct {
@@ -107,9 +105,7 @@ func TestValue_Clone(t *testing.T) {
 func TestValue_Some(t *testing.T) {
 	tp := &tpmock{}
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			Type("hoge"): tp,
-		},
+		Type("hoge"): tp,
 	}
 
 	tests := []struct {
@@ -235,9 +231,7 @@ func TestValue_Type(t *testing.T) {
 func TestValue_TypeProperty(t *testing.T) {
 	tp := &tpmock{}
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			Type("hoge"): tp,
-		},
+		Type("hoge"): tp,
 	}
 
 	tests := []struct {
@@ -290,9 +284,7 @@ func TestValue_TypeProperty(t *testing.T) {
 func TestValue_Interface(t *testing.T) {
 	tp := &tpmock{}
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			"foo": tp,
-		},
+		"foo": tp,
 	}
 
 	tests := []struct {
@@ -338,9 +330,7 @@ func TestValue_Interface(t *testing.T) {
 func TestValue_Validate(t *testing.T) {
 	tp := &tpmock{}
 	tpm := &TypeRegistry{
-		Registry: map[Type]TypeProperty{
-			"foo": tp,
-		},
+		"foo": tp,
 	}
 
 	tests := []struct {
