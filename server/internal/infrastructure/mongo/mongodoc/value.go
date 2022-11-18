@@ -3,8 +3,8 @@ package mongodoc
 import "github.com/reearth/reearth-cms/server/pkg/value"
 
 type ValueDocument struct {
-	Type string `bson:"type"`
-	V    any    `bson:"value"`
+	T string `bson:"t"`
+	V any    `bson:"v"`
 }
 
 func NewValue(v *value.Value) *ValueDocument {
@@ -12,8 +12,8 @@ func NewValue(v *value.Value) *ValueDocument {
 		return nil
 	}
 	return &ValueDocument{
-		Type: string(v.Type()),
-		V:    v.Interface(),
+		T: string(v.Type()),
+		V: v.Interface(),
 	}
 }
 
@@ -22,8 +22,8 @@ func NewOptionalValue(v *value.Optional) *ValueDocument {
 		return nil
 	}
 	return &ValueDocument{
-		Type: string(v.Type()),
-		V:    v.Value().Interface(),
+		T: string(v.Type()),
+		V: v.Value().Interface(),
 	}
 }
 
@@ -33,11 +33,11 @@ func (d *ValueDocument) Value() *value.Value {
 	}
 
 	// compat
-	if d.Type == "date" {
-		d.Type = string(value.TypeDateTime)
+	if d.T == "date" {
+		d.T = string(value.TypeDateTime)
 	}
 
-	return value.New(value.Type(d.Type), d.Value)
+	return value.New(value.Type(d.T), d.V)
 }
 
 func (d *ValueDocument) OptionalValue() *value.Optional {

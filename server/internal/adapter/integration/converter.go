@@ -27,8 +27,8 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 		v = *f.Value
 	}
 	return interfaces.ItemFieldParam{
-		SchemaFieldID: *f.Id,
-		ValueType:     integrationapi.FromSchemaFieldType(f.Type),
-		Value:         v,
+		Field: *f.Id,
+		Type:  integrationapi.FromSchemaFieldType(f.Type),
+		Value: v,
 	}
 }

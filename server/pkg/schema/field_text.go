@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-var TypeText Type = "text"
 var ErrInvalidTextDefault = errors.New("invalid default value")
 
 type FieldText struct {

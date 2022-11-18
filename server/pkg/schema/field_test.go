@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -405,11 +406,10 @@ func TestField_TypeProperty(t *testing.T) {
 }
 
 func TestField_Type(t *testing.T) {
-
 	tests := []struct {
 		name  string
 		field Field
-		want  Type
+		want  value.Type
 	}{
 		{
 			name: "success Text",
@@ -419,7 +419,7 @@ func TestField_Type(t *testing.T) {
 					text: &FieldText{},
 				},
 			},
-			want: TypeText,
+			want: value.TypeText,
 		},
 		{
 			name: "success TextArea",
@@ -429,7 +429,7 @@ func TestField_Type(t *testing.T) {
 					textArea: &FieldTextArea{},
 				},
 			},
-			want: TypeTextArea,
+			want: value.TypeTextArea,
 		},
 		{
 			name: "success Markdown",
@@ -439,7 +439,7 @@ func TestField_Type(t *testing.T) {
 					markdown: &FieldMarkdown{},
 				},
 			},
-			want: TypeMarkdown,
+			want: value.TypeMarkdown,
 		},
 		{
 			name: "success RichText",
@@ -449,7 +449,7 @@ func TestField_Type(t *testing.T) {
 					richText: &FieldRichText{},
 				},
 			},
-			want: TypeRichText,
+			want: value.TypeRichText,
 		},
 		{
 			name: "success Asset",
@@ -459,7 +459,7 @@ func TestField_Type(t *testing.T) {
 					asset: &FieldAsset{},
 				},
 			},
-			want: TypeAsset,
+			want: value.TypeAsset,
 		},
 		{
 			name: "success Bool",
@@ -469,17 +469,17 @@ func TestField_Type(t *testing.T) {
 					bool: &FieldBool{},
 				},
 			},
-			want: TypeBool,
+			want: value.TypeBool,
 		},
 		{
 			name: "success Date",
 			field: Field{
 				id: NewFieldID(),
 				typeProperty: &TypeProperty{
-					date: &FieldDate{},
+					dateTime: &FieldDate{},
 				},
 			},
-			want: TypeDate,
+			want: value.TypeDateTime,
 		},
 		{
 			name: "success Integer",
@@ -489,7 +489,7 @@ func TestField_Type(t *testing.T) {
 					integer: &FieldInteger{},
 				},
 			},
-			want: TypeInteger,
+			want: value.TypeInteger,
 		},
 		{
 			name: "success URL",
@@ -499,7 +499,7 @@ func TestField_Type(t *testing.T) {
 					url: &FieldURL{},
 				},
 			},
-			want: TypeURL,
+			want: value.TypeURL,
 		},
 		{
 			name: "success Reference",
@@ -509,17 +509,7 @@ func TestField_Type(t *testing.T) {
 					reference: &FieldReference{},
 				},
 			},
-			want: TypeReference,
-		},
-		{
-			name: "success Tag",
-			field: Field{
-				id: NewFieldID(),
-				typeProperty: &TypeProperty{
-					tag: &FieldTag{},
-				},
-			},
-			want: TypeTag,
+			want: value.TypeReference,
 		},
 		{
 			name: "success Select",
@@ -529,7 +519,7 @@ func TestField_Type(t *testing.T) {
 					selectt: &FieldSelect{},
 				},
 			},
-			want: TypeSelect,
+			want: value.TypeSelect,
 		},
 	}
 	for _, tc := range tests {

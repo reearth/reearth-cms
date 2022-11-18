@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
@@ -26,7 +27,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 
 	return &SchemaField{
 		ID:           IDFrom(sf.ID()),
-		Type:         ToSchemaFieldType(sf.Type()),
+		Type:         ToType(sf.Type()),
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
@@ -39,31 +40,29 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 }
 
-func ToSchemaFieldType(t schema.Type) SchemaFiledType {
+func ToType(t value.Type) SchemaFiledType {
 	switch t {
-	case schema.TypeText:
+	case value.TypeText:
 		return SchemaFiledTypeText
-	case schema.TypeTextArea:
+	case value.TypeTextArea:
 		return SchemaFiledTypeTextArea
-	case schema.TypeRichText:
+	case value.TypeRichText:
 		return SchemaFiledTypeRichText
-	case schema.TypeMarkdown:
+	case value.TypeMarkdown:
 		return SchemaFiledTypeMarkdownText
-	case schema.TypeAsset:
+	case value.TypeAsset:
 		return SchemaFiledTypeAsset
-	case schema.TypeDate:
+	case value.TypeDateTime:
 		return SchemaFiledTypeDate
-	case schema.TypeBool:
+	case value.TypeBool:
 		return SchemaFiledTypeBool
-	case schema.TypeSelect:
+	case value.TypeSelect:
 		return SchemaFiledTypeSelect
-	case schema.TypeTag:
-		return SchemaFiledTypeTag
-	case schema.TypeInteger:
+	case value.TypeInteger:
 		return SchemaFiledTypeInteger
-	case schema.TypeReference:
+	case value.TypeReference:
 		return SchemaFiledTypeReference
-	case schema.TypeURL:
+	case value.TypeURL:
 		return SchemaFiledTypeURL
 	default:
 		return ""
@@ -117,12 +116,6 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 				Values:       f.Values(),
 			}
 		},
-		Tag: func(f *schema.FieldTag) {
-			res = &SchemaFieldTag{
-				DefaultValue: f.DefaultValue(),
-				Values:       f.Values(),
-			}
-		},
 		Integer: func(f *schema.FieldInteger) {
 			res = &SchemaFieldInteger{
 				DefaultValue: f.DefaultValue(),
@@ -144,32 +137,30 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 	return
 }
 
-func FromSchemaFieldType(t SchemaFiledType) schema.Type {
+func FromSchemaFieldType(t SchemaFiledType) value.Type {
 	switch t {
 	case SchemaFiledTypeText:
-		return schema.TypeText
+		return value.TypeText
 	case SchemaFiledTypeTextArea:
-		return schema.TypeTextArea
+		return value.TypeTextArea
 	case SchemaFiledTypeRichText:
-		return schema.TypeRichText
+		return value.TypeRichText
 	case SchemaFiledTypeMarkdownText:
-		return schema.TypeMarkdown
+		return value.TypeMarkdown
 	case SchemaFiledTypeAsset:
-		return schema.TypeAsset
+		return value.TypeAsset
 	case SchemaFiledTypeDate:
-		return schema.TypeDate
+		return value.TypeDateTime
 	case SchemaFiledTypeBool:
-		return schema.TypeBool
+		return value.TypeBool
 	case SchemaFiledTypeSelect:
-		return schema.TypeSelect
-	case SchemaFiledTypeTag:
-		return schema.TypeTag
+		return value.TypeSelect
 	case SchemaFiledTypeInteger:
-		return schema.TypeInteger
+		return value.TypeInteger
 	case SchemaFiledTypeReference:
-		return schema.TypeReference
+		return value.TypeReference
 	case SchemaFiledTypeURL:
-		return schema.TypeURL
+		return value.TypeURL
 	default:
 		return ""
 	}

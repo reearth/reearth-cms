@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -114,67 +115,62 @@ func TestToSchemaField(t *testing.T) {
 func TestToSchemaFieldType(t *testing.T) {
 	tests := []struct {
 		name string
-		t    schema.Type
+		t    value.Type
 		want SchemaFiledType
 	}{
 		{
 			name: "TypeText",
-			t:    schema.TypeText,
+			t:    value.TypeText,
 			want: SchemaFiledTypeText,
 		},
 		{
 			name: "TypeTextArea",
-			t:    schema.TypeTextArea,
+			t:    value.TypeTextArea,
 			want: SchemaFiledTypeTextArea,
 		},
 		{
 			name: "TypeRichText",
-			t:    schema.TypeRichText,
+			t:    value.TypeRichText,
 			want: SchemaFiledTypeRichText,
 		},
 		{
 			name: "TypeMarkdown",
-			t:    schema.TypeMarkdown,
+			t:    value.TypeMarkdown,
 			want: SchemaFiledTypeMarkdownText,
 		},
 		{
 			name: "TypeAsset",
-			t:    schema.TypeAsset,
+			t:    value.TypeAsset,
 			want: SchemaFiledTypeAsset,
 		},
 		{
 			name: "TypeDate",
-			t:    schema.TypeDate,
+			t:    value.TypeDateTime,
 			want: SchemaFiledTypeDate,
 		},
 		{
 			name: "TypeBool",
-			t:    schema.TypeBool,
+			t:    value.TypeBool,
 			want: SchemaFiledTypeBool,
 		},
 		{
 			name: "TypeSelect",
-			t:    schema.TypeSelect,
+			t:    value.TypeSelect,
 			want: SchemaFiledTypeSelect,
 		},
 		{
-			name: "TypeTag",
-			t:    schema.TypeTag,
-			want: SchemaFiledTypeTag,
-		},
-		{
 			name: "TypeInteger",
-			t:    schema.TypeInteger,
+			t:    value.TypeInteger,
 			want: SchemaFiledTypeInteger,
 		},
 		{
 			name: "TypeReference",
-			t:    schema.TypeReference,
+			t:    value.TypeReference,
 			want: SchemaFiledTypeReference,
 		},
 		{
 			name: "TypeURL",
-			t:    schema.TypeURL,
+			t:    value.TypeURL,
 			want: SchemaFiledTypeURL,
 		},
 		{
@@ -188,7 +184,7 @@ func TestToSchemaFieldType(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToSchemaFieldType(tt.t))
+			assert.Equal(t, tt.want, ToType(tt.t))
 		})
 	}
 }
@@ -197,7 +193,6 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mId := id.NewModelID()
 	tpInt, _ := schema.NewFieldTypePropertyInteger(nil, nil, nil)
 	tpURL, _ := schema.NewFieldTypePropertyURL(nil)
-	tpTag, _ := schema.NewFieldTypePropertyTag([]string{"v1"}, nil)
 	tpSelect, _ := schema.NewFieldTypePropertySelect([]string{"v1"}, nil)
 	tpText, _ := schema.NewFieldTypePropertyText(nil, nil)
 	tpTextarea, _ := schema.NewFieldTypePropertyTextArea(nil, nil)
@@ -265,11 +260,6 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			name: "test",
 			args: args{tp: tpURL},
 			want: &SchemaFieldURL{DefaultValue: nil},
-		},
-		{
-			name: "test",
-			args: args{tp: tpTag},
-			want: &SchemaFieldTag{Values: []string{"v1"}, DefaultValue: nil},
 		},
 		{
 			name: "test",

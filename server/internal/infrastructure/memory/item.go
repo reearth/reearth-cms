@@ -184,7 +184,7 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
-		if itv.FindFieldByValue(q.Q()) {
+		if itv.SearchField(q.Q()) != nil {
 			res = append(res, it)
 		}
 		return true
@@ -204,7 +204,7 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.Value == ff.Value() && f.SchemaFieldID == ff.SchemaFieldID() {
+					if f.Field == ff.FieldID() && f.Value.Equal(f.Value) {
 						res = append(res, itv)
 					}
 				}

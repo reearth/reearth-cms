@@ -10,18 +10,18 @@ import (
 func TestNewValue(t *testing.T) {
 	assert.Nil(t, NewValue(nil))
 	assert.Equal(t, &ValueDocument{
-		Type: "bool",
-		V:    true,
+		T: "bool",
+		V: true,
 	}, NewValue(value.TypeBool.Value(true)))
 }
 
 func TestNewOptionalValue(t *testing.T) {
 	assert.Nil(t, NewValue(nil))
 	assert.Equal(t, &ValueDocument{
-		Type: "bool",
+		T: "bool",
 	}, NewOptionalValue(value.TypeBool.None()))
 	assert.Equal(t, &ValueDocument{
-		Type: "bool",
-		V:    true,
+		T: "bool",
+		V: true,
 	}, NewOptionalValue(value.TypeBool.Value(true).Some()))
 }
