@@ -137,6 +137,12 @@ func (*propertyNumber) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyNumber) Equal(v, w any) bool {
+	vv := v.(Number)
+	ww := v.(Number)
+	return vv == ww
+}
+
 func (v *Value) ValueNumber() (vv Number, ok bool) {
 	if v == nil {
 		return

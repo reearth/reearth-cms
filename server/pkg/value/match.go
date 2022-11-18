@@ -26,11 +26,6 @@ func (v *Value) Match(m Match) {
 	}
 
 	switch v.t {
-	case TypeString:
-		if m.Text != nil {
-			m.Text(v.v.(String))
-			return
-		}
 	case TypeText:
 		if m.Text != nil {
 			m.Text(v.v.(String))

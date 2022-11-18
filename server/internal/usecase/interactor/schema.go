@@ -82,9 +82,6 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				Select: func(fp *schema.FieldSelect) {
 					fb = schema.NewFieldSelect(fp.Values(), fp.DefaultValue())
 				},
-				Tag: func(fp *schema.FieldTag) {
-					fb = schema.NewFieldTag(fp.Values(), fp.DefaultValue())
-				},
 				Integer: func(fp *schema.FieldInteger) {
 					fb = schema.NewFieldInteger(fp.DefaultValue(), fp.Min(), fp.Max())
 				},

@@ -6,7 +6,6 @@ var defaultTypes = TypeRegistry{
 	TypeDateTime:  &propertyDateTime{},
 	TypeInteger:   &propertyInteger{},
 	TypeNumber:    &propertyNumber{},
-	TypeString:    &propertyString{},
 	TypeText:      &propertyString{},
 	TypeTextArea:  &propertyString{},
 	TypeRichText:  &propertyString{},
@@ -60,4 +59,5 @@ type TypeProperty interface {
 	ToValue(any) (any, bool)
 	ToInterface(any) (any, bool)
 	Validate(any) bool
+	Equal(any, any) bool
 }

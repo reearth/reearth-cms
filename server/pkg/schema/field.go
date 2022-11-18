@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 type Field struct {
@@ -85,7 +86,7 @@ func (f *Field) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
 
-func (f *Field) Type() Type {
+func (f *Field) Type() value.Type {
 	return f.typeProperty.Type()
 }
 

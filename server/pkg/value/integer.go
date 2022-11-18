@@ -148,6 +148,12 @@ func (*propertyInteger) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyInteger) Equal(v, w any) bool {
+	vv := v.(Integer)
+	ww := v.(Integer)
+	return vv == ww
+}
+
 func (v *Value) ValueInteger() (vv Integer, ok bool) {
 	if v == nil {
 		return

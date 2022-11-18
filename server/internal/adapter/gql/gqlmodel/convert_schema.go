@@ -26,7 +26,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 
 	return &SchemaField{
 		ID:           IDFrom(sf.ID()),
-		Type:         ToSchemaFieldType(sf.Type()),
+		Type:         ToValueType(sf.Type()),
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
@@ -36,37 +36,6 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Required:     sf.Required(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
-	}
-}
-
-func ToSchemaFieldType(t schema.Type) SchemaFiledType {
-	switch t {
-	case schema.TypeText:
-		return SchemaFiledTypeText
-	case schema.TypeTextArea:
-		return SchemaFiledTypeTextArea
-	case schema.TypeRichText:
-		return SchemaFiledTypeRichText
-	case schema.TypeMarkdown:
-		return SchemaFiledTypeMarkdownText
-	case schema.TypeAsset:
-		return SchemaFiledTypeAsset
-	case schema.TypeDate:
-		return SchemaFiledTypeDate
-	case schema.TypeBool:
-		return SchemaFiledTypeBool
-	case schema.TypeSelect:
-		return SchemaFiledTypeSelect
-	case schema.TypeTag:
-		return SchemaFiledTypeTag
-	case schema.TypeInteger:
-		return SchemaFiledTypeInteger
-	case schema.TypeReference:
-		return SchemaFiledTypeReference
-	case schema.TypeURL:
-		return SchemaFiledTypeURL
-	default:
-		return ""
 	}
 }
 
@@ -117,12 +86,6 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 				Values:       f.Values(),
 			}
 		},
-		Tag: func(f *schema.FieldTag) {
-			res = &SchemaFieldTag{
-				DefaultValue: f.DefaultValue(),
-				Values:       f.Values(),
-			}
-		},
 		Integer: func(f *schema.FieldInteger) {
 			res = &SchemaFieldInteger{
 				DefaultValue: f.DefaultValue(),
@@ -142,35 +105,4 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty) (res SchemaFieldTypeProp
 		},
 	})
 	return
-}
-
-func FromSchemaFieldType(t SchemaFiledType) schema.Type {
-	switch t {
-	case SchemaFiledTypeText:
-		return schema.TypeText
-	case SchemaFiledTypeTextArea:
-		return schema.TypeTextArea
-	case SchemaFiledTypeRichText:
-		return schema.TypeRichText
-	case SchemaFiledTypeMarkdownText:
-		return schema.TypeMarkdown
-	case SchemaFiledTypeAsset:
-		return schema.TypeAsset
-	case SchemaFiledTypeDate:
-		return schema.TypeDate
-	case SchemaFiledTypeBool:
-		return schema.TypeBool
-	case SchemaFiledTypeSelect:
-		return schema.TypeSelect
-	case SchemaFiledTypeTag:
-		return schema.TypeTag
-	case SchemaFiledTypeInteger:
-		return schema.TypeInteger
-	case SchemaFiledTypeReference:
-		return schema.TypeReference
-	case SchemaFiledTypeURL:
-		return schema.TypeURL
-	default:
-		return ""
-	}
 }
