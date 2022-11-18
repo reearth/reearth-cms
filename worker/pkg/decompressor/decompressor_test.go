@@ -31,26 +31,12 @@ func TestNewUnzipper(t *testing.T) {
 	_, err := New(zf, fInfo.Size(), "zip", wFn)
 	assert.NoError(t, err)
 
-	f := lo.Must(os.Open("testdata/test1.txt"))
-	fInfo2 := lo.Must(f.Stat())
-	_, err2 := New(f, fInfo2.Size(), "txt", wFn)
-	// txt is not unsupported
-	assert.Same(t, ErrUnsupportedExtention, err2)
-}
-
-func TestNewSevenZipUnzipper(t *testing.T) {
-	zf := lo.Must(os.Open("testdata/test.7z"))
-	fInfo := lo.Must(zf.Stat())
-
-	wFn := func(name string) (io.WriteCloser, error) {
-		return &Buffer{bytes.Buffer{}}, nil
-	}
-	_, err := NewSevenZip(zf, fInfo.Size(), "7z", wFn)
+	_, err = New(zf, fInfo.Size(), "7z", wFn)
 	assert.NoError(t, err)
 
 	f := lo.Must(os.Open("testdata/test1.txt"))
 	fInfo2 := lo.Must(f.Stat())
-	_, err2 := NewSevenZip(f, fInfo2.Size(), "txt", wFn)
+	_, err2 := New(f, fInfo2.Size(), "txt", wFn)
 	// txt is not unsupported
 	assert.Same(t, ErrUnsupportedExtention, err2)
 }
@@ -86,8 +72,20 @@ func TestDecompressor_Decompress(t *testing.T) {
 		assert.Equal(t, v.Bytes(), expectedFiles[k])
 	}
 
+	uz, err = New(zf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
+		return files[name], nil
+	})
+	require.NoError(t, err)
+	assert.NoError(t, uz.Decompress())
+
 	// exception: test if  wFn's error is same as what Unzip returns
 	uz, err = New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
+		return nil, errors.New("test")
+	})
+	require.NoError(t, err)
+	assert.Equal(t, errors.New("test"), uz.Decompress())
+
+	uz, err = New(zf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return nil, errors.New("test")
 	})
 	require.NoError(t, err)
