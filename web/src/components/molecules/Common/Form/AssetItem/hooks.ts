@@ -33,7 +33,7 @@ export default (
   const handleUpload = useCallback(async () => {
     setUploading(true);
     const assets = await createAssets(fileList);
-    onLink(assets[0]);
+    if (assets?.length > 0) onLink(assets[0]);
     hideUploadModal();
   }, [createAssets, fileList, hideUploadModal, onLink, setUploading]);
 
