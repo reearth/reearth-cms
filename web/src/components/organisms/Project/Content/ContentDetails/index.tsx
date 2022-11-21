@@ -34,6 +34,7 @@ const ContentDetails: React.FC = () => {
     setUploading,
     setUploadModalVisibility,
     handleAssetCreate,
+    handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
   } = useAssetHooks();
@@ -58,7 +59,8 @@ const ContentDetails: React.FC = () => {
       hideUploadModal={hideUploadModal}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}
-      createAssets={handleAssetCreate}
+      onAssetCreate={handleAssetCreate}
+      onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}

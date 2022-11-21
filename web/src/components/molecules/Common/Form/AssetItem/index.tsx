@@ -25,7 +25,8 @@ type Props = {
   hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -51,7 +52,8 @@ const AssetItem: React.FC<Props> = ({
   hideUploadModal,
   setUploadUrl,
   setUploadType,
-  createAssets,
+  onAssetCreate,
+  onAssetCreateFromUrl,
   onLink,
   onAssetsReload,
   onAssetSearchTerm,
@@ -63,7 +65,10 @@ const AssetItem: React.FC<Props> = ({
   const { Item } = Form;
   const { visible, handleClick, handleCancel, displayUploadModal, handleUpload } = useHooks(
     fileList,
-    createAssets,
+    uploadUrl,
+    uploadType,
+    onAssetCreate,
+    onAssetCreateFromUrl,
     hideUploadModal,
     setUploading,
     setUploadModalVisibility,

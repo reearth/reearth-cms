@@ -30,6 +30,7 @@ const ProjectSchema: React.FC = () => {
     setUploading,
     setUploadModalVisibility,
     handleAssetCreate,
+    handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsReload,
   } = useAssetHooks();
@@ -83,7 +84,8 @@ const ProjectSchema: React.FC = () => {
           hideUploadModal={hideUploadModal}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
-          createAssets={handleAssetCreate}
+          onAssetCreate={handleAssetCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
@@ -109,7 +111,8 @@ const ProjectSchema: React.FC = () => {
           hideUploadModal={hideUploadModal}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
-          createAssets={handleAssetCreate}
+          onAssetCreate={handleAssetCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}

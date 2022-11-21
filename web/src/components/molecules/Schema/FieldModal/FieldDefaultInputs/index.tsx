@@ -27,7 +27,8 @@ export interface Props {
   hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -53,7 +54,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
   onAssetSearchTerm,
   onAssetsReload,
   onLink,
-  createAssets,
+  onAssetCreate,
+  onAssetCreateFromUrl,
   setFileList,
   setUploading,
   setUploadModalVisibility,
@@ -76,7 +78,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
         hideUploadModal={hideUploadModal}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
-        createAssets={createAssets}
+        onAssetCreate={onAssetCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
         onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}

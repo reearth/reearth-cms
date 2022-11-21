@@ -35,7 +35,8 @@ export interface Props {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
@@ -58,10 +59,11 @@ const ContentForm: React.FC<Props> = ({
   hideUploadModal,
   setUploadUrl,
   setUploadType,
+  onAssetCreate,
+  onAssetCreateFromUrl,
   onItemCreate,
   onItemUpdate,
   onBack,
-  createAssets,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -176,7 +178,8 @@ const ContentForm: React.FC<Props> = ({
               hideUploadModal={hideUploadModal}
               setUploadUrl={setUploadUrl}
               setUploadType={setUploadType}
-              createAssets={createAssets}
+              onAssetCreate={onAssetCreate}
+              onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}
               onLink={_asset => handleLink(field.id, _asset)}

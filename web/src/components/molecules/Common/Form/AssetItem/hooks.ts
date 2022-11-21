@@ -1,10 +1,15 @@
 import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 
 export default (
   fileList: UploadFile[],
-  createAssets: (files: UploadFile[]) => Promise<void>,
+  uploadUrl: string,
+  uploadType: UploadType,
+  onAssetCreate: (files: UploadFile[]) => Promise<void>,
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
   hideUploadModal: () => void,
   setUploading: Dispatch<SetStateAction<boolean>>,
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
@@ -24,10 +29,31 @@ export default (
 
   const handleUpload = useCallback(async () => {
     setUploading(true);
-    await createAssets(fileList);
-    hideUploadModal();
-    // TODO: link the uploaded asset with content after uploading is done
-  }, [createAssets, fileList, hideUploadModal, setUploading]);
+
+    try {
+      switch (uploadType) {
+        case "url":
+          await onAssetCreateFromUrl(uploadUrl);
+          break;
+        case "local":
+        default:
+          await onAssetCreate(fileList);
+          break;
+      }
+      hideUploadModal();
+      // TODO: link the uploaded asset with content after uploading is done
+    } catch (error) {
+      hideUploadModal();
+    }
+  }, [
+    setUploading,
+    uploadType,
+    hideUploadModal,
+    onAssetCreateFromUrl,
+    uploadUrl,
+    onAssetCreate,
+    fileList,
+  ]);
 
   return {
     visible,

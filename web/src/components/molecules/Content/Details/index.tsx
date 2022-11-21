@@ -27,7 +27,8 @@ export type Props = {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
@@ -54,7 +55,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   onBack,
-  createAssets,
+  onAssetCreate,
+  onAssetCreateFromUrl,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -81,7 +83,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onBack={onBack}
         onItemCreate={onItemCreate}
         onItemUpdate={onItemUpdate}
-        createAssets={createAssets}
+        onAssetCreate={onAssetCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}
         setFileList={setFileList}
