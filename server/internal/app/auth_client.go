@@ -2,76 +2,99 @@ package app
 
 import (
 	"context"
+	"errors"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
+)
+
+var (
+	debugUserHeaderKey        = "X-Reearth-Debug-User"
+	debugIntegrationHeaderKey = "X-Reearth-Debug-Integration"
 )
 
 func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c echo.Context) (err error) {
 			req := c.Request()
 			ctx := req.Context()
 
-			var userID string
 			var u *user.User
-
-			// get sub from context
-			au := adapter.GetAuthInfo(ctx)
-			if u, ok := ctx.Value(contextUser).(string); ok {
-				userID = u
-			}
-
-			// debug mode
-			if cfg.Debug {
-				if userID := c.Request().Header.Get(debugUserHeader); userID != "" {
-					if id, err := id.UserIDFrom(userID); err == nil {
-						user2, err := cfg.Repos.User.FindByID(ctx, id)
-						if err == nil && user2 != nil {
-							u = user2
-						}
-					}
+			if ai := adapter.GetAuthInfo(ctx); ai != nil {
+				var err error
+				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
+				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
+					Sub:   ai.Sub,
+					ISS:   ai.Iss,
+					Token: ai.Token,
+				})
+				if err != nil {
+					return err
 				}
 			}
-
-			if u == nil && userID != "" {
-				if userID2, err := id.UserIDFrom(userID); err == nil {
-					u, err = cfg.Repos.User.FindByID(ctx, userID2)
-					if err != nil && err != rerror.ErrNotFound {
+			if cfg.Debug {
+				if val := req.Header.Get(debugUserHeaderKey); val != "" {
+					uId, err := id.UserIDFrom(val)
+					if err != nil {
 						return err
 					}
-				} else {
-					return err
+					u, err = cfg.Repos.User.FindByID(ctx, uId)
+					if err != nil {
+						return err
+					}
 				}
 			}
-
-			if u == nil && au != nil {
-				var err error
-				// find user
-				u, err = cfg.Repos.User.FindBySub(ctx, au.Sub)
-				if err != nil && err != rerror.ErrNotFound {
-					return err
-				}
-			}
-
-			// save a new sub
-			if u != nil && au != nil {
-				if err := addSubToUser(ctx, u, user.AuthFromAuth0Sub(au.Sub), cfg); err != nil {
-					return err
-				}
-			}
-
 			if u != nil {
-				op, err := generateOperator(ctx, cfg, u)
+				op, err := generateUserOperator(ctx, cfg, u)
 				if err != nil {
 					return err
 				}
 
 				ctx = adapter.AttachUser(ctx, u)
+				ctx = adapter.AttachOperator(ctx, op)
+			}
+
+			var i *integration.Integration
+			if token := getIntegrationToken(req); token != "" {
+				var err error
+				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
+				if err != nil {
+					if errors.Is(err, rerror.ErrNotFound) {
+						return echo.ErrUnauthorized
+					}
+					return err
+				}
+			}
+			if cfg.Debug {
+				if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
+					iId, err := id.IntegrationIDFrom(val)
+					if err != nil {
+						return err
+					}
+					i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			if i != nil {
+				op, err := generateIntegrationOperator(ctx, cfg, i)
+				if err != nil {
+					return err
+				}
+
 				ctx = adapter.AttachOperator(ctx, op)
 			}
 
@@ -81,37 +104,138 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
-func generateOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*usecase.Operator, error) {
+func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := c.Request().Context()
+			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
+				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				}
+				op, err := generateMachineOperator(ctx)
+				if err != nil {
+					return err
+				}
+				ctx = adapter.AttachOperator(ctx, op)
+				c.SetRequest(c.Request().WithContext(ctx))
+			}
+			return next(c)
+		}
+	}
+}
+
+func getIntegrationToken(req *http.Request) string {
+	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
+	if strings.HasPrefix(token, "secret_") {
+		return token
+	}
+	return ""
+}
+
+func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*usecase.Operator, error) {
 	if u == nil {
 		return nil, nil
 	}
 
 	uid := u.ID()
-	workspaces, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
+
+	w, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	readableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleReader).IDs()
-	writableWorkspaces := workspaces.FilterByUserRole(uid, user.RoleWriter).IDs()
-	owningWorkspaces := workspaces.FilterByUserRole(uid, user.RoleOwner).IDs()
+	rw := w.FilterByUserRole(uid, user.RoleReader).IDs()
+	ww := w.FilterByUserRole(uid, user.RoleWriter).IDs()
+	ow := w.FilterByUserRole(uid, user.RoleOwner).IDs()
+
+	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	if err != nil {
+		return nil, err
+	}
 
 	return &usecase.Operator{
-		User:               uid,
-		ReadableWorkspaces: readableWorkspaces,
-		WritableWorkspaces: writableWorkspaces,
-		OwningWorkspaces:   owningWorkspaces,
+		User:               &uid,
+		Integration:        nil,
+		ReadableWorkspaces: rw,
+		WritableWorkspaces: ww,
+		OwningWorkspaces:   ow,
+		ReadableProjects:   rp,
+		WritableProjects:   wp,
+		OwningProjects:     op,
 	}, nil
 }
 
-func addSubToUser(ctx context.Context, u *user.User, a user.Auth, cfg *ServerConfig) error {
-	if u.AddAuth(a) {
-		err := cfg.Repos.User.Save(ctx, u)
+func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+	rp := id.ProjectIDList{}
+	wp := id.ProjectIDList{}
+	op := id.ProjectIDList{}
+
+	var cur *usecasex.Cursor
+	for {
+		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
+			After: cur,
+			First: lo.ToPtr(int64(100)),
+		}.Wrap())
 		if err != nil {
-			return err
+			return nil, nil, nil, err
 		}
+
+		for _, p := range projects {
+			if ow.Has(p.Workspace()) {
+				op = append(op, p.ID())
+			} else if ww.Has(p.Workspace()) {
+				wp = append(wp, p.ID())
+			} else if rw.Has(p.Workspace()) {
+				rp = append(rp, p.ID())
+			}
+		}
+
+		if !pi.HasNextPage {
+			break
+		}
+		cur = pi.EndCursor
 	}
-	return nil
+	return rp, wp, op, nil
+}
+
+func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration) (*usecase.Operator, error) {
+	if i == nil {
+		return nil, nil
+	}
+
+	iId := i.ID()
+	w, err := cfg.Repos.Workspace.FindByIntegration(ctx, iId)
+	if err != nil {
+		return nil, err
+	}
+
+	rw := w.FilterByIntegrationRole(iId, user.RoleReader).IDs()
+	ww := w.FilterByIntegrationRole(iId, user.RoleWriter).IDs()
+	ow := w.FilterByIntegrationRole(iId, user.RoleOwner).IDs()
+
+	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usecase.Operator{
+		User:               nil,
+		Integration:        &iId,
+		ReadableWorkspaces: rw,
+		WritableWorkspaces: ww,
+		OwningWorkspaces:   ow,
+		ReadableProjects:   rp,
+		WritableProjects:   wp,
+		OwningProjects:     op,
+	}, nil
+}
+
+func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
+	return &usecase.Operator{
+		User:        nil,
+		Integration: nil,
+		Machine:     true,
+	}, nil
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

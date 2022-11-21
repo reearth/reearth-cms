@@ -1,13 +1,9 @@
 import { CSSProperties } from "react";
 
 import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
+import { useT } from "@reearth-cms/i18n";
 
-export enum PreviewType {
-  Geo = "GEO",
-  Geo3D = "GEO3D",
-  Image = "IMAGE",
-  Model3D = "MODEL3D",
-}
+export type PreviewType = "GEO" | "GEO3D" | "IMAGE" | "MODEL3D" | "UNKNOWN";
 
 type Props = {
   onTypeChange: (
@@ -18,20 +14,28 @@ type Props = {
   value?: PreviewType;
 };
 
+type PreviewTypeListItem = {
+  id: number;
+  name: string;
+  value: PreviewType;
+};
+
 export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
-  const previewTypeList = [
-    { id: 1, name: "PNG/JPEG/TIFF/SVG", value: PreviewType.Image },
+  const t = useT();
+  const previewTypeList: PreviewTypeListItem[] = [
+    { id: 1, name: t("PNG/JPEG/TIFF/SVG"), value: "IMAGE" },
     {
       id: 2,
-      name: "JSON/SHAPEFILE/KML/CZML",
-      value: PreviewType.Geo,
+      name: t("JSON/SHAPEFILE/KML/CZML"),
+      value: "GEO",
     },
-    { id: 3, name: "GEO3D", value: PreviewType.Geo3D },
-    { id: 4, name: "MODEL3D/GLB", value: PreviewType.Model3D },
+    { id: 3, name: t("GEO3D"), value: "GEO3D" },
+    { id: 4, name: t("MODEL3D/GLB"), value: "MODEL3D" },
+    { id: 5, name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>
-      {previewTypeList.map(type => (
+      {previewTypeList.map((type: PreviewTypeListItem) => (
         <Select.Option key={type.id} value={type.value}>
           {type.name}
         </Select.Option>

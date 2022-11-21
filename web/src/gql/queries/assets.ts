@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { threadFragment } from "@reearth-cms/gql/fragments";
+
 export const GET_ASSETS = gql`
   query GetAssets(
     $projectId: ID!
@@ -14,34 +16,130 @@ export const GET_ASSETS = gql`
           id
           projectId
           createdAt
-          createdById
+          createdBy {
+            ... on User {
+              id
+              name
+              email
+            }
+            ... on Integration {
+              id
+              name
+              description
+              logoUrl
+              iType
+              developer {
+                id
+                name
+                email
+              }
+              config {
+                token
+                webhooks {
+                  id
+                  name
+                  url
+                  active
+                  createdAt
+                  updatedAt
+                }
+              }
+              createdAt
+              updatedAt
+            }
+          }
+          createdByType
           fileName
           size
           previewType
           file {
-            name
-            size
-            contentType
-            path
+            ...FileFragment
+            children {
+              ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                  children {
+                    ...FileFragment
+                    children {
+                      ...FileFragment
+                    }
+                  }
+                }
+              }
+            }
           }
           uuid
+          url
+          thread {
+            ...threadFragment
+          }
         }
       }
       nodes {
         id
         projectId
         createdAt
-        createdById
+        createdBy {
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+            description
+            logoUrl
+            iType
+            developer {
+              id
+              name
+              email
+            }
+            config {
+              token
+              webhooks {
+                id
+                name
+                url
+                active
+                createdAt
+                updatedAt
+              }
+            }
+            createdAt
+            updatedAt
+          }
+        }
+        createdByType
         fileName
         size
         previewType
         file {
-          name
-          size
-          contentType
-          path
+          ...FileFragment
+          children {
+            ...FileFragment
+            children {
+              ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                  children {
+                    ...FileFragment
+                  }
+                }
+              }
+            }
+          }
         }
         uuid
+        url
+        thread {
+          ...threadFragment
+        }
       }
       pageInfo {
         startCursor
@@ -52,6 +150,13 @@ export const GET_ASSETS = gql`
       totalCount
     }
   }
+  fragment FileFragment on AssetFile {
+    name
+    size
+    contentType
+    path
+  }
+  ${threadFragment}
 `;
 
 export const GET_ASSET = gql`
@@ -60,29 +165,84 @@ export const GET_ASSET = gql`
       id
       projectId
       createdAt
-      createdById
+      createdBy {
+        ... on User {
+          id
+          name
+          email
+        }
+        ... on Integration {
+          id
+          name
+          description
+          logoUrl
+          iType
+          developer {
+            id
+            name
+            email
+          }
+          config {
+            token
+            webhooks {
+              id
+              name
+              url
+              active
+              createdAt
+              updatedAt
+            }
+          }
+          createdAt
+          updatedAt
+        }
+      }
+      createdByType
       fileName
       size
       previewType
       file {
-        name
-        size
-        contentType
-        path
+        ...FileFragment
+        children {
+          ...FileFragment
+          children {
+            ...FileFragment
+            children {
+              ...FileFragment
+              children {
+                ...FileFragment
+                children {
+                  ...FileFragment
+                }
+              }
+            }
+          }
+        }
       }
       uuid
+      url
+      thread {
+        ...threadFragment
+      }
     }
+  }
+  fragment FileFragment on AssetFile {
+    name
+    size
+    contentType
+    path
   }
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($projectId: ID!, $createdById: ID!, $file: Upload!) {
-    createAsset(input: { projectId: $projectId, createdById: $createdById, file: $file }) {
+  mutation CreateAsset($projectId: ID!, $file: Upload!) {
+    createAsset(input: { projectId: $projectId, file: $file }) {
       asset {
         id
         projectId
         createdAt
         createdById
+        createdByType
         fileName
         size
         previewType
@@ -93,6 +253,10 @@ export const CREATE_ASSET = gql`
           path
         }
         uuid
+        url
+        thread {
+          ...threadFragment
+        }
       }
     }
   }
@@ -106,6 +270,7 @@ export const UPDATE_ASSET = gql`
         projectId
         createdAt
         createdById
+        createdByType
         fileName
         size
         previewType
@@ -116,6 +281,10 @@ export const UPDATE_ASSET = gql`
           path
         }
         uuid
+        url
+        thread {
+          ...threadFragment
+        }
       }
     }
   }

@@ -86,7 +86,7 @@ func TestBuilder_Build(t *testing.T) {
 				assert.Nil(t, got)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equalf(t, tt.want, got, "Build()")
 		})
 	}
@@ -405,7 +405,7 @@ func TestBuilder_Webhook(t *testing.T) {
 			name:   "set",
 			fields: fields{i: &Integration{}},
 			args:   args{webhook: []*Webhook{}},
-			want:   &Builder{i: &Integration{webhook: []*Webhook{}}},
+			want:   &Builder{i: &Integration{webhooks: []*Webhook{}}},
 		},
 		{
 			name:   "set",
@@ -418,7 +418,7 @@ func TestBuilder_Webhook(t *testing.T) {
 				trigger:   WebhookTrigger{},
 				updatedAt: now,
 			}}},
-			want: &Builder{i: &Integration{webhook: []*Webhook{{
+			want: &Builder{i: &Integration{webhooks: []*Webhook{{
 				id:        wId,
 				name:      "xyz",
 				url:       nil,

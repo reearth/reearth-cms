@@ -1,15 +1,19 @@
 type Asset implements Node {
   id: ID!
-  project: Project
+  project: Project!
   projectId: ID!
   createdAt: DateTime!
-  createdBy: User
+  createdBy: Operator!
+  createdByType: OperatorType!
   createdById: ID!
   fileName: String!
   size: FileSize!
   previewType: PreviewType
   file: AssetFile!
   uuid: String!
+  thread: Thread
+  threadId: ID!
+  url: String!
 }
 
 type AssetFile {
@@ -25,12 +29,13 @@ enum PreviewType {
   GEO
   GEO3D
   MODEL3D
+  UNKNOWN
 }
 
 input CreateAssetInput {
   projectId: ID!
-  createdById: ID!
-  file: Upload!
+  file: Upload
+  url: String
 }
 
 input UpdateAssetInput {

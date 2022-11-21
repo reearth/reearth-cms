@@ -49,12 +49,12 @@ func TestFieldDate_TypeProperty(t *testing.T) {
 		{
 			name: "success default nil",
 			f:    &FieldDate{defaultValue: nil},
-			want: &TypeProperty{date: &FieldDate{defaultValue: nil}},
+			want: &TypeProperty{dateTime: &FieldDate{defaultValue: nil}},
 		},
 		{
 			name: "success default value",
 			f:    &FieldDate{defaultValue: &now},
-			want: &TypeProperty{date: &FieldDate{defaultValue: &now}},
+			want: &TypeProperty{dateTime: &FieldDate{defaultValue: &now}},
 		},
 	}
 	for _, tc := range tests {

@@ -1,142 +1,50 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import Notification from "@reearth-cms/components/atoms/Notification";
+import { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  useGetModelsQuery,
-  useCreateModelMutation,
   useCreateFieldMutation,
   SchemaFiledType,
   SchemaFieldTypePropertyInput,
-  useCheckModelKeyAvailabilityLazyQuery,
   useDeleteFieldMutation,
   useUpdateFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
+import { useModel } from "@reearth-cms/state";
 
-type Params = {
-  projectId?: string;
-  modelId?: string;
-};
+export default () => {
+  const t = useT();
+  const navigate = useNavigate();
+  const { projectId, workspaceId, modelId } = useParams();
+  const [currentModel] = useModel();
 
-export default ({ projectId, modelId }: Params) => {
-  const [modelModalShown, setModelModalShown] = useState(false);
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
-  const [isKeyAvailable, setIsKeyAvailable] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
-    fetchPolicy: "no-cache",
-  });
-
-  const handleModelKeyCheck = useCallback(
-    async (projectId: string, key: string) => {
-      if (!projectId || !key) return false;
-      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
-      return response.data ? response.data.checkModelKeyAvailability.available : false;
-    },
-    [CheckModelKeyAvailability],
-  );
+  const [collapsed, collapse] = useState(false);
 
   useEffect(() => {
-    setIsKeyAvailable(keyData?.checkModelKeyAvailability.available ?? false);
-  }, [keyData?.checkModelKeyAvailability]);
+    if (!modelId && currentModel) {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
+    }
+  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "", first: 100 },
-    skip: !projectId,
-  });
-
-  const models = useMemo(() => {
-    return (data?.models.nodes ?? [])
-      .map<Model | undefined>(model =>
-        model
-          ? {
-              id: model.id,
-              description: model.description,
-              name: model.name,
-              key: model.key,
-              schema: {
-                id: model.schema.id,
-                fields: model.schema.fields.map(field => ({
-                  id: field.id,
-                  description: field.description,
-                  title: field.title,
-                  type: field.type,
-                  key: field.key,
-                  unique: field.unique,
-                  required: field.required,
-                  typeProperty: field.typeProperty,
-                })),
-              },
-            }
-          : undefined,
-      )
-      .filter((model): model is Model => !!model);
-  }, [data?.models.nodes]);
-
-  const rawModel = useMemo(
-    () => data?.models.nodes.find((p: any) => p?.id === modelId),
-    [data, modelId],
+  const handleModelSelect = useCallback(
+    (modelId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
+    },
+    [navigate, workspaceId, projectId],
   );
-  const model = useMemo<Model | undefined>(
-    () =>
-      rawModel?.id
-        ? {
-            id: rawModel.id,
-            description: rawModel.description,
-            name: rawModel.name,
-            key: rawModel.key,
-            schema: {
-              id: rawModel.schema.id,
-              fields: rawModel.schema.fields.map(field => ({
-                id: field.id,
-                description: field.description,
-                title: field.title,
-                type: field.type,
-                key: field.key,
-                unique: field.unique,
-                required: field.required,
-                typeProperty: field.typeProperty,
-              })),
-            },
-          }
-        : undefined,
-    [rawModel],
-  );
-
-  const [createNewModel] = useCreateModelMutation({
-    refetchQueries: ["GetModels"],
-  });
 
   const handleFieldKeyUnique = useCallback(
     (key: string, fieldId?: string): boolean => {
-      return !model?.schema.fields.some(
+      return !currentModel?.schema.fields.some(
         field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
       );
     },
-    [modelId],
-  );
-
-  const handleModelCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
-      if (!projectId) return;
-      const model = await createNewModel({
-        variables: {
-          projectId,
-          name: data.name,
-          description: data.description,
-          key: data.key,
-        },
-      });
-      if (model.errors || !model.data?.createModel) {
-        // Show error message
-        setModelModalShown(false);
-        return;
-      }
-
-      setModelModalShown(false);
-    },
-    [createNewModel, projectId],
+    [currentModel],
   );
 
   const [createNewField] = useCreateFieldMutation({
@@ -156,10 +64,12 @@ export default ({ projectId, modelId }: Params) => {
       if (!modelId) return;
       const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
       if (results.errors) {
-        console.log("errors");
+        Notification.error({ message: t("Failed to delete field.") });
+        return;
       }
+      Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation],
+    [modelId, deleteFieldMutation, t],
   );
 
   const handleFieldUpdate = useCallback(
@@ -168,6 +78,9 @@ export default ({ projectId, modelId }: Params) => {
       title: string;
       description: string;
       key: string;
+      multiValue: boolean;
+      unique: boolean;
+      required: boolean;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId) return;
@@ -178,18 +91,20 @@ export default ({ projectId, modelId }: Params) => {
           title: data.title,
           description: data.description,
           key: data.key,
+          multiValue: data.multiValue,
+          unique: data.unique,
+          required: data.required,
           typeProperty: data.typeProperty,
         },
       });
       if (field.errors || !field.data?.updateField) {
-        // Show error message
-        setModelModalShown(false);
+        Notification.error({ message: t("Failed to update field.") });
         return;
       }
-
-      setModelModalShown(false);
+      Notification.success({ message: t("Successfully updated field!") });
+      setFieldUpdateModalShown(false);
     },
-    [modelId, updateField],
+    [modelId, updateField, t],
   );
 
   const handleFieldCreate = useCallback(
@@ -218,19 +133,15 @@ export default ({ projectId, modelId }: Params) => {
         },
       });
       if (field.errors || !field.data?.createField) {
-        // Show error message
-        setModelModalShown(false);
+        Notification.error({ message: t("Failed to create field.") });
+        setFieldCreationModalShown(false);
         return;
       }
-
-      setModelModalShown(false);
+      Notification.success({ message: t("Successfully created field!") });
+      setFieldCreationModalShown(false);
     },
-    [modelId, createNewField],
+    [modelId, createNewField, t],
   );
-
-  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
-
-  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
@@ -257,25 +168,21 @@ export default ({ projectId, modelId }: Params) => {
   );
 
   return {
-    model,
-    models,
-    modelModalShown,
-    handleModelModalOpen,
-    handleModelModalClose,
-    handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
-    handleModelCreate,
-    handleFieldKeyUnique,
     fieldCreationModalShown,
     fieldUpdateModalShown,
-    handleFieldCreationModalOpen,
-    handleFieldCreationModalClose,
     selectedField,
+    currentModel,
+    selectedType,
+    collapsed,
+    collapse,
+    handleModelSelect,
+    handleFieldCreationModalClose,
+    handleFieldCreationModalOpen,
+    handleFieldUpdateModalOpen,
+    handleFieldUpdateModalClose,
     handleFieldCreate,
+    handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldDelete,
-    handleModelKeyCheck,
-    isKeyAvailable,
-    selectedType,
   };
 };

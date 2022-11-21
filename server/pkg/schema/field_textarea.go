@@ -1,17 +1,18 @@
 package schema
 
-var TypeTextArea Type = "textarea"
-
 type FieldTextArea struct {
 	defaultValue *string
 	maxLength    *int
 }
 
-func FieldTextAreaFrom(defaultValue *string, maxLength *int) *FieldTextArea {
+func FieldTextAreaFrom(defaultValue *string, maxLength *int) (*FieldTextArea, error) {
+	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
+		return nil, ErrInvalidTextDefault
+	}
 	return &FieldTextArea{
 		defaultValue: defaultValue,
 		maxLength:    maxLength,
-	}
+	}, nil
 }
 
 func (f *FieldTextArea) TypeProperty() *TypeProperty {

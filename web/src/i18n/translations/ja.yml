@@ -1,44 +1,152 @@
-Personal Account: パーソナルアカウント
-Teams: チーム
-new workspace: 新規ワークスペース
+Download: ''
+Loading: ローディング中
+Oops!: ''
+PAGE NOT FOUND ON SERVER: ''
+Go back Home: ''
+Are you sure you want to delete your account?: ''
+Danger Zone: 重要操作項目
+Delete Personal Account: ''
+Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
+Account Name: ''
+This is your ID that is used between Re:Earth and Re:Earth CMS.: ''
+Your Email: ''
+Please enter the email address you want to use to log in with Re:Earth CMS.: ''
+Save: 保存
 Account Settings: アカウント設定
+General: ''
+Service: ''
+Auto: ''
+Service Language: ''
+This will change the UI language: ''
+Language: ''
+Asset Type: ''
+Created Time: ''
+Created By: ''
+Asset: アセット
+Source Code: ''
+Render: ''
+PNG/JPEG/TIFF/SVG: ''
+JSON/SHAPEFILE/KML/CZML: ''
+GEO3D: ''
+MODEL3D/GLB: ''
+Unknown Type: ''
+Could not display svg: ''
+Not supported: ''
+File: ''
+Size: ''
+Preview Type: ''
+Created At: ''
+ID: ''
+Deselect: ''
+Delete: 削除
+Upload Asset: ''
+Click or drag files to this area to upload: ''
+Single or multiple file upload is supported: ''
+Asset Uploader: ''
+Local: ''
+Cancel: キャンセル
+Uploading: ''
+Upload and Link: ''
+Upload: ''
+Comment: ''
+Comments: ''
+Personal Account: パーソナルアカウント
+Workspaces: ワークスペース
+Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
+Link Asset: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project description: プロジェクト概要
-Accessibility: 公開設定
+Overview: ''
+Schema: ''
+Content: ''
+Public: ''
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください
 Member: メンバー
-Account: アカウント
-Integration: インテグレーション
+Integrations: インテグレーション
+My Integrations: ''
 Role: ロール
 API key: APIキー
-Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-No Projects Yet: プロジェクトがありません
-Create a new project: 新規プロジェクトを作成
-New Project: 新規プロジェクト
+Account: アカウント
+Please input field!: ''
+New Item: ''
+New Request: ''
+Title: ''
+Please input the title of your request!: ''
+Description: 説明
+Please select a reviewer!: ''
+Reviewer: ''
+Owner: オーナー
+Connect Integration: インテグレーションを連携
+Connect: 連携
+Integration Setting: インテグレーション設定
+Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
+select role: ロールを選択
+Reader: 閲覧者
+Writer: 編集者
+Name: 名前
+Creator: 作成者
+No Integration yet: まだインテグレーションはありません
+Create a new: ''
 Or read: 読む
 how to use Re:Earth CMS: CMSの使い方
 first: はじめに
 Add member: メンバー追加
+Add to workspace: ''
 Email address or user name: Emailアドレスもしくはユーザー名
+Selected Members: ''
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-select role: ロールを選択
-Owner: オーナー
-Writer: 編集者
-Reader: 閲覧者
-Add Field: フィールドを追加
+Models: モデル
+Add: 追加
+New Integration: 新規インテグレーション
 Create: 作成
-Setting: 設定
+Integration Name: インテグレーション名
+Please input the title of the integration!: インテグレーションの名前を入力してください
+Integration Token: インテグレーショントークン
+Create new integration: 新規インテグレーション作成
+Update: アップデート
+Publish: ''
+Unpublish: ''
+Decompress: ''
+This is your webhook name: Webhookの名前です
+Please input the name of the webhook!: Webhookの名前を入力してください
+Url: URL
+Please note that all webhook URLs must start with http://.: WebhookのURLがhttp://で始まることを確認してください
+URL is not valid: 無効なURLです
+Secret: ''
+This secret will be used to sign Webhook request: ''
+Please input secret!: ''
+Trigger Event: イベント
+Item: アイテム
+New Webhook: 新規Webhook
+No Webhook yet: Webhookはまだありません
+'Create a new ': 新規作成
+No Projects Yet: プロジェクトがありません
+Create a new project: 新規プロジェクトを作成
+New Project: 新規プロジェクト
+New Model: ''
+Edit: ''
+Delete Model: ''
+Are you sure you want to delete the model: ''
+Warning: ''
+This action will permanently delete the selected model and cannot be reversed.: ''
+Model: ''
+Switch: ''
+Private: ''
+API Key Only: ''
+Public Scope: ''
+Choose the scope of your project. This affects all the models shown below that are switched on.: ''
+Save changes: 変更を保存
+Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
-Please input the key of the field!: このフィールドのキーを入力してください
+Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
 Key is not valid: 無効なキーです
-Description: 説明
 Set Options: オプションを設定
 Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
 Option value: オプションの値
@@ -51,32 +159,93 @@ Ensures that a multiple entries can't have the same value for this field: 複数
 Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
-Asset: アセット
-Update: アップデート
+Default value must be a valid URL and start with 'http://' or 'https://'.: ''
 Validation: バリデーション
+Ensures that multiple entries can't have the same value for this field: ''
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Update Model: ''
 Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
 Model key: モデルキー
-Please input the key of the model!: このモデルのキーを入力してください
-Schema: スキーマ
-Models: モデル
-Add: 追加
-input search text: 検索
+Model key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
+Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
+search projects: 検索
 Create a Workspace: 新規ワークスペース
+Are you sure you want to delete this workspace?: ''
+Remove Workspace: ''
+Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
+Workspace Name: ''
+This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ''
+Workspace Settings: ''
+Failed to update user.: ''
+Successfully updated user!: ''
+Failed to update language.: ''
+Successfully updated language!: ''
+Failed to delete user.: ''
+Successfully deleted user!: ''
+Failed to update asset.: ''
+Asset was successfully updated!: ''
+Failed to add one or more assets.: ''
+Successfully added one or more assets!: ''
+Failed to delete one or more assets.: ''
+One or more assets were successfully deleted!: ''
+Successfully created workspace!: ''
+Failed to create comment.: ''
+Successfully created comment!: ''
+Failed to create item.: ''
+Successfully created Item!: ''
+Failed to update item.: ''
+Successfully updated Item!: ''
+Failed to create model.: ''
+Successfully created model!: ''
+Failed to delete model.: ''
+Successfully deleted model!: ''
+Failed to update model.: ''
+Successfully updated model!: ''
+Failed to update publication settings.: ''
+Successfully updated publication settings!: ''
+Failed to delete field.: ''
+Successfully deleted field!: ''
+Failed to update field.: ''
+Successfully updated field!: ''
+Failed to create field.: ''
+Successfully created field!: ''
+Failed to update project.: ''
+Successfully updated project!: ''
+Failed to delete project.: ''
+Successfully deleted project!: ''
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
-Name: 名前
 Write something here to describe this record.: このレコードの説明を入力してください
-Save changes: 変更を保存
-Danger Zone: 重要操作項目
 Delete project: プロジェクト削除
+Failed to connect integration.: ''
+Successfully connected integration to the workspace!: ''
+Failed to update workspace integration.: ''
+Successfully updated workspace integration!: ''
+Failed to add one or more members.: ''
+Successfully added member(s) to the workspace!: ''
+Failed to delete member from the workspace.: ''
+Successfully removed member from the workspace!: ''
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Change Role?: ロールを変更
 Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
-Loading: ローディング中
+search for a member: 検索
+Failed to create webhook.: ''
+Successfully created webhook!: ''
+Failed to delete webhook.: ''
+Successfully deleted webhook!: ''
+Failed to update webhook.: ''
+Successfully updated webhook!: ''
+Failed to create integration.: ''
+Successfully created integration!: ''
+Failed to create project.: ''
+Successfully created project!: ''
+Failed to update workspace.: ''
+Successfully updated workspace!: ''
+Failed to delete workspace.: ''
+Successfully deleted workspace!: ''

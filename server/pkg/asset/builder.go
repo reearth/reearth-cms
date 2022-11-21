@@ -19,8 +19,11 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.project.IsNil() {
 		return nil, ErrNoProjectID
 	}
-	if b.a.createdBy.IsNil() {
+	if b.a.user.IsNil() && b.a.integration.IsNil() {
 		return nil, ErrNoUser
+	}
+	if b.a.thread.IsNil() {
+		return nil, ErrNoThread
 	}
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
@@ -59,8 +62,15 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	return b
 }
 
-func (b *Builder) CreatedBy(createdBy UserID) *Builder {
-	b.a.createdBy = createdBy
+func (b *Builder) CreatedByUser(createdBy UserID) *Builder {
+	b.a.user = &createdBy
+	b.a.integration = nil
+	return b
+}
+
+func (b *Builder) CreatedByIntegration(createdBy IntegrationID) *Builder {
+	b.a.integration = &createdBy
+	b.a.user = nil
 	return b
 }
 
@@ -86,5 +96,10 @@ func (b *Builder) File(file *File) *Builder {
 
 func (b *Builder) UUID(uuid string) *Builder {
 	b.a.uuid = uuid
+	return b
+}
+
+func (b *Builder) Thread(th ThreadID) *Builder {
+	b.a.thread = th
 	return b
 }

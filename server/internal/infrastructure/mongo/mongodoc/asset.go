@@ -13,20 +13,22 @@ type AssetDocument struct {
 	ID          string
 	Project     string
 	CreatedAt   time.Time
-	CreatedBy   string
+	User        *string
+	Integration *string
 	FileName    string
 	Size        uint64
 	PreviewType string
 	File        *File
 	UUID        string
+	Thread      string
 }
 
 type File struct {
-	name        string
-	size        uint64
-	contentType string
-	path        string
-	children    []*File
+	Name        string
+	Size        uint64
+	ContentType string
+	Path        string
+	Children    []*File
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -35,25 +37,42 @@ func NewAssetConsumer() *AssetConsumer {
 	return NewComsumer[*AssetDocument, *asset.Asset]()
 }
 
-func NewAsset(asset *asset.Asset) (*AssetDocument, string) {
-	aid := asset.ID().String()
+func NewAsset(a *asset.Asset) (*AssetDocument, string) {
+	aid := a.ID().String()
 
 	previewType := ""
-	if pt := asset.PreviewType(); pt != nil {
+	if pt := a.PreviewType(); pt != nil {
 		previewType = pt.String()
 	}
 
-	return &AssetDocument{
+	var file *asset.File
+	if f := a.File(); f != nil {
+		file = f
+	}
+
+	var uid, iid *string
+	if a.User() != nil {
+		uid = a.User().StringRef()
+	}
+	if a.Integration() != nil {
+		iid = a.Integration().StringRef()
+	}
+
+	ad, id := &AssetDocument{
 		ID:          aid,
-		Project:     asset.Project().String(),
-		CreatedAt:   asset.CreatedAt(),
-		CreatedBy:   asset.CreatedBy().String(),
-		FileName:    asset.FileName(),
-		Size:        asset.Size(),
+		Project:     a.Project().String(),
+		CreatedAt:   a.CreatedAt(),
+		User:        uid,
+		Integration: iid,
+		FileName:    a.FileName(),
+		Size:        a.Size(),
 		PreviewType: previewType,
-		File:        ToFile(asset.File()),
-		UUID:        asset.UUID(),
+		File:        ToFile(file),
+		UUID:        a.UUID(),
+		Thread:      a.Thread().String(),
 	}, aid
+
+	return ad, id
 }
 
 func (d *AssetDocument) Model() (*asset.Asset, error) {
@@ -65,22 +84,39 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
-	uid, err := id.UserIDFrom(d.CreatedBy)
+	thid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
 
-	return asset.New().
+	ab := asset.New().
 		ID(aid).
 		Project(pid).
 		CreatedAt(d.CreatedAt).
-		CreatedBy(uid).
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
 		UUID(d.UUID).
-		Build()
+		Thread(thid)
+
+	if d.User != nil {
+		uid, err := id.UserIDFrom(*d.User)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.CreatedByUser(uid)
+	}
+
+	if d.Integration != nil {
+		iid, err := id.IntegrationIDFrom(*d.Integration)
+		if err != nil {
+			return nil, err
+		}
+		ab = ab.CreatedByIntegration(iid)
+	}
+
+	return ab.Build()
 }
 
 func ToFile(f *asset.File) *File {
@@ -96,11 +132,11 @@ func ToFile(f *asset.File) *File {
 	}
 
 	return &File{
-		name:        f.Name(),
-		size:        f.Size(),
-		contentType: f.ContentType(),
-		path:        f.Path(),
-		children:    c,
+		Name:        f.Name(),
+		Size:        f.Size(),
+		ContentType: f.ContentType(),
+		Path:        f.Path(),
+		Children:    c,
 	}
 }
 
@@ -109,19 +145,20 @@ func FromFile(f *File) *asset.File {
 		return nil
 	}
 
-	c := []*asset.File{}
-	if f.children != nil && len(f.children) > 0 {
-		for _, v := range f.children {
+	var c []*asset.File
+	if f.Children != nil && len(f.Children) > 0 {
+		for _, v := range f.Children {
 			c = append(c, FromFile(v))
 		}
 	}
 
-	af := asset.File{}
-	af.SetName(f.name)
-	af.SetSize(f.size)
-	af.SetContentType(f.contentType)
-	af.SetPath(f.path)
-	af.SetChildren(c...)
+	af := asset.NewFile().
+		Name(f.Name).
+		Size(f.Size).
+		ContentType(f.ContentType).
+		Path(f.Path).
+		Children(c).
+		Build()
 
-	return &af
+	return af
 }

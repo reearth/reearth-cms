@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import React from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
@@ -15,43 +14,50 @@ export interface Props {
 }
 
 const ModelFieldList: React.FC<Props> = ({
+  className,
   fields,
   handleFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
   return (
     <FieldStyledList
+      className={className}
       itemLayout="horizontal"
       dataSource={fields}
       renderItem={item => (
-        <>
-          <List.Item
-            actions={[
-              <Icon
-                icon="delete"
-                onClick={() => handleFieldDelete((item as Field).id)}
-                key="delete"
-              />,
-              <Icon
-                icon="ellipsis"
-                onClick={() => handleFieldUpdateModalOpen(item as Field)}
-                key="edit"
-              />,
-            ]}>
-            <List.Item.Meta
-              avatar={
-                <FieldThumbnail>
-                  <StyledIcon
-                    icon={fieldTypes[(item as Field).type].icon}
-                    color={fieldTypes[(item as Field).type].color}
-                  />
-                  <h3>{(item as Field).type}</h3>
-                </FieldThumbnail>
-              }
-              title={`${(item as Field).title}${(item as Field).required ? " *" : ""}`}
-            />
-          </List.Item>
-        </>
+        <List.Item
+          actions={[
+            <Icon
+              icon="delete"
+              onClick={() => handleFieldDelete((item as Field).id)}
+              key="delete"
+            />,
+            <Icon
+              icon="ellipsis"
+              onClick={() => handleFieldUpdateModalOpen(item as Field)}
+              key="edit"
+            />,
+          ]}>
+          <List.Item.Meta
+            avatar={
+              <FieldThumbnail>
+                <StyledIcon
+                  icon={fieldTypes[(item as Field).type].icon}
+                  color={fieldTypes[(item as Field).type].color}
+                />
+                <h3>{(item as Field).type}</h3>
+              </FieldThumbnail>
+            }
+            title={
+              <>
+                <ItemTitle>
+                  {(item as Field).title} {(item as Field).required ? " *" : ""}
+                </ItemTitle>
+                <ItemKey>#{(item as Field).key}</ItemKey>
+              </>
+            }
+          />
+        </List.Item>
       )}
     />
   );
@@ -103,6 +109,16 @@ const FieldStyledList = styled(List)`
       }
     }
   }
+`;
+
+const ItemTitle = styled.span`
+  color: rgba(0, 0, 0, 0.85);
+`;
+
+const ItemKey = styled.span`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
 `;
 
 export default ModelFieldList;

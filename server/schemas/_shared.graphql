@@ -1,5 +1,12 @@
 # Built-in
 
+union Operator = User | Integration
+
+enum OperatorType {
+  User
+  Integration
+}
+
 scalar Upload
 scalar Any
 
@@ -24,10 +31,14 @@ interface Node {
 }
 
 enum NodeType {
-  ASSET
   USER
   WORKSPACE
   PROJECT
+  ASSET
+  Model
+  Schema
+  Item
+  Integration
 }
 
 input Pagination{

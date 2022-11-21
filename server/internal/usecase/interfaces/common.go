@@ -12,12 +12,17 @@ const (
 
 var (
 	ErrOperationDenied error = errors.New("operation denied")
+	ErrInvalidOperator error = errors.New("invalid operator")
 )
 
 type Container struct {
-	Workspace Workspace
-	User      User
-	Project   Project
-	Model     Model
-	Schema    Schema
+	Asset       Asset
+	Workspace   Workspace
+	User        User
+	Item        Item
+	Project     Project
+	Model       Model
+	Schema      Schema
+	Integration Integration
+	Thread      Thread
 }

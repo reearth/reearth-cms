@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 type Field struct {
@@ -58,6 +59,18 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
+func (f *Field) SetRequired(req bool) {
+	f.required = req
+}
+
+func (f *Field) SetUnique(unique bool) {
+	f.unique = unique
+}
+
+func (f *Field) SetMultiValue(mv bool) {
+	f.multiValue = mv
+}
+
 func (f *Field) CreatedAt() time.Time {
 	return f.id.Timestamp()
 }
@@ -73,7 +86,7 @@ func (f *Field) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
 
-func (f *Field) Type() Type {
+func (f *Field) Type() value.Type {
 	return f.typeProperty.Type()
 }
 
@@ -98,6 +111,9 @@ func (f *Field) Clone() *Field {
 		name:         f.name,
 		description:  f.description,
 		key:          f.key,
+		unique:       f.unique,
+		multiValue:   f.multiValue,
+		required:     f.required,
 		updatedAt:    f.updatedAt,
 		typeProperty: f.typeProperty.Clone(),
 	}

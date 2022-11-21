@@ -8,8 +8,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var TypeSelect Type = "select"
-
 var (
 	ErrFieldValues       = errors.New("invalid values")
 	ErrFieldDefaultValue = errors.New("invalid default values")

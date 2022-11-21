@@ -1,48 +1,51 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/index";
+import Notification from "@reearth-cms/components/atoms/Notification";
+import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
-  PreviewType,
+  Asset as GQLAsset,
+  PreviewType as GQLPreviewType,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
+
+import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
-  const [asset, setAsset] = useState<Asset>({} as Asset);
-  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>(PreviewType.Image);
+  const t = useT();
+  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-  const { data, loading } = useGetAssetQuery({
+  const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: assetId ?? "",
     },
   });
 
+  const asset: Asset | undefined = useMemo(() => {
+    return convertAsset(rawAsset?.asset as GQLAsset);
+  }, [rawAsset]);
+
   const [updateAssetMutation] = useUpdateAssetMutation();
-  const updateAsset = useCallback(
+  const handleAssetUpdate = useCallback(
     (assetId: string, previewType?: PreviewType) =>
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
-          // TODO: notification
-          console.log("Failed to update asset.");
+          Notification.error({ message: t("Failed to update asset.") });
         }
         if (result) {
-          // TODO: notification
-          console.log("Asset was successfully updated.");
+          Notification.success({ message: t("Asset was successfully updated!") });
         }
       })(),
-    [updateAssetMutation],
+    [t, updateAssetMutation],
   );
-
-  useEffect(() => {
-    setAsset((data?.asset ?? {}) as Asset);
-  }, [data?.asset]);
 
   useEffect(() => {
     if (asset?.previewType) {
@@ -55,7 +58,7 @@ export default (assetId?: string) => {
   }, []);
 
   const handleFullScreen = useCallback(() => {
-    if (selectedPreviewType === PreviewType.Geo) {
+    if (selectedPreviewType === "GEO") {
       viewerRef?.canvas.requestFullscreen();
     } else {
       setIsModalVisible(true);
@@ -68,11 +71,11 @@ export default (assetId?: string) => {
 
   return {
     asset,
-    updateAsset,
     isLoading: loading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   };

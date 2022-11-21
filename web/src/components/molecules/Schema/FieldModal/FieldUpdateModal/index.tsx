@@ -1,27 +1,32 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { Field, FieldType, fieldTypes } from "../../types";
+import { Field, FieldModalTabs, FieldType, fieldTypes } from "../../types";
 
 export interface FormValues {
   fieldId: string;
   title: string;
   description: string;
   key: string;
+  multiValue: boolean;
+  unique: boolean;
+  required: boolean;
   typeProperty: SchemaFieldTypePropertyInput;
 }
 
@@ -32,6 +37,17 @@ export interface Props {
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  createAssets: (files: UploadFile[]) => Promise<void>;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsReload: () => void;
+  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
+  setUploading: Dispatch<SetStateAction<boolean>>;
+  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
 }
 
 const initialValues: FormValues = {
@@ -39,6 +55,9 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
+  multiValue: false,
+  unique: false,
+  required: false,
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
@@ -49,11 +68,48 @@ const FieldUpdateModal: React.FC<Props> = ({
   handleFieldKeyUnique,
   selectedType,
   selectedField,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  createAssets,
+  onAssetSearchTerm,
+  onAssetsReload,
+  setFileList,
+  setUploading,
+  setUploadModalVisibility,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [assetValue, setAssetValue] = useState<string>();
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
-  const selectedValues = Form.useWatch("values", form);
+  const selectedValues: string[] = Form.useWatch("values", form);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
+
+  useEffect(() => {
+    if (selectedType === "Select") {
+      if (
+        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedValues, selectedType]);
+
+  useEffect(() => {
+    if (selectedType === "Asset") {
+      setAssetValue(selectedField?.typeProperty.assetDefaultValue);
+    }
+  }, [selectedField, selectedType]);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -61,10 +117,14 @@ const FieldUpdateModal: React.FC<Props> = ({
       title: selectedField?.title,
       description: selectedField?.description,
       key: selectedField?.key,
+      multiValue: selectedField?.multiValue,
+      unique: selectedField?.unique,
+      required: selectedField?.required,
       defaultValue:
         selectedField?.typeProperty.defaultValue ||
         selectedField?.typeProperty.selectDefaultValue ||
-        selectedField?.typeProperty.integerDefaultValue,
+        selectedField?.typeProperty.integerDefaultValue ||
+        selectedField?.typeProperty.assetDefaultValue,
       min: selectedField?.typeProperty.min,
       max: selectedField?.typeProperty.max,
       maxLength: selectedField?.typeProperty.maxLength,
@@ -90,7 +150,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Asset") {
           values.typeProperty = {
-            asset: { defaultValue: values.defaultValue.uid },
+            asset: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Select") {
           values.typeProperty = {
@@ -110,7 +170,6 @@ const FieldUpdateModal: React.FC<Props> = ({
           ...values,
           fieldId: selectedField?.id,
         });
-        form.resetFields();
         onClose?.(true);
       })
       .catch(info => {
@@ -118,10 +177,18 @@ const FieldUpdateModal: React.FC<Props> = ({
       });
   }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
 
-  const handleClose = useCallback(() => {
+  const handleModalReset = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
-  }, [onClose, form]);
+    setActiveTab("settings");
+  }, [form]);
+
+  const handleLinkAsset = useCallback(
+    (_asset?: Asset) => {
+      form.setFieldValue("defaultValue", _asset?.id);
+      setAssetValue(_asset?.id);
+    },
+    [form],
+  );
 
   return (
     <Modal
@@ -139,11 +206,30 @@ const FieldUpdateModal: React.FC<Props> = ({
         ) : null
       }
       visible={open}
-      onCancel={handleClose}
-      onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
-        <Tabs defaultActiveKey="settings">
-          <TabPane tab={t("Setting")} key="setting">
+      onCancel={() => onClose?.(true)}
+      onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}
+      afterClose={handleModalReset}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={() => {
+          setTimeout(() => {
+            form
+              .validateFields()
+              .then(() => {
+                setButtonDisabled(false);
+              })
+              .catch(fieldsError => {
+                setButtonDisabled(
+                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+                );
+              });
+          });
+        }}>
+        <Tabs activeKey={activeTab} onChange={handleTabChange}>
+          <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -153,10 +239,13 @@ const FieldUpdateModal: React.FC<Props> = ({
             <Form.Item
               name="key"
               label="Field Key"
+              extra={t(
+                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+              )}
               rules={[
-                { required: true, message: t("Please input the key of the field!") },
                 {
                   message: t("Key is not valid"),
+                  required: true,
                   validator: async (_, value) => {
                     if (!validateKey(value)) return Promise.reject();
                     const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
@@ -225,17 +314,44 @@ const FieldUpdateModal: React.FC<Props> = ({
             )}
             <Form.Item
               name="multiValue"
+              valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Validation")} key="validation">
+          <TabPane tab={t("Validation")} key="validation" forceRender>
             <FieldValidationInputs selectedType={selectedType} />
+            <Form.Item
+              name="required"
+              valuePropName="checked"
+              extra={t("Prevents saving an entry if this field is empty")}>
+              <Checkbox>{t("Make field required")}</Checkbox>
+            </Form.Item>
+            <Form.Item
+              name="unique"
+              valuePropName="checked"
+              extra={t("Ensures that multiple entries can't have the same value for this field")}>
+              <Checkbox>{t("Set field as unique")}</Checkbox>
+            </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
               selectedValues={selectedValues}
-              selectedType={selectedType}></FieldDefaultInputs>
+              selectedType={selectedType}
+              assetList={assetList}
+              defaultValue={assetValue}
+              fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              createAssets={createAssets}
+              onLink={handleLinkAsset}
+              onAssetSearchTerm={onAssetSearchTerm}
+              onAssetsReload={onAssetsReload}
+              setFileList={setFileList}
+              setUploading={setUploading}
+              setUploadModalVisibility={setUploadModalVisibility}
+            />
           </TabPane>
         </Tabs>
       </Form>

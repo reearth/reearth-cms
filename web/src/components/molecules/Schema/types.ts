@@ -51,6 +51,7 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
+  public: boolean;
 };
 
 export type Schema = {
@@ -66,6 +67,7 @@ export type Field = {
   description: string | null | undefined;
   required: boolean;
   unique: boolean;
+  multiValue: boolean;
   typeProperty?: TypeProperty;
 };
 
@@ -104,3 +106,5 @@ export type CreationFieldTypePropertyInput = {
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
 };
+
+export type FieldModalTabs = "settings" | "validation" | "defaultValue";

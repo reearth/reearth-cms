@@ -1,7 +1,5 @@
 package schema
 
-var TypeBool Type = "bool"
-
 type FieldBool struct {
 	defaultValue *bool
 }

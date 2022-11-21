@@ -1,16 +1,16 @@
 package schema
 
-import "net/url"
-
-var TypeURL Type = "url"
+import (
+	"net/url"
+)
 
 type FieldURL struct {
 	defaultValue *string
 }
 
 func FieldURLFrom(defaultValue *string) (*FieldURL, error) {
-	if defaultValue != nil {
-		if !isUrl(*defaultValue) {
+	if defaultValue != nil && *defaultValue != "" {
+		if !IsUrl(*defaultValue) {
 			return nil, ErrFieldDefaultValue
 		}
 	}
@@ -27,7 +27,7 @@ func MustFieldURLFrom(defaultValue *string) *FieldURL {
 	return v
 }
 
-func isUrl(str string) bool {
+func IsUrl(str string) bool {
 	u, err := url.Parse(str)
 	return err == nil && u.Scheme != "" && u.Host != ""
 }

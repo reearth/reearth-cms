@@ -107,7 +107,7 @@ func Test_projectRepo_CountByWorkspace(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -275,7 +275,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -402,7 +402,7 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -536,7 +536,7 @@ func Test_projectRepo_FindByPublicName(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -548,7 +548,7 @@ func Test_projectRepo_FindByPublicName(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -561,7 +561,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
 
 	type args struct {
-		tid   id.WorkspaceID
+		wids  id.WorkspaceIDList
 		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
@@ -575,7 +575,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   project.List{},
-			args:    args{id.NewWorkspaceID(), nil},
+			args:    args{id.WorkspaceIDList{id.NewWorkspaceID()}, nil},
 			filter:  nil,
 			want:    nil,
 			wantErr: nil,
@@ -585,7 +585,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{id.NewWorkspaceID(), nil},
+			args:    args{id.WorkspaceIDList{id.NewWorkspaceID()}, nil},
 			filter:  nil,
 			want:    nil,
 			wantErr: nil,
@@ -595,7 +595,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -607,7 +607,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -620,7 +620,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(2), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1, p2},
 			wantErr: nil,
@@ -633,7 +633,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p1},
 			wantErr: nil,
@@ -646,7 +646,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(nil, lo.ToPtr(1), nil, nil)},
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  nil,
 			want:    project.List{p2},
 			wantErr: nil,
@@ -658,9 +658,9 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
 			},
-			args:    args{tid1, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil)},
-			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
-			want:    nil,
+			args:    args{id.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			filter:  &repo.WorkspaceFilter{Readable: id.WorkspaceIDList{id.NewWorkspaceID()}, Writable: id.WorkspaceIDList{}},
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 	}
@@ -678,14 +678,14 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspace(ctx, tc.args.tid, tc.args.pInfo)
+			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -780,7 +780,7 @@ func Test_projectRepo_Remove(t *testing.T) {
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 
 			if tc.filter != nil {
@@ -792,7 +792,7 @@ func Test_projectRepo_Remove(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			_, err = r.FindByID(ctx, tc.arg)
 			assert.ErrorIs(t, err, rerror.ErrNotFound)
 		})

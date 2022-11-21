@@ -117,13 +117,13 @@ func TestModel_CheckKey(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.CheckKey(ctx, tt.args.pId, tt.args.s)
 			if tt.wantErr != nil {
@@ -186,10 +186,11 @@ func TestModel_Create(t *testing.T) {
 		// 			Name:        lo.ToPtr("m1"),
 		// 			Description: lo.ToPtr("m1"),
 		// 			Key:         lo.ToPtr("k123456"),
+		// 			Public:      lo.ToPtr(true),
 		// 		},
 		// 		operator: op,
 		// 	},
-		// 	want:    model.New().ID(mId).Schema(sId).Project(pid1).Name("m1").Description("m1").Key(key.New("k123456")).UpdatedAt(mockTime).MustBuild(),
+		// 	want:    model.New().ID(mId).Schema(sId).Project(pid1).Name("m1").Description("m1").Key(key.New("k123456")).Public(true).UpdatedAt(mockTime).MustBuild(),
 		// 	mockErr: false,
 		// 	wantErr: nil,
 		// },
@@ -207,13 +208,13 @@ func TestModel_Create(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -221,7 +222,7 @@ func TestModel_Create(t *testing.T) {
 				assert.Nil(t, got)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -259,13 +260,13 @@ func TestModel_Delete(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.operator))
 		})
@@ -305,13 +306,13 @@ func TestModel_FindByIDs(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 			got, err := u.FindByIDs(ctx, tt.args.ids, tt.args.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
@@ -358,13 +359,13 @@ func TestModel_FindByProject(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, got1, err := u.FindByProject(ctx, tt.args.projectID, tt.args.pagination, tt.args.operator)
 			if tt.wantErr != nil {
@@ -412,13 +413,13 @@ func TestModel_Publish(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Publish(ctx, tt.args.modelID, tt.args.b, tt.args.operator)
 			if tt.wantErr != nil {
@@ -464,13 +465,13 @@ func TestModel_Update(t *testing.T) {
 			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tt.seeds.project {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			u := NewModel(db)
+			u := NewModel(db, nil)
 
 			got, err := u.Update(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -499,7 +500,7 @@ func TestNewModel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, NewModel(tt.args.r))
+			assert.Equal(t, tt.want, NewModel(tt.args.r, nil))
 		})
 	}
 }

@@ -1,24 +1,34 @@
 package asset
 
+import (
+	"strings"
+
+	"github.com/samber/lo"
+)
+
 type PreviewType string
 
 const (
-	PreviewTypeIMAGE   PreviewType = "IMAGE"
-	PreviewTypeGEO     PreviewType = "GEO"
-	PreviewTypeGEO3D   PreviewType = "GEO3D"
-	PreviewTypeMODEL3D PreviewType = "MODEL3D"
+	PreviewTypeImage   PreviewType = "image"
+	PreviewTypeGeo     PreviewType = "geo"
+	PreviewTypeGeo3d   PreviewType = "geo3d"
+	PreviewTypeModel3d PreviewType = "model3d"
+	PreviewTypeUnknown PreviewType = "unknown"
 )
 
 func PreviewTypeFrom(p string) (PreviewType, bool) {
-	switch PreviewType(p) {
-	case PreviewTypeIMAGE:
-		return PreviewTypeIMAGE, true
-	case PreviewTypeGEO:
-		return PreviewTypeGEO, true
-	case PreviewTypeGEO3D:
-		return PreviewTypeGEO3D, true
-	case PreviewTypeMODEL3D:
-		return PreviewTypeMODEL3D, true
+	pp := strings.ToLower(p)
+	switch PreviewType(pp) {
+	case PreviewTypeImage:
+		return PreviewTypeImage, true
+	case PreviewTypeGeo:
+		return PreviewTypeGeo, true
+	case PreviewTypeGeo3d:
+		return PreviewTypeGeo3d, true
+	case PreviewTypeModel3d:
+		return PreviewTypeModel3d, true
+	case PreviewTypeUnknown:
+		return PreviewTypeUnknown, true
 	default:
 		return PreviewType(""), false
 	}
@@ -28,21 +38,19 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 	if p == nil {
 		return nil
 	}
-	var p2 PreviewType
-	switch PreviewType(*p) {
-	case PreviewTypeIMAGE:
-		p2 = PreviewTypeIMAGE
-	case PreviewTypeGEO:
-		p2 = PreviewTypeGEO
-	case PreviewTypeGEO3D:
-		p2 = PreviewTypeGEO3D
-	case PreviewTypeMODEL3D:
-		p2 = PreviewTypeMODEL3D
-	default:
+
+	pp, ok := PreviewTypeFrom(*p)
+	if !ok {
 		return nil
 	}
+	return &pp
+}
 
-	return &p2
+func PreviewTypeFromContentType(c string) *PreviewType {
+	if strings.HasPrefix(c, "image/") {
+		return lo.ToPtr(PreviewTypeImage)
+	}
+	return lo.ToPtr(PreviewTypeUnknown)
 }
 
 func (p PreviewType) String() string {

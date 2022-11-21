@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { useT } from "@reearth-cms/i18n";
 
 const ViewerNotSupported: React.FC = () => {
+  const t = useT();
   return (
     <ViewerNotSupportedContainer>
       <ViewerNotSupportedWrapper>
@@ -13,7 +15,7 @@ const ViewerNotSupported: React.FC = () => {
             marginBottom: "10px",
           }}
         />
-        <ViewerNotSupportedText>Not supported</ViewerNotSupportedText>
+        <ViewerNotSupportedText>{t("Not supported")}</ViewerNotSupportedText>
       </ViewerNotSupportedWrapper>
     </ViewerNotSupportedContainer>
   );

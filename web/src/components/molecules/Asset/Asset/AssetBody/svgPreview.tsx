@@ -1,18 +1,28 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
+import { useT } from "@reearth-cms/i18n";
+
 type Props = { url: string; svgRender: boolean };
 
 const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
+  const t = useT();
   const [svgText, setSvgText] = useState("");
 
-  const fetchData = useCallback(() => {
-    fetch(url)
-      .then(res => res.text())
-      .then(val => {
-        setSvgText(val);
-      });
-  }, [url]);
+  const fetchData = useCallback(async () => {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    if (res.status !== 200) {
+      setSvgText(t("Could not display svg"));
+      return;
+    }
+    const text = await res.text();
+    setSvgText(text);
+  }, [url, t]);
 
   useEffect(() => {
     fetchData();

@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 // TypeProperty Represent special attributes for some field
@@ -15,37 +16,52 @@ type TypeProperty struct {
 	richText  *FieldRichText
 	markdown  *FieldMarkdown
 	asset     *FieldAsset
-	date      *FieldDate
+	dateTime  *FieldDate
 	bool      *FieldBool
 	selectt   *FieldSelect
-	tag       *FieldTag
 	integer   *FieldInteger
 	reference *FieldReference
 	url       *FieldURL
 }
 
-func NewFieldTypePropertyText(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		text: FieldTextFrom(defaultValue, maxLength),
+func NewFieldTypePropertyText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldTextFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		text: f,
+	}, nil
 }
 
-func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		textArea: FieldTextAreaFrom(defaultValue, maxLength),
+func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldTextAreaFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		textArea: f,
+	}, nil
 }
 
-func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		richText: FieldRichTextFrom(defaultValue, maxLength),
+func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldRichTextFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		richText: f,
+	}, nil
 }
 
-func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) *TypeProperty {
-	return &TypeProperty{
-		markdown: FieldMarkdownFrom(defaultValue, maxLength),
+func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) (*TypeProperty, error) {
+	f, err := FieldMarkdownFrom(defaultValue, maxLength)
+	if err != nil {
+		return nil, err
 	}
+	return &TypeProperty{
+		markdown: f,
+	}, nil
 }
 
 func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {
@@ -56,7 +72,7 @@ func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {
 
 func NewFieldTypePropertyDate(defaultValue *time.Time) *TypeProperty {
 	return &TypeProperty{
-		date: FieldDateFrom(defaultValue),
+		dateTime: FieldDateFrom(defaultValue),
 	}
 }
 
@@ -73,16 +89,6 @@ func NewFieldTypePropertySelect(values []string, defaultValue *string) (*TypePro
 	}
 	return &TypeProperty{
 		selectt: fs,
-	}, nil
-}
-
-func NewFieldTypePropertyTag(values []string, defaultValue []string) (*TypeProperty, error) {
-	ft, err := FieldTagFrom(values, defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		tag: ft,
 	}, nil
 }
 
@@ -121,7 +127,6 @@ type TypePropertyMatch struct {
 	Date      func(*FieldDate)
 	Bool      func(*FieldBool)
 	Select    func(*FieldSelect)
-	Tag       func(*FieldTag)
 	Integer   func(*FieldInteger)
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
@@ -137,38 +142,35 @@ type TypePropertyMatch1[T any] struct {
 	Date      func(*FieldDate) T
 	Bool      func(*FieldBool) T
 	Select    func(*FieldSelect) T
-	Tag       func(*FieldTag) T
 	Integer   func(*FieldInteger) T
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
 	Default   func() T
 }
 
-func (t *TypeProperty) Type() Type {
+func (t *TypeProperty) Type() value.Type {
 	if t.text != nil {
-		return TypeText
+		return value.TypeText
 	} else if t.textArea != nil {
-		return TypeTextArea
+		return value.TypeTextArea
 	} else if t.richText != nil {
-		return TypeRichText
+		return value.TypeRichText
 	} else if t.markdown != nil {
-		return TypeMarkdown
+		return value.TypeMarkdown
 	} else if t.asset != nil {
-		return TypeAsset
-	} else if t.date != nil {
-		return TypeDate
+		return value.TypeAsset
+	} else if t.dateTime != nil {
+		return value.TypeDateTime
 	} else if t.bool != nil {
-		return TypeBool
+		return value.TypeBool
 	} else if t.selectt != nil {
-		return TypeSelect
-	} else if t.tag != nil {
-		return TypeTag
+		return value.TypeSelect
 	} else if t.integer != nil {
-		return TypeInteger
+		return value.TypeInteger
 	} else if t.reference != nil {
-		return TypeReference
+		return value.TypeReference
 	} else if t.url != nil {
-		return TypeURL
+		return value.TypeURL
 	}
 	return ""
 }
@@ -197,9 +199,9 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 		if m.Asset != nil {
 			m.Asset(t.asset)
 		}
-	} else if t.date != nil {
+	} else if t.dateTime != nil {
 		if m.Date != nil {
-			m.Date(t.date)
+			m.Date(t.dateTime)
 		}
 	} else if t.bool != nil {
 		if m.Bool != nil {
@@ -208,10 +210,6 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 	} else if t.selectt != nil {
 		if m.Select != nil {
 			m.Select(t.selectt)
-		}
-	} else if t.tag != nil {
-		if m.Tag != nil {
-			m.Tag(t.tag)
 		}
 	} else if t.integer != nil {
 		if m.Integer != nil {
@@ -241,10 +239,9 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		richText:  t.richText,
 		markdown:  t.markdown,
 		asset:     t.asset,
-		date:      t.date,
+		dateTime:  t.dateTime,
 		bool:      t.bool,
 		selectt:   t.selectt,
-		tag:       t.tag,
 		integer:   t.integer,
 		reference: t.reference,
 		url:       t.url,
@@ -291,11 +288,6 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 		Select: func(f *FieldSelect) {
 			if m.Select != nil {
 				res = m.Select(f)
-			}
-		},
-		Tag: func(f *FieldTag) {
-			if m.Tag != nil {
-				res = m.Tag(f)
 			}
 		},
 		Integer: func(f *FieldInteger) {

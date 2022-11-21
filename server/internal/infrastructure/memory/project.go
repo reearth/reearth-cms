@@ -35,19 +35,15 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *Project) FindByWorkspaces(_ context.Context, wids id.WorkspaceIDList, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	// TODO: implement pagination
 
-	if !r.f.CanRead(wid) {
-		return nil, nil, nil
-	}
-
 	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Workspace() == wid
+		return wids.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -57,7 +53,7 @@ func (r *Project) FindByWorkspace(_ context.Context, wid id.WorkspaceID, _ *usec
 	}
 
 	return result, usecasex.NewPageInfo(
-		len(result),
+		int64(len(result)),
 		startCursor,
 		endCursor,
 		true,

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -13,12 +14,14 @@ import (
 )
 
 type Schema struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewSchema(r *repo.Container) interfaces.Schema {
+func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 	return &Schema{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
@@ -79,9 +82,6 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				Select: func(fp *schema.FieldSelect) {
 					fb = schema.NewFieldSelect(fp.Values(), fp.DefaultValue())
 				},
-				Tag: func(fp *schema.FieldTag) {
-					fb = schema.NewFieldTag(fp.Values(), fp.DefaultValue())
-				},
 				Integer: func(fp *schema.FieldInteger) {
 					fb = schema.NewFieldInteger(fp.DefaultValue(), fp.Min(), fp.Max())
 				},
@@ -107,6 +107,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				Name(*param.Name).
 				Description(*param.Description).
 				Key(key.New(*param.Key)).
+				Options(param.Unique, param.MultiValue, param.Required).
 				Build()
 			if err != nil {
 				return nil, err
@@ -148,6 +149,17 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 					return nil, interfaces.ErrInvalidKey
 				}
 				f.SetKey(k)
+			}
+			if param.Required != nil {
+				f.SetRequired(*param.Required)
+			}
+
+			if param.Unique != nil {
+				f.SetUnique(*param.Unique)
+			}
+
+			if param.MultiValue != nil {
+				f.SetMultiValue(*param.MultiValue)
 			}
 
 			if err := i.repos.Schema.Save(ctx, s); err != nil {

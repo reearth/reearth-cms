@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,12 +21,12 @@ func TestWorkspace_Create(t *testing.T) {
 
 	db := memory.New()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
-	workspaceUC := NewWorkspace(db)
-	op := &usecase.Operator{User: u.ID()}
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id.NewWorkspaceID()).MustBuild()
+	workspaceUC := NewWorkspace(db, nil)
+	op := &usecase.Operator{User: lo.ToPtr(u.ID())}
 	workspace, err := workspaceUC.Create(ctx, "workspace name", u.ID(), op)
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, workspace)
 
 	resultWorkspaces, _ := workspaceUC.Fetch(ctx, []id.WorkspaceID{workspace.ID()}, &usecase.Operator{
@@ -52,9 +53,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
 	}
 
@@ -140,9 +141,9 @@ func TestWorkspace_Fetch(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -158,13 +159,13 @@ func TestWorkspace_Fetch(t *testing.T) {
 func TestWorkspace_FindByUser(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(id1).MustBuild()
+	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(id1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
 	}
 
@@ -237,9 +238,9 @@ func TestWorkspace_FindByUser(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.FindByUser(ctx, tc.args.userID, tc.args.operator)
 			if tc.wantErr != nil {
@@ -255,15 +256,15 @@ func TestWorkspace_FindByUser(t *testing.T) {
 func TestWorkspace_Update(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
-	w1Updated := user.NewWorkspace().ID(id1).Name("WW1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
+	w1Updated := user.NewWorkspace().ID(id1).Name("WW1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).Name("W2").MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 
 	op := &usecase.Operator{
-		User:               userID,
+		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2, id3},
 		OwningWorkspaces:   []id.WorkspaceID{id1},
 	}
@@ -326,7 +327,14 @@ func TestWorkspace_Update(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
-			name:             "mock error",
+			name: "mock error",
+			args: struct {
+				wId      id.WorkspaceID
+				newName  string
+				operator *usecase.Operator
+			}{
+				operator: op,
+			},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -344,9 +352,9 @@ func TestWorkspace_Update(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
 			got, err := workspaceUC.Update(ctx, tc.args.wId, tc.args.newName, tc.args.operator)
 			if tc.wantErr != nil {
@@ -367,22 +375,22 @@ func TestWorkspace_Update(t *testing.T) {
 func TestWorkspace_Remove(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
 	w2 := user.NewWorkspace().ID(id2).Name("W2").MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleReader}).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleReader}}).MustBuild()
 	id4 := id.NewWorkspaceID()
-	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 	id5 := id.NewWorkspaceID()
-	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w5 := user.NewWorkspace().ID(id5).Name("W5").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	p := project.New().NewID().Workspace(id5).MustBuild()
 	id6 := id.NewWorkspaceID()
-	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w6 := user.NewWorkspace().ID(id6).Name("W6").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	p2 := project.New().NewID().Workspace(id6).MustBuild()
 
 	op := &usecase.Operator{
-		User:               userID,
+		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2, id3},
 		OwningWorkspaces:   []id.WorkspaceID{id1},
 	}
@@ -472,7 +480,14 @@ func TestWorkspace_Remove(t *testing.T) {
 			want:    nil,
 		},
 		{
-			name:             "mock workspace error",
+			name: "mock workspace error",
+			args: struct {
+				wId      id.WorkspaceID
+				operator *usecase.Operator
+				project  *project.Project
+			}{
+				operator: op,
+			},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -505,7 +520,7 @@ func TestWorkspace_Remove(t *testing.T) {
 			}
 			if tc.args.project != nil {
 				err := db.Project.Save(ctx, tc.args.project)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
@@ -515,9 +530,9 @@ func TestWorkspace_Remove(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 			err := workspaceUC.Remove(ctx, tc.args.wId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
@@ -539,16 +554,16 @@ func TestWorkspace_Remove(t *testing.T) {
 func TestWorkspace_AddMember(t *testing.T) {
 	userID := id.NewUserID()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 
 	op := &usecase.Operator{
-		User:               userID,
+		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
 		OwningWorkspaces:   []id.WorkspaceID{id1},
 	}
@@ -559,8 +574,7 @@ func TestWorkspace_AddMember(t *testing.T) {
 		usersSeeds []*user.User
 		args       struct {
 			wId      id.WorkspaceID
-			uId      id.UserID
-			role     user.Role
+			users    map[id.UserID]user.Role
 			operator *usecase.Operator
 		}
 		wantErr          error
@@ -573,17 +587,14 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id1,
-				uId:      id.NewUserID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{id.NewUserID(): user.RoleReader},
 				operator: op,
 			},
-			wantErr: rerror.ErrNotFound,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want: user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Add",
@@ -591,17 +602,15 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id2,
-				uId:      u.ID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader, InvitedBy: userID}}),
 		},
 		{
 			name:       "Add to personal workspace",
@@ -609,20 +618,27 @@ func TestWorkspace_AddMember(t *testing.T) {
 			usersSeeds: []*user.User{u},
 			args: struct {
 				wId      id.WorkspaceID
-				uId      id.UserID
-				role     user.Role
+				users    map[id.UserID]user.Role
 				operator *usecase.Operator
 			}{
 				wId:      id3,
-				uId:      u.ID(),
-				role:     user.RoleReader,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
-			name:             "mock error",
+			name: "mock error",
+			args: struct {
+				wId      id.WorkspaceID
+				users    map[id.UserID]user.Role
+				operator *usecase.Operator
+			}{
+				wId:      id3,
+				users:    map[id.UserID]user.Role{u.ID(): user.RoleReader},
+				operator: op,
+			},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -639,15 +655,15 @@ func TestWorkspace_AddMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
-			got, err := workspaceUC.AddMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			got, err := workspaceUC.AddUserMember(ctx, tc.args.wId, tc.args.users, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -668,18 +684,18 @@ func TestWorkspace_AddMember(t *testing.T) {
 
 func TestWorkspace_RemoveMember(t *testing.T) {
 	userID := id.NewUserID()
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 	id4 := id.NewWorkspaceID()
-	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w4 := user.NewWorkspace().ID(id4).Name("W4").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 
 	op := &usecase.Operator{
-		User:               userID,
+		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
 		OwningWorkspaces:   []id.WorkspaceID{id1},
 	}
@@ -711,7 +727,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrTargetUserNotInTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove",
@@ -727,7 +743,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove personal workspace",
@@ -743,7 +759,7 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Remove single member",
@@ -759,10 +775,15 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: interfaces.ErrOwnerCannotLeaveTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
-			name:             "mock error",
+			name: "mock error",
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				operator *usecase.Operator
+			}{operator: op},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -780,15 +801,15 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
-			got, err := workspaceUC.RemoveMember(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
+			got, err := workspaceUC.RemoveUser(ctx, tc.args.wId, tc.args.uId, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -809,16 +830,16 @@ func TestWorkspace_RemoveMember(t *testing.T) {
 
 func TestWorkspace_UpdateMember(t *testing.T) {
 	userID := id.NewUserID()
-	u := user.New().NewID().Email("a@b.c").MustBuild()
+	u := user.New().NewID().Name("aaa").Email("a@b.c").MustBuild()
 	id1 := id.NewWorkspaceID()
-	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(false).MustBuild()
+	w1 := user.NewWorkspace().ID(id1).Name("W1").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(false).MustBuild()
 	id2 := id.NewWorkspaceID()
-	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleReader}).Personal(false).MustBuild()
+	w2 := user.NewWorkspace().ID(id2).Name("W2").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleReader}}).Personal(false).MustBuild()
 	id3 := id.NewWorkspaceID()
-	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Role{userID: user.RoleOwner}).Personal(true).MustBuild()
+	w3 := user.NewWorkspace().ID(id3).Name("W3").Members(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}).Personal(true).MustBuild()
 
 	op := &usecase.Operator{
-		User:               userID,
+		User:               &userID,
 		ReadableWorkspaces: []id.WorkspaceID{id1, id2},
 		OwningWorkspaces:   []id.WorkspaceID{id1},
 	}
@@ -853,7 +874,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrTargetUserNotInTheWorkspace,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
 			name:       "Update",
@@ -871,7 +892,7 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: nil,
-			want:    user.NewMembersWith(map[user.ID]user.Role{userID: user.RoleOwner, u.ID(): user.RoleWriter}),
+			want:    user.NewMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}, u.ID(): {Role: user.RoleWriter}}),
 		},
 		{
 			name:       "Update personal workspace",
@@ -889,10 +910,16 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 				operator: op,
 			},
 			wantErr: user.ErrCannotModifyPersonalWorkspace,
-			want:    user.NewFixedMembersWith(map[user.ID]user.Role{userID: user.RoleOwner}),
+			want:    user.NewFixedMembersWith(map[user.ID]user.Member{userID: {Role: user.RoleOwner}}),
 		},
 		{
-			name:             "mock error",
+			name: "mock error",
+			args: struct {
+				wId      id.WorkspaceID
+				uId      id.UserID
+				role     user.Role
+				operator *usecase.Operator
+			}{operator: op},
 			wantErr:          errors.New("test"),
 			mockWorkspaceErr: true,
 		},
@@ -910,15 +937,15 @@ func TestWorkspace_UpdateMember(t *testing.T) {
 			}
 			for _, p := range tc.seeds {
 				err := db.Workspace.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			for _, p := range tc.usersSeeds {
 				err := db.User.Save(ctx, p)
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			workspaceUC := NewWorkspace(db)
+			workspaceUC := NewWorkspace(db, nil)
 
-			got, err := workspaceUC.UpdateMember(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
+			got, err := workspaceUC.UpdateUser(ctx, tc.args.wId, tc.args.uId, tc.args.role, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

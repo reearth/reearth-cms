@@ -1,23 +1,33 @@
-import { PreviewType } from "./Asset/AssetBody/previewTypeSelect";
+import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
+
+export type PreviewType = PreviewTypeType;
 
 export type Asset = {
-  __typename?: "Asset";
-  createdAt: Date;
-  createdById: string;
+  id: string;
+  createdAt: string;
+  createdBy: string;
+  createdByType: string;
   file: AssetFile;
   fileName: string;
-  uuid: string;
-  id: string;
   previewType?: PreviewType;
   projectId: string;
   size: number;
+  url: string;
+  threadId: string;
+  comments: Comment[];
 };
 
 export type AssetFile = {
-  __typename?: "AssetFile";
-  children?: Array<AssetFile>;
+  children?: AssetFile[];
   contentType?: string;
   name: string;
   path: string;
   size: number;
+};
+
+export type Comment = {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
 };

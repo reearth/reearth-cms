@@ -40,9 +40,9 @@ export const DELETE_WORKSPACE = gql`
   }
 `;
 
-export const ADD_USER_TO_WORKSPACE = gql`
-  mutation AddUserToWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-    addUserToWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
+export const ADD_USERS_TO_WORKSPACE = gql`
+  mutation AddUsersToWorkspace($workspaceId: ID!, $users: [MemberInput!]!) {
+    addUsersToWorkspace(input: { workspaceId: $workspaceId, users: $users }) {
       workspace {
         id
         ...WorkspaceFragment
@@ -53,7 +53,7 @@ export const ADD_USER_TO_WORKSPACE = gql`
 
 export const UPDATE_MEMBER_OF_WORKSPACE = gql`
   mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-    updateMemberOfWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
+    updateUserOfWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
       workspace {
         id
         ...WorkspaceFragment
@@ -64,7 +64,46 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
 
 export const REMOVE_MEMBER_FROM_WORKSPACE = gql`
   mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-    removeMemberFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
+    removeUserFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
+export const ADD_INTEGRATION_TO_WORKSPACE = gql`
+  mutation AddIntegrationToWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+    addIntegrationToWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId, role: $role }
+    ) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
+export const UPDATE_INTEGRATION_OF_WORKSPACE = gql`
+  mutation UpdateIntegrationOfWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+    updateIntegrationOfWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId, role: $role }
+    ) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
+export const REMOVE_INTEGRATION_FROM_WORKSPACE = gql`
+  mutation RemoveIntegrationFromWorkspace($workspaceId: ID!, $integrationId: ID!) {
+    removeIntegrationFromWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId }
+    ) {
       workspace {
         id
         ...WorkspaceFragment

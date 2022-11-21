@@ -4,7 +4,7 @@ import "errors"
 
 const (
 	assetDir            = "assets"
-	fileSizeLimit int64 = 1024 * 1024 * 100 // about 100MB
+	fileSizeLimit int64 = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
 var (

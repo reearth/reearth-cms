@@ -1,40 +1,26 @@
 import { useApolloClient } from "@apollo/client";
-import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback, Key } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { useAuth } from "@reearth-cms/auth";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
   Maybe,
-  User,
-  GetAssetsQuery,
   useDeleteAssetMutation,
+  Asset as GQLAsset,
   AssetSortType as GQLSortType,
-  useGetUserBySearchQuery,
 } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
-export type AssetNode = NonNullable<Asset>;
-export type AssetUser = Maybe<User>;
+type AssetSortType = "date" | "name" | "size";
 
-export type AssetNodes = NonNullable<GetAssetsQuery["assets"]["nodes"][number]>[];
-
-export type AssetSortType = "date" | "name" | "size";
-
-const enumTypeMapper: Partial<Record<GQLSortType, string>> = {
-  [GQLSortType.Date]: "date",
-  [GQLSortType.Name]: "name",
-  [GQLSortType.Size]: "size",
-};
-
-function toGQLEnum(val?: AssetSortType) {
-  if (!val) return;
-  return (Object.keys(enumTypeMapper) as GQLSortType[]).find(k => enumTypeMapper[k] === val);
-}
-
-const assetsPerPage = 20;
+const assetsPerPage = 10;
+// Todo: this is temporary until implementing cursor pagination
+const assetsFetchCount = 500;
 
 function pagination(
   sort?: { type?: Maybe<AssetSortType>; reverse?: boolean },
@@ -45,18 +31,20 @@ function pagination(
   return {
     after: !reverseOrder ? endCursor : undefined,
     before: reverseOrder ? endCursor : undefined,
-    first: !reverseOrder ? assetsPerPage : undefined,
-    last: reverseOrder ? assetsPerPage : undefined,
+    first: !reverseOrder ? assetsFetchCount : undefined,
+    last: reverseOrder ? assetsFetchCount : undefined,
   };
 }
 
-export default (projectId?: string) => {
+export default () => {
+  const t = useT();
+  const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<AssetNode[]>([]);
-  const [selection, setSelection] = useState({
+  const [assetList, setAssetList] = useState<Asset[]>([]);
+  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
-  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+  const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -65,16 +53,11 @@ export default (projectId?: string) => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const gqlCache = useApolloClient().cache;
 
-  const { user } = useAuth();
-  const email = user?.email as string;
-  const userQuery = useGetUserBySearchQuery({ variables: { nameOrEmail: email } });
-  const currentUser = userQuery?.data?.searchUser as User;
-
   const { data, refetch, loading, fetchMore, networkStatus } = useGetAssetsQuery({
     variables: {
       projectId: projectId ?? "",
       pagination: pagination(sort),
-      sort: toGQLEnum(sort?.type),
+      sort: sort?.type as GQLSortType,
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
@@ -97,32 +80,30 @@ export default (projectId?: string) => {
     }
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
-  const createAssets = useCallback(
-    (files: UploadFile<any>[]) =>
+  const handleAssetCreate = useCallback(
+    (files: UploadFile<File>[]) =>
       (async () => {
-        if (!projectId || !currentUser?.id) return;
+        if (!projectId) return;
         const results = await Promise.all(
           files.map(async file => {
             const result = await createAssetMutation({
-              variables: { projectId, createdById: currentUser?.id, file },
+              variables: { projectId, file },
             });
             if (result.errors || !result.data?.createAsset) {
-              // TODO: notification
-              console.log("Failed to add one or more assets.");
+              Notification.error({ message: t("Failed to add one or more assets.") });
             }
           }),
         );
         if (results) {
-          // TODO: notification
-          console.log("Successfully added one or more assets.");
+          Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
       })(),
-    [projectId, currentUser?.id, createAssetMutation, refetch],
+    [t, projectId, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
-  const deleteAssets = useCallback(
+  const handleAssetDelete = useCallback(
     (assetIds: string[]) =>
       (async () => {
         if (!projectId) return;
@@ -132,19 +113,17 @@ export default (projectId?: string) => {
               variables: { assetId },
               refetchQueries: ["GetAssets"],
             });
-            if (result.errors || result.data?.deleteAsset) {
-              // TODO: notification
-              console.log("Failed to delete one or more assets.");
+            if (result.errors) {
+              Notification.error({ message: t("Failed to delete one or more assets.") });
             }
           }),
         );
         if (results) {
-          // TODO: notification
-          console.log("One or more assets were successfully deleted.");
+          Notification.success({ message: t("One or more assets were successfully deleted!") });
           selectAsset([]);
         }
       })(),
-    [deleteAssetMutation, projectId],
+    [t, deleteAssetMutation, projectId],
   );
 
   const handleSortChange = useCallback(
@@ -162,11 +141,19 @@ export default (projectId?: string) => {
     setSearchTerm(term);
   }, []);
 
+  const handleAssetsReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleNavigateToAsset = (asset: Asset) => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
+  };
+
   useEffect(() => {
     if (sort || searchTerm) {
       selectAsset([]);
       refetch({
-        sort: toGQLEnum(sort?.type),
+        sort: sort?.type as GQLSortType,
         keyword: searchTerm,
       });
     }
@@ -181,29 +168,34 @@ export default (projectId?: string) => {
   }, [gqlCache]);
 
   useEffect(() => {
-    const assets = (data?.assets.nodes as AssetNode[]) ?? [];
+    const assets =
+      (data?.assets.nodes
+        .map(asset => asset as GQLAsset)
+        .map(convertAsset)
+        .filter(asset => !!asset) as Asset[]) ?? [];
     setAssetList(assets);
   }, [data?.assets.nodes]);
 
   return {
-    currentUser,
     assetList,
     assetsPerPage,
-    createAssets,
-    deleteAssets,
-    navigate,
     selection,
-    setSelection,
     fileList,
-    setFileList,
     uploading,
-    setUploading,
     isLoading: loading ?? isRefetching,
     selectedAssets,
+    uploadModalVisibility,
+    loading,
+    setSelection,
+    setFileList,
+    setUploading,
+    setUploadModalVisibility,
+    handleAssetCreate,
+    handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
-    uploadModalVisibility,
-    setUploadModalVisibility,
+    handleAssetsReload,
+    handleNavigateToAsset,
   };
 };

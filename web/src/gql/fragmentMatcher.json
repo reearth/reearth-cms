@@ -8,8 +8,11 @@
       "Project",
       "Schema",
       "User",
-      "Webhook",
       "Workspace"
+    ],
+    "Operator": [
+      "Integration",
+      "User"
     ],
     "SchemaFieldTypeProperty": [
       "SchemaFieldAsset",

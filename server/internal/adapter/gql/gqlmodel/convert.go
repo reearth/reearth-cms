@@ -1,26 +1,13 @@
 package gqlmodel
 
 import (
+	"io"
+
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
-
-func RefToIndex(i *int) int {
-	if i == nil {
-		return -1
-	}
-	return *i
-}
-
-func RefToString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-func BoolToRef(b bool) *bool {
-	return &b
-}
 
 func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
 	if p == nil {
@@ -34,14 +21,33 @@ func ToPageInfo(p *usecasex.PageInfo) *PageInfo {
 	}
 }
 
-func ToPagination(pagination *Pagination) *usecasex.Pagination {
-	if pagination == nil {
+func (p *Pagination) Into() *usecasex.Pagination {
+	if p == nil {
 		return nil
 	}
-	return &usecasex.Pagination{
-		Before: pagination.Before,
-		After:  pagination.After,
-		First:  pagination.First,
-		Last:   pagination.Last,
+	return usecasex.CursorPagination{
+		Before: p.Before,
+		After:  p.After,
+		First:  pint2pint64(p.First),
+		Last:   pint2pint64(p.Last),
+	}.Wrap()
+}
+
+func FromFile(f *graphql.Upload) *file.File {
+	if f == nil {
+		return nil
 	}
+	return &file.File{
+		Content:     io.NopCloser(f.File),
+		Path:        f.Filename,
+		Size:        f.Size,
+		ContentType: f.ContentType,
+	}
+}
+
+func pint2pint64(i *int) *int64 {
+	if i == nil {
+		return nil
+	}
+	return lo.ToPtr(int64(*i))
 }

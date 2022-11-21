@@ -15,7 +15,7 @@ import (
 
 type Model struct {
 	data *util.SyncMap[id.ModelID, *model.Model]
-	f    repo.WorkspaceFilter
+	f    repo.ProjectFilter
 	now  *util.TimeNow
 	err  error
 }
@@ -27,7 +27,7 @@ func NewModel() repo.Model {
 	}
 }
 
-func (r *Model) Filtered(f repo.WorkspaceFilter) repo.Model {
+func (r *Model) Filtered(f repo.ProjectFilter) repo.Model {
 	return &Model{
 		data: r.data,
 		f:    r.f.Merge(f),
@@ -42,9 +42,9 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 
 	// TODO: implement pagination
 
-	/*if !r.f.CanRead(pid) {
+	if !r.f.CanRead(pid) {
 		return nil, nil, nil
-	}*/
+	}
 
 	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pid
@@ -57,7 +57,7 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 	}
 
 	return result, usecasex.NewPageInfo(
-		len(result),
+		int64(len(result)),
 		startCursor,
 		endCursor,
 		true,
@@ -70,9 +70,9 @@ func (r *Model) CountByProject(_ context.Context, pid id.ProjectID) (int, error)
 		return 0, r.err
 	}
 
-	/*if !r.f.CanRead(pid) {
+	if !r.f.CanRead(pid) {
 		return 0, nil
-	}*/
+	}
 
 	return r.data.CountAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pid
@@ -84,9 +84,9 @@ func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*mod
 		return nil, r.err
 	}
 
-	/*if !r.f.CanRead(pid) {
-		return  nil, nil
-	}*/
+	if !r.f.CanRead(pid) {
+		return nil, nil
+	}
 
 	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
 		return m.Key().String() == key && m.Project() == pid
@@ -104,7 +104,7 @@ func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error
 	}
 
 	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
-		return k == mid /*&& r.f.CanRead(m.Workspace())*/
+		return k == mid && r.f.CanRead(m.Project())
 	})
 
 	if m != nil {
@@ -119,7 +119,7 @@ func (r *Model) FindByIDs(_ context.Context, ids id.ModelIDList) (model.List, er
 	}
 
 	result := r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
-		return ids.Has(k) /*&& r.f.CanRead(m.Workspace())*/
+		return ids.Has(k) && r.f.CanRead(m.Project())
 	})
 
 	return model.List(result).SortByID(), nil
@@ -130,9 +130,9 @@ func (r *Model) Save(_ context.Context, m *model.Model) error {
 		return r.err
 	}
 
-	/*if !r.f.CanWrite(m.Workspace()) {
+	if !r.f.CanWrite(m.Project()) {
 		return repo.ErrOperationDenied
-	}*/
+	}
 
 	m.SetUpdatedAt(r.now.Now())
 	r.data.Store(m.ID(), m)
@@ -144,7 +144,7 @@ func (r *Model) Remove(_ context.Context, mId id.ModelID) error {
 		return r.err
 	}
 
-	if _, ok := r.data.Load(mId); ok /*&& r.f.CanWrite(m.Workspace())*/ {
+	if m, ok := r.data.Load(mId); ok && r.f.CanWrite(m.Project()) {
 		r.data.Delete(mId)
 		return nil
 	}

@@ -8,6 +8,7 @@ import (
 
 type Schema struct {
 	id        ID
+	project   ProjectID
 	workspace id.WorkspaceID
 	fields    []*Field
 }
@@ -18,6 +19,10 @@ func (s *Schema) ID() ID {
 
 func (s *Schema) Workspace() id.WorkspaceID {
 	return s.workspace
+}
+
+func (s *Schema) Project() ProjectID {
+	return s.project
 }
 
 func (s *Schema) SetWorkspace(workspace id.WorkspaceID) {
@@ -59,7 +64,7 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return nil
 }
 
-func (s *Schema) Fields() []*Field {
+func (s *Schema) Fields() FieldList {
 	if s == nil {
 		return nil
 	}

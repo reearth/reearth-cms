@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 )
@@ -13,6 +14,7 @@ import (
 type SchemaDocument struct {
 	ID        string
 	Workspace string
+	Project   string
 	Fields    []FiledDocument
 }
 
@@ -38,7 +40,6 @@ type TypePropertyDocument struct {
 	Date      *FieldDatePropertyDocument      `bson:",omitempty"`
 	Bool      *FieldBoolPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
-	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
 	Url       *FieldURLPropertyDocument       `bson:",omitempty"`
@@ -72,10 +73,6 @@ type FieldBoolPropertyDocument struct {
 type FieldSelectPropertyDocument struct {
 	Values       []string
 	DefaultValue *string
-}
-type FieldTagPropertyDocument struct {
-	Values       []string
-	DefaultValue []string
 }
 type FieldIntegerPropertyDocument struct {
 	DefaultValue *int
@@ -152,12 +149,6 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 					DefaultValue: fp.DefaultValue(),
 				}
 			},
-			Tag: func(fp *schema.FieldTag) {
-				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
-					Values:       fp.Values(),
-					DefaultValue: fp.DefaultValue(),
-				}
-			},
 			Integer: func(fp *schema.FieldInteger) {
 				fd.TypeProperty.Integer = &FieldIntegerPropertyDocument{
 					DefaultValue: fp.DefaultValue(),
@@ -181,6 +172,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	return &SchemaDocument{
 		ID:        sId,
 		Workspace: s.Workspace().String(),
+		Project:   s.Project().String(),
 		Fields:    fieldsDoc,
 	}, sId
 }
@@ -194,34 +186,36 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
+	pId, err := id.ProjectIDFrom(d.Project)
+	if err != nil {
+		return nil, err
+	}
 
 	f := util.Map(d.Fields, func(fd FiledDocument) *schema.Field {
 		var fb *schema.FieldBuilder
 		tpd := fd.TypeProperty
-		switch schema.Type(tpd.Type) {
-		case schema.TypeText:
+		switch value.Type(tpd.Type) {
+		case value.TypeText:
 			fb = schema.NewFieldText(tpd.Text.DefaultValue, tpd.Text.MaxLength)
-		case schema.TypeTextArea:
+		case value.TypeTextArea:
 			fb = schema.NewFieldTextArea(tpd.TextArea.DefaultValue, tpd.TextArea.MaxLength)
-		case schema.TypeRichText:
+		case value.TypeRichText:
 			fb = schema.NewFieldRichText(tpd.RichText.DefaultValue, tpd.RichText.MaxLength)
-		case schema.TypeMarkdown:
+		case value.TypeMarkdown:
 			fb = schema.NewFieldMarkdown(tpd.Markdown.DefaultValue, tpd.Markdown.MaxLength)
-		case schema.TypeAsset:
+		case value.TypeAsset:
 			fb = schema.NewFieldAsset(id.AssetIDFromRef(tpd.Asset.DefaultValue))
-		case schema.TypeDate:
+		case value.TypeDateTime:
 			fb = schema.NewFieldDate(tpd.Date.DefaultValue)
-		case schema.TypeBool:
+		case value.TypeBool:
 			fb = schema.NewFieldBool(tpd.Bool.DefaultValue)
-		case schema.TypeSelect:
+		case value.TypeSelect:
 			fb = schema.NewFieldSelect(tpd.Select.Values, tpd.Select.DefaultValue)
-		case schema.TypeTag:
-			fb = schema.NewFieldTag(tpd.Tag.Values, tpd.Tag.DefaultValue)
-		case schema.TypeInteger:
+		case value.TypeInteger:
 			fb = schema.NewFieldInteger(tpd.Integer.DefaultValue, tpd.Integer.Min, tpd.Integer.Max)
-		case schema.TypeReference:
+		case value.TypeReference:
 			fb = schema.NewFieldReference(id.MustModelID(tpd.Reference.ModelID))
-		case schema.TypeURL:
+		case value.TypeURL:
 			fb = schema.NewFieldURL(tpd.Url.DefaultValue)
 		}
 
@@ -237,6 +231,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	return schema.New().
 		ID(sId).
 		Workspace(wId).
+		Project(pId).
 		Fields(f).
 		Build()
 }

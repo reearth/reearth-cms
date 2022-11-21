@@ -1,24 +1,16 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Form from "@reearth-cms/components/atoms/Form";
-import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import Layout from "@reearth-cms/components/atoms/Layout";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Sider from "@reearth-cms/components/atoms/Sider";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
-import ProjectMenu from "@reearth-cms/components/molecules/Common/projectMenu";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import { useT } from "@reearth-cms/i18n";
-
-import useDashboardHooks from "../../Dashboard/hooks";
 
 import useHooks from "./hooks";
 
@@ -31,19 +23,7 @@ const ProjectSettings: React.FC = () => {
   const t = useT();
   const { confirm } = Modal;
   const [form] = Form.useForm();
-  const { projectId, workspaceId } = useParams();
-  const [collapsed, setCollapsed] = useState(false);
-
-  const {
-    user,
-    personalWorkspace,
-    currentWorkspace,
-    workspaces,
-    handleWorkspaceModalClose,
-    handleWorkspaceModalOpen,
-    workspaceModalShown,
-    handleWorkspaceCreate,
-  } = useDashboardHooks(workspaceId);
+  const { projectId } = useParams();
 
   const { project, handleProjectUpdate, handleProjectDelete } = useHooks({
     projectId,
@@ -64,7 +44,6 @@ const ProjectSettings: React.FC = () => {
           name: values.name,
           description: values.description,
         });
-        form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
@@ -82,85 +61,38 @@ const ProjectSettings: React.FC = () => {
   }, [confirm, handleProjectDelete, t]);
 
   return (
-    <>
-      <Layout style={{ minHeight: "100vh" }}>
-        <Header>
-          <MoleculeHeader
-            handleModalOpen={handleWorkspaceModalOpen}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            user={user}
-          />
-        </Header>
-        <Layout>
-          <ProjectSider
-            collapsible
-            collapsed={collapsed}
-            onCollapse={value => setCollapsed(value)}
-            style={{ backgroundColor: "#fff" }}>
-            <ProjectMenu
-              projectId={projectId}
-              defaultSelectedKeys={["settings"]}
-              inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
-            />
-          </ProjectSider>
-          <PaddedContent>
-            <ProjectSection> {project?.name} </ProjectSection>
-            <ProjectSection>
-              <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
-                <Form.Item name="name" label={t("Name")}>
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  name="description"
-                  label={t("Description")}
-                  extra={t("Write something here to describe this record.")}>
-                  <TextArea rows={4} />
-                </Form.Item>
-                <Form.Item>
-                  <Button onClick={handleSubmit} type="primary" htmlType="submit">
-                    {t("Save changes")}
-                  </Button>
-                </Form.Item>
-              </Form>
-            </ProjectSection>
-            <ProjectSection>
-              <Typography style={{ marginBottom: 16 }}>{t("Danger Zone")}</Typography>
-              <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
-                {t("Delete project")}
-              </Button>
-            </ProjectSection>
-          </PaddedContent>
-        </Layout>
-      </Layout>
-      <WorkspaceCreationModal
-        open={workspaceModalShown}
-        onClose={handleWorkspaceModalClose}
-        onSubmit={handleWorkspaceCreate}
-      />
-    </>
+    <PaddedContent>
+      <ProjectSection> {project?.name} </ProjectSection>
+      <ProjectSection>
+        <Form style={{ maxWidth: 400 }} form={form} layout="vertical" autoComplete="off">
+          <Form.Item name="name" label={t("Name")}>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label={t("Description")}
+            extra={t("Write something here to describe this record.")}>
+            <TextArea rows={4} />
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={handleSubmit} type="primary" htmlType="submit">
+              {t("Save changes")}
+            </Button>
+          </Form.Item>
+        </Form>
+      </ProjectSection>
+      <ProjectSection>
+        <Typography style={{ marginBottom: 16 }}>{t("Danger Zone")}</Typography>
+        <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
+          {t("Delete project")}
+        </Button>
+      </ProjectSection>
+    </PaddedContent>
   );
 };
 
 const PaddedContent = styled(Content)`
   margin: 16px;
-`;
-
-const ProjectSider = styled(Sider)`
-  background-color: #fff;
-  .ant-layout-sider-trigger {
-    background-color: #fff;
-    color: #002140;
-    text-align: left;
-    padding: 0 24px;
-  }
-  .ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
 `;
 
 const ProjectSection = styled.div`

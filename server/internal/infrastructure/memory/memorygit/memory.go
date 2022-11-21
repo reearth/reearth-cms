@@ -11,10 +11,12 @@ type VersionedSyncMap[K comparable, V any] struct {
 }
 
 func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
-	return &VersionedSyncMap[K, V]{}
+	return &VersionedSyncMap[K, V]{
+		m: util.SyncMapFrom(map[K]*version.Values[V]{}),
+	}
 }
 
-func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res V, _ bool) {
+func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res *version.Value[V], _ bool) {
 	v, ok := m.m.Load(key)
 	if !ok {
 		return
@@ -23,17 +25,28 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res V, _ 
 	if vv == nil {
 		return
 	}
-	return vv.Value(), true
+	return vv, true
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res []V) {
+func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res []*version.Value[V]) {
 	m.Range(func(k K, v *version.Values[V]) bool {
 		for _, kk := range keys {
 			if k == kk {
 				if found := v.Get(vr); found != nil {
-					res = append(res, found.Value())
+					res = append(res, found)
 				}
 			}
+		}
+		return true
+	})
+	return
+}
+
+func (m *VersionedSyncMap[K, V]) LoadAllVersions(key K) (res *version.Values[V]) {
+	m.Range(func(k K, v *version.Values[V]) bool {
+		if k == key {
+			res = v.Clone()
+			return false
 		}
 		return true
 	})
@@ -113,4 +126,8 @@ func (m *VersionedSyncMap[K, V]) FindAll(f func(k K, v *version.Values[V]) bool)
 
 func (m *VersionedSyncMap[K, V]) CountAll(f func(k K, v *version.Values[V]) bool) int {
 	return m.m.CountAll(f)
+}
+
+func (m *VersionedSyncMap[K, V]) Len() int {
+	return m.m.Len()
 }

@@ -29,9 +29,9 @@ func TestProject_Fetch(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -92,7 +92,7 @@ func TestProject_Fetch(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -117,9 +117,9 @@ func TestProject_Fetch(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -143,9 +143,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -206,7 +206,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -231,9 +231,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Fetch(ctx, tc.args.ids, tc.args.operator)
 			if tc.wantErr != nil {
@@ -249,9 +249,9 @@ func TestProject_FindByWorkspace(t *testing.T) {
 func TestProject_Create(t *testing.T) {
 	mocktime := time.Now()
 	wid := id.NewWorkspaceID()
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: nil,
 		WritableWorkspaces: nil,
 		OwningWorkspaces:   []id.WorkspaceID{wid},
@@ -299,7 +299,7 @@ func TestProject_Create(t *testing.T) {
 					Description: lo.ToPtr("D002"),
 					Alias:       lo.ToPtr("Test002"),
 				},
-				operator: &usecase.Operator{User: u.ID()},
+				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
@@ -316,9 +316,9 @@ func TestProject_Create(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -332,7 +332,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Workspace(), got.Workspace())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, tc.want.Name(), dbGot.Name())
 			assert.Equal(t, tc.want.Alias(), dbGot.Alias())
 			assert.Equal(t, tc.want.Description(), dbGot.Description())
@@ -349,15 +349,13 @@ func TestProject_Update(t *testing.T) {
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
-	p1Updated := project.New().ID(pid1).Workspace(wid1).Name("test123").Description("desc321").
-		UpdatedAt(mocktime).MustBuild()
 
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 		WritableWorkspaces: []id.WorkspaceID{wid1},
 	}
@@ -385,7 +383,13 @@ func TestProject_Update(t *testing.T) {
 				},
 				operator: op,
 			},
-			want:    p1Updated,
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				Name("test123").
+				Description("desc321").
+				UpdatedAt(mocktime).
+				MustBuild(),
 			wantErr: nil,
 		},
 		{
@@ -401,6 +405,26 @@ func TestProject_Update(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "update publication",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p1.ID(),
+					Publication: &interfaces.UpdateProjectPublicationParam{
+						Scope:       lo.ToPtr(project.PublicationScopePublic),
+						AssetPublic: lo.ToPtr(true),
+					},
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				UpdatedAt(mocktime).
+				Publication(project.NewPublication(project.PublicationScopePublic, true)).
+				MustBuild(),
 		},
 		{
 			name:           "mock error",
@@ -422,9 +446,9 @@ func TestProject_Update(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.Update(ctx, tc.args.upp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -448,9 +472,9 @@ func TestProject_CheckAlias(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 	}
 
@@ -497,9 +521,9 @@ func TestProject_CheckAlias(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			got, err := projectUC.CheckAlias(ctx, tc.args.alias)
 			if tc.wantErr != nil {
@@ -523,11 +547,18 @@ func TestProject_Delete(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
 
-	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
-		User:               u.ID(),
+		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
 		WritableWorkspaces: []id.WorkspaceID{wid1},
+	}
+
+	opOwner := &usecase.Operator{
+		User:               lo.ToPtr(u.ID()),
+		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
+		WritableWorkspaces: []id.WorkspaceID{wid1},
+		OwningWorkspaces:   []id.WorkspaceID{wid1},
 	}
 
 	type args struct {
@@ -547,7 +578,7 @@ func TestProject_Delete(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				id:       pid1,
-				operator: op,
+				operator: opOwner,
 			},
 			want:    nil,
 			wantErr: nil,
@@ -563,10 +594,20 @@ func TestProject_Delete(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "delete od",
+			name:  "delete operation denied",
 			seeds: project.List{},
 			args: args{
 				id:       pid2,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "delete operation denied 2",
+			seeds: project.List{},
+			args: args{
+				id:       pid1,
 				operator: op,
 			},
 			want:    nil,
@@ -592,9 +633,9 @@ func TestProject_Delete(t *testing.T) {
 			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db)
+			projectUC := NewProject(db, nil)
 
 			err := projectUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {

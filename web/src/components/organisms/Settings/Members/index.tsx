@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { useParams } from "react-router-dom";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,9 +9,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
 import Table from "@reearth-cms/components/atoms/Table";
-import { Member } from "@reearth-cms/components/molecules/Dashboard/types";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -47,17 +46,20 @@ const columns = [
 
 const Members: React.FC = () => {
   const t = useT();
-  const { workspaceId } = useParams();
 
   const { confirm } = Modal;
 
   const {
     me,
-    currentWorkspace,
+    owner,
     searchedUser,
+    handleSearchTerm,
     changeSearchedUser,
+    searchedUserList,
+    changeSearchedUserList,
     handleUserSearch,
-    handleMemberAddToWorkspace,
+    handleUserAdd,
+    handleUsersAddToWorkspace,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,
@@ -67,9 +69,8 @@ const Members: React.FC = () => {
     handleMemberAddModalClose,
     handleMemberAddModalOpen,
     MemberAddModalShown,
-  } = useHooks({ workspaceId });
-
-  const members = currentWorkspace?.members;
+    workspaceUserMembers,
+  } = useHooks();
 
   const handleMemberDelete = useCallback(
     (member: Member) => {
@@ -87,7 +88,7 @@ const Members: React.FC = () => {
     [confirm, handleMemberRemoveFromWorkspace, t],
   );
 
-  const dataSource = members?.map(member => ({
+  const dataSource = workspaceUserMembers?.map(member => ({
     key: member.userId,
     name: member.user.name,
     thumbnail: (
@@ -100,12 +101,18 @@ const Members: React.FC = () => {
     action: (
       <>
         {member.userId !== me?.id && (
-          <a onClick={() => handleRoleModalOpen(member)}>{t("Change Role?")}</a>
+          <Button type="link" onClick={() => handleRoleModalOpen(member)} disabled={!owner}>
+            {t("Change Role?")}
+          </Button>
         )}
         {member.role !== "OWNER" && (
-          <a style={{ marginLeft: "8px" }} onClick={() => handleMemberDelete(member)}>
+          <Button
+            type="link"
+            style={{ marginLeft: "8px" }}
+            onClick={() => handleMemberDelete(member)}
+            disabled={!owner}>
             {t("Remove")}
-          </a>
+          </Button>
         )}
       </>
     ),
@@ -114,7 +121,7 @@ const Members: React.FC = () => {
   return (
     <>
       <PaddedContent>
-        <MemberPageHeader
+        <PageHeader
           title={t("Members")}
           extra={
             <Button
@@ -123,24 +130,39 @@ const Members: React.FC = () => {
               icon={<Icon icon="userGroupAdd" />}>
               {t("New Member")}
             </Button>
-          }></MemberPageHeader>
+          }
+        />
         <ActionHeader>
-          <Search placeholder={t("input search text")} allowClear style={{ width: 264 }} />
+          <Search
+            onSearch={handleSearchTerm}
+            placeholder={t("search for a member")}
+            allowClear
+            style={{ width: 264 }}
+          />
         </ActionHeader>
-        <Table dataSource={dataSource} columns={columns} style={{ padding: "24px" }} />;
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          style={{ padding: "24px", overflowX: "auto" }}
+        />
       </PaddedContent>
       <MemberRoleModal
         member={selectedMember}
         open={roleModalShown}
         onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}></MemberRoleModal>
+        onSubmit={handleMemberOfWorkspaceUpdate}
+      />
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
+        searchedUserList={searchedUserList}
+        changeSearchedUserList={changeSearchedUserList}
         onClose={handleMemberAddModalClose}
-        handleUserSearch={handleUserSearch}
+        onUserSearch={handleUserSearch}
+        onUserAdd={handleUserAdd}
         changeSearchedUser={changeSearchedUser}
-        onSubmit={handleMemberAddToWorkspace}></MemberAddModal>
+        onSubmit={handleUsersAddToWorkspace}
+      />
     </>
   );
 };
@@ -148,16 +170,14 @@ const Members: React.FC = () => {
 const PaddedContent = styled(Content)`
   margin: 16px;
   background-color: #fff;
+  min-height: 100%;
 `;
 
 const ActionHeader = styled(Content)`
+  border-top: 1px solid #f0f0f0;
   padding: 16px;
   display: flex;
   justify-content: space-between;
-`;
-
-const MemberPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #f0f0f0;
 `;
 
 export default Members;

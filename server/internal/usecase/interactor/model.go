@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -18,12 +19,14 @@ import (
 )
 
 type Model struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewModel(r *repo.Container) interfaces.Model {
+func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	return &Model{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
@@ -62,7 +65,17 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func() (_ *model.Model, err error) {
-			s := schema.New().NewID().Workspace(p.Workspace()).MustBuild()
+			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
+			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+				return nil, err
+			}
+			if m != nil {
+				return nil, interfaces.ErrDuplicatedKey
+			}
+			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
+			if err != nil {
+				return nil, err
+			}
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
 			}
@@ -71,7 +84,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				New().
 				NewID().
 				Schema(s.ID()).
-				IsPublic(false).
+				Public(false).
 				Project(param.ProjectId)
 
 			if param.Name != nil {
@@ -79,6 +92,9 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			}
 			if param.Description != nil {
 				mb = mb.Description(*param.Description)
+			}
+			if param.Public != nil {
+				mb = mb.Public(*param.Public)
 			}
 			if param.Key != nil {
 				k := key.New(*param.Key)
@@ -90,7 +106,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Key(key.Random())
 			}
 
-			m, err := mb.Build()
+			m, err = mb.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -125,6 +141,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				if err := m.SetKey(key.New(*param.Key)); err != nil {
 					return nil, err
 				}
+			}
+			if param.Public != nil {
+				m.SetPublic(*param.Public)
 			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {

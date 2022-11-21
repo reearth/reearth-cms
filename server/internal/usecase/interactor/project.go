@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -15,12 +16,14 @@ import (
 )
 
 type Project struct {
-	repos *repo.Container
+	repos    *repo.Container
+	gateways *gateway.Container
 }
 
-func NewProject(r *repo.Container) interfaces.Project {
+func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 	return &Project{
-		repos: r,
+		repos:    r,
+		gateways: g,
 	}
 }
 
@@ -36,10 +39,10 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 		})
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, id id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(id).Transaction(),
+func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(wid).Transaction(),
 		func() (project.List, *usecasex.PageInfo, error) {
-			return i.repos.Project.FindByWorkspace(ctx, id, p)
+			return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
 		})
 }
 
@@ -87,6 +90,20 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 				proj.UpdateDescription(*p.Description)
 			}
 
+			if p.Publication != nil {
+				pub := proj.Publication()
+				if pub == nil {
+					pub = project.NewPublication(project.PublicationScopePrivate, false)
+				}
+				if p.Publication.Scope != nil {
+					pub.SetScope(*p.Publication.Scope)
+				}
+				if p.Publication.AssetPublic != nil {
+					pub.SetAssetPublic(*p.Publication.AssetPublic)
+				}
+				proj.SetPublication(pub)
+			}
+
 			if err := i.repos.Project.Save(ctx, proj); err != nil {
 				return nil, err
 			}
@@ -118,6 +135,9 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 	}
 	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func() error {
+			if !operator.IsOwningWorkspace(proj.Workspace()) {
+				return interfaces.ErrOperationDenied
+			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {
 				return err
 			}

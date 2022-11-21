@@ -27,5 +27,5 @@ func (w workspaceIntegrationMemberResolver) InvitedBy(ctx context.Context, obj *
 }
 
 func (w workspaceIntegrationMemberResolver) Integration(ctx context.Context, obj *gqlmodel.WorkspaceIntegrationMember) (*gqlmodel.Integration, error) {
-	panic("implement me")
+	return dataloaders(ctx).Integration.Load(obj.IntegrationID)
 }

@@ -8,14 +8,18 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
-const configPrefix = "reearth"
+const configPrefix = "REEARTH_CMS"
 
 type Config struct {
 	Port         string `default:"8080" envconfig:"PORT"`
 	ServerHost   string
+	Host         string `default:"http://localhost:8080"`
 	Dev          bool
 	Host_Web     string
 	GraphQL      GraphQLConfig
@@ -25,6 +29,9 @@ type Config struct {
 	SMTP         SMTPConfig
 	SendGrid     SendGridConfig
 	SignupSecret string
+	GCS          GCSConfig
+	Task         gcp.TaskConfig
+	AssetBaseURL string
 	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
@@ -33,6 +40,8 @@ type Config struct {
 	Auth_ALG      *string
 	Auth_TTL      *int
 	Auth_ClientID *string
+	// auth for m2m
+	AuthM2M AuthM2MConfig
 }
 
 type AuthConfig struct {
@@ -71,7 +80,20 @@ type SMTPConfig struct {
 	Password     string
 }
 
-func (c Config) Auths() (res []AuthConfig) {
+type GCSConfig struct {
+	BucketName              string
+	PublicationCacheControl string
+}
+
+type AuthM2MConfig struct {
+	ISS   string
+	AUD   []string
+	ALG   *string
+	TTL   *int
+	Email string
+}
+
+func (c Config) Auths() (res AuthConfigs) {
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -90,6 +112,10 @@ func (c Config) Auths() (res []AuthConfig) {
 	}
 
 	return append(res, c.Auth...)
+}
+
+func (c Config) JWTProviders() (res []appx.JWTProvider) {
+	return c.Auths().JWTProviders()
 }
 
 func (c Auth0Config) AuthConfig() *AuthConfig {
@@ -113,6 +139,32 @@ func (c Auth0Config) AuthConfig() *AuthConfig {
 	}
 }
 
+func (a AuthConfig) JWTProvider() appx.JWTProvider {
+	return appx.JWTProvider{
+		ISS: a.ISS,
+		AUD: a.AUD,
+		ALG: a.ALG,
+		TTL: a.TTL,
+	}
+}
+
+func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
+	domain := a.ISS
+	if a.ISS == "" {
+		return nil
+	}
+	if !strings.HasPrefix(domain, "https://") && !strings.HasPrefix(domain, "http://") {
+		domain = "https://" + domain
+	}
+
+	return []appx.JWTProvider{{
+		ISS: domain,
+		AUD: a.AUD,
+		ALG: a.ALG,
+		TTL: a.TTL,
+	}}
+}
+
 // Decode is a custom decoder for AuthConfigs
 func (ipd *AuthConfigs) Decode(value string) error {
 	if value == "" {
@@ -128,6 +180,10 @@ func (ipd *AuthConfigs) Decode(value string) error {
 
 	*ipd = providers
 	return nil
+}
+
+func (a AuthConfigs) JWTProviders() []appx.JWTProvider {
+	return lo.Map(a, func(a AuthConfig, _ int) appx.JWTProvider { return a.JWTProvider() })
 }
 
 func ReadConfig(debug bool) (*Config, error) {
@@ -146,4 +202,15 @@ func ReadConfig(debug bool) (*Config, error) {
 	}
 
 	return &c, err
+}
+
+func (c Config) Print() string {
+	s := fmt.Sprintf("%+v", c)
+	for _, secret := range []string{c.DB, c.Auth0.ClientSecret} {
+		if secret == "" {
+			continue
+		}
+		s = strings.ReplaceAll(s, secret, "***")
+	}
+	return s
 }

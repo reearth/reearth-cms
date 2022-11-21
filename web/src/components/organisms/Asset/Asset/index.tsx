@@ -1,53 +1,50 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-import AssetBody from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
-import AssetHeader from "@reearth-cms/components/molecules/Asset/Asset/AssetHeader";
-import { uuidToURL } from "@reearth-cms/utils/convert";
+import Loading from "@reearth-cms/components/atoms/Loading";
+import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
-  const { assetId } = useParams();
+  const navigate = useNavigate();
+  const { workspaceId, projectId, assetId } = useParams();
   const {
     asset,
-    updateAsset,
     isLoading,
     selectedPreviewType,
-    handleTypeChange,
     isModalVisible,
+    handleAssetUpdate,
+    handleTypeChange,
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
 
-  const url = uuidToURL(asset?.uuid, asset?.fileName);
-
   const handleSave = async () => {
     if (assetId) {
-      await updateAsset(assetId, selectedPreviewType);
+      await handleAssetUpdate(assetId, selectedPreviewType);
+      handleBack();
     }
   };
 
+  const handleBack = () => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`);
+  };
+
   return isLoading ? (
-    <>loading...</>
-  ) : asset ? (
-    <>
-      <AssetHeader
-        title={`Asset/${asset?.fileName}`}
-        subTitle="This is a subtitle"
-        handleSave={handleSave}
-      />
-      <AssetBody
-        asset={asset}
-        selectedPreviewType={selectedPreviewType}
-        handleTypeChange={handleTypeChange}
-        isModalVisible={isModalVisible}
-        handleModalCancel={handleModalCancel}
-        handleFullScreen={handleFullScreen}
-        url={url}
-      />
-    </>
+    <Loading spinnerSize="large" minHeight="100vh" />
   ) : (
-    <>not found</>
+    <AssetWrapper
+      commentsPanel={<CommentsPanel comments={asset?.comments} threadId={asset?.threadId} />}
+      asset={asset}
+      selectedPreviewType={selectedPreviewType}
+      isModalVisible={isModalVisible}
+      onTypeChange={handleTypeChange}
+      onModalCancel={handleModalCancel}
+      onChangeToFullScreen={handleFullScreen}
+      onBack={handleBack}
+      onSave={handleSave}
+    />
   );
 };
 

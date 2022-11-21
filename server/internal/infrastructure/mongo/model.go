@@ -7,37 +7,44 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type modelRepo struct {
+var (
+	modelIndexes       = []string{"project", "workspace"}
+	modelUniqueIndexes = []string{"id"}
+)
+
+type Model struct {
 	client *mongox.ClientCollection
+	f      repo.ProjectFilter
 }
 
 func NewModel(client *mongox.Client) repo.Model {
-	r := &modelRepo{client: client.WithCollection("model")}
-	r.init()
-	return r
+	return &Model{client: client.WithCollection("model")}
 }
 
-func (r *modelRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"key", "project", "workspace"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "model", i)
+func (r *Model) Filtered(f repo.ProjectFilter) repo.Model {
+	return &Model{
+		client: r.client,
+		f:      r.f.Merge(f),
 	}
 }
 
-func (r *modelRepo) FindByID(ctx context.Context, modelID id.ModelID) (*model.Model, error) {
+func (r *Model) Init() error {
+	return createIndexes(context.Background(), r.client, modelIndexes, modelUniqueIndexes)
+}
+
+func (r *Model) FindByID(ctx context.Context, modelID id.ModelID) (*model.Model, error) {
 	return r.findOne(ctx, bson.M{
 		"id": modelID.String(),
 	})
 }
 
-func (r *modelRepo) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.List, error) {
+func (r *Model) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -53,57 +60,68 @@ func (r *modelRepo) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.Li
 	return prepare(ids, res), nil
 }
 
-func (r *modelRepo) FindByProject(ctx context.Context, pId id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pid) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
 	return r.paginate(ctx, bson.M{
-		"project": pId.String(),
+		"project": pid.String(),
 	}, pagination)
 }
 
-func (r *modelRepo) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
+func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
 	if len(key) == 0 {
 		return nil, rerror.ErrNotFound
 	}
+	if !r.f.CanRead(projectID) {
+		return nil, repo.ErrOperationDenied
+	}
+
 	return r.findOne(ctx, bson.M{
 		"key":     key,
 		"project": projectID.String(),
 	})
 }
 
-func (r *modelRepo) CountByProject(ctx context.Context, projectID id.ProjectID) (int, error) {
+func (r *Model) CountByProject(ctx context.Context, projectID id.ProjectID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
 		"project": projectID.String(),
 	})
 	return int(count), err
 }
 
-func (r *modelRepo) Save(ctx context.Context, model *model.Model) error {
+func (r *Model) Save(ctx context.Context, model *model.Model) error {
+	if !r.f.CanWrite(model.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, mId := mongodoc.NewModel(model)
 	return r.client.SaveOne(ctx, mId, doc)
 }
 
-func (r *modelRepo) Remove(ctx context.Context, modelID id.ModelID) error {
-	return r.client.RemoveOne(ctx, bson.M{"id": modelID.String()})
+func (r *Model) Remove(ctx context.Context, modelID id.ModelID) error {
+	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": modelID.String()}))
 }
 
-func (r *modelRepo) findOne(ctx context.Context, filter any) (*model.Model, error) {
+func (r *Model) findOne(ctx context.Context, filter any) (*model.Model, error) {
 	c := mongodoc.NewModelConsumer()
-	if err := r.client.FindOne(ctx, filter, c); err != nil {
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil
 }
 
-func (r *modelRepo) find(ctx context.Context, filter any) (model.List, error) {
+func (r *Model) find(ctx context.Context, filter any) (model.List, error) {
 	c := mongodoc.NewModelConsumer()
-	if err := r.client.Find(ctx, filter, c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
 }
 
-func (r *modelRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewModelConsumer()
-	pageInfo, err := r.client.Paginate(ctx, filter, nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -122,4 +140,12 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 		}
 	}
 	return res
+}
+
+func (r *Model) readFilter(filter interface{}) interface{} {
+	return applyProjectFilter(filter, r.f.Readable)
+}
+
+func (r *Model) writeFilter(filter interface{}) interface{} {
+	return applyProjectFilter(filter, r.f.Writable)
 }

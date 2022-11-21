@@ -10,11 +10,14 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
+var ErrDuplicatedKey = errors.New("duplicated key")
+
 type CreateModelParam struct {
 	ProjectId   id.ProjectID
 	Name        *string
 	Description *string
 	Key         *string
+	Public      *bool
 }
 
 type UpdateModelParam struct {
@@ -22,6 +25,7 @@ type UpdateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
+	Public      *bool
 }
 
 var (

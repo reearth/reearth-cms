@@ -2,10 +2,13 @@ package repo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
+
+var ErrDuplicatedUser = errors.New("duplicated email")
 
 type User interface {
 	FindByIDs(context.Context, id.UserIDList) ([]*user.User, error)
@@ -16,6 +19,8 @@ type User interface {
 	FindByNameOrEmail(context.Context, string) (*user.User, error)
 	FindByVerification(context.Context, string) (*user.User, error)
 	FindByPasswordResetRequest(context.Context, string) (*user.User, error)
+	FindBySubOrCreate(context.Context, *user.User, string) (*user.User, error)
+	Create(context.Context, *user.User) error
 	Save(context.Context, *user.User) error
 	Remove(context.Context, id.UserID) error
 }

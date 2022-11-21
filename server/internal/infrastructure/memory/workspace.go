@@ -5,8 +5,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"golang.org/x/exp/slices"
 )
@@ -28,7 +28,17 @@ func (r *Workspace) FindByUser(ctx context.Context, i id.UserID) (user.Workspace
 	}
 
 	return rerror.ErrIfNil(r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
-		return value.Members().ContainsUser(i)
+		return value.Members().HasUser(i)
+	}), rerror.ErrNotFound)
+}
+
+func (r *Workspace) FindByIntegration(_ context.Context, i id.IntegrationID) (user.WorkspaceList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	return rerror.ErrIfNil(r.data.FindAll(func(key id.WorkspaceID, value *user.Workspace) bool {
+		return value.Members().HasIntegration(i)
 	}), rerror.ErrNotFound)
 }
 

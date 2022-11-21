@@ -113,8 +113,12 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got, ok := tc.m.Load(tc.input.key, tc.input.vor)
-			assert.Equal(t, tc.want.output, got)
-			assert.True(t, tc.want.ok == ok)
+			if tc.want.output == "" {
+				assert.Nil(t, got)
+			} else {
+				assert.Equal(t, tc.want.output, got.Value())
+			}
+			assert.Equal(t, tc.want.ok, ok)
 		})
 	}
 }
@@ -188,7 +192,62 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got := tc.m.LoadAll(tc.input.keys, tc.input.vor)
-			slices.Sort(got)
+			got2 := version.UnwrapValues(got)
+			slices.Sort(got2)
+			assert.Equal(t, tc.want, got2)
+		})
+	}
+}
+
+func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
+	vx, vy, vz := version.New(), version.New(), version.New()
+	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
+		map[string]*version.Values[string]{
+			"a": version.MustBeValues(
+				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vy, nil, nil, "B"),
+				version.NewValue(vz, nil, nil, "C"),
+			),
+		},
+	)}
+	tests := []struct {
+		name  string
+		m     *VersionedSyncMap[string, string]
+		input struct {
+			key string
+		}
+		want *version.Values[string]
+	}{
+		{
+			name: "should load by version",
+			m:    vsm,
+			input: struct {
+				key string
+			}{
+				key: "a",
+			},
+			want: version.MustBeValues(
+				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vy, nil, nil, "B"),
+				version.NewValue(vz, nil, nil, "C"),
+			),
+		},
+		{
+			name: "should not load",
+			m:    vsm,
+			input: struct {
+				key string
+			}{
+				key: "d",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := tc.m.LoadAllVersions(tc.input.key)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -205,17 +264,17 @@ func TestVersionedSyncMap_Store(t *testing.T) {
 	vm.SaveOne("a", "b", nil)
 	got, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok)
-	assert.Equal(t, "b", got)
+	assert.Equal(t, "b", got.Value())
 
 	vm.SaveOne("a", "c", nil)
 	got2, ok2 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok2)
-	assert.Equal(t, "c", got2)
+	assert.Equal(t, "c", got2.Value())
 
 	vm.SaveOne("a", "d", version.Latest.OrVersion().Ref())
 	got3, ok3 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok3)
-	assert.Equal(t, "d", got3)
+	assert.Equal(t, "d", got3.Value())
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {

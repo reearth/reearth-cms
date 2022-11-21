@@ -12,6 +12,7 @@ import (
 )
 
 func TestFieldBuilder_Build(t *testing.T) {
+	tp, _ := NewFieldTypePropertyText(nil, nil)
 	fId := NewFieldID()
 	tests := []struct {
 		name    string
@@ -63,7 +64,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 					unique:       false,
 					multiValue:   false,
 					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					typeProperty: tp,
 				},
 				err: nil,
 			},
@@ -75,7 +76,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 				unique:       false,
 				multiValue:   false,
 				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				typeProperty: tp,
 			},
 			wantErr: nil,
 		},
@@ -96,6 +97,7 @@ func TestFieldBuilder_Build(t *testing.T) {
 }
 
 func TestFieldBuilder_MustBuild(t *testing.T) {
+	tp, _ := NewFieldTypePropertyText(nil, nil)
 	fId := NewFieldID()
 	tests := []struct {
 		name    string
@@ -147,7 +149,7 @@ func TestFieldBuilder_MustBuild(t *testing.T) {
 					unique:       false,
 					multiValue:   false,
 					required:     false,
-					typeProperty: NewFieldTypePropertyText(nil, nil),
+					typeProperty: tp,
 				},
 				err: nil,
 			},
@@ -159,7 +161,7 @@ func TestFieldBuilder_MustBuild(t *testing.T) {
 				unique:       false,
 				multiValue:   false,
 				required:     false,
-				typeProperty: NewFieldTypePropertyText(nil, nil),
+				typeProperty: tp,
 			},
 			wantErr: nil,
 		},
@@ -307,7 +309,7 @@ func TestNewFieldDate(t *testing.T) {
 			want: &FieldBuilder{
 				f: &Field{
 					typeProperty: &TypeProperty{
-						date: FieldDateFrom(nil),
+						dateTime: FieldDateFrom(nil),
 					},
 				},
 				err: nil,
@@ -321,7 +323,7 @@ func TestNewFieldDate(t *testing.T) {
 			want: &FieldBuilder{
 				f: &Field{
 					typeProperty: &TypeProperty{
-						date: FieldDateFrom(&now),
+						dateTime: FieldDateFrom(&now),
 					},
 				},
 				err: nil,
@@ -670,88 +672,6 @@ func TestNewFieldSelect(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, NewFieldSelect(tt.args.values, tt.args.defaultValue), "NewFieldSelect(%v, %v)", tt.args.values, tt.args.defaultValue)
-		})
-	}
-}
-
-func TestNewFieldTag(t *testing.T) {
-	type args struct {
-		values       []string
-		defaultValue []string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *FieldBuilder
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				values:       nil,
-			},
-			want: &FieldBuilder{
-				f: &Field{
-					typeProperty: &TypeProperty{},
-				},
-				err: ErrFieldValues,
-			},
-		},
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				values:       []string{"t1", "t2"},
-			},
-			want: &FieldBuilder{
-				f: &Field{
-					typeProperty: &TypeProperty{
-						tag: &FieldTag{
-							defaultValue: nil,
-							values:       []string{"t1", "t2"},
-						},
-					},
-				},
-				err: nil,
-			},
-		},
-		{
-			name: "test",
-			args: args{
-				defaultValue: []string{"t1", "t2"},
-				values:       []string{"t1", "t2", "t3"},
-			},
-			want: &FieldBuilder{
-				f: &Field{
-					typeProperty: &TypeProperty{
-						tag: &FieldTag{
-							defaultValue: []string{"t1", "t2"},
-							values:       []string{"t1", "t2", "t3"},
-						},
-					},
-				},
-				err: nil,
-			},
-		},
-		{
-			name: "test",
-			args: args{
-				defaultValue: []string{"t1", "t4"},
-				values:       []string{"t1", "t2", "t3"},
-			},
-			want: &FieldBuilder{
-				f: &Field{
-					typeProperty: &TypeProperty{},
-				},
-				err: ErrFieldDefaultValue,
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, NewFieldTag(tt.args.values, tt.args.defaultValue), "NewFieldTag(%v, %v)", tt.args.values, tt.args.defaultValue)
 		})
 	}
 }

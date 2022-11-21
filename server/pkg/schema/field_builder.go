@@ -17,35 +17,55 @@ type FieldBuilder struct {
 }
 
 func NewFieldText(defaultValue *string, maxLength *int) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			text: FieldTextFrom(defaultValue, maxLength),
+	f, err := FieldTextFrom(defaultValue, maxLength)
+
+	return &FieldBuilder{
+		f: &Field{
+			typeProperty: &TypeProperty{
+				text: f,
+			},
 		},
-	}}
+		err: err,
+	}
 }
 
 func NewFieldTextArea(defaultValue *string, maxLength *int) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			textArea: FieldTextAreaFrom(defaultValue, maxLength),
+	f, err := FieldTextAreaFrom(defaultValue, maxLength)
+
+	return &FieldBuilder{
+		f: &Field{
+			typeProperty: &TypeProperty{
+				textArea: f,
+			},
 		},
-	}}
+		err: err,
+	}
 }
 
 func NewFieldRichText(defaultValue *string, maxLength *int) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			richText: FieldRichTextFrom(defaultValue, maxLength),
+	f, err := FieldRichTextFrom(defaultValue, maxLength)
+
+	return &FieldBuilder{
+		f: &Field{
+			typeProperty: &TypeProperty{
+				richText: f,
+			},
 		},
-	}}
+		err: err,
+	}
 }
 
 func NewFieldMarkdown(defaultValue *string, maxLength *int) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			markdown: FieldMarkdownFrom(defaultValue, maxLength),
+	f, err := FieldMarkdownFrom(defaultValue, maxLength)
+
+	return &FieldBuilder{
+		f: &Field{
+			typeProperty: &TypeProperty{
+				markdown: f,
+			},
 		},
-	}}
+		err: err,
+	}
 }
 
 func NewFieldAsset(defaultValue *id.AssetID) *FieldBuilder {
@@ -59,7 +79,7 @@ func NewFieldAsset(defaultValue *id.AssetID) *FieldBuilder {
 func NewFieldDate(defaultValue *time.Time) *FieldBuilder {
 	return &FieldBuilder{f: &Field{
 		typeProperty: &TypeProperty{
-			date: FieldDateFrom(defaultValue),
+			dateTime: FieldDateFrom(defaultValue),
 		},
 	}}
 }
@@ -78,18 +98,6 @@ func NewFieldSelect(values []string, defaultValue *string) *FieldBuilder {
 		f: &Field{
 			typeProperty: &TypeProperty{
 				selectt: fs,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldTag(values []string, defaultValue []string) *FieldBuilder {
-	ft, err := FieldTagFrom(values, defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				tag: ft,
 			},
 		},
 		err: err,

@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -17,23 +16,38 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type assetRepo struct {
+var (
+	assetIndexes       = []string{"project"}
+	assetUniqueIndexes = []string{"id"}
+)
+
+type Asset struct {
 	client *mongox.ClientCollection
+	f      repo.ProjectFilter
 }
 
 func NewAsset(client *mongox.Client) repo.Asset {
-	r := &assetRepo{client: client.WithCollection("asset")}
-	r.init()
-	return r
+	return &Asset{client: client.WithCollection("asset")}
 }
 
-func (r *assetRepo) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
+func (r *Asset) Init() error {
+	return createIndexes(context.Background(), r.client, assetIndexes, assetUniqueIndexes)
+}
+
+func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
+	return &Asset{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
+}
+
+func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
 	return r.findOne(ctx, bson.M{
 		"id": id.String(),
 	})
 }
 
-func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
+func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -48,7 +62,11 @@ func (r *assetRepo) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset
 	return filterAssets(ids, res), nil
 }
 
-func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
 	var filter interface{} = bson.M{
 		"project": id.String(),
 	}
@@ -64,33 +82,44 @@ func (r *assetRepo) FindByProject(ctx context.Context, id id.ProjectID, uFilter 
 	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
 }
 
-func (r *assetRepo) Save(ctx context.Context, asset *asset.Asset) error {
+func (r *Asset) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
+	if !r.f.CanWrite(from) || !r.f.CanWrite(to) {
+		return repo.ErrOperationDenied
+	}
+
+	return r.client.UpdateMany(ctx, bson.M{
+		"project": from.String(),
+	}, bson.M{
+		"project": to.String(),
+	})
+}
+
+func (r *Asset) Save(ctx context.Context, asset *asset.Asset) error {
+	if !r.f.CanWrite(asset.Project()) {
+		return repo.ErrOperationDenied
+	}
 	doc, id := mongodoc.NewAsset(asset)
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *assetRepo) Update(ctx context.Context, a *asset.Asset) error {
-	return r.client.UpdateMany(ctx, r.writeFilter(bson.M{
+func (r *Asset) Update(ctx context.Context, a *asset.Asset) error {
+	if !r.f.CanWrite(a.Project()) {
+		return repo.ErrOperationDenied
+	}
+	return r.client.UpdateMany(ctx, bson.M{
 		"id": a.ID().String(),
-	}), bson.M{
+	}, bson.M{
 		"previewType": a.PreviewType().String(),
 	})
 }
 
-func (r *assetRepo) Delete(ctx context.Context, id id.AssetID) error {
+func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
 		"id": id.String(),
 	}))
 }
 
-func (r *assetRepo) init() {
-	i := r.client.CreateIndex(context.Background(), []string{"project"}, []string{"id"})
-	if len(i) > 0 {
-		log.Infof("mongo: %s: index created: %s", "asset", i)
-	}
-}
-
-func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	var sortstr *string
 	if sort != nil {
 		sortstr2 := string(*sort)
@@ -105,7 +134,7 @@ func (r *assetRepo) paginate(ctx context.Context, filter interface{}, sort *asse
 	return c.Result, pageInfo, nil
 }
 
-func (r *assetRepo) find(ctx context.Context, filter interface{}) ([]*asset.Asset, error) {
+func (r *Asset) find(ctx context.Context, filter interface{}) ([]*asset.Asset, error) {
 	c := mongodoc.NewAssetConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -113,7 +142,7 @@ func (r *assetRepo) find(ctx context.Context, filter interface{}) ([]*asset.Asse
 	return c.Result, nil
 }
 
-func (r *assetRepo) findOne(ctx context.Context, filter interface{}) (*asset.Asset, error) {
+func (r *Asset) findOne(ctx context.Context, filter interface{}) (*asset.Asset, error) {
 	c := mongodoc.NewAssetConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
@@ -136,10 +165,10 @@ func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
 	return res
 }
 
-func (r *assetRepo) readFilter(filter interface{}) interface{} {
-	return filter
+func (r *Asset) readFilter(filter interface{}) interface{} {
+	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *assetRepo) writeFilter(filter interface{}) interface{} {
-	return filter
+func (r *Asset) writeFilter(filter interface{}) interface{} {
+	return applyProjectFilter(filter, r.f.Writable)
 }

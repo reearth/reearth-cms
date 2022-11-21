@@ -2,6 +2,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   url: string;
@@ -24,12 +25,13 @@ const PreviewToolbar: React.FC<Props> = ({
   handleFullScreen,
   handleModalCancel,
 }) => {
+  const t = useT();
   return (
     <>
-      {selectedPreviewType === PreviewType.Image && isSVG && (
+      {selectedPreviewType === "IMAGE" && isSVG && (
         <>
-          <Button onClick={handleCodeSourceClick}>Source Code</Button>
-          <Button onClick={handleRenderClick}>Render</Button>
+          <Button onClick={handleCodeSourceClick}>{t("Source Code")}</Button>
+          <Button onClick={handleRenderClick}>{t("Render")}</Button>
         </>
       )}
       <Button

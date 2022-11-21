@@ -1,45 +1,57 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
-import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
-import Space from "@reearth-cms/components/atoms/Space";
 import { useT } from "@reearth-cms/i18n";
-import { Workspace } from "@reearth-cms/state";
+import { Project, Workspace } from "@reearth-cms/state";
 
-import type { User } from "./types";
+import HeaderDropdown from "./Dropdown";
 
 export type { User } from "./types";
 
 export interface Props {
-  user: User;
-  currentWorkspace?: Workspace;
+  username?: string;
   personalWorkspace?: Workspace;
+  currentWorkspace?: Workspace;
   workspaces?: any[];
-  handleModalOpen: () => void;
+  currentProject?: Project;
+  onWorkspaceModalOpen: () => void;
+  onNavigateToSettings: () => void;
 }
 
-const Header: React.FC<Props> = ({
-  user,
+const HeaderMolecule: React.FC<Props> = ({
+  username,
+  personalWorkspace,
   currentWorkspace,
   workspaces,
-  personalWorkspace,
-  handleModalOpen,
+  currentProject,
+  onWorkspaceModalOpen,
+  onNavigateToSettings,
 }) => {
   const t = useT();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleWorkspaceChange = useCallback(
+  const currentIsPersonal = useMemo(
+    () => currentWorkspace?.id === personalWorkspace?.id,
+    [currentWorkspace?.id, personalWorkspace?.id],
+  );
+
+  const handleWorkspaceNavigation = useCallback(
     (id: number) => {
-      navigate(`/dashboard/${id}`);
+      navigate(`/workspace/${id}`);
     },
     [navigate],
   );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
 
   const WorkspacesMenu = (
     <HeaderMenu
@@ -51,50 +63,62 @@ const Header: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id === personalWorkspace?.id)
             ?.map(workspace => ({
-              label: workspace.name,
+              label: <MenuText>{workspace.name}</MenuText>,
               key: workspace.id,
               icon: (
-                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="small">
                   {workspace.name.charAt(0)}
                 </Avatar>
               ),
-              onClick: () => handleWorkspaceChange(workspace.id),
+              style: { paddingLeft: 0, paddingRight: 0 },
+              onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
         },
         {
-          label: t("Teams"),
-          key: "teams",
+          type: "divider",
+        },
+        {
+          label: t("Workspaces"),
+          key: "workspaces",
           type: "group",
           children: workspaces
             ?.filter(workspace => workspace.id !== personalWorkspace?.id)
             ?.map(workspace => ({
-              label: workspace.name,
+              label: <MenuText>{workspace.name}</MenuText>,
               key: workspace.id,
               icon: (
-                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+                <Avatar
+                  shape="square"
+                  style={{
+                    color: "#fff",
+                    backgroundColor: "#3F3D45",
+                  }}
+                  size="small">
                   {workspace.name.charAt(0)}
                 </Avatar>
               ),
-              onClick: () => handleWorkspaceChange(workspace.id),
+              style: { paddingLeft: 0, paddingRight: 0 },
+              onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
         },
         {
-          label: t("new workspace"),
+          label: t("Create Workspace"),
           key: "new-workspace",
           icon: <Icon icon="userGroupAdd" />,
-          onClick: handleModalOpen,
+          onClick: onWorkspaceModalOpen,
         },
       ]}
     />
   );
 
-  const menu = (
+  const AccountMenu = (
     <HeaderMenu
       items={[
         {
           label: t("Account Settings"),
           key: "account-settings",
           icon: <Icon icon="user" />,
+          onClick: onNavigateToSettings,
         },
         {
           label: t("Logout"),
@@ -107,30 +131,38 @@ const Header: React.FC<Props> = ({
   );
 
   return (
-    <>
-      <Logo onClick={() => navigate("/")}>{t("Re:Earth CMS")}</Logo>
-      <VerticalDivider></VerticalDivider>
-      <WorkspaceDropdown overlay={WorkspacesMenu}>
-        <a onClick={e => e.preventDefault()}>
-          <Space>
-            {currentWorkspace?.name}
-            <Icon icon="caretDown" />
-          </Space>
-        </a>
-      </WorkspaceDropdown>
-      <Spacer></Spacer>
-      <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>{user.name.charAt(0)}</Avatar>
-      <AccountDropdown overlay={menu}>
-        <a onClick={e => e.preventDefault()}>
-          <Space>
-            {user.name}
-            <Icon icon="caretDown" />
-          </Space>
-        </a>
-      </AccountDropdown>
-    </>
+    <MainHeader>
+      <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      <VerticalDivider />
+      <WorkspaceDropdown
+        name={currentWorkspace?.name}
+        menu={WorkspacesMenu}
+        personal={currentIsPersonal}
+      />
+      {currentProject?.name && (
+        <CurrentProject>
+          <Break>/</Break>
+          <ProjectText>{currentProject.name}</ProjectText>
+        </CurrentProject>
+      )}
+      <Spacer />
+      <AccountDropdown name={username} menu={AccountMenu} personal={true} />
+    </MainHeader>
   );
 };
+
+const MainHeader = styled(Header)`
+  display: flex;
+  align-items: center;
+  height: 48px;
+  line-height: 41px;
+  padding: 0;
+  background-color: #1d1d1d;
+
+  .ant-space-item {
+    color: #dbdbdb;
+  }
+`;
 
 const Logo = styled.div`
   display: inline-block;
@@ -139,6 +171,7 @@ const Logo = styled.div`
   font-size: 14px;
   line-height: 48px;
   cursor: pointer;
+  padding: 0 40px 0 20px;
 `;
 
 const Spacer = styled.div`
@@ -146,17 +179,26 @@ const Spacer = styled.div`
 `;
 
 const HeaderMenu = styled(Menu)`
-  background-color: #1d1d1d;
+  background-color: #141414;
+  width: 190px;
+
+  .ant-dropdown-menu-item-divider {
+    background-color: #303030;
+  }
+  .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #dbdbdb;
+    color: #fff;
+  }
+  .ant-dropdown-menu-item-group-title {
     font-weight: 400;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 22px;
-    &:hover {
-      background-color: #1d1d1d;
-      color: #fff;
-    }
+    user-select: none;
+    color: #dbdbdb;
+  }
+  .ant-dropdown-menu-item-active {
+    background-color: #1d1d1d;
   }
 
   svg {
@@ -165,28 +207,47 @@ const HeaderMenu = styled(Menu)`
   }
 `;
 
-const AccountDropdown = styled(Dropdown)`
-  padding-left: 10px;
-  color: #fff;
-  background-color: #141414;
-`;
-
-const WorkspaceDropdown = styled(Dropdown)`
-  padding-left: 10px;
-  color: #fff;
-  background-color: #141414;
-`;
-
 const VerticalDivider = styled.div`
-  position: relative;
-  top: -0.06em;
   display: inline-block;
   height: 32px;
   color: #fff;
-  margin: 0 8px;
+  margin: 0;
   vertical-align: middle;
   border-top: 0;
   border-left: 1px solid #303030;
 `;
 
-export default Header;
+const WorkspaceDropdown = styled(HeaderDropdown)`
+  margin-left: 20px;
+  padding-left: 20px;
+`;
+
+const AccountDropdown = styled(HeaderDropdown)`
+  padding-right: 20px;
+`;
+
+const ProjectText = styled.p`
+  margin: 0;
+`;
+
+const Break = styled.p`
+  margin: 0 10px 0 10px;
+`;
+
+const CurrentProject = styled.div`
+  height: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: #dbdbdb;
+`;
+
+const MenuText = styled.p`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 140px;
+`;
+
+export default HeaderMolecule;

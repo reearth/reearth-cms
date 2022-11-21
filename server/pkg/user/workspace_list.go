@@ -30,7 +30,22 @@ func (l WorkspaceList) FilterByUserRole(u ID, r Role) WorkspaceList {
 
 	res := make(WorkspaceList, 0, len(l))
 	for _, t := range l {
-		tr := t.Members().GetRole(u)
+		tr := t.Members().UserRole(u)
+		if tr == r {
+			res = append(res, t)
+		}
+	}
+	return res
+}
+
+func (l WorkspaceList) FilterByIntegrationRole(i IntegrationID, r Role) WorkspaceList {
+	if l == nil || i.IsNil() || r == "" {
+		return nil
+	}
+
+	res := make(WorkspaceList, 0, len(l))
+	for _, t := range l {
+		tr := t.Members().IntegrationRole(i)
 		if tr == r {
 			res = append(res, t)
 		}
@@ -45,7 +60,7 @@ func (l WorkspaceList) FilterByUserRoleIncluding(u ID, r Role) WorkspaceList {
 
 	res := make(WorkspaceList, 0, len(l))
 	for _, t := range l {
-		tr := t.Members().GetRole(u)
+		tr := t.Members().UserRole(u)
 		if tr.Includes(r) {
 			res = append(res, t)
 		}
@@ -53,7 +68,7 @@ func (l WorkspaceList) FilterByUserRoleIncluding(u ID, r Role) WorkspaceList {
 	return res
 }
 
-func (l WorkspaceList) IDs() []WorkspaceID {
+func (l WorkspaceList) IDs() WorkspaceIDList {
 	if l == nil {
 		return nil
 	}

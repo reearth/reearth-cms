@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -116,7 +117,7 @@ func TestWebhookBuilder_Build(t *testing.T) {
 				assert.Nil(t, got)
 				return
 			}
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equalf(t, tt.want, got, "Build()")
 		})
 	}
@@ -255,22 +256,24 @@ func TestWebhookBuilder_Trigger(t *testing.T) {
 			name:   "set",
 			fields: fields{w: &Webhook{}},
 			args: args{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}},
 			want: &WebhookBuilder{w: &Webhook{trigger: WebhookTrigger{
-				OnItemCreate:    true,
-				OnItemUpdate:    true,
-				OnItemDelete:    true,
-				OnAssetUpload:   true,
-				OnAssetDeleted:  true,
-				OnItemPublish:   true,
-				OnItemUnPublish: true,
+				event.ItemCreate:      true,
+				event.ItemUpdate:      true,
+				event.ItemDelete:      true,
+				event.ItemPublish:     true,
+				event.ItemUnpublish:   true,
+				event.AssetCreate:     true,
+				event.AssetDecompress: true,
+				event.AssetDelete:     true,
 			}}},
 		},
 	}
@@ -350,6 +353,34 @@ func TestWebhookBuilder_Url(t *testing.T) {
 				w: tt.fields.w,
 			}
 			assert.Equalf(t, tt.want, b.Url(tt.args.url), "Url(%v)", tt.args.url)
+		})
+	}
+}
+
+func TestWebhookBuilder_NewID(t *testing.T) {
+	type fields struct {
+		w *Webhook
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			name:   "test",
+			fields: fields{w: &Webhook{}},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := &WebhookBuilder{
+				w: tt.fields.w,
+			}
+			b.NewID()
+			assert.False(t, b.w.id.IsNil())
+			assert.False(t, b.w.id.IsEmpty())
 		})
 	}
 }
