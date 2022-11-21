@@ -237,28 +237,28 @@ func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema,
 					return
 				}
 				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
+				errFlag = !ok || len([]rune(vv)) > *f.MaxLength()
 			},
 			TextArea: func(f *schema.FieldTextArea) {
 				if f.MaxLength() == nil {
 					return
 				}
 				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
+				errFlag = !ok || len([]rune(vv)) > *f.MaxLength()
 			},
 			RichText: func(f *schema.FieldRichText) {
 				if f.MaxLength() == nil {
 					return
 				}
 				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
+				errFlag = !ok || len([]rune(vv)) > *f.MaxLength()
 			},
 			Markdown: func(f *schema.FieldMarkdown) {
 				if f.MaxLength() == nil {
 					return
 				}
 				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
+				errFlag = !ok || len([]rune(vv)) > *f.MaxLength()
 			},
 			Integer: func(f *schema.FieldInteger) {
 				v, _ := field.Value().Value().ValueInteger()
