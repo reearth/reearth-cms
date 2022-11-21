@@ -113,11 +113,11 @@ export default () => {
           variables: { projectId, file: null, url },
         });
         if (result.errors || !result.data?.createAsset) {
-          Notification.error({ message: t("Failed to add an asset.") });
+          Notification.error({ message: t("Failed to add asset.") });
           return;
         }
         if (result.data?.createAsset) {
-          Notification.success({ message: t("Successfully added an asset!") });
+          Notification.success({ message: t("Asset successfully added!") });
           await refetch();
           return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
