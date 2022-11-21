@@ -20,4 +20,9 @@ var IDFromRef = id.ItemIDFromRef
 var ThreadIDFrom = id.ThreadIDFrom
 var ThreadIDFromRef = id.ThreadIDFromRef
 
+var NewFieldID = id.NewFieldID
+var MustFieldID = id.MustFieldID
+var FieldIDFrom = id.FieldIDFrom
+var FieldIDFromRef = id.FieldIDFromRef
+
 var ErrInvalidID = id.ErrInvalidID

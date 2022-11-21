@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,8 +25,8 @@ func TestBuilder_SchemaID(t *testing.T) {
 }
 
 func TestBuilder_Fields(t *testing.T) {
-	sfid := schema.NewFieldID()
-	fields := []*Field{NewField(sfid, schema.TypeBool, true)}
+	fid := schema.NewFieldID()
+	fields := []*Field{NewField(fid, value.TypeBool.Value(true).Some())}
 	b := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fields).Thread(id.NewThreadID()).MustBuild()
 	assert.Equal(t, fields, b.Fields())
 	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).Fields(nil).Thread(id.NewThreadID()).MustBuild()

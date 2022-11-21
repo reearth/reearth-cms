@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
@@ -165,8 +165,8 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, schema.TypeText, "foo")
-	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
 	i := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -190,8 +190,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, schema.TypeText, "foo")
-	f2 := item.NewField(sf2, schema.TypeText, "hoge")
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
 	mid := id.NewModelID()
 	i := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -200,8 +200,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	got, _ := r.FindByModelAndValue(ctx, mid, []repo.FieldAndValue{{
-		SchemaFieldID: f1.SchemaFieldID(),
-		Value:         f1.Value(),
+		Field: f1.FieldID(),
+		Value: f1.Value().Value(),
 	}})
 	assert.Equal(t, 1, len(got))
 

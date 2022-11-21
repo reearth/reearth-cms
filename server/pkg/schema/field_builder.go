@@ -79,7 +79,7 @@ func NewFieldAsset(defaultValue *id.AssetID) *FieldBuilder {
 func NewFieldDate(defaultValue *time.Time) *FieldBuilder {
 	return &FieldBuilder{f: &Field{
 		typeProperty: &TypeProperty{
-			date: FieldDateFrom(defaultValue),
+			dateTime: FieldDateFrom(defaultValue),
 		},
 	}}
 }
@@ -98,18 +98,6 @@ func NewFieldSelect(values []string, defaultValue *string) *FieldBuilder {
 		f: &Field{
 			typeProperty: &TypeProperty{
 				selectt: fs,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldTag(values []string, defaultValue []string) *FieldBuilder {
-	ft, err := FieldTagFrom(values, defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				tag: ft,
 			},
 		},
 		err: err,
