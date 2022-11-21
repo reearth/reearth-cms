@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
@@ -18,16 +17,18 @@ type ItemDocument struct {
 	Project     string
 	Schema      string
 	ModelID     string
-	Fields      []ItemFieldDoc
+	Fields      []ItemFieldDocument
 	Timestamp   time.Time
 	User        *string
 	Integration *string
 }
 
-type ItemFieldDoc struct {
-	SchemaField string
-	ValueType   string
-	Value       any
+type ItemFieldDocument struct {
+	F         string        `bson:"f,omitempty"`
+	V         ValueDocument `bson:"v,omitempty"`
+	Field     string        `bson:"schemafield,omitempty"` // compat
+	ValueType string        `bson:"valuetype,omitempty"`   // compat
+	Value     any           `bson:"value,omitempty"`       // compat
 }
 
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
@@ -57,12 +58,16 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Schema:  i.Schema().String(),
 		ModelID: i.Model().String(),
 		Project: i.Project().String(),
-		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) ItemFieldDoc {
-			return ItemFieldDoc{
-				SchemaField: f.SchemaFieldID().String(),
-				ValueType:   string(f.ValueType()),
-				Value:       f.Value(),
+		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
+			v := NewOptionalValue(f.Value())
+			if v == nil {
+				return ItemFieldDocument{}, false
 			}
+
+			return ItemFieldDocument{
+				F: f.FieldID().String(),
+				V: *v,
+			}, true
 		}),
 		Timestamp:   i.Timestamp(),
 		User:        i.User().StringRef(),
@@ -91,12 +96,26 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
-	fields, err := util.TryMap(d.Fields, func(f ItemFieldDoc) (*item.Field, error) {
-		sf, err := schema.FieldIDFrom(f.SchemaField)
+	fields, err := util.TryMap(d.Fields, func(f ItemFieldDocument) (*item.Field, error) {
+		// compat
+		if f.Field != "" {
+			f.F = f.Field
+		}
+
+		sf, err := item.FieldIDFrom(f.F)
 		if err != nil {
 			return nil, err
 		}
-		return item.NewField(sf, schema.Type(f.ValueType), f.Value), nil
+
+		// compat
+		if f.ValueType != "" {
+			f.Value = ValueDocument{
+				T: f.ValueType,
+				V: f.Value,
+			}
+		}
+
+		return item.NewField(sf, f.V.OptionalValue()), nil
 	})
 	if err != nil {
 		return nil, err

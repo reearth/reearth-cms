@@ -42,6 +42,12 @@ func (*propertyBool) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyBool) Equal(v, w any) bool {
+	vv := v.(Bool)
+	ww := v.(Bool)
+	return vv == ww
+}
+
 func (v *Value) ValueBool() (vv bool, ok bool) {
 	if v == nil {
 		return

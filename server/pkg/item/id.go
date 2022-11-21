@@ -11,8 +11,13 @@ type UserID = id.UserID
 type IntegrationID = id.IntegrationID
 
 var NewID = id.NewItemID
-
 var MustID = id.MustItemID
 var IDFrom = id.ItemIDFrom
 var IDFromRef = id.ItemIDFromRef
+
+var NewFieldID = id.NewFieldID
+var MustFieldID = id.MustFieldID
+var FieldIDFrom = id.FieldIDFrom
+var FieldIDFromRef = id.FieldIDFromRef
+
 var ErrInvalidID = id.ErrInvalidID

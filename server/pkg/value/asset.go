@@ -34,6 +34,12 @@ func (*propertyAsset) Validate(i any) bool {
 	return ok
 }
 
+func (*propertyAsset) Equal(v, w any) bool {
+	vv := v.(Asset)
+	ww := v.(Asset)
+	return vv == ww
+}
+
 func (v *Value) ValueAsset() (vv Asset, ok bool) {
 	if v == nil {
 		return

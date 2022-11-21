@@ -1,8 +1,8 @@
 package schema
 
-import "errors"
-
-var TypeInteger Type = "integer"
+import (
+	"errors"
+)
 
 var (
 	ErrMinMaxInvalid     = errors.New("max must be larger then min")
