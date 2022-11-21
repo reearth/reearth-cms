@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 
 import { FieldType } from "../../types";
 
@@ -22,7 +23,10 @@ export interface Props {
   defaultValue?: string;
   uploadModalVisibility: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -42,7 +46,10 @@ const FieldDefaultInputs: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   onAssetSearchTerm,
   onAssetsReload,
   onLink,
@@ -65,7 +72,10 @@ const FieldDefaultInputs: React.FC<Props> = ({
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        hideUploadModal={hideUploadModal}
         setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
         createAssets={createAssets}
         onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}

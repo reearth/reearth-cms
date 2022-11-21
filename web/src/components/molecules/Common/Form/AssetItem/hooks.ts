@@ -5,7 +5,7 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 export default (
   fileList: UploadFile[],
   createAssets: (files: UploadFile[]) => Promise<void>,
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>,
+  hideUploadModal: () => void,
   setUploading: Dispatch<SetStateAction<boolean>>,
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
 ) => {
@@ -22,12 +22,6 @@ export default (
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
-  const hideUploadModal = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-  }, [setFileList, setUploadModalVisibility, setUploading]);
-
   const handleUpload = useCallback(async () => {
     setUploading(true);
     await createAssets(fileList);
@@ -40,7 +34,6 @@ export default (
     handleClick,
     handleCancel,
     displayUploadModal,
-    hideUploadModal,
     handleUpload,
   };
 };

@@ -9,6 +9,8 @@ import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTab
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
+export type UploadType = "local" | "url";
+
 type Props = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
@@ -20,7 +22,10 @@ type Props = {
   uploadModalVisibility: boolean;
   loading: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onAssetCreate: (files: UploadFile[]) => Promise<void>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
@@ -46,7 +51,10 @@ const AssetList: React.FC<Props> = ({
   uploadModalVisibility,
   loading,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   onAssetCreate,
   onAssetCreateFromUrl,
   onAssetDelete,
@@ -62,24 +70,32 @@ const AssetList: React.FC<Props> = ({
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
-  const hideUploadModal = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-    setUploadUrl("");
-  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl]);
-
   const handleUpload = useCallback(async () => {
     setUploading(true);
 
-    if (!uploadUrl) {
-      await onAssetCreate(fileList);
-    } else {
-      await onAssetCreateFromUrl(uploadUrl);
+    try {
+      switch (uploadType) {
+        case "url":
+          await onAssetCreateFromUrl(uploadUrl);
+          break;
+        case "local":
+        default:
+          await onAssetCreate(fileList);
+          break;
+      }
+      hideUploadModal();
+    } catch (error) {
+      hideUploadModal();
     }
-
-    hideUploadModal();
-  }, [setUploading, uploadUrl, hideUploadModal, onAssetCreate, fileList, onAssetCreateFromUrl]);
+  }, [
+    setUploading,
+    uploadType,
+    hideUploadModal,
+    onAssetCreateFromUrl,
+    uploadUrl,
+    onAssetCreate,
+    fileList,
+  ]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -113,7 +129,9 @@ const AssetList: React.FC<Props> = ({
                 uploading={uploading}
                 uploadProps={uploadProps}
                 uploadUrl={uploadUrl}
+                uploadType={uploadType}
                 setUploadUrl={setUploadUrl}
+                setUploadType={setUploadType}
                 uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 hideUploadModal={hideUploadModal}

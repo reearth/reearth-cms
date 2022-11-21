@@ -22,7 +22,10 @@ const ProjectSchema: React.FC = () => {
     uploading,
     uploadModalVisibility,
     uploadUrl,
+    uploadType,
+    hideUploadModal,
     setUploadUrl,
+    setUploadType,
     setFileList,
     setUploading,
     setUploadModalVisibility,
@@ -76,7 +79,10 @@ const ProjectSchema: React.FC = () => {
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          hideUploadModal={hideUploadModal}
           setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
           createAssets={handleAssetCreate}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
@@ -99,7 +105,10 @@ const ProjectSchema: React.FC = () => {
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          hideUploadModal={hideUploadModal}
           setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
           createAssets={handleAssetCreate}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}

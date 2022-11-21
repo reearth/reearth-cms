@@ -11,6 +11,7 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
@@ -28,7 +29,9 @@ type Props = {
   uploadProps: UploadProps;
   uploadModalVisibility: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
@@ -48,7 +51,9 @@ const LinkAssetModal: React.FC<Props> = ({
   uploadProps,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
   setUploadUrl,
+  setUploadType,
   onLink,
   onAssetsReload,
   onSearchTerm,
@@ -146,7 +151,9 @@ const LinkAssetModal: React.FC<Props> = ({
           uploadProps={uploadProps}
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
+          uploadType={uploadType}
           setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
           hideUploadModal={hideUploadModal}
           handleUpload={handleUpload}

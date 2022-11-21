@@ -17,6 +17,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type AssetSortType = "date" | "name" | "size";
+type UploadType = "local" | "url";
 
 const assetsPerPage = 10;
 // Todo: this is temporary until implementing cursor pagination
@@ -46,6 +47,7 @@ export default () => {
   });
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
   const [uploadUrl, setUploadUrl] = useState<string>("");
+  const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -111,11 +113,11 @@ export default () => {
           variables: { projectId, file: null, url },
         });
         if (result.errors || !result.data?.createAsset) {
-          Notification.error({ message: t("Failed to add one or more assets.") });
+          Notification.error({ message: t("Failed to add an asset.") });
           return;
         }
         if (result.data?.createAsset) {
-          Notification.success({ message: t("Successfully added one or more assets!") });
+          Notification.success({ message: t("Successfully added an asset!") });
           await refetch();
           return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
@@ -170,6 +172,14 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
+  const hideUploadModal = useCallback(() => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+    setUploadUrl("");
+    setUploadType("local");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+
   useEffect(() => {
     if (sort || searchTerm) {
       selectAsset([]);
@@ -202,15 +212,18 @@ export default () => {
     assetsPerPage,
     selection,
     fileList,
-    uploadUrl,
     uploading,
     isLoading: loading ?? isRefetching,
     selectedAssets,
     uploadModalVisibility,
     loading,
+    uploadUrl,
+    uploadType,
+    hideUploadModal,
+    setUploadUrl,
+    setUploadType,
     setSelection,
     setFileList,
-    setUploadUrl,
     setUploading,
     setUploadModalVisibility,
     handleAssetCreate,

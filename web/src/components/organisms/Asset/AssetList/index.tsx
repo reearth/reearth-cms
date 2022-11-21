@@ -12,7 +12,10 @@ const AssetList: React.FC = () => {
     uploadModalVisibility,
     loading,
     uploadUrl,
+    uploadType,
+    hideUploadModal,
     setUploadUrl,
+    setUploadType,
     setSelection,
     setFileList,
     setUploading,
@@ -35,7 +38,10 @@ const AssetList: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       loading={loading}
       uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      hideUploadModal={hideUploadModal}
       setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
       onAssetCreate={handleAssetCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}

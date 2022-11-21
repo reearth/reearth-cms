@@ -11,6 +11,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
@@ -43,7 +44,10 @@ export interface Props {
   uploading: boolean;
   uploadModalVisibility: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -76,7 +80,10 @@ const FieldUpdateModal: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   createAssets,
   onAssetSearchTerm,
   onAssetsReload,
@@ -349,7 +356,10 @@ const FieldUpdateModal: React.FC<Props> = ({
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
               uploadUrl={uploadUrl}
+              uploadType={uploadType}
+              hideUploadModal={hideUploadModal}
               setUploadUrl={setUploadUrl}
+              setUploadType={setUploadType}
               createAssets={createAssets}
               onLink={handleLinkAsset}
               onAssetSearchTerm={onAssetSearchTerm}

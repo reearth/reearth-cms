@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
 
 import LocalTab from "./localTab";
@@ -18,7 +19,9 @@ type Props = {
   fileList: UploadFile<File>[];
   uploading: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   handleUpload: () => void;
   handleCancel: () => void;
 };
@@ -30,14 +33,15 @@ const UploadModal: React.FC<Props> = ({
   uploading,
   fileList,
   uploadUrl,
+  uploadType,
   setUploadUrl,
+  setUploadType,
   handleUpload,
   handleCancel,
 }) => {
   const t = useT();
   const handleTabChange = (key: string) => {
-    // needs implementation
-    console.log(key);
+    setUploadType(key as UploadType);
   };
 
   return (
@@ -55,12 +59,12 @@ const UploadModal: React.FC<Props> = ({
       <div>
         <h2>{t("Asset Uploader")}</h2>
       </div>
-      <Tabs defaultActiveKey="1" onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="1">
+      <Tabs activeKey={uploadType} onChange={handleTabChange}>
+        <TabPane tab={t("Local")} key="local">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        <TabPane tab={t("URL")} key="2">
-          <UrlTab setUploadUrl={setUploadUrl} />
+        <TabPane tab={t("URL")} key="url">
+          <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
         {/* TODO: uncomment this once upload asset from google drive is implemented */}
         {/* <TabPane tab={t("Google Drive")} key="3" /> */}

@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
@@ -13,7 +14,10 @@ type Props = {
   uploadModalVisibility: boolean;
   defaultValue?: string;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -30,7 +34,10 @@ const AssetField: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   createAssets,
   onAssetSearchTerm,
   onAssetsReload,
@@ -52,7 +59,10 @@ const AssetField: React.FC<Props> = ({
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      hideUploadModal={hideUploadModal}
       setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
       createAssets={createAssets}
       onLink={onLink}
       onAssetSearchTerm={onAssetSearchTerm}

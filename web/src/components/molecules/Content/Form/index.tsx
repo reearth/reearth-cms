@@ -10,6 +10,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -27,7 +28,10 @@ export interface Props {
   uploading: boolean;
   uploadModalVisibility: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
@@ -50,7 +54,10 @@ const ContentForm: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   onItemCreate,
   onItemUpdate,
   onBack,
@@ -165,7 +172,10 @@ const ContentForm: React.FC<Props> = ({
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
               uploadUrl={uploadUrl}
+              uploadType={uploadType}
+              hideUploadModal={hideUploadModal}
               setUploadUrl={setUploadUrl}
+              setUploadType={setUploadType}
               createAssets={createAssets}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}

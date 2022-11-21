@@ -6,6 +6,7 @@ import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
@@ -20,7 +21,10 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   uploadUrl: string;
+  uploadType: UploadType;
+  hideUploadModal: () => void;
   setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
@@ -43,7 +47,10 @@ const AssetItem: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   uploadUrl,
+  uploadType,
+  hideUploadModal,
   setUploadUrl,
+  setUploadType,
   createAssets,
   onLink,
   onAssetsReload,
@@ -54,8 +61,13 @@ const AssetItem: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { Item } = Form;
-  const { visible, handleClick, handleCancel, displayUploadModal, hideUploadModal, handleUpload } =
-    useHooks(fileList, createAssets, setFileList, setUploading, setUploadModalVisibility);
+  const { visible, handleClick, handleCancel, displayUploadModal, handleUpload } = useHooks(
+    fileList,
+    createAssets,
+    hideUploadModal,
+    setUploading,
+    setUploadModalVisibility,
+  );
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
@@ -108,7 +120,9 @@ const AssetItem: React.FC<Props> = ({
         uploadProps={uploadProps}
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
+        uploadType={uploadType}
         setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
         onLink={onLink}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
