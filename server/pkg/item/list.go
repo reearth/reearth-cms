@@ -17,7 +17,7 @@ func (l List) SortByID() List {
 	return m
 }
 
-func (l List) ItemsBySchemaField(fid id.FieldID, value any) List {
+func (l List) ItemsByField(fid id.FieldID, value any) List {
 	return lo.Filter(l, func(i *Item, _ int) bool {
 		return i.HasField(fid, value)
 	})

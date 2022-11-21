@@ -56,10 +56,15 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 
 	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
 	for _, f := range *request.Body.Fields {
+		var v any
+		if f.Value != nil {
+			v = *f.Value
+		}
+
 		fields = append(fields, interfaces.ItemFieldParam{
-			SchemaFieldID: *f.Id,
-			ValueType:     integrationapi.FromSchemaFieldType(f.Type),
-			Value:         f.Value,
+			Field: *f.Id,
+			Type:  integrationapi.FromValueType(f.Type),
+			Value: v,
 		})
 	}
 

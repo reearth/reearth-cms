@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-var TypeDate Type = "date"
-
 type FieldDate struct {
 	defaultValue *time.Time
 }
@@ -18,7 +16,7 @@ func FieldDateFrom(t *time.Time) *FieldDate {
 
 func (f *FieldDate) TypeProperty() *TypeProperty {
 	return &TypeProperty{
-		date: f,
+		dateTime: f,
 	}
 }
 
