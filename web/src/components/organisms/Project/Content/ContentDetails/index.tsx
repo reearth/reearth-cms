@@ -25,6 +25,8 @@ const ContentDetails: React.FC = () => {
     loading,
     uploading,
     uploadModalVisibility,
+    uploadUrl,
+    setUploadUrl,
     setFileList,
     setUploading,
     setUploadModalVisibility,
@@ -48,6 +50,8 @@ const ContentDetails: React.FC = () => {
       loadingAssets={loading}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
+      uploadUrl={uploadUrl}
+      setUploadUrl={setUploadUrl}
       createAssets={handleAssetCreate}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
