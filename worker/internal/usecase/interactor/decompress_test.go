@@ -37,28 +37,6 @@ func TestUsecase_Decompress(t *testing.T) {
 
 	// unsupported extenstion doesn't return error
 	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
-
-	fs = mockFs2()
-	mCMS = NewCMS()
-	fileGateway, err = wfs.NewFile(fs, "")
-	require.NoError(t, err)
-
-	uc = NewUsecase(gateway.NewGateway(fileGateway, mCMS))
-
-	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.7z"))
-
-	f = lo.Must(fs.Open("test/test1.txt"))
-	content = lo.Must(io.ReadAll(f))
-	_ = f.Close()
-	assert.Equal(t, "hello1", string(content))
-
-	f = lo.Must(fs.Open("test/test2.txt"))
-	content = lo.Must(io.ReadAll(f))
-	_ = f.Close()
-	assert.Equal(t, "hello2", string(content))
-
-	// unsupported extenstion doesn't return error
-	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
 }
 
 func mockFs() afero.Fs {
@@ -66,23 +44,6 @@ func mockFs() afero.Fs {
 	zf := lo.Must(os.Open("testdata/test.zip"))
 
 	zf2 := lo.Must(fs.Create("test.zip"))
-	_ = lo.Must(io.Copy(zf2, zf))
-	_ = zf2.Close()
-
-	zf3 := lo.Must(fs.Create("test.tar.gz"))
-	_ = lo.Must(io.Copy(zf3, zf))
-	_ = zf3.Close()
-
-	_ = zf.Close()
-
-	return fs
-}
-
-func mockFs2() afero.Fs {
-	fs := afero.NewMemMapFs()
-	zf := lo.Must(os.Open("testdata/test.7z"))
-
-	zf2 := lo.Must(fs.Create("test.7z"))
 	_ = lo.Must(io.Copy(zf2, zf))
 	_ = zf2.Close()
 
