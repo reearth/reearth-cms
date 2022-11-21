@@ -98,6 +98,8 @@ const ProjectSchema: React.FC = () => {
           loadingAssets={loading}
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
+          uploadUrl={uploadUrl}
+          setUploadUrl={setUploadUrl}
           createAssets={handleAssetCreate}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
