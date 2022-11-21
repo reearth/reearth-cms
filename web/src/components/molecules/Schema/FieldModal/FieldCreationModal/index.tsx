@@ -40,6 +40,8 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -70,6 +72,8 @@ const FieldCreationModal: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  setUploadUrl,
   createAssets,
   onAssetSearchTerm,
   onAssetsReload,
@@ -319,6 +323,8 @@ const FieldCreationModal: React.FC<Props> = ({
               loadingAssets={loadingAssets}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
+              uploadUrl={uploadUrl}
+              setUploadUrl={setUploadUrl}
               createAssets={createAssets}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}

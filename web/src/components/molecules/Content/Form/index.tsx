@@ -26,6 +26,8 @@ export interface Props {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
@@ -47,6 +49,8 @@ const ContentForm: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  setUploadUrl,
   onItemCreate,
   onItemUpdate,
   onBack,
@@ -160,6 +164,8 @@ const ContentForm: React.FC<Props> = ({
               loadingAssets={loadingAssets}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
+              uploadUrl={uploadUrl}
+              setUploadUrl={setUploadUrl}
               createAssets={createAssets}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}

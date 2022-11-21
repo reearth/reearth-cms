@@ -21,6 +21,8 @@ export interface Props {
   uploading: boolean;
   defaultValue?: string;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -39,6 +41,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  setUploadUrl,
   onAssetSearchTerm,
   onAssetsReload,
   onLink,
@@ -60,6 +64,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
         loadingAssets={loadingAssets}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
+        uploadUrl={uploadUrl}
+        setUploadUrl={setUploadUrl}
         createAssets={createAssets}
         onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}

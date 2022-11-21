@@ -12,6 +12,8 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   defaultValue?: string;
+  uploadUrl: string;
+  setUploadUrl: (url: string) => void;
   createAssets: (files: UploadFile[]) => Promise<void>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
@@ -27,6 +29,8 @@ const AssetField: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  setUploadUrl,
   createAssets,
   onAssetSearchTerm,
   onAssetsReload,
@@ -47,6 +51,8 @@ const AssetField: React.FC<Props> = ({
       loadingAssets={loadingAssets}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
+      uploadUrl={uploadUrl}
+      setUploadUrl={setUploadUrl}
       createAssets={createAssets}
       onLink={onLink}
       onAssetSearchTerm={onAssetSearchTerm}
