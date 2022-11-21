@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -18,9 +19,9 @@ var (
 )
 
 type ItemFieldParam struct {
-	SchemaFieldID schema.FieldID
-	ValueType     schema.Type
-	Value         any
+	Field item.FieldID
+	Type  value.Type
+	Value any
 }
 
 type CreateItemParam struct {

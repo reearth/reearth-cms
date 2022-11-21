@@ -1,30 +1,18 @@
 package item
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewField(t *testing.T) {
-	type args struct {
-		schemaFieldID schema.FieldID
-		valueType     schema.Type
-		value         any
-	}
-	tests := []struct {
-		name string
-		args args
-		want *Field
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewField(tt.args.schemaFieldID, tt.args.valueType, tt.args.value); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewField() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	f := id.NewFieldID()
+	assert.Nil(t, NewField(f, nil))
+	assert.Equal(t, &Field{
+		field: f,
+		value: value.TypeBool.Value(true).Some(),
+	}, NewField(f, value.TypeBool.Value(true).Some()))
 }
