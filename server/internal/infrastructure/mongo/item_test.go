@@ -376,13 +376,13 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "foo"),
+			Input:    item.NewQuery(pid, "foo"),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "hoge"),
+			Input:    item.NewQuery(pid, "hoge"),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 1,
 		},

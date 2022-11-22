@@ -134,7 +134,6 @@ func TestToVersionedItem(t *testing.T) {
 }
 
 func TestToItemQuery(t *testing.T) {
-	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
 	str := "foo"
 	tests := []struct {
@@ -145,24 +144,15 @@ func TestToItemQuery(t *testing.T) {
 		{
 			name: "should pass",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Project:   IDFrom(pid),
-				Q:         &str,
-			},
-			want: item.NewQuery(wid, pid, str),
-		},
-		{
-			name: "invalid workspace id",
-			input: ItemQuery{
 				Project: IDFrom(pid),
 				Q:       &str,
 			},
+			want: item.NewQuery(pid, str),
 		},
 		{
 			name: "invalid project id",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Q:         &str,
+				Q: &str,
 			},
 		},
 	}
