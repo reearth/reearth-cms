@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+
+	"github.com/bodgit/sevenzip"
 )
 
 var (
@@ -30,12 +32,13 @@ func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteC
 		}, nil
 	}
 	if ext == "7z" {
-		szr, err := zip.NewReader(r, size)
+		szr, err := sevenzip.NewReader(r, size)
 		if err != nil {
 			return nil, err
 		}
+		zr := szr
 		return &decompressor{
-			r:   szr,
+			r:   zr,
 			wFn: wFn,
 		}, nil
 	}
