@@ -34,6 +34,12 @@ func TestNewUnzipper(t *testing.T) {
 	_, err = New(zf, fInfo.Size(), "7z", wFn)
 	assert.NoError(t, err)
 
+	_, err = New(zf, 0, "zip", wFn)
+	assert.Error(t, err)
+
+	_, err = New(zf, 0, "7z", wFn)
+	assert.Error(t, err)
+
 	f := lo.Must(os.Open("testdata/test1.txt"))
 	fInfo2 := lo.Must(f.Stat())
 	_, err2 := New(f, fInfo2.Size(), "txt", wFn)
