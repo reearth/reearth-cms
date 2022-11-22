@@ -24,6 +24,15 @@ func TestFile_GetURL(t *testing.T) {
 	assert.NoError(t, err)
 	actual := r.GetURL(a)
 	assert.Equal(t, expected, actual)
+
+	u2 := newUUID()
+	n2 := "他他他.jpg"
+	a2 := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n2).UUID(u2).Thread(id.NewThreadID()).MustBuild()
+
+	expected, err = url.JoinPath(host, gcsAssetBasePath, u2[:2], u2[2:], "%E4%BB%96%E4%BB%96%E4%BB%96.jpg")
+	assert.NoError(t, err)
+	actual = r.GetURL(a2)
+	assert.Equal(t, expected, actual)
 }
 
 func TestFile_GetFSObjectPath(t *testing.T) {
