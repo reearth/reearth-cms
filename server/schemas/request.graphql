@@ -1,0 +1,18 @@
+type Request implements Node {
+  id: ID!
+  title: String!
+  description: String
+  createdBy: ID!
+  reviewers: [ID!]!
+#  what should reversion represents?
+#  Reversion: String!
+  state: StateType
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum StateType {
+  DRAFT
+  WAITING
+  APPROVED
+}
