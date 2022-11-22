@@ -83,24 +83,29 @@ export default () => {
     }
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
-  const handleAssetCreate = useCallback(
+  const handleAssetsCreate = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
-        if (!projectId) return;
-        const results = await Promise.all(
-          files.map(async file => {
-            const result = await createAssetMutation({
-              variables: { projectId, file },
-            });
-            if (result.errors || !result.data?.createAsset) {
-              Notification.error({ message: t("Failed to add one or more assets.") });
-            }
-          }),
-        );
-        if (results) {
+        if (!projectId) return [];
+        const results = (
+          await Promise.all(
+            files.map(async file => {
+              const result = await createAssetMutation({
+                variables: { projectId, file },
+              });
+              if (result.errors || !result.data?.createAsset) {
+                Notification.error({ message: t("Failed to add one or more assets.") });
+                return undefined;
+              }
+              return convertAsset(result.data.createAsset.asset as GQLAsset);
+            }),
+          )
+        ).filter(Boolean);
+        if (results?.length > 0) {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
+        return results;
       })(),
     [t, projectId, createAssetMutation, refetch],
   );
@@ -226,7 +231,7 @@ export default () => {
     setFileList,
     setUploading,
     setUploadModalVisibility,
-    handleAssetCreate,
+    handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetDelete,
     handleGetMoreAssets,

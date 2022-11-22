@@ -22,6 +22,7 @@ type Props = {
   uploadType: UploadType;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
+  onUploadModalClose?: () => void;
   handleUpload: () => void;
   handleCancel: () => void;
 };
@@ -36,6 +37,7 @@ const UploadModal: React.FC<Props> = ({
   uploadType,
   setUploadUrl,
   setUploadType,
+  onUploadModalClose,
   handleUpload,
   handleCancel,
 }) => {
@@ -51,6 +53,7 @@ const UploadModal: React.FC<Props> = ({
       onCancel={handleCancel}
       footer={null}
       width="50vw"
+      afterClose={onUploadModalClose}
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",

@@ -27,7 +27,7 @@ export type Props = {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  onAssetCreate: (files: UploadFile[]) => Promise<void>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -55,7 +55,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   onBack,
-  onAssetCreate,
+  onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetsReload,
   onAssetSearchTerm,
@@ -83,7 +83,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onBack={onBack}
         onItemCreate={onItemCreate}
         onItemUpdate={onItemUpdate}
-        onAssetCreate={onAssetCreate}
+        onAssetsCreate={onAssetsCreate}
         onAssetCreateFromUrl={onAssetCreateFromUrl}
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}

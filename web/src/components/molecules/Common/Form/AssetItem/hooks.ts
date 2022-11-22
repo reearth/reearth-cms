@@ -8,9 +8,10 @@ export default (
   fileList: UploadFile[],
   uploadUrl: string,
   uploadType: UploadType,
-  onAssetCreate: (files: UploadFile[]) => Promise<void>,
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
   hideUploadModal: () => void,
+  onLink: (asset?: Asset) => void,
   setUploading: Dispatch<SetStateAction<boolean>>,
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
 ) => {
@@ -30,18 +31,19 @@ export default (
   const handleUpload = useCallback(async () => {
     setUploading(true);
 
+    let asset: Asset | undefined;
     try {
       switch (uploadType) {
         case "url":
-          await onAssetCreateFromUrl(uploadUrl);
+          asset = await onAssetCreateFromUrl(uploadUrl);
           break;
         case "local":
         default:
-          await onAssetCreate(fileList);
+          asset = (await onAssetsCreate(fileList))[0];
           break;
       }
+      if (asset) onLink(asset);
       hideUploadModal();
-      // TODO: link the uploaded asset with content after uploading is done
     } catch (error) {
       hideUploadModal();
     }
@@ -51,8 +53,9 @@ export default (
     hideUploadModal,
     onAssetCreateFromUrl,
     uploadUrl,
-    onAssetCreate,
+    onAssetsCreate,
     fileList,
+    onLink,
   ]);
 
   return {
