@@ -3772,7 +3772,6 @@ type ItemEdge {
 }
 
 input ItemQuery {
-  workspace: ID!
   project: ID!
   q: String
 }
@@ -21304,21 +21303,13 @@ func (ec *executionContext) unmarshalInputItemQuery(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspace", "project", "q"}
+	fieldsInOrder := [...]string{"project", "q"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "workspace":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspace"))
-			it.Workspace, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "project":
 			var err error
 
