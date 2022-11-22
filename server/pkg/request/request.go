@@ -6,6 +6,7 @@ import (
 
 type Request struct {
 	id          ID
+	item        ItemID
 	title       string
 	description string
 	createdBy   UserID

@@ -1,5 +1,6 @@
 type Request implements Node {
   id: ID!
+  itemId: ID!
   title: String!
   description: String
   createdBy: ID!
