@@ -2,7 +2,7 @@ package interactor
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -12,10 +12,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type Item struct {
@@ -40,10 +39,9 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecas
 }
 
 func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	if _, err := i.repos.Project.FindByID(ctx, projectID); err != nil {
-		return nil, nil, err
+	if !operator.IsReadableProject(projectID) {
+		return nil, nil, rerror.ErrNotFound
 	}
-
 	return i.repos.Item.FindByProject(ctx, projectID, p)
 }
 
@@ -82,10 +80,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if param.Fields != nil {
-			if err := validateFields(ctx, fields, s, param.ModelID, i.repos); err != nil {
-				return nil, err
-			}
+		if err := i.checkUnique(ctx, fields, s, param.ModelID); err != nil {
+			return nil, err
 		}
 
 		it, err := item.New().
@@ -151,17 +147,8 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		//TODO: create item.FieldList model and move this check there
-		changedFields := filterChangedFields(itv.Fields(), fields)
-		if len(changedFields) == 0 {
-			return it, nil
-		}
-
-		if param.Fields != nil {
-			err = validateFields(ctx, changedFields, s, itv.Model(), i.repos)
-			if err != nil {
-				return nil, err
-			}
+		if err := i.checkUnique(ctx, fields, s, itv.Model()); err != nil {
+			return nil, err
 		}
 
 		itv.UpdateFields(fields)
@@ -190,92 +177,32 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	return i.repos.Item.Remove(ctx, itemID)
 }
 
-func filterChangedFields(oldFields []*item.Field, newFields []*item.Field) []*item.Field {
-	return lo.FlatMap(oldFields, func(of *item.Field, _ int) []*item.Field {
-		return lo.Filter(newFields, func(nf *item.Field, _ int) bool {
-			return of.FieldID() == nf.FieldID() && of.Value() != nf.Value()
-		})
-	})
-}
-
-func validateFields(ctx context.Context, fields []*item.Field, s *schema.Schema, mid id.ModelID, repos *repo.Container) error {
+func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID) error {
 	var fieldsArg []repo.FieldAndValue
-	for _, f := range fields {
+	for _, f := range itemFields {
+		sf := s.Field(f.FieldID())
+		if sf == nil {
+			return interfaces.ErrInvalidField
+		}
+
+		vv := f.Value().Value()
+		if !sf.Unique() || vv.IsEmpty() {
+			continue
+		}
+
 		fieldsArg = append(fieldsArg, repo.FieldAndValue{
 			Field: f.FieldID(),
-			Value: f.Value().Value(),
+			Value: vv,
 		})
 	}
 
-	exists, err := repos.Item.FindByModelAndValue(ctx, mid, fieldsArg)
+	exists, err := i.repos.Item.FindByModelAndValue(ctx, mid, fieldsArg)
 	if err != nil {
 		return err
 	}
 
-	for _, field := range fields {
-		sf := s.Field(field.FieldID())
-		if sf == nil {
-			return interfaces.ErrFieldNotFound
-		}
-
-		if sf.Required() && field.Value() == nil {
-			return errors.New("field is required")
-		}
-
-		items := item.List(version.UnwrapValues(exists))
-		if sf.Unique() && field.Value() != nil {
-			if len(exists) > 0 && len(items.ItemsByField(field.FieldID(), field.Value())) > 0 {
-				return interfaces.ErrFieldValueExist
-			}
-		}
-
-		errFlag := false
-
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Text: func(f *schema.FieldText) {
-				if f.MaxLength() == nil {
-					return
-				}
-				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
-			},
-			TextArea: func(f *schema.FieldTextArea) {
-				if f.MaxLength() == nil {
-					return
-				}
-				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
-			},
-			RichText: func(f *schema.FieldRichText) {
-				if f.MaxLength() == nil {
-					return
-				}
-				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
-			},
-			Markdown: func(f *schema.FieldMarkdown) {
-				if f.MaxLength() == nil {
-					return
-				}
-				vv, ok := field.Value().Value().ValueString()
-				errFlag = !ok || len(vv) > *f.MaxLength()
-			},
-			Integer: func(f *schema.FieldInteger) {
-				v, _ := field.Value().Value().ValueInteger()
-				if f.Max() != nil && int(v) > *f.Max() {
-					errFlag = true
-					return
-				}
-				if f.Min() != nil && int(v) < *f.Min() {
-					errFlag = true
-					return
-				}
-			},
-		})
-
-		if errFlag {
-			return errors.New("invalid field value")
-		}
+	if len(exists) > 0 {
+		return interfaces.ErrDuplicatedItemValue
 	}
 
 	return nil
@@ -291,6 +218,10 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 		v := sf.Type().Value(f.Value)
 		if v == nil {
 			return nil, interfaces.ErrInvalidValue
+		}
+
+		if err := sf.Validate(v); err != nil {
+			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
 		return item.NewField(

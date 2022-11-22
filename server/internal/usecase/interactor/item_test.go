@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -115,8 +116,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
-	v1 := true
-	sf1 := schema.NewFieldBool(&v1).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
 	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
@@ -240,93 +240,6 @@ func TestItem_FindBySchema(t *testing.T) {
 	}
 }
 
-func TestItem_Create(t *testing.T) {
-	sid := id.NewSchemaID()
-	pid := id.NewProjectID()
-	wid := id.NewWorkspaceID()
-	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
-	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
-
-	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		ReadableProjects: []id.ProjectID{pid},
-		WritableProjects: []id.ProjectID{pid},
-	}
-	ctx := context.Background()
-
-	db := memory.New()
-	err := db.Schema.Save(ctx, s)
-	assert.NoError(t, err)
-
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-	itemv, err := itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: sid,
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: sf1.ID(),
-				Type:  value.TypeBool,
-				Value: false,
-			},
-			{
-				Field: sf2.ID(),
-				Type:  value.TypeText,
-				Value: "xxx",
-			},
-		},
-		ModelID: id.NewModelID(),
-	}, op)
-	assert.NoError(t, err)
-	item := itemv.Value()
-	assert.NotNil(t, item)
-
-	_, err = itemUC.FindByID(ctx, item.ID(), op)
-	assert.NoError(t, err)
-
-	// mock item error
-	wantErr := errors.New("test")
-	memory.SetItemError(db.Item, wantErr)
-	item2, err := itemUC.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: sid,
-		ModelID:  id.NewModelID(),
-		Fields:   nil,
-	}, op)
-	assert.Nil(t, item2)
-	assert.Equal(t, wantErr, err)
-}
-
-func TestItem_Delete(t *testing.T) {
-	sid := id.NewSchemaID()
-	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
-
-	wid := id.NewWorkspaceID()
-	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
-	}
-	ctx := context.Background()
-
-	db := memory.New()
-	err := db.Item.Save(ctx, i1)
-	assert.NoError(t, err)
-
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-	err = itemUC.Delete(ctx, id1, op)
-	assert.NoError(t, err)
-
-	_, err = itemUC.FindByID(ctx, id1, op)
-	assert.Error(t, err)
-
-	// mock item error
-	wantErr := rerror.ErrNotFound
-	err = itemUC.Delete(ctx, id.NewItemID(), op)
-	assert.Equal(t, wantErr, err)
-}
-
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
@@ -377,79 +290,26 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.Equal(t, wantErr, err)
 }
 
-func TestItem_Update(t *testing.T) {
-	sid := id.NewSchemaID()
-	id1 := id.NewItemID()
-	pid := id.NewProjectID()
-	wid := id.NewWorkspaceID()
-	mid := id.NewModelID()
-	sf1 := schema.NewFieldBool(lo.ToPtr(true)).NewID().Key(key.Random()).MustBuild()
-	sf2 := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
-	f1 := item.NewField(sf1.ID(), value.TypeBool.Value(true).Some())
-	f2 := item.NewField(sf2.ID(), value.TypeText.Value("xxx").Some())
-	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).MustBuild()
-
-	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		ReadableProjects: []id.ProjectID{i1.Project()},
-		WritableProjects: []id.ProjectID{i1.Project()},
-	}
-	ctx := context.Background()
-
-	db := memory.New()
-	err := db.Schema.Save(ctx, s)
-	assert.NoError(t, err)
-	err = db.Item.Save(ctx, i1)
-	assert.NoError(t, err)
-
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-	i, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID: id1,
-		Fields: []interfaces.ItemFieldParam{
-			{
-				Field: f1.FieldID(),
-				Type:  f1.Type(),
-				Value: f1.Value().Value().Interface(),
-			},
-			{
-				Field: f2.FieldID(),
-				Type:  f2.Type(),
-				Value: f2.Value().Value().Interface(),
-			},
-		},
-	}, op)
-	assert.NoError(t, err)
-	assert.Equal(t, i1, i.Value())
-
-	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
-		ItemID: id1,
-		Fields: []interfaces.ItemFieldParam{},
-	}, op)
-	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
-}
-
 func TestItem_FindByProject(t *testing.T) {
-	sid1 := id.NewProjectID()
-	sid2 := id.NewProjectID()
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
 	wid := id.NewWorkspaceID()
-	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
-	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
+	s1 := project.New().ID(pid1).Workspace(wid).MustBuild()
+	s2 := project.New().ID(pid2).Workspace(wid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i1, _ := item.New().NewID().Project(pid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i2, _ := item.New().NewID().Project(pid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i3, _ := item.New().NewID().Project(pid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
 	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		User:             lo.ToPtr(u.ID()),
+		ReadableProjects: []id.ProjectID{pid1, pid2},
 	}
 
 	type args struct {
@@ -472,7 +332,7 @@ func TestItem_FindByProject(t *testing.T) {
 			seedItems:   item.List{i1, i2, i3},
 			seedProject: s1,
 			args: args{
-				id:       sid1,
+				id:       pid1,
 				operator: op,
 			},
 			want:    item.List{i1, i2},
@@ -483,7 +343,7 @@ func TestItem_FindByProject(t *testing.T) {
 			seedItems:   item.List{},
 			seedProject: s1,
 			args: args{
-				id:       sid1,
+				id:       pid1,
 				operator: op,
 			},
 			want:    nil,
@@ -494,7 +354,7 @@ func TestItem_FindByProject(t *testing.T) {
 			seedItems:   item.List{i1, i2, i3},
 			seedProject: s2,
 			args: args{
-				id:       sid1,
+				id:       id.NewProjectID(),
 				operator: op,
 			},
 			want:    nil,
@@ -647,162 +507,243 @@ func TestItem_Search(t *testing.T) {
 	}
 }
 
-func Test_validateFields(t *testing.T) {
-	// @TODO add test cases for required and unique
-	sid := id.NewSchemaID()
-	pid := id.NewProjectID()
-	wid := id.NewWorkspaceID()
-	mid := id.NewModelID()
-	sfInt := schema.NewFieldInteger(lo.ToPtr(6), lo.ToPtr(5), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfText := schema.NewFieldText(lo.ToPtr("x"), lo.ToPtr(5)).NewID().Key(key.Random()).MustBuild()
-	sfTextArea := schema.NewFieldTextArea(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfRichText := schema.NewFieldRichText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
-	sfMarkdown := schema.NewFieldMarkdown(lo.ToPtr("x"), lo.ToPtr(20)).NewID().Key(key.Random()).MustBuild()
-	sfURL := schema.NewFieldURL(lo.ToPtr("http://xxx.aa")).NewID().Key(key.Random()).MustBuild()
-	i := item.New().NewID().Fields([]*item.Field{item.NewField(sfText.ID(), value.TypeText.Value("foo").Some())}).Model(mid).Schema(sid).Project(pid).MustBuild()
-	s := schema.New().
-		ID(sid).
-		Workspace(wid).
-		Project(pid).
-		Fields(schema.FieldList{sfInt, sfText, sfTextArea, sfMarkdown, sfRichText, sfURL}).
-		MustBuild()
+func TestItem_Create(t *testing.T) {
+	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
+
 	ctx := context.Background()
 	db := memory.New()
-	err := db.Item.Save(ctx, i)
-	assert.Nil(t, err)
-	type args struct {
-		itemFields []interfaces.ItemFieldParam
-		s          *schema.Schema
-		mid        id.ModelID
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "all pass",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfInt.ID(),
-						Type:  value.TypeInteger,
-						Value: 9,
-					},
-					{
-						Field: sfText.ID(),
-						Type:  value.TypeText,
-						Value: "foo",
-					},
-					{
-						Field: sfTextArea.ID(),
-						Type:  value.TypeTextArea,
-						Value: "foo hoge",
-					},
-					{
-						Field: sfMarkdown.ID(),
-						Type:  value.TypeMarkdown,
-						Value: "<h1>foo</h1>",
-					},
-					{
-						Field: sfRichText.ID(),
-						Type:  value.TypeRichText,
-						Value: "hoge",
-					},
-					{
-						Field: sfURL.ID(),
-						Type:  value.TypeURL,
-						Value: "https://example.com",
-					},
-				},
-				s: s,
-			},
-			wantErr: false,
-		},
-		{
-			name: "Integer fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfInt.ID(),
-						Type:  value.TypeInteger,
-						Value: 14,
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Text fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfText.ID(),
-						Type:  value.TypeText,
-						Value: "foofoofoofoo",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Textarea fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfTextArea.ID(),
-						Type:  value.TypeTextArea,
-						Value: "foo foo foo foo foo",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Markdown fail",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfMarkdown.ID(),
-						Type:  value.TypeMarkdown,
-						Value: `<h1>foo</h1> <h1>foo</h1> <h1>foo</h1> `,
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Richtext fail 1",
-			args: args{
-				itemFields: []interfaces.ItemFieldParam{
-					{
-						Field: sfRichText.ID(),
-						Type:  value.TypeRichText,
-						Value: "hoge hoge hoge hoge hoge hoge ",
-					},
-				},
-				s: s,
-			},
-			wantErr: true,
-		},
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		User:             id.NewUserID().Ref(),
+		ReadableProjects: []id.ProjectID{s.Project()},
+		WritableProjects: []id.ProjectID{s.Project()},
 	}
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			testFields, err := itemFieldsFromParams(tc.args.itemFields, s)
-			assert.NoError(t, err)
-			err = validateFields(ctx, testFields, tc.args.s, tc.args.mid, db)
-			if tc.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
+	// ok
+	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, item)
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	it, err := db.Item.FindByID(ctx, item.Value().ID())
+	assert.NoError(t, err)
+	assert.Equal(t, item, it)
+	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+
+	// validate fails
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "abcabcabcabc", // too long
+			},
+		},
+	}, op)
+	assert.ErrorContains(t, err, "it sholud be shorter than 10")
+	assert.Nil(t, item)
+
+	// duplicated
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx", // duplicated
+			},
+		},
+	}, op)
+	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
+	assert.Nil(t, item)
+
+	// required
+	sf.SetRequired(true)
+	s.RemoveField(sf.ID())
+	s.AddField(sf)
+	lo.Must0(db.Schema.Save(ctx, s))
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "",
+			},
+		},
+	}, op)
+	assert.ErrorIs(t, err, schema.ErrValueRequired)
+	assert.Nil(t, item)
+
+	// mock item error
+	wantErr := errors.New("test")
+	memory.SetItemError(db.Item, wantErr)
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields:   nil,
+	}, op)
+	assert.Equal(t, wantErr, err)
+	assert.Nil(t, item)
+}
+
+func TestItem_Update(t *testing.T) {
+	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
+	i := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Schema.Save(ctx, s))
+	lo.Must0(db.Model.Save(ctx, m))
+	lo.Must0(db.Item.Save(ctx, i))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		User:             id.NewUserID().Ref(),
+		ReadableProjects: []id.ProjectID{s.Project()},
+		WritableProjects: []id.ProjectID{s.Project()},
 	}
+
+	// ok
+	item, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, i.ID(), item.Value().ID())
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	it, err := db.Item.FindByID(ctx, item.Value().ID())
+	assert.NoError(t, err)
+	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+
+	// validate fails
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "abcabcabcabc", // too long
+			},
+		},
+	}, op)
+	assert.ErrorContains(t, err, "it sholud be shorter than 10")
+	assert.Nil(t, item)
+
+	// duplicated
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx", // duplicated
+			},
+		},
+	}, op)
+	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
+	assert.Nil(t, item)
+
+	// no fields
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{},
+	}, op)
+	assert.Equal(t, interfaces.ErrItemFieldRequired, err)
+	assert.Nil(t, item)
+
+	// required
+	sf.SetRequired(true)
+	s.RemoveField(sf.ID())
+	s.AddField(sf)
+	lo.Must0(db.Schema.Save(ctx, s))
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "",
+			},
+		},
+	}, op)
+	assert.ErrorIs(t, err, schema.ErrValueRequired)
+	assert.Nil(t, item)
+
+	// mock item error
+	wantErr := errors.New("test")
+	memory.SetItemError(db.Item, wantErr)
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "a",
+			},
+		},
+	}, op)
+	assert.Equal(t, wantErr, err)
+	assert.Nil(t, item)
+}
+
+func TestItem_Delete(t *testing.T) {
+	sid := id.NewSchemaID()
+	id1 := id.NewItemID()
+	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+
+	wid := id.NewWorkspaceID()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	op := &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	}
+	ctx := context.Background()
+
+	db := memory.New()
+	err := db.Item.Save(ctx, i1)
+	assert.NoError(t, err)
+
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+	err = itemUC.Delete(ctx, id1, op)
+	assert.NoError(t, err)
+
+	_, err = itemUC.FindByID(ctx, id1, op)
+	assert.Error(t, err)
+
+	// mock item error
+	wantErr := rerror.ErrNotFound
+	err = itemUC.Delete(ctx, id.NewItemID(), op)
+	assert.Equal(t, wantErr, err)
 }
