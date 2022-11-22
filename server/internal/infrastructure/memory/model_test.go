@@ -30,7 +30,7 @@ func TestNewModel(t *testing.T) {
 func TestMemory_Filtered(t *testing.T) {
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	expected := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
@@ -47,7 +47,7 @@ func TestMemory_FindByProject(t *testing.T) {
 	mId := id.NewModelID()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
 
@@ -71,7 +71,7 @@ func TestMemory_FindByProject(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	gotNilModelList, gotNilPageInfo, gotErr := r.FindByProject(ctx, pId, usecasex.NewPagination(lo.ToPtr(1), nil, nil, nil))
@@ -86,7 +86,7 @@ func TestMemory_CountByProject(t *testing.T) {
 	mId := id.NewModelID()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
 
@@ -97,7 +97,7 @@ func TestMemory_CountByProject(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	got, gotErr := r.CountByProject(ctx, pId)
@@ -113,7 +113,7 @@ func TestMemory_FindByKey(t *testing.T) {
 
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild())
 	expected := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
@@ -125,7 +125,7 @@ func TestMemory_FindByKey(t *testing.T) {
 
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	got, gotErr := r.FindByKey(ctx, pId, key.String())
 	assert.Equal(t, gotErr, rerror.ErrNotFound)
@@ -134,7 +134,7 @@ func TestMemory_FindByKey(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	got, gotErr = r.FindByKey(ctx, pId, key.String())
@@ -149,7 +149,7 @@ func TestMemory_FindByID(t *testing.T) {
 	key := key.Random()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	got, err := r.FindByID(ctx, mId)
 	assert.Nil(t, got)
@@ -166,7 +166,7 @@ func TestMemory_FindByID(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	got, gotErr := r.FindByID(ctx, mId)
@@ -182,13 +182,12 @@ func TestMemory_FindByIDs(t *testing.T) {
 	mIds := id.ModelIDList{}
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
-	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild())
+	seed := model.New().NewID().Schema(id.NewSchemaID()).Key(key).Project(pId).MustBuild()
+	r.data.Store(mId, seed)
 
-	expectedModelList := model.List(r.data.FindAll(func(k id.ModelID, m *model.Model) bool {
-		return mIds.Has(k)
-	})).SortByID()
+	expectedModelList := model.List(seed)
 	got, err := r.FindByIDs(ctx, mIds)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedModelList, got)
@@ -196,7 +195,7 @@ func TestMemory_FindByIDs(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	got, gotErr := r.FindByIDs(ctx, mIds)
@@ -209,7 +208,7 @@ func TestMemory_Save(t *testing.T) {
 	m := &model.Model{}
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	r.data.Store(id.NewModelID(), m)
 	err := r.Save(ctx, m)
@@ -218,7 +217,7 @@ func TestMemory_Save(t *testing.T) {
 	err = errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	gotErr := r.Save(ctx, m)
@@ -232,7 +231,7 @@ func TestMemory_Remove(t *testing.T) {
 	mId := id.NewModelID()
 	r := &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 	}
 	r.data.Store(mId, model.New().NewID().Schema(id.NewSchemaID()).RandomKey().Project(pId).MustBuild())
 	gotErr := r.Remove(ctx, m.ID())
@@ -244,7 +243,7 @@ func TestMemory_Remove(t *testing.T) {
 	err := errors.New("test")
 	r = &Model{
 		data: &util.SyncMap[id.ModelID, *model.Model]{},
-		f:    repo.WorkspaceFilter{},
+		f:    repo.ProjectFilter{},
 		err:  err,
 	}
 	gotErr = r.Remove(ctx, m.ID())
