@@ -235,16 +235,6 @@ type SortDirParam string
 // SortParam defines model for sortParam.
 type SortParam string
 
-// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
-type AssetCommentCreateJSONBody struct {
-	Content *string `json:"content,omitempty"`
-}
-
-// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
-type AssetCommentUpdateJSONBody struct {
-	Content *string `json:"content,omitempty"`
-}
-
 // ItemGetParams defines parameters for ItemGet.
 type ItemGetParams struct {
 	// Ref Used to select a ref or ver
@@ -326,11 +316,15 @@ type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
-// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
-type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
+// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
+type AssetCommentCreateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
 
-// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
-type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
+// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
+type AssetCommentUpdateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
@@ -343,3 +337,9 @@ type AssetCreateJSONRequestBody AssetCreateJSONBody
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody
+
+// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
+type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
+
+// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
+type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
