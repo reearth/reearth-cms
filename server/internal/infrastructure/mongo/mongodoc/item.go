@@ -16,6 +16,7 @@ type ItemDocument struct {
 	ID        string
 	Project   string
 	Schema    string
+	Thread    string
 	ModelID   string
 	Fields    []ItemFieldDocument
 	Timestamp time.Time
@@ -49,14 +50,15 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 	})
 }
 
-func NewItem(ws *item.Item) (*ItemDocument, string) {
-	id := ws.ID().String()
+func NewItem(it *item.Item) (*ItemDocument, string) {
+	id := it.ID().String()
 	return &ItemDocument{
 		ID:      id,
-		Schema:  ws.Schema().String(),
-		ModelID: ws.Model().String(),
-		Project: ws.Project().String(),
-		Fields: lo.FilterMap(ws.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
+		Schema:  it.Schema().String(),
+		ModelID: it.Model().String(),
+		Project: it.Project().String(),
+		Thread:  it.Thread().String(),
+		Fields: lo.FilterMap(it.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewOptionalValue(f.Value())
 			if v == nil {
 				return ItemFieldDocument{}, false
@@ -67,7 +69,7 @@ func NewItem(ws *item.Item) (*ItemDocument, string) {
 				V: *v,
 			}, true
 		}),
-		Timestamp: ws.Timestamp(),
+		Timestamp: it.Timestamp(),
 	}, id
 }
 
@@ -88,6 +90,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	pid, err := id.ProjectIDFrom(d.Project)
+	if err != nil {
+		return nil, err
+	}
+
+	tid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +129,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		Project(pid).
 		Schema(sid).
 		Model(mid).
+		Thread(tid).
 		Fields(fields).
 		Timestamp(d.Timestamp).
 		Build()
