@@ -1,11 +1,14 @@
 package schema
 
 import (
+	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
+
+var ErrValueRequired = errors.New("value is required")
 
 type Field struct {
 	id           FieldID
@@ -45,6 +48,11 @@ func (f *Field) DefaultValue() *value.Value {
 }
 
 func (f *Field) SetDefaultValue(v *value.Value) error {
+	if v == nil {
+		f.defaultValue = nil
+		return nil
+	}
+
 	if v.Type() != f.Type() {
 		return ErrInvalidValue
 	}
@@ -106,13 +114,26 @@ func (f *Field) TypeProperty() *TypeProperty {
 	return f.typeProperty
 }
 
+func (f *Field) SetTypeProperty(tp *TypeProperty) error {
+	if tp == nil {
+		return ErrInvalidType
+	}
+	if f.defaultValue != nil {
+		if err := tp.Validate(f.DefaultValue()); err != nil {
+			return err
+		}
+	}
+	f.typeProperty = tp
+	return nil
+}
+
 func (f *Field) Clone() *Field {
 	if f == nil {
 		return nil
 	}
 
 	return &Field{
-		id:           f.id.Clone(),
+		id:           f.id,
 		name:         f.name,
 		description:  f.description,
 		key:          f.key,
@@ -126,5 +147,11 @@ func (f *Field) Clone() *Field {
 }
 
 func (f *Field) Validate(v *value.Value) error {
+	if f.required && v.IsEmpty() {
+		return ErrValueRequired
+	}
+	if v.IsEmpty() {
+		return nil
+	}
 	return f.typeProperty.Validate(v)
 }

@@ -23,7 +23,7 @@ func (f *FieldReference) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldReference) ModelID() model.ID {
+func (f *FieldReference) Model() model.ID {
 	return f.modelID
 }
 
