@@ -11,6 +11,7 @@ type Props = {
   fileList: UploadFile<File>[];
   uploading: boolean;
   uploadModalVisibility: boolean;
+  onUploadModalClose?: () => void;
   displayUploadModal: () => void;
   hideUploadModal: () => void;
   handleUpload: () => void;
@@ -22,6 +23,7 @@ const UploadAsset: React.FC<Props> = ({
   fileList,
   uploading,
   uploadModalVisibility,
+  onUploadModalClose,
   displayUploadModal,
   hideUploadModal,
   handleUpload,
@@ -37,6 +39,7 @@ const UploadAsset: React.FC<Props> = ({
         uploadProps={uploadProps}
         fileList={fileList}
         uploading={uploading}
+        onUploadModalClose={onUploadModalClose}
         handleUpload={handleUpload}
         visible={uploadModalVisibility}
         handleCancel={hideUploadModal}
