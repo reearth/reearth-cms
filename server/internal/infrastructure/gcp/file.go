@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/url"
 	"path"
-	"regexp"
 	"strings"
 
 	"cloud.google.com/go/storage"
@@ -231,7 +230,7 @@ func getGCSObjectPath(uuid, objectName string) string {
 		return ""
 	}
 
-	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], fileName(objectName))
+	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], objectName)
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
@@ -252,14 +251,7 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-var re = regexp.MustCompile(`[^a-zA-Z0-9-_./]`)
-
-func fileName(s string) string {
-	ss := re.ReplaceAllString(s, "-")
-	return strings.ToLower(ss)
-}
-
 func getURL(host, uuid, fName string) string {
-	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], fileName(fName))
+	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], url.PathEscape(fName))
 	return url
 }

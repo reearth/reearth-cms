@@ -20,7 +20,7 @@ func TestFile_GetURL(t *testing.T) {
 	n := "xxx.yyy"
 	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
 
-	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], fileName(n))
+	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], n)
 	assert.NoError(t, err)
 	actual := r.GetURL(a)
 	assert.Equal(t, expected, actual)
@@ -31,9 +31,6 @@ func TestFile_GetFSObjectPath(t *testing.T) {
 	n := "xxx.yyy"
 	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "xxx.yyy"), getGCSObjectPath(u, n))
 
-	n = "ああああ.yyy"
-	assert.Equal(t, path.Join(gcsAssetBasePath, u[:2], u[2:], "----.yyy"), getGCSObjectPath(u, n))
-
 	assert.Equal(t, "", getGCSObjectPath("", ""))
 }
 
@@ -43,8 +40,4 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 	u1 := "xxxxxx"
 	assert.Equal(t, false, IsValidUUID(u1))
-}
-
-func TestFileName(t *testing.T) {
-	assert.Equal(t, "a-_/b--", fileName("a-_/b*あ"))
 }
