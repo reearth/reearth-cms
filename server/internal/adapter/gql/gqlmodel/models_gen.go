@@ -294,10 +294,12 @@ type IntegrationPayload struct {
 type Item struct {
 	ID        ID           `json:"id"`
 	SchemaID  ID           `json:"schemaId"`
+	ThreadID  ID           `json:"threadId"`
 	ModelID   ID           `json:"modelId"`
 	ProjectID ID           `json:"projectId"`
-	Project   *Project     `json:"project"`
 	Schema    *Schema      `json:"schema"`
+	Project   *Project     `json:"project"`
+	Thread    *Thread      `json:"thread"`
 	Fields    []*ItemField `json:"fields"`
 	CreatedAt time.Time    `json:"createdAt"`
 }
@@ -334,9 +336,8 @@ type ItemPayload struct {
 }
 
 type ItemQuery struct {
-	Workspace ID      `json:"workspace"`
-	Project   ID      `json:"project"`
-	Q         *string `json:"q"`
+	Project ID      `json:"project"`
+	Q       *string `json:"q"`
 }
 
 type KeyAvailability struct {

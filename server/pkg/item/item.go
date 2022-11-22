@@ -18,6 +18,7 @@ type Item struct {
 	project     ProjectID
 	fields      []*Field
 	timestamp   time.Time
+	thread      ThreadID
 	user        *UserID
 	integration *IntegrationID
 }
@@ -61,6 +62,10 @@ func (i *Item) Field(f FieldID) *Field {
 		return g.FieldID() == f
 	})
 	return ff
+}
+
+func (i *Item) Thread() ThreadID {
+	return i.thread
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

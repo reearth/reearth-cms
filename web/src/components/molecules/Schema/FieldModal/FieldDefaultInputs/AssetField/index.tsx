@@ -12,7 +12,7 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   defaultValue?: string;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   onLink: (asset?: Asset) => void;

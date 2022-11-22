@@ -27,7 +27,7 @@ func TestItem_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
-	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
 		Input              id.ItemID
@@ -78,9 +78,9 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	pid := id.NewProjectID()
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
 	now1 := time.Now().Truncate(time.Millisecond).UTC()
-	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Timestamp(now1).MustBuild()
+	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).Timestamp(now1).MustBuild()
 	now2 := now1.Add(time.Second).UTC()
-	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Timestamp(now2).MustBuild()
+	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID()).Timestamp(now2).MustBuild()
 
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
@@ -118,8 +118,8 @@ func TestItem_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
-	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
-	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
 		Name               string
 		Input              id.ItemIDList
@@ -169,10 +169,10 @@ func TestItem_FindBySchema(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
-	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
-	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
-	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).MustBuild()
-	i4 := item.New().NewID().Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
+	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
+	i4 := item.New().NewID().Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 
 	tests := []struct {
 		Name        string
@@ -223,8 +223,8 @@ func TestItem_FindByProject(t *testing.T) {
 	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
 	pid := id.NewProjectID()
 	sid := id.NewSchemaID()
-	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(pid).MustBuild()
+	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name     string
 		Input    id.ProjectID
@@ -275,7 +275,7 @@ func TestItem_Remove(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
-	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).MustBuild()
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
 
@@ -365,9 +365,9 @@ func TestItem_Search(t *testing.T) {
 	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
 	pid := id.NewProjectID()
-	i1, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Build()
-	i3, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
+	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
 		Name     string
 		Input    *item.Query
@@ -376,13 +376,13 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "foo"),
+			Input:    item.NewQuery(pid, "foo"),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(id.NewWorkspaceID(), pid, "hoge"),
+			Input:    item.NewQuery(pid, "hoge"),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 1,
 		},
@@ -419,8 +419,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
-	i1, _ := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Build()
-	i2, _ := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Build()
+	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 
 	type args struct {
 		model  id.ModelID

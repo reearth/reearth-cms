@@ -16,6 +16,7 @@ type ItemDocument struct {
 	ID          string
 	Project     string
 	Schema      string
+	Thread      string
 	ModelID     string
 	Fields      []ItemFieldDocument
 	Timestamp   time.Time
@@ -58,6 +59,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Schema:  i.Schema().String(),
 		ModelID: i.Model().String(),
 		Project: i.Project().String(),
+		Thread:  i.Thread().String(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewOptionalValue(f.Value())
 			if v == nil {
@@ -96,6 +98,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
+	tid, err := id.ThreadIDFrom(d.Thread)
+	if err != nil {
+		return nil, err
+	}
+
 	fields, err := util.TryMap(d.Fields, func(f ItemFieldDocument) (*item.Field, error) {
 		// compat
 		if f.Field != "" {
@@ -126,6 +133,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		Project(pid).
 		Schema(sid).
 		Model(mid).
+		Thread(tid).
 		Fields(fields).
 		Timestamp(d.Timestamp)
 
