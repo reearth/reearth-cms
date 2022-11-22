@@ -15,11 +15,11 @@ func NewWithTypeRegistry(t Type, v any, p TypeRegistry) *Value {
 }
 
 func (v *Value) IsEmpty() bool {
-	return v == nil || v.t == TypeUnknown || v.v == nil
+	return v == nil || v.t == TypeUnknown || v.v == nil || v.TypeProperty().IsEmpty(v.v)
 }
 
 func (v *Value) Clone() *Value {
-	if v.IsEmpty() {
+	if v == nil {
 		return nil
 	}
 	return v.t.ValueFrom(v.v, v.p)
@@ -30,21 +30,21 @@ func (v *Value) Some() *Optional {
 }
 
 func (v *Value) Value() interface{} {
-	if v.IsEmpty() {
+	if v == nil {
 		return nil
 	}
 	return v.v
 }
 
 func (v *Value) Type() Type {
-	if v.IsEmpty() {
+	if v == nil {
 		return TypeUnknown
 	}
 	return v.t
 }
 
 func (v *Value) TypeProperty() (tp TypeProperty) {
-	if v.IsEmpty() {
+	if v == nil {
 		return
 	}
 	if tp := v.p.Find(v.t); tp != nil {

@@ -330,3 +330,25 @@ func TestOptional_Cast(t *testing.T) {
 		})
 	}
 }
+
+func TestOptional_IsSome_IsNone_IsEmpty(t *testing.T) {
+	v := (*Optional)(nil)
+	assert.False(t, v.IsSome())
+	assert.True(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText}
+	assert.False(t, v.IsSome())
+	assert.True(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText, v: &Value{t: TypeText, v: ""}}
+	assert.True(t, v.IsSome())
+	assert.False(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText, v: &Value{t: TypeText, v: "a"}}
+	assert.True(t, v.IsSome())
+	assert.False(t, v.IsNone())
+	assert.False(t, v.IsEmpty())
+}

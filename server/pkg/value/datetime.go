@@ -64,6 +64,10 @@ func (*propertyDateTime) Equal(v, w any) bool {
 	return vv.Equal(ww)
 }
 
+func (*propertyDateTime) IsEmpty(v any) bool {
+	return v.(DateTime).IsZero()
+}
+
 func (v *Value) ValueDateTime() (vv DateTime, ok bool) {
 	if v == nil {
 		return
