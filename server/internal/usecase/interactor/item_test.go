@@ -34,9 +34,9 @@ func TestNewItem(t *testing.T) {
 func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -126,7 +126,9 @@ func TestItem_FindBySchema(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{
 			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
-		}).MustBuild()
+		}).
+		Thread(id.NewThreadID()).
+		MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
 	i2 := item.New().NewID().
@@ -135,13 +137,15 @@ func TestItem_FindBySchema(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{
 			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
-		}).MustBuild()
+		}).
+		Thread(id.NewThreadID()).
+		MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().
 		Schema(s2.ID()).
 		Model(id.NewModelID()).
-		Project(pid).MustBuild()
+		Project(pid).Thread(id.NewThreadID()).MustBuild()
 	restore()
 
 	type args struct {
@@ -300,7 +304,7 @@ func TestItem_Create(t *testing.T) {
 func TestItem_Delete(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Build()
+	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -330,7 +334,7 @@ func TestItem_Delete(t *testing.T) {
 func TestItem_FindAllVersionsByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1, _ := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Build()
+	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -388,7 +392,7 @@ func TestItem_Update(t *testing.T) {
 	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
 	f1 := item.NewField(sf1.ID(), value.TypeBool.Value(true).Some())
 	f2 := item.NewField(sf2.ID(), value.TypeText.Value("xxx").Some())
-	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).MustBuild()
+	i1 := item.New().ID(id1).Project(id.NewProjectID()).Model(mid).Schema(sid).Fields([]*item.Field{}).Thread(id.NewThreadID()).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -438,13 +442,13 @@ func TestItem_FindByProject(t *testing.T) {
 	s1 := project.New().ID(sid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(sid2).Workspace(wid).MustBuild()
 	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
-	i1, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i1 := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
-	i2, _ := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i2 := item.New().NewID().Project(sid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
-	i3, _ := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Build()
+	i3 := item.New().NewID().Project(sid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 	restore()
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
@@ -540,11 +544,11 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1, _ := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
+	i1 := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id2 := id.NewItemID()
-	i2, _ := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Build()
+	i2 := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id3 := id.NewItemID()
-	i3, _ := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Build()
+	i3 := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
 
 	wid := id.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
@@ -659,7 +663,7 @@ func Test_validateFields(t *testing.T) {
 	sfRichText := schema.NewFieldRichText(lo.ToPtr("x"), lo.ToPtr(10)).NewID().Key(key.Random()).MustBuild()
 	sfMarkdown := schema.NewFieldMarkdown(lo.ToPtr("x"), lo.ToPtr(20)).NewID().Key(key.Random()).MustBuild()
 	sfURL := schema.NewFieldURL(lo.ToPtr("http://xxx.aa")).NewID().Key(key.Random()).MustBuild()
-	i := item.New().NewID().Fields([]*item.Field{item.NewField(sfText.ID(), value.TypeText.Value("foo").Some())}).Model(mid).Schema(sid).Project(pid).MustBuild()
+	i := item.New().NewID().Fields([]*item.Field{item.NewField(sfText.ID(), value.TypeText.Value("foo").Some())}).Thread(id.NewThreadID()).Model(mid).Schema(sid).Project(pid).MustBuild()
 	s := schema.New().
 		ID(sid).
 		Workspace(wid).
