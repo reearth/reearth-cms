@@ -67,13 +67,9 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 }
 
 func ToItemQuery(iq ItemQuery) *item.Query {
-	wid, err := ToID[id.Workspace](iq.Workspace)
-	if err != nil {
-		return nil
-	}
 	pid, err := ToID[id.Project](iq.Project)
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(wid, pid, *iq.Q)
+	return item.NewQuery(pid, *iq.Q)
 }

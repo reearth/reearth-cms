@@ -68,7 +68,6 @@ type ItemEdge {
 }
 
 input ItemQuery {
-  workspace: ID!
   project: ID!
   q: String
 }

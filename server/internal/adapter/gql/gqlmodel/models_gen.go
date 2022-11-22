@@ -336,9 +336,8 @@ type ItemPayload struct {
 }
 
 type ItemQuery struct {
-	Workspace ID      `json:"workspace"`
-	Project   ID      `json:"project"`
-	Q         *string `json:"q"`
+	Project ID      `json:"project"`
+	Q       *string `json:"q"`
 }
 
 type KeyAvailability struct {
