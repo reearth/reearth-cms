@@ -158,29 +158,37 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 }
 
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
-			asset, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
+			a, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
 			if err != nil {
 				return nil, err
 			}
 
-			if inp.PreviewType != nil {
-				asset.UpdatePreviewType(inp.PreviewType)
+			if !operator.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
 			}
 
-			if err := i.repos.Asset.Save(ctx, asset); err != nil {
+			if inp.PreviewType != nil {
+				a.UpdatePreviewType(inp.PreviewType)
+			}
+
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
 
-			return asset, nil
+			return a, nil
 		},
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
 	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -189,9 +197,13 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func() (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, a)
+			a, err := i.repos.Asset.FindByID(ctx, aId)
 			if err != nil {
 				return nil, err
+			}
+
+			if !op.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
 			}
 
 			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
@@ -214,13 +226,13 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 				return nil, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			p, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
 				return nil, err
 			}
 
 			if err := i.event(ctx, Event{
-				Workspace: prj.Workspace(),
+				Workspace: p.Workspace(),
 				Type:      event.AssetDecompress,
 				Object:    a,
 				Operator:  op.Operator(),
@@ -233,48 +245,52 @@ func (i *Asset) UpdateFiles(ctx context.Context, a id.AssetID, op *usecase.Opera
 	)
 }
 
-func (i *Asset) Delete(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
+func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
 	if operator.User == nil && operator.Integration == nil {
-		return aid, interfaces.ErrInvalidOperator
+		return aId, interfaces.ErrInvalidOperator
 	}
 
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
 		func() (id.AssetID, error) {
-			asset, err := i.repos.Asset.FindByID(ctx, aid)
+			a, err := i.repos.Asset.FindByID(ctx, aId)
 			if err != nil {
-				return aid, err
+				return aId, err
 			}
 
-			uuid := asset.UUID()
-			filename := asset.FileName()
+			if !operator.CanUpdate(a) {
+				return aId, interfaces.ErrOperationDenied
+			}
+
+			uuid := a.UUID()
+			filename := a.FileName()
 			if uuid != "" && filename != "" {
 				if err := i.gateways.File.DeleteAsset(ctx, uuid, filename); err != nil {
-					return aid, err
+					return aId, err
 				}
 			}
 
-			err = i.repos.Asset.Delete(ctx, aid)
+			err = i.repos.Asset.Delete(ctx, aId)
 			if err != nil {
-				return aid, err
+				return aId, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, asset.Project())
+			p, err := i.repos.Project.FindByID(ctx, a.Project())
 			if err != nil {
-				return aid, err
+				return aId, err
 			}
 
 			if err := i.event(ctx, Event{
-				Workspace: prj.Workspace(),
+				Workspace: p.Workspace(),
 				Type:      event.AssetDelete,
-				Object:    asset,
+				Object:    a,
 				Operator:  operator.Operator(),
 			}); err != nil {
-				return aid, err
+				return aId, err
 			}
 
-			return aid, nil
+			return aId, nil
 		},
 	)
 }
