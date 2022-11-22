@@ -144,7 +144,7 @@ const LinkAssetModal: React.FC<Props> = ({
           displayUploadModal={displayUploadModal}
           hideUploadModal={hideUploadModal}
           handleUpload={handleUpload}
-          afterClose={onCancel}
+          onUploadModalClose={onCancel}
         />,
       ]}
       width="70vw"

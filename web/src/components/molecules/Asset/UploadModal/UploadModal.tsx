@@ -16,7 +16,7 @@ type Props = {
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
   uploading: boolean;
-  afterClose?: () => void;
+  onUploadModalClose?: () => void;
   handleUpload: () => void;
   handleCancel: () => void;
 };
@@ -27,7 +27,7 @@ const UploadModal: React.FC<Props> = ({
   uploadProps,
   uploading,
   fileList,
-  afterClose,
+  onUploadModalClose,
   handleUpload,
   handleCancel,
 }) => {
@@ -44,7 +44,7 @@ const UploadModal: React.FC<Props> = ({
       onCancel={handleCancel}
       footer={null}
       width="50vw"
-      afterClose={afterClose}
+      afterClose={onUploadModalClose}
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
