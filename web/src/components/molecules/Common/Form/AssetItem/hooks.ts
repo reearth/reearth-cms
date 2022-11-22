@@ -30,7 +30,7 @@ export default (
 
   const handleUpload = useCallback(async () => {
     setUploading(true);
-
+    let assets: (Asset | undefined)[] = [];
     let asset: Asset | undefined;
     try {
       switch (uploadType) {
@@ -39,7 +39,8 @@ export default (
           break;
         case "local":
         default:
-          asset = (await onAssetsCreate(fileList))[0];
+          assets = await onAssetsCreate(fileList);
+          if (assets.length > 0) asset = assets[0];
           break;
       }
       if (asset) onLink(asset);
