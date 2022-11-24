@@ -8,6 +8,8 @@ import (
 var (
 	// RoleOwner is a role who can have full controll of project
 	RoleOwner = Role("owner")
+	// RoleMaintainer is a role who can maintain a project
+	RoleMaintainer = Role("maintainer")
 	// RoleWriter is a role who can read and write project
 	RoleWriter = Role("writer")
 	// RoleReader is a role who can read project
@@ -15,6 +17,7 @@ var (
 
 	roles = []Role{
 		RoleOwner,
+		RoleMaintainer,
 		RoleWriter,
 		RoleReader,
 	}
@@ -27,6 +30,8 @@ type Role string
 func (r Role) Valid() bool {
 	switch r {
 	case RoleOwner:
+		return true
+	case RoleMaintainer:
 		return true
 	case RoleWriter:
 		return true

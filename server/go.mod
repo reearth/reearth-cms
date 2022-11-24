@@ -9,6 +9,7 @@ require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/avast/retry-go/v4 v4.1.0
 	github.com/chrispappas/golang-generics-set v1.0.1
+	github.com/deepmap/oapi-codegen v1.12.2
 	github.com/getkin/kin-openapi v0.107.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -33,6 +34,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.36.1
 	golang.org/x/crypto v0.1.0
 	golang.org/x/exp v0.0.0-20220927162542-c76eaa363f9d
+	golang.org/x/net v0.1.0
 	golang.org/x/text v0.4.0
 	google.golang.org/api v0.100.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
@@ -51,7 +53,6 @@ require (
 	github.com/auth0/go-jwt-middleware/v2 v2.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deepmap/oapi-codegen v1.12.2 // indirect
 	github.com/dgryski/trifles v0.0.0-20200705224438-cafc02a1ee2b // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -101,7 +102,6 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0 // indirect
 	golang.org/x/sys v0.1.0 // indirect
