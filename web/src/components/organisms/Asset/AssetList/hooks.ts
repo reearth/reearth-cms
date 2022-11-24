@@ -177,7 +177,7 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
-  const hideUploadModal = useCallback(() => {
+  const handleUploadModalClose = useCallback(() => {
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
@@ -224,7 +224,7 @@ export default () => {
     loading,
     uploadUrl,
     uploadType,
-    hideUploadModal,
+    handleUploadModalClose,
     setUploadUrl,
     setUploadType,
     setSelection,
