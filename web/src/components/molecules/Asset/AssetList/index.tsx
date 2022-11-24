@@ -135,7 +135,7 @@ const AssetList: React.FC<Props> = ({
                 uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 onUploadModalCancel={onUploadModalCancel}
-                handleUpload={handleUpload}
+                onUpload={handleUpload}
               />
             }
           />
