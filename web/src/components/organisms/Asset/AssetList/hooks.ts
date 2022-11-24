@@ -122,7 +122,7 @@ export default () => {
           return;
         }
         if (result.data?.createAsset) {
-          Notification.success({ message: t("Asset successfully added!") });
+          Notification.success({ message: t("Successfully added asset!") });
           await refetch();
           return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
