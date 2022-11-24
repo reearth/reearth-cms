@@ -251,9 +251,12 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-func getURL(host, uuid, fName string) string {
+func encodeFileName(s string) string {
 	// 他他他.jpg -> %E4%BB%96%E4%BB%96%E4%BB%96.jpg
-	name := url.PathEscape(fName)
-	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], name)
+	return url.PathEscape(s)
+}
+
+func getURL(host, uuid, fName string) string {
+	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], encodeFileName(fName))
 	return url
 }
