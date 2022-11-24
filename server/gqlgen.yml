@@ -50,6 +50,8 @@ models:
         resolver: true
       project:
         resolver: true
+      thread:
+        resolver: true
   Model:
     fields:
       project:

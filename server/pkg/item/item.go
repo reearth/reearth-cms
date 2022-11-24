@@ -12,18 +12,29 @@ import (
 )
 
 type Item struct {
-	id        ID
-	schema    SchemaID
-	model     ModelID
-	project   ProjectID
-	fields    []*Field
-	timestamp time.Time
+	id          ID
+	schema      SchemaID
+	model       ModelID
+	project     ProjectID
+	fields      []*Field
+	timestamp   time.Time
+	thread      ThreadID
+	user        *UserID
+	integration *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
 
 func (i *Item) ID() ID {
 	return i.id
+}
+
+func (i *Item) User() *UserID {
+	return i.user
+}
+
+func (i *Item) Integration() *IntegrationID {
+	return i.integration
 }
 
 func (i *Item) Fields() []*Field {
@@ -51,6 +62,10 @@ func (i *Item) Field(f FieldID) *Field {
 		return g.FieldID() == f
 	})
 	return ff
+}
+
+func (i *Item) Thread() ThreadID {
+	return i.thread
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

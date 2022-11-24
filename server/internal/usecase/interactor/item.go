@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -67,13 +68,17 @@ func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination,
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsWritableProject(s.Project()) {
+		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -88,13 +93,31 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			}
 		}
 
-		it, err := item.New().
+		th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
+
+		if err != nil {
+			return nil, err
+		}
+		if err := i.repos.Thread.Save(ctx, th); err != nil {
+			return nil, err
+		}
+
+		ib := item.New().
 			NewID().
 			Schema(param.SchemaID).
 			Project(s.Project()).
 			Model(param.ModelID).
-			Fields(fields).
-			Build()
+			Thread(th.ID()).
+			Fields(fields)
+
+		if operator.User != nil {
+			ib = ib.User(*operator.User)
+		}
+		if operator.Integration != nil {
+			ib = ib.Integration(*operator.Integration)
+		}
+
+		it, err := ib.Build()
 		if err != nil {
 			return nil, err
 		}
@@ -126,24 +149,27 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	if len(param.Fields) == 0 {
 		return nil, interfaces.ErrItemFieldRequired
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
-		it, err := i.repos.Item.FindByID(ctx, param.ItemID)
+		itm, err := i.repos.Item.FindByID(ctx, param.ItemID)
 		if err != nil {
 			return nil, err
 		}
 
-		itv := it.Value()
+		itv := itm.Value()
+		if !operator.CanUpdate(itv) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 		if err != nil {
 			return nil, err
-		}
-
-		if !operator.IsWritableProject(itv.Project()) {
-			return nil, interfaces.ErrOperationDenied
 		}
 
 		fields, err := itemFieldsFromParams(param.Fields, s)
@@ -151,10 +177,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		//TODO: create item.FieldList model and move this check there
+		// TODO: create item.FieldList model and move this check there
 		changedFields := filterChangedFields(itv.Fields(), fields)
 		if len(changedFields) == 0 {
-			return it, nil
+			return itm, nil
 		}
 
 		if param.Fields != nil {
@@ -172,7 +198,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err := i.event(ctx, Event{
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
-			Object:    it,
+			Object:    itm,
 			WebhookObject: item.ItemAndSchema{
 				Item:   itv,
 				Schema: s,
@@ -182,12 +208,27 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		return it, nil
+		return itm, nil
 	})
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	return i.repos.Item.Remove(ctx, itemID)
+	if operator.User == nil && operator.Integration == nil {
+		return interfaces.ErrInvalidOperator
+	}
+
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+		itm, err := i.repos.Item.FindByID(ctx, itemID)
+		if err != nil {
+			return err
+		}
+
+		if !operator.CanUpdate(itm.Value()) {
+			return interfaces.ErrOperationDenied
+		}
+
+		return i.repos.Item.Remove(ctx, itemID)
+	})
 }
 
 func filterChangedFields(oldFields []*item.Field, newFields []*item.Field) []*item.Field {
@@ -300,7 +341,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 	})
 }
 
-func (i *Item) event(ctx context.Context, e Event) error {
+func (i Item) event(ctx context.Context, e Event) error {
 	if i.ignoreEvent {
 		return nil
 	}

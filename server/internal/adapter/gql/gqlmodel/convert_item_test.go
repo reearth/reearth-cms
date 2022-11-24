@@ -15,11 +15,12 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
+	tid := id.NewThreadID()
 	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
 	i := item.New().ID(iid).Schema(sid).Project(pid).Fields(
 		[]*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())},
-	).Model(mid).MustBuild()
+	).Model(mid).Thread(tid).MustBuild()
 
 	tests := []struct {
 		name  string
@@ -34,6 +35,7 @@ func TestToItem(t *testing.T) {
 				ProjectID: IDFrom(pid),
 				ModelID:   IDFrom(mid),
 				SchemaID:  IDFrom(sid),
+				ThreadID:  IDFrom(tid),
 				CreatedAt: i.Timestamp(),
 				Fields: []*ItemField{
 					{
@@ -103,7 +105,7 @@ func TestToVersionedItem(t *testing.T) {
 	sfid := id.NewFieldID()
 	ref := "a"
 	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
-	i, _ := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Build()
+	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
 	tests := []struct {
@@ -134,7 +136,6 @@ func TestToVersionedItem(t *testing.T) {
 }
 
 func TestToItemQuery(t *testing.T) {
-	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
 	str := "foo"
 	tests := []struct {
@@ -145,24 +146,15 @@ func TestToItemQuery(t *testing.T) {
 		{
 			name: "should pass",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Project:   IDFrom(pid),
-				Q:         &str,
-			},
-			want: item.NewQuery(wid, pid, str),
-		},
-		{
-			name: "invalid workspace id",
-			input: ItemQuery{
 				Project: IDFrom(pid),
 				Q:       &str,
 			},
+			want: item.NewQuery(pid, str),
 		},
 		{
 			name: "invalid project id",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Q:         &str,
+				Q: &str,
 			},
 		},
 	}

@@ -89,6 +89,8 @@ func FromRole(r Role) user.Role {
 		return user.RoleReader
 	case RoleWriter:
 		return user.RoleWriter
+	case RoleMaintainer:
+		return user.RoleMaintainer
 	case RoleOwner:
 		return user.RoleOwner
 	}
@@ -101,6 +103,8 @@ func ToRole(r user.Role) Role {
 		return RoleReader
 	case user.RoleWriter:
 		return RoleWriter
+	case user.RoleMaintainer:
+		return RoleMaintainer
 	case user.RoleOwner:
 		return RoleOwner
 	}

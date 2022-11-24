@@ -9,15 +9,23 @@ import (
 )
 
 type Operator struct {
-	User               *user.ID
-	Integration        *integration.ID
-	Machine            bool
-	ReadableWorkspaces user.WorkspaceIDList
-	WritableWorkspaces user.WorkspaceIDList
-	OwningWorkspaces   user.WorkspaceIDList
-	ReadableProjects   project.IDList
-	WritableProjects   project.IDList
-	OwningProjects     project.IDList
+	User                   *user.ID
+	Integration            *integration.ID
+	Machine                bool
+	ReadableWorkspaces     user.WorkspaceIDList
+	WritableWorkspaces     user.WorkspaceIDList
+	MaintainableWorkspaces user.WorkspaceIDList
+	OwningWorkspaces       user.WorkspaceIDList
+	ReadableProjects       project.IDList
+	WritableProjects       project.IDList
+	OwningProjects         project.IDList
+	MaintainableProjects   project.IDList
+}
+
+type Ownable interface {
+	User() *id.UserID
+	Integration() *id.IntegrationID
+	Project() id.ProjectID
 }
 
 func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
@@ -30,6 +38,9 @@ func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
 	if r == user.RoleWriter {
 		return o.WritableWorkspaces
 	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableWorkspaces
+	}
 	if r == user.RoleOwner {
 		return o.OwningWorkspaces
 	}
@@ -41,7 +52,11 @@ func (o *Operator) AllReadableWorkspaces() user.WorkspaceIDList {
 }
 
 func (o *Operator) AllWritableWorkspaces() user.WorkspaceIDList {
-	return append(o.WritableWorkspaces, o.AllOwningWorkspaces()...)
+	return append(o.WritableWorkspaces, o.AllMaintainingWorkspaces()...)
+}
+
+func (o *Operator) AllMaintainingWorkspaces() user.WorkspaceIDList {
+	return append(o.MaintainableWorkspaces, o.AllOwningWorkspaces()...)
 }
 
 func (o *Operator) AllOwningWorkspaces() user.WorkspaceIDList {
@@ -54,6 +69,10 @@ func (o *Operator) IsReadableWorkspace(workspace ...id.WorkspaceID) bool {
 
 func (o *Operator) IsWritableWorkspace(workspace ...id.WorkspaceID) bool {
 	return o.AllWritableWorkspaces().Intersect(workspace).Len() > 0
+}
+
+func (o *Operator) IsMaintainingWorkspace(workspace ...id.WorkspaceID) bool {
+	return o.AllMaintainingWorkspaces().Intersect(workspace).Len() > 0
 }
 
 func (o *Operator) IsOwningWorkspace(workspace ...id.WorkspaceID) bool {
@@ -74,6 +93,9 @@ func (o *Operator) Projects(r user.Role) project.IDList {
 	if r == user.RoleWriter {
 		return o.WritableProjects
 	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableProjects
+	}
 	if r == user.RoleOwner {
 		return o.OwningProjects
 	}
@@ -85,7 +107,11 @@ func (o *Operator) AllReadableProjects() project.IDList {
 }
 
 func (o *Operator) AllWritableProjects() project.IDList {
-	return append(o.WritableProjects, o.AllOwningProjects()...)
+	return append(o.WritableProjects, o.AllMaintainableProjects()...)
+}
+
+func (o *Operator) AllMaintainableProjects() project.IDList {
+	return append(o.MaintainableProjects, o.AllOwningProjects()...)
 }
 
 func (o *Operator) AllOwningProjects() project.IDList {
@@ -98,6 +124,10 @@ func (o *Operator) IsReadableProject(projects ...project.ID) bool {
 
 func (o *Operator) IsWritableProject(projects ...project.ID) bool {
 	return o.AllWritableProjects().Intersect(projects).Len() > 0
+}
+
+func (o *Operator) IsMaintainingProject(projects ...project.ID) bool {
+	return o.AllMaintainableProjects().Intersect(projects).Len() > 0
 }
 
 func (o *Operator) IsOwningProject(projects ...project.ID) bool {
@@ -120,4 +150,15 @@ func (o *Operator) Operator() operator.Operator {
 		eOp = operator.OperatorFromMachine()
 	}
 	return eOp
+}
+
+func (o *Operator) CanUpdate(obj Ownable) bool {
+	ownerUser, ownerIntegration := obj.User(), obj.Integration()
+	isOwned := ownerUser == o.User || ownerIntegration == o.Integration
+	isWriter := o.IsWritableProject(obj.Project())
+	isMaintainer := o.IsMaintainingProject(obj.Project())
+	if !isMaintainer && !(isOwned && isWriter) {
+		return false
+	}
+	return true
 }

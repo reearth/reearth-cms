@@ -30,6 +30,9 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.model.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.i.thread.IsNil() {
+		return nil, ErrInvalidID
+	}
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
@@ -47,6 +50,16 @@ func (b *Builder) ID(id ID) *Builder {
 
 func (b *Builder) NewID() *Builder {
 	b.i.id = NewID()
+	return b
+}
+
+func (b *Builder) User(id UserID) *Builder {
+	b.i.user = &id
+	return b
+}
+
+func (b *Builder) Integration(id IntegrationID) *Builder {
+	b.i.integration = &id
 	return b
 }
 
@@ -71,6 +84,16 @@ func (b *Builder) Model(mid ModelID) *Builder {
 
 func (b *Builder) Project(pid ProjectID) *Builder {
 	b.i.project = pid
+	return b
+}
+
+func (b *Builder) Thread(tid ThreadID) *Builder {
+	b.i.thread = tid
+	return b
+}
+
+func (b *Builder) NewThread() *Builder {
+	b.i.thread = NewThreadID()
 	return b
 }
 
