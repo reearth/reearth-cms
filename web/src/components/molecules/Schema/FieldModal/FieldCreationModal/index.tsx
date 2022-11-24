@@ -43,7 +43,7 @@ export type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
-  hideUploadModal: () => void;
+  onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
@@ -79,7 +79,7 @@ const FieldCreationModal: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
-  hideUploadModal,
+  onUploadModalCancel,
   setUploadUrl,
   setUploadType,
   onAssetsCreate,
@@ -334,7 +334,7 @@ const FieldCreationModal: React.FC<Props> = ({
               uploadModalVisibility={uploadModalVisibility}
               uploadUrl={uploadUrl}
               uploadType={uploadType}
-              hideUploadModal={hideUploadModal}
+              onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}
               setUploadType={setUploadType}
               onAssetsCreate={onAssetsCreate}

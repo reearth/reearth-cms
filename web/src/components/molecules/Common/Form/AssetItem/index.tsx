@@ -22,7 +22,7 @@ type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
-  hideUploadModal: () => void;
+  onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
@@ -49,7 +49,7 @@ const AssetItem: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
-  hideUploadModal,
+  onUploadModalCancel,
   setUploadUrl,
   setUploadType,
   onAssetsCreate,
@@ -69,7 +69,7 @@ const AssetItem: React.FC<Props> = ({
     uploadType,
     onAssetsCreate,
     onAssetCreateFromUrl,
-    hideUploadModal,
+    onUploadModalCancel,
     onLink,
     setUploading,
     setUploadModalVisibility,
@@ -133,7 +133,7 @@ const AssetItem: React.FC<Props> = ({
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
-        hideUploadModal={hideUploadModal}
+        onUploadModalCancel={onUploadModalCancel}
         handleUpload={handleUpload}
       />
     </Item>

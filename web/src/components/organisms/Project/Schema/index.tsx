@@ -23,7 +23,7 @@ const ProjectSchema: React.FC = () => {
     uploadModalVisibility,
     uploadUrl,
     uploadType,
-    hideUploadModal,
+    handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
     setFileList,
@@ -81,7 +81,7 @@ const ProjectSchema: React.FC = () => {
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
-          hideUploadModal={hideUploadModal}
+          onUploadModalCancel={handleUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           onAssetsCreate={handleAssetsCreate}
@@ -108,7 +108,7 @@ const ProjectSchema: React.FC = () => {
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
-          hideUploadModal={hideUploadModal}
+          onUploadModalCancel={handleUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           onAssetsCreate={handleAssetsCreate}

@@ -36,7 +36,7 @@ type Props = {
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
-  hideUploadModal: () => void;
+  onUploadModalCancel: () => void;
   handleUpload: () => void;
 };
 
@@ -58,7 +58,7 @@ const LinkAssetModal: React.FC<Props> = ({
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
-  hideUploadModal,
+  onUploadModalCancel,
   handleUpload,
 }) => {
   const t = useT();
@@ -155,7 +155,7 @@ const LinkAssetModal: React.FC<Props> = ({
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
-          hideUploadModal={hideUploadModal}
+          onUploadModalCancel={onUploadModalCancel}
           handleUpload={handleUpload}
           onUploadModalClose={onCancel}
         />,

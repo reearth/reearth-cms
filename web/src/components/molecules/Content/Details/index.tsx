@@ -21,7 +21,7 @@ export type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
-  hideUploadModal: () => void;
+  onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
@@ -49,7 +49,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
-  hideUploadModal,
+  onUploadModalCancel,
   setUploadUrl,
   setUploadType,
   onItemCreate,
@@ -77,7 +77,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
         uploadType={uploadType}
-        hideUploadModal={hideUploadModal}
+        onUploadModalCancel={onUploadModalCancel}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
         onBack={onBack}

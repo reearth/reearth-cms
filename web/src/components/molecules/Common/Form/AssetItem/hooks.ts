@@ -10,7 +10,7 @@ export default (
   uploadType: UploadType,
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
-  hideUploadModal: () => void,
+  onUploadModalCancel: () => void,
   onLink: (asset?: Asset) => void,
   setUploading: Dispatch<SetStateAction<boolean>>,
   setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
@@ -44,14 +44,14 @@ export default (
           break;
       }
       if (asset) onLink(asset);
-      hideUploadModal();
+      onUploadModalCancel();
     } catch (error) {
-      hideUploadModal();
+      onUploadModalCancel();
     }
   }, [
     setUploading,
     uploadType,
-    hideUploadModal,
+    onUploadModalCancel,
     onAssetCreateFromUrl,
     uploadUrl,
     onAssetsCreate,

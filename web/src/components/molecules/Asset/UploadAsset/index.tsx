@@ -18,7 +18,7 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   displayUploadModal: () => void;
-  hideUploadModal: () => void;
+  onUploadModalCancel: () => void;
   handleUpload: () => void;
 };
 
@@ -30,7 +30,7 @@ const UploadAsset: React.FC<Props> = ({
   uploadModalVisibility,
   onUploadModalClose,
   displayUploadModal,
-  hideUploadModal,
+  onUploadModalCancel,
   uploadUrl,
   uploadType,
   setUploadUrl,
@@ -55,7 +55,7 @@ const UploadAsset: React.FC<Props> = ({
         onUploadModalClose={onUploadModalClose}
         handleUpload={handleUpload}
         visible={uploadModalVisibility}
-        handleCancel={hideUploadModal}
+        handleCancel={onUploadModalCancel}
       />
     </>
   );
