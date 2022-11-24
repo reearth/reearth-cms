@@ -16,13 +16,13 @@ import (
 	"github.com/samber/lo"
 )
 
-type seeder func(ctx context.Context, r *repo.Container) error
+type Seeder func(ctx context.Context, r *repo.Container) error
 
 func init() {
-	mongotest.Env = "REEARTH_DB"
+	mongotest.Env = "REEARTH_CMS_DB"
 }
 
-func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder seeder) *httpexpect.Expect {
+func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *httpexpect.Expect {
 	t.Helper()
 
 	if testing.Short() {
@@ -72,7 +72,6 @@ func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder seeder) *h
 		if err := <-ch; err != nil {
 			t.Fatalf("server serve: %v", err)
 		}
-
 	})
 
 	return httpexpect.New(t, "http://"+l.Addr().String())

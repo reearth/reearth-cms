@@ -103,30 +103,29 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 func TestIntegrationItemListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	r := e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
-		Expect()
-	r.Status(http.StatusUnauthorized)
+	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+		Expect().
+		Status(http.StatusUnauthorized)
 
-	r = e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
 		WithHeader("authorization", "secret_abc").
-		Expect()
-	r.Status(http.StatusUnauthorized)
+		Expect().
+		Status(http.StatusUnauthorized)
 
-	r = e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
-		Expect()
-	r.Status(http.StatusNotFound)
+		Expect().
+		Status(http.StatusNotFound)
 
-	r = e.GET(fmt.Sprintf("/api/models/%s/items", mId)).
+	e.GET(fmt.Sprintf("/api/models/%s/items", mId)).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
-		Expect()
-	r.Status(http.StatusOK).
+		Expect().
+		Status(http.StatusOK).
 		JSON().
 		Object().Keys().
 		Contains("items", "page", "perPage", "totalCount")
-
 }
