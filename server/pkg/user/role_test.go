@@ -57,6 +57,11 @@ func TestRole_Valid(t *testing.T) {
 			Expected: true,
 		},
 		{
+			Name:     "check maintainer",
+			Input:    Role("maintainer"),
+			Expected: true,
+		},
+		{
 			Name:     "check owner",
 			Input:    Role("owner"),
 			Expected: true,

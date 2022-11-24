@@ -53,7 +53,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(s.Workspace()).Transaction(),
 		func() (*schema.Field, error) {
 			var fb *schema.FieldBuilder
 
@@ -81,9 +81,6 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 				},
 				Select: func(fp *schema.FieldSelect) {
 					fb = schema.NewFieldSelect(fp.Values(), fp.DefaultValue())
-				},
-				Tag: func(fp *schema.FieldTag) {
-					fb = schema.NewFieldTag(fp.Values(), fp.DefaultValue())
 				},
 				Integer: func(fp *schema.FieldInteger) {
 					fb = schema.NewFieldInteger(fp.DefaultValue(), fp.Min(), fp.Max())
@@ -131,7 +128,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(s.Workspace()).Transaction(),
 		func() (*schema.Field, error) {
 			f := s.Field(param.FieldId)
 			if f == nil {
@@ -178,7 +175,7 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(s.Workspace()).Transaction(),
+	return Run0(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(s.Workspace()).Transaction(),
 		func() error {
 			s.RemoveField(fieldID)
 			return i.repos.Schema.Save(ctx, s)

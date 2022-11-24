@@ -18,12 +18,13 @@ func ToItem(i *item.Item) *Item {
 		ProjectID: IDFrom(i.Project()),
 		SchemaID:  IDFrom(i.Schema()),
 		ModelID:   IDFrom(i.Model()),
+		ThreadID:  IDFrom(i.Thread()),
 		CreatedAt: i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
-				SchemaFieldID: IDFrom(f.SchemaFieldID()),
-				Type:          ToSchemaFieldType(f.ValueType()),
-				Value:         f.Value(),
+				SchemaFieldID: IDFrom(f.FieldID()),
+				Type:          ToValueType(f.Type()),
+				Value:         ToValue(f.Value()),
 			}
 		}),
 	}
@@ -59,20 +60,16 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 
 	return &interfaces.ItemFieldParam{
-		SchemaFieldID: fid,
-		ValueType:     FromSchemaFieldType(field.Type),
-		Value:         field.Value,
+		Field: fid,
+		Type:  FromValueType(field.Type),
+		Value: field.Value,
 	}
 }
 
 func ToItemQuery(iq ItemQuery) *item.Query {
-	wid, err := ToID[id.Workspace](iq.Workspace)
-	if err != nil {
-		return nil
-	}
 	pid, err := ToID[id.Project](iq.Project)
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(wid, pid, *iq.Q)
+	return item.NewQuery(pid, *iq.Q)
 }

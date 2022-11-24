@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,10 +54,10 @@ func TestList_Filtered(t *testing.T) {
 	sfid2 := id.NewFieldID()
 	sfid3 := id.NewFieldID()
 	sfid4 := id.NewFieldID()
-	f1 := &Field{schemaFieldID: sfid1}
-	f2 := &Field{schemaFieldID: sfid2}
-	f3 := &Field{schemaFieldID: sfid3}
-	f4 := &Field{schemaFieldID: sfid4}
+	f1 := &Field{field: sfid1}
+	f2 := &Field{field: sfid2}
+	f3 := &Field{field: sfid3}
+	f4 := &Field{field: sfid4}
 	i1 := &Item{
 		fields: []*Field{f1, f3},
 	}
@@ -72,16 +72,16 @@ func TestList_Filtered(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestList_ItemsBySchemaField(t *testing.T) {
+func TestList_ItemsByField(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
-	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
-	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
-	f3 := NewField(id.NewFieldID(), schema.TypeBool, true)
-	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).MustBuild()
-	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).MustBuild()
-	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).MustBuild()
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").Some())
+	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").Some())
+	f3 := NewField(id.NewFieldID(), value.TypeBool.Value(true).Some())
+	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	type args struct {
 		fid   id.FieldID
 		value any
@@ -96,7 +96,7 @@ func TestList_ItemsBySchemaField(t *testing.T) {
 			name: "must find 2",
 			l:    List{i1, i2, i3},
 			args: args{
-				fid:   f1.SchemaFieldID(),
+				fid:   f1.FieldID(),
 				value: f1.Value(),
 			},
 			wantCount: 2,
@@ -105,7 +105,7 @@ func TestList_ItemsBySchemaField(t *testing.T) {
 			name: "must find 1",
 			l:    List{i1, i2, i3},
 			args: args{
-				fid:   f3.SchemaFieldID(),
+				fid:   f3.FieldID(),
 				value: f3.Value(),
 			},
 			wantCount: 1,
@@ -122,7 +122,7 @@ func TestList_ItemsBySchemaField(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.wantCount, len(tt.l.ItemsBySchemaField(tt.args.fid, tt.args.value)))
+			assert.Equal(t, tt.wantCount, len(tt.l.ItemsByField(tt.args.fid, tt.args.value)))
 		})
 	}
 }

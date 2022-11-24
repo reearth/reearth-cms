@@ -111,93 +111,10 @@ func TestToSchemaField(t *testing.T) {
 	}
 }
 
-func TestToSchemaFieldType(t *testing.T) {
-	tests := []struct {
-		name string
-		t    schema.Type
-		want SchemaFiledType
-	}{
-		{
-			name: "TypeText",
-			t:    schema.TypeText,
-			want: SchemaFiledTypeText,
-		},
-		{
-			name: "TypeTextArea",
-			t:    schema.TypeTextArea,
-			want: SchemaFiledTypeTextArea,
-		},
-		{
-			name: "TypeRichText",
-			t:    schema.TypeRichText,
-			want: SchemaFiledTypeRichText,
-		},
-		{
-			name: "TypeMarkdown",
-			t:    schema.TypeMarkdown,
-			want: SchemaFiledTypeMarkdownText,
-		},
-		{
-			name: "TypeAsset",
-			t:    schema.TypeAsset,
-			want: SchemaFiledTypeAsset,
-		},
-		{
-			name: "TypeDate",
-			t:    schema.TypeDate,
-			want: SchemaFiledTypeDate,
-		},
-		{
-			name: "TypeBool",
-			t:    schema.TypeBool,
-			want: SchemaFiledTypeBool,
-		},
-		{
-			name: "TypeSelect",
-			t:    schema.TypeSelect,
-			want: SchemaFiledTypeSelect,
-		},
-		{
-			name: "TypeTag",
-			t:    schema.TypeTag,
-			want: SchemaFiledTypeTag,
-		},
-		{
-			name: "TypeInteger",
-			t:    schema.TypeInteger,
-			want: SchemaFiledTypeInteger,
-		},
-		{
-			name: "TypeReference",
-			t:    schema.TypeReference,
-			want: SchemaFiledTypeReference,
-		},
-		{
-			name: "TypeURL",
-			t:    schema.TypeURL,
-			want: SchemaFiledTypeURL,
-		},
-		{
-			name: "TypeURL",
-			t:    "some value",
-			want: "",
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, ToSchemaFieldType(tt.t))
-		})
-	}
-}
-
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mId := id.NewModelID()
 	tpInt, _ := schema.NewFieldTypePropertyInteger(nil, nil, nil)
 	tpURL, _ := schema.NewFieldTypePropertyURL(nil)
-	tpTag, _ := schema.NewFieldTypePropertyTag([]string{"v1"}, nil)
 	tpSelect, _ := schema.NewFieldTypePropertySelect([]string{"v1"}, nil)
 	tpText, _ := schema.NewFieldTypePropertyText(nil, nil)
 	tpTextarea, _ := schema.NewFieldTypePropertyTextArea(nil, nil)
@@ -265,11 +182,6 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			name: "test",
 			args: args{tp: tpURL},
 			want: &SchemaFieldURL{DefaultValue: nil},
-		},
-		{
-			name: "test",
-			args: args{tp: tpTag},
-			want: &SchemaFieldTag{Values: []string{"v1"}, DefaultValue: nil},
 		},
 		{
 			name: "test",

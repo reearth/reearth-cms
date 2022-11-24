@@ -146,28 +146,34 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) 
 
 	rw := w.FilterByUserRole(uid, user.RoleReader).IDs()
 	ww := w.FilterByUserRole(uid, user.RoleWriter).IDs()
+	mw := w.FilterByUserRole(uid, user.RoleMaintainer).IDs()
 	ow := w.FilterByUserRole(uid, user.RoleOwner).IDs()
 
-	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
 	if err != nil {
 		return nil, err
 	}
 
 	return &usecase.Operator{
-		User:               &uid,
-		Integration:        nil,
-		ReadableWorkspaces: rw,
-		WritableWorkspaces: ww,
-		OwningWorkspaces:   ow,
-		ReadableProjects:   rp,
-		WritableProjects:   wp,
-		OwningProjects:     op,
+		User:        &uid,
+		Integration: nil,
+
+		ReadableWorkspaces:     rw,
+		WritableWorkspaces:     ww,
+		MaintainableWorkspaces: mw,
+		OwningWorkspaces:       ow,
+
+		ReadableProjects:     rp,
+		WritableProjects:     wp,
+		MaintainableProjects: mp,
+		OwningProjects:       op,
 	}, nil
 }
 
-func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
 	rp := id.ProjectIDList{}
 	wp := id.ProjectIDList{}
+	mp := id.ProjectIDList{}
 	op := id.ProjectIDList{}
 
 	var cur *usecasex.Cursor
@@ -177,12 +183,14 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceLi
 			First: lo.ToPtr(int64(100)),
 		}.Wrap())
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, nil, err
 		}
 
 		for _, p := range projects {
 			if ow.Has(p.Workspace()) {
 				op = append(op, p.ID())
+			} else if mw.Has(p.Workspace()) {
+				mp = append(mp, p.ID())
 			} else if ww.Has(p.Workspace()) {
 				wp = append(wp, p.ID())
 			} else if rw.Has(p.Workspace()) {
@@ -195,7 +203,7 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceLi
 		}
 		cur = pi.EndCursor
 	}
-	return rp, wp, op, nil
+	return rp, wp, op, mp, nil
 }
 
 func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration) (*usecase.Operator, error) {
@@ -211,22 +219,26 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 
 	rw := w.FilterByIntegrationRole(iId, user.RoleReader).IDs()
 	ww := w.FilterByIntegrationRole(iId, user.RoleWriter).IDs()
+	mw := w.FilterByIntegrationRole(iId, user.RoleMaintainer).IDs()
 	ow := w.FilterByIntegrationRole(iId, user.RoleOwner).IDs()
 
-	rp, wp, op, err := operatorProjects(ctx, cfg, w, rw, ww, ow)
+	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
 	if err != nil {
 		return nil, err
 	}
 
 	return &usecase.Operator{
-		User:               nil,
-		Integration:        &iId,
-		ReadableWorkspaces: rw,
-		WritableWorkspaces: ww,
-		OwningWorkspaces:   ow,
-		ReadableProjects:   rp,
-		WritableProjects:   wp,
-		OwningProjects:     op,
+		User:                   nil,
+		Integration:            &iId,
+		ReadableWorkspaces:     rw,
+		WritableWorkspaces:     ww,
+		MaintainableWorkspaces: mw,
+		OwningWorkspaces:       ow,
+
+		ReadableProjects:     rp,
+		WritableProjects:     wp,
+		MaintainableProjects: mp,
+		OwningProjects:       op,
 	}, nil
 }
 

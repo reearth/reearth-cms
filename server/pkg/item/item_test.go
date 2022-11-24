@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +13,7 @@ import (
 func TestItem_UpdateFields(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()
-	f := NewField(id.NewFieldID(), schema.TypeText, "test")
+	f := NewField(id.NewFieldID(), value.TypeText.Value("test").Some())
 	fid, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 
 	tests := []struct {
@@ -34,20 +34,20 @@ func TestItem_UpdateFields(t *testing.T) {
 		{
 			name: "should update fields",
 			input: []*Field{
-				NewField(fid, schema.TypeText, "test2"),
-				NewField(fid3, schema.TypeText, "test!!"),
+				NewField(fid, value.TypeText.Value("test2").Some()),
+				NewField(fid3, value.TypeText.Value("test!!").Some()),
 			},
 			target: &Item{
 				fields: []*Field{
-					NewField(fid, schema.TypeText, "test"),
-					NewField(fid2, schema.TypeText, "test!"),
+					NewField(fid, value.TypeText.Value("test").Some()),
+					NewField(fid2, value.TypeText.Value("test!").Some()),
 				},
 			},
 			want: &Item{
 				fields: []*Field{
-					NewField(fid, schema.TypeText, "test2"),
-					NewField(fid2, schema.TypeText, "test!"),
-					NewField(fid3, schema.TypeText, "test!!"),
+					NewField(fid, value.TypeText.Value("test2").Some()),
+					NewField(fid2, value.TypeText.Value("test!").Some()),
+					NewField(fid3, value.TypeText.Value("test!!").Some()),
 				},
 				timestamp: now,
 			},
@@ -73,10 +73,10 @@ func TestItem_Filtered(t *testing.T) {
 	sfid2 := id.NewFieldID()
 	sfid3 := id.NewFieldID()
 	sfid4 := id.NewFieldID()
-	f1 := &Field{schemaFieldID: sfid1}
-	f2 := &Field{schemaFieldID: sfid2}
-	f3 := &Field{schemaFieldID: sfid3}
-	f4 := &Field{schemaFieldID: sfid4}
+	f1 := &Field{field: sfid1}
+	f2 := &Field{field: sfid2}
+	f3 := &Field{field: sfid3}
+	f4 := &Field{field: sfid4}
 
 	tests := []struct {
 		name string
@@ -116,9 +116,9 @@ func TestItem_Filtered(t *testing.T) {
 }
 
 func TestItem_HasField(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), schema.TypeText, "foo")
-	f2 := NewField(id.NewFieldID(), schema.TypeText, "hoge")
-	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).MustBuild()
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").Some())
+	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").Some())
+	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	type args struct {
 		fid   id.FieldID
@@ -133,7 +133,7 @@ func TestItem_HasField(t *testing.T) {
 		{
 			name: "true: must find a field",
 			args: args{
-				fid:   f1.SchemaFieldID(),
+				fid:   f1.FieldID(),
 				value: f1.Value(),
 			},
 			item: i1,
@@ -142,7 +142,7 @@ func TestItem_HasField(t *testing.T) {
 		{
 			name: "false: no existed value",
 			args: args{
-				fid:   f1.SchemaFieldID(),
+				fid:   f1.FieldID(),
 				value: "xxx",
 			},
 			item: i1,

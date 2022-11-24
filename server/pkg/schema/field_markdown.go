@@ -1,7 +1,5 @@
 package schema
 
-var TypeMarkdown Type = "markdown"
-
 type FieldMarkdown struct {
 	defaultValue *string
 	maxLength    *int
