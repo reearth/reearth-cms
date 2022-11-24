@@ -52,6 +52,18 @@ type ServerInterface interface {
 	// Update an item.
 	// (PATCH /items/{itemId})
 	ItemUpdate(ctx echo.Context, itemId ItemIdParam) error
+
+	// (GET /items/{itemId}/comments)
+	ItemCommentList(ctx echo.Context, itemId ItemIdParam) error
+
+	// (POST /items/{itemId}/comments)
+	ItemCommentCreate(ctx echo.Context, itemId ItemIdParam) error
+
+	// (DELETE /items/{itemId}/comments/{commentId})
+	ItemCommentDelete(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
+	// Update Item Comment
+	// (PATCH /items/{itemId}/comments/{commentId})
+	ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
@@ -254,6 +266,94 @@ func (w *ServerInterfaceWrapper) ItemUpdate(ctx echo.Context) error {
 	return err
 }
 
+// ItemCommentList converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentList(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ItemCommentList(ctx, itemId)
+	return err
+}
+
+// ItemCommentCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ItemCommentCreate(ctx, itemId)
+	return err
+}
+
+// ItemCommentDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "commentId", runtime.ParamLocationPath, ctx.Param("commentId"), &commentId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ItemCommentDelete(ctx, itemId, commentId)
+	return err
+}
+
+// ItemCommentUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "itemId", runtime.ParamLocationPath, ctx.Param("itemId"), &itemId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "commentId", runtime.ParamLocationPath, ctx.Param("commentId"), &commentId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ItemCommentUpdate(ctx, itemId, commentId)
+	return err
+}
+
 // ItemFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 	var err error
@@ -430,6 +530,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.DELETE(baseURL+"/items/:itemId", wrapper.ItemDelete)
 	router.GET(baseURL+"/items/:itemId", wrapper.ItemGet)
 	router.PATCH(baseURL+"/items/:itemId", wrapper.ItemUpdate)
+	router.GET(baseURL+"/items/:itemId/comments", wrapper.ItemCommentList)
+	router.POST(baseURL+"/items/:itemId/comments", wrapper.ItemCommentCreate)
+	router.DELETE(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete)
+	router.PATCH(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
@@ -758,6 +862,150 @@ func (response ItemUpdate401Response) VisitItemUpdateResponse(w http.ResponseWri
 	return nil
 }
 
+type ItemCommentListRequestObject struct {
+	ItemId ItemIdParam `json:"itemId"`
+}
+
+type ItemCommentListResponseObject interface {
+	VisitItemCommentListResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentList200JSONResponse struct {
+	Comments *[]Comment `json:"comments,omitempty"`
+}
+
+func (response ItemCommentList200JSONResponse) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentList400Response struct {
+}
+
+func (response ItemCommentList400Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentList401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentList401Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentCreateRequestObject struct {
+	ItemId ItemIdParam `json:"itemId"`
+	Body   *ItemCommentCreateJSONRequestBody
+}
+
+type ItemCommentCreateResponseObject interface {
+	VisitItemCommentCreateResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentCreate200JSONResponse Comment
+
+func (response ItemCommentCreate200JSONResponse) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentCreate400Response struct {
+}
+
+func (response ItemCommentCreate400Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentCreate401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentCreate401Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentDeleteRequestObject struct {
+	ItemId    ItemIdParam    `json:"itemId"`
+	CommentId CommentIdParam `json:"commentId"`
+}
+
+type ItemCommentDeleteResponseObject interface {
+	VisitItemCommentDeleteResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentDelete200JSONResponse struct {
+	Id *id.CommentID `json:"id,omitempty"`
+}
+
+func (response ItemCommentDelete200JSONResponse) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentDelete400Response struct {
+}
+
+func (response ItemCommentDelete400Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentDelete401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentDelete401Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentDelete404Response struct {
+}
+
+func (response ItemCommentDelete404Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemCommentUpdateRequestObject struct {
+	ItemId    ItemIdParam    `json:"itemId"`
+	CommentId CommentIdParam `json:"commentId"`
+	Body      *ItemCommentUpdateJSONRequestBody
+}
+
+type ItemCommentUpdateResponseObject interface {
+	VisitItemCommentUpdateResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentUpdate200JSONResponse Comment
+
+func (response ItemCommentUpdate200JSONResponse) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentUpdate400Response struct {
+}
+
+func (response ItemCommentUpdate400Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentUpdate401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentUpdate401Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type ItemFilterRequestObject struct {
 	ModelId ModelIdParam `json:"modelId"`
 	Params  ItemFilterParams
@@ -930,6 +1178,18 @@ type StrictServerInterface interface {
 	// Update an item.
 	// (PATCH /items/{itemId})
 	ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error)
+
+	// (GET /items/{itemId}/comments)
+	ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error)
+
+	// (POST /items/{itemId}/comments)
+	ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error)
+
+	// (DELETE /items/{itemId}/comments/{commentId})
+	ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error)
+	// Update Item Comment
+	// (PATCH /items/{itemId}/comments/{commentId})
+	ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error)
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
@@ -1203,6 +1463,120 @@ func (sh *strictHandler) ItemUpdate(ctx echo.Context, itemId ItemIdParam) error 
 	return nil
 }
 
+// ItemCommentList operation middleware
+func (sh *strictHandler) ItemCommentList(ctx echo.Context, itemId ItemIdParam) error {
+	var request ItemCommentListRequestObject
+
+	request.ItemId = itemId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentList(ctx.Request().Context(), request.(ItemCommentListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentList")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentListResponseObject); ok {
+		return validResponse.VisitItemCommentListResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentCreate operation middleware
+func (sh *strictHandler) ItemCommentCreate(ctx echo.Context, itemId ItemIdParam) error {
+	var request ItemCommentCreateRequestObject
+
+	request.ItemId = itemId
+
+	var body ItemCommentCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentCreate(ctx.Request().Context(), request.(ItemCommentCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentCreateResponseObject); ok {
+		return validResponse.VisitItemCommentCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentDelete operation middleware
+func (sh *strictHandler) ItemCommentDelete(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error {
+	var request ItemCommentDeleteRequestObject
+
+	request.ItemId = itemId
+	request.CommentId = commentId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentDelete(ctx.Request().Context(), request.(ItemCommentDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentDeleteResponseObject); ok {
+		return validResponse.VisitItemCommentDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentUpdate operation middleware
+func (sh *strictHandler) ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error {
+	var request ItemCommentUpdateRequestObject
+
+	request.ItemId = itemId
+	request.CommentId = commentId
+
+	var body ItemCommentUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentUpdate(ctx.Request().Context(), request.(ItemCommentUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentUpdateResponseObject); ok {
+		return validResponse.VisitItemCommentUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("Unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ItemFilter operation middleware
 func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error {
 	var request ItemFilterRequestObject
@@ -1328,35 +1702,36 @@ func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam)
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
