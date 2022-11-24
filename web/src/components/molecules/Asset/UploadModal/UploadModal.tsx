@@ -23,8 +23,8 @@ type Props = {
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
   onUploadModalClose?: () => void;
-  handleUpload: () => void;
-  handleCancel: () => void;
+  onUpload: () => void;
+  onCancel: () => void;
 };
 
 const UploadModal: React.FC<Props> = ({
@@ -38,8 +38,8 @@ const UploadModal: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   onUploadModalClose,
-  handleUpload,
-  handleCancel,
+  onUpload,
+  onCancel,
 }) => {
   const t = useT();
   const handleTabChange = (key: string) => {
@@ -50,7 +50,7 @@ const UploadModal: React.FC<Props> = ({
     <Modal
       centered
       visible={visible}
-      onCancel={handleCancel}
+      onCancel={onCancel}
       footer={null}
       width="50vw"
       afterClose={onUploadModalClose}
@@ -73,12 +73,12 @@ const UploadModal: React.FC<Props> = ({
         {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
-        <CancelButton type="default" disabled={uploading} onClick={handleCancel}>
+        <CancelButton type="default" disabled={uploading} onClick={onCancel}>
           {t("Cancel")}
         </CancelButton>
         <Button
           type="primary"
-          onClick={handleUpload}
+          onClick={onUpload}
           disabled={fileList?.length === 0 && !uploadUrl}
           loading={uploading}>
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}

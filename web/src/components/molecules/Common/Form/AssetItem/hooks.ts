@@ -28,7 +28,7 @@ export default (
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
-  const handleUpload = useCallback(async () => {
+  const handleUploadAndLink = useCallback(async () => {
     setUploading(true);
     let assets: (Asset | undefined)[] = [];
     let asset: Asset | undefined;
@@ -64,6 +64,6 @@ export default (
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
-    handleUpload,
+    handleUploadAndLink,
   };
 };
