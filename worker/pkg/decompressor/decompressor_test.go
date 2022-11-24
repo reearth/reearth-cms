@@ -31,11 +31,12 @@ func TestNewUnzipper(t *testing.T) {
 	_, err := New(zf, fInfo.Size(), "zip", wFn)
 	assert.NoError(t, err)
 
-	_, err = New(zf, fInfo.Size(), "7z", wFn)
-	assert.NoError(t, err)
-
 	_, err = New(zf, 0, "zip", wFn)
 	assert.Error(t, err)
+
+	zf = lo.Must(os.Open("testdata/test.7z"))
+	_, err = New(zf, fInfo.Size(), "7z", wFn)
+	assert.NoError(t, err)
 
 	_, err = New(zf, 0, "7z", wFn)
 	assert.Error(t, err)
