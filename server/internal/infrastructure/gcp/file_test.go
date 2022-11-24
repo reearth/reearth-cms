@@ -20,18 +20,9 @@ func TestFile_GetURL(t *testing.T) {
 	n := "xxx.yyy"
 	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
 
-	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], encodeFileName(n))
+	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], n)
 	assert.NoError(t, err)
 	actual := r.GetURL(a)
-	assert.Equal(t, expected, actual)
-
-	u2 := newUUID()
-	n2 := "他他他.jpg"
-	a2 := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n2).UUID(u2).Thread(id.NewThreadID()).MustBuild()
-
-	expected, err = url.JoinPath(host, gcsAssetBasePath, u2[:2], u2[2:], "%E4%BB%96%E4%BB%96%E4%BB%96.jpg")
-	assert.NoError(t, err)
-	actual = r.GetURL(a2)
 	assert.Equal(t, expected, actual)
 }
 
@@ -52,9 +43,4 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 	u1 := "xxxxxx"
 	assert.Equal(t, false, IsValidUUID(u1))
-}
-
-func TestEncodeFileName(t *testing.T) {
-	assert.Equal(t, "xxx.yyy", encodeFileName("xxx.yyy"))
-	assert.Equal(t, "%E4%BB%96%E4%BB%96%E4%BB%96.jpg", encodeFileName("他他他.jpg"))
 }
