@@ -20,7 +20,7 @@ export default (
     setVisible(true);
   }, [setVisible]);
 
-  const handleCancel = useCallback(() => {
+  const handleLinkAssetModalCancel = useCallback(() => {
     setVisible(false);
   }, [setVisible]);
 
@@ -62,7 +62,7 @@ export default (
   return {
     visible,
     handleClick,
-    handleCancel,
+    handleLinkAssetModalCancel,
     displayUploadModal,
     handleUpload,
   };

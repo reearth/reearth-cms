@@ -19,7 +19,7 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 type Props = {
   // modal props
   visible: boolean;
-  onCancel: () => void;
+  onLinkAssetModalCancel: () => void;
   // table props
   linkedAsset?: Asset;
   assetList: Asset[];
@@ -42,7 +42,7 @@ type Props = {
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,
-  onCancel,
+  onLinkAssetModalCancel,
   linkedAsset,
   assetList,
   fileList,
@@ -101,7 +101,7 @@ const LinkAssetModal: React.FC<Props> = ({
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
               onLink(link ? asset : undefined);
-              onCancel();
+              onLinkAssetModalCancel();
             }}
           />
         );
@@ -141,7 +141,7 @@ const LinkAssetModal: React.FC<Props> = ({
       title={t("Link Asset")}
       centered
       visible={visible}
-      onCancel={onCancel}
+      onCancel={onLinkAssetModalCancel}
       footer={[
         <UploadAsset
           key={1}
@@ -157,7 +157,7 @@ const LinkAssetModal: React.FC<Props> = ({
           displayUploadModal={displayUploadModal}
           onUploadModalCancel={onUploadModalCancel}
           handleUpload={handleUpload}
-          onUploadModalClose={onCancel}
+          onUploadModalClose={onLinkAssetModalCancel}
         />,
       ]}
       width="70vw"

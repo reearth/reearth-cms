@@ -63,17 +63,18 @@ const AssetItem: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { Item } = Form;
-  const { visible, handleClick, handleCancel, displayUploadModal, handleUpload } = useHooks(
-    fileList,
-    uploadUrl,
-    uploadType,
-    onAssetsCreate,
-    onAssetCreateFromUrl,
-    onUploadModalCancel,
-    onLink,
-    setUploading,
-    setUploadModalVisibility,
-  );
+  const { visible, handleClick, handleLinkAssetModalCancel, displayUploadModal, handleUpload } =
+    useHooks(
+      fileList,
+      uploadUrl,
+      uploadType,
+      onAssetsCreate,
+      onAssetCreateFromUrl,
+      onUploadModalCancel,
+      onLink,
+      setUploading,
+      setUploadModalVisibility,
+    );
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
@@ -117,7 +118,7 @@ const AssetItem: React.FC<Props> = ({
       )}
       <LinkAssetModal
         visible={visible}
-        onCancel={handleCancel}
+        onLinkAssetModalCancel={handleLinkAssetModalCancel}
         linkedAsset={assetValue}
         assetList={assetList}
         fileList={fileList}
