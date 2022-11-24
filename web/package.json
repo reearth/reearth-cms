@@ -51,6 +51,7 @@
     "@types/react-resizable": "3.0.3",
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "2.2.0",
+    "@vitest/coverage-c8": "0.25.3",
     "eslint": "8.28.0",
     "eslint-config-reearth": "0.2.1",
     "i18next-parser": "7.0.3",
