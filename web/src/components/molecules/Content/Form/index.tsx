@@ -123,7 +123,12 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }>
               <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ) : field.type === "Integer" ? (
@@ -136,7 +141,12 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }>
               <InputNumber
                 type="number"
                 min={field.typeProperty.min}
@@ -154,7 +164,12 @@ const ContentForm: React.FC<Props> = ({
               ]}
               defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
-              label={field.title}
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }
               assetList={assetList}
               fileList={fileList}
               loadingAssets={loadingAssets}
@@ -169,7 +184,15 @@ const ContentForm: React.FC<Props> = ({
               setUploadModalVisibility={setUploadModalVisibility}
             />
           ) : field.type === "Select" ? (
-            <Form.Item extra={field.description} name={field.id} label={field.title}>
+            <Form.Item
+              extra={field.description}
+              name={field.id}
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }>
               <Select>
                 {field.typeProperty?.values?.map((value: string) => (
                   <Option key={value} value={value}>
@@ -182,7 +205,12 @@ const ContentForm: React.FC<Props> = ({
             <Form.Item
               extra={field.description}
               name={field.id}
-              label={field.title}
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }
               rules={[
                 {
                   required: field.required,
@@ -208,7 +236,12 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={
+                <>
+                  <FieldTitle>{field.title}</FieldTitle>
+                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
+                </>
+              }>
               <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ),
@@ -223,6 +256,17 @@ const FormItemsWrapper = styled.div`
   @media (max-width: 1200px) {
     width: 100%;
   }
+`;
+
+const FieldUnique = styled.span`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
+`;
+
+const FieldTitle = styled.span`
+  color: #000000d9;
+  font-weight: 400;
 `;
 
 export default ContentForm;

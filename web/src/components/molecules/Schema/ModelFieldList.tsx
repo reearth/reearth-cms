@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -19,6 +20,8 @@ const ModelFieldList: React.FC<Props> = ({
   handleFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
+  const t = useT();
+
   return (
     <FieldStyledList
       className={className}
@@ -54,6 +57,7 @@ const ModelFieldList: React.FC<Props> = ({
                   {(item as Field).title} {(item as Field).required ? " *" : ""}
                 </ItemTitle>
                 <ItemKey>#{(item as Field).key}</ItemKey>
+                {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
               </>
             }
           />
@@ -116,6 +120,12 @@ const ItemTitle = styled.span`
 `;
 
 const ItemKey = styled.span`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
+`;
+
+const ItemUnique = styled.span`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
   font-weight: 400;
