@@ -1,19 +1,84 @@
 type Request implements Node {
   id: ID!
-  itemId: ID!
+  items: [RequestItem!]!
   title: String!
-  description: String
+  description: String!
   createdBy: ID!
-  reviewers: [ID!]!
-#  what should reversion represents?
-#  Reversion: String!
-  state: StateType
+  workspaceId: ID!
+  projectId: ID!
+  threadId: ID!
+  reviewersId: [ID!]!
+  state: RequestState!
   createdAt: DateTime!
   updatedAt: DateTime!
+  approvedAt: DateTime
+  closeddAt: DateTime
+  thread: Thread # resolver
+  workspace: Workspace # resolver
+  project: Project # resolver
+  reviewers: [User!]! # resolver
 }
 
-enum StateType {
+type RequestItem {
+  itemId: ID!
+  version: String!
+  item: VersionedItem # resolver
+}
+
+enum RequestState {
   DRAFT
   WAITING
+  CLOSED
   APPROVED
+}
+
+type RequestConnection {
+
+}
+
+extend type Query {
+  requests(
+    projectId: ID!
+    state: RequestState
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): RequestConnection!
+}
+
+input CreateRequestInput {
+  projectId: ID!
+  title: String!
+  description: String!
+  state: RequestState! # note: approved and closed cannot be accepted. Only draft or waiting is available. Default is waiting.
+  reviewersId: [ID!] # only owners and maintainers, no reviewers is also ok
+  items: [RequestItemInput!]!
+}
+
+# consider: add maintainers to the UI?
+# note: owners, maintainers, and a request creator can update requests
+input UpdateRequestInput {
+  requestId: ID!
+  title: String
+  description: String
+  state: RequestState # note: approved cannot not accepted
+  reviewersId: [ID!]
+  # items: [RequestItemInput!] # maybe?
+}
+
+input RequestItemInput {
+  itemId: ID!
+  version: String!
+}
+
+input ApproveRequestInput {
+  requestId: ID!
+}
+
+extend type Mutation {
+  createRequest(input: CreateRequestInput!): RequestPayload
+  updateRequest(input: UpdateRequestInput!): RequestPayload
+  approveRequest(input: ApproveRequestInput!): RequestPayload
+  deleteRequest(input: DeleteRequestInput!): DeleteRequestPayload
 }
