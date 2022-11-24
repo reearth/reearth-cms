@@ -2,7 +2,7 @@ type Request implements Node {
   id: ID!
   items: [RequestItem!]!
   title: String!
-  description: String!
+  description: String
   createdBy: ID!
   workspaceId: ID!
   projectId: ID!
@@ -12,11 +12,11 @@ type Request implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   approvedAt: DateTime
-  closeddAt: DateTime
-  thread: Thread # resolver
-  workspace: Workspace # resolver
-  project: Project # resolver
-  reviewers: [User!]! # resolver
+  closedAt: DateTime
+  thread: Thread
+  workspace: Workspace
+  project: Project
+  reviewers: [User!]!
 }
 
 type RequestItem {
@@ -32,31 +32,16 @@ enum RequestState {
   APPROVED
 }
 
-type RequestConnection {
-
-}
-
-extend type Query {
-  requests(
-    projectId: ID!
-    state: RequestState
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): RequestConnection!
-}
-
+# input
 input CreateRequestInput {
   projectId: ID!
   title: String!
-  description: String!
-  state: RequestState! # note: approved and closed cannot be accepted. Only draft or waiting is available. Default is waiting.
+  description: String
+  state: RequestState # note: approved and closed cannot be accepted. Only draft or waiting is available. Default is waiting.
   reviewersId: [ID!] # only owners and maintainers, no reviewers is also ok
   items: [RequestItemInput!]!
 }
 
-# consider: add maintainers to the UI?
 # note: owners, maintainers, and a request creator can update requests
 input UpdateRequestInput {
   requestId: ID!
@@ -64,7 +49,7 @@ input UpdateRequestInput {
   description: String
   state: RequestState # note: approved cannot not accepted
   reviewersId: [ID!]
-  # items: [RequestItemInput!] # maybe?
+  items: [RequestItemInput!] # maybe?
 }
 
 input RequestItemInput {
@@ -72,8 +57,45 @@ input RequestItemInput {
   version: String!
 }
 
+input DeleteRequestInput {
+  requestId: ID!
+}
+
 input ApproveRequestInput {
   requestId: ID!
+}
+
+# Payload
+type RequestPayload {
+  request: Request!
+}
+
+type DeleteRequestPayload {
+  request: ID!
+}
+
+type RequestEdge {
+  cursor: Cursor!
+  node: Request
+}
+
+type RequestConnection {
+  edges: [RequestEdge!]!
+  nodes: [Request]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+extend type Query {
+  requests(
+    projectId: ID!
+    key: String
+    state: RequestState
+    first: Int
+    last: Int
+    after: Cursor
+    before: Cursor
+  ): RequestConnection!
 }
 
 extend type Mutation {

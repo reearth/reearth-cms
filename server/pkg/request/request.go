@@ -100,7 +100,7 @@ func (r *Request) SetDescription(description string) error {
 }
 
 func (r *Request) SetReviewers(reviewers []UserID) error {
-	if reviewers == nil || len(reviewers) == 0 {
+	if len(reviewers) == 0 {
 		return ErrEmptyItems
 	}
 	r.reviewers = reviewers

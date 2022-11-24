@@ -30,7 +30,7 @@ func (b *Builder) Build() (*Request, error) {
 	if b.r.createdBy.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.r.items == nil || len(b.r.items) == 0 {
+	if len(b.r.items) == 0 {
 		return nil, ErrEmptyItems
 	}
 	if b.r.title == "" {

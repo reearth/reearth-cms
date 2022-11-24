@@ -211,3 +211,8 @@ func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery
 		Before: before,
 	})
 }
+
+func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error) {
+	//TODO implement me
+	panic("implement me")
+}
