@@ -38,6 +38,9 @@ func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
 	if r == user.RoleWriter {
 		return o.WritableWorkspaces
 	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableWorkspaces
+	}
 	if r == user.RoleOwner {
 		return o.OwningWorkspaces
 	}
@@ -89,6 +92,9 @@ func (o *Operator) Projects(r user.Role) project.IDList {
 	}
 	if r == user.RoleWriter {
 		return o.WritableProjects
+	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableProjects
 	}
 	if r == user.RoleOwner {
 		return o.OwningProjects
