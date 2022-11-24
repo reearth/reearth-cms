@@ -151,6 +151,104 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/items/{itemId}/comments':
+    parameters:
+      - $ref: '#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemCommentList
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: item comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: ItemCommentCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/items/{itemId}/comments/{commentId}':
+    parameters:
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/commentIdParam'
+    patch:
+      operationId: ItemCommentUpdate
+      security:
+        - bearerAuth: []
+      summary: Update Item Comment
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Update An item comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: ItemCommentDelete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: delete an item comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   # '/models/{modelId}/items/{itemId}/refs':
   #   parameters:
   #     - $ref: '#/components/parameters/modelIdParam'
