@@ -8,6 +8,8 @@ type SchemaID = id.SchemaID
 type FieldID = id.FieldID
 type ModelID = id.ModelID
 type ThreadID = id.ThreadID
+type UserID = id.UserID
+type IntegrationID = id.IntegrationID
 
 var NewID = id.NewItemID
 var NewThreadID = id.NewThreadID

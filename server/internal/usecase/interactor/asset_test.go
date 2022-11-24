@@ -503,10 +503,13 @@ func TestAsset_Create(t *testing.T) {
 
 func TestAsset_Update(t *testing.T) {
 	uid := id.NewUserID()
+	ws := user.NewWorkspace().NewID().MustBuild()
+	pid1 := id.NewProjectID()
+	p := project.New().ID(pid1).Workspace(ws.ID()).MustBuild()
+
 	var pti asset.PreviewType = asset.PreviewTypeImage
 	var ptg asset.PreviewType = asset.PreviewTypeGeo
 
-	pid1 := id.NewProjectID()
 	aid1 := id.NewAssetID()
 	thid := id.NewThreadID()
 	a1 := asset.New().ID(aid1).Project(pid1).CreatedByUser(uid).Size(1000).Thread(thid).MustBuild()
@@ -516,7 +519,12 @@ func TestAsset_Update(t *testing.T) {
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(pid2).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{}
+	op := &usecase.Operator{
+		User:             &uid,
+		Integration:      nil,
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{pid1},
+	}
 
 	type args struct {
 		upp      interfaces.UpdateAssetParam
@@ -560,11 +568,13 @@ func TestAsset_Update(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
 
+			err := db.Project.Save(ctx, p)
+			assert.NoError(t, err)
 			for _, p := range tc.seeds {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -586,7 +596,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	uid := id.NewUserID()
 	assetID1 := asset.NewID()
 	assetID2 := asset.NewID()
-	proj := project.New().NewID().MustBuild()
+	ws := user.NewWorkspace().NewID().MustBuild()
+	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
 
 	c1 := asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build()
 	c2 := asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build()
@@ -596,7 +607,11 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).MustBuild()
 	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{User: &uid}
+	op := &usecase.Operator{
+		User:             &uid,
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{proj.ID()},
+	}
 
 	tests := []struct {
 		name            string
@@ -641,13 +656,15 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			ctx := context.Background()
 			db := memory.New()
 
 			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", ""))
 
+			err := db.Project.Save(ctx, proj)
+			assert.NoError(t, err)
 			for _, p := range tc.seedAssets {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.Nil(t, err)
@@ -677,7 +694,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 func TestAsset_Delete(t *testing.T) {
 	uid := id.NewUserID()
 
-	proj1 := project.New().NewID().MustBuild()
+	ws := user.NewWorkspace().NewID().MustBuild()
+	proj1 := project.New().NewID().Workspace(ws.ID()).MustBuild()
 	aid1 := id.NewAssetID()
 	a1 := asset.New().ID(aid1).Project(proj1.ID()).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
@@ -685,7 +703,11 @@ func TestAsset_Delete(t *testing.T) {
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{User: &uid}
+	op := &usecase.Operator{
+		User:             &uid,
+		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
+		OwningProjects:   []id.ProjectID{proj1.ID()},
+	}
 
 	type args struct {
 		id       id.AssetID
