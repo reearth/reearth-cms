@@ -55,7 +55,8 @@ func (uz *decompressor) Decompress() error {
 					return err
 				}
 				defer rc.Close()
-				if err == uz.read(f.Name, rc) {
+				err = uz.read(f.Name, rc)
+				if err != nil {
 					return err
 				}
 			}
@@ -70,7 +71,8 @@ func (uz *decompressor) Decompress() error {
 					return err
 				}
 				defer rc.Close()
-				if err == uz.read(f.Name, rc) {
+				err = uz.read(f.Name, rc)
+				if err != nil {
 					return err
 				}
 			}

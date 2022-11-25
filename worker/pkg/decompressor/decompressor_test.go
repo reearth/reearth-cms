@@ -49,8 +49,8 @@ func TestNewUnzipper(t *testing.T) {
 }
 
 func TestDecompressor_Decompress(t *testing.T) {
-	zf, err := os.Open("testdata/test.zip")
-	require.NoError(t, err)
+	zf := lo.Must(os.Open("testdata/test.zip"))
+	szf := lo.Must(os.Open("testdata/test.7z"))
 
 	fInfo, err := zf.Stat()
 	if err != nil {
@@ -76,14 +76,17 @@ func TestDecompressor_Decompress(t *testing.T) {
 
 	assert.NoError(t, uz.Decompress())
 	for k, v := range files {
-		assert.Equal(t, v.Bytes(), expectedFiles[k])
+		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
 
-	uz, err = New(zf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
+	uz2, err := New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return files[name], nil
 	})
 	require.NoError(t, err)
-	assert.NoError(t, uz.Decompress())
+	assert.NoError(t, uz2.Decompress())
+	for k, v := range files {
+		assert.Equal(t, expectedFiles[k], v.Bytes())
+	}
 
 	// exception: test if  wFn's error is same as what Unzip returns
 	uz, err = New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
