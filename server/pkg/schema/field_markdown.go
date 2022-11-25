@@ -14,6 +14,7 @@ func NewMarkdown(maxLength *int) *FieldMarkdown {
 
 func (f *FieldMarkdown) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:        f.Type(),
 		markdown: f,
 	}
 }

@@ -15,7 +15,11 @@ func NewWithTypeRegistry(t Type, v any, p TypeRegistry) *Value {
 }
 
 func (v *Value) IsEmpty() bool {
-	return v == nil || v.t == TypeUnknown || v.v == nil || v.TypeProperty().IsEmpty(v.v)
+	if v == nil || v.t == TypeUnknown || v.v == nil {
+		return true
+	}
+	tp := v.TypeProperty()
+	return tp == nil || tp.IsEmpty(v.v)
 }
 
 func (v *Value) Clone() *Value {
@@ -82,7 +86,7 @@ func (v *Value) Equal(w *Value) bool {
 }
 
 func (v *Value) Cast(t Type) *Value {
-	if v.IsEmpty() {
+	if v == nil {
 		return nil
 	}
 	if v.t == t {

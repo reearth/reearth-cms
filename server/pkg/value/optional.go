@@ -5,6 +5,16 @@ type Optional struct {
 	v *Value
 }
 
+func NewOptional(t Type, v *Value) *Optional {
+	if v == nil {
+		return t.None()
+	}
+	if t != v.Type() {
+		return nil
+	}
+	return v.Some()
+}
+
 func OptionalFrom(v *Value) *Optional {
 	if v.Type() == TypeUnknown {
 		return nil
