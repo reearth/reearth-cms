@@ -25,6 +25,6 @@ func NewComment(c *thread.Comment) *Comment {
 		AuthorId:   &authorID,
 		AuthorType: &authorType,
 		Content:    lo.ToPtr(c.Content()),
-		CreatedAt:  ToDate(c.CreatedAt()),
+		CreatedAt:  lo.ToPtr(c.CreatedAt()),
 	}
 }

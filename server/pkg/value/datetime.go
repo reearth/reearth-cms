@@ -50,7 +50,7 @@ func (p *propertyDateTime) ToValue(i any) (any, bool) {
 }
 
 func (*propertyDateTime) ToInterface(v any) (any, bool) {
-	return v, true
+	return v.(DateTime).Format(time.RFC3339), true
 }
 
 func (*propertyDateTime) Validate(i any) bool {
@@ -62,6 +62,10 @@ func (*propertyDateTime) Equal(v, w any) bool {
 	vv := v.(DateTime)
 	ww := v.(DateTime)
 	return vv.Equal(ww)
+}
+
+func (*propertyDateTime) IsEmpty(v any) bool {
+	return v.(DateTime).IsZero()
 }
 
 func (v *Value) ValueDateTime() (vv DateTime, ok bool) {

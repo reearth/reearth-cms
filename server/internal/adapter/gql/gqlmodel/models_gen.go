@@ -1129,20 +1129,22 @@ func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
 type Role string
 
 const (
-	RoleReader Role = "READER"
-	RoleWriter Role = "WRITER"
-	RoleOwner  Role = "OWNER"
+	RoleReader     Role = "READER"
+	RoleWriter     Role = "WRITER"
+	RoleOwner      Role = "OWNER"
+	RoleMaintainer Role = "Maintainer"
 )
 
 var AllRole = []Role{
 	RoleReader,
 	RoleWriter,
 	RoleOwner,
+	RoleMaintainer,
 }
 
 func (e Role) IsValid() bool {
 	switch e {
-	case RoleReader, RoleWriter, RoleOwner:
+	case RoleReader, RoleWriter, RoleOwner, RoleMaintainer:
 		return true
 	}
 	return false

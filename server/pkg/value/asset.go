@@ -40,6 +40,10 @@ func (*propertyAsset) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyAsset) IsEmpty(v any) bool {
+	return v.(Asset).IsEmpty()
+}
+
 func (v *Value) ValueAsset() (vv Asset, ok bool) {
 	if v == nil {
 		return

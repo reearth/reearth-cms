@@ -38,6 +38,9 @@ func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
 	if r == user.RoleWriter {
 		return o.WritableWorkspaces
 	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableWorkspaces
+	}
 	if r == user.RoleOwner {
 		return o.OwningWorkspaces
 	}
@@ -89,6 +92,9 @@ func (o *Operator) Projects(r user.Role) project.IDList {
 	}
 	if r == user.RoleWriter {
 		return o.WritableProjects
+	}
+	if r == user.RoleMaintainer {
+		return o.MaintainableProjects
 	}
 	if r == user.RoleOwner {
 		return o.OwningProjects
@@ -147,12 +153,8 @@ func (o *Operator) Operator() operator.Operator {
 }
 
 func (o *Operator) CanUpdate(obj Ownable) bool {
-	ownerUser, ownerIntegration := obj.User(), obj.Integration()
-	isOwned := ownerUser == o.User || ownerIntegration == o.Integration
+	isOwned := obj.User() == o.User || obj.Integration() == o.Integration
 	isWriter := o.IsWritableProject(obj.Project())
 	isMaintainer := o.IsMaintainingProject(obj.Project())
-	if !isMaintainer && !(isOwned && isWriter) {
-		return false
-	}
-	return true
+	return isMaintainer || isWriter || isOwned
 }
