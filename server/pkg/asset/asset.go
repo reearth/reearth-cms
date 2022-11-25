@@ -7,6 +7,8 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
+// TODO: add status
+
 type Asset struct {
 	id          ID
 	project     ProjectID

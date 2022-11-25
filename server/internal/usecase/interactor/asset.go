@@ -56,6 +56,7 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, err error) {
+	// TODO: set status to in progress
 	if op.User == nil && op.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -157,6 +158,10 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		})
 }
 
+// TODO:
+// task runner > worker > set status to decomporessed
+// after it is decompressed it calls notify asset decomporessed
+// in server notify handler -> notify controler -> update files -> fetch the list of files and list (recieve status)
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
 	if operator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
