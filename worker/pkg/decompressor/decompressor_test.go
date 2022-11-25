@@ -79,7 +79,11 @@ func TestDecompressor_Decompress(t *testing.T) {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
 
-	//TODO: ここにfilesをもう一個定義する
+	// Redefine files because buffer overwriting will occur.
+	files = map[string]*Buffer{
+		"test1.txt": {bytes.Buffer{}},
+		"test2.txt": {bytes.Buffer{}},
+	}
 	uz2, err := New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return files[name], nil
 	})
@@ -96,7 +100,7 @@ func TestDecompressor_Decompress(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, errors.New("test"), uz.Decompress())
 
-	uz, err = New(zf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
+	uz, err = New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return nil, errors.New("test")
 	})
 	require.NoError(t, err)
