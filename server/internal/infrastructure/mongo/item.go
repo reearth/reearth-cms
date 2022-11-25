@@ -86,26 +86,50 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.VersionedList, error) {
 	filters := make([]bson.M, 0, len(fields))
 	for _, f := range fields {
-		filters = append(filters, bson.M{
-			"modelid": modelID.String(),
-			"fields": bson.M{
-				"$elemMatch": bson.M{
-					"value":       f.Value,
-					"schemafield": f.SchemaFieldID.String(),
+		v := mongodoc.NewValue(f.Value)
+		if v == nil {
+			continue
+		}
+
+		filters = append(
+			filters,
+			bson.M{
+				"modelid": modelID.String(),
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"f":   f.Field.String(),
+						"v.t": v.T,
+						"v.v": v.V,
+					},
 				},
 			},
-		})
+			// compat
+			bson.M{
+				"modelid": modelID.String(),
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"schemafield": f.Field.String(),
+						"valuetype":   v.T,
+						"value":       v.V,
+					},
+				},
+			},
+		)
 	}
-	filter := bson.M{"$or": filters}
 
-	return r.find(ctx, filter)
+	if len(filters) == 0 {
+		return nil, nil
+	}
+	return r.find(ctx, bson.M{"$or": filters})
 }
 
 func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
 	return i.paginate(ctx, bson.M{
 		"project": query.Project().String(),
-		"fields.value": bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"},
+		"$or": []bson.M{
+			{"fields.v.v": bson.M{"$regex": regex}},
+			{"fields.value": bson.M{"$regex": regex}}, // compat
 		},
 	}, pagination)
 }

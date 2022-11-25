@@ -42,7 +42,7 @@ export interface Props {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;

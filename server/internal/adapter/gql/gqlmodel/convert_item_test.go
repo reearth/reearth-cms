@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,10 +15,13 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
+	tid := id.NewThreadID()
 	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Project(pid).Fields(fs).Model(mid).Build()
+	i := item.New().ID(iid).Schema(sid).Project(pid).Fields(
+		[]*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())},
+	).Model(mid).Thread(tid).MustBuild()
+
 	tests := []struct {
 		name  string
 		input *item.Item
@@ -32,6 +35,7 @@ func TestToItem(t *testing.T) {
 				ProjectID: IDFrom(pid),
 				ModelID:   IDFrom(mid),
 				SchemaID:  IDFrom(sid),
+				ThreadID:  IDFrom(tid),
 				CreatedAt: i.Timestamp(),
 				Fields: []*ItemField{
 					{
@@ -72,9 +76,9 @@ func TestToItemParam(t *testing.T) {
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
-				SchemaFieldID: sfid,
-				ValueType:     schema.TypeText,
-				Value:         "foo",
+				Field: sfid,
+				Type:  value.TypeText,
+				Value: "foo",
 			},
 		},
 		{
@@ -87,10 +91,10 @@ func TestToItemParam(t *testing.T) {
 
 	for _, tc := range tests {
 		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got := ToItemParam(tc.input)
-			assert.Equal(tt, tc.want, got)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -100,8 +104,8 @@ func TestToVersionedItem(t *testing.T) {
 	sid := id.NewSchemaID()
 	sfid := id.NewFieldID()
 	ref := "a"
-	fs := []*item.Field{item.NewField(sfid, schema.TypeBool, true)}
-	i, _ := item.New().ID(iid).Schema(sid).Project(id.NewProjectID()).Fields(fs).Build()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
 	tests := []struct {
@@ -124,15 +128,14 @@ func TestToVersionedItem(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			got := ToVersionedItem(tc.args)
-			assert.Equal(tt, tc.want, got)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
 
 func TestToItemQuery(t *testing.T) {
-	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
 	str := "foo"
 	tests := []struct {
@@ -143,33 +146,23 @@ func TestToItemQuery(t *testing.T) {
 		{
 			name: "should pass",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Project:   IDFrom(pid),
-				Q:         &str,
-			},
-			want: item.NewQuery(wid, pid, str),
-		},
-		{
-			name: "invalid workspace id",
-			input: ItemQuery{
 				Project: IDFrom(pid),
 				Q:       &str,
 			},
+			want: item.NewQuery(pid, str),
 		},
 		{
 			name: "invalid project id",
 			input: ItemQuery{
-				Workspace: IDFrom(wid),
-				Q:         &str,
+				Q: &str,
 			},
 		},
 	}
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			got := ToItemQuery(tc.input)
-			assert.Equal(tt, tc.want, got)
-
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

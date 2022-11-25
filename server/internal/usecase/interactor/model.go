@@ -59,12 +59,15 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
-	p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
-	if err != nil {
-		return nil, err
-	}
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *model.Model, err error) {
+			if !operator.IsWritableProject(param.ProjectId) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
+			if err != nil {
+				return nil, err
+			}
 			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 				return nil, err
@@ -120,17 +123,17 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 }
 
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
-	m, err := i.repos.Model.FindByID(ctx, param.ModelId)
-	if err != nil {
-		return nil, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, m.Project())
-	if err != nil {
-		return nil, err
-	}
-
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *model.Model, err error) {
+			m, err := i.repos.Model.FindByID(ctx, param.ModelId)
+			if err != nil {
+				return nil, err
+			}
+
+			if !operator.IsMaintainingProject(m.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
 			if param.Name != nil {
 				m.SetName(*param.Name)
 			}
@@ -170,17 +173,16 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 }
 
 func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) error {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
-	if err != nil {
-		return err
-	}
-	p, err := i.repos.Project.FindByID(ctx, m.Project())
-	if err != nil {
-		return err
-	}
-
-	return Run0(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func() error {
+			m, err := i.repos.Model.FindByID(ctx, modelID)
+			if err != nil {
+				return err
+			}
+			if !operator.IsMaintainingProject(m.Project()) {
+				return interfaces.ErrOperationDenied
+			}
+
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
 				return err
 			}
@@ -189,17 +191,16 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 }
 
 func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator *usecase.Operator) (bool, error) {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
-	if err != nil {
-		return false, err
-	}
-	p, err := i.repos.Project.FindByID(ctx, m.Project())
-	if err != nil {
-		return false, err
-	}
-
-	return Run1(ctx, operator, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ bool, err error) {
+			m, err := i.repos.Model.FindByID(ctx, modelID)
+			if err != nil {
+				return false, err
+			}
+			if !operator.IsMaintainingProject(m.Project()) {
+				return m.Public(), interfaces.ErrOperationDenied
+			}
+
 			m.SetPublic(b)
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {

@@ -8,13 +8,11 @@ import (
 )
 
 func TestNewQuery(t *testing.T) {
-	wid := id.NewWorkspaceID()
 	pid := id.NewProjectID()
 	str := "foo"
 	type args struct {
-		workspace id.WorkspaceID
-		project   id.ProjectID
-		q         string
+		project id.ProjectID
+		q       string
 	}
 	tests := []struct {
 		name string
@@ -24,20 +22,18 @@ func TestNewQuery(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				workspace: wid,
-				project:   pid,
-				q:         str,
+				project: pid,
+				q:       str,
 			},
 			want: &Query{
-				workspace: wid,
-				project:   pid,
-				q:         "foo",
+				project: pid,
+				q:       "foo",
 			},
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
-			got := NewQuery(tc.args.workspace, tc.args.project, tc.args.q)
+			got := NewQuery(tc.args.project, tc.args.q)
 			assert.Equal(tt, tc.want, got)
 		})
 	}
@@ -52,14 +48,6 @@ func TestQuery_Project(t *testing.T) {
 }
 
 func TestQuery_Q(t *testing.T) {
-	wid := id.NewWorkspaceID()
-	q := &Query{
-		workspace: wid,
-	}
-	assert.Equal(t, wid, q.Workspace())
-}
-
-func TestQuery_Workspace(t *testing.T) {
 	str := "foo"
 	q := &Query{
 		q: str,

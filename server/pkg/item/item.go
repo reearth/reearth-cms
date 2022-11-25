@@ -12,18 +12,29 @@ import (
 )
 
 type Item struct {
-	id        ID
-	schema    SchemaID
-	model     ModelID
-	project   ProjectID
-	fields    []*Field
-	timestamp time.Time
+	id          ID
+	schema      SchemaID
+	model       ModelID
+	project     ProjectID
+	fields      []*Field
+	timestamp   time.Time
+	thread      ThreadID
+	user        *UserID
+	integration *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
 
 func (i *Item) ID() ID {
 	return i.id
+}
+
+func (i *Item) User() *UserID {
+	return i.user
+}
+
+func (i *Item) Integration() *IntegrationID {
+	return i.integration
 }
 
 func (i *Item) Fields() []*Field {
@@ -48,9 +59,13 @@ func (i *Item) Timestamp() time.Time {
 
 func (i *Item) Field(f FieldID) *Field {
 	ff, _ := lo.Find(i.fields, func(g *Field) bool {
-		return g.SchemaFieldID() == f
+		return g.FieldID() == f
 	})
 	return ff
+}
+
+func (i *Item) Thread() ThreadID {
+	return i.thread
 }
 
 func (i *Item) UpdateFields(fields []*Field) {
@@ -59,11 +74,12 @@ func (i *Item) UpdateFields(fields []*Field) {
 	}
 
 	newFields := lo.Filter(fields, func(field *Field, _ int) bool {
-		return i.Field(field.schemaFieldID) == nil
+		return i.Field(field.field) == nil
 	})
+
 	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
 		ff, found := lo.Find(fields, func(g *Field) bool {
-			return g.SchemaFieldID() == f.SchemaFieldID()
+			return g.FieldID() == f.FieldID()
 		})
 
 		if !found {
@@ -72,6 +88,7 @@ func (i *Item) UpdateFields(fields []*Field) {
 
 		return ff, true
 	}), newFields...)
+
 	i.timestamp = util.Now()
 }
 
@@ -81,7 +98,7 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	}
 
 	fields := lo.Filter(i.fields, func(f *Field, i int) bool {
-		return list.Has(f.SchemaFieldID())
+		return list.Has(f.FieldID())
 	})
 
 	return &Item{
@@ -93,21 +110,9 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	}
 }
 
-func (i *Item) FindFieldByValue(v any) bool {
-	if i == nil {
-		return false
-	}
-	for _, f := range i.fields {
-		if f.value == v {
-			return true
-		}
-	}
-	return false
-}
-
 func (i *Item) HasField(fid id.FieldID, value any) bool {
 	for _, field := range i.fields {
-		if field.schemaFieldID == fid && field.value == value {
+		if field.field == fid && field.value == value {
 			return true
 		}
 	}

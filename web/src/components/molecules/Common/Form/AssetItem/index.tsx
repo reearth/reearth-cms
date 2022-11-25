@@ -19,7 +19,7 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
@@ -51,7 +51,7 @@ const AssetItem: React.FC<Props> = ({
   const t = useT();
   const { Item } = Form;
   const { visible, handleClick, handleCancel, displayUploadModal, hideUploadModal, handleUpload } =
-    useHooks(fileList, createAssets, setFileList, setUploading, setUploadModalVisibility);
+    useHooks(fileList, createAssets, onLink, setFileList, setUploading, setUploadModalVisibility);
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
