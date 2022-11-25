@@ -111,22 +111,21 @@ export default () => {
   );
 
   const handleAssetCreateFromUrl = useCallback(
-    (url: string) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await createAssetMutation({
-          variables: { projectId, file: null, url },
-        });
-        if (result.errors || !result.data?.createAsset) {
-          Notification.error({ message: t("Failed to add asset.") });
-          return;
-        }
-        if (result.data?.createAsset) {
-          Notification.success({ message: t("Successfully added asset!") });
-          await refetch();
-          return convertAsset(result.data.createAsset.asset as GQLAsset);
-        }
-      })(),
+    async (url: string) => {
+      if (!projectId) return;
+      const result = await createAssetMutation({
+        variables: { projectId, file: null, url },
+      });
+      if (result.errors || !result.data?.createAsset) {
+        Notification.error({ message: t("Failed to add asset.") });
+        return;
+      }
+      if (result.data?.createAsset) {
+        Notification.success({ message: t("Successfully added asset!") });
+        await refetch();
+        return convertAsset(result.data.createAsset.asset as GQLAsset);
+      }
+    },
     [t, projectId, createAssetMutation, refetch],
   );
 
@@ -165,8 +164,7 @@ export default () => {
             break;
         }
         if (input.alsoLink && input.onLink && asset) input.onLink(asset);
-        handleUploadModalCancel();
-      } catch (error) {
+      } finally {
         handleUploadModalCancel();
       }
     },
