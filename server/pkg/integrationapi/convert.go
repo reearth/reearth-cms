@@ -4,9 +4,7 @@ package integrationapi
 
 import (
 	"errors"
-	"time"
 
-	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 )
@@ -40,10 +38,4 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 	}
 
 	return
-}
-
-func ToDate(t time.Time) *openapi_types.Date {
-	return &openapi_types.Date{
-		Time: t,
-	}
 }

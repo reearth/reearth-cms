@@ -13,7 +13,7 @@ func NewAsset(a *asset.Asset, url string) (*Asset, error) {
 	return &Asset{
 		Id:          a.ID().Ref(),
 		ContentType: lo.ToPtr(a.File().ContentType()),
-		CreatedAt:   ToDate(a.CreatedAt()),
+		CreatedAt:   lo.ToPtr(a.CreatedAt()),
 		Name:        lo.ToPtr(a.File().Name()),
 		PreviewType: ToPreviewType(a.PreviewType()),
 		ProjectId:   a.Project().Ref(),
