@@ -90,7 +90,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 
 		if param.TypeProperty != nil {
 			if param.DefaultValue != nil {
-				f.SetDefaultValue(nil)
+				_ = f.SetDefaultValue(nil)
 			}
 			if err := f.SetTypeProperty(param.TypeProperty); err != nil {
 				return nil, err

@@ -1,14 +1,10 @@
 package schema
 
 import (
-	"time"
-
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldDateTime struct {
-	defaultValue *time.Time
-}
+type FieldDateTime struct{}
 
 func NewDateTime() *FieldDateTime {
 	return &FieldDateTime{}
