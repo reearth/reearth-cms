@@ -357,7 +357,7 @@ func TestProject_Update(t *testing.T) {
 	op := &usecase.Operator{
 		User:               lo.ToPtr(u.ID()),
 		ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
-		WritableWorkspaces: []id.WorkspaceID{wid1},
+		OwningWorkspaces:   []id.WorkspaceID{wid1},
 	}
 
 	type args struct {

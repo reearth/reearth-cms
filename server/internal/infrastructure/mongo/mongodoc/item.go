@@ -13,12 +13,15 @@ import (
 )
 
 type ItemDocument struct {
-	ID        string
-	Project   string
-	Schema    string
-	ModelID   string
-	Fields    []ItemFieldDocument
-	Timestamp time.Time
+	ID          string
+	Project     string
+	Schema      string
+	Thread      string
+	ModelID     string
+	Fields      []ItemFieldDocument
+	Timestamp   time.Time
+	User        *string
+	Integration *string
 }
 
 type ItemFieldDocument struct {
@@ -39,24 +42,25 @@ type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDo
 
 func NewVersionedItemConsumer() *VersionedItemConsumer {
 	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Value[*item.Item], error) {
-		item, err := d.Data.Model()
+		itm, err := d.Data.Model()
 		if err != nil {
 			return nil, err
 		}
 
-		v := mongogit.ToValue(d.Meta, item)
+		v := mongogit.ToValue(d.Meta, itm)
 		return v, nil
 	})
 }
 
-func NewItem(ws *item.Item) (*ItemDocument, string) {
-	id := ws.ID().String()
+func NewItem(i *item.Item) (*ItemDocument, string) {
+	itmId := i.ID().String()
 	return &ItemDocument{
-		ID:      id,
-		Schema:  ws.Schema().String(),
-		ModelID: ws.Model().String(),
-		Project: ws.Project().String(),
-		Fields: lo.FilterMap(ws.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
+		ID:      itmId,
+		Schema:  i.Schema().String(),
+		ModelID: i.Model().String(),
+		Project: i.Project().String(),
+		Thread:  i.Thread().String(),
+		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewOptionalValue(f.Value())
 			if v == nil {
 				return ItemFieldDocument{}, false
@@ -67,12 +71,14 @@ func NewItem(ws *item.Item) (*ItemDocument, string) {
 				V: *v,
 			}, true
 		}),
-		Timestamp: ws.Timestamp(),
-	}, id
+		Timestamp:   i.Timestamp(),
+		User:        i.User().StringRef(),
+		Integration: i.Integration().StringRef(),
+	}, itmId
 }
 
 func (d *ItemDocument) Model() (*item.Item, error) {
-	iid, err := id.ItemIDFrom(d.ID)
+	itmId, err := id.ItemIDFrom(d.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +94,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	pid, err := id.ProjectIDFrom(d.Project)
+	if err != nil {
+		return nil, err
+	}
+
+	tid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
@@ -117,14 +128,24 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
-	return item.New().
-		ID(iid).
+	ib := item.New().
+		ID(itmId).
 		Project(pid).
 		Schema(sid).
 		Model(mid).
+		Thread(tid).
 		Fields(fields).
-		Timestamp(d.Timestamp).
-		Build()
+		Timestamp(d.Timestamp)
+
+	if uId := id.UserIDFromRef(d.User); uId != nil {
+		ib = ib.User(*uId)
+	}
+
+	if iId := id.IntegrationIDFromRef(d.Integration); iId != nil {
+		ib = ib.Integration(*iId)
+	}
+
+	return ib.Build()
 }
 
 func NewItems(items item.List) ([]*ItemDocument, []string) {
@@ -134,9 +155,9 @@ func NewItems(items item.List) ([]*ItemDocument, []string) {
 		if d == nil {
 			continue
 		}
-		r, id := NewItem(d)
+		r, itmId := NewItem(d)
 		res = append(res, r)
-		ids = append(ids, id)
+		ids = append(ids, itmId)
 	}
 	return res, ids
 }

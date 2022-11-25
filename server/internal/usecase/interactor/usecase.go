@@ -10,9 +10,11 @@ import (
 )
 
 type uc struct {
-	tx                 bool
-	readableWorkspaces id.WorkspaceIDList
-	writableWorkspaces id.WorkspaceIDList
+	tx                     bool
+	readableWorkspaces     id.WorkspaceIDList
+	writableWorkspaces     id.WorkspaceIDList
+	maintainableWorkspaces id.WorkspaceIDList
+	ownableWorkspaces      id.WorkspaceIDList
 }
 
 func Usecase() *uc {
@@ -26,6 +28,16 @@ func (u *uc) WithReadableWorkspaces(ids ...id.WorkspaceID) *uc {
 
 func (u *uc) WithWritableWorkspaces(ids ...id.WorkspaceID) *uc {
 	u.writableWorkspaces = id.WorkspaceIDList(ids).Clone()
+	return u
+}
+
+func (u *uc) WithMaintainableWorkspaces(ids ...id.WorkspaceID) *uc {
+	u.maintainableWorkspaces = id.WorkspaceIDList(ids).Clone()
+	return u
+}
+
+func (u *uc) WithOwnableWorkspaces(ids ...id.WorkspaceID) *uc {
+	u.ownableWorkspaces = id.WorkspaceIDList(ids).Clone()
 	return u
 }
 
@@ -94,6 +106,12 @@ func (u *uc) checkPermission(op *usecase.Operator) error {
 	}
 	if ok && u.writableWorkspaces != nil {
 		ok = op.IsWritableWorkspace(u.writableWorkspaces...)
+	}
+	if ok && u.maintainableWorkspaces != nil {
+		ok = op.IsOwningWorkspace(u.maintainableWorkspaces...)
+	}
+	if ok && u.ownableWorkspaces != nil {
+		ok = op.IsOwningWorkspace(u.ownableWorkspaces...)
 	}
 	if !ok {
 		return interfaces.ErrOperationDenied

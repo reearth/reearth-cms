@@ -21,7 +21,7 @@ export interface Props {
   uploading: boolean;
   defaultValue?: string;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<void>;
+  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
