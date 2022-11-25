@@ -2,59 +2,73 @@ package schema
 
 import (
 	"errors"
+	"fmt"
+
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
 )
 
 var (
-	ErrMinMaxInvalid     = errors.New("max must be larger then min")
-	ErrMinDefaultInvalid = errors.New("defaultValue must be larger then min")
-	ErrMaxDefaultInvalid = errors.New("max must be larger then defaultValue")
+	ErrInvalidMinMax = errors.New("max must be larger then min")
 )
 
 type FieldInteger struct {
-	defaultValue *int
-	min          *int
-	max          *int
+	min *int64
+	max *int64
 }
 
-func FieldIntegerFrom(defaultValue, min, max *int) (*FieldInteger, error) {
+func NewInteger(min, max *int64) (*FieldInteger, error) {
 	if min != nil && max != nil && *min > *max {
-		return nil, ErrMinMaxInvalid
-	}
-	if min != nil && defaultValue != nil && *min > *defaultValue {
-		return nil, ErrMinDefaultInvalid
-	}
-	if defaultValue != nil && max != nil && *defaultValue > *max {
-		return nil, ErrMaxDefaultInvalid
+		return nil, ErrInvalidMinMax
 	}
 	return &FieldInteger{
-		defaultValue: defaultValue,
-		min:          min,
-		max:          max,
+		min: min,
+		max: max,
 	}, nil
-}
-
-func MustFieldIntegerFrom(defaultValue, min, max *int) *FieldInteger {
-	v, err := FieldIntegerFrom(defaultValue, min, max)
-	if err != nil {
-		panic(err)
-	}
-	return v
 }
 
 func (f *FieldInteger) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:       f.Type(),
 		integer: f,
 	}
 }
 
-func (f *FieldInteger) DefaultValue() *int {
-	return f.defaultValue
+func (f *FieldInteger) Min() *int64 {
+	return util.CloneRef(f.min)
 }
 
-func (f *FieldInteger) Min() *int {
-	return f.min
+func (f *FieldInteger) Max() *int64 {
+	return util.CloneRef(f.max)
 }
 
-func (f *FieldInteger) Max() *int {
-	return f.max
+func (f *FieldInteger) Type() value.Type {
+	return value.TypeInteger
+}
+
+func (f *FieldInteger) Clone() *FieldInteger {
+	if f == nil {
+		return nil
+	}
+	return &FieldInteger{
+		min: util.CloneRef(f.min),
+		max: util.CloneRef(f.max),
+	}
+}
+
+func (f *FieldInteger) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Integer: func(a value.Integer) {
+			if f.min != nil && a < *f.min {
+				err = fmt.Errorf("value should be larger than %d", *f.min)
+			}
+			if f.max != nil && a > *f.max {
+				err = fmt.Errorf("value should be smaller than %d", *f.max)
+			}
+		},
+		Default: func() {
+			err = ErrInvalidValue
+		},
+	})
+	return
 }

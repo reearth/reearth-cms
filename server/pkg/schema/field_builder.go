@@ -4,137 +4,24 @@ import (
 	"errors"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
-	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
 var ErrInvalidKey = errors.New("invalid key")
+var ErrInvalidType = errors.New("invalid type")
 
 type FieldBuilder struct {
 	f   *Field
+	dv  *value.Value
 	err error
 }
 
-func NewFieldText(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldTextFrom(defaultValue, maxLength)
-
+func NewField(tp *TypeProperty) *FieldBuilder {
 	return &FieldBuilder{
 		f: &Field{
-			typeProperty: &TypeProperty{
-				text: f,
-			},
+			typeProperty: tp,
 		},
-		err: err,
-	}
-}
-
-func NewFieldTextArea(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldTextAreaFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				textArea: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldRichText(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldRichTextFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				richText: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldMarkdown(defaultValue *string, maxLength *int) *FieldBuilder {
-	f, err := FieldMarkdownFrom(defaultValue, maxLength)
-
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				markdown: f,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldAsset(defaultValue *id.AssetID) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			asset: FieldAssetFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldDate(defaultValue *time.Time) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			dateTime: FieldDateFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldBool(defaultValue *bool) *FieldBuilder {
-	return &FieldBuilder{f: &Field{
-		typeProperty: &TypeProperty{
-			bool: FieldBoolFrom(defaultValue),
-		},
-	}}
-}
-
-func NewFieldSelect(values []string, defaultValue *string) *FieldBuilder {
-	fs, err := FieldSelectFrom(values, defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				selectt: fs,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldInteger(defaultValue, min, max *int) *FieldBuilder {
-	ft, err := FieldIntegerFrom(defaultValue, min, max)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				integer: ft,
-			},
-		},
-		err: err,
-	}
-}
-
-func NewFieldReference(defaultValue model.ID) *FieldBuilder {
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				reference: FieldReferenceFrom(defaultValue),
-			},
-		},
-	}
-}
-
-func NewFieldURL(defaultValue *string) *FieldBuilder {
-	tp, err := FieldURLFrom(defaultValue)
-	return &FieldBuilder{
-		f: &Field{
-			typeProperty: &TypeProperty{
-				url: tp,
-			},
-		},
-		err: err,
 	}
 }
 
@@ -145,10 +32,21 @@ func (b *FieldBuilder) Build() (*Field, error) {
 	if b.f.id.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.f.typeProperty == nil {
+		return nil, ErrInvalidType
+	}
 	if !b.f.key.IsValid() {
 		return nil, ErrInvalidKey
 	}
+	if err := b.f.SetDefaultValue(b.dv); err != nil {
+		return nil, err
+	}
 	return b.f, nil
+}
+
+func (b *FieldBuilder) Type(tp *TypeProperty) *FieldBuilder {
+	b.f.typeProperty = tp
+	return b
 }
 
 func (b *FieldBuilder) MustBuild() *Field {
@@ -169,9 +67,17 @@ func (b *FieldBuilder) NewID() *FieldBuilder {
 	return b
 }
 
-func (b *FieldBuilder) Options(unique, multiValue, required bool) *FieldBuilder {
+func (b *FieldBuilder) Unique(unique bool) *FieldBuilder {
 	b.f.unique = unique
-	b.f.multiValue = multiValue
+	return b
+}
+
+func (b *FieldBuilder) Multiple(multiple bool) *FieldBuilder {
+	b.f.multiple = multiple
+	return b
+}
+
+func (b *FieldBuilder) Required(required bool) *FieldBuilder {
 	b.f.required = required
 	return b
 }
@@ -198,5 +104,10 @@ func (b *FieldBuilder) RandomKey() *FieldBuilder {
 
 func (b *FieldBuilder) UpdatedAt(t time.Time) *FieldBuilder {
 	b.f.updatedAt = t
+	return b
+}
+
+func (b *FieldBuilder) DefaultValue(v *value.Value) *FieldBuilder {
+	b.dv = v
 	return b
 }
