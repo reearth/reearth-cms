@@ -588,10 +588,10 @@ components:
             $ref: '#/components/schemas/schemaField'
         createdAt:
           type: string
-          format: date
+          format: date-time
         updatedAt:
           type: string
-          format: date
+          format: date-time
     valueType:
       type: string
       enum:
@@ -649,10 +649,10 @@ components:
             $ref: '#/components/schemas/field'
         createdAt:
           type: string
-          format: date
+          format: date-time
         updatedAt:
           type: string
-          format: date
+          format: date-time
     versionedItem:
       type: object
       properties:
@@ -667,10 +667,10 @@ components:
             $ref: '#/components/schemas/field'
         createdAt:
           type: string
-          format: date
+          format: date-time
         updatedAt:
           type: string
-          format: date
+          format: date-time
         version:
           type: string
           format: uuid
@@ -732,10 +732,10 @@ components:
           $ref: '#/components/schemas/file'
         createdAt:
           type: string
-          format: date
+          format: date-time
         updatedAt:
           type: string
-          format: date
+          format: date-time
     comment:
       type: object
       properties:
@@ -754,7 +754,7 @@ components:
           type: string
         createdAt:
           type: string
-          format: date
+          format: date-time
     file:
       type: object
       properties:
