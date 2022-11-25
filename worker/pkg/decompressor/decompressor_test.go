@@ -79,6 +79,7 @@ func TestDecompressor_Decompress(t *testing.T) {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
 
+	//TODO: ここにfilesをもう一個定義する
 	uz2, err := New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return files[name], nil
 	})
