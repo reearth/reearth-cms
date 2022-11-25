@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction, useCallback } from "react";
+import { Key, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -26,20 +26,14 @@ type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
-  setSelection: Dispatch<
-    SetStateAction<{
-      selectedRowKeys: Key[];
-    }>
-  >;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -55,47 +49,22 @@ const AssetList: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onAssetDelete,
   onSearchTerm,
   onEdit,
   setSelection,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
   onAssetsReload,
+  onUploadAndLink,
 }) => {
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
   const handleUpload = useCallback(async () => {
-    setUploading(true);
-
-    try {
-      switch (uploadType) {
-        case "url":
-          await onAssetCreateFromUrl(uploadUrl);
-          break;
-        case "local":
-        default:
-          await onAssetsCreate(fileList);
-          break;
-      }
-      onUploadModalCancel();
-    } catch (error) {
-      onUploadModalCancel();
-    }
-  }, [
-    setUploading,
-    uploadType,
-    onUploadModalCancel,
-    onAssetCreateFromUrl,
-    uploadUrl,
-    onAssetsCreate,
-    fileList,
-  ]);
+    onUploadAndLink({ alsoLink: false });
+  }, [onUploadAndLink]);
 
   const uploadProps: UploadProps = {
     name: "file",

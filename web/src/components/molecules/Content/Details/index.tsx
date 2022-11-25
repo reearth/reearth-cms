@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -27,13 +25,11 @@ export type Props = {
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -55,13 +51,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onItemCreate,
   onItemUpdate,
   onBack,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
+  onUploadAndLink,
 }) => {
   return (
     <ContentWrapper modelsMenu={ModelsMenu}>
@@ -83,13 +77,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onBack={onBack}
         onItemCreate={onItemCreate}
         onItemUpdate={onItemUpdate}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}
         setFileList={setFileList}
-        setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
+        onUploadAndLink={onUploadAndLink}
       />
     </ContentWrapper>
   );

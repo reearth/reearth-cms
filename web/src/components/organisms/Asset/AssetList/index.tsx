@@ -18,14 +18,12 @@ const AssetList: React.FC = () => {
     setUploadType,
     setSelection,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
     handleAssetDelete,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
+    handleUploadAndLink,
   } = useHooks();
 
   return (
@@ -42,16 +40,14 @@ const AssetList: React.FC = () => {
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}
-      onAssetsCreate={handleAssetsCreate}
-      onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
       onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onEdit={handleNavigateToAsset}
       setSelection={setSelection}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
+      onUploadAndLink={handleUploadAndLink}
     />
   );
 };

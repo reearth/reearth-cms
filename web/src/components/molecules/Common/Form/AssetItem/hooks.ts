@@ -1,19 +1,11 @@
-import { useState, useCallback, Dispatch, SetStateAction } from "react";
+import { useState, useCallback } from "react";
 
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 
 export default (
-  fileList: UploadFile[],
-  uploadUrl: string,
-  uploadType: UploadType,
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
-  onUploadModalCancel: () => void,
   onLink: (asset?: Asset) => void,
-  setUploading: Dispatch<SetStateAction<boolean>>,
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>,
+  setUploadModalVisibility: (visible: boolean) => void,
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void,
 ) => {
   const [visible, setVisible] = useState(false);
   const handleClick = useCallback(() => {
@@ -29,35 +21,8 @@ export default (
   }, [setUploadModalVisibility]);
 
   const handleUploadAndLink = useCallback(async () => {
-    setUploading(true);
-    let assets: (Asset | undefined)[] = [];
-    let asset: Asset | undefined;
-    try {
-      switch (uploadType) {
-        case "url":
-          asset = await onAssetCreateFromUrl(uploadUrl);
-          break;
-        case "local":
-        default:
-          assets = await onAssetsCreate(fileList);
-          if (assets.length > 0) asset = assets[0];
-          break;
-      }
-      if (asset) onLink(asset);
-      onUploadModalCancel();
-    } catch (error) {
-      onUploadModalCancel();
-    }
-  }, [
-    setUploading,
-    uploadType,
-    onUploadModalCancel,
-    onAssetCreateFromUrl,
-    uploadUrl,
-    onAssetsCreate,
-    fileList,
-    onLink,
-  ]);
+    onUploadAndLink({ alsoLink: true, onLink });
+  }, [onUploadAndLink, onLink]);
 
   return {
     visible,

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -46,13 +46,11 @@ export type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 };
 
 const initialValues: FormValues = {
@@ -82,13 +80,11 @@ const FieldCreationModal: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onAssetSearchTerm,
   onAssetsReload,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
+  onUploadAndLink,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -337,14 +333,12 @@ const FieldCreationModal: React.FC<Props> = ({
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}
               setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
               onLink={handleLinkAsset}
               setFileList={setFileList}
-              setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
+              onUploadAndLink={onUploadAndLink}
             />
           </TabPane>
         </Tabs>

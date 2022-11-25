@@ -130,6 +130,57 @@ export default () => {
     [t, projectId, createAssetMutation, refetch],
   );
 
+  const handleUploadModalCancel = useCallback(() => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+    setUploadUrl("");
+    setUploadType("local");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+
+  useEffect(() => {
+    if (sort || searchTerm) {
+      selectAsset([]);
+      refetch({
+        sort: sort?.type as GQLSortType,
+        keyword: searchTerm,
+      });
+    }
+  }, [sort, searchTerm, refetch]);
+
+  const handleUploadAndLink = useCallback(
+    async (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => {
+      setUploading(true);
+      let assets: (Asset | undefined)[] = [];
+      let asset: Asset | undefined;
+      try {
+        switch (uploadType) {
+          case "url":
+            asset = await handleAssetCreateFromUrl(uploadUrl);
+            break;
+          case "local":
+          default:
+            assets = await handleAssetsCreate(fileList);
+            if (assets.length > 0) asset = assets[0];
+            break;
+        }
+        if (input.alsoLink && input.onLink && asset) input.onLink(asset);
+        handleUploadModalCancel();
+      } catch (error) {
+        handleUploadModalCancel();
+      }
+    },
+    [
+      setUploading,
+      uploadType,
+      handleUploadModalCancel,
+      handleAssetCreateFromUrl,
+      uploadUrl,
+      handleAssetsCreate,
+      fileList,
+    ],
+  );
+
   const [deleteAssetMutation] = useDeleteAssetMutation();
   const handleAssetDelete = useCallback(
     (assetIds: string[]) =>
@@ -177,24 +228,6 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
-  const handleUploadModalCancel = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-    setUploadUrl("");
-    setUploadType("local");
-  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
-
-  useEffect(() => {
-    if (sort || searchTerm) {
-      selectAsset([]);
-      refetch({
-        sort: sort?.type as GQLSortType,
-        keyword: searchTerm,
-      });
-    }
-  }, [sort, searchTerm, refetch]);
-
   useEffect(() => {
     return () => {
       setSort(undefined);
@@ -229,15 +262,13 @@ export default () => {
     setUploadType,
     setSelection,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
     handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
+    handleUploadAndLink,
   };
 };

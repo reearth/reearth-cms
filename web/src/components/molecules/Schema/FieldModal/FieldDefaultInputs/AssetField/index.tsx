@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -18,14 +16,12 @@ type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   onLink: (asset?: Asset) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 };
 const AssetField: React.FC<Props> = ({
   assetList,
@@ -39,14 +35,12 @@ const AssetField: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onAssetSearchTerm,
   onAssetsReload,
   onLink,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
+  onUploadAndLink,
 }) => {
   const t = useT();
 
@@ -65,14 +59,12 @@ const AssetField: React.FC<Props> = ({
       onUploadModalCancel={onUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}
-      onAssetsCreate={onAssetsCreate}
-      onAssetCreateFromUrl={onAssetCreateFromUrl}
       onLink={onLink}
       onAssetSearchTerm={onAssetSearchTerm}
       onAssetsReload={onAssetsReload}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
+      onUploadAndLink={onUploadAndLink}
     />
   );
 };

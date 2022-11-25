@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
@@ -25,14 +25,12 @@ type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -52,14 +50,12 @@ const AssetItem: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onLink,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
+  onUploadAndLink,
 }) => {
   const t = useT();
   const { Item } = Form;
@@ -69,17 +65,7 @@ const AssetItem: React.FC<Props> = ({
     handleLinkAssetModalCancel,
     displayUploadModal,
     handleUploadAndLink,
-  } = useHooks(
-    fileList,
-    uploadUrl,
-    uploadType,
-    onAssetsCreate,
-    onAssetCreateFromUrl,
-    onUploadModalCancel,
-    onLink,
-    setUploading,
-    setUploadModalVisibility,
-  );
+  } = useHooks(onLink, setUploadModalVisibility, onUploadAndLink);
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
