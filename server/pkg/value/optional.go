@@ -5,6 +5,16 @@ type Optional struct {
 	v *Value
 }
 
+func NewOptional(t Type, v *Value) *Optional {
+	if v == nil {
+		return t.None()
+	}
+	if t != v.Type() {
+		return nil
+	}
+	return v.Some()
+}
+
 func OptionalFrom(v *Value) *Optional {
 	if v.Type() == TypeUnknown {
 		return nil
@@ -22,11 +32,23 @@ func (ov *Optional) Type() Type {
 	return ov.t
 }
 
+func (ov *Optional) IsSome() bool {
+	return !ov.IsNone()
+}
+
+func (ov *Optional) IsNone() bool {
+	return ov == nil || ov.v == nil
+}
+
+func (ov *Optional) IsEmpty() bool {
+	return ov.IsNone() || ov.v.IsEmpty()
+}
+
 func (ov *Optional) Value() *Value {
 	if ov == nil || ov.t == TypeUnknown || ov.v == nil {
 		return nil
 	}
-	return ov.v.Clone()
+	return ov.v
 }
 
 func (ov *Optional) TypeAndValue() (Type, *Value) {

@@ -2,14 +2,14 @@ package schema
 
 import (
 	"testing"
-	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestTypeProperty_Type(t *testing.T) {
+	assert.Equal(t, value.TypeText, (&TypeProperty{t: value.TypeText}).Type())
+}
 
 func TestMatchTypeProperty1(t *testing.T) {
 	m := TypePropertyMatch1[string]{
@@ -18,18 +18,21 @@ func TestMatchTypeProperty1(t *testing.T) {
 		RichText:  func(_ *FieldRichText) string { return "RichText" },
 		Markdown:  func(_ *FieldMarkdown) string { return "Markdown" },
 		Asset:     func(_ *FieldAsset) string { return "Asset" },
-		Date:      func(_ *FieldDate) string { return "Date" },
+		DateTime:  func(_ *FieldDateTime) string { return "DateTime" },
 		Bool:      func(_ *FieldBool) string { return "Bool" },
 		Select:    func(_ *FieldSelect) string { return "Select" },
 		Integer:   func(_ *FieldInteger) string { return "Integer" },
+		Number:    func(_ *FieldNumber) string { return "Number" },
 		Reference: func(_ *FieldReference) string { return "Reference" },
 		URL:       func(_ *FieldURL) string { return "URL" },
 		Default:   func() string { return "Default" },
 	}
+
 	type args struct {
 		tp *TypeProperty
 		m  TypePropertyMatch1[string]
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -38,7 +41,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "text",
 			args: args{
-				tp: &TypeProperty{text: &FieldText{}},
+				tp: &TypeProperty{t: value.TypeText, text: &FieldText{}},
 				m:  m,
 			},
 			want: "Text",
@@ -46,7 +49,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "textArea",
 			args: args{
-				tp: &TypeProperty{textArea: &FieldTextArea{}},
+				tp: &TypeProperty{t: value.TypeTextArea, textArea: &FieldTextArea{}},
 				m:  m,
 			},
 			want: "TextArea",
@@ -54,7 +57,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "RichText",
 			args: args{
-				tp: &TypeProperty{richText: &FieldRichText{}},
+				tp: &TypeProperty{t: value.TypeRichText, richText: &FieldRichText{}},
 				m:  m,
 			},
 			want: "RichText",
@@ -62,7 +65,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "Markdown",
 			args: args{
-				tp: &TypeProperty{markdown: &FieldMarkdown{}},
+				tp: &TypeProperty{t: value.TypeMarkdown, markdown: &FieldMarkdown{}},
 				m:  m,
 			},
 			want: "Markdown",
@@ -70,23 +73,23 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "Asset",
 			args: args{
-				tp: &TypeProperty{asset: &FieldAsset{}},
+				tp: &TypeProperty{t: value.TypeAsset, asset: &FieldAsset{}},
 				m:  m,
 			},
 			want: "Asset",
 		},
 		{
-			name: "Date",
+			name: "DateTime",
 			args: args{
-				tp: &TypeProperty{dateTime: &FieldDate{}},
+				tp: &TypeProperty{t: value.TypeDateTime, dateTime: &FieldDateTime{}},
 				m:  m,
 			},
-			want: "Date",
+			want: "DateTime",
 		},
 		{
 			name: "Bool",
 			args: args{
-				tp: &TypeProperty{bool: &FieldBool{}},
+				tp: &TypeProperty{t: value.TypeBool, bool: &FieldBool{}},
 				m:  m,
 			},
 			want: "Bool",
@@ -94,15 +97,23 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "Select",
 			args: args{
-				tp: &TypeProperty{selectt: &FieldSelect{}},
+				tp: &TypeProperty{t: value.TypeSelect, selectt: &FieldSelect{}},
 				m:  m,
 			},
 			want: "Select",
 		},
 		{
+			name: "Number",
+			args: args{
+				tp: &TypeProperty{t: value.TypeNumber, number: &FieldNumber{}},
+				m:  m,
+			},
+			want: "Number",
+		},
+		{
 			name: "Integer",
 			args: args{
-				tp: &TypeProperty{integer: &FieldInteger{}},
+				tp: &TypeProperty{t: value.TypeInteger, integer: &FieldInteger{}},
 				m:  m,
 			},
 			want: "Integer",
@@ -110,7 +121,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "Reference",
 			args: args{
-				tp: &TypeProperty{reference: &FieldReference{}},
+				tp: &TypeProperty{t: value.TypeReference, reference: &FieldReference{}},
 				m:  m,
 			},
 			want: "Reference",
@@ -118,7 +129,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "URL",
 			args: args{
-				tp: &TypeProperty{url: &FieldURL{}},
+				tp: &TypeProperty{t: value.TypeURL, url: &FieldURL{}},
 				m:  m,
 			},
 			want: "URL",
@@ -126,629 +137,20 @@ func TestMatchTypeProperty1(t *testing.T) {
 		{
 			name: "Default",
 			args: args{
-				tp: &TypeProperty{},
-				m:  m,
+				tp: &TypeProperty{t: value.TypeAsset, asset: &FieldAsset{}},
+				m: TypePropertyMatch1[string]{
+					Default: func() string { return "Default" },
+				},
 			},
 			want: "Default",
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, MatchTypeProperty1(tc.args.tp, tc.args.m))
-		})
-	}
-}
-
-func TestTypeProperty_Match(t *testing.T) {
-	m := TypePropertyMatch{
-		Text:      func(_ *FieldText) { panic("TPM_Text") },
-		TextArea:  func(_ *FieldTextArea) { panic("TPM_TextArea") },
-		RichText:  func(_ *FieldRichText) { panic("TPM_RichText") },
-		Markdown:  func(_ *FieldMarkdown) { panic("TPM_Markdown") },
-		Asset:     func(_ *FieldAsset) { panic("TPM_Asset") },
-		Date:      func(_ *FieldDate) { panic("TPM_Date") },
-		Bool:      func(_ *FieldBool) { panic("TPM_Bool") },
-		Select:    func(_ *FieldSelect) { panic("TPM_Select") },
-		Integer:   func(_ *FieldInteger) { panic("TPM_Integer") },
-		Reference: func(_ *FieldReference) { panic("TPM_Reference") },
-		URL:       func(_ *FieldURL) { panic("TPM_URL") },
-		Default:   func() { panic("TPM_Default") },
-	}
-	tests := []struct {
-		name string
-		tp   *TypeProperty
-		m    TypePropertyMatch
-		msg  string
-	}{
-		{
-			name: "text",
-			tp:   &TypeProperty{text: &FieldText{}},
-			m:    m,
-			msg:  "TPM_Text",
-		},
-		{
-			name: "textArea",
-			tp:   &TypeProperty{textArea: &FieldTextArea{}},
-			m:    m,
-			msg:  "TPM_TextArea",
-		},
-		{
-			name: "richText",
-			tp:   &TypeProperty{richText: &FieldRichText{}},
-			m:    m,
-			msg:  "TPM_RichText",
-		},
-		{
-			name: "markdown",
-			tp:   &TypeProperty{markdown: &FieldMarkdown{}},
-			m:    m,
-			msg:  "TPM_Markdown",
-		},
-		{
-			name: "asset",
-			tp:   &TypeProperty{asset: &FieldAsset{}},
-			m:    m,
-			msg:  "TPM_Asset",
-		},
-		{
-			name: "date",
-			tp:   &TypeProperty{dateTime: &FieldDate{}},
-			m:    m,
-			msg:  "TPM_Date",
-		},
-		{
-			name: "bool",
-			tp:   &TypeProperty{bool: &FieldBool{}},
-			m:    m,
-			msg:  "TPM_Bool",
-		},
-		{
-			name: "select",
-			tp:   &TypeProperty{selectt: &FieldSelect{}},
-			m:    m,
-			msg:  "TPM_Select",
-		},
-		{
-			name: "integer",
-			tp:   &TypeProperty{integer: &FieldInteger{}},
-			m:    m,
-			msg:  "TPM_Integer",
-		},
-		{
-			name: "reference",
-			tp:   &TypeProperty{reference: &FieldReference{}},
-			m:    m,
-			msg:  "TPM_Reference",
-		},
-		{
-			name: "url",
-			tp:   &TypeProperty{url: &FieldURL{}},
-			m:    m,
-			msg:  "TPM_URL",
-		},
-		{
-			name: "default",
-			tp:   &TypeProperty{},
-			m:    m,
-			msg:  "TPM_Default",
-		},
-		{
-			name: "default",
-			tp:   nil,
-			m:    m,
-			msg:  "",
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
-
-			if tc.msg == "" {
-				assert.NotPanics(tt, func() {
-					tc.tp.Match(tc.m)
-				})
-			} else {
-				assert.PanicsWithValue(tt, tc.msg, func() {
-					tc.tp.Match(tc.m)
-				})
-			}
-		})
-	}
-}
-
-func TestTypeProperty_Type(t *testing.T) {
-	tests := []struct {
-		name string
-		tp   TypeProperty
-		want value.Type
-	}{
-		{
-			name: "Text",
-			tp:   TypeProperty{text: &FieldText{}},
-			want: value.TypeText,
-		},
-		{
-			name: "TextArea",
-			tp:   TypeProperty{textArea: &FieldTextArea{}},
-			want: value.TypeTextArea,
-		},
-		{
-			name: "RichText",
-			tp:   TypeProperty{richText: &FieldRichText{}},
-			want: value.TypeRichText,
-		},
-		{
-			name: "Markdown",
-			tp:   TypeProperty{markdown: &FieldMarkdown{}},
-			want: value.TypeMarkdown,
-		},
-		{
-			name: "Asset",
-			tp:   TypeProperty{asset: &FieldAsset{}},
-			want: value.TypeAsset,
-		},
-		{
-			name: "Date",
-			tp:   TypeProperty{dateTime: &FieldDate{}},
-			want: value.TypeDateTime,
-		},
-		{
-			name: "Bool",
-			tp:   TypeProperty{bool: &FieldBool{}},
-			want: value.TypeBool,
-		},
-		{
-			name: "Select",
-			tp:   TypeProperty{selectt: &FieldSelect{}},
-			want: value.TypeSelect,
-		},
-		{
-			name: "Integer",
-			tp:   TypeProperty{integer: &FieldInteger{}},
-			want: value.TypeInteger,
-		},
-		{
-			name: "Reference",
-			tp:   TypeProperty{reference: &FieldReference{}},
-			want: value.TypeReference,
-		},
-		{
-			name: "URL",
-			tp:   TypeProperty{url: &FieldURL{}},
-			want: value.TypeURL,
-		},
-		{
-			name: "Default",
-			tp:   TypeProperty{},
-			want: value.TypeUnknown,
-		},
-	}
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t1 *testing.T) {
-			t1.Parallel()
-
-			assert.Equal(t1, tc.want, tc.tp.Type())
-		})
-	}
-}
-
-func TestTypeProperty_Clone(t *testing.T) {
-	s := &TypeProperty{text: &FieldText{}}
-	c := s.Clone()
-	assert.Equal(t, s, c)
-	assert.NotSame(t, s, c)
-
-	s = nil
-	c = s.Clone()
-	assert.Nil(t, c)
-}
-
-func TestNewFieldTypePropertyAsset(t *testing.T) {
-	type args struct {
-		defaultValue *id.AssetID
-	}
-	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-			},
-			want: &TypeProperty{
-				asset: FieldAssetFrom(nil),
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyAsset(tt.args.defaultValue))
-		})
-	}
-}
-
-func TestNewFieldTypePropertyBool(t *testing.T) {
-	type args struct {
-		defaultValue *bool
-	}
-	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
-	}{
-		{
-			name: "test",
-			args: args{defaultValue: nil},
-			want: &TypeProperty{
-				bool: FieldBoolFrom(nil),
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyBool(tt.args.defaultValue))
-		})
-	}
-}
-
-func TestNewFieldTypePropertyDate(t *testing.T) {
-	type args struct {
-		defaultValue *time.Time
-	}
-	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
-	}{
-		{
-			name: "test",
-			args: args{defaultValue: nil},
-			want: &TypeProperty{dateTime: FieldDateFrom(nil)},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyDate(tt.args.defaultValue))
-		})
-	}
-}
-
-func TestNewFieldTypePropertyInteger(t *testing.T) {
-	type args struct {
-		defaultValue *int
-		min          *int
-		max          *int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr error
-	}{
-		{
-			name:    "test",
-			args:    args{defaultValue: lo.ToPtr(-1), min: lo.ToPtr(0)},
-			want:    nil,
-			wantErr: ErrMinDefaultInvalid,
-		},
-		{
-			name:    "test",
-			args:    args{defaultValue: nil},
-			want:    &TypeProperty{integer: MustFieldIntegerFrom(nil, nil, nil)},
-			wantErr: nil,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := NewFieldTypePropertyInteger(tt.args.defaultValue, tt.args.min, tt.args.max)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-				return
-			}
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestNewFieldTypePropertyMarkdown(t *testing.T) {
-	tp, _ := FieldMarkdownFrom(nil, nil)
-	type args struct {
-		defaultValue *string
-		maxLength    *int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr bool
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-			want: &TypeProperty{markdown: tp},
-		},
-		{
-			name: "fail",
-			args: args{
-				defaultValue: lo.ToPtr("xxx"),
-				maxLength:    lo.ToPtr(2),
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := NewFieldTypePropertyMarkdown(tt.args.defaultValue, tt.args.maxLength)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.Equal(t, tt.want, got)
-			}
-		})
-	}
-}
-
-func TestNewFieldTypePropertyReference(t *testing.T) {
-	mId := id.NewModelID()
-	type args struct {
-		defaultValue model.ID
-	}
-	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
-	}{
-		{
-			name: "test",
-			args: args{defaultValue: mId},
-			want: &TypeProperty{reference: FieldReferenceFrom(mId)},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			assert.Equal(t, tt.want, NewFieldTypePropertyReference(tt.args.defaultValue))
-		})
-	}
-}
-
-func TestNewFieldTypePropertyRichText(t *testing.T) {
-	f, _ := FieldRichTextFrom(nil, nil)
-	type args struct {
-		defaultValue *string
-		maxLength    *int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr bool
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-			want: &TypeProperty{richText: f},
-		},
-		{
-			name: "fail",
-			args: args{
-				defaultValue: lo.ToPtr("xxx"),
-				maxLength:    lo.ToPtr(2),
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := NewFieldTypePropertyRichText(tt.args.defaultValue, tt.args.maxLength)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.Equal(t, tt.want, got)
-			}
-		})
-	}
-}
-
-func TestNewFieldTypePropertySelect(t *testing.T) {
-	type args struct {
-		values       []string
-		defaultValue *string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr error
-	}{
-		{
-			name: "test",
-			args: args{
-				values:       nil,
-				defaultValue: nil,
-			},
-			want: &TypeProperty{
-				selectt: nil,
-			},
-			wantErr: ErrFieldValues,
-		},
-		{
-			name: "test",
-			args: args{
-				values:       []string{"v1"},
-				defaultValue: nil,
-			},
-			want: &TypeProperty{
-				selectt: MustFieldSelectFrom([]string{"v1"}, nil),
-			},
-			wantErr: nil,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := NewFieldTypePropertySelect(tt.args.values, tt.args.defaultValue)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-				return
-			}
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestNewFieldTypePropertyText(t *testing.T) {
-	f, _ := FieldTextFrom(nil, nil)
-	type args struct {
-		defaultValue *string
-		maxLength    *int
-	}
-	tests := []struct {
-		name string
-		args args
-		want *TypeProperty
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-			want: &TypeProperty{
-				text: f,
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			res, err := NewFieldTypePropertyText(tt.args.defaultValue, tt.args.maxLength)
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, res)
-		})
-	}
-}
-
-func TestNewFieldTypePropertyTextArea(t *testing.T) {
-	ta, _ := FieldTextAreaFrom(nil, nil)
-	type args struct {
-		defaultValue *string
-		maxLength    *int
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr bool
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-				maxLength:    nil,
-			},
-			want: &TypeProperty{
-				textArea: ta,
-			},
-		},
-		{
-			name: "fail",
-			args: args{
-				defaultValue: lo.ToPtr("xxxx"),
-				maxLength:    lo.ToPtr(3),
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			f, err := NewFieldTypePropertyTextArea(tt.args.defaultValue, tt.args.maxLength)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.Equal(t, tt.want, f)
-			}
-
-		})
-	}
-}
-
-func TestNewFieldTypePropertyURL(t *testing.T) {
-	type args struct {
-		defaultValue *string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *TypeProperty
-		wantErr error
-	}{
-		{
-			name: "test",
-			args: args{
-				defaultValue: nil,
-			},
-			want: &TypeProperty{
-				url: MustFieldURLFrom(nil),
-			},
-		},
-		{
-			name: "test",
-			args: args{
-				defaultValue: lo.ToPtr("test"),
-			},
-			want: &TypeProperty{
-				url: nil,
-			},
-			wantErr: ErrFieldDefaultValue,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := NewFieldTypePropertyURL(tt.args.defaultValue)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-				return
-			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }

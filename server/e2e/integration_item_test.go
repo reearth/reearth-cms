@@ -23,7 +23,6 @@ import (
 var mId = id.NewModelID()
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
-
 	u := user.New().NewID().
 		Name("e2e").
 		Email("e2e@e2e.com").
@@ -63,7 +62,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	sf := schema.NewFieldText(nil, nil).NewID().RandomKey().MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().RandomKey().MustBuild()
 	s := schema.New().NewID().
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -108,7 +107,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
-		WithHeader("authorization", "secret_abc").
+		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 

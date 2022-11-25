@@ -64,6 +64,11 @@ func Test_propertyBool_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyBool_IsEmpty(t *testing.T) {
+	assert.False(t, (&propertyBool{}).IsEmpty(false))
+	assert.False(t, (&propertyBool{}).IsEmpty(true))
+}
+
 func Test_propertyBool_Validate(t *testing.T) {
 	assert.True(t, (&propertyBool{}).Validate(true))
 	assert.False(t, (&propertyBool{}).Validate("a"))
