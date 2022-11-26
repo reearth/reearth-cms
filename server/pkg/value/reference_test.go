@@ -57,6 +57,11 @@ func Test_propertyReference_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyReference_IsEmpty(t *testing.T) {
+	assert.True(t, (&propertyReference{}).IsEmpty(id.ItemID{}))
+	assert.False(t, (&propertyReference{}).IsEmpty(id.NewItemID()))
+}
+
 func Test_propertyReference_Validate(t *testing.T) {
 	a := id.NewItemID()
 	assert.True(t, (&propertyReference{}).Validate(a))

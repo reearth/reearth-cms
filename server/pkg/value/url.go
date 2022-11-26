@@ -41,6 +41,10 @@ func (*propertyURL) Equal(v, w any) bool {
 	return vv.String() == ww.String()
 }
 
+func (*propertyURL) IsEmpty(v any) bool {
+	return v.(URL).String() == ""
+}
+
 func (v *Value) ValueURL() (vv URL, ok bool) {
 	if v == nil {
 		return

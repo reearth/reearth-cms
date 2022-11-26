@@ -48,6 +48,10 @@ func (*propertyBool) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyBool) IsEmpty(v any) bool {
+	return false
+}
+
 func (v *Value) ValueBool() (vv bool, ok bool) {
 	if v == nil {
 		return

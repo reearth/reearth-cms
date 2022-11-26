@@ -9,7 +9,7 @@ require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/avast/retry-go/v4 v4.1.0
 	github.com/chrispappas/golang-generics-set v1.0.1
-	github.com/deepmap/oapi-codegen v1.12.2
+	github.com/deepmap/oapi-codegen v1.12.3
 	github.com/gavv/httpexpect/v2 v2.4.1
 	github.com/getkin/kin-openapi v0.107.0
 	github.com/golang/mock v1.6.0
@@ -74,7 +74,7 @@ require (
 	github.com/imkira/go-interpol v1.0.0 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.0 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -125,6 +125,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

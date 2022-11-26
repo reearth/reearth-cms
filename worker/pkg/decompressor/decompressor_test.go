@@ -31,6 +31,16 @@ func TestNewUnzipper(t *testing.T) {
 	_, err := New(zf, fInfo.Size(), "zip", wFn)
 	assert.NoError(t, err)
 
+	_, err = New(zf, 0, "zip", wFn)
+	assert.Error(t, err)
+
+	zf = lo.Must(os.Open("testdata/test.7z"))
+	_, err = New(zf, fInfo.Size(), "7z", wFn)
+	assert.NoError(t, err)
+
+	_, err = New(zf, 0, "7z", wFn)
+	assert.Error(t, err)
+
 	f := lo.Must(os.Open("testdata/test1.txt"))
 	fInfo2 := lo.Must(f.Stat())
 	_, err2 := New(f, fInfo2.Size(), "txt", wFn)
@@ -39,8 +49,8 @@ func TestNewUnzipper(t *testing.T) {
 }
 
 func TestDecompressor_Decompress(t *testing.T) {
-	zf, err := os.Open("testdata/test.zip")
-	require.NoError(t, err)
+	zf := lo.Must(os.Open("testdata/test.zip"))
+	szf := lo.Must(os.Open("testdata/test.7z"))
 
 	fInfo, err := zf.Stat()
 	if err != nil {
@@ -66,11 +76,31 @@ func TestDecompressor_Decompress(t *testing.T) {
 
 	assert.NoError(t, uz.Decompress())
 	for k, v := range files {
-		assert.Equal(t, v.Bytes(), expectedFiles[k])
+		assert.Equal(t, expectedFiles[k], v.Bytes())
+	}
+
+	// Redefine files because buffer overwriting will occur.
+	files = map[string]*Buffer{
+		"test1.txt": {bytes.Buffer{}},
+		"test2.txt": {bytes.Buffer{}},
+	}
+	uz2, err := New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
+		return files[name], nil
+	})
+	require.NoError(t, err)
+	assert.NoError(t, uz2.Decompress())
+	for k, v := range files {
+		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
 
 	// exception: test if  wFn's error is same as what Unzip returns
 	uz, err = New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
+		return nil, errors.New("test")
+	})
+	require.NoError(t, err)
+	assert.Equal(t, errors.New("test"), uz.Decompress())
+
+	uz, err = New(szf, fInfo.Size(), "7z", func(name string) (io.WriteCloser, error) {
 		return nil, errors.New("test")
 	})
 	require.NoError(t, err)

@@ -40,6 +40,10 @@ func (*propertyReference) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyReference) IsEmpty(v any) bool {
+	return v.(Reference).IsEmpty()
+}
+
 func (v *Value) ValueReference() (vv Reference, ok bool) {
 	if v == nil {
 		return

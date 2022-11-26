@@ -54,6 +54,10 @@ func (*propertyString) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyString) IsEmpty(v any) bool {
+	return v.(String) == ""
+}
+
 func (v *Value) ValueString() (vv String, ok bool) {
 	if v == nil {
 		return

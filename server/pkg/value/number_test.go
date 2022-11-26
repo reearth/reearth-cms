@@ -101,6 +101,10 @@ func Test_propertyNumber_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyNumber_IsEmpty(t *testing.T) {
+	assert.False(t, (&propertyNumber{}).IsEmpty(0))
+}
+
 func Test_propertyNumber_Validate(t *testing.T) {
 	assert.True(t, (&propertyNumber{}).Validate(float64(1)))
 	assert.False(t, (&propertyNumber{}).Validate("a"))
