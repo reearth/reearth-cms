@@ -94,7 +94,7 @@ func (r *Request) Save(ctx context.Context, request *request.Request) error {
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *Request) Delete(ctx context.Context, id id.RequestID) error {
+func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
 		"id": id.String(),
 	}))

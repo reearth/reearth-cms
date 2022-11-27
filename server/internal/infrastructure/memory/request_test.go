@@ -2,12 +2,15 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,19 +31,23 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	ctx := context.Background()
-	i := request.New().
+	item, _ := request.NewItem(id.NewItemID(), version.New())
+
+	req := request.New().
 		NewID().
 		Workspace(id.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
 		MustBuild()
 	r := NewRequest()
-	_ = r.Save(ctx, i)
+	_ = r.Save(ctx, req)
 
-	out, err := r.FindByID(ctx, i.ID())
+	out, err := r.FindByID(ctx, req.ID())
 	assert.NoError(t, err)
-	assert.Equal(t, i, out.Value())
+	assert.Equal(t, req, out)
 
 	out2, err := r.FindByID(ctx, id.RequestID{})
 	assert.Nil(t, out2)
@@ -49,69 +56,217 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_Remove(t *testing.T) {
 	ctx := context.Background()
-	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID()).MustBuild()
+	pid := id.NewProjectID()
+	item, _ := request.NewItem(id.NewItemID(), version.New())
+
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
 
 	r := NewRequest()
-	_ = r.Save(ctx, i1)
-	_ = r.Save(ctx, i2)
-	_ = r.Save(ctx, i3)
+	_ = r.Save(ctx, req1)
+	_ = r.Save(ctx, req2)
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
 	})
 
-	err := r.Remove(ctx, i1.ID())
+	err := r.Remove(ctx, req1.ID())
 	assert.NoError(t, err)
-	data, _ := r.FindByIDs(ctx, id.RequestIDList{i1.ID(), i2.ID()})
-	assert.Equal(t, request.List{i2}, data.Unwrap())
-
-	err = r.Remove(ctx, i1.ID())
-	assert.Equal(t, rerror.ErrNotFound, err)
-
-	err = r.Remove(ctx, i3.ID())
-	assert.Equal(t, repo.ErrOperationDenied, err)
+	data, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
+	assert.Equal(t, []*request.Request{req2}, data)
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.Remove(ctx, i1.ID()))
+	assert.Same(t, wantErr, r.Remove(ctx, req1.ID()))
 }
 
 func TestRequest_Save(t *testing.T) {
 	ctx := context.Background()
-	i := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
-	i2 := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
+	pid := id.NewProjectID()
+	item, _ := request.NewItem(id.NewItemID(), version.New())
+
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(id.NewProjectID()).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
 	pf := repo.ProjectFilter{
-		Readable: []id.ProjectID{i.Project()},
-		Writable: []id.ProjectID{i.Project()},
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
 	}
 	r := NewRequest().Filtered(pf)
 
-	_ = r.Save(ctx, i)
-	got, _ := r.FindByID(ctx, i.ID())
-	assert.Equal(t, i, got.Value())
+	_ = r.Save(ctx, req1)
+	got, _ := r.FindByID(ctx, req1.ID())
+	assert.Equal(t, req1, got)
 
-	err := r.Save(ctx, i2)
+	err := r.Save(ctx, req2)
 	assert.Equal(t, repo.ErrOperationDenied, err)
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.Save(ctx, i))
+	assert.Same(t, wantErr, r.Save(ctx, req1))
 }
 
 func TestRequest_FindByIDs(t *testing.T) {
 	ctx := context.Background()
-	i := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
-	i2 := request.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
-	r := NewRequest()
-	_ = r.Save(ctx, i)
-	_ = r.Save(ctx, i2)
+	pid := id.NewProjectID()
+	item, _ := request.NewItem(id.NewItemID(), version.New())
 
-	ids := id.RequestIDList{i.ID()}
-	il := request.List{i}
-	out, err := r.FindByIDs(ctx, ids)
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewRequest().Filtered(pf)
+	_ = r.Save(ctx, req1)
+	_ = r.Save(ctx, req2)
+
+	got, err := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
 	assert.NoError(t, err)
-	assert.Equal(t, il, out.Unwrap())
+	assert.Equal(t, 2, len(got))
+}
+
+func TestRequest_FindByProject(t *testing.T) {
+	ctx := context.Background()
+	pid := id.NewProjectID()
+	item, _ := request.NewItem(id.NewItemID(), version.New())
+
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("xxx").
+		State(request.StateDraft).
+		MustBuild()
+
+	req3 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(id.NewProjectID()).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewRequest().Filtered(pf)
+	_ = r.Save(ctx, req1)
+	_ = r.Save(ctx, req2)
+	_ = r.Save(ctx, req3)
+	type args struct {
+		id     id.ProjectID
+		filter repo.RequestFilter
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "find by project id only (find 2)",
+			args: args{
+				id: pid,
+			},
+			want: 2,
+		},
+		{
+			name: "find by stat (find 1)",
+			args: args{
+				id: pid,
+				filter: repo.RequestFilter{
+					State: &request.StateDraft,
+				},
+			},
+			want: 1,
+		},
+		{
+			name: "find by title (find 1)",
+			args: args{
+				id: pid,
+				filter: repo.RequestFilter{
+					Keyword: lo.ToPtr("foo"),
+				},
+			},
+			want: 1,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(tt *testing.T) {
+			//tt.Parallel()
+			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter)
+
+			assert.Equal(t, tc.want, len(got))
+		})
+	}
+
+	wantErr := errors.New("test")
+	SetRequestError(r, wantErr)
+	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{})
+	assert.Same(t, wantErr, err)
 }

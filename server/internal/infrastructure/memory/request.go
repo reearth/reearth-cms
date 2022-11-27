@@ -103,7 +103,7 @@ func (r *Request) Save(ctx context.Context, a *request.Request) error {
 	return nil
 }
 
-func (r *Request) Delete(ctx context.Context, id id.RequestID) error {
+func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -112,4 +112,7 @@ func (r *Request) Delete(ctx context.Context, id id.RequestID) error {
 		r.data.Delete(id)
 	}
 	return nil
+}
+func SetRequestError(r repo.Request, err error) {
+	r.(*Request).err = err
 }
