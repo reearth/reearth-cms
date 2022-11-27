@@ -52,12 +52,15 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) ([]*reque
 	}
 
 	filter := bson.M{
-		"id": bson.M{"$in": ids.Strings()},
+		"id": bson.M{
+			"$in": ids.Strings(),
+		},
 	}
 	res, err := r.find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
+
 	return filterRequests(ids, res), nil
 }
 
@@ -79,7 +82,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 	}
 	if uFilter.State != nil {
 		filter = mongox.And(filter, "", bson.M{
-			"stat": uFilter.State.String(),
+			"state": uFilter.State.String(),
 		})
 	}
 
@@ -128,14 +131,12 @@ func (r *Request) findOne(ctx context.Context, filter interface{}) (*request.Req
 func filterRequests(ids []id.RequestID, rows []*request.Request) []*request.Request {
 	res := make([]*request.Request, 0, len(ids))
 	for _, id := range ids {
-		var r2 *request.Request
 		for _, r := range rows {
 			if r.ID() == id {
-				r2 = r
+				res = append(res, r)
 				break
 			}
 		}
-		res = append(res, r2)
 	}
 	return res
 }
