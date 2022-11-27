@@ -12,6 +12,7 @@ func New() *repo.Container {
 		Asset:       NewAsset(),
 		Lock:        NewLock(),
 		User:        NewUser(),
+		Request:     NewRequest(),
 		Workspace:   NewWorkspace(),
 		Project:     NewProject(),
 		Model:       NewModel(),
