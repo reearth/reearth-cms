@@ -8,7 +8,6 @@ import (
 var (
 	ErrEmptyItems = errors.New("items cannot be empty")
 	ErrEmptyTitle = errors.New("title cannot be empty")
-	ErrEmptyDesc  = errors.New("description cannot be empty")
 )
 
 type Request struct {
@@ -91,20 +90,16 @@ func (r *Request) SetTitle(title string) error {
 	return nil
 }
 
-func (r *Request) SetDescription(description string) error {
-	if description == "" {
-		return ErrEmptyDesc
-	}
+func (r *Request) SetDescription(description string) {
 	r.description = description
-	return nil
 }
 
-func (r *Request) SetReviewers(reviewers []UserID) error {
-	if len(reviewers) == 0 {
-		return ErrEmptyItems
-	}
+func (r *Request) SetReviewers(reviewers []UserID) {
 	r.reviewers = reviewers
-	return nil
+}
+
+func (r *Request) SetItems(items []*Item) {
+	r.items = items
 }
 
 func (r *Request) SetState(state State) {
