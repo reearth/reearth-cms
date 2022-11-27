@@ -132,24 +132,6 @@ func TestBuilder_Build(t *testing.T) {
 			},
 			wantErr: ErrEmptyTitle,
 		},
-		{
-			name: "empty description",
-			fields: fields{
-				r: &Request{
-					id:        NewID(),
-					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
-					thread:    NewThreadID(),
-					createdBy: NewUserID(),
-					items: []*Item{{
-						item:    NewItemID(),
-						version: version.New(),
-					}},
-					title: "foo",
-				},
-			},
-			wantErr: ErrEmptyDesc,
-		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {

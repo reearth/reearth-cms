@@ -36,9 +36,6 @@ func (b *Builder) Build() (*Request, error) {
 	if b.r.title == "" {
 		return nil, ErrEmptyTitle
 	}
-	if b.r.description == "" {
-		return nil, ErrEmptyDesc
-	}
 	if b.r.state == "" {
 		b.r.state = StateWaiting
 	}
