@@ -111,74 +111,22 @@ export default () => {
   );
 
   const handleAssetCreateFromUrl = useCallback(
-    (url: string) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await createAssetMutation({
-          variables: { projectId, file: null, url },
-        });
-        if (result.errors || !result.data?.createAsset) {
-          Notification.error({ message: t("Failed to add asset.") });
-          return;
-        }
-        if (result.data?.createAsset) {
-          Notification.success({ message: t("Successfully added asset!") });
-          await refetch();
-          return convertAsset(result.data.createAsset.asset as GQLAsset);
-        }
-      })(),
-    [t, projectId, createAssetMutation, refetch],
-  );
-
-  const handleUploadModalCancel = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-    setUploadUrl("");
-    setUploadType("local");
-  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
-
-  useEffect(() => {
-    if (sort || searchTerm) {
-      selectAsset([]);
-      refetch({
-        sort: sort?.type as GQLSortType,
-        keyword: searchTerm,
+    async (url: string) => {
+      if (!projectId) return;
+      const result = await createAssetMutation({
+        variables: { projectId, file: null, url },
       });
-    }
-  }, [sort, searchTerm, refetch]);
-
-  const handleUploadAndLink = useCallback(
-    async (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => {
-      setUploading(true);
-      let assets: (Asset | undefined)[] = [];
-      let asset: Asset | undefined;
-      try {
-        switch (uploadType) {
-          case "url":
-            asset = await handleAssetCreateFromUrl(uploadUrl);
-            break;
-          case "local":
-          default:
-            assets = await handleAssetsCreate(fileList);
-            if (assets.length > 0) asset = assets[0];
-            break;
-        }
-        if (input.alsoLink && input.onLink && asset) input.onLink(asset);
-        handleUploadModalCancel();
-      } catch (error) {
-        handleUploadModalCancel();
+      if (result.errors || !result.data?.createAsset) {
+        Notification.error({ message: t("Failed to add asset.") });
+        return;
+      }
+      if (result.data?.createAsset) {
+        Notification.success({ message: t("Successfully added asset!") });
+        await refetch();
+        return convertAsset(result.data.createAsset.asset as GQLAsset);
       }
     },
-    [
-      setUploading,
-      uploadType,
-      handleUploadModalCancel,
-      handleAssetCreateFromUrl,
-      uploadUrl,
-      handleAssetsCreate,
-      fileList,
-    ],
+    [t, projectId, createAssetMutation, refetch],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -228,6 +176,24 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
 
+  const handleUploadModalCancel = useCallback(() => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+    setUploadUrl("");
+    setUploadType("local");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+
+  useEffect(() => {
+    if (sort || searchTerm) {
+      selectAsset([]);
+      refetch({
+        sort: sort?.type as GQLSortType,
+        keyword: searchTerm,
+      });
+    }
+  }, [sort, searchTerm, refetch]);
+
   useEffect(() => {
     return () => {
       setSort(undefined);
@@ -262,13 +228,15 @@ export default () => {
     setUploadType,
     setSelection,
     setFileList,
+    setUploading,
     setUploadModalVisibility,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
-    handleUploadAndLink,
   };
 };

@@ -31,10 +31,12 @@ const ContentDetails: React.FC = () => {
     setUploadUrl,
     setUploadType,
     setFileList,
+    setUploading,
     setUploadModalVisibility,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
-    handleUploadAndLink,
   } = useAssetHooks();
 
   return (
@@ -57,11 +59,13 @@ const ContentDetails: React.FC = () => {
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}
+      onAssetsCreate={handleAssetsCreate}
+      onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
+      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
-      onUploadAndLink={handleUploadAndLink}
     />
   );
 };

@@ -26,14 +26,16 @@ type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
-  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -49,22 +51,46 @@ const AssetList: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onAssetDelete,
   onSearchTerm,
   onEdit,
   setSelection,
   setFileList,
+  setUploading,
   setUploadModalVisibility,
   onAssetsReload,
-  onUploadAndLink,
 }) => {
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
   const handleUpload = useCallback(async () => {
-    onUploadAndLink({ alsoLink: false });
-  }, [onUploadAndLink]);
+    setUploading(true);
+
+    try {
+      switch (uploadType) {
+        case "url":
+          await onAssetCreateFromUrl(uploadUrl);
+          break;
+        case "local":
+        default:
+          await onAssetsCreate(fileList);
+          break;
+      }
+    } finally {
+      onUploadModalCancel();
+    }
+  }, [
+    setUploading,
+    uploadType,
+    onUploadModalCancel,
+    onAssetCreateFromUrl,
+    uploadUrl,
+    onAssetsCreate,
+    fileList,
+  ]);
 
   const uploadProps: UploadProps = {
     name: "file",

@@ -25,12 +25,14 @@ type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onUploadAndLink: (input: { alsoLink: boolean; onLink?: (_asset?: Asset) => void }) => void;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -50,12 +52,14 @@ const AssetItem: React.FC<Props> = ({
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onLink,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
+  setUploading,
   setUploadModalVisibility,
-  onUploadAndLink,
 }) => {
   const t = useT();
   const { Item } = Form;
@@ -65,7 +69,17 @@ const AssetItem: React.FC<Props> = ({
     handleLinkAssetModalCancel,
     displayUploadModal,
     handleUploadAndLink,
-  } = useHooks(onLink, setUploadModalVisibility, onUploadAndLink);
+  } = useHooks(
+    fileList,
+    uploadUrl,
+    uploadType,
+    onAssetsCreate,
+    onAssetCreateFromUrl,
+    onUploadModalCancel,
+    onLink,
+    setUploading,
+    setUploadModalVisibility,
+  );
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {

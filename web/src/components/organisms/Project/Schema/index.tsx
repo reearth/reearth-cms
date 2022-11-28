@@ -27,10 +27,12 @@ const ProjectSchema: React.FC = () => {
     setUploadUrl,
     setUploadType,
     setFileList,
+    setUploading,
     setUploadModalVisibility,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsReload,
-    handleUploadAndLink,
   } = useAssetHooks();
 
   const {
@@ -82,11 +84,13 @@ const ProjectSchema: React.FC = () => {
           onUploadModalCancel={handleUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
+          onAssetsCreate={handleAssetsCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
+          setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
-          onUploadAndLink={handleUploadAndLink}
         />
       )}
       {selectedType && (
@@ -107,11 +111,13 @@ const ProjectSchema: React.FC = () => {
           onUploadModalCancel={handleUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
+          onAssetsCreate={handleAssetsCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
+          setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
-          onUploadAndLink={handleUploadAndLink}
         />
       )}
     </>
