@@ -40,7 +40,6 @@ export interface Props {
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 }
 
@@ -67,7 +66,6 @@ const ContentForm: React.FC<Props> = ({
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -184,7 +182,6 @@ const ContentForm: React.FC<Props> = ({
               onAssetSearchTerm={onAssetSearchTerm}
               onLink={_asset => handleLink(field.id, _asset)}
               setFileList={setFileList}
-              setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
             />
           ) : field.type === "Select" ? (

@@ -22,7 +22,6 @@ type Props = {
   onAssetsReload: () => void;
   onLink: (asset?: Asset) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 };
 const AssetField: React.FC<Props> = ({
@@ -43,7 +42,6 @@ const AssetField: React.FC<Props> = ({
   onAssetsReload,
   onLink,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -69,7 +67,6 @@ const AssetField: React.FC<Props> = ({
       onAssetSearchTerm={onAssetSearchTerm}
       onAssetsReload={onAssetsReload}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
     />
   );

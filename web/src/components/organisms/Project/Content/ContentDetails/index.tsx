@@ -31,7 +31,6 @@ const ContentDetails: React.FC = () => {
     setUploadUrl,
     setUploadType,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
@@ -64,7 +63,6 @@ const ContentDetails: React.FC = () => {
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
     />
   );

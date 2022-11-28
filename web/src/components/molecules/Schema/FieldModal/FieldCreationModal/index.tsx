@@ -51,7 +51,6 @@ export type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 };
 
@@ -87,7 +86,6 @@ const FieldCreationModal: React.FC<Props> = ({
   onAssetSearchTerm,
   onAssetsReload,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -343,7 +341,6 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetsReload={onAssetsReload}
               onLink={handleLinkAsset}
               setFileList={setFileList}
-              setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
             />
           </TabPane>

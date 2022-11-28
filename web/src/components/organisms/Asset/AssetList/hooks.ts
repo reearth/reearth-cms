@@ -83,10 +83,19 @@ export default () => {
     }
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
+  const handleUploadModalCancel = useCallback(() => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+    setUploadUrl("");
+    setUploadType("local");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+
   const handleAssetsCreate = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
         if (!projectId) return [];
+        setUploading(true);
         const results = (
           await Promise.all(
             files.map(async file => {
@@ -95,6 +104,7 @@ export default () => {
               });
               if (result.errors || !result.data?.createAsset) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
                 return undefined;
               }
               return convertAsset(result.data.createAsset.asset as GQLAsset);
@@ -105,28 +115,33 @@ export default () => {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
+        handleUploadModalCancel();
         return results;
       })(),
-    [t, projectId, createAssetMutation, refetch],
+    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch],
   );
 
   const handleAssetCreateFromUrl = useCallback(
     async (url: string) => {
-      if (!projectId) return;
-      const result = await createAssetMutation({
-        variables: { projectId, file: null, url },
-      });
-      if (result.errors || !result.data?.createAsset) {
+      if (!projectId) return undefined;
+      setUploading(true);
+      try {
+        const result = await createAssetMutation({
+          variables: { projectId, file: null, url },
+        });
+        if (result.data?.createAsset) {
+          Notification.success({ message: t("Successfully added asset!") });
+          await refetch();
+          return convertAsset(result.data.createAsset.asset as GQLAsset);
+        }
+        return undefined;
+      } catch {
         Notification.error({ message: t("Failed to add asset.") });
-        return;
-      }
-      if (result.data?.createAsset) {
-        Notification.success({ message: t("Successfully added asset!") });
-        await refetch();
-        return convertAsset(result.data.createAsset.asset as GQLAsset);
+      } finally {
+        handleUploadModalCancel();
       }
     },
-    [t, projectId, createAssetMutation, refetch],
+    [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -175,14 +190,6 @@ export default () => {
   const handleNavigateToAsset = (asset: Asset) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
-
-  const handleUploadModalCancel = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-    setUploadUrl("");
-    setUploadType("local");
-  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
 
   useEffect(() => {
     if (sort || searchTerm) {

@@ -33,7 +33,6 @@ type Props = {
   onEdit: (asset: Asset) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
 };
@@ -58,7 +57,6 @@ const AssetList: React.FC<Props> = ({
   onEdit,
   setSelection,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
   onAssetsReload,
 }) => {
@@ -67,30 +65,12 @@ const AssetList: React.FC<Props> = ({
   }, [setUploadModalVisibility]);
 
   const handleUpload = useCallback(async () => {
-    setUploading(true);
-
-    try {
-      switch (uploadType) {
-        case "url":
-          await onAssetCreateFromUrl(uploadUrl);
-          break;
-        case "local":
-        default:
-          await onAssetsCreate(fileList);
-          break;
-      }
-    } finally {
-      onUploadModalCancel();
+    if (uploadType === "url") {
+      await onAssetCreateFromUrl(uploadUrl);
+    } else {
+      await onAssetsCreate(fileList);
     }
-  }, [
-    setUploading,
-    uploadType,
-    onUploadModalCancel,
-    onAssetCreateFromUrl,
-    uploadUrl,
-    onAssetsCreate,
-    fileList,
-  ]);
+  }, [uploadType, onAssetCreateFromUrl, uploadUrl, onAssetsCreate, fileList]);
 
   const uploadProps: UploadProps = {
     name: "file",

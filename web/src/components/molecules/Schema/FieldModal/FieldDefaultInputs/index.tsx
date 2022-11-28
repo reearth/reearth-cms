@@ -31,7 +31,6 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 }
 
@@ -55,7 +54,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   return selectedType ? (
@@ -82,7 +80,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
-        setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
       />
     ) : selectedType === "Select" ? (

@@ -30,7 +30,6 @@ export type Props = {
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 };
 
@@ -58,7 +57,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   return (
@@ -86,7 +84,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}
         setFileList={setFileList}
-        setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
       />
     </ContentWrapper>

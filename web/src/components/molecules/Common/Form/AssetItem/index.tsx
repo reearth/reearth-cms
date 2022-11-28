@@ -31,7 +31,6 @@ type Props = {
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploading: (uploading: boolean) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 } & FormItemProps &
   FormItemLabelProps;
@@ -58,7 +57,6 @@ const AssetItem: React.FC<Props> = ({
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -75,9 +73,7 @@ const AssetItem: React.FC<Props> = ({
     uploadType,
     onAssetsCreate,
     onAssetCreateFromUrl,
-    onUploadModalCancel,
     onLink,
-    setUploading,
     setUploadModalVisibility,
   );
   const [assetValue, setAssetValue] = useState<Asset>();

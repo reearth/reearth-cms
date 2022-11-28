@@ -18,7 +18,6 @@ const AssetList: React.FC = () => {
     setUploadType,
     setSelection,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
@@ -50,7 +49,6 @@ const AssetList: React.FC = () => {
       onEdit={handleNavigateToAsset}
       setSelection={setSelection}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
     />
   );
