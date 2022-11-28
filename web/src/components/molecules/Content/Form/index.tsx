@@ -11,6 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -123,12 +124,7 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ) : field.type === "Integer" ? (
@@ -141,12 +137,7 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <InputNumber
                 type="number"
                 min={field.typeProperty.min}
@@ -164,12 +155,7 @@ const ContentForm: React.FC<Props> = ({
               ]}
               defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}
               assetList={assetList}
               fileList={fileList}
               loadingAssets={loadingAssets}
@@ -187,12 +173,7 @@ const ContentForm: React.FC<Props> = ({
             <Form.Item
               extra={field.description}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <Select>
                 {field.typeProperty?.values?.map((value: string) => (
                   <Option key={value} value={value}>
@@ -205,12 +186,7 @@ const ContentForm: React.FC<Props> = ({
             <Form.Item
               extra={field.description}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}
               rules={[
                 {
                   required: field.required,
@@ -236,12 +212,7 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={
-                <>
-                  <FieldTitle>{field.title}</FieldTitle>
-                  {field.unique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-                </>
-              }>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ),
@@ -256,17 +227,6 @@ const FormItemsWrapper = styled.div`
   @media (max-width: 1200px) {
     width: 100%;
   }
-`;
-
-const FieldUnique = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
-`;
-
-const FieldTitle = styled.span`
-  color: #000000d9;
-  font-weight: 400;
 `;
 
 export default ContentForm;
