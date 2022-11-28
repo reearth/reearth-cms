@@ -39,6 +39,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		UUID:          a.UUID(),
 		URL:           url,
 		ThreadID:      IDFrom(a.Thread()),
+		Status:        ToStatus(a.Status()),
 	}
 }
 
@@ -88,6 +89,50 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	}
 
 	return &p2
+}
+
+func FromStatus(s *Status) *asset.Status {
+	if s == nil {
+		return nil
+	}
+
+	var s2 asset.Status
+	switch *s {
+	case StatusPending:
+		s2 = asset.StatusPending
+	case StatusInProgress:
+		s2 = asset.StatusInProgress
+	case StatusDone:
+		s2 = asset.StatusDone
+	case StatusFailed:
+		s2 = asset.StatusFailed
+	default:
+		return nil
+	}
+
+	return &s2
+}
+
+func ToStatus(s *asset.Status) *Status {
+	if s == nil {
+		return nil
+	}
+
+	var s2 Status
+	switch *s {
+	case asset.StatusPending:
+		s2 = StatusPending
+	case asset.StatusInProgress:
+		s2 = StatusInProgress
+	case asset.StatusDone:
+		s2 = StatusDone
+	case asset.StatusFailed:
+		s2 = StatusFailed
+	default:
+		return nil
+	}
+
+	return &s2
 }
 
 func ToAssetFile(a *asset.File) *AssetFile {

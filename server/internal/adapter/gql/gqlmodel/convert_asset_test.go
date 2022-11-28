@@ -219,6 +219,140 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	}
 }
 
+func TestConvertAsset_FromStatus(t *testing.T) {
+	var pt1 Status = StatusPending
+	want1 := asset.StatusPending
+
+	var pt2 Status = StatusInProgress
+	want2 := asset.StatusInProgress
+
+	var pt3 Status = StatusDone
+	want3 := asset.StatusDone
+
+	var pt4 Status = StatusFailed
+	want4 := asset.StatusFailed
+
+	var pt5 *Status = nil
+	want5 := (*asset.Status)(nil)
+
+	var pt6 Status = "test"
+	want6 := (*asset.Status)(nil)
+
+	tests := []struct {
+		name string
+		arg  *Status
+		want *asset.Status
+	}{
+		{
+			name: "to status pending",
+			arg:  &pt1,
+			want: &want1,
+		},
+		{
+			name: "to status in progress",
+			arg:  &pt2,
+			want: &want2,
+		},
+		{
+			name: "to status done",
+			arg:  &pt3,
+			want: &want3,
+		},
+		{
+			name: "to status failed",
+			arg:  &pt4,
+			want: &want4,
+		},
+		{
+			name: "to status nil",
+			arg:  pt5,
+			want: want5,
+		},
+		{
+			name: "to status other",
+			arg:  &pt6,
+			want: want6,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := FromStatus(tc.arg)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestConvertAsset_ToStatus(t *testing.T) {
+	var pt1 asset.Status = asset.StatusPending
+	want1 := StatusPending
+
+	var pt2 asset.Status = asset.StatusInProgress
+	want2 := StatusInProgress
+
+	var pt3 asset.Status = asset.StatusDone
+	want3 := StatusDone
+
+	var pt4 asset.Status = asset.StatusFailed
+	want4 := StatusFailed
+
+	var pt5 *asset.Status = nil
+	want5 := (*Status)(nil)
+
+	var pt6 asset.Status = "test"
+	want6 := (*Status)(nil)
+
+	tests := []struct {
+		name string
+		arg  *asset.Status
+		want *Status
+	}{
+		{
+			name: "to status pending",
+			arg:  &pt1,
+			want: &want1,
+		},
+		{
+			name: "to status in progress",
+			arg:  &pt2,
+			want: &want2,
+		},
+		{
+			name: "to status done",
+			arg:  &pt3,
+			want: &want3,
+		},
+		{
+			name: "to status failed",
+			arg:  &pt4,
+			want: &want4,
+		},
+		{
+			name: "to status nil",
+			arg:  pt5,
+			want: want5,
+		},
+		{
+			name: "to status other",
+			arg:  &pt6,
+			want: want6,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := ToStatus(tc.arg)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestConvertAsset_ToAssetFile(t *testing.T) {
 	c := []*asset.File{}
 	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Children(c).Build()
