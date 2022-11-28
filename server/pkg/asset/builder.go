@@ -103,3 +103,8 @@ func (b *Builder) Thread(th ThreadID) *Builder {
 	b.a.thread = th
 	return b
 }
+
+func (b *Builder) Status(s *Status) *Builder {
+	b.a.status = s
+	return b
+}

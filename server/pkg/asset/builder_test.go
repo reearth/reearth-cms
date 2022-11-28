@@ -27,6 +27,7 @@ type Input struct {
 	file                 *File
 	uuid                 string
 	thread               ThreadID
+	status               *Status
 }
 
 func TestBuilder_Build(t *testing.T) {
@@ -49,10 +50,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
+				status:        lo.ToPtr(StatusPending),
 			},
 			want: &Asset{
 				id:          aid,
@@ -65,6 +67,7 @@ func TestBuilder_Build(t *testing.T) {
 				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
+				status:      lo.ToPtr(StatusPending),
 			},
 		},
 		{
@@ -74,10 +77,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
+				status:        lo.ToPtr(StatusPending),
 			},
 			err: ErrNoProjectID,
 		},
@@ -88,10 +92,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
+				status:        lo.ToPtr(StatusPending),
 			},
 			err: ErrInvalidID,
 		},
@@ -102,10 +107,11 @@ func TestBuilder_Build(t *testing.T) {
 				project:     pid,
 				fileName:    "hoge",
 				size:        size,
-				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType: lo.ToPtr(PreviewTypeImage),
 				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
+				status:      lo.ToPtr(StatusPending),
 			},
 			err: ErrNoUser,
 		},
@@ -117,10 +123,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          0,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
+				status:        lo.ToPtr(StatusPending),
 			},
 			err: ErrZeroSize,
 		},
@@ -132,10 +139,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        ThreadID{},
+				status:        lo.ToPtr(StatusPending),
 			},
 			err: ErrNoThread,
 		},
@@ -147,10 +155,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByUser: uid,
 				fileName:      "hoge",
 				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:   lo.ToPtr(PreviewTypeImage),
 				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
+				status:        lo.ToPtr(StatusPending),
 			},
 			want: &Asset{
 				id:          aid,
@@ -163,6 +172,7 @@ func TestBuilder_Build(t *testing.T) {
 				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
+				status:      lo.ToPtr(StatusPending),
 			},
 		},
 		{
@@ -173,10 +183,11 @@ func TestBuilder_Build(t *testing.T) {
 				createdByIntegration: iid,
 				fileName:             "hoge",
 				size:                 size,
-				previewType:          PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				previewType:          lo.ToPtr(PreviewTypeImage),
 				file:                 &f,
 				uuid:                 "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:               thid,
+				status:               lo.ToPtr(StatusPending),
 			},
 			want: &Asset{
 				id:          aid,
@@ -189,6 +200,7 @@ func TestBuilder_Build(t *testing.T) {
 				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
+				status:      lo.ToPtr(StatusPending),
 			},
 		},
 	}
@@ -204,7 +216,8 @@ func TestBuilder_Build(t *testing.T) {
 				Type(tt.input.previewType).
 				File(tt.input.file).
 				UUID(tt.input.uuid).
-				Thread(tt.input.thread)
+				Thread(tt.input.thread).
+				Status(tt.input.status)
 			if !tt.input.createdByUser.IsNil() {
 				ab.CreatedByUser(tt.input.createdByUser)
 			}

@@ -7,8 +7,6 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-// TODO: add status
-
 type Asset struct {
 	id          ID
 	project     ProjectID
@@ -21,6 +19,7 @@ type Asset struct {
 	file        *File
 	uuid        string
 	thread      ThreadID
+	status      *Status
 }
 
 type URLResolver = func(*Asset) string
@@ -72,12 +71,23 @@ func (a *Asset) UUID() string {
 	return a.uuid
 }
 
+func (a *Asset) Status() *Status {
+	if a.status == nil {
+		return nil
+	}
+	return a.status
+}
+
 func (a *Asset) RootPath() string {
 	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
+}
+
+func (a *Asset) UpdateStatus(s *Status) {
+	a.status = util.CloneRef(s)
 }
 
 func (a *Asset) Clone() *Asset {
@@ -97,6 +107,7 @@ func (a *Asset) Clone() *Asset {
 		file:        a.file,
 		uuid:        a.uuid,
 		thread:      a.thread.Clone(),
+		status:      a.status,
 	}
 }
 
