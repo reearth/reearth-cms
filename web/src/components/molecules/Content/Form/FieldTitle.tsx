@@ -4,7 +4,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   title: string;
-  isUnique?: boolean;
+  isUnique: boolean;
 };
 
 const FieldTitle: React.FC<Props> = ({ title, isUnique }) => {
