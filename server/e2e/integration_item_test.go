@@ -14,16 +14,26 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/samber/lo"
 )
 
-var mId = id.NewModelID()
+var (
+	uId   = id.NewUserID()
+	iId   = id.NewIntegrationID()
+	mId   = id.NewModelID()
+	itmId = id.NewItemID()
+	fId   = id.NewFieldID()
+	thId  = id.NewThreadID()
+	icId  = id.NewCommentID()
+)
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
-	u := user.New().NewID().
+	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		MustBuild()
@@ -31,7 +41,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	i := integration.New().NewID().
+	i := integration.New().ID(iId).
 		Type(integration.TypePublic).
 		Name("i1").
 		Description("i1 desc").
@@ -62,7 +72,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	sf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().RandomKey().MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).RandomKey().MustBuild()
 	s := schema.New().NewID().
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -85,13 +95,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	itm := item.New().NewID().
+	itm := item.New().ID(itmId).
 		Schema(s.ID()).
 		Model(m.ID()).
 		Project(p.ID()).
-		Thread(id.NewThreadID()).
+		Thread(thId).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm); err != nil {
+		return err
+	}
+
+	cmt := thread.NewComment(icId, operator.OperatorFromUser(u.ID()), "test comment")
+	th := thread.New().ID(thId).Workspace(w.ID()).Comments([]*thread.Comment{cmt}).MustBuild()
+	if err := r.Thread.Save(ctx, th); err != nil {
 		return err
 	}
 
@@ -102,23 +118,28 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 func TestIntegrationItemListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.GET("/api/models/{modelId}/items", id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.GET("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/models/{modelId}/items", id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.GET("/api/models/{modelId}/items", id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET(fmt.Sprintf("/api/models/%s/items", mId)).
+	e.GET("/api/models/{modelId}/items", mId).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -127,4 +148,167 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		JSON().
 		Object().Keys().
 		Contains("items", "page", "perPage", "totalCount")
+}
+
+// Post|/models/{modelId}/items/{itemId}
+func TestIntegrationCreateItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusBadRequest)
+
+	r := e.POST("/api/models/{modelId}/items", mId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId.String(),
+					"value": "test value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	r.Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").Equal([]interface{}{
+		map[string]string{
+			"id":    fId.String(),
+			"type":  "text",
+			"value": "test value",
+		},
+	})
+	r.Value("modelId").Equal(mId.String())
+	r.Value("refs").Equal([]string{"latest"})
+}
+
+// Post|/items/{itemId}
+func TestIntegrationUpdateItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusBadRequest)
+
+	r := e.POST("/api/models/{modelId}/items", mId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId.String(),
+					"value": "test value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	r.Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").Equal([]interface{}{
+		map[string]string{
+			"id":    fId.String(),
+			"type":  "text",
+			"value": "test value",
+		},
+	})
+	r.Value("modelId").Equal(mId.String())
+	r.Value("refs").Equal([]string{"latest"})
+}
+
+// Get|/items/{itemId}
+func TestIntegrationGetItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.GET("/api/items/{itemId}", id.NewItemID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/items/{itemId}", id.NewItemID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/items/{itemId}", id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/items/{itemId}", id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.GET("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+}
+
+// Delete|/items/{itemId}
+func TestIntegrationDeleteItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.DELETE("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+
+	e.DELETE("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().Keys().
+		Contains("id")
+
+	e.GET("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusNotFound)
 }
