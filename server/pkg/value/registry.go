@@ -59,5 +59,6 @@ type TypeProperty interface {
 	ToValue(any) (any, bool)
 	ToInterface(any) (any, bool)
 	Validate(any) bool
+	IsEmpty(any) bool
 	Equal(any, any) bool
 }

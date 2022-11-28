@@ -20,6 +20,8 @@ func ToValueType(t value.Type) SchemaFiledType {
 		return SchemaFiledTypeBool
 	case value.TypeSelect:
 		return SchemaFiledTypeSelect
+	case value.TypeNumber:
+		return SchemaFiledTypeInteger
 	case value.TypeInteger:
 		return SchemaFiledTypeInteger
 	case value.TypeReference:
@@ -49,6 +51,8 @@ func FromValueType(t SchemaFiledType) value.Type {
 		return value.TypeBool
 	case SchemaFiledTypeSelect:
 		return value.TypeSelect
+	// case SchemaFiledTypeNumber:
+	// return value.TypeNumber
 	case SchemaFiledTypeInteger:
 		return value.TypeInteger
 	case SchemaFiledTypeReference:
@@ -62,4 +66,8 @@ func FromValueType(t SchemaFiledType) value.Type {
 
 func ToValue(v *value.Optional) any {
 	return v.Value().Interface()
+}
+
+func FromValue(t SchemaFiledType, v any) *value.Value {
+	return FromValueType(t).Value(v)
 }

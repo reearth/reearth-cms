@@ -154,6 +154,10 @@ func (*propertyInteger) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyInteger) IsEmpty(v any) bool {
+	return false
+}
+
 func (v *Value) ValueInteger() (vv Integer, ok bool) {
 	if v == nil {
 		return
