@@ -2,6 +2,8 @@ package interactor
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -51,12 +53,15 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		if err != nil {
 			return nil, err
 		}
-		if !operator.IsWritableProject(p.ID()) {
+		ws, err := r.repos.Workspace.FindByID(ctx, p.Workspace())
+		if err != nil {
+			return nil, err
+		}
+		if !operator.IsWritableWorkspace(ws.ID()) {
 			return nil, interfaces.ErrOperationDenied
 		}
-		uid := id.MustUserID(operator.User.String())
 
-		th, err := thread.New().NewID().Workspace(p.Workspace()).Build()
+		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
 
 		if err != nil {
 			return nil, err
@@ -67,20 +72,28 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 
 		builder := request.New().
 			NewID().
-			Workspace(p.Workspace()).
-			Project(p.ID()).
-			CreatedBy(uid).
+			Workspace(ws.ID()).
+			Project(param.ProjectID).
+			CreatedBy(*operator.User).
 			Thread(th.ID()).
 			Items(param.Items).
 			Title(param.Title)
 
 		if param.State != nil {
+			if *param.State == request.StateApproved || *param.State == request.StateClosed {
+				return nil, errors.New(fmt.Sprintf("can't create request with state %v", param.State.String()))
+			}
 			builder.State(*param.State)
 		}
 		if param.Description != nil {
 			builder.Description(*param.Description)
 		}
 		if param.Reviewers != nil && param.Reviewers.Len() > 0 {
+			for _, rev := range param.Reviewers {
+				if !ws.Members().IsOwnerOrMaintainer(rev) {
+					return nil, errors.New("reviewer should be owner or maintainer")
+				}
+			}
 			builder.Reviewers(param.Reviewers)
 		}
 
@@ -107,11 +120,20 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		if err != nil {
 			return nil, err
 		}
-		if !operator.IsWritableProject(req.Project()) {
+		ws, err := r.repos.Workspace.FindByID(ctx, req.Workspace())
+		if err != nil {
+			return nil, err
+		}
+		// only owners, maintainers, and the request creator can update requests
+		canUpdate := *operator.User == req.CreatedBy() || ws.Members().IsOwnerOrMaintainer(*operator.User)
+		if !operator.IsWritableWorkspace(req.Workspace()) && canUpdate {
 			return nil, interfaces.ErrOperationDenied
 		}
 
 		if param.State != nil {
+			if *param.State == request.StateApproved {
+				return nil, errors.New("can't update by approve")
+			}
 			req.SetState(*param.State)
 		}
 		if param.Description != nil {
@@ -121,7 +143,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetReviewers(param.Reviewers)
 		}
 		if param.Items != nil {
-			//
+			req.SetItems(param.Items)
 		}
 
 		if err := r.repos.Request.Save(ctx, req); err != nil {
@@ -148,5 +170,29 @@ func (r Request) Delete(ctx context.Context, requestID id.RequestID, operator *u
 		}
 
 		return r.repos.Request.Remove(ctx, requestID)
+	})
+}
+
+func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {
+	if operator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
+		req, err := r.repos.Request.FindByID(ctx, requestID)
+		if err != nil {
+			return nil, err
+		}
+		ws, err := r.repos.Workspace.FindByID(ctx, req.Workspace())
+		if err != nil {
+			return nil, err
+		}
+		// only reviewers can approve
+
+		if err := r.repos.Request.Save(ctx, req); err != nil {
+			return nil, err
+		}
+
+		return req, nil
 	})
 }

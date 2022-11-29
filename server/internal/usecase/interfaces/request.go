@@ -39,6 +39,6 @@ type Request interface {
 	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination, *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error)
 	Create(context.Context, CreateRequestParam, *usecase.Operator) (*request.Request, error)
 	Update(context.Context, UpdateRequestParam, *usecase.Operator) (*request.Request, error)
-	//Approve(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
+	Approve(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
 	Delete(context.Context, id.RequestID, *usecase.Operator) error
 }
