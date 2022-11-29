@@ -4,9 +4,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
 
 import LocalTab from "./localTab";
+import UrlTab from "./UrlTab";
 
 const { TabPane } = Tabs;
 
@@ -16,9 +18,13 @@ type Props = {
   uploadProps: UploadProps;
   fileList: UploadFile<File>[];
   uploading: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onUploadModalClose?: () => void;
-  handleUpload: () => void;
-  handleCancel: () => void;
+  onUpload: () => void;
+  onCancel: () => void;
 };
 
 const UploadModal: React.FC<Props> = ({
@@ -27,21 +33,24 @@ const UploadModal: React.FC<Props> = ({
   uploadProps,
   uploading,
   fileList,
+  uploadUrl,
+  uploadType,
+  setUploadUrl,
+  setUploadType,
   onUploadModalClose,
-  handleUpload,
-  handleCancel,
+  onUpload,
+  onCancel,
 }) => {
   const t = useT();
   const handleTabChange = (key: string) => {
-    // needs implementation
-    console.log(key);
+    setUploadType(key as UploadType);
   };
 
   return (
     <Modal
       centered
       visible={visible}
-      onCancel={handleCancel}
+      onCancel={onCancel}
       footer={null}
       width="50vw"
       afterClose={onUploadModalClose}
@@ -53,23 +62,24 @@ const UploadModal: React.FC<Props> = ({
       <div>
         <h2>{t("Asset Uploader")}</h2>
       </div>
-      <Tabs defaultActiveKey="1" onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="1">
+      <Tabs activeKey={uploadType} onChange={handleTabChange}>
+        <TabPane tab={t("Local")} key="local">
           <LocalTab uploadProps={uploadProps} />
         </TabPane>
-        {/* TODO: uncomment this once upload asset by url is implemented */}
-        {/* <TabPane tab={t("URL")} key="2" /> */}
+        <TabPane tab={t("URL")} key="url">
+          <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
+        </TabPane>
         {/* TODO: uncomment this once upload asset from google drive is implemented */}
         {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
-        <CancelButton type="default" disabled={uploading} onClick={handleCancel}>
+        <CancelButton type="default" disabled={uploading} onClick={onCancel}>
           {t("Cancel")}
         </CancelButton>
         <Button
           type="primary"
-          onClick={handleUpload}
-          disabled={fileList && fileList?.length === 0}
+          onClick={onUpload}
+          disabled={fileList?.length === 0 && !uploadUrl}
           loading={uploading}>
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>
