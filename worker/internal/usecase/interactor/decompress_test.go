@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 
@@ -63,6 +64,6 @@ func NewCMS() *mockCMS {
 	return &mockCMS{}
 }
 
-func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string) error {
+func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string, status *asset.Status) error {
 	return nil
 }
