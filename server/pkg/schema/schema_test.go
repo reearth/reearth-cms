@@ -35,12 +35,13 @@ func TestSchema_AddField(t *testing.T) {
 			want: &Schema{fields: []*Field{{id: fid, name: "f1"}}},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			tc.s.AddField(*tc.f)
+			tc.s.AddField(tc.f)
 			assert.Equal(t, tc.want, tc.s)
 		})
 	}
@@ -58,19 +59,7 @@ func TestSchema_HasField(t *testing.T) {
 	}{
 		{
 			name: "add on empty array",
-			s:    nil,
-			fid:  fid1,
-			want: false,
-		},
-		{
-			name: "add on empty array",
 			s:    &Schema{},
-			fid:  fid1,
-			want: false,
-		},
-		{
-			name: "add on empty array",
-			s:    &Schema{fields: []*Field{}},
 			fid:  fid1,
 			want: false,
 		},
@@ -93,6 +82,7 @@ func TestSchema_HasField(t *testing.T) {
 			want: false,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -115,21 +105,9 @@ func TestSchema_RemoveField(t *testing.T) {
 	}{
 		{
 			name: "add on empty array",
-			s:    nil,
-			fid:  fid1,
-			want: nil,
-		},
-		{
-			name: "add on empty array",
 			s:    &Schema{},
 			fid:  fid1,
 			want: &Schema{},
-		},
-		{
-			name: "add on empty array",
-			s:    &Schema{fields: []*Field{}},
-			fid:  fid1,
-			want: &Schema{fields: []*Field{}},
 		},
 		{
 			name: "add on not empty array",
@@ -156,6 +134,7 @@ func TestSchema_RemoveField(t *testing.T) {
 			want: &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}}},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -177,12 +156,6 @@ func TestSchema_Field(t *testing.T) {
 		fid  FieldID
 		want *Field
 	}{
-		{
-			name: "add on empty array",
-			s:    &Schema{fields: []*Field{}},
-			fid:  fid1,
-			want: nil,
-		},
 		{
 			name: "add on empty array",
 			s:    &Schema{},
@@ -214,6 +187,7 @@ func TestSchema_Field(t *testing.T) {
 			want: &Field{id: fid3, name: "f3"},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -234,21 +208,6 @@ func TestSchema_Fields(t *testing.T) {
 		want FieldList
 	}{
 		{
-			name: "add on empty array",
-			s:    nil,
-			want: nil,
-		},
-		{
-			name: "add on empty array",
-			s:    &Schema{},
-			want: nil,
-		},
-		{
-			name: "add on empty array",
-			s:    &Schema{fields: []*Field{}},
-			want: []*Field{},
-		},
-		{
 			name: "add on not empty array",
 			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}}},
 			want: []*Field{{id: fid1, name: "f1"}},
@@ -259,6 +218,7 @@ func TestSchema_Fields(t *testing.T) {
 			want: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}},
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -288,6 +248,7 @@ func TestSchema_ID(t *testing.T) {
 			want: sid,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -311,6 +272,7 @@ func TestSchema_SetWorkspace(t *testing.T) {
 			want: &Schema{workspace: wid},
 		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -342,6 +304,7 @@ func TestSchema_Workspace(t *testing.T) {
 			want: wId,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -375,19 +338,7 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 	}{
 		{
 			name: "add on empty array",
-			s:    nil,
-			fKey: "K123123",
-			want: false,
-		},
-		{
-			name: "add on empty array",
 			s:    &Schema{},
-			fKey: "K123123",
-			want: false,
-		},
-		{
-			name: "add on empty array",
-			s:    &Schema{fields: []*Field{}},
 			fKey: "K123123",
 			want: false,
 		},
@@ -410,6 +361,7 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 			want: false,
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {

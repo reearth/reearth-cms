@@ -58,6 +58,11 @@ func Test_propertyURL_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyURL_IsEmpty(t *testing.T) {
+	assert.True(t, (&propertyURL{}).IsEmpty(&url.URL{}))
+	assert.False(t, (&propertyURL{}).IsEmpty(&url.URL{Path: "a"}))
+}
+
 func Test_propertyURL_Validate(t *testing.T) {
 	v := lo.Must(url.Parse("https://example.com"))
 	assert.True(t, (&propertyURL{}).Validate(v))

@@ -143,6 +143,10 @@ func (*propertyNumber) Equal(v, w any) bool {
 	return vv == ww
 }
 
+func (*propertyNumber) IsEmpty(v any) bool {
+	return false
+}
+
 func (v *Value) ValueNumber() (vv Number, ok bool) {
 	if v == nil {
 		return

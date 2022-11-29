@@ -13,13 +13,14 @@ import (
 type CreateFieldParam struct {
 	SchemaId     id.SchemaID
 	Type         value.Type
-	Name         *string
+	Name         string
 	Description  *string
-	Key          *string
-	MultiValue   bool
+	Key          string
+	Multiple     bool
 	Unique       bool
 	Required     bool
-	TypeProperty schema.TypeProperty
+	TypeProperty *schema.TypeProperty
+	DefaultValue *value.Value
 }
 
 type UpdateFieldParam struct {
@@ -28,10 +29,11 @@ type UpdateFieldParam struct {
 	Name         *string
 	Description  *string
 	Key          *string
-	MultiValue   *bool
+	Multiple     *bool
 	Unique       *bool
 	Required     *bool
-	TypeProperty schema.TypeProperty
+	TypeProperty *schema.TypeProperty
+	DefaultValue *value.Value
 }
 
 var (

@@ -32,6 +32,6 @@ func NewSchema(i *schema.Schema) Schema {
 		Id:        i.ID().Ref(),
 		ProjectId: i.Project().Ref(),
 		Fields:    &fs,
-		CreatedAt: ToDate(i.ID().Timestamp()),
+		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
 	}
 }

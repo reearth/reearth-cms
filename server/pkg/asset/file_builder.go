@@ -34,7 +34,7 @@ func (b *FileBuilder) Path(path string) *FileBuilder {
 		path = "/" + path
 	}
 
-	b.f.path = strings.ToLower(path)
+	b.f.path = path
 	return b
 }
 
