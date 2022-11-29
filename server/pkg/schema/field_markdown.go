@@ -1,30 +1,41 @@
 package schema
 
+import "github.com/reearth/reearth-cms/server/pkg/value"
+
 type FieldMarkdown struct {
-	defaultValue *string
-	maxLength    *int
+	s *FieldString
 }
 
-func FieldMarkdownFrom(defaultValue *string, maxLength *int) (*FieldMarkdown, error) {
-	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
-		return nil, ErrInvalidTextDefault
-	}
+func NewMarkdown(maxLength *int) *FieldMarkdown {
 	return &FieldMarkdown{
-		defaultValue: defaultValue,
-		maxLength:    maxLength,
-	}, nil
+		s: NewString(value.TypeMarkdown, maxLength),
+	}
 }
 
 func (f *FieldMarkdown) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:        f.Type(),
 		markdown: f,
 	}
 }
 
-func (f *FieldMarkdown) DefaultValue() *string {
-	return f.defaultValue
+func (f *FieldMarkdown) MaxLength() *int {
+	return f.s.MaxLength()
 }
 
-func (f *FieldMarkdown) MaxLength() *int {
-	return f.maxLength
+func (f *FieldMarkdown) Type() value.Type {
+	return f.s.Type()
+}
+
+func (f *FieldMarkdown) Clone() *FieldMarkdown {
+	if f == nil {
+		return nil
+	}
+	return &FieldMarkdown{
+		s: f.s.Clone(),
+	}
+}
+
+func (f *FieldMarkdown) Validate(v *value.Value) error {
+	return f.s.Validate(v)
 }

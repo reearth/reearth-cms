@@ -6,6 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewOptional(t *testing.T) {
+	assert.Nil(t, NewOptional(TypeAsset, TypeBool.Value(true)))
+	assert.Equal(t, &Optional{t: TypeBool}, NewOptional(TypeBool, nil))
+	assert.Equal(t, &Optional{t: TypeBool, v: TypeBool.Value(true)}, NewOptional(TypeBool, TypeBool.Value(true)))
+}
+
 func TestOptionalFrom(t *testing.T) {
 	type args struct {
 		v *Value
@@ -329,4 +335,26 @@ func TestOptional_Cast(t *testing.T) {
 			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))
 		})
 	}
+}
+
+func TestOptional_IsSome_IsNone_IsEmpty(t *testing.T) {
+	v := (*Optional)(nil)
+	assert.False(t, v.IsSome())
+	assert.True(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText}
+	assert.False(t, v.IsSome())
+	assert.True(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText, v: &Value{t: TypeText, v: ""}}
+	assert.True(t, v.IsSome())
+	assert.False(t, v.IsNone())
+	assert.True(t, v.IsEmpty())
+
+	v = &Optional{t: TypeText, v: &Value{t: TypeText, v: "a"}}
+	assert.True(t, v.IsSome())
+	assert.False(t, v.IsNone())
+	assert.False(t, v.IsEmpty())
 }

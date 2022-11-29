@@ -3224,6 +3224,8 @@ enum Role {
     WRITER
     # a eole who can have full control of project
     OWNER
+    # a eole who can maintain a project
+    Maintainer
 }
 
 input CreateWorkspaceInput {

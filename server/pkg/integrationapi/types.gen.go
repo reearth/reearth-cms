@@ -4,6 +4,8 @@
 package integrationapi
 
 import (
+	"time"
+
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
@@ -105,16 +107,16 @@ const (
 
 // Asset defines model for asset.
 type Asset struct {
-	ContentType *string             `json:"contentType,omitempty"`
-	CreatedAt   *openapi_types.Date `json:"createdAt,omitempty"`
-	File        *File               `json:"file,omitempty"`
-	Id          *id.AssetID         `json:"id,omitempty"`
-	Name        *string             `json:"name,omitempty"`
-	PreviewType *AssetPreviewType   `json:"previewType,omitempty"`
-	ProjectId   *id.ProjectID       `json:"projectId,omitempty"`
-	TotalSize   *float32            `json:"totalSize,omitempty"`
-	UpdatedAt   *openapi_types.Date `json:"updatedAt,omitempty"`
-	Url         *string             `json:"url,omitempty"`
+	ContentType *string           `json:"contentType,omitempty"`
+	CreatedAt   *time.Time        `json:"createdAt,omitempty"`
+	File        *File             `json:"file,omitempty"`
+	Id          *id.AssetID       `json:"id,omitempty"`
+	Name        *string           `json:"name,omitempty"`
+	PreviewType *AssetPreviewType `json:"previewType,omitempty"`
+	ProjectId   *id.ProjectID     `json:"projectId,omitempty"`
+	TotalSize   *float32          `json:"totalSize,omitempty"`
+	UpdatedAt   *time.Time        `json:"updatedAt,omitempty"`
+	Url         *string           `json:"url,omitempty"`
 }
 
 // AssetPreviewType defines model for Asset.PreviewType.
@@ -122,11 +124,11 @@ type AssetPreviewType string
 
 // Comment defines model for comment.
 type Comment struct {
-	AuthorId   *any                `json:"authorId,omitempty"`
-	AuthorType *CommentAuthorType  `json:"authorType,omitempty"`
-	Content    *string             `json:"content,omitempty"`
-	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
-	Id         *id.CommentID       `json:"id,omitempty"`
+	AuthorId   *any               `json:"authorId,omitempty"`
+	AuthorType *CommentAuthorType `json:"authorType,omitempty"`
+	Content    *string            `json:"content,omitempty"`
+	CreatedAt  *time.Time         `json:"createdAt,omitempty"`
+	Id         *id.CommentID      `json:"id,omitempty"`
 }
 
 // CommentAuthorType defines model for Comment.AuthorType.
@@ -150,11 +152,11 @@ type File struct {
 
 // Item defines model for item.
 type Item struct {
-	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
-	Fields    *[]Field            `json:"fields,omitempty"`
-	Id        *id.ItemID          `json:"id,omitempty"`
-	ModelId   *string             `json:"modelId,omitempty"`
-	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Fields    *[]Field   `json:"fields,omitempty"`
+	Id        *id.ItemID `json:"id,omitempty"`
+	ModelId   *string    `json:"modelId,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // RefOrVersion defines model for refOrVersion.
@@ -168,11 +170,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
-	Fields    *[]SchemaField      `json:"fields,omitempty"`
-	Id        *id.SchemaID        `json:"id,omitempty"`
-	ProjectId *id.ProjectID       `json:"projectId,omitempty"`
-	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+	CreatedAt *time.Time     `json:"createdAt,omitempty"`
+	Fields    *[]SchemaField `json:"fields,omitempty"`
+	Id        *id.SchemaID   `json:"id,omitempty"`
+	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
+	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -195,13 +197,13 @@ type Version struct {
 
 // VersionedItem defines model for versionedItem.
 type VersionedItem struct {
-	CreatedAt *openapi_types.Date   `json:"createdAt,omitempty"`
+	CreatedAt *time.Time            `json:"createdAt,omitempty"`
 	Fields    *[]Field              `json:"fields,omitempty"`
 	Id        *id.ItemID            `json:"id,omitempty"`
 	ModelId   *string               `json:"modelId,omitempty"`
 	Parents   *[]openapi_types.UUID `json:"parents,omitempty"`
 	Refs      *[]string             `json:"refs,omitempty"`
-	UpdatedAt *openapi_types.Date   `json:"updatedAt,omitempty"`
+	UpdatedAt *time.Time            `json:"updatedAt,omitempty"`
 	Version   *openapi_types.UUID   `json:"version,omitempty"`
 }
 
@@ -235,6 +237,16 @@ type SortDirParam string
 // SortParam defines model for sortParam.
 type SortParam string
 
+// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
+type AssetCommentCreateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
+
+// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
+type AssetCommentUpdateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
+
 // ItemGetParams defines parameters for ItemGet.
 type ItemGetParams struct {
 	// Ref Used to select a ref or ver
@@ -247,6 +259,16 @@ type ItemGetParamsRef string
 // ItemUpdateJSONBody defines parameters for ItemUpdate.
 type ItemUpdateJSONBody struct {
 	Fields *[]Field `json:"fields,omitempty"`
+}
+
+// ItemCommentCreateJSONBody defines parameters for ItemCommentCreate.
+type ItemCommentCreateJSONBody struct {
+	Content *string `json:"content,omitempty"`
+}
+
+// ItemCommentUpdateJSONBody defines parameters for ItemCommentUpdate.
+type ItemCommentUpdateJSONBody struct {
+	Content *string `json:"content,omitempty"`
 }
 
 // ItemFilterParams defines parameters for ItemFilter.
@@ -316,18 +338,20 @@ type AssetCreateMultipartBody struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
-// AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
-type AssetCommentCreateJSONBody struct {
-	Content *string `json:"content,omitempty"`
-}
+// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
+type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 
-// AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
-type AssetCommentUpdateJSONBody struct {
-	Content *string `json:"content,omitempty"`
-}
+// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
+type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
+
+// ItemCommentCreateJSONRequestBody defines body for ItemCommentCreate for application/json ContentType.
+type ItemCommentCreateJSONRequestBody ItemCommentCreateJSONBody
+
+// ItemCommentUpdateJSONRequestBody defines body for ItemCommentUpdate for application/json ContentType.
+type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
@@ -337,9 +361,3 @@ type AssetCreateJSONRequestBody AssetCreateJSONBody
 
 // AssetCreateMultipartRequestBody defines body for AssetCreate for multipart/form-data ContentType.
 type AssetCreateMultipartRequestBody AssetCreateMultipartBody
-
-// AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
-type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
-
-// AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
-type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody

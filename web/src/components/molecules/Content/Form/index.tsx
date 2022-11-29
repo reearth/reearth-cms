@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, Dispatch, SetStateAction, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -10,6 +10,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
@@ -27,15 +28,20 @@ export interface Props {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -48,14 +54,19 @@ const ContentForm: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onItemCreate,
   onItemUpdate,
   onBack,
-  createAssets,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -161,12 +172,17 @@ const ContentForm: React.FC<Props> = ({
               loadingAssets={loadingAssets}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
-              createAssets={createAssets}
+              uploadUrl={uploadUrl}
+              uploadType={uploadType}
+              onUploadModalCancel={onUploadModalCancel}
+              setUploadUrl={setUploadUrl}
+              setUploadType={setUploadType}
+              onAssetsCreate={onAssetsCreate}
+              onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}
               onLink={_asset => handleLink(field.id, _asset)}
               setFileList={setFileList}
-              setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
             />
           ) : field.type === "Select" ? (
