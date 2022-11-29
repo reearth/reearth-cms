@@ -7,6 +7,7 @@ type WorkspaceID = id.WorkspaceID
 type ProjectID = id.ProjectID
 type ItemID = id.ItemID
 type UserID = id.UserID
+type UserIDList = id.UserIDList
 type ThreadID = id.ThreadID
 
 var NewID = id.NewRequestID

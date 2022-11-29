@@ -18,7 +18,7 @@ type Request struct {
 	title       string
 	description string
 	createdBy   UserID
-	reviewers   []UserID
+	reviewers   UserIDList
 	state       State
 	updatedAt   time.Time
 	approvedAt  *time.Time
@@ -54,7 +54,7 @@ func (r *Request) CreatedBy() UserID {
 	return r.createdBy
 }
 
-func (r *Request) Reviewers() []UserID {
+func (r *Request) Reviewers() UserIDList {
 	return r.reviewers
 }
 
