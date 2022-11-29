@@ -24,6 +24,7 @@ func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string) er
 	body := lo.Must(json.Marshal(map[string]string{
 		"type":    "assetDecompressed",
 		"assetId": assetID,
+		// "status": "done" or "fail"
 	}))
 
 	client, err := pubsub.NewClient(ctx, c.project)

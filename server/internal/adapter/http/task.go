@@ -15,6 +15,7 @@ type TaskController struct {
 type NotifyInput struct {
 	Type    string `json:"type"`
 	AssetID string `json:"assetId"`
+	//status
 }
 
 func NewTaskController(uc interfaces.Asset) *TaskController {

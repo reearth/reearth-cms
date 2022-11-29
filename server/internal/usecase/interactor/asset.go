@@ -119,6 +119,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
 				Thread(th.ID())
+				//set status to "pending"
 
 			if op.User != nil {
 				ab.CreatedByUser(*op.User)
@@ -143,6 +144,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
 				return nil, err
 			}
+
+			//set status to in progress and save asset
 
 			if err := i.event(ctx, Event{
 				Workspace: prj.Workspace(),
@@ -222,6 +225,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 			})
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
+			//set status
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
