@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction } from "react";
+import { Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -27,11 +27,7 @@ export type AssetListTableProps = {
   selection: {
     selectedRowKeys: Key[];
   };
-  setSelection: Dispatch<
-    SetStateAction<{
-      selectedRowKeys: Key[];
-    }>
-  >;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
 };
