@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction, useCallback } from "react";
+import { Key, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -8,6 +8,8 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+
+export type UploadType = "local" | "url";
 
 type Props = {
   assetList: Asset[];
@@ -19,18 +21,19 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
-  onAssetCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
-  setSelection: Dispatch<
-    SetStateAction<{
-      selectedRowKeys: Key[];
-    }>
-  >;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
 };
 
@@ -42,13 +45,18 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
-  onAssetCreate,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onAssetDelete,
   onSearchTerm,
   onEdit,
   setSelection,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
   onAssetsReload,
 }) => {
@@ -56,18 +64,13 @@ const AssetList: React.FC<Props> = ({
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
 
-  const hideUploadModal = useCallback(() => {
-    setUploadModalVisibility(false);
-    setUploading(false);
-    setFileList([]);
-  }, [setFileList, setUploading, setUploadModalVisibility]);
-
-  const handleUpload = useCallback(() => {
-    setUploading(true);
-    onAssetCreate(fileList).finally(() => {
-      hideUploadModal();
-    });
-  }, [fileList, setUploading, onAssetCreate, hideUploadModal]);
+  const handleUpload = useCallback(async () => {
+    if (uploadType === "url") {
+      await onAssetCreateFromUrl(uploadUrl);
+    } else {
+      await onAssetsCreate(fileList);
+    }
+  }, [uploadType, onAssetCreateFromUrl, uploadUrl, onAssetsCreate, fileList]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -100,10 +103,14 @@ const AssetList: React.FC<Props> = ({
                 fileList={fileList}
                 uploading={uploading}
                 uploadProps={uploadProps}
+                uploadUrl={uploadUrl}
+                uploadType={uploadType}
+                setUploadUrl={setUploadUrl}
+                setUploadType={setUploadType}
                 uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
-                hideUploadModal={hideUploadModal}
-                handleUpload={handleUpload}
+                onUploadModalCancel={onUploadModalCancel}
+                onUpload={handleUpload}
               />
             }
           />

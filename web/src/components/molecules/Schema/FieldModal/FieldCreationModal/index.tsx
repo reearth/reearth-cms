@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -11,6 +11,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
@@ -40,12 +41,17 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
 };
 
 const initialValues: FormValues = {
@@ -70,11 +76,16 @@ const FieldCreationModal: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
-  createAssets,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onAssetSearchTerm,
   onAssetsReload,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
@@ -319,12 +330,17 @@ const FieldCreationModal: React.FC<Props> = ({
               loadingAssets={loadingAssets}
               uploading={uploading}
               uploadModalVisibility={uploadModalVisibility}
-              createAssets={createAssets}
+              uploadUrl={uploadUrl}
+              uploadType={uploadType}
+              onUploadModalCancel={onUploadModalCancel}
+              setUploadUrl={setUploadUrl}
+              setUploadType={setUploadType}
+              onAssetsCreate={onAssetsCreate}
+              onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
               onLink={handleLinkAsset}
               setFileList={setFileList}
-              setUploading={setUploading}
               setUploadModalVisibility={setUploadModalVisibility}
             />
           </TabPane>

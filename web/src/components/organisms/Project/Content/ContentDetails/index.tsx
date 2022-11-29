@@ -25,10 +25,15 @@ const ContentDetails: React.FC = () => {
     loading,
     uploading,
     uploadModalVisibility,
+    uploadUrl,
+    uploadType,
+    handleUploadModalCancel,
+    setUploadUrl,
+    setUploadType,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
-    handleAssetCreate,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
   } = useAssetHooks();
@@ -48,11 +53,16 @@ const ContentDetails: React.FC = () => {
       loadingAssets={loading}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
-      createAssets={handleAssetCreate}
+      uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      onUploadModalCancel={handleUploadModalCancel}
+      setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
+      onAssetsCreate={handleAssetsCreate}
+      onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
-      setUploading={setUploading}
       setUploadModalVisibility={setUploadModalVisibility}
     />
   );

@@ -21,10 +21,15 @@ const ProjectSchema: React.FC = () => {
     loading,
     uploading,
     uploadModalVisibility,
+    uploadUrl,
+    uploadType,
+    handleUploadModalCancel,
+    setUploadUrl,
+    setUploadType,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
-    handleAssetCreate,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsReload,
   } = useAssetHooks();
@@ -73,11 +78,16 @@ const ProjectSchema: React.FC = () => {
           loadingAssets={loading}
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
-          createAssets={handleAssetCreate}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          onUploadModalCancel={handleUploadModalCancel}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          onAssetsCreate={handleAssetsCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
-          setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
         />
       )}
@@ -94,11 +104,16 @@ const ProjectSchema: React.FC = () => {
           loadingAssets={loading}
           uploading={uploading}
           uploadModalVisibility={uploadModalVisibility}
-          createAssets={handleAssetCreate}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          onUploadModalCancel={handleUploadModalCancel}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          onAssetsCreate={handleAssetsCreate}
+          onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
-          setUploading={setUploading}
           setUploadModalVisibility={setUploadModalVisibility}
         />
       )}

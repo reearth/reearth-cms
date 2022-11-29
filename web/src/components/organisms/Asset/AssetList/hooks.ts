@@ -17,6 +17,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type AssetSortType = "date" | "name" | "size";
+type UploadType = "local" | "url";
 
 const assetsPerPage = 10;
 // Todo: this is temporary until implementing cursor pagination
@@ -45,6 +46,8 @@ export default () => {
     selectedRowKeys: [],
   });
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
+  const [uploadUrl, setUploadUrl] = useState<string>("");
+  const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
@@ -80,10 +83,19 @@ export default () => {
     }
   }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
-  const handleAssetCreate = useCallback(
+  const handleUploadModalCancel = useCallback(() => {
+    setUploadModalVisibility(false);
+    setUploading(false);
+    setFileList([]);
+    setUploadUrl("");
+    setUploadType("local");
+  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+
+  const handleAssetsCreate = useCallback(
     (files: UploadFile<File>[]) =>
       (async () => {
         if (!projectId) return [];
+        setUploading(true);
         const results = (
           await Promise.all(
             files.map(async file => {
@@ -92,6 +104,7 @@ export default () => {
               });
               if (result.errors || !result.data?.createAsset) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
                 return undefined;
               }
               return convertAsset(result.data.createAsset.asset as GQLAsset);
@@ -102,9 +115,33 @@ export default () => {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
+        handleUploadModalCancel();
         return results;
       })(),
-    [t, projectId, createAssetMutation, refetch],
+    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch],
+  );
+
+  const handleAssetCreateFromUrl = useCallback(
+    async (url: string) => {
+      if (!projectId) return undefined;
+      setUploading(true);
+      try {
+        const result = await createAssetMutation({
+          variables: { projectId, file: null, url },
+        });
+        if (result.data?.createAsset) {
+          Notification.success({ message: t("Successfully added asset!") });
+          await refetch();
+          return convertAsset(result.data.createAsset.asset as GQLAsset);
+        }
+        return undefined;
+      } catch {
+        Notification.error({ message: t("Failed to add asset.") });
+      } finally {
+        handleUploadModalCancel();
+      }
+    },
+    [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -191,11 +228,17 @@ export default () => {
     selectedAssets,
     uploadModalVisibility,
     loading,
+    uploadUrl,
+    uploadType,
+    handleUploadModalCancel,
+    setUploadUrl,
+    setUploadType,
     setSelection,
     setFileList,
     setUploading,
     setUploadModalVisibility,
-    handleAssetCreate,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
     handleAssetDelete,
     handleGetMoreAssets,
     handleSortChange,
