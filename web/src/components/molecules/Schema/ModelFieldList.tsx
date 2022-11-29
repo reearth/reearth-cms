@@ -52,13 +52,11 @@ const ModelFieldList: React.FC<Props> = ({
               </FieldThumbnail>
             }
             title={
-              <>
-                <ItemTitle>
-                  {(item as Field).title} {(item as Field).required ? " *" : ""}
-                </ItemTitle>
+              <ItemTitle>
+                {(item as Field).title} {(item as Field).required ? " *" : ""}
                 <ItemKey>#{(item as Field).key}</ItemKey>
                 {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-              </>
+              </ItemTitle>
             }
           />
         </List.Item>
@@ -115,8 +113,9 @@ const FieldStyledList = styled(List)`
   }
 `;
 
-const ItemTitle = styled.span`
+const ItemTitle = styled.p`
   color: rgba(0, 0, 0, 0.85);
+  margin: 0;
 `;
 
 const ItemKey = styled.span`

@@ -11,22 +11,23 @@ const FieldTitle: React.FC<Props> = ({ title, isUnique }) => {
   const t = useT();
 
   return (
-    <>
-      <Title>{title}</Title>
+    <Title>
+      {title}
       {isUnique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
-    </>
+    </Title>
   );
 };
 
 export default FieldTitle;
 
+const Title = styled.p`
+  color: #000000d9;
+  font-weight: 400;
+  margin: 0;
+`;
+
 const FieldUnique = styled.span`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
-`;
-
-const Title = styled.span`
-  color: #000000d9;
   font-weight: 400;
 `;
