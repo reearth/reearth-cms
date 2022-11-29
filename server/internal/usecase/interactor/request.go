@@ -140,6 +140,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetDescription(*param.Description)
 		}
 		if param.Reviewers != nil && param.Reviewers.Len() > 0 {
+			for _, rev := range param.Reviewers {
+				if !ws.Members().IsOwnerOrMaintainer(rev) {
+					return nil, errors.New("reviewer should be owner or maintainer")
+				}
+			}
 			req.SetReviewers(param.Reviewers)
 		}
 		if param.Items != nil {
@@ -183,15 +188,18 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		if err != nil {
 			return nil, err
 		}
-		ws, err := r.repos.Workspace.FindByID(ctx, req.Workspace())
-		if err != nil {
-			return nil, err
+		if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
 		}
 		// only reviewers can approve
-
+		if !req.Reviewers().Has(*operator.User) {
+			return nil, errors.New("only reviewers can approve")
+		}
+		req.SetState(request.StateApproved)
 		if err := r.repos.Request.Save(ctx, req); err != nil {
 			return nil, err
 		}
+		// apply the changes on the item
 
 		return req, nil
 	})
