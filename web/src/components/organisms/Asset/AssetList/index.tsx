@@ -1,4 +1,5 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 
 import useHooks from "./hooks";
 
@@ -13,6 +14,8 @@ const AssetList: React.FC = () => {
     loading,
     uploadUrl,
     uploadType,
+    selectedAsset,
+    handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
@@ -29,6 +32,12 @@ const AssetList: React.FC = () => {
 
   return (
     <AssetListBody
+      commentsPanel={
+        <CommentsPanel
+          comments={assetList.find(asset => asset.id === selectedAsset?.id)?.comments}
+          threadId={assetList.find(asset => asset.id === selectedAsset?.id)?.threadId}
+        />
+      }
       assetList={assetList}
       assetsPerPage={assetsPerPage}
       fileList={fileList}
@@ -38,6 +47,7 @@ const AssetList: React.FC = () => {
       loading={loading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onAssetSelect={handleAssetSelect}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}

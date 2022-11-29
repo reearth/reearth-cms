@@ -12,6 +12,7 @@ import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Com
 export type UploadType = "local" | "url";
 
 type Props = {
+  commentsPanel?: JSX.Element;
   assetList: Asset[];
   assetsPerPage: number | undefined;
   fileList: UploadFile[];
@@ -23,6 +24,7 @@ type Props = {
   loading: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -38,6 +40,7 @@ type Props = {
 };
 
 const AssetList: React.FC<Props> = ({
+  commentsPanel,
   assetList,
   assetsPerPage,
   fileList,
@@ -47,6 +50,7 @@ const AssetList: React.FC<Props> = ({
   loading,
   uploadUrl,
   uploadType,
+  onAssetSelect,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -119,6 +123,7 @@ const AssetList: React.FC<Props> = ({
             assetsPerPage={assetsPerPage}
             selection={selection}
             loading={loading}
+            onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
             setSelection={setSelection}
@@ -127,6 +132,7 @@ const AssetList: React.FC<Props> = ({
           />
         </Wrapper>
       }
+      right={commentsPanel}
     />
   );
 };

@@ -1,5 +1,5 @@
 import { useApolloClient } from "@apollo/client";
-import { useEffect, useState, useCallback, Key } from "react";
+import { useEffect, useState, useCallback, Key, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -45,6 +45,7 @@ export default () => {
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
+  const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
   const [uploadUrl, setUploadUrl] = useState<string>("");
   const [uploadType, setUploadType] = useState<UploadType>("local");
@@ -218,6 +219,18 @@ export default () => {
     setAssetList(assets);
   }, [data?.assets.nodes]);
 
+  const handleAssetSelect = useCallback(
+    (id: string) => {
+      setSelectedAssetId(id);
+    },
+    [setSelectedAssetId],
+  );
+
+  const selectedAsset = useMemo(
+    () => assetList.find(asset => asset.id === selectedAssetId),
+    [assetList, selectedAssetId],
+  );
+
   return {
     assetList,
     assetsPerPage,
@@ -230,6 +243,8 @@ export default () => {
     loading,
     uploadUrl,
     uploadType,
+    selectedAsset,
+    handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
