@@ -16,7 +16,9 @@ const CommentMoecule: React.FC<Props> = ({ comment }) => {
     <AntDComment
       author={<a>{comment.author}</a>}
       avatar={
-        <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+        <Avatar
+          style={{ color: "#fff", backgroundColor: "#3F3D45" }}
+          shape={comment.authorType === "Integration" ? "square" : "circle"}>
           {comment.author.charAt(0)}
         </Avatar>
       }
