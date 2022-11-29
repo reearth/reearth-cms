@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
@@ -13,8 +14,9 @@ type TaskController struct {
 }
 
 type NotifyInput struct {
-	Type    string `json:"type"`
-	AssetID string `json:"assetId"`
+	Type    string        `json:"type"`
+	AssetID string        `json:"assetId"`
+	Status  *asset.Status `json:"status"`
 }
 
 func NewTaskController(uc interfaces.Asset) *TaskController {
@@ -27,7 +29,7 @@ func (tc *TaskController) Notify(ctx context.Context, input NotifyInput) error {
 		return err
 	}
 
-	_, err = tc.usecase.UpdateFiles(ctx, aID, adapter.Operator(ctx))
+	_, err = tc.usecase.UpdateFiles(ctx, aID, input.Status, adapter.Operator(ctx))
 	if err != nil {
 		return err
 	}

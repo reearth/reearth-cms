@@ -56,7 +56,6 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, err error) {
-	// TODO: set status to in progress
 	if op.User == nil && op.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -119,7 +118,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				File(f).
 				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
-				Thread(th.ID())
+				Thread(th.ID()).
+				Status(lo.ToPtr(asset.StatusPending))
 
 			if op.User != nil {
 				ab.CreatedByUser(*op.User)
@@ -145,6 +145,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, err
 			}
 
+			a.UpdateStatus(lo.ToPtr(asset.StatusInProgress))
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
 			if err := i.event(ctx, Event{
 				Workspace: prj.Workspace(),
 				Type:      event.AssetCreate,
@@ -158,10 +163,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		})
 }
 
-// TODO:
-// task runner > worker > set status to decomporessed
-// after it is decompressed it calls notify asset decomporessed
-// in server notify handler -> notify controler -> update files -> fetch the list of files and list (recieve status)
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
 	if operator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
@@ -193,7 +194,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Status, op *usecase.Operator) (*asset.Asset, error) {
 	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -227,6 +228,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 			})
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
+			a.UpdateStatus(s)
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
