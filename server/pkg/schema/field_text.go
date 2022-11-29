@@ -1,38 +1,41 @@
 package schema
 
-import (
-	"errors"
-
-	"github.com/reearth/reearthx/util"
-)
-
-var ErrInvalidTextDefault = errors.New("invalid default value")
+import "github.com/reearth/reearth-cms/server/pkg/value"
 
 type FieldText struct {
-	defaultValue *string
-	maxLength    *int
+	s *FieldString
 }
 
-func FieldTextFrom(defaultValue *string, maxLength *int) (*FieldText, error) {
-	if defaultValue != nil && maxLength != nil && len(*defaultValue) > *maxLength {
-		return nil, ErrInvalidTextDefault
-	}
+func NewText(maxLength *int) *FieldText {
 	return &FieldText{
-		defaultValue: defaultValue,
-		maxLength:    maxLength,
-	}, nil
+		s: NewString(value.TypeText, maxLength),
+	}
 }
 
 func (f *FieldText) TypeProperty() *TypeProperty {
 	return &TypeProperty{
+		t:    f.Type(),
 		text: f,
 	}
 }
 
-func (f *FieldText) DefaultValue() *string {
-	return util.CloneRef(f.defaultValue)
+func (f *FieldText) MaxLength() *int {
+	return f.s.MaxLength()
 }
 
-func (f *FieldText) MaxLength() *int {
-	return util.CloneRef(f.maxLength)
+func (f *FieldText) Type() value.Type {
+	return f.s.Type()
+}
+
+func (f *FieldText) Clone() *FieldText {
+	if f == nil {
+		return nil
+	}
+	return &FieldText{
+		s: f.s.Clone(),
+	}
+}
+
+func (f *FieldText) Validate(v *value.Value) error {
+	return f.s.Validate(v)
 }

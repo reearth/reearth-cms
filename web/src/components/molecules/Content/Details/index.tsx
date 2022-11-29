@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
-
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
@@ -18,15 +17,20 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
-  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -40,14 +44,19 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
   onItemCreate,
   onItemUpdate,
   onBack,
-  createAssets,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   return (
@@ -62,14 +71,19 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         loadingAssets={loadingAssets}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        onUploadModalCancel={onUploadModalCancel}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
         onBack={onBack}
         onItemCreate={onItemCreate}
         onItemUpdate={onItemUpdate}
-        createAssets={createAssets}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
         onAssetsReload={onAssetsReload}
         onAssetSearchTerm={onAssetSearchTerm}
         setFileList={setFileList}
-        setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
       />
     </ContentWrapper>

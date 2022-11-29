@@ -1,121 +1,29 @@
 package schema
 
 import (
-	"time"
+	"errors"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
+
+var ErrInvalidValue = errors.New("invalid value")
 
 // TypeProperty Represent special attributes for some field
 // only one of the type properties should be not nil
 type TypeProperty struct {
+	t         value.Type
+	asset     *FieldAsset
 	text      *FieldText
 	textArea  *FieldTextArea
 	richText  *FieldRichText
 	markdown  *FieldMarkdown
-	asset     *FieldAsset
-	dateTime  *FieldDate
+	dateTime  *FieldDateTime
 	bool      *FieldBool
 	selectt   *FieldSelect
 	integer   *FieldInteger
+	number    *FieldNumber
 	reference *FieldReference
 	url       *FieldURL
-}
-
-func NewFieldTypePropertyText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldTextFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		text: f,
-	}, nil
-}
-
-func NewFieldTypePropertyTextArea(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldTextAreaFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		textArea: f,
-	}, nil
-}
-
-func NewFieldTypePropertyRichText(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldRichTextFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		richText: f,
-	}, nil
-}
-
-func NewFieldTypePropertyMarkdown(defaultValue *string, maxLength *int) (*TypeProperty, error) {
-	f, err := FieldMarkdownFrom(defaultValue, maxLength)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		markdown: f,
-	}, nil
-}
-
-func NewFieldTypePropertyAsset(defaultValue *id.AssetID) *TypeProperty {
-	return &TypeProperty{
-		asset: FieldAssetFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyDate(defaultValue *time.Time) *TypeProperty {
-	return &TypeProperty{
-		dateTime: FieldDateFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyBool(defaultValue *bool) *TypeProperty {
-	return &TypeProperty{
-		bool: FieldBoolFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertySelect(values []string, defaultValue *string) (*TypeProperty, error) {
-	fs, err := FieldSelectFrom(values, defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		selectt: fs,
-	}, nil
-}
-
-func NewFieldTypePropertyInteger(defaultValue, min, max *int) (*TypeProperty, error) {
-	ft, err := FieldIntegerFrom(defaultValue, min, max)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		integer: ft,
-	}, err
-}
-
-func NewFieldTypePropertyReference(defaultValue model.ID) *TypeProperty {
-	return &TypeProperty{
-		reference: FieldReferenceFrom(defaultValue),
-	}
-}
-
-func NewFieldTypePropertyURL(defaultValue *string) (*TypeProperty, error) {
-	tp, err := FieldURLFrom(defaultValue)
-	if err != nil {
-		return nil, err
-	}
-	return &TypeProperty{
-		url: tp,
-	}, nil
 }
 
 type TypePropertyMatch struct {
@@ -124,10 +32,11 @@ type TypePropertyMatch struct {
 	RichText  func(text *FieldRichText)
 	Markdown  func(*FieldMarkdown)
 	Asset     func(*FieldAsset)
-	Date      func(*FieldDate)
+	DateTime  func(*FieldDateTime)
 	Bool      func(*FieldBool)
 	Select    func(*FieldSelect)
 	Integer   func(*FieldInteger)
+	Number    func(*FieldNumber)
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
 	Default   func()
@@ -139,91 +48,133 @@ type TypePropertyMatch1[T any] struct {
 	RichText  func(text *FieldRichText) T
 	Markdown  func(*FieldMarkdown) T
 	Asset     func(*FieldAsset) T
-	Date      func(*FieldDate) T
+	DateTime  func(*FieldDateTime) T
 	Bool      func(*FieldBool) T
 	Select    func(*FieldSelect) T
 	Integer   func(*FieldInteger) T
+	Number    func(*FieldNumber) T
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
 	Default   func() T
 }
 
 func (t *TypeProperty) Type() value.Type {
-	if t.text != nil {
-		return value.TypeText
-	} else if t.textArea != nil {
-		return value.TypeTextArea
-	} else if t.richText != nil {
-		return value.TypeRichText
-	} else if t.markdown != nil {
-		return value.TypeMarkdown
-	} else if t.asset != nil {
-		return value.TypeAsset
-	} else if t.dateTime != nil {
-		return value.TypeDateTime
-	} else if t.bool != nil {
-		return value.TypeBool
-	} else if t.selectt != nil {
-		return value.TypeSelect
-	} else if t.integer != nil {
-		return value.TypeInteger
-	} else if t.reference != nil {
-		return value.TypeReference
-	} else if t.url != nil {
-		return value.TypeURL
-	}
-	return ""
+	return t.t
+}
+
+func (t *TypeProperty) Validate(v *value.Value) error {
+	return MatchTypeProperty1(t, TypePropertyMatch1[error]{
+		Text: func(f *FieldText) error {
+			return f.Validate(v)
+		},
+		TextArea: func(f *FieldTextArea) error {
+			return f.Validate(v)
+		},
+		RichText: func(f *FieldRichText) error {
+			return f.Validate(v)
+		},
+		Markdown: func(f *FieldMarkdown) error {
+			return f.Validate(v)
+		},
+		Asset: func(f *FieldAsset) error {
+			return f.Validate(v)
+		},
+		Bool: func(f *FieldBool) error {
+			return f.Validate(v)
+		},
+		DateTime: func(f *FieldDateTime) error {
+			return f.Validate(v)
+		},
+		Number: func(f *FieldNumber) error {
+			return f.Validate(v)
+		},
+		Integer: func(f *FieldInteger) error {
+			return f.Validate(v)
+		},
+		Reference: func(f *FieldReference) error {
+			return f.Validate(v)
+		},
+		Select: func(f *FieldSelect) error {
+			return f.Validate(v)
+		},
+		URL: func(f *FieldURL) error {
+			return f.Validate(v)
+		},
+	})
 }
 
 func (t *TypeProperty) Match(m TypePropertyMatch) {
-	if t == nil {
+	if t == nil || t.t == value.TypeUnknown {
+		if m.Default != nil {
+			m.Default()
+		}
 		return
 	}
-	if t.text != nil {
+
+	switch t.t {
+	case value.TypeText:
 		if m.Text != nil {
 			m.Text(t.text)
+			return
 		}
-	} else if t.textArea != nil {
+	case value.TypeTextArea:
 		if m.TextArea != nil {
 			m.TextArea(t.textArea)
+			return
 		}
-	} else if t.richText != nil {
+	case value.TypeRichText:
 		if m.RichText != nil {
 			m.RichText(t.richText)
+			return
 		}
-	} else if t.markdown != nil {
+	case value.TypeMarkdown:
 		if m.Markdown != nil {
 			m.Markdown(t.markdown)
+			return
 		}
-	} else if t.asset != nil {
+	case value.TypeAsset:
 		if m.Asset != nil {
 			m.Asset(t.asset)
+			return
 		}
-	} else if t.dateTime != nil {
-		if m.Date != nil {
-			m.Date(t.dateTime)
+	case value.TypeDateTime:
+		if m.DateTime != nil {
+			m.DateTime(t.dateTime)
+			return
 		}
-	} else if t.bool != nil {
-		if m.Bool != nil {
-			m.Bool(t.bool)
-		}
-	} else if t.selectt != nil {
-		if m.Select != nil {
-			m.Select(t.selectt)
-		}
-	} else if t.integer != nil {
-		if m.Integer != nil {
-			m.Integer(t.integer)
-		}
-	} else if t.reference != nil {
+	case value.TypeReference:
 		if m.Reference != nil {
 			m.Reference(t.reference)
+			return
 		}
-	} else if t.url != nil {
+	case value.TypeNumber:
+		if m.Number != nil {
+			m.Number(t.number)
+			return
+		}
+	case value.TypeInteger:
+		if m.Integer != nil {
+			m.Integer(t.integer)
+			return
+		}
+	case value.TypeSelect:
+		if m.Select != nil {
+			m.Select(t.selectt)
+			return
+		}
+	case value.TypeBool:
+		if m.Bool != nil {
+			m.Bool(t.bool)
+			return
+		}
+	case value.TypeURL:
 		if m.URL != nil {
 			m.URL(t.url)
+			return
 		}
-	} else if m.Default != nil {
+	}
+
+	if m.Default != nil {
 		m.Default()
 	}
 }
@@ -234,82 +185,83 @@ func (t *TypeProperty) Clone() *TypeProperty {
 	}
 
 	return &TypeProperty{
-		text:      t.text,
-		textArea:  t.textArea,
-		richText:  t.richText,
-		markdown:  t.markdown,
-		asset:     t.asset,
-		dateTime:  t.dateTime,
-		bool:      t.bool,
-		selectt:   t.selectt,
-		integer:   t.integer,
-		reference: t.reference,
-		url:       t.url,
+		t:         t.t,
+		text:      t.text.Clone(),
+		textArea:  t.textArea.Clone(),
+		richText:  t.richText.Clone(),
+		markdown:  t.markdown.Clone(),
+		asset:     t.asset.Clone(),
+		dateTime:  t.dateTime.Clone(),
+		bool:      t.bool.Clone(),
+		selectt:   t.selectt.Clone(),
+		number:    t.number.Clone(),
+		integer:   t.integer.Clone(),
+		reference: t.reference.Clone(),
+		url:       t.url.Clone(),
 	}
 }
 
 func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T) {
-	t.Match(TypePropertyMatch{
-		Text: func(f *FieldText) {
-			if m.Text != nil {
-				res = m.Text(f)
-			}
-		},
-		TextArea: func(f *FieldTextArea) {
-			if m.TextArea != nil {
-				res = m.TextArea(f)
-			}
-		},
-		RichText: func(f *FieldRichText) {
-			if m.RichText != nil {
-				res = m.RichText(f)
-			}
-		},
-		Markdown: func(f *FieldMarkdown) {
-			if m.Markdown != nil {
-				res = m.Markdown(f)
-			}
-		},
-		Asset: func(f *FieldAsset) {
-			if m.Asset != nil {
-				res = m.Asset(f)
-			}
-		},
-		Date: func(f *FieldDate) {
-			if m.Date != nil {
-				res = m.Date(f)
-			}
-		},
-		Bool: func(f *FieldBool) {
-			if m.Bool != nil {
-				res = m.Bool(f)
-			}
-		},
-		Select: func(f *FieldSelect) {
-			if m.Select != nil {
-				res = m.Select(f)
-			}
-		},
-		Integer: func(f *FieldInteger) {
-			if m.Integer != nil {
-				res = m.Integer(f)
-			}
-		},
-		Reference: func(f *FieldReference) {
-			if m.Reference != nil {
-				res = m.Reference(f)
-			}
-		},
-		URL: func(f *FieldURL) {
-			if m.URL != nil {
-				res = m.URL(f)
-			}
-		},
-		Default: func() {
-			if m.Default != nil {
-				res = m.Default()
-			}
-		},
-	})
+	if t == nil || t.t == value.TypeUnknown {
+		if m.Default != nil {
+			return m.Default()
+		}
+		return
+	}
+
+	switch t.t {
+	case value.TypeText:
+		if m.Text != nil {
+			return m.Text(t.text)
+		}
+	case value.TypeTextArea:
+		if m.TextArea != nil {
+			return m.TextArea(t.textArea)
+		}
+	case value.TypeRichText:
+		if m.RichText != nil {
+			return m.RichText(t.richText)
+		}
+	case value.TypeMarkdown:
+		if m.Markdown != nil {
+			return m.Markdown(t.markdown)
+		}
+	case value.TypeAsset:
+		if m.Asset != nil {
+			return m.Asset(t.asset)
+		}
+	case value.TypeDateTime:
+		if m.DateTime != nil {
+			return m.DateTime(t.dateTime)
+		}
+	case value.TypeReference:
+		if m.Reference != nil {
+			return m.Reference(t.reference)
+		}
+	case value.TypeNumber:
+		if m.Number != nil {
+			return m.Number(t.number)
+		}
+	case value.TypeInteger:
+		if m.Integer != nil {
+			return m.Integer(t.integer)
+		}
+	case value.TypeSelect:
+		if m.Select != nil {
+			return m.Select(t.selectt)
+		}
+	case value.TypeBool:
+		if m.Bool != nil {
+			return m.Bool(t.bool)
+		}
+	case value.TypeURL:
+		if m.URL != nil {
+			return m.URL(t.url)
+		}
+	}
+
+	if m.Default != nil {
+		return m.Default()
+	}
 	return
 }

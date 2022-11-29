@@ -35,12 +35,14 @@ func TestValue_IsEmpty(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "non-empty",
-			value: &Value{
-				t: Type("hoge"),
-				v: "foo",
-			},
-			want: false,
+			name:  "empty string",
+			value: &Value{t: TypeText, v: ""},
+			want:  true,
+		},
+		{
+			name:  "non-empty",
+			value: &Value{t: TypeText, v: "a"},
+			want:  false,
 		},
 	}
 

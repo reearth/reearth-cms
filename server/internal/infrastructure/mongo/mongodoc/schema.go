@@ -15,89 +15,68 @@ type SchemaDocument struct {
 	ID        string
 	Workspace string
 	Project   string
-	Fields    []FiledDocument
+	Fields    []FieldDocument
 }
 
-type FiledDocument struct {
+type FieldDocument struct {
 	ID           string
 	Name         string
 	Description  string
 	Key          string
 	Unique       bool
-	MultiValue   bool
+	Multiple     bool
 	Required     bool
 	UpdatedAt    time.Time
+	DefaultValue *ValueDocument
 	TypeProperty TypePropertyDocument
 }
 
 type TypePropertyDocument struct {
 	Type      string
 	Text      *FieldTextPropertyDocument      `bson:",omitempty"`
-	TextArea  *FieldTextAreaPropertyDocument  `bson:",omitempty"`
-	RichText  *FieldRichTextPropertyDocument  `bson:",omitempty"`
-	Markdown  *FieldMarkdownPropertyDocument  `bson:",omitempty"`
-	Asset     *FieldAssetPropertyDocument     `bson:",omitempty"`
-	Date      *FieldDatePropertyDocument      `bson:",omitempty"`
-	Bool      *FieldBoolPropertyDocument      `bson:",omitempty"`
+	TextArea  *FieldTextPropertyDocument      `bson:",omitempty"`
+	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
+	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
+	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
-	Url       *FieldURLPropertyDocument       `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
-	DefaultValue *string
-	MaxLength    *int
-}
-type FieldTextAreaPropertyDocument struct {
-	DefaultValue *string
-	MaxLength    *int
-}
-type FieldRichTextPropertyDocument struct {
-	DefaultValue *string
-	MaxLength    *int
-}
-type FieldMarkdownPropertyDocument struct {
-	DefaultValue *string
-	MaxLength    *int
-}
-type FieldAssetPropertyDocument struct {
-	DefaultValue *string
-}
-type FieldDatePropertyDocument struct {
-	DefaultValue *time.Time
-}
-type FieldBoolPropertyDocument struct {
-	DefaultValue *bool
+	MaxLength *int
 }
 type FieldSelectPropertyDocument struct {
-	Values       []string
-	DefaultValue *string
+	Values []string
 }
+
+type FieldNumberPropertyDocument struct {
+	Min *float64
+	Max *float64
+}
+
 type FieldIntegerPropertyDocument struct {
-	DefaultValue *int
-	Min          *int
-	Max          *int
+	Min *int64
+	Max *int64
 }
+
 type FieldReferencePropertyDocument struct {
-	ModelID string
-}
-type FieldURLPropertyDocument struct {
-	DefaultValue *string
+	Model string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	sId := s.ID().String()
-	fieldsDoc := util.Map(s.Fields(), func(f *schema.Field) FiledDocument {
-		fd := FiledDocument{
-			ID:          f.ID().String(),
-			Name:        f.Name(),
-			Description: f.Description(),
-			Key:         f.Key().String(),
-			Unique:      f.Unique(),
-			MultiValue:  f.MultiValue(),
-			Required:    f.Required(),
-			UpdatedAt:   f.UpdatedAt(),
+	fieldsDoc := util.Map(s.Fields(), func(f *schema.Field) FieldDocument {
+		fd := FieldDocument{
+			ID:           f.ID().String(),
+			Name:         f.Name(),
+			Description:  f.Description(),
+			Key:          f.Key().String(),
+			Unique:       f.Unique(),
+			Multiple:     f.Multiple(),
+			Required:     f.Required(),
+			UpdatedAt:    f.UpdatedAt(),
+			DefaultValue: NewValue(f.DefaultValue()),
 			TypeProperty: TypePropertyDocument{
 				Type: string(f.Type()),
 			},
@@ -106,66 +85,50 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 		f.TypeProperty().Match(schema.TypePropertyMatch{
 			Text: func(fp *schema.FieldText) {
 				fd.TypeProperty.Text = &FieldTextPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-					MaxLength:    fp.MaxLength(),
+					MaxLength: fp.MaxLength(),
 				}
 			},
 			TextArea: func(fp *schema.FieldTextArea) {
-				fd.TypeProperty.TextArea = &FieldTextAreaPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-					MaxLength:    fp.MaxLength(),
+				fd.TypeProperty.TextArea = &FieldTextPropertyDocument{
+					MaxLength: fp.MaxLength(),
 				}
 			},
 			RichText: func(fp *schema.FieldRichText) {
-				fd.TypeProperty.RichText = &FieldRichTextPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-					MaxLength:    fp.MaxLength(),
+				fd.TypeProperty.RichText = &FieldTextPropertyDocument{
+					MaxLength: fp.MaxLength(),
 				}
 			},
 			Markdown: func(fp *schema.FieldMarkdown) {
-				fd.TypeProperty.Markdown = &FieldMarkdownPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-					MaxLength:    fp.MaxLength(),
+				fd.TypeProperty.Markdown = &FieldTextPropertyDocument{
+					MaxLength: fp.MaxLength(),
 				}
 			},
-			Asset: func(fp *schema.FieldAsset) {
-				fd.TypeProperty.Asset = &FieldAssetPropertyDocument{
-					DefaultValue: fp.DefaultValue().StringRef(),
-				}
-			},
-			Date: func(fp *schema.FieldDate) {
-				fd.TypeProperty.Date = &FieldDatePropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-				}
-			},
-			Bool: func(fp *schema.FieldBool) {
-				fd.TypeProperty.Bool = &FieldBoolPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-				}
-			},
+			Asset:    func(fp *schema.FieldAsset) {},
+			DateTime: func(fp *schema.FieldDateTime) {},
+			Bool:     func(fp *schema.FieldBool) {},
 			Select: func(fp *schema.FieldSelect) {
 				fd.TypeProperty.Select = &FieldSelectPropertyDocument{
-					Values:       fp.Values(),
-					DefaultValue: fp.DefaultValue(),
+					Values: fp.Values(),
+				}
+			},
+			Number: func(fp *schema.FieldNumber) {
+				fd.TypeProperty.Number = &FieldNumberPropertyDocument{
+					Min: fp.Min(),
+					Max: fp.Max(),
 				}
 			},
 			Integer: func(fp *schema.FieldInteger) {
 				fd.TypeProperty.Integer = &FieldIntegerPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-					Min:          fp.Min(),
-					Max:          fp.Max(),
+					Min: fp.Min(),
+					Max: fp.Max(),
 				}
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					ModelID: fp.ModelID().String(),
+					Model: fp.Model().String(),
 				}
 			},
-			URL: func(fp *schema.FieldURL) {
-				fd.TypeProperty.Url = &FieldURLPropertyDocument{
-					DefaultValue: fp.DefaultValue(),
-				}
-			},
+			URL: func(fp *schema.FieldURL) {},
 		})
 		return fd
 	})
@@ -191,42 +154,68 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		return nil, err
 	}
 
-	f := util.Map(d.Fields, func(fd FiledDocument) *schema.Field {
-		var fb *schema.FieldBuilder
+	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty
+		var tp *schema.TypeProperty
 		switch value.Type(tpd.Type) {
 		case value.TypeText:
-			fb = schema.NewFieldText(tpd.Text.DefaultValue, tpd.Text.MaxLength)
+			tp = schema.NewText(tpd.Text.MaxLength).TypeProperty()
 		case value.TypeTextArea:
-			fb = schema.NewFieldTextArea(tpd.TextArea.DefaultValue, tpd.TextArea.MaxLength)
+			tp = schema.NewTextArea(tpd.TextArea.MaxLength).TypeProperty()
 		case value.TypeRichText:
-			fb = schema.NewFieldRichText(tpd.RichText.DefaultValue, tpd.RichText.MaxLength)
+			tp = schema.NewRichText(tpd.RichText.MaxLength).TypeProperty()
 		case value.TypeMarkdown:
-			fb = schema.NewFieldMarkdown(tpd.Markdown.DefaultValue, tpd.Markdown.MaxLength)
+			tp = schema.NewMarkdown(tpd.Markdown.MaxLength).TypeProperty()
 		case value.TypeAsset:
-			fb = schema.NewFieldAsset(id.AssetIDFromRef(tpd.Asset.DefaultValue))
+			tp = schema.NewAsset().TypeProperty()
 		case value.TypeDateTime:
-			fb = schema.NewFieldDate(tpd.Date.DefaultValue)
+			tp = schema.NewDateTime().TypeProperty()
 		case value.TypeBool:
-			fb = schema.NewFieldBool(tpd.Bool.DefaultValue)
+			tp = schema.NewBool().TypeProperty()
 		case value.TypeSelect:
-			fb = schema.NewFieldSelect(tpd.Select.Values, tpd.Select.DefaultValue)
+			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
+		case value.TypeNumber:
+			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
+			if err != nil {
+				return nil, err
+			}
+			tp = tpi.TypeProperty()
 		case value.TypeInteger:
-			fb = schema.NewFieldInteger(tpd.Integer.DefaultValue, tpd.Integer.Min, tpd.Integer.Max)
+			tpi, err := schema.NewInteger(tpd.Integer.Min, tpd.Integer.Max)
+			if err != nil {
+				return nil, err
+			}
+			tp = tpi.TypeProperty()
 		case value.TypeReference:
-			fb = schema.NewFieldReference(id.MustModelID(tpd.Reference.ModelID))
+			mid, err := id.ModelIDFrom(tpd.Reference.Model)
+			if err != nil {
+				return nil, err
+			}
+			tp = schema.NewReference(mid).TypeProperty()
 		case value.TypeURL:
-			fb = schema.NewFieldURL(tpd.Url.DefaultValue)
+			tp = schema.NewURL().TypeProperty()
 		}
 
-		return fb.ID(id.MustFieldID(fd.ID)).
-			Options(fd.Unique, fd.MultiValue, fd.Required).
+		fid, err := id.FieldIDFrom(fd.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		return schema.NewField(tp).
+			ID(fid).
 			Name(fd.Name).
+			Unique(fd.Unique).
+			Multiple(fd.Multiple).
+			Required(fd.Required).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).
-			MustBuild()
+			DefaultValue(fd.DefaultValue.Value()).
+			Build()
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return schema.New().
 		ID(sId).

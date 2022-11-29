@@ -11,6 +11,7 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
@@ -18,7 +19,7 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 type Props = {
   // modal props
   visible: boolean;
-  onCancel: () => void;
+  onLinkAssetModalCancel: () => void;
   // table props
   linkedAsset?: Asset;
   assetList: Asset[];
@@ -27,17 +28,21 @@ type Props = {
   uploading: boolean;
   uploadProps: UploadProps;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
-  hideUploadModal: () => void;
-  handleUpload: () => void;
+  onUploadModalCancel: () => void;
+  onUploadAndLink: () => void;
 };
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,
-  onCancel,
+  onLinkAssetModalCancel,
   linkedAsset,
   assetList,
   fileList,
@@ -45,12 +50,16 @@ const LinkAssetModal: React.FC<Props> = ({
   uploading,
   uploadProps,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  setUploadUrl,
+  setUploadType,
   onLink,
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
-  hideUploadModal,
-  handleUpload,
+  onUploadModalCancel,
+  onUploadAndLink,
 }) => {
   const t = useT();
   const [hoveredAssetId, setHoveredAssetId] = useState<string>();
@@ -92,7 +101,7 @@ const LinkAssetModal: React.FC<Props> = ({
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
               onLink(link ? asset : undefined);
-              onCancel();
+              onLinkAssetModalCancel();
             }}
           />
         );
@@ -132,7 +141,7 @@ const LinkAssetModal: React.FC<Props> = ({
       title={t("Link Asset")}
       centered
       visible={visible}
-      onCancel={onCancel}
+      onCancel={onLinkAssetModalCancel}
       footer={[
         <UploadAsset
           key={1}
@@ -141,10 +150,14 @@ const LinkAssetModal: React.FC<Props> = ({
           uploading={uploading}
           uploadProps={uploadProps}
           uploadModalVisibility={uploadModalVisibility}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
-          hideUploadModal={hideUploadModal}
-          handleUpload={handleUpload}
-          onUploadModalClose={onCancel}
+          onUploadModalCancel={onUploadModalCancel}
+          onUpload={onUploadAndLink}
+          onUploadModalClose={onLinkAssetModalCancel}
         />,
       ]}
       width="70vw"

@@ -72,6 +72,11 @@ func Test_propertyString_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyString_IsEmpty(t *testing.T) {
+	assert.True(t, (&propertyString{}).IsEmpty(""))
+	assert.False(t, (&propertyString{}).IsEmpty("a"))
+}
+
 func Test_propertyString_Validate(t *testing.T) {
 	assert.True(t, (&propertyString{}).Validate("a"))
 	assert.False(t, (&propertyString{}).Validate(1))

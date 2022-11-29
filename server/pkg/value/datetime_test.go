@@ -61,8 +61,13 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 func Test_propertyDateTime_ToInterface(t *testing.T) {
 	v := time.Now()
 	tt, ok := (&propertyDateTime{}).ToInterface(v)
-	assert.Equal(t, v, tt)
+	assert.Equal(t, v.Format(time.RFC3339), tt)
 	assert.Equal(t, true, ok)
+}
+
+func Test_propertyDateTime_IsEmpty(t *testing.T) {
+	assert.True(t, (&propertyDateTime{}).IsEmpty(time.Time{}))
+	assert.False(t, (&propertyDateTime{}).IsEmpty(time.Now()))
 }
 
 func Test_propertyDateTime_Validate(t *testing.T) {
