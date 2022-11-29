@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
-
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 
 import { FieldType } from "../../types";
 
@@ -21,13 +20,18 @@ export interface Props {
   uploading: boolean;
   defaultValue?: string;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
@@ -39,12 +43,17 @@ const FieldDefaultInputs: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
   onAssetSearchTerm,
   onAssetsReload,
   onLink,
-  createAssets,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   return selectedType ? (
@@ -60,12 +69,17 @@ const FieldDefaultInputs: React.FC<Props> = ({
         loadingAssets={loadingAssets}
         uploading={uploading}
         uploadModalVisibility={uploadModalVisibility}
-        createAssets={createAssets}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        onUploadModalCancel={onUploadModalCancel}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
         onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
-        setUploading={setUploading}
         setUploadModalVisibility={setUploadModalVisibility}
       />
     ) : selectedType === "Select" ? (

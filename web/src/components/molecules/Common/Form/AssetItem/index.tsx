@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
@@ -19,13 +20,18 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  createAssets: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: Dispatch<SetStateAction<UploadFile<File>[]>>;
-  setUploading: Dispatch<SetStateAction<boolean>>;
-  setUploadModalVisibility: Dispatch<SetStateAction<boolean>>;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
 } & FormItemProps &
   FormItemLabelProps;
 
@@ -40,18 +46,36 @@ const AssetItem: React.FC<Props> = ({
   loadingAssets,
   uploading,
   uploadModalVisibility,
-  createAssets,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onLink,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
-  setUploading,
   setUploadModalVisibility,
 }) => {
   const t = useT();
   const { Item } = Form;
-  const { visible, handleClick, handleCancel, displayUploadModal, hideUploadModal, handleUpload } =
-    useHooks(fileList, createAssets, onLink, setFileList, setUploading, setUploadModalVisibility);
+  const {
+    visible,
+    handleClick,
+    handleLinkAssetModalCancel,
+    displayUploadModal,
+    handleUploadAndLink,
+  } = useHooks(
+    fileList,
+    uploadUrl,
+    uploadType,
+    onAssetsCreate,
+    onAssetCreateFromUrl,
+    onLink,
+    setUploadModalVisibility,
+  );
   const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
@@ -95,7 +119,7 @@ const AssetItem: React.FC<Props> = ({
       )}
       <LinkAssetModal
         visible={visible}
-        onCancel={handleCancel}
+        onLinkAssetModalCancel={handleLinkAssetModalCancel}
         linkedAsset={assetValue}
         assetList={assetList}
         fileList={fileList}
@@ -103,12 +127,16 @@ const AssetItem: React.FC<Props> = ({
         uploading={uploading}
         uploadProps={uploadProps}
         uploadModalVisibility={uploadModalVisibility}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
         onLink={onLink}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
-        hideUploadModal={hideUploadModal}
-        handleUpload={handleUpload}
+        onUploadModalCancel={onUploadModalCancel}
+        onUploadAndLink={handleUploadAndLink}
       />
     </Item>
   );
