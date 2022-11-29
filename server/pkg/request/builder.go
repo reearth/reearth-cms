@@ -94,7 +94,7 @@ func (b *Builder) CreatedBy(u UserID) *Builder {
 	return b
 }
 
-func (b *Builder) Reviewers(r []UserID) *Builder {
+func (b *Builder) Reviewers(r UserIDList) *Builder {
 	b.r.reviewers = r
 	return b
 }
