@@ -97,6 +97,10 @@ func Test_propertyInteger_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyInteger_IsEmpty(t *testing.T) {
+	assert.False(t, (&propertyInteger{}).IsEmpty(0))
+}
+
 func Test_propertyInteger_Validate(t *testing.T) {
 	assert.True(t, (&propertyInteger{}).Validate(int64(1)))
 	assert.False(t, (&propertyInteger{}).Validate("a"))

@@ -57,6 +57,11 @@ func Test_propertyAsset_ToInterface(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func Test_propertyAsset_IsEmpty(t *testing.T) {
+	assert.True(t, (&propertyAsset{}).IsEmpty(id.AssetID{}))
+	assert.False(t, (&propertyAsset{}).IsEmpty(id.NewAssetID()))
+}
+
 func Test_propertyAsset_Validate(t *testing.T) {
 	a := id.NewAssetID()
 	assert.True(t, (&propertyAsset{}).Validate(a))

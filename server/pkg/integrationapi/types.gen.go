@@ -4,6 +4,8 @@
 package integrationapi
 
 import (
+	"time"
+
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
@@ -105,16 +107,16 @@ const (
 
 // Asset defines model for asset.
 type Asset struct {
-	ContentType *string             `json:"contentType,omitempty"`
-	CreatedAt   *openapi_types.Date `json:"createdAt,omitempty"`
-	File        *File               `json:"file,omitempty"`
-	Id          *id.AssetID         `json:"id,omitempty"`
-	Name        *string             `json:"name,omitempty"`
-	PreviewType *AssetPreviewType   `json:"previewType,omitempty"`
-	ProjectId   *id.ProjectID       `json:"projectId,omitempty"`
-	TotalSize   *float32            `json:"totalSize,omitempty"`
-	UpdatedAt   *openapi_types.Date `json:"updatedAt,omitempty"`
-	Url         *string             `json:"url,omitempty"`
+	ContentType *string           `json:"contentType,omitempty"`
+	CreatedAt   *time.Time        `json:"createdAt,omitempty"`
+	File        *File             `json:"file,omitempty"`
+	Id          *id.AssetID       `json:"id,omitempty"`
+	Name        *string           `json:"name,omitempty"`
+	PreviewType *AssetPreviewType `json:"previewType,omitempty"`
+	ProjectId   *id.ProjectID     `json:"projectId,omitempty"`
+	TotalSize   *float32          `json:"totalSize,omitempty"`
+	UpdatedAt   *time.Time        `json:"updatedAt,omitempty"`
+	Url         *string           `json:"url,omitempty"`
 }
 
 // AssetPreviewType defines model for Asset.PreviewType.
@@ -122,11 +124,11 @@ type AssetPreviewType string
 
 // Comment defines model for comment.
 type Comment struct {
-	AuthorId   *any                `json:"authorId,omitempty"`
-	AuthorType *CommentAuthorType  `json:"authorType,omitempty"`
-	Content    *string             `json:"content,omitempty"`
-	CreatedAt  *openapi_types.Date `json:"createdAt,omitempty"`
-	Id         *id.CommentID       `json:"id,omitempty"`
+	AuthorId   *any               `json:"authorId,omitempty"`
+	AuthorType *CommentAuthorType `json:"authorType,omitempty"`
+	Content    *string            `json:"content,omitempty"`
+	CreatedAt  *time.Time         `json:"createdAt,omitempty"`
+	Id         *id.CommentID      `json:"id,omitempty"`
 }
 
 // CommentAuthorType defines model for Comment.AuthorType.
@@ -150,11 +152,11 @@ type File struct {
 
 // Item defines model for item.
 type Item struct {
-	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
-	Fields    *[]Field            `json:"fields,omitempty"`
-	Id        *id.ItemID          `json:"id,omitempty"`
-	ModelId   *string             `json:"modelId,omitempty"`
-	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Fields    *[]Field   `json:"fields,omitempty"`
+	Id        *id.ItemID `json:"id,omitempty"`
+	ModelId   *string    `json:"modelId,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // RefOrVersion defines model for refOrVersion.
@@ -168,11 +170,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	CreatedAt *openapi_types.Date `json:"createdAt,omitempty"`
-	Fields    *[]SchemaField      `json:"fields,omitempty"`
-	Id        *id.SchemaID        `json:"id,omitempty"`
-	ProjectId *id.ProjectID       `json:"projectId,omitempty"`
-	UpdatedAt *openapi_types.Date `json:"updatedAt,omitempty"`
+	CreatedAt *time.Time     `json:"createdAt,omitempty"`
+	Fields    *[]SchemaField `json:"fields,omitempty"`
+	Id        *id.SchemaID   `json:"id,omitempty"`
+	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
+	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -195,13 +197,13 @@ type Version struct {
 
 // VersionedItem defines model for versionedItem.
 type VersionedItem struct {
-	CreatedAt *openapi_types.Date   `json:"createdAt,omitempty"`
+	CreatedAt *time.Time            `json:"createdAt,omitempty"`
 	Fields    *[]Field              `json:"fields,omitempty"`
 	Id        *id.ItemID            `json:"id,omitempty"`
 	ModelId   *string               `json:"modelId,omitempty"`
 	Parents   *[]openapi_types.UUID `json:"parents,omitempty"`
 	Refs      *[]string             `json:"refs,omitempty"`
-	UpdatedAt *openapi_types.Date   `json:"updatedAt,omitempty"`
+	UpdatedAt *time.Time            `json:"updatedAt,omitempty"`
 	Version   *openapi_types.UUID   `json:"version,omitempty"`
 }
 

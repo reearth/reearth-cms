@@ -5,7 +5,7 @@ import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
+import Input, { SearchProps } from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
@@ -48,10 +48,11 @@ const MemberAddModal: React.FC<Props> = ({
   const { Search } = Input;
   const [form] = Form.useForm();
 
-  const handleMemberNameChange = useCallback(
-    (e: any) => {
-      form.setFieldValue("name", e);
-      onUserSearch?.(e);
+  const handleMemberNameChange = useCallback<NonNullable<SearchProps["onSearch"]>>(
+    (value, event) => {
+      event?.preventDefault();
+      form.setFieldValue("name", value);
+      onUserSearch?.(value);
     },
     [onUserSearch, form],
   );

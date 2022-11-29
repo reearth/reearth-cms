@@ -41,7 +41,7 @@ func NewItem(i *item.Item) Item {
 		Id:        i.ID().Ref(),
 		ModelId:   i.Model().Ref().StringRef(),
 		Fields:    &fs,
-		CreatedAt: ToDate(i.ID().Timestamp()),
-		UpdatedAt: ToDate(i.Timestamp()),
+		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt: lo.ToPtr(i.Timestamp()),
 	}
 }
