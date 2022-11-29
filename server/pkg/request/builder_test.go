@@ -214,7 +214,7 @@ func TestBuilder_Project(t *testing.T) {
 
 func TestBuilder_Reviewers(t *testing.T) {
 	b := &Builder{r: &Request{}}
-	rev := []UserID{NewUserID()}
+	rev := UserIDList{NewUserID()}
 	b.Reviewers(rev)
 	assert.Equal(t, rev, b.r.Reviewers())
 }
