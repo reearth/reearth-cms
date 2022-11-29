@@ -91,28 +91,6 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	return &p2
 }
 
-func FromStatus(s *Status) *asset.Status {
-	if s == nil {
-		return nil
-	}
-
-	var s2 asset.Status
-	switch *s {
-	case StatusPending:
-		s2 = asset.StatusPending
-	case StatusInProgress:
-		s2 = asset.StatusInProgress
-	case StatusDone:
-		s2 = asset.StatusDone
-	case StatusFailed:
-		s2 = asset.StatusFailed
-	default:
-		return nil
-	}
-
-	return &s2
-}
-
 func ToStatus(s *asset.Status) *Status {
 	if s == nil {
 		return nil
