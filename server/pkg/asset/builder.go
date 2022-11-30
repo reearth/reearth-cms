@@ -104,7 +104,7 @@ func (b *Builder) Thread(th ThreadID) *Builder {
 	return b
 }
 
-func (b *Builder) Status(s *Status) *Builder {
-	b.a.status = s
+func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
+	b.a.archiveExtractionStatus = s
 	return b
 }

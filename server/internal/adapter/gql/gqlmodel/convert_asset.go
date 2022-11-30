@@ -27,19 +27,19 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	}
 
 	return &Asset{
-		ID:            IDFrom(a.ID()),
-		ProjectID:     IDFrom(a.Project()),
-		CreatedAt:     a.CreatedAt(),
-		CreatedByID:   createdBy,
-		CreatedByType: createdByType,
-		FileName:      a.FileName(),
-		Size:          int64(a.Size()),
-		PreviewType:   ToPreviewType(a.PreviewType()),
-		File:          ToAssetFile(a.File()),
-		UUID:          a.UUID(),
-		URL:           url,
-		ThreadID:      IDFrom(a.Thread()),
-		Status:        ToStatus(a.Status()),
+		ID:                      IDFrom(a.ID()),
+		ProjectID:               IDFrom(a.Project()),
+		CreatedAt:               a.CreatedAt(),
+		CreatedByID:             createdBy,
+		CreatedByType:           createdByType,
+		FileName:                a.FileName(),
+		Size:                    int64(a.Size()),
+		PreviewType:             ToPreviewType(a.PreviewType()),
+		File:                    ToAssetFile(a.File()),
+		UUID:                    a.UUID(),
+		URL:                     url,
+		ThreadID:                IDFrom(a.Thread()),
+		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 	}
 }
 
@@ -91,21 +91,21 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	return &p2
 }
 
-func ToStatus(s *asset.Status) *Status {
+func ToArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *ArchiveExtractionStatus {
 	if s == nil {
 		return nil
 	}
 
-	var s2 Status
+	var s2 ArchiveExtractionStatus
 	switch *s {
-	case asset.StatusPending:
-		s2 = StatusPending
-	case asset.StatusInProgress:
-		s2 = StatusInProgress
-	case asset.StatusDone:
-		s2 = StatusDone
-	case asset.StatusFailed:
-		s2 = StatusFailed
+	case asset.ArchiveExtractionStatusPending:
+		s2 = ArchiveExtractionStatusPending
+	case asset.ArchiveExtractionStatusInProgress:
+		s2 = ArchiveExtractionStatusInProgress
+	case asset.ArchiveExtractionStatusDone:
+		s2 = ArchiveExtractionStatusDone
+	case asset.ArchiveExtractionStatusFailed:
+		s2 = ArchiveExtractionStatusFailed
 	default:
 		return nil
 	}

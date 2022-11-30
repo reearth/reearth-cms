@@ -19,21 +19,21 @@ func TestAsset_Type(t *testing.T) {
 	wantPreviewType, _ := PreviewTypeFrom("image")
 	gotPreviewType, _ := PreviewTypeFrom(PreviewTypeImage.String())
 	wantStatus, _ := StatusFrom("pending")
-	gotStatus, _ := StatusFrom(StatusPending.String())
+	gotStatus, _ := StatusFrom(ArchiveExtractionStatusPending.String())
 
 	got := Asset{
-		id:          aid,
-		project:     pid,
-		createdAt:   tim,
-		user:        &uid,
-		integration: &iid,
-		fileName:    "hoge",
-		size:        size,
-		previewType: &gotPreviewType,
-		file:        &File{name: "hoge.zip", size: size, path: "hoge.zip"},
-		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-		thread:      thid,
-		status:      &gotStatus,
+		id:                      aid,
+		project:                 pid,
+		createdAt:               tim,
+		user:                    &uid,
+		integration:             &iid,
+		fileName:                "hoge",
+		size:                    size,
+		previewType:             &gotPreviewType,
+		file:                    &File{name: "hoge.zip", size: size, path: "hoge.zip"},
+		uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		thread:                  thid,
+		archiveExtractionStatus: &gotStatus,
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -48,7 +48,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
-	assert.Equal(t, &wantStatus, got.Status())
+	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }
 
 func TestAsset_CreatedAt(t *testing.T) {
@@ -96,7 +96,7 @@ func TestAsset_Status(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	assert.Nil(t, got.Status())
+	assert.Nil(t, got.ArchiveExtractionStatus())
 }
 
 func TestAsset_UpdatePreviewType(t *testing.T) {
@@ -140,9 +140,9 @@ func TestAsset_UpdateStatus(t *testing.T) {
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
-	p := lo.ToPtr(StatusPending)
-	got.UpdateStatus(p)
-	assert.Equal(t, p, got.Status())
+	p := lo.ToPtr(ArchiveExtractionStatusPending)
+	got.UpdateArchiveExtractionStatus(p)
+	assert.Equal(t, p, got.ArchiveExtractionStatus())
 }
 
 func TestAsset_Clone(t *testing.T) {

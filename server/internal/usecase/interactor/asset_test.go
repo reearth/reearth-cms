@@ -604,9 +604,9 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
 
 	thid := id.NewThreadID()
-	sp := lo.ToPtr(asset.StatusPending)
-	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).Status(sp).MustBuild()
-	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).Status(sp).MustBuild()
+	sp := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).ArchiveExtractionStatus(sp).MustBuild()
+	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).ArchiveExtractionStatus(sp).MustBuild()
 
 	op := &usecase.Operator{
 		User:             &uid,
@@ -620,7 +620,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		seedProjects    []*project.Project
 		prepareFileFunc func() afero.Fs
 		assetID         id.AssetID
-		status          *asset.Status
+		status          *asset.ArchiveExtractionStatus
 		want            *asset.Asset
 		wantErr         error
 	}{
@@ -651,7 +651,16 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			},
 			assetID: assetID1,
 			status:  sp,
-			want:    asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).Status(sp).MustBuild(),
+			want: asset.New().
+				ID(assetID1).
+				Project(proj.ID()).
+				CreatedByUser(uid).
+				Size(1000).
+				UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+				File(f1).
+				Thread(thid).
+				ArchiveExtractionStatus(sp).
+				MustBuild(),
 			wantErr: nil,
 		},
 	}

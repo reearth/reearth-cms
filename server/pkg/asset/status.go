@@ -4,32 +4,32 @@ import (
 	"strings"
 )
 
-type Status string
+type ArchiveExtractionStatus string
 
 const (
-	StatusPending    Status = "pending"
-	StatusInProgress Status = "in_progress"
-	StatusDone       Status = "done"
-	StatusFailed     Status = "failed"
+	ArchiveExtractionStatusPending    ArchiveExtractionStatus = "pending"
+	ArchiveExtractionStatusInProgress ArchiveExtractionStatus = "in_progress"
+	ArchiveExtractionStatusDone       ArchiveExtractionStatus = "done"
+	ArchiveExtractionStatusFailed     ArchiveExtractionStatus = "failed"
 )
 
-func StatusFrom(s string) (Status, bool) {
+func StatusFrom(s string) (ArchiveExtractionStatus, bool) {
 	ss := strings.ToLower(s)
-	switch Status(ss) {
-	case StatusPending:
-		return StatusPending, true
-	case StatusInProgress:
-		return StatusInProgress, true
-	case StatusDone:
-		return StatusDone, true
-	case StatusFailed:
-		return StatusFailed, true
+	switch ArchiveExtractionStatus(ss) {
+	case ArchiveExtractionStatusPending:
+		return ArchiveExtractionStatusPending, true
+	case ArchiveExtractionStatusInProgress:
+		return ArchiveExtractionStatusInProgress, true
+	case ArchiveExtractionStatusDone:
+		return ArchiveExtractionStatusDone, true
+	case ArchiveExtractionStatusFailed:
+		return ArchiveExtractionStatusFailed, true
 	default:
-		return Status(""), false
+		return ArchiveExtractionStatus(""), false
 	}
 }
 
-func StatusFromRef(s *string) *Status {
+func StatusFromRef(s *string) *ArchiveExtractionStatus {
 	if s == nil {
 		return nil
 	}
@@ -41,11 +41,11 @@ func StatusFromRef(s *string) *Status {
 	return &ss
 }
 
-func (s Status) String() string {
+func (s ArchiveExtractionStatus) String() string {
 	return string(s)
 }
 
-func (s *Status) StringRef() *string {
+func (s *ArchiveExtractionStatus) StringRef() *string {
 	if s == nil {
 		return nil
 	}

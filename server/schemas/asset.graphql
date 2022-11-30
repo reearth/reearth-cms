@@ -14,7 +14,7 @@ type Asset implements Node {
   thread: Thread
   threadId: ID!
   url: String!
-  status: Status
+  archiveExtractionStatus: ArchiveExtractionStatus
 }
 
 type AssetFile {
@@ -33,7 +33,7 @@ enum PreviewType {
   UNKNOWN
 }
 
-enum Status {
+enum ArchiveExtractionStatus {
   PENDING
   IN_PROGRESS
   DONE

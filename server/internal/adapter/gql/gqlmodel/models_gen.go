@@ -52,22 +52,22 @@ type AddUsersToWorkspacePayload struct {
 }
 
 type Asset struct {
-	ID            ID           `json:"id"`
-	Project       *Project     `json:"project"`
-	ProjectID     ID           `json:"projectId"`
-	CreatedAt     time.Time    `json:"createdAt"`
-	CreatedBy     Operator     `json:"createdBy"`
-	CreatedByType OperatorType `json:"createdByType"`
-	CreatedByID   ID           `json:"createdById"`
-	FileName      string       `json:"fileName"`
-	Size          int64        `json:"size"`
-	PreviewType   *PreviewType `json:"previewType"`
-	File          *AssetFile   `json:"file"`
-	UUID          string       `json:"uuid"`
-	Thread        *Thread      `json:"thread"`
-	ThreadID      ID           `json:"threadId"`
-	URL           string       `json:"url"`
-	Status        *Status      `json:"status"`
+	ID                      ID                       `json:"id"`
+	Project                 *Project                 `json:"project"`
+	ProjectID               ID                       `json:"projectId"`
+	CreatedAt               time.Time                `json:"createdAt"`
+	CreatedBy               Operator                 `json:"createdBy"`
+	CreatedByType           OperatorType             `json:"createdByType"`
+	CreatedByID             ID                       `json:"createdById"`
+	FileName                string                   `json:"fileName"`
+	Size                    int64                    `json:"size"`
+	PreviewType             *PreviewType             `json:"previewType"`
+	File                    *AssetFile               `json:"file"`
+	UUID                    string                   `json:"uuid"`
+	Thread                  *Thread                  `json:"thread"`
+	ThreadID                ID                       `json:"threadId"`
+	URL                     string                   `json:"url"`
+	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus"`
 }
 
 func (Asset) IsNode()        {}
@@ -859,6 +859,51 @@ type WorkspaceUserMember struct {
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}
 
+type ArchiveExtractionStatus string
+
+const (
+	ArchiveExtractionStatusPending    ArchiveExtractionStatus = "PENDING"
+	ArchiveExtractionStatusInProgress ArchiveExtractionStatus = "IN_PROGRESS"
+	ArchiveExtractionStatusDone       ArchiveExtractionStatus = "DONE"
+	ArchiveExtractionStatusFailed     ArchiveExtractionStatus = "FAILED"
+)
+
+var AllArchiveExtractionStatus = []ArchiveExtractionStatus{
+	ArchiveExtractionStatusPending,
+	ArchiveExtractionStatusInProgress,
+	ArchiveExtractionStatusDone,
+	ArchiveExtractionStatusFailed,
+}
+
+func (e ArchiveExtractionStatus) IsValid() bool {
+	switch e {
+	case ArchiveExtractionStatusPending, ArchiveExtractionStatusInProgress, ArchiveExtractionStatusDone, ArchiveExtractionStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e ArchiveExtractionStatus) String() string {
+	return string(e)
+}
+
+func (e *ArchiveExtractionStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArchiveExtractionStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArchiveExtractionStatus", str)
+	}
+	return nil
+}
+
+func (e ArchiveExtractionStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type AssetSortType string
 
 const (
@@ -1230,51 +1275,6 @@ func (e *SchemaFiledType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SchemaFiledType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type Status string
-
-const (
-	StatusPending    Status = "PENDING"
-	StatusInProgress Status = "IN_PROGRESS"
-	StatusDone       Status = "DONE"
-	StatusFailed     Status = "FAILED"
-)
-
-var AllStatus = []Status{
-	StatusPending,
-	StatusInProgress,
-	StatusDone,
-	StatusFailed,
-}
-
-func (e Status) IsValid() bool {
-	switch e {
-	case StatusPending, StatusInProgress, StatusDone, StatusFailed:
-		return true
-	}
-	return false
-}
-
-func (e Status) String() string {
-	return string(e)
-}
-
-func (e *Status) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Status(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Status", str)
-	}
-	return nil
-}
-
-func (e Status) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

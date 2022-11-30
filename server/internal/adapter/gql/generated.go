@@ -66,22 +66,22 @@ type ComplexityRoot struct {
 	}
 
 	Asset struct {
-		CreatedAt     func(childComplexity int) int
-		CreatedBy     func(childComplexity int) int
-		CreatedByID   func(childComplexity int) int
-		CreatedByType func(childComplexity int) int
-		File          func(childComplexity int) int
-		FileName      func(childComplexity int) int
-		ID            func(childComplexity int) int
-		PreviewType   func(childComplexity int) int
-		Project       func(childComplexity int) int
-		ProjectID     func(childComplexity int) int
-		Size          func(childComplexity int) int
-		Status        func(childComplexity int) int
-		Thread        func(childComplexity int) int
-		ThreadID      func(childComplexity int) int
-		URL           func(childComplexity int) int
-		UUID          func(childComplexity int) int
+		ArchiveExtractionStatus func(childComplexity int) int
+		CreatedAt               func(childComplexity int) int
+		CreatedBy               func(childComplexity int) int
+		CreatedByID             func(childComplexity int) int
+		CreatedByType           func(childComplexity int) int
+		File                    func(childComplexity int) int
+		FileName                func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		PreviewType             func(childComplexity int) int
+		Project                 func(childComplexity int) int
+		ProjectID               func(childComplexity int) int
+		Size                    func(childComplexity int) int
+		Thread                  func(childComplexity int) int
+		ThreadID                func(childComplexity int) int
+		URL                     func(childComplexity int) int
+		UUID                    func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -679,6 +679,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AddUsersToWorkspacePayload.Workspace(childComplexity), true
 
+	case "Asset.archiveExtractionStatus":
+		if e.complexity.Asset.ArchiveExtractionStatus == nil {
+			break
+		}
+
+		return e.complexity.Asset.ArchiveExtractionStatus(childComplexity), true
+
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
 			break
@@ -755,13 +762,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.Size(childComplexity), true
-
-	case "Asset.status":
-		if e.complexity.Asset.Status == nil {
-			break
-		}
-
-		return e.complexity.Asset.Status(childComplexity), true
 
 	case "Asset.thread":
 		if e.complexity.Asset.Thread == nil {
@@ -3067,7 +3067,7 @@ schema {
   thread: Thread
   threadId: ID!
   url: String!
-  status: Status
+  archiveExtractionStatus: ArchiveExtractionStatus
 }
 
 type AssetFile {
@@ -3086,7 +3086,7 @@ enum PreviewType {
   UNKNOWN
 }
 
-enum Status {
+enum ArchiveExtractionStatus {
   PENDING
   IN_PROGRESS
   DONE
@@ -5788,8 +5788,8 @@ func (ec *executionContext) fieldContext_Asset_url(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Asset_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Asset_status(ctx, field)
+func (ec *executionContext) _Asset_archiveExtractionStatus(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5802,7 +5802,7 @@ func (ec *executionContext) _Asset_status(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		return obj.ArchiveExtractionStatus, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5811,19 +5811,19 @@ func (ec *executionContext) _Asset_status(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.Status)
+	res := resTmp.(*gqlmodel.ArchiveExtractionStatus)
 	fc.Result = res
-	return ec.marshalOStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStatus(ctx, field.Selections, res)
+	return ec.marshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Asset_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Asset_archiveExtractionStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Asset",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Status does not have child fields")
+			return nil, errors.New("field of type ArchiveExtractionStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5948,8 +5948,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
-			case "status":
-				return ec.fieldContext_Asset_status(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -6165,8 +6165,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
-			case "status":
-				return ec.fieldContext_Asset_status(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -6845,8 +6845,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
-			case "status":
-				return ec.fieldContext_Asset_status(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -14108,8 +14108,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
-			case "status":
-				return ec.fieldContext_Asset_status(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -16912,8 +16912,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
-			case "status":
-				return ec.fieldContext_Asset_status(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -23656,9 +23656,9 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "status":
+		case "archiveExtractionStatus":
 
-			out.Values[i] = ec._Asset_status(ctx, field, obj)
+			out.Values[i] = ec._Asset_archiveExtractionStatus(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -29446,6 +29446,22 @@ func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, v interface{}) (*gqlmodel.ArchiveExtractionStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ArchiveExtractionStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ArchiveExtractionStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -29969,22 +29985,6 @@ func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋ
 	}
 	res, err := ec.unmarshalInputSchemaMarkdownTextInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStatus(ctx context.Context, v interface{}) (*gqlmodel.Status, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(gqlmodel.Status)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStatus(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Status) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

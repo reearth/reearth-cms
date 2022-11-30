@@ -11,67 +11,67 @@ func TestStatus_StatusFrom(t *testing.T) {
 	tests := []struct {
 		Name     string
 		Expected struct {
-			TA   Status
+			TA   ArchiveExtractionStatus
 			Bool bool
 		}
 	}{
 		{
 			Name: "pending",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   StatusPending,
+				TA:   ArchiveExtractionStatusPending,
 				Bool: true,
 			},
 		},
 		{
 			Name: "PENDING",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   StatusPending,
+				TA:   ArchiveExtractionStatusPending,
 				Bool: true,
 			},
 		},
 		{
 			Name: "in_progress",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   StatusInProgress,
+				TA:   ArchiveExtractionStatusInProgress,
 				Bool: true,
 			},
 		},
 		{
 			Name: "done",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   StatusDone,
+				TA:   ArchiveExtractionStatusDone,
 				Bool: true,
 			},
 		},
 		{
 			Name: "failed",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   StatusFailed,
+				TA:   ArchiveExtractionStatusFailed,
 				Bool: true,
 			},
 		},
 		{
 			Name: "undefined",
 			Expected: struct {
-				TA   Status
+				TA   ArchiveExtractionStatus
 				Bool bool
 			}{
-				TA:   Status(""),
+				TA:   ArchiveExtractionStatus(""),
 				Bool: false,
 			},
 		},
@@ -89,15 +89,15 @@ func TestStatus_StatusFrom(t *testing.T) {
 }
 
 func TestStatus_StatusFromRef(t *testing.T) {
-	p := StatusPending
-	ip := StatusInProgress
-	d := StatusDone
-	f := StatusFailed
+	p := ArchiveExtractionStatusPending
+	ip := ArchiveExtractionStatusInProgress
+	d := ArchiveExtractionStatusDone
+	f := ArchiveExtractionStatusFailed
 
 	tests := []struct {
 		Name     string
 		Input    *string
-		Expected *Status
+		Expected *ArchiveExtractionStatus
 	}{
 		{
 			Name:     "pending",
@@ -141,13 +141,13 @@ func TestStatus_StatusFromRef(t *testing.T) {
 
 func TestStatus_String(t *testing.T) {
 	s := "pending"
-	st := StatusPending
+	st := ArchiveExtractionStatusPending
 	assert.Equal(t, s, st.String())
 }
 
 func TestStatus_StringRef(t *testing.T) {
-	var st1 *Status
-	var st2 *Status = lo.ToPtr(StatusPending)
+	var st1 *ArchiveExtractionStatus
+	var st2 *ArchiveExtractionStatus = lo.ToPtr(ArchiveExtractionStatusPending)
 	s := string(*st2)
 
 	tests := []struct {
