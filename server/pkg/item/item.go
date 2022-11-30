@@ -102,11 +102,15 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	})
 
 	return &Item{
-		id:        i.id,
-		schema:    i.schema,
-		project:   i.project,
-		fields:    fields,
-		timestamp: i.timestamp,
+		id:          i.id,
+		schema:      i.schema,
+		model:       i.model,
+		project:     i.project,
+		fields:      fields,
+		timestamp:   i.timestamp,
+		thread:      i.thread,
+		user:        i.user,
+		integration: i.integration,
 	}
 }
 
