@@ -57,9 +57,6 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		if err != nil {
 			return nil, err
 		}
-		if !operator.IsWritableWorkspace(ws.ID()) {
-			return nil, interfaces.ErrOperationDenied
-		}
 
 		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
 
