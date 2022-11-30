@@ -605,8 +605,25 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 	thid := id.NewThreadID()
 	sp := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-	a1 := asset.New().ID(assetID1).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").File(f1).Thread(thid).ArchiveExtractionStatus(sp).MustBuild()
-	a2 := asset.New().ID(assetID2).Project(proj.ID()).CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).ArchiveExtractionStatus(sp).MustBuild()
+	a1 := asset.New().
+		ID(assetID1).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		File(f1).
+		Thread(thid).
+		ArchiveExtractionStatus(sp).
+		MustBuild()
+	a2 := asset.New().
+		ID(assetID2).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		Thread(id.NewThreadID()).
+		ArchiveExtractionStatus(sp).
+		MustBuild()
 
 	op := &usecase.Operator{
 		User:             &uid,
