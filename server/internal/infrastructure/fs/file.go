@@ -22,10 +22,9 @@ import (
 type fileRepo struct {
 	fs      afero.Fs
 	urlBase *url.URL
-	host    string
 }
 
-func NewFile(fs afero.Fs, urlBase, host string) (gateway.File, error) {
+func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	var b *url.URL
 	if urlBase == "" {
 		urlBase = "http://localhost:8080/assets"
@@ -123,8 +122,7 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	uuid := a.UUID()
-	url, _ := url.JoinPath(f.host, assetDir, uuid[:2], uuid[2:], url.PathEscape(a.FileName()))
-	return url
+	return f.urlBase.JoinPath(assetDir, uuid[:2], uuid[2:], url.PathEscape(a.FileName())).String()
 }
 
 // helpers

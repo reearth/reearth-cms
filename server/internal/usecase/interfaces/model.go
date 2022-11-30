@@ -33,6 +33,7 @@ var (
 )
 
 type Model interface {
+	FindByID(context.Context, id.ModelID, *usecase.Operator) (*model.Model, error)
 	FindByIDs(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)

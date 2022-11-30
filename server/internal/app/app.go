@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
+	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
@@ -82,12 +83,13 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		usecaseMiddleware,
 	)
 
-	integrationApi := api.Group("",
+	publicapi.Echo(api.Group("", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
+	integration.RegisterHandlers(api.Group(
+		"",
 		authMiddleware(cfg),
 		AuthRequiredMiddleware(),
-		usecaseMiddleware)
-	integrationHandlers := integration.NewStrictHandler(integration.NewServer(), nil)
-	integration.RegisterHandlers(integrationApi, integrationHandlers)
+		usecaseMiddleware,
+	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
 	webConfig(e, nil, cfg.Config.Auths())

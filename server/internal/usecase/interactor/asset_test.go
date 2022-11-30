@@ -448,7 +448,7 @@ func TestAsset_Create(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
-			f, _ := fs.NewFile(mfs, "", "")
+			f, _ := fs.NewFile(mfs, "")
 			runnerGw := NewMockRunner()
 
 			err := db.User.Save(ctx, u)
@@ -661,7 +661,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", ""))
+			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), ""))
 
 			err := db.Project.Save(ctx, proj)
 			assert.NoError(t, err)
