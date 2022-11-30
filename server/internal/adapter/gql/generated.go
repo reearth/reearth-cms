@@ -400,7 +400,7 @@ type ComplexityRoot struct {
 		Key          func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
-		MultiValue   func(childComplexity int) int
+		Multiple     func(childComplexity int) int
 		Required     func(childComplexity int) int
 		Title        func(childComplexity int) int
 		Type         func(childComplexity int) int
@@ -2321,12 +2321,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.ModelID(childComplexity), true
 
-	case "SchemaField.multiValue":
-		if e.complexity.SchemaField.MultiValue == nil {
+	case "SchemaField.multiple":
+		if e.complexity.SchemaField.Multiple == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.MultiValue(childComplexity), true
+		return e.complexity.SchemaField.Multiple(childComplexity), true
 
 	case "SchemaField.required":
 		if e.complexity.SchemaField.Required == nil {
@@ -3500,7 +3500,7 @@ extend type Mutation {
 
 # extend type Mutation {}
 `, BuiltIn: false},
-	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFiledType {
+	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
   RichText
@@ -3519,13 +3519,13 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  multiValue: Boolean!
+  multiple : Boolean!
   unique: Boolean!
   required: Boolean!
 
@@ -3679,7 +3679,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
 
 input CreateFieldInput {
   modelId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   title: String!
   description: String
   key: String!
@@ -3738,7 +3738,7 @@ extend type Mutation {
 
 type ItemField {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   value: Any
 }
 
@@ -3752,7 +3752,7 @@ type VersionedItem {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   value: Any!
 }
 
@@ -7394,8 +7394,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_title(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
-			case "multiValue":
-				return ec.fieldContext_SchemaField_multiValue(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
@@ -8910,9 +8910,9 @@ func (ec *executionContext) _ItemField_type(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.SchemaFieldType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8922,7 +8922,7 @@ func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type SchemaFieldType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15024,8 +15024,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_title(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
-			case "multiValue":
-				return ec.fieldContext_SchemaField_multiValue(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
@@ -15287,9 +15287,9 @@ func (ec *executionContext) _SchemaField_type(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.SchemaFieldType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15299,7 +15299,7 @@ func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type SchemaFieldType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15475,8 +15475,8 @@ func (ec *executionContext) fieldContext_SchemaField_description(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaField_multiValue(ctx, field)
+func (ec *executionContext) _SchemaField_multiple(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_multiple(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15489,7 +15489,7 @@ func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MultiValue, nil
+		return obj.Multiple, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15506,7 +15506,7 @@ func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field g
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SchemaField_multiValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SchemaField_multiple(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaField",
 		Field:      field,
@@ -20675,7 +20675,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21413,7 +21413,7 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26151,9 +26151,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._SchemaField_description(ctx, field, obj)
 
-		case "multiValue":
+		case "multiple":
 
-			out.Values[i] = ec._SchemaField_multiValue(ctx, field, obj)
+			out.Values[i] = ec._SchemaField_multiple(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -28689,19 +28689,19 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._SchemaField(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
-	res, err := ec.unmarshalInputSchemaFieldTypePropertyInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, v interface{}) (gqlmodel.SchemaFiledType, error) {
-	var res gqlmodel.SchemaFiledType
+func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldType, error) {
+	var res gqlmodel.SchemaFieldType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFiledType) graphql.Marshaler {
+func (ec *executionContext) marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFieldType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
+	res, err := ec.unmarshalInputSchemaFieldTypePropertyInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

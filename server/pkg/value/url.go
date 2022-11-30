@@ -37,7 +37,7 @@ func (*propertyURL) Validate(i any) bool {
 
 func (*propertyURL) Equal(v, w any) bool {
 	vv := v.(URL)
-	ww := v.(URL)
+	ww := w.(URL)
 	return vv.String() == ww.String()
 }
 

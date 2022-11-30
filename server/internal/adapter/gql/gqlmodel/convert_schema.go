@@ -36,7 +36,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
 		Description:  lo.ToPtr(sf.Description()),
-		MultiValue:   sf.Multiple(),
+		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
 		CreatedAt:    sf.CreatedAt(),
@@ -133,70 +133,70 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Value) (res Sc
 
 var ErrInvalidTypeProperty = errors.New("invalid type property")
 
-func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFiledType) (tpRes *schema.TypeProperty, dv *value.Value, err error) {
+func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType) (tpRes *schema.TypeProperty, dv *value.Value, err error) {
 	switch t {
-	case SchemaFiledTypeText:
+	case SchemaFieldTypeText:
 		x := tp.Text
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeText, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeText, x.DefaultValue)
 		tpRes = schema.NewText(x.MaxLength).TypeProperty()
-	case SchemaFiledTypeTextArea:
+	case SchemaFieldTypeTextArea:
 		x := tp.TextArea
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeTextArea, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeTextArea, x.DefaultValue)
 		tpRes = schema.NewTextArea(x.MaxLength).TypeProperty()
-	case SchemaFiledTypeRichText:
+	case SchemaFieldTypeRichText:
 		x := tp.RichText
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeRichText, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeRichText, x.DefaultValue)
 		tpRes = schema.NewRichText(x.MaxLength).TypeProperty()
-	case SchemaFiledTypeMarkdownText:
+	case SchemaFieldTypeMarkdownText:
 		x := tp.MarkdownText
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeMarkdownText, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeMarkdownText, x.DefaultValue)
 		tpRes = schema.NewMarkdown(x.MaxLength).TypeProperty()
-	case SchemaFiledTypeAsset:
+	case SchemaFieldTypeAsset:
 		x := tp.Asset
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeAsset, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeAsset, x.DefaultValue)
 		tpRes = schema.NewAsset().TypeProperty()
-	case SchemaFiledTypeDate:
+	case SchemaFieldTypeDate:
 		x := tp.Date
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeDate, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeDate, x.DefaultValue)
 		tpRes = schema.NewDateTime().TypeProperty()
-	case SchemaFiledTypeBool:
+	case SchemaFieldTypeBool:
 		x := tp.Bool
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeBool, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeBool, x.DefaultValue)
 		tpRes = schema.NewBool().TypeProperty()
-	case SchemaFiledTypeSelect:
+	case SchemaFieldTypeSelect:
 		x := tp.Select
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeSelect, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue)
 		tpRes = schema.NewSelect(x.Values).TypeProperty()
-	case SchemaFiledTypeInteger:
+	case SchemaFieldTypeInteger:
 		x := tp.Integer
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeInteger, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeInteger, x.DefaultValue)
 		var min, max *int64
 		if x.Min != nil {
 			min = lo.ToPtr(int64(*min))
@@ -209,7 +209,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFiledType)
 			err = err2
 		}
 		tpRes = tpi.TypeProperty()
-	case SchemaFiledTypeReference:
+	case SchemaFieldTypeReference:
 		x := tp.Reference
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
@@ -219,12 +219,12 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFiledType)
 			return nil, nil, err
 		}
 		tpRes = schema.NewReference(mId).TypeProperty()
-	case SchemaFiledTypeURL:
+	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFiledTypeURL, x.DefaultValue)
+		dv = FromValue(SchemaFieldTypeURL, x.DefaultValue)
 		tpRes = schema.NewURL().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty

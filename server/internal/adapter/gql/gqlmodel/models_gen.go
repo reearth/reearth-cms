@@ -118,7 +118,7 @@ type CreateAssetPayload struct {
 
 type CreateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
-	Type         SchemaFiledType               `json:"type"`
+	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          string                        `json:"key"`
@@ -321,13 +321,13 @@ type ItemEdge struct {
 
 type ItemField struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
-	Type          SchemaFiledType `json:"type"`
+	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
 
 type ItemFieldInput struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
-	Type          SchemaFiledType `json:"type"`
+	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
 
@@ -493,12 +493,12 @@ type SchemaField struct {
 	ID           ID                      `json:"id"`
 	ModelID      ID                      `json:"modelId"`
 	Model        *Model                  `json:"model"`
-	Type         SchemaFiledType         `json:"type"`
+	Type         SchemaFieldType         `json:"type"`
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
 	Description  *string                 `json:"description"`
-	MultiValue   bool                    `json:"multiValue"`
+	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
 	CreatedAt    time.Time               `json:"createdAt"`
@@ -1171,64 +1171,64 @@ func (e Role) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type SchemaFiledType string
+type SchemaFieldType string
 
 const (
-	SchemaFiledTypeText         SchemaFiledType = "Text"
-	SchemaFiledTypeTextArea     SchemaFiledType = "TextArea"
-	SchemaFiledTypeRichText     SchemaFiledType = "RichText"
-	SchemaFiledTypeMarkdownText SchemaFiledType = "MarkdownText"
-	SchemaFiledTypeAsset        SchemaFiledType = "Asset"
-	SchemaFiledTypeDate         SchemaFiledType = "Date"
-	SchemaFiledTypeBool         SchemaFiledType = "Bool"
-	SchemaFiledTypeSelect       SchemaFiledType = "Select"
-	SchemaFiledTypeTag          SchemaFiledType = "Tag"
-	SchemaFiledTypeInteger      SchemaFiledType = "Integer"
-	SchemaFiledTypeReference    SchemaFiledType = "Reference"
-	SchemaFiledTypeURL          SchemaFiledType = "URL"
+	SchemaFieldTypeText         SchemaFieldType = "Text"
+	SchemaFieldTypeTextArea     SchemaFieldType = "TextArea"
+	SchemaFieldTypeRichText     SchemaFieldType = "RichText"
+	SchemaFieldTypeMarkdownText SchemaFieldType = "MarkdownText"
+	SchemaFieldTypeAsset        SchemaFieldType = "Asset"
+	SchemaFieldTypeDate         SchemaFieldType = "Date"
+	SchemaFieldTypeBool         SchemaFieldType = "Bool"
+	SchemaFieldTypeSelect       SchemaFieldType = "Select"
+	SchemaFieldTypeTag          SchemaFieldType = "Tag"
+	SchemaFieldTypeInteger      SchemaFieldType = "Integer"
+	SchemaFieldTypeReference    SchemaFieldType = "Reference"
+	SchemaFieldTypeURL          SchemaFieldType = "URL"
 )
 
-var AllSchemaFiledType = []SchemaFiledType{
-	SchemaFiledTypeText,
-	SchemaFiledTypeTextArea,
-	SchemaFiledTypeRichText,
-	SchemaFiledTypeMarkdownText,
-	SchemaFiledTypeAsset,
-	SchemaFiledTypeDate,
-	SchemaFiledTypeBool,
-	SchemaFiledTypeSelect,
-	SchemaFiledTypeTag,
-	SchemaFiledTypeInteger,
-	SchemaFiledTypeReference,
-	SchemaFiledTypeURL,
+var AllSchemaFieldType = []SchemaFieldType{
+	SchemaFieldTypeText,
+	SchemaFieldTypeTextArea,
+	SchemaFieldTypeRichText,
+	SchemaFieldTypeMarkdownText,
+	SchemaFieldTypeAsset,
+	SchemaFieldTypeDate,
+	SchemaFieldTypeBool,
+	SchemaFieldTypeSelect,
+	SchemaFieldTypeTag,
+	SchemaFieldTypeInteger,
+	SchemaFieldTypeReference,
+	SchemaFieldTypeURL,
 }
 
-func (e SchemaFiledType) IsValid() bool {
+func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFiledTypeText, SchemaFiledTypeTextArea, SchemaFiledTypeRichText, SchemaFiledTypeMarkdownText, SchemaFiledTypeAsset, SchemaFiledTypeDate, SchemaFiledTypeBool, SchemaFiledTypeSelect, SchemaFiledTypeTag, SchemaFiledTypeInteger, SchemaFiledTypeReference, SchemaFiledTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeURL:
 		return true
 	}
 	return false
 }
 
-func (e SchemaFiledType) String() string {
+func (e SchemaFieldType) String() string {
 	return string(e)
 }
 
-func (e *SchemaFiledType) UnmarshalGQL(v interface{}) error {
+func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = SchemaFiledType(str)
+	*e = SchemaFieldType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SchemaFiledType", str)
+		return fmt.Errorf("%s is not a valid SchemaFieldType", str)
 	}
 	return nil
 }
 
-func (e SchemaFiledType) MarshalGQL(w io.Writer) {
+func (e SchemaFieldType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
