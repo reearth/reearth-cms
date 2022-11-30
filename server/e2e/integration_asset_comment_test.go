@@ -143,7 +143,7 @@ func TestIntegrationGetAssetCommentAPI(t *testing.T) {
 
 /*
 // POST /assets/:assetId/comments
-func TestIntegrationPostAssetCommentAPI(t *testing.T) {
+func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederForAssetComment)
 
 	e.POST(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
@@ -173,5 +173,82 @@ func TestIntegrationPostAssetCommentAPI(t *testing.T) {
 		c.Value("authorId").Equal(iId)
 		c.Value("authorType").Equal(integrationapi.Integrtaion)
 		c.Value("content").Equal("test")
+}
+*/
+
+/*
+// PATCH /assets/:assetId/comments/:commentId
+func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederForAssetComment)
+
+	e.PATCH(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.PATCH(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+		e.PATCH(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.PATCH(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusNotFound)
+
+	c := e.PATCH(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		WithJSON(map[string]interface{}{
+			"content": "updated content",
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+		r.Keys().
+		Contains("id", "authorId", "authorType", "content", "createdAt")
+		r.Value("id").Equal(icId.String())
+		r.Value("authorId").Equal(uId)
+		r.Value("authorType").Equal(integrationapi.User)
+		r.Value("content").Equal("updated content")
+}
+*/
+
+/*
+// DELETE /assets/:assetId/comments/:commentId
+func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederForAssetComment)
+
+	e.DELETE(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.DELETE(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.DELETE(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.DELETE(fmt.Sprintf("/api/assets/%s/comments/%s", id.NewAssetID(), id.NewCommentID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().Keys().
+		Contains("id")
+
+	e.GET(fmt.Sprintf("/api/assets/%s/comments", id.NewAssetID())).
+		WithHeader("authorization", "Bearer secret_1234567890").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().Value("comments").Array().Empty()
 }
 */
