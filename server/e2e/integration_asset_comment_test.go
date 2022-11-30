@@ -1,5 +1,6 @@
 package e2e
 
+/*
 import (
 	"context"
 	"fmt"
@@ -23,7 +24,7 @@ import (
 var modelId = id.NewModelID()
 var assetId = id.NewAssetID()
 
-func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
+func baseSeederForAssetComment(ctx context.Context, r *repo.Container) error {
 	u := user.New().NewID().
 		Name("e2e").
 		Email("e2e@e2e.com").
@@ -98,7 +99,7 @@ func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
 			// UUID(uuid).
 			// Thread(thid).
 			MustBuild()
-	*/
+// here
 
 	itm := item.New().NewID().
 		Schema(s.ID()).
@@ -113,64 +114,64 @@ func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
 	return nil
 }
 
-// GET /assets/:assetId
-func TestIntegrationGetAssetAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederForAsset)
+// GET /assets/:assetId/comments
+func TestIntegrationGetAssetCommentAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederForAssetComment)
 
-	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.GET(fmt.Sprintf("/api/assets/%s/comments", id.NewAssetID())).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.GET(fmt.Sprintf("/api/assets/%s/comments", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.GET(fmt.Sprintf("/api/assets/%s/comments", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET(fmt.Sprintf("/api/assets/%s", assetId)).
+	e.GET(fmt.Sprintf("/api/assets/%s/comments", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object().Keys().
-		Contains("id", "projectId", "name", "url", "contentType", "previewType", "totalSize", "file", "createdAt", "updatedAt")
-
+		Contains("comments")
 }
 
-/*
-// DELETE /assets/:assetId
-func TestIntegrationDeleteAssetAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederForAsset)
 
-	e.DELETE(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+/*
+// POST /assets/:assetId/comments
+func TestIntegrationPostAssetCommentAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederForAssetComment)
+
+	e.POST(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.POST(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.POST(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.DELETE(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	c := e.POST(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
+		WithJSON(map[string]interface{}{
+			"content": "test",
+		}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().Keys().
-		Contains("id")
+		Object()
 
-	e.GET("/api/assets/%s", id.NewAssetID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
-		Expect().
-		Status(http.StatusOK).
-		JSON().Object().Value("id").Array().Empty()
+		c.Value("authorId").Equal(iId)
+		c.Value("authorType").Equal(integrationapi.Integrtaion)
+		c.Value("content").Equal("test")
 }
 */
