@@ -318,6 +318,8 @@ export type Item = Node & {
   projectId: Scalars['ID'];
   schema: Schema;
   schemaId: Scalars['ID'];
+  thread: Thread;
+  threadId: Scalars['ID'];
 };
 
 export type ItemConnection = {
@@ -355,7 +357,6 @@ export type ItemPayload = {
 export type ItemQuery = {
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
-  workspace: Scalars['ID'];
 };
 
 export type KeyAvailability = {
@@ -874,6 +875,7 @@ export type RemoveUserFromWorkspaceInput = {
 };
 
 export enum Role {
+  Maintainer = 'Maintainer',
   Owner = 'OWNER',
   Reader = 'READER',
   Writer = 'WRITER'
@@ -1413,7 +1415,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value?: any | null }> } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2583,10 +2585,13 @@ export const GetItemsDocument = gql`
         type
         value
       }
+      thread {
+        ...threadFragment
+      }
     }
   }
 }
-    `;
+    ${ThreadFragmentFragmentDoc}`;
 
 /**
  * __useGetItemsQuery__
