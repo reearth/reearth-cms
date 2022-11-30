@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
@@ -116,29 +117,24 @@ func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
 func TestIntegrationAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederForAsset)
 
-	e.GET("/api/assets/{assetID}", id.NewAssetID()).
+	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetID}", id.NewAssetID()).
+	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetID}", id.NewAssetID()).
+	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
 		WithHeader("authorization", "Bearer secret_1234567890").
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/assets/{assetID}", assetId).
+	e.GET(fmt.Sprintf("/api/assets/%s", assetId)).
 		WithHeader("authorization", "Bearer secret_1234567890").
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusOK).
-		JSON().
-		Object().Keys().
-		Contains("items", "page", "perPage", "totalCount")
+		JSON().Object().Keys().
+		Contains("id", "projectId", "name", "url", "contentType", "previewType", "totalSize", "file", "createdAt", "updatedAt")
 }
