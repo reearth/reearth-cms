@@ -28,6 +28,7 @@ export type AssetFile = {
 export type Comment = {
   id: string;
   author: string;
+  authorType: "User" | "Integration";
   content: string;
   createdAt: string;
 };
