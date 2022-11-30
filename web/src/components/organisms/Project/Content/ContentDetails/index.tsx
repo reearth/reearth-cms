@@ -1,5 +1,6 @@
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -11,9 +12,12 @@ const ContentDetails: React.FC = () => {
   const {
     itemId,
     currentModel,
+    currentItem,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
+    collapsed,
+    collapse,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
@@ -40,6 +44,13 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      collapsed={collapsed}
+      onCollapse={collapse}
+      commentsPanel={
+        currentItem ? (
+          <CommentsPanel comments={currentItem?.comments} threadId={currentItem?.threadId} />
+        ) : undefined
+      }
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}
@@ -47,7 +58,13 @@ const ContentDetails: React.FC = () => {
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
       onBack={handleNavigateToModel}
-      modelsMenu={<ModelsMenu title={t("Content")} onModelSelect={handleNavigateToModel} />}
+      modelsMenu={
+        <ModelsMenu
+          collapsed={collapsed}
+          title={t("Content")}
+          onModelSelect={handleNavigateToModel}
+        />
+      }
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loading}
