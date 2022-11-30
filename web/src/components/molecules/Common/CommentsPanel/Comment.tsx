@@ -28,8 +28,7 @@ const CommentMoecule: React.FC<Props> = ({ comment }) => {
                 color="#BFBFBF"
               />
             }
-            offset={[0, 24]}
-            dot>
+            offset={[0, 24]}>
             <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
               {comment.author.charAt(0)}
             </Avatar>
