@@ -220,70 +220,35 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {
-	var pt1 asset.ArchiveExtractionStatus = asset.ArchiveExtractionStatusPending
+	s1 := asset.ArchiveExtractionStatusPending
 	want1 := ArchiveExtractionStatusPending
+	got1 := ToArchiveExtractionStatus(&s1)
+	assert.Equal(t, &want1, got1)
 
-	var pt2 asset.ArchiveExtractionStatus = asset.ArchiveExtractionStatusInProgress
+	s2 := asset.ArchiveExtractionStatusInProgress
 	want2 := ArchiveExtractionStatusInProgress
+	got2 := ToArchiveExtractionStatus(&s2)
+	assert.Equal(t, &want2, got2)
 
-	var pt3 asset.ArchiveExtractionStatus = asset.ArchiveExtractionStatusDone
+	s3 := asset.ArchiveExtractionStatusDone
 	want3 := ArchiveExtractionStatusDone
+	got3 := ToArchiveExtractionStatus(&s3)
+	assert.Equal(t, &want3, got3)
 
-	var pt4 asset.ArchiveExtractionStatus = asset.ArchiveExtractionStatusFailed
+	s4 := asset.ArchiveExtractionStatusFailed
 	want4 := ArchiveExtractionStatusFailed
+	got4 := ToArchiveExtractionStatus(&s4)
+	assert.Equal(t, &want4, got4)
 
-	var pt5 *asset.ArchiveExtractionStatus = nil
+	var s5 *asset.ArchiveExtractionStatus = nil
 	want5 := (*ArchiveExtractionStatus)(nil)
+	got5 := ToArchiveExtractionStatus(s5)
+	assert.Equal(t, want5, got5)
 
-	var pt6 asset.ArchiveExtractionStatus = "test"
+	var s6 asset.ArchiveExtractionStatus = "test"
 	want6 := (*ArchiveExtractionStatus)(nil)
-
-	tests := []struct {
-		name string
-		arg  *asset.ArchiveExtractionStatus
-		want *ArchiveExtractionStatus
-	}{
-		{
-			name: "to status pending",
-			arg:  &pt1,
-			want: &want1,
-		},
-		{
-			name: "to status in progress",
-			arg:  &pt2,
-			want: &want2,
-		},
-		{
-			name: "to status done",
-			arg:  &pt3,
-			want: &want3,
-		},
-		{
-			name: "to status failed",
-			arg:  &pt4,
-			want: &want4,
-		},
-		{
-			name: "to status nil",
-			arg:  pt5,
-			want: want5,
-		},
-		{
-			name: "to status other",
-			arg:  &pt6,
-			want: want6,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := ToArchiveExtractionStatus(tc.arg)
-			assert.Equal(t, tc.want, got)
-		})
-	}
+	got6 := ToArchiveExtractionStatus(&s6)
+	assert.Equal(t, want6, got6)
 }
 
 func TestConvertAsset_ToAssetFile(t *testing.T) {
