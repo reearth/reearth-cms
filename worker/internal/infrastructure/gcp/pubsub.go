@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/worker/pkg/asset"
 	"github.com/samber/lo"
 )
 
@@ -21,7 +21,7 @@ func NewPubSub(topic, project string) *PubSub {
 	}
 }
 
-func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.Status) error {
+func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.ArchiveExtractionStatus) error {
 	body := lo.Must(json.Marshal(map[string]string{
 		"type":    "assetDecompressed",
 		"assetId": assetID,
