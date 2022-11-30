@@ -1,6 +1,7 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
 
 import UploadModal from "../UploadModal/UploadModal";
@@ -11,10 +12,14 @@ type Props = {
   fileList: UploadFile<File>[];
   uploading: boolean;
   uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   displayUploadModal: () => void;
-  hideUploadModal: () => void;
-  handleUpload: () => void;
+  onUploadModalCancel: () => void;
+  onUpload: () => void;
 };
 
 const UploadAsset: React.FC<Props> = ({
@@ -25,8 +30,12 @@ const UploadAsset: React.FC<Props> = ({
   uploadModalVisibility,
   onUploadModalClose,
   displayUploadModal,
-  hideUploadModal,
-  handleUpload,
+  onUploadModalCancel,
+  uploadUrl,
+  uploadType,
+  setUploadUrl,
+  setUploadType,
+  onUpload,
 }) => {
   const t = useT();
   return (
@@ -39,10 +48,14 @@ const UploadAsset: React.FC<Props> = ({
         uploadProps={uploadProps}
         fileList={fileList}
         uploading={uploading}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
         onUploadModalClose={onUploadModalClose}
-        handleUpload={handleUpload}
+        onUpload={onUpload}
         visible={uploadModalVisibility}
-        handleCancel={hideUploadModal}
+        onCancel={onUploadModalCancel}
       />
     </>
   );
