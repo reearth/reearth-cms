@@ -8,84 +8,35 @@ import (
 )
 
 func TestStatus_StatusFrom(t *testing.T) {
-	tests := []struct {
-		Name     string
-		Expected struct {
-			TA   ArchiveExtractionStatus
-			Bool bool
-		}
-	}{
-		{
-			Name: "pending",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatusPending,
-				Bool: true,
-			},
-		},
-		{
-			Name: "PENDING",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatusPending,
-				Bool: true,
-			},
-		},
-		{
-			Name: "in_progress",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatusInProgress,
-				Bool: true,
-			},
-		},
-		{
-			Name: "done",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatusDone,
-				Bool: true,
-			},
-		},
-		{
-			Name: "failed",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatusFailed,
-				Bool: true,
-			},
-		},
-		{
-			Name: "undefined",
-			Expected: struct {
-				TA   ArchiveExtractionStatus
-				Bool bool
-			}{
-				TA:   ArchiveExtractionStatus(""),
-				Bool: false,
-			},
-		},
-	}
+	s := ArchiveExtractionStatusPending
+	res, ok := StatusFrom("pending")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			res, ok := StatusFrom(tc.Name)
-			assert.Equal(t, tc.Expected.TA, res)
-			assert.Equal(t, tc.Expected.Bool, ok)
-		})
-	}
+	s = ArchiveExtractionStatusPending
+	res, ok = StatusFrom("PENDING")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
+
+	s = ArchiveExtractionStatusInProgress
+	res, ok = StatusFrom("in_progress")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
+
+	s = ArchiveExtractionStatusDone
+	res, ok = StatusFrom("done")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
+
+	s = ArchiveExtractionStatusFailed
+	res, ok = StatusFrom("failed")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
+
+	s = ArchiveExtractionStatus("")
+	res, ok = StatusFrom("")
+	assert.Equal(t, s, res)
+	assert.False(t, ok)
 }
 
 func TestStatus_StatusFromRef(t *testing.T) {
@@ -94,49 +45,29 @@ func TestStatus_StatusFromRef(t *testing.T) {
 	d := ArchiveExtractionStatusDone
 	f := ArchiveExtractionStatusFailed
 
-	tests := []struct {
-		Name     string
-		Input    *string
-		Expected *ArchiveExtractionStatus
-	}{
-		{
-			Name:     "pending",
-			Input:    lo.ToPtr("pending"),
-			Expected: &p,
-		},
-		{
-			Name:     "upper case pending",
-			Input:    lo.ToPtr("PENDING"),
-			Expected: &p,
-		},
-		{
-			Name:     "in progress",
-			Input:    lo.ToPtr("in_progress"),
-			Expected: &ip,
-		},
-		{
-			Name:     "done",
-			Input:    lo.ToPtr("done"),
-			Expected: &d,
-		},
-		{
-			Name:     "failed",
-			Input:    lo.ToPtr("failed"),
-			Expected: &f,
-		},
-		{
-			Name: "nil input",
-		},
-	}
+	s := lo.ToPtr("pending")
+	res := StatusFromRef(s)
+	assert.Equal(t, &p, res)
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			res := StatusFromRef(tc.Input)
-			assert.Equal(t, tc.Expected, res)
-		})
-	}
+	s = lo.ToPtr("PENDING")
+	res = StatusFromRef(s)
+	assert.Equal(t, &p, res)
+
+	s = lo.ToPtr("in_progress")
+	res = StatusFromRef(s)
+	assert.Equal(t, &ip, res)
+
+	s = lo.ToPtr("done")
+	res = StatusFromRef(s)
+	assert.Equal(t, &d, res)
+
+	s = lo.ToPtr("failed")
+	res = StatusFromRef(s)
+	assert.Equal(t, &f, res)
+
+	s = nil
+	res = StatusFromRef(s)
+	assert.Nil(t, res)
 }
 
 func TestStatus_String(t *testing.T) {
@@ -147,31 +78,9 @@ func TestStatus_String(t *testing.T) {
 
 func TestStatus_StringRef(t *testing.T) {
 	var st1 *ArchiveExtractionStatus
-	var st2 *ArchiveExtractionStatus = lo.ToPtr(ArchiveExtractionStatusPending)
-	s := string(*st2)
+	assert.Nil(t, st1.StringRef())
 
-	tests := []struct {
-		Name     string
-		Input    *string
-		Expected *string
-	}{
-		{
-			Name:     "nil Status pointer",
-			Input:    st1.StringRef(),
-			Expected: nil,
-		},
-		{
-			Name:     "Status pointer",
-			Input:    st2.StringRef(),
-			Expected: &s,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.Expected, tc.Input)
-		})
-	}
+	st2 := lo.ToPtr(ArchiveExtractionStatusPending)
+	s := lo.ToPtr("pending")
+	assert.Equal(t, s, st2.StringRef())
 }
