@@ -111,8 +111,14 @@ New Integration: 新規インテグレーション
 Create: 作成
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
-Integration Token: インテグレーショントークン
 Create new integration: 新規インテグレーション作成
+Are you sure remove this intergration?: ''
+Permanently remove your Intergration and all of its contents from the Re:Earth CMS.: ''
+Once intergration was removed, it will disappear from all workspace.: ''
+Remove Intergration: ''
+Permanently remove your Intergration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: ''
+Integration Token: インテグレーショントークン
+Workspace Settings: ''
 Update: アップデート
 Publish: ''
 Unpublish: ''
@@ -183,7 +189,6 @@ Remove Workspace: ''
 Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
 Workspace Name: ''
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ''
-Workspace Settings: ''
 Failed to update user.: ''
 Successfully updated user!: ''
 Failed to update language.: ''
@@ -194,8 +199,8 @@ Failed to update asset.: ''
 Asset was successfully updated!: ''
 Failed to add one or more assets.: ''
 Successfully added one or more assets!: ''
-Failed to add asset.: ''
 Successfully added asset!: ''
+Failed to add asset.: ''
 Failed to delete one or more assets.: ''
 One or more assets were successfully deleted!: ''
 Successfully created workspace!: ''
@@ -241,6 +246,8 @@ Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
 search for a member: 検索
+Failed to delete integration.: ''
+Successfully deleted integration!: ''
 Failed to create webhook.: ''
 Successfully created webhook!: ''
 Failed to delete webhook.: ''
