@@ -46,3 +46,11 @@ export const UPDATE_INTEGRATION = gql`
     }
   }
 `;
+
+export const DELETE_INTEGRATION = gql`
+  mutation DeleteIntegration($integrationId: ID!) {
+    deleteIntegration(input: { integrationId: $integrationId }) {
+      integrationId
+    }
+  }
+`;

@@ -17,6 +17,7 @@ const MyIntegrationDetails: React.FC = () => {
     selectedIntegration,
     webhookInitialValues,
     handleIntegrationUpdate,
+    handleIntegrationDelete,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
@@ -30,6 +31,7 @@ const MyIntegrationDetails: React.FC = () => {
       integration={selectedIntegration}
       webhookInitialValues={webhookInitialValues}
       onIntegrationUpdate={handleIntegrationUpdate}
+      onIntegrationDelete={handleIntegrationDelete}
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
