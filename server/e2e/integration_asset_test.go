@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -24,7 +23,6 @@ import (
 
 var modelId = id.NewModelID()
 var assetId = id.NewAssetID()
-var pti asset.PreviewType = asset.PreviewTypeImage
 
 func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
 	u := user.New().NewID().
@@ -89,18 +87,17 @@ func baseSeederForAsset(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	uuid := uuid.New().String()
 	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
-	a := asset.New().ID(id.NewAssetID()).
+	a := asset.New().ID(assetId).
 		Project(p.ID()).
-		CreatedByUser(id.NewUserID()).
+		CreatedByUser(u.ID()).
 		FileName("aaa.jpg").
 		Size(1000).
-		Type(&pti).
 		File(f).
-		UUID(uuid).
+		UUID(u.ID().String()).
 		Thread(id.NewThreadID()).
 		MustBuild()
+
 	if err := r.Asset.Save(ctx, a); err != nil {
 		return err
 	}
@@ -136,11 +133,12 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET(fmt.Sprintf("/api/assets/%s", id.NewAssetID())).
+	e.GET(fmt.Sprintf("/api/assets/%s", assetId)).
 		WithHeader("authorization", "Bearer secret_1234567890").
 		Expect().
 		Status(http.StatusOK).
-		JSON().Object().Keys().
+		JSON().
+		Object().Keys().
 		Contains("id", "projectId", "name", "url", "contentType", "previewType", "totalSize", "file", "createdAt", "updatedAt")
 }
 
