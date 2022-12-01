@@ -21,9 +21,9 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
       icon: <Icon icon="exclamationCircle" />,
       content: (
         <>
-          {t("Permanently remove your Intergration and all of its contents from the Re:Earth CMS.")}
+          {t("Permanently remove your Integration and all of its contents from the Re:Earth CMS.")}
           <br />
-          {t("Once intergration was removed, it will disappear from all workspace.")}
+          {t("Once the integration is removed, it will disappear from all workspaces.")}
         </>
       ),
       onOk() {
@@ -34,15 +34,15 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
-      <Title>{t("Remove Intergration")}</Title>
+      <Title>{t("Remove Integration")}</Title>
       <Text>
         {t(
-          "Permanently remove your Intergration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
+          "Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
         )}
       </Text>
 
       <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
-        {t("Remove Intergration")}
+        {t("Remove Integration")}
       </Button>
     </ContentSection>
   );
