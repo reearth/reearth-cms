@@ -18,6 +18,8 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
+import ArchiveExtractionStatus from "./ArchiveExtractionStatus";
+
 export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
@@ -77,6 +79,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+    },
+    {
+      title: t("State"),
+      dataIndex: "state",
+      key: "state",
+      render: (_, asset) => {
+        return <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />;
+      },
     },
     {
       title: t("Created At"),

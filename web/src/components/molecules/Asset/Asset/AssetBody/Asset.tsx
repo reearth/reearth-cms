@@ -20,6 +20,8 @@ import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
+import ArchiveExtractionStatus from "../../AssetListTable/ArchiveExtractionStatus";
+
 import useHooks from "./hooks";
 import SVGPreview from "./svgPreview";
 
@@ -115,12 +117,14 @@ const AssetMolecule: React.FC<Props> = ({
           {renderPreview()}
         </Card>
         {displayUnzipFileList && (
-          <Card title={asset.fileName}>
+          <Card
+            title={asset.fileName}
+            toolbar={<ArchiveExtractionStatus archiveExtractionStatus="failed" />}>
             <UnzipFileList
               file={asset.file}
               assetBaseUrl={assetBaseUrl}
+              archiveExtractionStatus="failed"
               setAssetUrl={setAssetUrl}
-              style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
             />
           </Card>
         )}

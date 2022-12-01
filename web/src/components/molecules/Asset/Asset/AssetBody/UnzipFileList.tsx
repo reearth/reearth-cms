@@ -1,22 +1,32 @@
+import { CloseCircleFilled } from "@ant-design/icons";
 import { Key } from "rc-table/lib/interface";
-import { CSSProperties, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Spin from "@reearth-cms/components/atoms/Spin";
 import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
-import { AssetFile } from "@reearth-cms/components/molecules/Asset/asset.type";
+import {
+  ArchiveExtractionStatus,
+  AssetFile,
+} from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
   file: AssetFile;
   assetBaseUrl: string;
+  archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-  style?: CSSProperties;
 };
 
 type FileNode = DataNode & {
   file: AssetFile;
 };
 
-const UnzipFileList: React.FC<Props> = ({ file, assetBaseUrl, setAssetUrl, style }) => {
+const UnzipFileList: React.FC<Props> = ({
+  file,
+  assetBaseUrl,
+  archiveExtractionStatus,
+  setAssetUrl,
+}) => {
   const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
@@ -65,17 +75,49 @@ const UnzipFileList: React.FC<Props> = ({ file, assetBaseUrl, setAssetUrl, style
   };
 
   return (
-    <Tree
-      switcherIcon={<Icon icon="caretDown" />}
-      expandedKeys={[...expandedKeys]}
-      selectedKeys={[...selectedKeys]}
-      onSelect={onSelect}
-      onExpand={onExpand}
-      treeData={treeData}
-      style={style}
-      multiple={false}
-      showLine
-    />
+    <div style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}>
+      {archiveExtractionStatus === "in_progress" ? (
+        <Spin tip="Decompressing..." size="large" />
+      ) : archiveExtractionStatus === "failed" ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          <CloseCircleFilled
+            style={{
+              color: "#FF4D4F",
+              fontSize: "56px",
+              marginBottom: "28px",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "Roboto",
+              fontStyle: "normal",
+              fontWeight: "400",
+              fontSize: "14px",
+              lineHeight: "22px",
+              color: "rgba(0, 0, 0, 0.85)",
+            }}>
+            Fail to decompress, please check your file
+          </span>
+        </div>
+      ) : (
+        <Tree
+          switcherIcon={<Icon icon="caretDown" />}
+          expandedKeys={[...expandedKeys]}
+          selectedKeys={[...selectedKeys]}
+          onSelect={onSelect}
+          onExpand={onExpand}
+          treeData={treeData}
+          multiple={false}
+          showLine
+        />
+      )}
+    </div>
   );
 };
 
