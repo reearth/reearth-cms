@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -78,7 +79,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 
 		if param.State != nil {
 			if *param.State == request.StateApproved || *param.State == request.StateClosed {
-				return nil, errors.New(fmt.Sprintf("can't create request with state %v", param.State.String()))
+				return nil, fmt.Errorf("can't create request with state %v", param.State.String())
 			}
 			builder.State(*param.State)
 		}
@@ -196,8 +197,14 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		if err := r.repos.Request.Save(ctx, req); err != nil {
 			return nil, err
 		}
-		// apply the changes on the item
 
+		// apply changes to items (publish items)
+		for _, item := range req.Items() {
+			err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Version(), version.Public)
+			if err != nil {
+				return nil, err
+			}
+		}
 		return req, nil
 	})
 }
