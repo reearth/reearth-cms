@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -8,17 +9,21 @@ import {
   useUpdateIntegrationMutation,
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
+  useDeleteIntegrationMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useWorkspace } from "@reearth-cms/state";
 
 type Params = {
   integrationId?: string;
 };
 
 export default ({ integrationId }: Params) => {
+  const navigate = useNavigate();
   const { integrations } = integrationHooks();
   const t = useT();
   const [webhookId, setwebhookId] = useState<string>();
+  const [currentWorkspace] = useWorkspace();
 
   const selectedIntegration = useMemo(() => {
     return integrations?.find(integration => integration.id === integrationId);
@@ -51,6 +56,21 @@ export default ({ integrationId }: Params) => {
     },
     [integrationId, updateIntegrationMutation],
   );
+
+  const [deleteIntegrationMutation] = useDeleteIntegrationMutation({
+    refetchQueries: ["GetMe"],
+  });
+
+  const handleIntegrationDelete = useCallback(async () => {
+    if (!integrationId) return;
+    const results = await deleteIntegrationMutation({ variables: { integrationId } });
+    if (results.errors) {
+      Notification.error({ message: t("Failed to delete integration.") });
+    } else {
+      Notification.success({ message: t("Successfully deleted integration!") });
+      navigate(`/workspace/${currentWorkspace?.id}/myIntegrations`);
+    }
+  }, [currentWorkspace, integrationId, deleteIntegrationMutation, navigate, t]);
 
   const [createNewWebhook] = useCreateWebhookMutation({
     refetchQueries: ["GetMe"],
@@ -152,6 +172,7 @@ export default ({ integrationId }: Params) => {
     selectedIntegration,
     webhookInitialValues,
     handleIntegrationUpdate,
+    handleIntegrationDelete,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
