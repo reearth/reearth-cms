@@ -1,9 +1,9 @@
-import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import styled from "@emotion/styled";
+
+import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   integration: Integration;
@@ -16,16 +16,18 @@ const MyIntegrationSettings: React.FC<Props> = ({
   onIntegrationUpdate,
   onIntegrationDelete,
 }) => {
-  const t = useT();
-
   return (
-    <InnerContent title={t("Workspace Settings")}>
-      <ContentSection title={t("General")}>
-        <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
-      </ContentSection>
+    <Wrapper>
+      <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
       <DangerZone onIntegrationDelete={onIntegrationDelete} />
-    </InnerContent>
+    </Wrapper>
   );
 };
 
 export default MyIntegrationSettings;
+
+const Wrapper = styled(Content)`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 32px);
+`;
