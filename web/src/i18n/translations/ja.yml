@@ -112,7 +112,7 @@ Create: 作成
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Create new integration: 新規インテグレーション作成
-Are you sure remove this intergration?: ''
+Are you sure to remove this integration?: ''
 Permanently remove your Integration and all of its contents from the Re:Earth CMS.: ''
 Once the integration is removed, it will disappear from all workspaces.: ''
 Remove Integration: ''

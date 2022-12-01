@@ -17,7 +17,7 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
 
   const handleWorkspaceDeleteConfirmation = useCallback(() => {
     confirm({
-      title: t("Are you sure remove this intergration?"),
+      title: t("Are you sure to remove this integration?"),
       icon: <Icon icon="exclamationCircle" />,
       content: (
         <>
