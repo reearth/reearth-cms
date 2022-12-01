@@ -75,6 +75,7 @@ export const GET_ASSETS = gql`
           thread {
             ...threadFragment
           }
+          archiveExtractionStatus
         }
       }
       nodes {
@@ -140,6 +141,7 @@ export const GET_ASSETS = gql`
         thread {
           ...threadFragment
         }
+        archiveExtractionStatus
       }
       pageInfo {
         startCursor
@@ -224,6 +226,7 @@ export const GET_ASSET = gql`
       thread {
         ...threadFragment
       }
+      archiveExtractionStatus
     }
   }
   fragment FileFragment on AssetFile {
@@ -257,6 +260,7 @@ export const CREATE_ASSET = gql`
         thread {
           ...threadFragment
         }
+        archiveExtractionStatus
       }
     }
   }
@@ -285,6 +289,7 @@ export const UPDATE_ASSET = gql`
         thread {
           ...threadFragment
         }
+        archiveExtractionStatus
       }
     }
   }
