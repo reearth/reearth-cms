@@ -649,15 +649,28 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	ws := user.NewWorkspace().NewID().MustBuild()
 	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
 
-	c1 := asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build()
-	c2 := asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build()
-	f1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{c1, c2}).Build()
-
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(assetID1).Project(proj.ID()).File(f1).
-		CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(thid).MustBuild()
-	a2 := asset.New().ID(assetID2).Project(proj.ID()).File(asset.NewFile().Build()).
-		CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(id.NewThreadID()).MustBuild()
+	sp := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	a1 := asset.New().
+		ID(assetID1).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		File(asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()).
+		Thread(thid).
+		ArchiveExtractionStatus(sp).
+		MustBuild()
+	a2 := asset.New().
+		ID(assetID2).
+		Project(proj.ID()).
+		CreatedByUser(uid).
+		Size(1000).
+		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		Thread(id.NewThreadID()).
+		ArchiveExtractionStatus(sp).
+		File(asset.NewFile().Build()).
+		MustBuild()
 
 	op := &usecase.Operator{
 		User:             &uid,
@@ -671,6 +684,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		seedProjects    []*project.Project
 		prepareFileFunc func() afero.Fs
 		assetID         id.AssetID
+		status          *asset.ArchiveExtractionStatus
 		want            *asset.Asset
 		wantErr         error
 	}{
@@ -693,24 +707,36 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			want:    nil,
 			wantErr: gateway.ErrFileNotFound,
 		},
-		// TODO: need to be fixed
-		// {
-		// 	name:         "update",
-		// 	seedAssets:   []*asset.Asset{a1.Clone(), a2.Clone()},
-		// 	seedProjects: []*project.Project{proj},
-		// 	prepareFileFunc: func() afero.Fs {
-		// 		return mockFs()
-		// 	},
-		// 	assetID: assetID1,
-		// 	want: asset.New().ID(assetID1).Project(proj.ID()).
-		// 		CreatedByUser(uid).Size(1000).UUID("5130c89f-8f67-4766-b127-49ee6796d464").Thread(thid).
-		// 		File(asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{
-		// 			asset.NewFile().Name("hello").Path("/xxx/yyy/hello.txt").GuessContentType().Build(),
-		// 			asset.NewFile().Name("zzz").Path("/xxx/zzz.txt").GuessContentType().Build(),
-		// 		}).Build()).
-		// 		MustBuild(),
-		// 	wantErr: nil,
-		// },
+		{
+			name:         "update",
+			seedAssets:   []*asset.Asset{a1.Clone(), a2.Clone()},
+			seedProjects: []*project.Project{proj},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			status:  sp,
+			want: asset.New().
+				ID(assetID1).
+				Project(proj.ID()).
+				CreatedByUser(uid).
+				Size(1000).
+				UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+				File(
+					asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{
+						asset.NewFile().Name("xxx").Path("/xxx").Dir().Children([]*asset.File{
+							asset.NewFile().Name("yyy").Path("/xxx/yyy").Dir().Children([]*asset.File{
+								asset.NewFile().Name("hello.txt").Path("/xxx/yyy/hello.txt").GuessContentType().Build(),
+							}).Build(),
+							asset.NewFile().Name("zzz.txt").Path("/xxx/zzz.txt").GuessContentType().Build(),
+						}).Build(),
+					}).Build(),
+				).
+				Thread(thid).
+				ArchiveExtractionStatus(sp).
+				MustBuild(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -741,8 +767,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				},
 				ignoreEvent: true,
 			}
-
-			got, err := assetUC.UpdateFiles(ctx, tc.assetID, op)
+			got, err := assetUC.UpdateFiles(ctx, tc.assetID, tc.status, op)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

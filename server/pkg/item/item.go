@@ -100,14 +100,8 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	fields := lo.Filter(i.fields, func(f *Field, i int) bool {
 		return list.Has(f.FieldID())
 	})
-
-	return &Item{
-		id:        i.id,
-		schema:    i.schema,
-		project:   i.project,
-		fields:    fields,
-		timestamp: i.timestamp,
-	}
+	i.fields = fields
+	return i
 }
 
 func (i *Item) HasField(fid id.FieldID, value any) bool {
