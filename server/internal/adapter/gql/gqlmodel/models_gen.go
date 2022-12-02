@@ -1178,7 +1178,7 @@ const (
 	RoleReader     Role = "READER"
 	RoleWriter     Role = "WRITER"
 	RoleOwner      Role = "OWNER"
-	RoleMaintainer Role = "Maintainer"
+	RoleMaintainer Role = "MAINTAINER"
 )
 
 var AllRole = []Role{
