@@ -1,4 +1,4 @@
-import { CloseCircleFilled } from "@ant-design/icons";
+import styled from "@emotion/styled";
 import { Key } from "rc-table/lib/interface";
 import { useCallback, useEffect, useState } from "react";
 
@@ -75,36 +75,14 @@ const UnzipFileList: React.FC<Props> = ({
   };
 
   return (
-    <div style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}>
+    <UnzipFileListWrapper>
       {archiveExtractionStatus === "in_progress" ? (
         <Spin tip="Decompressing..." size="large" />
       ) : archiveExtractionStatus === "failed" ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
-          <CloseCircleFilled
-            style={{
-              color: "#FF4D4F",
-              fontSize: "56px",
-              marginBottom: "28px",
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "Roboto",
-              fontStyle: "normal",
-              fontWeight: "400",
-              fontSize: "14px",
-              lineHeight: "22px",
-              color: "rgba(0, 0, 0, 0.85)",
-            }}>
-            Fail to decompress, please check your file
-          </span>
-        </div>
+        <ExtractionFailedWrapper>
+          <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
+          <ExtractionFailedText>Fail to decompress, please check your file</ExtractionFailedText>
+        </ExtractionFailedWrapper>
       ) : (
         <Tree
           switcherIcon={<Icon icon="caretDown" />}
@@ -117,8 +95,35 @@ const UnzipFileList: React.FC<Props> = ({
           showLine
         />
       )}
-    </div>
+    </UnzipFileListWrapper>
   );
 };
+
+const UnzipFileListWrapper = styled.div`
+  height: 250px;
+  overflow-y: scroll;
+  background-color: #f5f5f5;
+`;
+
+const ExtractionFailedWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+`;
+
+const ExtractionFailedIcon = styled(Icon)`
+  margin-bottom: 28px;
+`;
+
+const ExtractionFailedText = styled.span`
+font-family: Roboto
+font-style: normal
+font-weight: 400
+font-size: 14px
+line-height: 22px
+color: rgba(0, 0, 0, 0.85)
+`;
 
 export default UnzipFileList;

@@ -119,11 +119,13 @@ const AssetMolecule: React.FC<Props> = ({
         {displayUnzipFileList && (
           <Card
             title={asset.fileName}
-            toolbar={<ArchiveExtractionStatus archiveExtractionStatus="failed" />}>
+            toolbar={
+              <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+            }>
             <UnzipFileList
               file={asset.file}
               assetBaseUrl={assetBaseUrl}
-              archiveExtractionStatus="failed"
+              archiveExtractionStatus={asset.archiveExtractionStatus}
               setAssetUrl={setAssetUrl}
             />
           </Card>
