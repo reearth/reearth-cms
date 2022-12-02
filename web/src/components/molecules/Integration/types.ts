@@ -6,7 +6,7 @@ export type IntegrationMember = {
   active: boolean;
 };
 
-export type Role = "WRITER" | "READER" | "OWNER";
+export type Role = "WRITER" | "READER" | "OWNER" | "Maintainer";
 
 export type Integration = {
   id: string;
