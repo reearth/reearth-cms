@@ -30,7 +30,7 @@ enum Role {
     # a eole who can have full control of project
     OWNER
     # a eole who can maintain a project
-    Maintainer
+    MAINTAINER
 }
 
 input CreateWorkspaceInput {
