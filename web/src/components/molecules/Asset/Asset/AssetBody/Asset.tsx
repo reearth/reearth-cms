@@ -15,12 +15,11 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-
-import ArchiveExtractionStatus from "../../AssetListTable/ArchiveExtractionStatus";
 
 import useHooks from "./hooks";
 import SVGPreview from "./svgPreview";

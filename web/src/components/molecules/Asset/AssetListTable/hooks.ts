@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { useT } from "@reearth-cms/i18n";
-
-import { ArchiveExtractionStatus } from "../asset.type";
 
 export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   const t = useT();

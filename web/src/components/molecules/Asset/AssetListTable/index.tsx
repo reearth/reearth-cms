@@ -14,11 +14,10 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
-
-import ArchiveExtractionStatus from "./ArchiveExtractionStatus";
 
 export type AssetListTableProps = {
   assetList: Asset[];
