@@ -60,7 +60,7 @@ func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.P
 	if !operator.IsReadableProject(m.Project()) {
 		return nil, nil, rerror.ErrNotFound
 	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), nil, nil)
+	return i.repos.Item.FindByModel(ctx, m.ID(), nil, p)
 }
 
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {

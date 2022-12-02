@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 var contextKey = struct{}{}
@@ -61,16 +63,44 @@ func listParamFromEchoContext(c echo.Context) (ListParam, error) {
 	var limit = 0
 	var err error
 
-	if offsets := c.QueryParam("offset"); offsets != "" {
-		offset, err = strconv.Atoi(offsets)
-	}
-
 	if limits := c.QueryParam("limit"); limits != "" {
 		limit, err = strconv.Atoi(limits)
+	} else if pageSize := c.QueryParam("page_size"); pageSize != "" {
+		limit, err = strconv.Atoi(pageSize)
+	} else if pageSize := c.QueryParam("per_page"); pageSize != "" {
+		limit, err = strconv.Atoi(pageSize)
+	}
+	if limit <= 0 {
+		limit = 50
+	} else if limit > 100 {
+		limit = 100
+	}
+
+	var p *usecasex.Pagination
+	if startCursor := c.QueryParam("start_cursor"); startCursor != "" {
+		p = usecasex.CursorPagination{
+			First: lo.ToPtr(int64(limit)),
+			After: (*usecasex.Cursor)(&startCursor),
+		}.Wrap()
+	} else {
+		if offsets := c.QueryParam("offset"); offsets != "" {
+			offset, err = strconv.Atoi(offsets)
+		} else if page := c.QueryParam("page"); page != "" {
+			page2, err2 := strconv.Atoi(page)
+			if page2 <= 0 {
+				page2 = 1
+			}
+			offset = (page2 - 1) * limit
+			err = err2
+		}
+
+		p = usecasex.OffsetPagination{
+			Offset: int64(offset),
+			Limit:  int64(limit),
+		}.Wrap()
 	}
 
 	return ListParam{
-		Offset: offset,
-		Limit:  limit,
+		Pagination: p,
 	}, err
 }

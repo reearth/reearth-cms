@@ -14,38 +14,33 @@ import (
 type ListResult[T any] struct {
 	Results    []T `json:"results"`
 	TotalCount int `json:"totalCount"`
-	Limit      int `json:"limit"`
-	Offset     int `json:"offset"`
+	// cursor base
+	NextCursor *string `json:"nextCursor,omitempty"`
+	HasMore    *bool   `json:"hasMore,omitempty"`
 }
 
-func NewListResult[T any](results []T, pi *usecasex.PageInfo, limit, offset int) ListResult[T] {
+func NewListResult[T any](results []T, pi *usecasex.PageInfo, cursor bool) ListResult[T] {
 	if results == nil {
 		results = []T{}
 	}
+
+	var nextCursor *string
+	var hasMore *bool
+	if pi != nil && cursor {
+		nextCursor = pi.EndCursor.StringRef()
+		hasMore = &pi.HasNextPage
+	}
+
 	return ListResult[T]{
 		Results:    results,
 		TotalCount: int(pi.TotalCount),
-		Limit:      limit,
-		Offset:     offset,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
 	}
 }
 
 type ListParam struct {
-	Offset int
-	Limit  int
-	Order  string
-	Sort   []string
-}
-
-func (p ListParam) Pagination() *usecasex.Pagination {
-	limit := int64(p.Limit)
-	if limit <= 0 {
-		limit = 50
-	}
-	return usecasex.OffsetPagination{
-		Offset: int64(p.Offset),
-		Limit:  limit,
-	}.Wrap()
+	Pagination *usecasex.Pagination
 }
 
 type Item struct {

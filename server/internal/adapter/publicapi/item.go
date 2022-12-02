@@ -69,8 +69,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		return ListResult[Item]{}, err
 	}
 
-	page := p.Pagination()
-	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), page, nil)
+	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
@@ -88,6 +87,6 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 
 	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
 		return NewItem(i, s, assets, c.assetUrlResolver)
-	}), pi, int(page.Offset.Limit), int(page.Offset.Offset))
+	}), pi, p.Pagination.Cursor != nil)
 	return res, nil
 }

@@ -67,8 +67,6 @@ func TestPublicAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Equal(map[string]any{
-			"limit":  50,
-			"offset": 0,
 			"results": []map[string]any{
 				{
 					"id":                publicAPIItem1ID.String(),
@@ -89,6 +87,42 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+		})
+
+	// offset pagination
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
+		WithQuery("limit", "1").
+		WithQuery("offset", "1").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Equal(map[string]any{
+			"results": []map[string]any{
+				{
+					"id":                publicAPIItem2ID.String(),
+					publicAPIField1lKey: "bbb",
+				},
+			},
+			"totalCount": 3,
+		})
+
+	// cursor pagination
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
+		WithQuery("start_cursor", publicAPIItem1ID.String()).
+		WithQuery("page_size", "1").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Equal(map[string]any{
+			"results": []map[string]any{
+				{
+					"id":                publicAPIItem2ID.String(),
+					publicAPIField1lKey: "bbb",
+				},
+			},
+			"totalCount": 3,
+			"hasMore":    true,
+			"nextCursor": publicAPIItem2ID.String(),
 		})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem1ID).
@@ -124,8 +158,6 @@ func TestPublicAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Equal(map[string]any{
-			"limit":  50,
-			"offset": 0,
 			"results": []map[string]any{
 				{
 					"id":                publicAPIItem1ID.String(),
