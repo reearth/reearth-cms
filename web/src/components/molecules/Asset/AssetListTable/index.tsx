@@ -81,9 +81,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "previewType",
     },
     {
-      title: t("State"),
-      dataIndex: "state",
-      key: "state",
+      title: t("Status"),
+      dataIndex: "archiveExtractionStatus",
+      key: "archiveExtractionStatus",
       render: (_, asset) => {
         return <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />;
       },
