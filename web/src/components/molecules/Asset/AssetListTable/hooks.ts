@@ -1,28 +1,36 @@
 import { useEffect, useState } from "react";
 
+import { useT } from "@reearth-cms/i18n";
+
 import { ArchiveExtractionStatus } from "../asset.type";
 
 export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
+  const t = useT();
+
   const [status, setStatus] = useState<string>("");
   const [statusColor, setStatusColor] = useState<string>("");
 
-  const red = "#F5222D";
-  const orange = "#FA8C16";
-  const green = "#52C41A";
+  const RED = "#F5222D";
+  const ORANGE = "#FA8C16";
+  const GREEN = "#52C41A";
+
+  const DECOMPRESSED = t("Decompressed");
+  const FAILED = t("Failed");
+  const DECOMPRESSING = t("Decompressing");
 
   useEffect(() => {
     switch (archiveExtractionStatus) {
       case "done":
-        setStatusColor(green);
-        setStatus("Decompressed");
+        setStatusColor(GREEN);
+        setStatus(DECOMPRESSED);
         break;
       case "failed":
-        setStatusColor(red);
-        setStatus("Failed");
+        setStatusColor(RED);
+        setStatus(FAILED);
         break;
       case "in_progress":
-        setStatusColor(orange);
-        setStatus("Decompressing");
+        setStatusColor(ORANGE);
+        setStatus(DECOMPRESSING);
         break;
       case "pending":
       default:
@@ -30,7 +38,7 @@ export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
         setStatus("");
         break;
     }
-  }, [archiveExtractionStatus]);
+  }, [DECOMPRESSED, DECOMPRESSING, FAILED, archiveExtractionStatus, t]);
 
   return { status, statusColor };
 };

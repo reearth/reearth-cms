@@ -9,6 +9,7 @@ import {
   ArchiveExtractionStatus,
   AssetFile,
 } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   file: AssetFile;
@@ -27,6 +28,8 @@ const UnzipFileList: React.FC<Props> = ({
   archiveExtractionStatus,
   setAssetUrl,
 }) => {
+  const t = useT();
+
   const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
@@ -77,11 +80,13 @@ const UnzipFileList: React.FC<Props> = ({
   return (
     <UnzipFileListWrapper>
       {archiveExtractionStatus === "in_progress" ? (
-        <Spin tip="Decompressing..." size="large" />
+        <Spin tip={t("Decompressing...")} size="large" />
       ) : archiveExtractionStatus === "failed" ? (
         <ExtractionFailedWrapper>
           <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
-          <ExtractionFailedText>Fail to decompress, please check your file</ExtractionFailedText>
+          <ExtractionFailedText>
+            {t("Failed to decompress, please check the uploaded file.")}
+          </ExtractionFailedText>
         </ExtractionFailedWrapper>
       ) : (
         <Tree
