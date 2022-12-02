@@ -27,6 +27,16 @@ func NewOptionalValue(v *value.Optional) *ValueDocument {
 	}
 }
 
+func NewMultipleValue(v *value.Multiple) *ValueDocument {
+	if v == nil {
+		return nil
+	}
+	return &ValueDocument{
+		T: string(v.Type()),
+		V: v.Interface(),
+	}
+}
+
 func (d *ValueDocument) Value() *value.Value {
 	if d == nil {
 		return nil
@@ -45,4 +55,22 @@ func (d *ValueDocument) OptionalValue() *value.Optional {
 		return nil
 	}
 	return value.OptionalFrom(d.Value())
+}
+
+func (d *ValueDocument) MultipleValue() *value.Multiple {
+	if d == nil {
+		return nil
+	}
+
+	if d.T == "date" {
+		d.T = string(value.TypeDateTime)
+	}
+
+	t := value.Type(d.T)
+	var v []*value.Value
+	for _, w := range d.V.([]any) {
+		v = append(v, value.New(t, w))
+	}
+
+	return value.NewMultiple(t, v)
 }

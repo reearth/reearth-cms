@@ -2,478 +2,161 @@ package value
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMultipleNew(t *testing.T) {
-	// assert.Equal(t, &Value{
-	// 	t: TypeText,
-	// 	v: "a",
-	// }, NewMultiple(TypeText, "a"))
-}
+	m := NewMultiple(TypeUnknown, []*Value{})
+	assert.Nil(t, m)
 
-func TestNewMultipleWithTypeRegistry(t *testing.T) {
-	// assert.Equal(t, &Value{
-	// 	t: TypeText,
-	// 	v: "a",
-	// }, NewWithTypeRegistry(TypeText, "a", nil))
+	m = NewMultiple(TypeBool, []*Value{New(TypeBool, true), New(TypeText, "test")})
+	assert.Nil(t, m)
+
+	v := []*Value{New(TypeBool, true), New(TypeBool, false)}
+	m = NewMultiple(TypeBool, v)
+	assert.NotNil(t, m)
+	assert.Equal(t, TypeBool, m.t)
+	assert.Equal(t, v, m.v)
+	assert.NotSame(t, v, m.v)
+
 }
 
 func TestMultiple_IsEmpty(t *testing.T) {
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  bool
-	// }{
-	// 	{
-	// 		name: "empty",
-	// 		want: true,
-	// 	},
-	// 	{
-	// 		name: "nil",
-	// 		want: true,
-	// 	},
-	// 	{
-	// 		name:  "empty string",
-	// 		value: &Value{t: TypeText, v: ""},
-	// 		want:  true,
-	// 	},
-	// 	{
-	// 		name:  "non-empty",
-	// 		value: &Value{t: TypeText, v: "a"},
-	// 		want:  false,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.IsEmpty())
-	// 	})
-	// }
+	var m *Multiple = nil
+	assert.True(t, m.IsEmpty())
+
+	m = &Multiple{}
+	assert.True(t, m.IsEmpty())
+
+	m.t = TypeBool
+	assert.True(t, m.IsEmpty())
+
+	m.v = nil
+	assert.True(t, m.IsEmpty())
+
+	m.v = []*Value{}
+	assert.True(t, m.IsEmpty())
+
+	m.v = []*Value{New(TypeBool, true)}
+	assert.False(t, m.IsEmpty())
 }
 
 func TestMultiple_Clone(t *testing.T) {
-	// tp := &tpmock{}
-	// tpm := TypeRegistry{
-	// 	Type("hoge"): tp,
-	// }
-	//
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  *Value
-	// }{
-	// 	{
-	// 		name: "ok",
-	// 		value: &Value{
-	// 			t: TypeText,
-	// 			v: "foo",
-	// 		},
-	// 		want: &Value{
-	// 			t: TypeText,
-	// 			v: "foo",
-	// 		},
-	// 	},
-	// 	{
-	// 		name: "custom type property",
-	// 		value: &Value{
-	// 			t: Type("hoge"),
-	// 			v: "foo",
-	// 			p: tpm,
-	// 		},
-	// 		want: &Value{
-	// 			t: Type("hoge"),
-	// 			v: "fooa",
-	// 			p: tpm,
-	// 		},
-	// 	},
-	// 	{
-	// 		name:  "nil",
-	// 		value: nil,
-	// 		want:  nil,
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  nil,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.Clone())
-	// 	})
-	// }
+	m := &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+
+	assert.Equal(t, m, m.Clone())
+	assert.NotSame(t, m, m.Clone())
+
+	m = nil
+	assert.Equal(t, m, m.Clone())
 }
 
-func TestMultiple_Some(t *testing.T) {
-	// tp := &tpmock{}
-	// tpm := TypeRegistry{
-	// 	Type("hoge"): tp,
-	// }
-	//
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  *Optional
-	// }{
-	// 	{
-	// 		name: "ok",
-	// 		value: &Value{
-	// 			t: TypeText,
-	// 			v: "foo",
-	// 		},
-	// 		want: &Optional{
-	// 			t: TypeText,
-	// 			v: &Value{
-	// 				t: TypeText,
-	// 				v: "foo",
-	// 			},
-	// 		},
-	// 	},
-	// 	{
-	// 		name: "custom type property",
-	// 		value: &Value{
-	// 			t: Type("hoge"),
-	// 			v: "fooa",
-	// 			p: tpm,
-	// 		},
-	// 		want: &Optional{
-	// 			t: Type("hoge"),
-	// 			v: &Value{
-	// 				t: Type("hoge"),
-	// 				v: "fooa",
-	// 				p: tpm,
-	// 			},
-	// 		},
-	// 	},
-	// 	{
-	// 		name:  "nil",
-	// 		value: nil,
-	// 		want:  nil,
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  nil,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.Some())
-	// 	})
-	// }
-}
+func TestMultiple_Values(t *testing.T) {
+	v := []*Value{New(TypeBool, true), New(TypeBool, false)}
+	m := &Multiple{
+		t: TypeBool,
+		v: v,
+	}
 
-func TestMultiple_Value(t *testing.T) {
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  any
-	// }{
-	// 	{
-	// 		name:  "ok",
-	// 		value: &Value{t: TypeText, v: "a"},
-	// 		want:  "a",
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 	},
-	// 	{
-	// 		name: "nil",
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		if tt.want == nil {
-	// 			assert.Nil(t, tt.value.Value())
-	// 		} else {
-	// 			assert.Equal(t, tt.want, tt.value.Value())
-	// 		}
-	// 	})
-	// }
+	assert.Equal(t, v, m.Values())
+	assert.NotSame(t, v, m.Values())
+
+	m = nil
+	assert.Nil(t, m.Values())
 }
 
 func TestMultiple_Type(t *testing.T) {
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  Type
-	// }{
-	// 	{
-	// 		name:  "ok",
-	// 		value: &Value{t: TypeText, v: "a"},
-	// 		want:  TypeText,
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  TypeUnknown,
-	// 	},
-	// 	{
-	// 		name: "nil",
-	// 		want: TypeUnknown,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.Type())
-	// 	})
-	// }
-}
+	m := &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
 
-func TestMultiple_TypeProperty(t *testing.T) {
-	// tp := &tpmock{}
-	// tpm := TypeRegistry{
-	// 	Type("hoge"): tp,
-	// }
-	//
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  TypeProperty
-	// }{
-	// 	{
-	// 		name: "default type",
-	// 		value: &Value{
-	// 			v: "string",
-	// 			t: TypeText,
-	// 		},
-	// 		want: defaultTypes.Get(TypeText),
-	// 	},
-	// 	{
-	// 		name: "custom type",
-	// 		value: &Value{
-	// 			v: "string",
-	// 			t: Type("hoge"),
-	// 			p: tpm,
-	// 		},
-	// 		want: tp,
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  nil,
-	// 	},
-	// 	{
-	// 		name: "nil",
-	// 		want: nil,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		res := tt.value.TypeProperty()
-	// 		if tt.want == nil {
-	// 			assert.Nil(t, res)
-	// 		} else {
-	// 			assert.Same(t, tt.want, res)
-	// 		}
-	// 	})
-	// }
+	assert.Equal(t, m.Type(), TypeBool)
+
+	m = nil
+	assert.Equal(t, m.Type(), TypeUnknown)
 }
 
 func TestMultiple_Interface(t *testing.T) {
-	// tp := &tpmock{}
-	// tpm := TypeRegistry{
-	// 	"foo": tp,
-	// }
-	//
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  any
-	// }{
-	// 	{
-	// 		name:  "string",
-	// 		value: &Value{t: TypeText, v: "hoge"},
-	// 		want:  "hoge",
-	// 	},
-	// 	{
-	// 		name: "custom",
-	// 		value: &Value{
-	// 			p: tpm,
-	// 			t: Type("foo"),
-	// 			v: "foo",
-	// 		},
-	// 		want: "foobar",
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  nil,
-	// 	},
-	// 	{
-	// 		name:  "nil",
-	// 		value: nil,
-	// 		want:  nil,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.Interface())
-	// 	})
-	// }
+	m := &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+	assert.Equal(t, []any{true, false}, m.Interface())
+
+	m = nil
+	assert.Nil(t, m.Interface())
 }
 
 func TestMultiple_Validate(t *testing.T) {
-	// tp := &tpmock{}
-	// tpm := TypeRegistry{
-	// 	"foo": tp,
-	// }
-	//
-	// tests := []struct {
-	// 	name  string
-	// 	value *Value
-	// 	want  bool
-	// }{
-	// 	{
-	// 		name:  "string",
-	// 		value: &Value{t: TypeText, v: "hoge"},
-	// 		want:  true,
-	// 	},
-	// 	{
-	// 		name: "custom",
-	// 		value: &Value{
-	// 			p: tpm,
-	// 			t: Type("foo"),
-	// 			v: "foo",
-	// 		},
-	// 		want: true,
-	// 	},
-	// 	{
-	// 		name:  "empty",
-	// 		value: &Value{},
-	// 		want:  false,
-	// 	},
-	// 	{
-	// 		name:  "nil",
-	// 		value: nil,
-	// 		want:  false,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.value.Validate())
-	// 	})
-	// }
+	m := &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+
+	assert.Equal(t, m.Validate(), true)
+
+	m = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, "test")},
+	}
+
+	assert.Equal(t, m.Validate(), false)
 }
 
 func TestMultiple_Equal(t *testing.T) {
-	// type args struct {
-	// 	v *Value
-	// }
-	//
-	// tests := []struct {
-	// 	name   string
-	// 	target *Value
-	// 	args   args
-	// 	want   bool
-	// }{
-	// 	{
-	// 		name:   "diff type",
-	// 		target: &Value{t: TypeNumber, v: 1.1},
-	// 		args:   args{v: TypeText.Value("1.1")},
-	// 		want:   false,
-	// 	},
-	// 	{
-	// 		name:   "same type",
-	// 		target: &Value{t: TypeNumber, v: 1.1},
-	// 		args:   args{v: TypeNumber.Value(1.1)},
-	// 		want:   true,
-	// 	},
-	// 	{
-	// 		name:   "empty",
-	// 		target: &Value{},
-	// 		args:   args{v: TypeText.Value("")},
-	// 		want:   false,
-	// 	},
-	// 	{
-	// 		name:   "nil",
-	// 		target: nil,
-	// 		args:   args{v: TypeText.Value("")},
-	// 		want:   false,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.target.Equal(tt.args.v))
-	// 	})
-	// }
+	var m, w *Multiple = nil, nil
+	assert.Equal(t, m.Equal(w), true)
+
+	m = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+	assert.Equal(t, m.Equal(w), false)
+
+	w = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true)},
+	}
+	assert.Equal(t, m.Equal(w), false)
+
+	w = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false), New(TypeBool, false)},
+	}
+	assert.Equal(t, m.Equal(w), false)
+
+	w = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, false), New(TypeBool, false)},
+	}
+	assert.Equal(t, m.Equal(w), false)
+
+	w = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+	assert.Equal(t, m.Equal(w), true)
 }
 
 func TestMultiple_Cast(t *testing.T) {
-	// type args struct {
-	// 	t Type
-	// }
-	//
-	// tests := []struct {
-	// 	name   string
-	// 	target *Value
-	// 	args   args
-	// 	want   *Value
-	// }{
-	// 	{
-	// 		name:   "diff type",
-	// 		target: &Value{t: TypeNumber, v: 1.1},
-	// 		args:   args{t: TypeText},
-	// 		want:   &Value{t: TypeText, v: "1.1"},
-	// 	},
-	// 	{
-	// 		name:   "same type",
-	// 		target: &Value{t: TypeNumber, v: 1.1},
-	// 		args:   args{t: TypeNumber},
-	// 		want:   &Value{t: TypeNumber, v: 1.1},
-	// 	},
-	// 	{
-	// 		name:   "failed to cast",
-	// 		target: &Value{t: TypeBool, v: true},
-	// 		args:   args{t: TypeDateTime},
-	// 		want:   nil,
-	// 	},
-	// 	{
-	// 		name:   "empty",
-	// 		target: &Value{},
-	// 		args:   args{t: TypeText},
-	// 		want:   nil,
-	// 	},
-	// 	{
-	// 		name:   "nil",
-	// 		target: nil,
-	// 		args:   args{t: TypeText},
-	// 		want:   nil,
-	// 	},
-	// }
-	//
-	// for _, tt := range tests {
-	// 	tt := tt
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		t.Parallel()
-	// 		assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))
-	// 	})
-	// }
+	m := &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
+	}
+	w := &Multiple{
+		t: TypeText,
+		v: []*Value{New(TypeText, "true"), New(TypeText, "false")},
+	}
+	assert.Equal(t, w, m.Cast(TypeText))
+
+	assert.Equal(t, m.Cast(TypeBool), m.Clone())
+	assert.NotSame(t, m.Cast(TypeBool), m.Clone())
+
+	m = nil
+	assert.Nil(t, m.Cast(TypeText))
 }

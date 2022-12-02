@@ -63,6 +63,6 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValue(v *value.Optional) any {
-	return v.Value().Interface()
+func ToValue(v *value.Multiple) any {
+	return v.Interface()
 }

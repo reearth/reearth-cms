@@ -19,7 +19,7 @@ func TestToItem(t *testing.T) {
 	pid := id.NewProjectID()
 	sfid := id.NewFieldID()
 	i := item.New().ID(iid).Schema(sid).Project(pid).Fields(
-		[]*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())},
+		[]*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())},
 	).Model(mid).Thread(tid).MustBuild()
 
 	tests := []struct {
@@ -40,7 +40,7 @@ func TestToItem(t *testing.T) {
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sfid),
-						Type:          SchemaFiledTypeBool,
+						Type:          SchemaFieldTypeBool,
 						Value:         true,
 					},
 				},
@@ -72,7 +72,7 @@ func TestToItemParam(t *testing.T) {
 			name: "should return ItemFieldParam",
 			input: &ItemFieldInput{
 				SchemaFieldID: IDFrom(sfid),
-				Type:          SchemaFiledTypeText,
+				Type:          SchemaFieldTypeText,
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
@@ -104,7 +104,7 @@ func TestToVersionedItem(t *testing.T) {
 	sid := id.NewSchemaID()
 	sfid := id.NewFieldID()
 	ref := "a"
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)

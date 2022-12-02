@@ -64,8 +64,8 @@ func FromValueType(t SchemaFieldType) value.Type {
 	}
 }
 
-func ToValue(v *value.Optional) any {
-	return v.Value().Interface()
+func ToValue(v *value.Multiple) any {
+	return v.Interface()
 }
 
 func FromValue(t SchemaFieldType, v any) *value.Value {

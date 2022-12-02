@@ -14,62 +14,62 @@ func TestValueType(t *testing.T) {
 	tests := []struct {
 		name string
 		t    value.Type
-		want SchemaFiledType
+		want SchemaFieldType
 	}{
 		{
 			name: "TypeText",
 			t:    value.TypeText,
-			want: SchemaFiledTypeText,
+			want: SchemaFieldTypeText,
 		},
 		{
 			name: "TypeTextArea",
 			t:    value.TypeTextArea,
-			want: SchemaFiledTypeTextArea,
+			want: SchemaFieldTypeTextArea,
 		},
 		{
 			name: "TypeRichText",
 			t:    value.TypeRichText,
-			want: SchemaFiledTypeRichText,
+			want: SchemaFieldTypeRichText,
 		},
 		{
 			name: "TypeMarkdown",
 			t:    value.TypeMarkdown,
-			want: SchemaFiledTypeMarkdownText,
+			want: SchemaFieldTypeMarkdownText,
 		},
 		{
 			name: "TypeAsset",
 			t:    value.TypeAsset,
-			want: SchemaFiledTypeAsset,
+			want: SchemaFieldTypeAsset,
 		},
 		{
 			name: "TypeDate",
 			t:    value.TypeDateTime,
-			want: SchemaFiledTypeDate,
+			want: SchemaFieldTypeDate,
 		},
 		{
 			name: "TypeBool",
 			t:    value.TypeBool,
-			want: SchemaFiledTypeBool,
+			want: SchemaFieldTypeBool,
 		},
 		{
 			name: "TypeSelect",
 			t:    value.TypeSelect,
-			want: SchemaFiledTypeSelect,
+			want: SchemaFieldTypeSelect,
 		},
 		{
 			name: "TypeInteger",
 			t:    value.TypeInteger,
-			want: SchemaFiledTypeInteger,
+			want: SchemaFieldTypeInteger,
 		},
 		{
 			name: "TypeReference",
 			t:    value.TypeReference,
-			want: SchemaFiledTypeReference,
+			want: SchemaFieldTypeReference,
 		},
 		{
 			name: "TypeURL",
 			t:    value.TypeURL,
-			want: SchemaFiledTypeURL,
+			want: SchemaFieldTypeURL,
 		},
 		{
 			name: "invalid",
@@ -169,7 +169,7 @@ func TestToValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToValue(tt.v.Some()))
+			assert.Equal(t, tt.want, ToValue(tt.v.AsMultiple()))
 		})
 	}
 }
@@ -181,79 +181,79 @@ func TestFromValue(t *testing.T) {
 
 	tests := []struct {
 		name string
-		t    SchemaFiledType
+		t    SchemaFieldType
 		v    any
 		want *value.Value
 	}{
 		{
 			name: "TypeText",
-			t:    SchemaFiledTypeText,
+			t:    SchemaFieldTypeText,
 			v:    "aaa",
 			want: value.TypeText.Value("aaa"),
 		},
 		{
 			name: "TypeTextArea",
-			t:    SchemaFiledTypeTextArea,
+			t:    SchemaFieldTypeTextArea,
 			v:    "aaa",
 			want: value.TypeTextArea.Value("aaa"),
 		},
 		{
 			name: "TypeRichText",
-			t:    SchemaFiledTypeRichText,
+			t:    SchemaFieldTypeRichText,
 			v:    "aaa",
 			want: value.TypeRichText.Value("aaa"),
 		},
 		{
 			name: "TypeMarkdown",
-			t:    SchemaFiledTypeMarkdownText,
+			t:    SchemaFieldTypeMarkdownText,
 			v:    "aaa",
 			want: value.TypeMarkdown.Value("aaa"),
 		},
 		{
 			name: "TypeAsset",
-			t:    SchemaFiledTypeAsset,
+			t:    SchemaFieldTypeAsset,
 			v:    aid,
 			want: value.TypeAsset.Value(aid),
 		},
 		{
 			name: "TypeDate",
-			t:    SchemaFiledTypeDate,
+			t:    SchemaFieldTypeDate,
 			v:    now.Format(time.RFC3339),
 			want: value.TypeDateTime.Value(now),
 		},
 		{
 			name: "TypeBool",
-			t:    SchemaFiledTypeBool,
+			t:    SchemaFieldTypeBool,
 			v:    true,
 			want: value.TypeBool.Value(true),
 		},
 		{
 			name: "TypeSelect",
-			t:    SchemaFiledTypeSelect,
+			t:    SchemaFieldTypeSelect,
 			v:    "aaa",
 			want: value.TypeSelect.Value("aaa"),
 		},
 		{
 			name: "TypeInteger",
-			t:    SchemaFiledTypeInteger,
+			t:    SchemaFieldTypeInteger,
 			v:    int64(100),
 			want: value.TypeInteger.Value(lo.ToPtr(100)),
 		},
 		{
 			name: "TypeReference",
-			t:    SchemaFiledTypeReference,
+			t:    SchemaFieldTypeReference,
 			v:    iid,
 			want: value.TypeReference.Value(iid),
 		},
 		{
 			name: "TypeURL",
-			t:    SchemaFiledTypeURL,
+			t:    SchemaFieldTypeURL,
 			v:    "https://example.com",
 			want: value.TypeURL.Value("https://example.com"),
 		},
 		{
 			name: "nil",
-			t:    SchemaFiledTypeBool,
+			t:    SchemaFieldTypeBool,
 			v:    nil,
 			want: nil,
 		},

@@ -165,8 +165,8 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	i := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -190,8 +190,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	mid := id.NewModelID()
 	i := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -201,7 +201,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	_ = r.Save(ctx, i2)
 	got, _ := r.FindByModelAndValue(ctx, mid, []repo.FieldAndValue{{
 		Field: f1.FieldID(),
-		Value: f1.Value().Value(),
+		Value: f1.Value(),
 	}})
 	assert.Equal(t, 1, len(got))
 

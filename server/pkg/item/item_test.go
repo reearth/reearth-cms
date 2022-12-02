@@ -13,7 +13,7 @@ import (
 func TestItem_UpdateFields(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()
-	f := NewField(id.NewFieldID(), value.TypeText.Value("test").Some())
+	f := NewField(id.NewFieldID(), value.TypeText.Value("test").AsMultiple())
 	fid, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 
 	tests := []struct {
@@ -34,20 +34,20 @@ func TestItem_UpdateFields(t *testing.T) {
 		{
 			name: "should update fields",
 			input: []*Field{
-				NewField(fid, value.TypeText.Value("test2").Some()),
-				NewField(fid3, value.TypeText.Value("test!!").Some()),
+				NewField(fid, value.TypeText.Value("test2").AsMultiple()),
+				NewField(fid3, value.TypeText.Value("test!!").AsMultiple()),
 			},
 			target: &Item{
 				fields: []*Field{
-					NewField(fid, value.TypeText.Value("test").Some()),
-					NewField(fid2, value.TypeText.Value("test!").Some()),
+					NewField(fid, value.TypeText.Value("test").AsMultiple()),
+					NewField(fid2, value.TypeText.Value("test!").AsMultiple()),
 				},
 			},
 			want: &Item{
 				fields: []*Field{
-					NewField(fid, value.TypeText.Value("test2").Some()),
-					NewField(fid2, value.TypeText.Value("test!").Some()),
-					NewField(fid3, value.TypeText.Value("test!!").Some()),
+					NewField(fid, value.TypeText.Value("test2").AsMultiple()),
+					NewField(fid2, value.TypeText.Value("test!").AsMultiple()),
+					NewField(fid3, value.TypeText.Value("test!!").AsMultiple()),
 				},
 				timestamp: now,
 			},
@@ -116,8 +116,8 @@ func TestItem_Filtered(t *testing.T) {
 }
 
 func TestItem_HasField(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").Some())
-	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").Some())
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
+	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple())
 	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	type args struct {

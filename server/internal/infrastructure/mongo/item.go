@@ -86,7 +86,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.VersionedList, error) {
 	filters := make([]bson.M, 0, len(fields))
 	for _, f := range fields {
-		v := mongodoc.NewValue(f.Value)
+		v := mongodoc.NewMultipleValue(f.Value)
 		if v == nil {
 			continue
 		}

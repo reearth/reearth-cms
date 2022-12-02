@@ -44,7 +44,7 @@ func (*propertyBool) Validate(i any) bool {
 
 func (*propertyBool) Equal(v, w any) bool {
 	vv := v.(Bool)
-	ww := v.(Bool)
+	ww := w.(Bool)
 	return vv == ww
 }
 

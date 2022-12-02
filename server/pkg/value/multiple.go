@@ -1,51 +1,55 @@
 package value
 
+import (
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
+)
+
 type Multiple struct {
-	t  Type
-	tr TypeRegistry
-	v  []*Value
+	t Type
+	v []*Value
 }
 
 func NewMultiple(t Type, v []*Value) *Multiple {
-	return NewMultipleWithTypeRegistry(t, v, nil)
-}
-
-func NewMultipleWithTypeRegistry(t Type, v []*Value, tr TypeRegistry) *Multiple {
-	vs := Multiple{
-		t:  t,
-		tr: tr,
-		v:  []*Value{},
+	if t == TypeUnknown {
+		return nil
 	}
-	for _, value := range v {
-		v = append(v, t.ValueFrom(value, tr))
+	ok := lo.EveryBy(v, func(w *Value) bool {
+		return w.Type() == t
+	})
+	if !ok {
+		return nil
 	}
-	return &vs
+	return &Multiple{
+		t: t,
+		v: slices.Clone(v),
+	}
 }
 
 func (m *Multiple) IsEmpty() bool {
-	if m == nil || m.t == TypeUnknown || m.v == nil || len(m.v) == 0 {
-		return true
-	}
-	tp := m.TypeProperty()
-	return tp == nil || tp.IsEmpty(m.v)
+	return m == nil || m.t == TypeUnknown || len(m.v) == 0
 }
 
-func (m *Multiple) Clone() *Value {
+func (m *Multiple) Clone() *Multiple {
 	if m == nil {
 		return nil
 	}
-	return m.t.ValueFrom(m.v, m.tr)
+	v := lo.Map(m.v, func(v *Value, _ int) *Value {
+		return v.Clone()
+	})
+	return &Multiple{
+		t: m.t,
+		v: v,
+	}
 }
 
-// func (m *Multiple) Some() *Optional {
-// 	return OptionalFrom(m)
-// }
-
-func (m *Multiple) Value() interface{} {
+func (m *Multiple) Values() []*Value {
 	if m == nil {
 		return nil
 	}
-	return m.v
+	return lo.Map(m.v, func(v *Value, _ int) *Value {
+		return v.Clone()
+	})
 }
 
 func (m *Multiple) Type() Type {
@@ -55,54 +59,49 @@ func (m *Multiple) Type() Type {
 	return m.t
 }
 
-func (m *Multiple) TypeProperty() (tp TypeProperty) {
-	if m == nil {
-		return
-	}
-	if tp := m.tr.Find(m.t); tp != nil {
-		return tp
-	}
-	return
-}
-
 // Interface converts the value into generic representation
-func (m *Multiple) Interface() any {
+func (m *Multiple) Interface() []any {
 	if m.IsEmpty() {
 		return nil
 	}
 
-	if i, ok := m.tr.ToInterface(m.t, m.v); ok {
-		return i
-	}
-	return nil
+	return lo.Map(m.v, func(v *Value, i int) any {
+		return v.Interface()
+	})
 }
 
 func (m *Multiple) Validate() bool {
-	if m.IsEmpty() {
-		return false
-	}
-
-	for _, v := range m.v {
-		if valid, _ := m.tr.Validate(m.t, v); !valid {
-			return false
-		}
-	}
-	return true
+	return lo.EveryBy(m.v, func(v *Value) bool {
+		return v.Validate()
+	})
 }
 
 func (m *Multiple) Equal(w *Multiple) bool {
-	if m == nil || w == nil || m.t != w.t {
+	if m == nil && w == nil {
+		return true
+	}
+	if m == nil || w == nil || m.t != w.t || len(m.v) != len(w.v) {
 		return false
 	}
-	return m.tr.Find(m.t).Equal(m.v, w.v)
+	z := lo.Zip2(m.v, w.v)
+	return lo.EveryBy(z, func(vv lo.Tuple2[*Value, *Value]) bool {
+		return vv.A.Equal(vv.B)
+	})
 }
 
-func (m *Multiple) Cast(t Type) *Value {
+func (m *Multiple) Cast(t Type) *Multiple {
 	if m == nil {
 		return nil
 	}
 	if m.t == t {
 		return m.Clone()
 	}
-	return t.ValueFrom(m.v, m.tr)
+	v := lo.FilterMap(m.v, func(v *Value, _ int) (*Value, bool) {
+		c := v.Cast(t)
+		return c, c != nil
+	})
+	return &Multiple{
+		t: t,
+		v: v,
+	}
 }

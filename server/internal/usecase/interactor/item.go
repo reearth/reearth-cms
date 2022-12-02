@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -31,11 +32,11 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	}
 }
 
-func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
 	return i.repos.Item.FindByID(ctx, itemID)
 }
 
-func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindByIDs(ctx, ids)
 }
 
@@ -46,22 +47,22 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	return i.repos.Item.FindByProject(ctx, projectID, p)
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	sfids := s.Fields().IDs()
+	sfIds := s.Fields().IDs()
 	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
-	return res.FilterFields(sfids), page, err
+	return res.FilterFields(sfIds), page, err
 }
 
-func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.VersionedList, error) {
+func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	return i.repos.Item.Search(ctx, q, p)
 }
 
@@ -226,7 +227,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 			return interfaces.ErrInvalidField
 		}
 
-		vv := f.Value().Value()
+		vv := f.Value()
 		if !sf.Unique() || vv.IsEmpty() {
 			continue
 		}
@@ -256,18 +257,30 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		v := sf.Type().Value(f.Value)
-		if v == nil {
-			return nil, interfaces.ErrInvalidValue
+		var v []*value.Value
+		if !sf.Multiple() && sf.Type() != value.TypeSelect {
+			f.Value = []any{f.Value}
 		}
 
-		if err := sf.Validate(v); err != nil {
-			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
+		for _, fv := range f.Value.([]any) {
+			w := sf.Type().Value(fv)
+			if w == nil {
+				return nil, interfaces.ErrInvalidValue
+			}
+
+			if err := sf.Validate(w); err != nil {
+				return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
+			}
+			v = append(v, w)
+		}
+
+		if sf.Required() && len(v) == 0 {
+			return nil, schema.ErrValueRequired
 		}
 
 		return item.NewField(
 			f.Field,
-			v.Some(),
+			value.NewMultiple(sf.Type(), v),
 		), nil
 	})
 }
