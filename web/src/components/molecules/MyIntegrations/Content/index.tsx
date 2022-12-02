@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Form";
+import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrations/Settings";
 import {
   Integration,
   WebhookTrigger,
@@ -33,6 +33,7 @@ export type Props = {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
+  onIntegrationDelete: () => Promise<void>;
   // onWebhookFormHeaderBack: () => void;
   // onWebhookFormNavigation: () => void;
   // onWebhookEditNavigation: (webhookId: string) => void;
@@ -48,6 +49,7 @@ const MyIntegrationContent: React.FC<Props> = ({
   onWebhookDelete,
   onWebhookUpdate,
   onIntegrationHeaderBack,
+  onIntegrationDelete,
   onWebhookSelect,
   // onWebhookFormHeaderBack,
   // onWebhookFormNavigation,
@@ -64,7 +66,11 @@ const MyIntegrationContent: React.FC<Props> = ({
         // onChange={onTabChange}
       >
         <TabPane tab="General" key="integration">
-          <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
+          <MyIntegrationSettings
+            integration={integration}
+            onIntegrationUpdate={onIntegrationUpdate}
+            onIntegrationDelete={onIntegrationDelete}
+          />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
           <Webhook
