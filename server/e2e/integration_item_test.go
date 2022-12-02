@@ -23,13 +23,14 @@ import (
 )
 
 var (
-	uId   = id.NewUserID()
-	iId   = id.NewIntegrationID()
-	mId   = id.NewModelID()
-	itmId = id.NewItemID()
-	fId   = id.NewFieldID()
-	thId  = id.NewThreadID()
-	icId  = id.NewCommentID()
+	secret = "secret_1234567890"
+	uId    = id.NewUserID()
+	iId    = id.NewIntegrationID()
+	mId    = id.NewModelID()
+	itmId  = id.NewItemID()
+	fId    = id.NewFieldID()
+	thId   = id.NewThreadID()
+	icId   = id.NewCommentID()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -46,7 +47,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("i1").
 		Description("i1 desc").
 		LogoUrl(lo.Must(url.Parse("https://test.com"))).
-		Token("secret_1234567890").
+		Token(secret).
 		Developer(id.NewUserID()).
 		MustBuild()
 	if err := r.Integration.Save(ctx, i); err != nil {
@@ -133,14 +134,14 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.GET("/api/models/{modelId}/items", id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
 	e.GET("/api/models/{modelId}/items", mId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
@@ -169,12 +170,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.POST(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
 	r := e.POST("/api/models/{modelId}/items", mId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]string{
@@ -219,12 +220,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.POST("/api/models/{modelId}/items", id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
 	r := e.POST("/api/models/{modelId}/items", mId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]string{
@@ -269,12 +270,12 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.GET("/api/items/{itemId}", id.NewItemID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	e.GET("/api/items/{itemId}", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -292,7 +293,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.GET("/api/items/{itemId}", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -300,7 +301,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
 	e.DELETE("/api/items/{itemId}", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -308,7 +309,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Contains("id")
 
 	e.GET("/api/items/{itemId}", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 }

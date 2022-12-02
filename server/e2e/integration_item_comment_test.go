@@ -28,14 +28,14 @@ func TestIntegrationItemCommentListAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.GET("/api/items/{itemId}/comments", id.NewItemID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
 	r := e.GET("/api/items/{itemId}/comments", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
@@ -69,12 +69,12 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.POST("/api/items/{itemId}/comments", id.NewItemID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	c := e.POST("/api/items/{itemId}/comments", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test",
 		}).
@@ -108,12 +108,12 @@ func TestIntegrationUpdateItemCommentAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.PATCH("/api/items/{itemId}/comments/{commentId}", id.NewItemID(), id.NewCommentID()).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	r := e.PATCH("/api/items/{itemId}/comments/{commentId}", itmId, icId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "updated content",
 		}).
@@ -139,7 +139,7 @@ func TestIntegrationDeleteItemCommentAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	e.DELETE("/api/items/{itemId}/comments/{commentId}", itmId, icId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -147,7 +147,7 @@ func TestIntegrationDeleteItemCommentAPI(t *testing.T) {
 		Contains("id")
 
 	e.GET("/api/items/{itemId}/comments", itmId).
-		WithHeader("authorization", "Bearer secret_1234567890").
+		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object().Value("comments").Array().Empty()
