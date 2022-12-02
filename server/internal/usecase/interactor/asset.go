@@ -118,7 +118,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				File(f).
 				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
-				Thread(th.ID())
+				Thread(th.ID()).
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusPending))
 
 			if op.User != nil {
 				ab.CreatedByUser(*op.User)
@@ -141,6 +142,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Path:    a.RootPath(),
 			}
 			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+				return nil, err
+			}
+
+			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress))
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
 
@@ -188,7 +194,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -222,6 +228,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, op *usecase.Ope
 			})
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
+			a.UpdateArchiveExtractionStatus(s)
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
