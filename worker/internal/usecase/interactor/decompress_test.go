@@ -8,6 +8,7 @@ import (
 
 	wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/worker/pkg/asset"
 
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
@@ -63,6 +64,6 @@ func NewCMS() *mockCMS {
 	return &mockCMS{}
 }
 
-func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string) error {
+func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string, status *asset.ArchiveExtractionStatus) error {
 	return nil
 }
