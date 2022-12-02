@@ -18,7 +18,10 @@ import (
 func TestEvent_FindByID(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
+		CreatedByUser(u.ID()).Thread(id.NewThreadID()).
+		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).
+		MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
@@ -43,7 +46,10 @@ func TestEvent_FindByID(t *testing.T) {
 func TestEvent_Save(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
+		CreatedByUser(u.ID()).Thread(id.NewThreadID()).
+		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).
+		MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
 

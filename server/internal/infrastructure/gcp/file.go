@@ -29,10 +29,9 @@ type fileRepo struct {
 	bucketName   string
 	base         *url.URL
 	cacheControl string
-	host         string
 }
 
-func NewFile(bucketName, base, cacheControl, host string) (gateway.File, error) {
+func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
@@ -52,7 +51,6 @@ func NewFile(bucketName, base, cacheControl, host string) (gateway.File, error) 
 		bucketName:   bucketName,
 		base:         u,
 		cacheControl: cacheControl,
-		host:         host,
 	}, nil
 }
 
@@ -138,7 +136,7 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
-	return getURL(f.host, a.UUID(), a.FileName())
+	return getURL(f.base, a.UUID(), a.FileName())
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
@@ -251,7 +249,6 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
-func getURL(host, uuid, fName string) string {
-	url, _ := url.JoinPath(host, gcsAssetBasePath, uuid[:2], uuid[2:], fName)
-	return url
+func getURL(host *url.URL, uuid, fName string) string {
+	return host.JoinPath(gcsAssetBasePath, uuid[:2], uuid[2:], fName).String()
 }

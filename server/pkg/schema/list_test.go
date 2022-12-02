@@ -4,8 +4,17 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestFieldList_Find(t *testing.T) {
+	f := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	assert.Equal(t, f, FieldList{f, f2}.Find(f.ID()))
+	assert.Equal(t, f2, FieldList{f, f2}.Find(f2.ID()))
+	assert.Nil(t, FieldList{f, f2}.Find(NewFieldID()))
+}
 
 func TestList_SortByID(t *testing.T) {
 	id1 := NewID()
