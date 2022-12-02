@@ -96,26 +96,28 @@ export default () => {
       (async () => {
         if (!projectId) return [];
         setUploading(true);
-        const results = (
-          await Promise.all(
-            files.map(async file => {
-              const result = await createAssetMutation({
-                variables: { projectId, file },
-              });
-              if (result.errors || !result.data?.createAsset) {
-                Notification.error({ message: t("Failed to add one or more assets.") });
-                handleUploadModalCancel();
-                return undefined;
-              }
-              return convertAsset(result.data.createAsset.asset as GQLAsset);
-            }),
-          )
-        ).filter(Boolean);
-        if (results?.length > 0) {
-          Notification.success({ message: t("Successfully added one or more assets!") });
-          await refetch();
+        let results: (Asset | undefined)[] = [];
+        try {
+          results = (
+            await Promise.all(
+              files.map(async file => {
+                const result = await createAssetMutation({
+                  variables: { projectId, file },
+                });
+                if (result.errors || !result.data?.createAsset) return undefined;
+                return convertAsset(result.data.createAsset.asset as GQLAsset);
+              }),
+            )
+          ).filter(Boolean);
+          if (results?.length > 0) {
+            Notification.success({ message: t("Successfully added one or more assets!") });
+            await refetch();
+          }
+        } catch {
+          Notification.error({ message: t("Failed to add one or more assets.") });
+        } finally {
+          handleUploadModalCancel();
         }
-        handleUploadModalCancel();
         return results;
       })(),
     [projectId, handleUploadModalCancel, createAssetMutation, t, refetch],
