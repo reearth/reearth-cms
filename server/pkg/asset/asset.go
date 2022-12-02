@@ -8,17 +8,18 @@ import (
 )
 
 type Asset struct {
-	id          ID
-	project     ProjectID
-	createdAt   time.Time
-	user        *UserID
-	integration *IntegrationID
-	fileName    string
-	size        uint64
-	previewType *PreviewType
-	file        *File
-	uuid        string
-	thread      ThreadID
+	id                      ID
+	project                 ProjectID
+	createdAt               time.Time
+	user                    *UserID
+	integration             *IntegrationID
+	fileName                string
+	size                    uint64
+	previewType             *PreviewType
+	file                    *File
+	uuid                    string
+	thread                  ThreadID
+	archiveExtractionStatus *ArchiveExtractionStatus
 }
 
 type URLResolver = func(*Asset) string
@@ -70,6 +71,13 @@ func (a *Asset) UUID() string {
 	return a.uuid
 }
 
+func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
+	if a.archiveExtractionStatus == nil {
+		return nil
+	}
+	return a.archiveExtractionStatus
+}
+
 func (a *Asset) RootPath() string {
 	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
 }
@@ -78,23 +86,28 @@ func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
 }
 
+func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
+	a.archiveExtractionStatus = util.CloneRef(s)
+}
+
 func (a *Asset) Clone() *Asset {
 	if a == nil {
 		return nil
 	}
 
 	return &Asset{
-		id:          a.id.Clone(),
-		project:     a.project.Clone(),
-		createdAt:   a.createdAt,
-		user:        a.user.CloneRef(),
-		integration: a.integration.CloneRef(),
-		fileName:    a.fileName,
-		size:        a.size,
-		previewType: a.previewType,
-		file:        a.file,
-		uuid:        a.uuid,
-		thread:      a.thread.Clone(),
+		id:                      a.id.Clone(),
+		project:                 a.project.Clone(),
+		createdAt:               a.createdAt,
+		user:                    a.user.CloneRef(),
+		integration:             a.integration.CloneRef(),
+		fileName:                a.fileName,
+		size:                    a.size,
+		previewType:             a.previewType,
+		file:                    a.file,
+		uuid:                    a.uuid,
+		thread:                  a.thread.Clone(),
+		archiveExtractionStatus: a.archiveExtractionStatus,
 	}
 }
 
