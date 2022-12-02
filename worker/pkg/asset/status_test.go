@@ -39,7 +39,7 @@ func TestArchiveExtractionStatusFrom(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestStatus_StatusFromRef(t *testing.T) {
+func TestArchiveExtractionStatusFromRef(t *testing.T) {
 	p := ArchiveExtractionStatusPending
 	ip := ArchiveExtractionStatusInProgress
 	d := ArchiveExtractionStatusDone
