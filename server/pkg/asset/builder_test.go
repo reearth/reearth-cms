@@ -148,6 +148,34 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoThread,
 		},
 		{
+			name: "fail: no file",
+			input: Input{
+				id:            aid,
+				project:       pid,
+				createdByUser: uid,
+				fileName:      "hoge",
+				size:          size,
+				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:        thid,
+			},
+			err: ErrNoFile,
+		},
+		{
+			name: "fail: no uuid",
+			input: Input{
+				id:            aid,
+				project:       pid,
+				createdByUser: uid,
+				fileName:      "hoge",
+				size:          size,
+				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				file:          &f,
+				thread:        thid,
+			},
+			err: ErrNoUUID,
+		},
+		{
 			name: "should create asset with id timestamp",
 			input: Input{
 				id:                      aid,
@@ -322,6 +350,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

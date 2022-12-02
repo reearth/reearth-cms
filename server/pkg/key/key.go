@@ -26,7 +26,7 @@ func Random() Key {
 }
 
 func (k Key) IsValid() bool {
-	return k.key != ""
+	return k.key != "" && k.key != "id"
 }
 
 func (k Key) String() string {

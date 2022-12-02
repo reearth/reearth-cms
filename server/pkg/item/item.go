@@ -113,6 +113,12 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 	return false
 }
 
+func (i *Item) AssetIDs() id.AssetIDList {
+	return lo.FilterMap(i.Fields(), func(f *Field, _ int) (id.AssetID, bool) {
+		return f.Value().Value().ValueAsset()
+	})
+}
+
 type ItemAndSchema struct {
 	Item   *Item
 	Schema *schema.Schema
