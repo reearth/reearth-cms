@@ -103,3 +103,8 @@ func (b *Builder) Thread(th ThreadID) *Builder {
 	b.a.thread = th
 	return b
 }
+
+func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
+	b.a.archiveExtractionStatus = s
+	return b
+}
