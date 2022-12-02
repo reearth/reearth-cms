@@ -3,6 +3,8 @@ package gcp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/url"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"cloud.google.com/go/pubsub"
@@ -83,8 +85,13 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
+	u, err := url.Parse(t.conf.GCSHost)
+	if err != nil {
+		return fmt.Errorf("failed to parse GCS host as a URL: %w", err)
+	}
+
 	var urlFn asset.URLResolver = func(a *asset.Asset) string {
-		return getURL(t.conf.GCSHost, a.UUID(), a.FileName())
+		return getURL(u, a.UUID(), a.FileName())
 	}
 
 	data, err := marshalWebhookData(p.Webhook, urlFn)

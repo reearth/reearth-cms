@@ -3,6 +3,7 @@ package schema
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -21,6 +22,13 @@ func (l List) Clone() List {
 }
 
 type FieldList []*Field
+
+func (l FieldList) Find(fid FieldID) *Field {
+	f, _ := lo.Find(l, func(f *Field) bool {
+		return f.ID() == fid
+	})
+	return f
+}
 
 func (l FieldList) SortByID() FieldList {
 	m := slices.Clone(l)
