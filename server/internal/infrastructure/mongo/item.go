@@ -75,7 +75,7 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *vers
 
 func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
-		"model": modelID.String(),
+		"modelid": modelID.String(),
 	}, ref, pagination)
 	return res.SortByTimestamp(), pi, err
 }
@@ -162,6 +162,10 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	}
 	doc, id := mongodoc.NewItem(item)
 	return r.client.SaveOne(ctx, id, doc, nil)
+}
+
+func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+	return r.client.UpdateRef(ctx, item.String(), ref, vr)
 }
 
 func (r *Item) Remove(ctx context.Context, id id.ItemID) error {

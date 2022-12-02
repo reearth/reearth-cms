@@ -92,7 +92,7 @@ func (a *Asset) Clone() *Asset {
 		fileName:    a.fileName,
 		size:        a.size,
 		previewType: a.previewType,
-		file:        a.file,
+		file:        a.file.Clone(),
 		uuid:        a.uuid,
 		thread:      a.thread.Clone(),
 	}

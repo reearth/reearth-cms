@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"encoding/json"
+	"net/url"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -18,6 +19,9 @@ type ListResult[T any] struct {
 }
 
 func NewListResult[T any](results []T, pi *usecasex.PageInfo, limit, offset int) ListResult[T] {
+	if results == nil {
+		results = []T{}
+	}
 	return ListResult[T]{
 		Results:    results,
 		TotalCount: int(pi.TotalCount),
@@ -34,9 +38,13 @@ type ListParam struct {
 }
 
 func (p ListParam) Pagination() *usecasex.Pagination {
+	limit := int64(p.Limit)
+	if limit <= 0 {
+		limit = 50
+	}
 	return usecasex.OffsetPagination{
 		Offset: int64(p.Offset),
-		Limit:  int64(p.Limit),
+		Limit:  limit,
 	}.Wrap()
 }
 
@@ -47,7 +55,7 @@ type Item struct {
 
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
-	m["id"] = ItemField{Value: i.ID}
+	m["id"] = &ItemField{Value: i.ID}
 	return json.Marshal(m)
 }
 
@@ -58,7 +66,16 @@ func NewItem(i *item.Item, s *schema.Schema, assets asset.List, urlResolver asse
 	}
 }
 
-type ItemFields map[string]ItemField
+type ItemFields map[string]*ItemField
+
+func (i ItemFields) DropEmptyFields() ItemFields {
+	for k, v := range i {
+		if v == nil {
+			delete(i, k)
+		}
+	}
+	return i
+}
 
 type ItemField struct {
 	Value any
@@ -66,7 +83,7 @@ type ItemField struct {
 }
 
 func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
-	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (string, ItemField) {
+	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (string, *ItemField) {
 		k := ""
 		if sf := sfields.Find(f.FieldID()); sf != nil {
 			k = sf.Key().String()
@@ -77,16 +94,21 @@ func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.
 
 		a := Asset{}
 		if aid, ok := f.Value().Value().ValueAsset(); ok {
-			if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a.ID() == aid }); ok {
+			if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
 				a = NewAsset(as, urlResolver)
+			}
+
+			// if the asset was not found, the field should be nil.
+			if a.Type == "" {
+				return k, nil
 			}
 		}
 
-		return k, ItemField{
+		return k, &ItemField{
 			Value: f.Value().Value().Interface(),
 			Asset: a,
 		}
-	}))
+	})).DropEmptyFields()
 }
 
 func (i ItemField) MarshalJSON() ([]byte, error) {
@@ -98,6 +120,7 @@ func (i ItemField) MarshalJSON() ([]byte, error) {
 
 type Asset struct {
 	Type        string `json:"type"`
+	ID          string `json:"id,omitempty"`
 	URL         string `json:"url,omitempty"`
 	ContentType string `json:"contentType,omitempty"`
 }
@@ -111,10 +134,12 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 	u := ""
 	if urlResolver != nil {
 		u = urlResolver(a)
+		u, _ = url.JoinPath(u, f.Path())
 	}
 
 	return Asset{
 		Type:        "asset",
+		ID:          a.ID().String(),
 		URL:         u,
 		ContentType: a.File().ContentType(),
 	}

@@ -40,6 +40,10 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return i.repos.Model.FindByProject(ctx, projectID, pagination)
 }
 
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindByKey(ctx, pid, model)
+}
+
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *model.Model, err error) {

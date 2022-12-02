@@ -132,6 +132,11 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	return nil
 }
 
+func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+	r.data.UpdateRef(item, ref, vr)
+	return nil
+}
+
 func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err

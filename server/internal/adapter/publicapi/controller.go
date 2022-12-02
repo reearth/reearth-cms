@@ -7,8 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var ErrInvalidProject = errors.New("invalid project")
@@ -27,28 +27,26 @@ func NewController(project repo.Project, usecases *interfaces.Container, aur ass
 	}
 }
 
-func (c *Controller) checkProject(ctx context.Context, prj string) error {
-	pid, err := id.ProjectIDFrom(prj)
+func (c *Controller) checkProject(ctx context.Context, prj string) (*project.Project, error) {
+	pr, err := c.project.FindByPublicName(ctx, prj)
 	if err != nil {
-		return ErrInvalidProject
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, ErrInvalidProject
 	}
 
-	pr, err := c.project.FindByID(ctx, pid)
-	if err != nil {
-		return ErrInvalidProject
-	}
-
-	if pr.Publication().Scope() != project.PublicationScopePublic {
-		return ErrInvalidProject
+	if p := pr.Publication(); p == nil || p.Scope() != project.PublicationScopePublic {
+		return nil, rerror.ErrNotFound
 	}
 
 	// TODO: check token if the scope is limited
 	// if pr.Publication().Scope() == project.PublicationScopeLimited {
 	// 	t := pr.Publication().Token()
 	// 	if op := adapter.Operator(ctx); op == nil || t == "" || op.PublicAPIToken != t {
-	// 		return ErrInvalidProject
+	// 		return nil, ErrInvalidProject
 	// 	}
 	// }
 
-	return nil
+	return pr, nil
 }

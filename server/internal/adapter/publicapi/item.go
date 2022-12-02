@@ -2,26 +2,32 @@ package publicapi
 
 import (
 	"context"
+	"errors"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
-	if err := c.checkProject(ctx, prj); err != nil {
+	pr, err := c.checkProject(ctx, prj)
+	if err != nil {
 		return Item{}, err
 	}
 
 	iid, err := id.ItemIDFrom(i)
 	if err != nil {
-		return Item{}, err
+		return Item{}, rerror.ErrNotFound
 	}
 
 	it, err := c.usecases.Item.FindPublicByID(ctx, iid, nil)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return Item{}, rerror.ErrNotFound
+		}
 		return Item{}, err
 	}
 
@@ -36,25 +42,24 @@ func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
 		return Item{}, err
 	}
 
-	assets, err := c.usecases.Asset.FindByIDs(ctx, itv.AssetIDs(), nil)
-	if err != nil {
-		return Item{}, err
+	var assets asset.List
+	if pr.Publication().AssetPublic() {
+		assets, err = c.usecases.Asset.FindByIDs(ctx, itv.AssetIDs(), nil)
+		if err != nil {
+			return Item{}, err
+		}
 	}
 
 	return NewItem(itv, s, assets, c.assetUrlResolver), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], error) {
-	if err := c.checkProject(ctx, prj); err != nil {
-		return ListResult[Item]{}, err
-	}
-
-	mid, err := id.ModelIDFrom(model)
+	pr, err := c.checkProject(ctx, prj)
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
 
-	m, err := c.usecases.Model.FindByID(ctx, mid, nil)
+	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
@@ -64,21 +69,25 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		return ListResult[Item]{}, err
 	}
 
-	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, mid, p.Pagination(), nil)
+	page := p.Pagination()
+	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), page, nil)
 	if err != nil {
 		return ListResult[Item]{}, err
 	}
 
-	assetIDs := lo.FlatMap(items.Unwrap(), func(i *item.Item, _ int) []id.AssetID {
-		return i.AssetIDs()
-	})
-	assets, err := c.usecases.Asset.FindByIDs(ctx, assetIDs, adapter.Operator(ctx))
-	if err != nil {
-		return ListResult[Item]{}, err
+	var assets asset.List
+	if pr.Publication().AssetPublic() {
+		assetIDs := lo.FlatMap(items.Unwrap(), func(i *item.Item, _ int) []id.AssetID {
+			return i.AssetIDs()
+		})
+		assets, err = c.usecases.Asset.FindByIDs(ctx, assetIDs, nil)
+		if err != nil {
+			return ListResult[Item]{}, err
+		}
 	}
 
 	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
 		return NewItem(i, s, assets, c.assetUrlResolver)
-	}), pi, p.Limit, p.Offset)
+	}), pi, int(page.Offset.Limit), int(page.Offset.Offset))
 	return res, nil
 }

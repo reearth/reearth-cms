@@ -24,7 +24,7 @@ func TestNewFile(t *testing.T) {
 	assert.NotNil(t, f)
 
 	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
-	assert.Equal(t, err, invalidBaseURLErr)
+	assert.Equal(t, err, ErrInvalidBaseURL)
 	assert.Nil(t, f1)
 }
 
@@ -125,7 +125,14 @@ func TestFile_GetURL(t *testing.T) {
 
 	u := newUUID()
 	n := "xxx.yyy"
-	a := asset.New().NewID().Project(id.NewProjectID()).CreatedByUser(id.NewUserID()).Size(1000).FileName(n).UUID(u).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().
+		Project(id.NewProjectID()).
+		CreatedByUser(id.NewUserID()).
+		Size(1000).FileName(n).
+		UUID(u).
+		Thread(id.NewThreadID()).
+		File(asset.NewFile().Build()).
+		MustBuild()
 
 	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
 	assert.NoError(t, err)

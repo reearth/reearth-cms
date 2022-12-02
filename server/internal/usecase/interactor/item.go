@@ -48,6 +48,7 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	if !operator.IsReadableProject(projectID) {
 		return nil, nil, rerror.ErrNotFound
 	}
+	// TODO: check operation for projects that publication type is limited
 	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
 }
 
@@ -67,10 +68,8 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	if err != nil {
 		return nil, nil, err
 	}
-	if !operator.IsReadableProject(m.Project()) {
-		return nil, nil, rerror.ErrNotFound
-	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil)
+	// TODO: check operation for projects that publication type is limited
+	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {

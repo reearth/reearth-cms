@@ -22,6 +22,7 @@ func TestNewItem(t *testing.T) {
 		Thread(id.NewThreadID()).
 		File(asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()).
 		Size(1).
+		NewUUID().
 		MustBuild()
 	s := schema.New().
 		NewID().
@@ -46,13 +47,14 @@ func TestNewItem(t *testing.T) {
 
 	assert.Equal(t, Item{
 		ID: it.ID().String(),
-		Fields: ItemFields(map[string]ItemField{
+		Fields: ItemFields(map[string]*ItemField{
 			"aaaaa": {Value: "aaaa"},
 			"bbbbb": {
 				Value: as.ID().String(),
 				Asset: Asset{
 					Type:        "asset",
-					URL:         "https://example.com/" + as.ID().String(),
+					ID:          as.ID().String(),
+					URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
 					ContentType: "application/json",
 				},
 			},
@@ -60,6 +62,14 @@ func TestNewItem(t *testing.T) {
 	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String()
 	}))
+
+	// no assets
+	assert.Equal(t, Item{
+		ID: it.ID().String(),
+		Fields: ItemFields(map[string]*ItemField{
+			"aaaaa": {Value: "aaaa"},
+		}),
+	}, NewItem(it, s, nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
@@ -69,6 +79,7 @@ func TestItem_MarshalJSON(t *testing.T) {
 			"aaa": {Value: "aa"},
 			"bbb": {Asset: Asset{
 				Type:        "asset",
+				ID:          "xxx",
 				URL:         "https://example.com",
 				ContentType: "application/json",
 			}},
@@ -83,6 +94,7 @@ func TestItem_MarshalJSON(t *testing.T) {
 		"aaa": "aa",
 		"bbb": map[string]any{
 			"type":        "asset",
+			"id":          "xxx",
 			"url":         "https://example.com",
 			"contentType": "application/json",
 		},

@@ -25,6 +25,30 @@ func init() {
 }
 
 func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *httpexpect.Expect {
+	e, _ := StartServerAndRepos(t, cfg, useMongo, seeder)
+	return e
+}
+
+func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *repo.Container) {
+	ctx := context.Background()
+
+	var repos *repo.Container
+	if useMongo {
+		db := mongotest.Connect(t)(t)
+		repos = lo.Must(mongo.NewWithDB(ctx, db))
+	} else {
+		repos = memory.New()
+	}
+
+	if seeder != nil {
+		if err := seeder(ctx, repos); err != nil {
+			t.Fatalf("failed to seed the db: %s", err)
+		}
+	}
+
+	return StartServerWithRepos(t, cfg, repos), repos
+}
+func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container) *httpexpect.Expect {
 	t.Helper()
 
 	if testing.Short() {
@@ -36,20 +60,6 @@ func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *h
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
 		t.Fatalf("server failed to listen: %v", err)
-	}
-
-	var repos *repo.Container
-	if useMongo {
-		db := mongotest.Connect(t)(t)
-		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name()))
-	} else {
-		repos = memory.New()
-	}
-
-	if seeder != nil {
-		if err := seeder(ctx, repos); err != nil {
-			t.Fatalf("seed: faild to seed the db")
-		}
 	}
 
 	srv := app.NewServer(ctx, &app.ServerConfig{

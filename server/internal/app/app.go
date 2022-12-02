@@ -83,7 +83,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		usecaseMiddleware,
 	)
 
-	publicapi.Echo(api.Group("", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
+	publicapi.Echo(api.Group("/p", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
 	integration.RegisterHandlers(api.Group(
 		"",
 		authMiddleware(cfg),
