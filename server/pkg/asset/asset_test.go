@@ -18,19 +18,22 @@ func TestAsset_Type(t *testing.T) {
 	var size uint64 = 15
 	wantPreviewType, _ := PreviewTypeFrom("image")
 	gotPreviewType, _ := PreviewTypeFrom(PreviewTypeImage.String())
+	wantStatus, _ := StatusFrom("pending")
+	gotStatus, _ := StatusFrom(ArchiveExtractionStatusPending.String())
 
 	got := Asset{
-		id:          aid,
-		project:     pid,
-		createdAt:   tim,
-		user:        &uid,
-		integration: &iid,
-		fileName:    "hoge",
-		size:        size,
-		previewType: &gotPreviewType,
-		file:        &File{name: "hoge.zip", size: size, path: "hoge.zip"},
-		uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-		thread:      thid,
+		id:                      aid,
+		project:                 pid,
+		createdAt:               tim,
+		user:                    &uid,
+		integration:             &iid,
+		fileName:                "hoge",
+		size:                    size,
+		previewType:             &gotPreviewType,
+		file:                    &File{name: "hoge.zip", size: size, path: "hoge.zip"},
+		uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		thread:                  thid,
+		archiveExtractionStatus: &gotStatus,
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -45,6 +48,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
 	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
+	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }
 
 func TestAsset_CreatedAt(t *testing.T) {
@@ -74,6 +78,27 @@ func TestAsset_PreviewType(t *testing.T) {
 	assert.Nil(t, got.PreviewType())
 }
 
+func TestAsset_Status(t *testing.T) {
+	aid := NewID()
+	pid := NewProjectID()
+	uid := NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	var size uint64 = 15
+
+	got := Asset{
+		id:        aid,
+		project:   pid,
+		createdAt: tim,
+		user:      &uid,
+		fileName:  "hoge",
+		size:      size,
+		file:      &File{},
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+	}
+
+	assert.Nil(t, got.ArchiveExtractionStatus())
+}
+
 func TestAsset_UpdatePreviewType(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
@@ -97,10 +122,33 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 	assert.Equal(t, pt, got.PreviewType())
 }
 
+func TestAsset_UpdateStatus(t *testing.T) {
+	aid := NewID()
+	pid := NewProjectID()
+	uid := NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	var size uint64 = 15
+
+	got := Asset{
+		id:        aid,
+		project:   pid,
+		createdAt: tim,
+		user:      &uid,
+		fileName:  "hoge",
+		size:      size,
+		file:      &File{},
+		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+	}
+
+	p := lo.ToPtr(ArchiveExtractionStatusPending)
+	got.UpdateArchiveExtractionStatus(p)
+	assert.Equal(t, p, got.ArchiveExtractionStatus())
+}
+
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).File(NewFile().Build()).NewUUID().MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)

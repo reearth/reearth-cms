@@ -27,18 +27,19 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 	}
 
 	return &Asset{
-		ID:            IDFrom(a.ID()),
-		ProjectID:     IDFrom(a.Project()),
-		CreatedAt:     a.CreatedAt(),
-		CreatedByID:   createdBy,
-		CreatedByType: createdByType,
-		FileName:      a.FileName(),
-		Size:          int64(a.Size()),
-		PreviewType:   ToPreviewType(a.PreviewType()),
-		File:          ToAssetFile(a.File()),
-		UUID:          a.UUID(),
-		URL:           url,
-		ThreadID:      IDFrom(a.Thread()),
+		ID:                      IDFrom(a.ID()),
+		ProjectID:               IDFrom(a.Project()),
+		CreatedAt:               a.CreatedAt(),
+		CreatedByID:             createdBy,
+		CreatedByType:           createdByType,
+		FileName:                a.FileName(),
+		Size:                    int64(a.Size()),
+		PreviewType:             ToPreviewType(a.PreviewType()),
+		File:                    ToAssetFile(a.File()),
+		UUID:                    a.UUID(),
+		URL:                     url,
+		ThreadID:                IDFrom(a.Thread()),
+		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 	}
 }
 
@@ -88,6 +89,28 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	}
 
 	return &p2
+}
+
+func ToArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *ArchiveExtractionStatus {
+	if s == nil {
+		return nil
+	}
+
+	var s2 ArchiveExtractionStatus
+	switch *s {
+	case asset.ArchiveExtractionStatusPending:
+		s2 = ArchiveExtractionStatusPending
+	case asset.ArchiveExtractionStatusInProgress:
+		s2 = ArchiveExtractionStatusInProgress
+	case asset.ArchiveExtractionStatusDone:
+		s2 = ArchiveExtractionStatusDone
+	case asset.ArchiveExtractionStatusFailed:
+		s2 = ArchiveExtractionStatusFailed
+	default:
+		return nil
+	}
+
+	return &s2
 }
 
 func ToAssetFile(a *asset.File) *AssetFile {

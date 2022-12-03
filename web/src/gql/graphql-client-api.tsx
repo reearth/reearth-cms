@@ -1406,6 +1406,13 @@ export type UpdateIntegrationMutationVariables = Exact<{
 
 export type UpdateIntegrationMutation = { __typename?: 'Mutation', updateIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
 
+export type DeleteIntegrationMutationVariables = Exact<{
+  integrationId: Scalars['ID'];
+}>;
+
+
+export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
+
 export type GetItemsQueryVariables = Exact<{
   schemaId: Scalars['ID'];
   first?: InputMaybe<Scalars['Int']>;
@@ -2568,6 +2575,39 @@ export function useUpdateIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateIntegrationMutationHookResult = ReturnType<typeof useUpdateIntegrationMutation>;
 export type UpdateIntegrationMutationResult = Apollo.MutationResult<UpdateIntegrationMutation>;
 export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
+export const DeleteIntegrationDocument = gql`
+    mutation DeleteIntegration($integrationId: ID!) {
+  deleteIntegration(input: {integrationId: $integrationId}) {
+    integrationId
+  }
+}
+    `;
+export type DeleteIntegrationMutationFn = Apollo.MutationFunction<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+
+/**
+ * __useDeleteIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDeleteIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteIntegrationMutation, { data, loading, error }] = useDeleteIntegrationMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>(DeleteIntegrationDocument, options);
+      }
+export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
+export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
+export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
     query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
   items(

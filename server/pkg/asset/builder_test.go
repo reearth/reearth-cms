@@ -16,17 +16,18 @@ type Tests []struct {
 }
 
 type Input struct {
-	id                   ID
-	project              ProjectID
-	createdAt            time.Time
-	createdByUser        UserID
-	createdByIntegration IntegrationID
-	fileName             string
-	size                 uint64
-	previewType          *PreviewType
-	file                 *File
-	uuid                 string
-	thread               ThreadID
+	id                      ID
+	project                 ProjectID
+	createdAt               time.Time
+	createdByUser           UserID
+	createdByIntegration    IntegrationID
+	fileName                string
+	size                    uint64
+	previewType             *PreviewType
+	file                    *File
+	uuid                    string
+	thread                  ThreadID
+	archiveExtractionStatus *ArchiveExtractionStatus
 }
 
 func TestBuilder_Build(t *testing.T) {
@@ -43,104 +44,125 @@ func TestBuilder_Build(t *testing.T) {
 		{
 			name: "should create an asset",
 			input: Input{
-				id:            aid,
-				project:       pid,
-				createdAt:     tim,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				id:                      aid,
+				project:                 pid,
+				createdAt:               tim,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			want: &Asset{
-				id:          aid,
-				project:     pid,
-				createdAt:   tim,
-				user:        &uid,
-				fileName:    "hoge",
-				size:        size,
-				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
-				file:        &f,
-				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:      thid,
+				id:                      aid,
+				project:                 pid,
+				createdAt:               tim,
+				user:                    &uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 		},
 		{
 			name: "fail: empty project id",
 			input: Input{
-				id:            aid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				id:                      aid,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoProjectID,
 		},
 		{
 			name: "fail: empty id",
 			input: Input{
-				project:       pid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				project:                 pid,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrInvalidID,
 		},
 		{
 			name: "fail: empty user",
 			input: Input{
-				id:          aid,
-				project:     pid,
-				fileName:    "hoge",
-				size:        size,
-				previewType: PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:        &f,
-				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:      thid,
+				id:                      aid,
+				project:                 pid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoUser,
 		},
 		{
 			name: "fail: zero size",
 			input: Input{
-				id:            aid,
-				project:       pid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          0,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				id:                      aid,
+				project:                 pid,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    0,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrZeroSize,
 		},
 		{
 			name: "fail: invalid threadId",
 			input: Input{
-				id:            aid,
-				project:       pid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        ThreadID{},
+				id:                      aid,
+				project:                 pid,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  ThreadID{},
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoThread,
 		},
 		{
-			name: "should create asset with id timestamp",
+			name: "fail: no file",
+			input: Input{
+				id:            aid,
+				project:       pid,
+				createdByUser: uid,
+				fileName:      "hoge",
+				size:          size,
+				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
+				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:        thid,
+			},
+			err: ErrNoFile,
+		},
+		{
+			name: "fail: no uuid",
 			input: Input{
 				id:            aid,
 				project:       pid,
@@ -149,46 +171,64 @@ func TestBuilder_Build(t *testing.T) {
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
 				file:          &f,
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
 			},
+			err: ErrNoUUID,
+		},
+		{
+			name: "should create asset with id timestamp",
+			input: Input{
+				id:                      aid,
+				project:                 pid,
+				createdByUser:           uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
+			},
 			want: &Asset{
-				id:          aid,
-				project:     pid,
-				createdAt:   aid.Timestamp(),
-				user:        &uid,
-				fileName:    "hoge",
-				size:        size,
-				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
-				file:        &f,
-				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:      thid,
+				id:                      aid,
+				project:                 pid,
+				createdAt:               aid.Timestamp(),
+				user:                    &uid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 		},
 		{
 			name: "should create asset with id timestamp",
 			input: Input{
-				id:                   aid,
-				project:              pid,
-				createdByIntegration: iid,
-				fileName:             "hoge",
-				size:                 size,
-				previewType:          PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:                 &f,
-				uuid:                 "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:               thid,
+				id:                      aid,
+				project:                 pid,
+				createdByIntegration:    iid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             lo.ToPtr(PreviewTypeImage),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			want: &Asset{
-				id:          aid,
-				project:     pid,
-				createdAt:   aid.Timestamp(),
-				integration: &iid,
-				fileName:    "hoge",
-				size:        size,
-				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
-				file:        &f,
-				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:      thid,
+				id:                      aid,
+				project:                 pid,
+				createdAt:               aid.Timestamp(),
+				integration:             &iid,
+				fileName:                "hoge",
+				size:                    size,
+				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
+				file:                    &f,
+				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+				thread:                  thid,
+				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 		},
 	}
@@ -204,7 +244,8 @@ func TestBuilder_Build(t *testing.T) {
 				Type(tt.input.previewType).
 				File(tt.input.file).
 				UUID(tt.input.uuid).
-				Thread(tt.input.thread)
+				Thread(tt.input.thread).
+				ArchiveExtractionStatus(tt.input.archiveExtractionStatus)
 			if !tt.input.createdByUser.IsNil() {
 				ab.CreatedByUser(tt.input.createdByUser)
 			}
@@ -309,6 +350,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

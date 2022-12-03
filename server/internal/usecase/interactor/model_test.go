@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -320,61 +319,6 @@ func TestModel_FindByIDs(t *testing.T) {
 				return
 			}
 			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestModel_FindByProject(t *testing.T) {
-	mockTime := time.Now()
-	type args struct {
-		projectID  id.ProjectID
-		pagination *usecasex.Pagination
-		operator   *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		want    model.List
-		want1   *usecasex.PageInfo
-		mockErr bool
-		wantErr error
-	}{
-		{},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			defer memory.MockNow(db, mockTime)()
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
-
-			got, got1, err := u.FindByProject(ctx, tt.args.projectID, tt.args.pagination, tt.args.operator)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-				assert.Nil(t, got)
-				return
-			}
-			assert.Equal(t, tt.want, got)
-			assert.Equal(t, tt.want1, got1)
 		})
 	}
 }
