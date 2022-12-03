@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
 
+import { threadFragment } from "@reearth-cms/gql/fragments";
+
 export const GET_ITEMS = gql`
   query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
     items(schemaId: $schemaId, first: $first, last: $last, after: $after, before: $before) {
@@ -11,9 +13,14 @@ export const GET_ITEMS = gql`
           type
           value
         }
+        thread {
+          ...threadFragment
+        }
       }
     }
   }
+
+  ${threadFragment}
 `;
 
 export const CREATE_ITEM = gql`
