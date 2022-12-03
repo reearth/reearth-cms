@@ -4,16 +4,30 @@ import CommentsPanelMolecule from "@reearth-cms/components/molecules/Common/Comm
 import useHooks from "./hooks";
 
 export type Props = {
+  emptyText?: string;
   threadId?: string;
   comments?: Comment[];
+  collapsedInitialValue?: boolean;
 };
 
-const CommentsPanel: React.FC<Props> = ({ threadId, comments }) => {
+const CommentsPanel: React.FC<Props> = ({
+  emptyText,
+  threadId,
+  comments,
+  collapsedInitialValue,
+}) => {
   const { handleCommentCreate } = useHooks({
     threadId,
   });
 
-  return <CommentsPanelMolecule comments={comments} onCommentCreate={handleCommentCreate} />;
+  return (
+    <CommentsPanelMolecule
+      emptyText={emptyText}
+      comments={comments}
+      onCommentCreate={handleCommentCreate}
+      collapsedInitialValue={collapsedInitialValue}
+    />
+  );
 };
 
 export default CommentsPanel;

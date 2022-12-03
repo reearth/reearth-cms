@@ -12,9 +12,11 @@ import Thread from "./Thread";
 export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
   comments?: Comment[];
+  emptyText?: string;
+  collapsedInitialValue?: boolean;
 };
 
-const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments }) => {
+const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments, emptyText }) => {
   const [collapsed, setCollapsed] = useState(true);
   const t = useT();
 
@@ -37,6 +39,11 @@ const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments }) => {
                 <Thread comments={comments} />
               </CommentsContainer>
             </ThreadWrapper>
+
+            {!comments || comments.length === 0 ? (
+              <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
+            ) : null}
+
             <Editor onCommentCreate={onCommentCreate} />
           </>
         )}
@@ -62,6 +69,12 @@ const Title = styled.h3`
 
 const CommentsContainer = styled.div`
   overflow: auto;
+`;
+
+const EmptyTextWrapper = styled.div`
+  padding: 12px;
+  color: #00000073;
+  text-align: center;
 `;
 
 const ContentWrapper = styled.div`

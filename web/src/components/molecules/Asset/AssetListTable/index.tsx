@@ -22,6 +22,7 @@ export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
   loading: boolean;
+  selectedAsset: Asset | undefined;
   onAssetSelect: (assetId: string) => void;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
@@ -38,6 +39,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   assetsPerPage,
   selection,
   loading,
+  selectedAsset,
   onAssetSelect,
   onEdit,
   onSearchTerm,
@@ -61,7 +63,10 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       render: (_, asset) => {
         return (
           <Button type="link" onClick={() => onAssetSelect(asset.id)}>
-            <CustomTag value={asset.comments?.length || 0} />
+            <CustomTag
+              value={asset.comments?.length || 0}
+              color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
+            />
           </Button>
         );
       },

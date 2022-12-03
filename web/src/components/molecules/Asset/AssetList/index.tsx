@@ -24,6 +24,7 @@ type Props = {
   loading: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  selectedAsset: Asset | undefined;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -50,6 +51,7 @@ const AssetList: React.FC<Props> = ({
   loading,
   uploadUrl,
   uploadType,
+  selectedAsset,
   onAssetSelect,
   onUploadModalCancel,
   setUploadUrl,
@@ -123,6 +125,7 @@ const AssetList: React.FC<Props> = ({
             assetsPerPage={assetsPerPage}
             selection={selection}
             loading={loading}
+            selectedAsset={selectedAsset}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
