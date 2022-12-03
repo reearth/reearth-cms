@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
+import MarkDownInput from "@reearth-cms/components/atoms/MarkDown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -125,7 +126,7 @@ const ContentForm: React.FC<Props> = ({
       />
       <FormItemsWrapper>
         {model?.schema.fields.map(field =>
-          field.type === "TextArea" || field.type === "MarkdownText" ? (
+          field.type === "TextArea" ? (
             <Form.Item
               extra={field.description}
               rules={[
@@ -136,7 +137,20 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
+              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+            </Form.Item>
+          ) : field.type === "MarkdownText" ? (
+            <Form.Item
+              extra={field.description}
+              rules={[
+                {
+                  required: field.required,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              <MarkDownInput maxLength={field.typeProperty.maxLength ?? false} />
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
