@@ -11,11 +11,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/reearth/reearthx/util"
 )
 
 type Model struct {
@@ -30,32 +28,20 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
+func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindByID(ctx, id)
+}
+
 func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
-	models, err := i.repos.Model.FindByIDs(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	pIds := util.Map(models, func(m *model.Model) id.ProjectID { return m.Project() })
-	projects, err := i.repos.Project.FindByIDs(ctx, pIds)
-	if err != nil {
-		return nil, err
-	}
-	wIDs := util.Map(projects, func(p *project.Project) id.WorkspaceID { return p.Workspace() })
-	return Run1(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(wIDs...).Transaction(),
-		func() (model.List, error) {
-			return i.repos.Model.FindByIDs(ctx, ids)
-		})
+	return i.repos.Model.FindByIDs(ctx, ids)
 }
 
 func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	p, err := i.repos.Project.FindByID(ctx, projectID)
-	if err != nil {
-		return nil, nil, err
-	}
-	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(p.Workspace()).Transaction(),
-		func() (model.List, *usecasex.PageInfo, error) {
-			return i.repos.Model.FindByProject(ctx, projectID, pagination)
-		})
+	return i.repos.Model.FindByProject(ctx, projectID, pagination)
+}
+
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {

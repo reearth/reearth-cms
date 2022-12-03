@@ -12,6 +12,7 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -112,7 +113,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   return (
-    <Form form={form} layout="vertical" initialValues={formValues}>
+    <StyledForm form={form} layout="vertical" initialValues={formValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -134,7 +135,7 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ) : field.type === "Integer" ? (
@@ -147,7 +148,7 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <InputNumber
                 type="number"
                 min={field.typeProperty.min}
@@ -165,7 +166,7 @@ const ContentForm: React.FC<Props> = ({
               ]}
               defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
-              label={field.title}
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}
               assetList={assetList}
               fileList={fileList}
               loadingAssets={loadingAssets}
@@ -185,7 +186,10 @@ const ContentForm: React.FC<Props> = ({
               setUploadModalVisibility={setUploadModalVisibility}
             />
           ) : field.type === "Select" ? (
-            <Form.Item extra={field.description} name={field.id} label={field.title}>
+            <Form.Item
+              extra={field.description}
+              name={field.id}
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <Select>
                 {field.typeProperty?.values?.map((value: string) => (
                   <Option key={value} value={value}>
@@ -198,7 +202,7 @@ const ContentForm: React.FC<Props> = ({
             <Form.Item
               extra={field.description}
               name={field.id}
-              label={field.title}
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}
               rules={[
                 {
                   required: field.required,
@@ -224,15 +228,23 @@ const ContentForm: React.FC<Props> = ({
                 },
               ]}
               name={field.id}
-              label={field.title}>
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
             </Form.Item>
           ),
         )}
       </FormItemsWrapper>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+`;
 
 const FormItemsWrapper = styled.div`
   width: 50%;

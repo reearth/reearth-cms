@@ -14,15 +14,20 @@ import (
 
 var (
 	u = user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a = asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a = asset.New().NewID().Project(project.NewID()).NewUUID().
+		Thread(id.NewThreadID()).Size(100).CreatedByUser(u.ID()).
+		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).
+		MustBuild()
 )
 
 func TestBuilder(t *testing.T) {
 	now := time.Now()
 	id := NewID()
 
-	ev := New[*asset.Asset]().ID(id).Timestamp(now).Type(AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
-	ev2 := New[*asset.Asset]().NewID().Timestamp(now).Type(AssetDecompress).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev := New[*asset.Asset]().ID(id).Timestamp(now).
+		Type(AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
+	ev2 := New[*asset.Asset]().NewID().Timestamp(now).
+		Type(AssetDecompress).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
 	// ev1
 	assert.Equal(t, id, ev.ID())

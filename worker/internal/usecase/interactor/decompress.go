@@ -7,11 +7,21 @@ import (
 	"path"
 	"strings"
 
+	"github.com/reearth/reearth-cms/worker/pkg/asset"
 	"github.com/reearth/reearth-cms/worker/pkg/decompressor"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
+	err := u.decompress(ctx, assetID, assetPath)
+	if err != nil {
+		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
+	}
+	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusDone))
+}
+
+func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) error {
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
 	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
@@ -41,5 +51,5 @@ func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) err
 		return err
 	}
 
-	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID)
+	return nil
 }
