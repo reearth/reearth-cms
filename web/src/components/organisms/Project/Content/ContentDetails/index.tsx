@@ -48,7 +48,7 @@ const ContentDetails: React.FC = () => {
       onCollapse={collapse}
       commentsPanel={
         currentItem ? (
-          <CommentsPanel comments={currentItem?.comments} threadId={currentItem?.threadId} />
+          <CommentsPanel comments={currentItem.comments} threadId={currentItem.threadId} />
         ) : undefined
       }
       itemId={itemId}

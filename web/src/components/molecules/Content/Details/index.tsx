@@ -82,33 +82,31 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         </Sidebar>
       }
       center={
-        <ContentWrapper>
-          <ContentForm
-            loading={loading}
-            itemId={itemId}
-            model={model}
-            initialFormValues={initialFormValues}
-            assetList={assetList}
-            fileList={fileList}
-            loadingAssets={loadingAssets}
-            uploading={uploading}
-            uploadModalVisibility={uploadModalVisibility}
-            uploadUrl={uploadUrl}
-            uploadType={uploadType}
-            onUploadModalCancel={onUploadModalCancel}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
-            onBack={onBack}
-            onItemCreate={onItemCreate}
-            onItemUpdate={onItemUpdate}
-            onAssetsCreate={onAssetsCreate}
-            onAssetCreateFromUrl={onAssetCreateFromUrl}
-            onAssetsReload={onAssetsReload}
-            onAssetSearchTerm={onAssetSearchTerm}
-            setFileList={setFileList}
-            setUploadModalVisibility={setUploadModalVisibility}
-          />
-        </ContentWrapper>
+        <ContentForm
+          loading={loading}
+          itemId={itemId}
+          model={model}
+          initialFormValues={initialFormValues}
+          assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loadingAssets}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          onUploadModalCancel={onUploadModalCancel}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          onBack={onBack}
+          onItemCreate={onItemCreate}
+          onItemUpdate={onItemUpdate}
+          onAssetsCreate={onAssetsCreate}
+          onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsReload={onAssetsReload}
+          onAssetSearchTerm={onAssetSearchTerm}
+          setFileList={setFileList}
+          setUploadModalVisibility={setUploadModalVisibility}
+        />
       }
       right={commentsPanel}
     />
@@ -116,11 +114,3 @@ const ContentDetailsMolecule: React.FC<Props> = ({
 };
 
 export default ContentDetailsMolecule;
-
-const ContentWrapper = styled.div`
-  padding: 16px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  background: #fff;
-`;

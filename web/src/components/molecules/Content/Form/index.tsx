@@ -113,7 +113,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   return (
-    <Form form={form} layout="vertical" initialValues={formValues}>
+    <StyledForm form={form} layout="vertical" initialValues={formValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -234,9 +234,17 @@ const ContentForm: React.FC<Props> = ({
           ),
         )}
       </FormItemsWrapper>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+`;
 
 const FormItemsWrapper = styled.div`
   width: 50%;
