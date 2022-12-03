@@ -17,6 +17,8 @@ const AssetList: React.FC = () => {
     uploadUrl,
     uploadType,
     selectedAsset,
+    collapsed,
+    handleCollapsed,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
@@ -36,6 +38,8 @@ const AssetList: React.FC = () => {
     <AssetListBody
       commentsPanel={
         <CommentsPanel
+          collapsed={collapsed}
+          onCollapse={handleCollapsed}
           emptyText={
             selectedAsset
               ? t("No comments.")

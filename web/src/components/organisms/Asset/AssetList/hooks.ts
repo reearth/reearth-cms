@@ -51,6 +51,8 @@ export default () => {
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+
   const [createAssetMutation] = useCreateAssetMutation();
 
   const [sort, setSort] = useState<{ type?: AssetSortType; reverse?: boolean }>();
@@ -222,8 +224,16 @@ export default () => {
   const handleAssetSelect = useCallback(
     (id: string) => {
       setSelectedAssetId(id);
+      setCollapsed(false);
     },
     [setSelectedAssetId],
+  );
+
+  const handleCollapsed = useCallback(
+    (value: boolean) => {
+      setCollapsed(value);
+    },
+    [setCollapsed],
   );
 
   const selectedAsset = useMemo(
@@ -244,6 +254,8 @@ export default () => {
     uploadUrl,
     uploadType,
     selectedAsset,
+    collapsed,
+    handleCollapsed,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,

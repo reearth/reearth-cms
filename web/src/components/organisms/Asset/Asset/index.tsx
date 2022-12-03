@@ -14,6 +14,8 @@ const Asset: React.FC = () => {
     isLoading,
     selectedPreviewType,
     isModalVisible,
+    collapsed,
+    handleCollapsed,
     handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,
@@ -35,7 +37,14 @@ const Asset: React.FC = () => {
     <Loading spinnerSize="large" minHeight="100vh" />
   ) : (
     <AssetWrapper
-      commentsPanel={<CommentsPanel comments={asset?.comments} threadId={asset?.threadId} />}
+      commentsPanel={
+        <CommentsPanel
+          comments={asset?.comments}
+          threadId={asset?.threadId}
+          collapsed={collapsed}
+          onCollapse={handleCollapsed}
+        />
+      }
       asset={asset}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}

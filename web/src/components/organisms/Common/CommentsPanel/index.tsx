@@ -7,9 +7,17 @@ export type Props = {
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];
+  collapsed: boolean;
+  onCollapse: (value: boolean) => void;
 };
 
-const CommentsPanel: React.FC<Props> = ({ emptyText, threadId, comments }) => {
+const CommentsPanel: React.FC<Props> = ({
+  emptyText,
+  threadId,
+  comments,
+  collapsed,
+  onCollapse,
+}) => {
   const { handleCommentCreate } = useHooks({
     threadId,
   });
@@ -18,6 +26,8 @@ const CommentsPanel: React.FC<Props> = ({ emptyText, threadId, comments }) => {
     <CommentsPanelMolecule
       emptyText={emptyText}
       comments={comments}
+      collapsed={collapsed}
+      onCollapse={onCollapse}
       onCommentCreate={handleCommentCreate}
     />
   );
