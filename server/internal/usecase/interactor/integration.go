@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -129,6 +130,20 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 			}
 			if in.Developer() != *operator.User {
 				return interfaces.ErrOperationDenied
+			}
+
+			// remove the integration from the connected workspaces
+			ws, err := i.repos.Workspace.FindByIntegration(ctx, integrationId)
+			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+				return err
+			}
+			for _, w := range ws {
+				if err := w.Members().DeleteIntegration(integrationId); err != nil {
+					return err
+				}
+				if err := i.repos.Workspace.Save(ctx, w); err != nil {
+					return err
+				}
 			}
 			return i.repos.Integration.Remove(ctx, integrationId)
 		})
