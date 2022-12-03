@@ -35,26 +35,26 @@ func (r *Item) Filtered(filter repo.ProjectFilter) repo.Item {
 	}
 }
 
-func (r *Item) FindByID(_ context.Context, itemID id.ItemID) (item.Versioned, error) {
+func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (item.Versioned, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, version.Latest.OrVersion())
+	item, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
 	return item, nil
 }
 
-func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
 			res = append(res, itv)
@@ -64,14 +64,14 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, pagination 
 	return res.SortByTimestamp(), nil, nil
 }
 
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Project() == projectID {
 			res = append(res, itv)
@@ -82,12 +82,30 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, paginati
 	return res.SortByTimestamp(), nil, nil
 }
 
-func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	var res item.VersionedList
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		it := itv.Value()
+		if it.Model() == modelID {
+			res = append(res, itv)
+		}
+		return true
+	})
+
+	return res.SortByTimestamp(), nil, nil
+}
+
+func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	return item.VersionedList(r.data.LoadAll(list, version.Latest.OrVersion())).SortByTimestamp(), nil
+	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).SortByTimestamp(), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -112,6 +130,11 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	}
 
 	r.data.SaveOne(t.ID(), t, nil)
+	return nil
+}
+
+func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+	r.data.UpdateRef(item, ref, vr)
 	return nil
 }
 
@@ -206,14 +229,14 @@ func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pag
 	return res, nil, nil
 }
 
-func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.VersionedList, error) {
+func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Model() == modelID {
 			for _, f := range fields {

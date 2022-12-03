@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
@@ -41,12 +42,18 @@ func (f *FieldString) Validate(v *value.Value) error {
 	if v.Type() != f.t {
 		return ErrInvalidValue
 	}
+
 	s, ok := v.ValueString()
 	if !ok {
 		return ErrInvalidValue
 	}
-	if f.maxLength != nil && len(s) > *f.maxLength {
-		return fmt.Errorf("value has %d characters, but it sholud be shorter than %d characters", len(s), *f.maxLength)
+
+	if f.maxLength != nil {
+		len := utf8.RuneCountInString(s)
+		if len > *f.maxLength {
+			return fmt.Errorf("value has %d characters, but it sholud be shorter than %d characters", len, *f.maxLength)
+		}
 	}
+
 	return nil
 }

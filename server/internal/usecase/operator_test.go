@@ -31,5 +31,4 @@ func TestOperator_EventOperator(t *testing.T) {
 	assert.Nil(t, eOp.User())
 	assert.NotNil(t, eOp.Integration())
 	assert.Equal(t, &iId, eOp.Integration())
-
 }

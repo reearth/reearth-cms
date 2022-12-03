@@ -8,10 +8,10 @@ import (
 )
 
 type Workspace interface {
+	FindByID(context.Context, id.WorkspaceID) (*user.Workspace, error)
+	FindByIDs(context.Context, id.WorkspaceIDList) (user.WorkspaceList, error)
 	FindByUser(context.Context, id.UserID) (user.WorkspaceList, error)
 	FindByIntegration(context.Context, id.IntegrationID) (user.WorkspaceList, error)
-	FindByIDs(context.Context, id.WorkspaceIDList) (user.WorkspaceList, error)
-	FindByID(context.Context, id.WorkspaceID) (*user.Workspace, error)
 	Save(context.Context, *user.Workspace) error
 	SaveAll(context.Context, []*user.Workspace) error
 	Remove(context.Context, id.WorkspaceID) error

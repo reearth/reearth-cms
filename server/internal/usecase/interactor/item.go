@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -33,18 +34,43 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 }
 
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID)
+	return i.repos.Item.FindByID(ctx, itemID, nil)
+}
+
+func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindByIDs(ctx, ids)
+	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
 func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	if !operator.IsReadableProject(projectID) {
 		return nil, nil, rerror.ErrNotFound
 	}
-	return i.repos.Item.FindByProject(ctx, projectID, p)
+	// TODO: check operation for projects that publication type is limited
+	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
+}
+
+func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !operator.IsReadableProject(m.Project()) {
+		return nil, nil, rerror.ErrNotFound
+	}
+	return i.repos.Item.FindByModel(ctx, m.ID(), nil, p)
+}
+
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return nil, nil, err
+	}
+	// TODO: check operation for projects that publication type is limited
+	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -54,7 +80,7 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecase
 	}
 
 	sfIds := s.Fields().IDs()
-	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, p)
+	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, p)
 	return res.FilterFields(sfIds), page, err
 }
 
@@ -123,7 +149,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		vi, err := i.repos.Item.FindByID(ctx, it.ID())
+		vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +180,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
-		itm, err := i.repos.Item.FindByID(ctx, param.ItemID)
+		itm, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -206,7 +232,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	}
 
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
-		itm, err := i.repos.Item.FindByID(ctx, itemID)
+		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 		if err != nil {
 			return err
 		}
@@ -238,7 +264,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 		})
 	}
 
-	exists, err := i.repos.Item.FindByModelAndValue(ctx, mid, fieldsArg)
+	exists, err := i.repos.Item.FindByModelAndValue(ctx, mid, fieldsArg, nil)
 	if err != nil {
 		return err
 	}

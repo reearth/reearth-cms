@@ -62,7 +62,7 @@ func TestItem_FindByID(t *testing.T) {
 			err := repo.Save(ctx, tc.RepoData)
 			assert.NoError(tt, err)
 
-			got, err := repo.FindByID(ctx, tc.Input)
+			got, err := repo.FindByID(ctx, tc.Input, nil)
 			if tc.WantErr {
 				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
@@ -156,7 +156,7 @@ func TestItem_FindByIDs(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _ := repo.FindByIDs(ctx, tc.Input)
+			got, _ := repo.FindByIDs(ctx, tc.Input, nil)
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
@@ -212,7 +212,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -263,7 +263,7 @@ func TestItem_FindByProject(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.FindByProject(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
@@ -289,7 +289,7 @@ func TestItem_Remove(t *testing.T) {
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
 
-	got, err := r.FindByID(ctx, i1.ID())
+	got, err := r.FindByID(ctx, i1.ID(), nil)
 	assert.Nil(t, got)
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
@@ -376,13 +376,13 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(pid, "foo"),
+			Input:    item.NewQuery(pid, "foo", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(pid, "hoge"),
+			Input:    item.NewQuery(pid, "hoge", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 1,
 		},
@@ -477,7 +477,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields)
+			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields, nil)
 			assert.Equal(tt, tc.WantErr, err)
 			assert.Equal(tt, tc.Expected, len(got))
 		})

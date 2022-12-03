@@ -149,7 +149,7 @@ func TestToItemQuery(t *testing.T) {
 				Project: IDFrom(pid),
 				Q:       &str,
 			},
-			want: item.NewQuery(pid, str),
+			want: item.NewQuery(pid, str, nil),
 		},
 		{
 			name: "invalid project id",

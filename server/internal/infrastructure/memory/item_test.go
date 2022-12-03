@@ -20,11 +20,11 @@ func TestItem_FindByID(t *testing.T) {
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
-	out, err := r.FindByID(ctx, i.ID())
+	out, err := r.FindByID(ctx, i.ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, i, out.Value())
 
-	out2, err := r.FindByID(ctx, id.ItemID{})
+	out2, err := r.FindByID(ctx, id.ItemID{}, nil)
 	assert.Nil(t, out2)
 	assert.Same(t, rerror.ErrNotFound, err)
 }
@@ -47,7 +47,7 @@ func TestItem_Remove(t *testing.T) {
 
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
-	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
+	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()}, nil)
 	assert.Equal(t, item.List{i2}, data.Unwrap())
 
 	err = r.Remove(ctx, i1.ID())
@@ -72,7 +72,7 @@ func TestItem_Save(t *testing.T) {
 	r := NewItem().Filtered(pf)
 
 	_ = r.Save(ctx, i)
-	got, _ := r.FindByID(ctx, i.ID())
+	got, _ := r.FindByID(ctx, i.ID(), nil)
 	assert.Equal(t, i, got.Value())
 
 	err := r.Save(ctx, i2)
@@ -93,7 +93,7 @@ func TestItem_FindByIDs(t *testing.T) {
 
 	ids := id.ItemIDList{i.ID()}
 	il := item.List{i}
-	out, err := r.FindByIDs(ctx, ids)
+	out, err := r.FindByIDs(ctx, ids, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, il, out.Unwrap())
 }
@@ -133,11 +133,11 @@ func TestItem_FindBySchema(t *testing.T) {
 	_ = r.Save(ctx, i1)
 	_ = r.Save(ctx, i2)
 
-	got, _, err := r.FindBySchema(ctx, sid1, nil)
+	got, _, err := r.FindBySchema(ctx, sid1, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.List{i1}, got.Unwrap())
 
-	got, _, err = r.FindBySchema(ctx, sid2, nil)
+	got, _, err = r.FindBySchema(ctx, sid2, nil, nil)
 	assert.NoError(t, err)
 	assert.Nil(t, got)
 }
@@ -154,7 +154,7 @@ func TestItem_FindByProject(t *testing.T) {
 	_ = r.Save(ctx, i1)
 	_ = r.Save(ctx, i2)
 
-	got, _, err := r.FindByProject(ctx, pid, nil)
+	got, _, err := r.FindByProject(ctx, pid, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.List{i1, i2}, got.Unwrap())
 }
@@ -175,7 +175,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	_ = r.Save(ctx, i3)
-	q := item.NewQuery(pid, "foo")
+	q := item.NewQuery(pid, "foo", nil)
 	got, _, _ := r.Search(ctx, q, nil)
 	assert.Equal(t, 2, len(got))
 
@@ -202,7 +202,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	got, _ := r.FindByModelAndValue(ctx, mid, []repo.FieldAndValue{{
 		Field: f1.FieldID(),
 		Value: f1.Value(),
-	}})
+	}}, nil)
 	assert.Equal(t, 1, len(got))
 
 	wantErr := errors.New("test")
