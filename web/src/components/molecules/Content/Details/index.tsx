@@ -1,5 +1,3 @@
-import styled from "@emotion/styled";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
