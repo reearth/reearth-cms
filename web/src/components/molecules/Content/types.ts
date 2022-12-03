@@ -10,10 +10,20 @@ export type Item = {
   id: string;
   schemaId: string;
   fields: ItemField[] | undefined | null;
+  threadId: string;
+  comments: Comment[];
 };
 
 export type ContentTableField = {
   id: string;
   schemaId: string;
   fields: { [key: string]: any };
+};
+
+export type Comment = {
+  id: string;
+  author: string;
+  authorType: "User" | "Integration";
+  content: string;
+  createdAt: string;
 };

@@ -17,7 +17,8 @@ export default () => {
       ?.map(item =>
         item
           ? {
-              ...item,
+              id: item.id,
+              schemaId: item.schemaId,
               fields: item?.fields?.reduce(
                 (obj, field) => Object.assign(obj, { [field.schemaFieldId]: field.value }),
                 {},
