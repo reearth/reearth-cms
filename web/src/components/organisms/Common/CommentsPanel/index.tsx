@@ -7,15 +7,9 @@ export type Props = {
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];
-  collapsedInitialValue?: boolean;
 };
 
-const CommentsPanel: React.FC<Props> = ({
-  emptyText,
-  threadId,
-  comments,
-  collapsedInitialValue,
-}) => {
+const CommentsPanel: React.FC<Props> = ({ emptyText, threadId, comments }) => {
   const { handleCommentCreate } = useHooks({
     threadId,
   });
@@ -25,7 +19,6 @@ const CommentsPanel: React.FC<Props> = ({
       emptyText={emptyText}
       comments={comments}
       onCommentCreate={handleCommentCreate}
-      collapsedInitialValue={collapsedInitialValue}
     />
   );
 };

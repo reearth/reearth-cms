@@ -13,7 +13,6 @@ export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
   comments?: Comment[];
   emptyText?: string;
-  collapsedInitialValue?: boolean;
 };
 
 const CommentsPanel: React.FC<Props> = ({ onCommentCreate, comments, emptyText }) => {

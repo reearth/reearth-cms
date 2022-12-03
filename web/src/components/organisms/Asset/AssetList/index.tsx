@@ -36,7 +36,6 @@ const AssetList: React.FC = () => {
     <AssetListBody
       commentsPanel={
         <CommentsPanel
-          collapsedInitialValue={selectedAsset ? false : true}
           emptyText={
             selectedAsset
               ? t("No comments.")
