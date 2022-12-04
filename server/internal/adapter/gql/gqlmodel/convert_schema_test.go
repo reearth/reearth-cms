@@ -127,7 +127,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 
 	type args struct {
 		tp *schema.TypeProperty
-		dv *value.Value
+		dv *value.Multiple
 	}
 	tests := []struct {
 		name string
@@ -200,7 +200,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToSchemaFieldTypeProperty(tt.args.tp, tt.args.dv))
+			assert.Equal(t, tt.want, ToSchemaFieldTypeProperty(tt.args.tp, tt.args.dv, false))
 		})
 	}
 }
@@ -319,7 +319,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tp, dv, err := FromSchemaTypeProperty(tt.argsInp, tt.argsT)
+			tp, dv, err := FromSchemaTypeProperty(tt.argsInp, tt.argsT, false)
 			assert.Equal(t, tt.wantTp, tp)
 			assert.Equal(t, tt.wantDv, dv)
 			assert.Equal(t, tt.wantError, err)

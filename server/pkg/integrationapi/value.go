@@ -63,6 +63,10 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValue(v *value.Multiple) any {
+// TODO: fix callers and get the multiple value from the schema
+func ToValue(v *value.Multiple, multiple bool) any {
+	if !multiple {
+		return v.First().Value()
+	}
 	return v.Interface()
 }

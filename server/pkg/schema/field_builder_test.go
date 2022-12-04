@@ -26,7 +26,7 @@ func TestNewField(t *testing.T) {
 			multiple:     true,
 			required:     true,
 			typeProperty: tp,
-			defaultValue: dv,
+			defaultValue: dv.AsMultiple(),
 		},
 		NewField(tp).
 			ID(id).
@@ -36,7 +36,7 @@ func TestNewField(t *testing.T) {
 			Multiple(true).
 			Unique(true).
 			Required(true).
-			DefaultValue(dv).
+			DefaultValue(dv.AsMultiple()).
 			MustBuild(),
 	)
 
@@ -56,7 +56,7 @@ func TestNewField(t *testing.T) {
 	_, err = NewField(NewText(nil).TypeProperty()).
 		NewID().
 		Key(k).
-		DefaultValue(value.TypeBool.Value(true)).
+		DefaultValue(value.TypeBool.Value(true).AsMultiple()).
 		Build()
 	assert.Equal(t, ErrInvalidValue, err)
 

@@ -55,7 +55,7 @@ func TestToItem(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got := ToItem(tc.input)
+			got := ToItem(tc.input, false)
 			assert.Equal(tt, tc.want, got)
 		})
 	}
@@ -120,7 +120,7 @@ func TestToVersionedItem(t *testing.T) {
 				Version: vv.Version().String(),
 				Parents: []string{vy.String()},
 				Refs:    []string{ref},
-				Value:   ToItem(vv.Value()),
+				Value:   ToItem(vv.Value(), false),
 			},
 		},
 		{
@@ -129,7 +129,7 @@ func TestToVersionedItem(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ToVersionedItem(tc.args)
+			got := ToVersionedItem(tc.args, false)
 			assert.Equal(t, tc.want, got)
 		})
 	}

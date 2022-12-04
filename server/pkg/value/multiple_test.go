@@ -7,14 +7,14 @@ import (
 )
 
 func TestMultipleNew(t *testing.T) {
-	m := NewMultiple(TypeUnknown, []*Value{})
+	m := MultipleFrom(TypeUnknown, []*Value{})
 	assert.Nil(t, m)
 
-	m = NewMultiple(TypeBool, []*Value{New(TypeBool, true), New(TypeText, "test")})
+	m = MultipleFrom(TypeBool, []*Value{New(TypeBool, true), New(TypeText, "test")})
 	assert.Nil(t, m)
 
 	v := []*Value{New(TypeBool, true), New(TypeBool, false)}
-	m = NewMultiple(TypeBool, v)
+	m = MultipleFrom(TypeBool, v)
 	assert.NotNil(t, m)
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)

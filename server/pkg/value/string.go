@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/samber/lo"
 )
 
 const TypeText Type = "text"
@@ -65,5 +67,18 @@ func (v *Value) ValueString() (vv String, ok bool) {
 		return
 	}
 	vv, ok = v.v.(String)
+	return
+}
+
+func (m *Multiple) ValuesString() (vv []String, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (string, bool) {
+		return v.ValueString()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

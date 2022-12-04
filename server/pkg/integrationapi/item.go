@@ -33,7 +33,7 @@ func NewItem(i *item.Item) Item {
 		return Field{
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
-			Value: lo.ToPtr(ToValue(f.Value())),
+			Value: lo.ToPtr(ToValue(f.Value(), false)),
 		}
 	})
 

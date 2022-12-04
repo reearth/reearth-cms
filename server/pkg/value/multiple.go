@@ -10,7 +10,21 @@ type Multiple struct {
 	v []*Value
 }
 
-func NewMultiple(t Type, v []*Value) *Multiple {
+func NewMultiple(t Type, v []any) *Multiple {
+	if t == TypeUnknown {
+		return nil
+	}
+	vs := lo.FilterMap(v, func(w any, _ int) (*Value, bool) {
+		vv := New(t, w)
+		return vv, vv != nil
+	})
+	return &Multiple{
+		t: t,
+		v: vs,
+	}
+}
+
+func MultipleFrom(t Type, v []*Value) *Multiple {
 	if t == TypeUnknown {
 		return nil
 	}
@@ -50,6 +64,13 @@ func (m *Multiple) Values() []*Value {
 	return lo.Map(m.v, func(v *Value, _ int) *Value {
 		return v.Clone()
 	})
+}
+
+func (m *Multiple) First() *Value {
+	if m == nil || len(m.v) == 0 {
+		return nil
+	}
+	return m.v[0].Clone()
 }
 
 func (m *Multiple) Type() Type {

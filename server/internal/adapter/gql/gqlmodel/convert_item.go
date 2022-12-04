@@ -8,7 +8,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToItem(i *item.Item) *Item {
+// TODO: fix callers and get the multiple value from the schema
+func ToItem(i *item.Item, multiple bool) *Item {
 	if i == nil {
 		return nil
 	}
@@ -24,13 +25,14 @@ func ToItem(i *item.Item) *Item {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
 				Type:          ToValueType(f.Type()),
-				Value:         ToValue(f.Value()),
+				Value:         ToValue(f.Value(), multiple),
 			}
 		}),
 	}
 }
 
-func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
+// TODO: fix callers and get the multiple value from the schema
+func ToVersionedItem(v *version.Value[*item.Item], multiple bool) *VersionedItem {
 	if v == nil {
 		return nil
 	}
@@ -45,7 +47,7 @@ func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
 		Version: v.Version().String(),
 		Parents: parents,
 		Refs:    refs,
-		Value:   ToItem(v.Value()),
+		Value:   ToItem(v.Value(), multiple),
 	}
 }
 

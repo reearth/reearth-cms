@@ -562,7 +562,7 @@ func TestItem_Create(t *testing.T) {
 	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item, it)
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
@@ -663,7 +663,7 @@ func TestItem_Update(t *testing.T) {
 	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.Value(), it.Value())
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{

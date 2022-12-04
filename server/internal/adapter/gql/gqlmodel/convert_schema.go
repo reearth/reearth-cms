@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -32,7 +33,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	return &SchemaField{
 		ID:           IDFrom(sf.ID()),
 		Type:         ToValueType(sf.Type()),
-		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty(), sf.DefaultValue()),
+		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty(), sf.DefaultValue(), sf.Multiple()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
 		Description:  lo.ToPtr(sf.Description()),
@@ -44,74 +45,93 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 }
 
-func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Value) (res SchemaFieldTypeProperty) {
+func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
 	tp.Match(schema.TypePropertyMatch{
 		Text: func(f *schema.FieldText) {
-			v, _ := dv.ValueString()
 			res = &SchemaFieldText{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
+				DefaultValue: valueString(dv, multiple),
 				MaxLength:    f.MaxLength(),
 			}
 		},
 		TextArea: func(f *schema.FieldTextArea) {
-			v, _ := dv.ValueString()
 			res = &SchemaFieldTextArea{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
+				DefaultValue: valueString(dv, multiple),
 				MaxLength:    f.MaxLength(),
 			}
 		},
 		RichText: func(f *schema.FieldRichText) {
-			v, _ := dv.ValueString()
 			res = &SchemaFieldRichText{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
+				DefaultValue: valueString(dv, multiple),
 				MaxLength:    f.MaxLength(),
 			}
 		},
 		Markdown: func(f *schema.FieldMarkdown) {
-			v, _ := dv.ValueString()
 			res = &SchemaFieldMarkdown{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
+				DefaultValue: valueString(dv, multiple),
 				MaxLength:    f.MaxLength(),
 			}
 		},
-		Asset: func(f *schema.FieldAsset) {
-			v, _ := dv.ValueAsset()
-			res = &SchemaFieldAsset{
-				DefaultValue: IDFromRef(util.ToPtrIfNotEmpty(v)),
-			}
-		},
-		DateTime: func(f *schema.FieldDateTime) {
-			v, _ := dv.ValueDateTime()
-			res = &SchemaFieldDate{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
-			}
-		},
-		Bool: func(f *schema.FieldBool) {
-			v, _ := dv.ValueBool()
-			res = &SchemaFieldBool{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
-			}
-		},
 		Select: func(f *schema.FieldSelect) {
-			v, _ := dv.ValueString()
 			res = &SchemaFieldSelect{
-				DefaultValue: util.ToPtrIfNotEmpty(v),
+				DefaultValue: valueString(dv, multiple),
 				Values:       f.Values(),
 			}
 		},
+		Asset: func(f *schema.FieldAsset) {
+			var v any
+			if multiple {
+				v, _ = dv.ValuesAsset()
+			} else {
+				v, _ = dv.First().ValueAsset()
+			}
+			res = &SchemaFieldAsset{
+				DefaultValue: v,
+			}
+		},
+		DateTime: func(f *schema.FieldDateTime) {
+			var v any
+			if multiple {
+				v, _ = dv.ValuesDateTime()
+			} else {
+				v, _ = dv.First().ValueDateTime()
+			}
+			res = &SchemaFieldDate{
+				DefaultValue: v,
+			}
+		},
+		Bool: func(f *schema.FieldBool) {
+			var v any
+			if multiple {
+				v, _ = dv.ValuesBool()
+			} else {
+				v, _ = dv.First().ValueBool()
+			}
+			res = &SchemaFieldBool{
+				DefaultValue: v,
+			}
+		},
 		Number: func(f *schema.FieldNumber) {
-			v, _ := dv.ValueNumber()
-			// res = &SchemaFieldNumber{
+			var v any
+			if multiple {
+				v, _ = dv.ValuesNumber()
+			} else {
+				v, _ = dv.First().ValueNumber()
+			}
 			res = &SchemaFieldInteger{
-				DefaultValue: util.ToPtrIfNotEmpty(int(v)),
+				DefaultValue: v,
 				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
 				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {
-			v, _ := dv.ValueInteger()
+			var v any
+			if multiple {
+				v, _ = dv.ValuesInteger()
+			} else {
+				v, _ = dv.First().ValueInteger()
+			}
 			res = &SchemaFieldInteger{
-				DefaultValue: util.ToPtrIfNotEmpty(int(v)),
+				DefaultValue: v,
 				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
 				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
 			}
@@ -122,81 +142,132 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Value) (res Sc
 			}
 		},
 		URL: func(f *schema.FieldURL) {
-			v, _ := dv.ValueURL()
+			var v any
+			if multiple {
+				v, _ = dv.ValuesURL()
+			} else {
+				v, _ = dv.First().ValueURL()
+			}
 			res = &SchemaFieldURL{
-				DefaultValue: util.ToPtrIfNotEmpty(lo.ToPtr(lo.FromPtr(v)).String()),
+				DefaultValue: v,
 			}
 		},
 	})
 	return
 }
 
+func valueString(dv *value.Multiple, multiple bool) any {
+	var v any
+	if multiple {
+		v, _ = dv.ValuesString()
+	} else {
+		v, _ = dv.First().ValueString()
+	}
+	return v
+}
+
 var ErrInvalidTypeProperty = errors.New("invalid type property")
 
-func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType) (tpRes *schema.TypeProperty, dv *value.Value, err error) {
+func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	switch t {
 	case SchemaFieldTypeText:
 		x := tp.Text
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeText, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeText, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeText, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewText(x.MaxLength).TypeProperty()
 	case SchemaFieldTypeTextArea:
 		x := tp.TextArea
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeTextArea, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeTextArea, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeTextArea, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewTextArea(x.MaxLength).TypeProperty()
 	case SchemaFieldTypeRichText:
 		x := tp.RichText
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeRichText, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeRichText, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeRichText, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewRichText(x.MaxLength).TypeProperty()
 	case SchemaFieldTypeMarkdownText:
 		x := tp.MarkdownText
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeMarkdownText, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeMarkdown, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeMarkdownText, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewMarkdown(x.MaxLength).TypeProperty()
 	case SchemaFieldTypeAsset:
 		x := tp.Asset
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeAsset, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeAsset, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeAsset, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewAsset().TypeProperty()
 	case SchemaFieldTypeDate:
 		x := tp.Date
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeDate, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeDateTime, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeDate, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewDateTime().TypeProperty()
 	case SchemaFieldTypeBool:
 		x := tp.Bool
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeBool, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeBool, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeBool, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewBool().TypeProperty()
 	case SchemaFieldTypeSelect:
 		x := tp.Select
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeBool, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewSelect(x.Values).TypeProperty()
 	case SchemaFieldTypeInteger:
 		x := tp.Integer
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeInteger, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeInteger, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeInteger, x.DefaultValue).AsMultiple()
+		}
 		var min, max *int64
 		if x.Min != nil {
 			min = lo.ToPtr(int64(*min))
@@ -224,10 +295,24 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType)
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		dv = FromValue(SchemaFieldTypeURL, x.DefaultValue)
+		if multiple {
+			dv = value.NewMultiple(value.TypeURL, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeURL, x.DefaultValue).AsMultiple()
+		}
 		tpRes = schema.NewURL().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}
 	return
+}
+
+// TODO: move to util
+func unpackArray(s any) []any {
+	v := reflect.ValueOf(s)
+	r := make([]any, v.Len())
+	for i := 0; i < v.Len(); i++ {
+		r[i] = v.Index(i).Interface()
+	}
+	return r
 }

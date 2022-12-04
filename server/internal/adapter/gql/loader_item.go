@@ -14,11 +14,12 @@ import (
 )
 
 type ItemLoader struct {
-	usecase interfaces.Item
+	usecase       interfaces.Item
+	schemaUsecase interfaces.Schema
 }
 
-func NewItemLoader(usecase interfaces.Item) *ItemLoader {
-	return &ItemLoader{usecase: usecase}
+func NewItemLoader(usecase interfaces.Item, schemaUsecase interfaces.Schema) *ItemLoader {
+	return &ItemLoader{usecase: usecase, schemaUsecase: schemaUsecase}
 }
 func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
 	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
@@ -32,7 +33,7 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}
 
 	return lo.Map(res, func(m item.Versioned, i int) *gqlmodel.Item {
-		return gqlmodel.ToItem(m.Value())
+		return gqlmodel.ToItem(m.Value(), false)
 	}), nil
 }
 
@@ -49,7 +50,7 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 
 	vis := make([]*gqlmodel.VersionedItem, 0, len(res))
 	for _, t := range res {
-		vis = append(vis, gqlmodel.ToVersionedItem(t))
+		vis = append(vis, gqlmodel.ToVersionedItem(t, false))
 	}
 	return vis, nil
 }
@@ -75,7 +76,7 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, fir
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i.Value())
+		itm := gqlmodel.ToItem(i.Value(), false)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -112,7 +113,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i.Value())
+		itm := gqlmodel.ToItem(i.Value(), false)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -138,7 +139,7 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, p *gq
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i.Value())
+		itm := gqlmodel.ToItem(i.Value(), false)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),

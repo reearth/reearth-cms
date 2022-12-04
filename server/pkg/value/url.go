@@ -2,6 +2,8 @@ package value
 
 import (
 	"net/url"
+
+	"github.com/samber/lo"
 )
 
 const TypeURL Type = "url"
@@ -50,5 +52,18 @@ func (v *Value) ValueURL() (vv URL, ok bool) {
 		return
 	}
 	vv, ok = v.v.(URL)
+	return
+}
+
+func (m *Multiple) ValuesURL() (vv []URL, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (URL, bool) {
+		return v.ValueURL()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

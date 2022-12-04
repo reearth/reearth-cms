@@ -28,7 +28,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	}
 
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value()),
+		Item: gqlmodel.ToItem(res.Value(), false),
 	}, nil
 }
 
@@ -46,7 +46,7 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	}
 
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value()),
+		Item: gqlmodel.ToItem(res.Value(), false),
 	}, nil
 }
 

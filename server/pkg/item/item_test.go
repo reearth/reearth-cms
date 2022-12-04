@@ -170,9 +170,9 @@ func TestItem_AssetIDs(t *testing.T) {
 	aid, aid2 := id.NewAssetID(), id.NewAssetID()
 	assert.Equal(t, id.AssetIDList{aid, aid2}, (&Item{
 		fields: []*Field{
-			{value: value.New(value.TypeAsset, aid).Some()},
-			{value: value.New(value.TypeText, "aa").Some()},
-			{value: value.New(value.TypeAsset, aid2).Some()},
+			{value: value.New(value.TypeAsset, aid).AsMultiple()},
+			{value: value.New(value.TypeText, "aa").AsMultiple()},
+			{value: value.New(value.TypeAsset, aid2).AsMultiple()},
 		},
 	}).AssetIDs())
 }

@@ -1,6 +1,10 @@
 package mongodoc
 
-import "github.com/reearth/reearth-cms/server/pkg/value"
+import (
+	"reflect"
+
+	"github.com/reearth/reearth-cms/server/pkg/value"
+)
 
 type ValueDocument struct {
 	T string `bson:"t"`
@@ -67,10 +71,14 @@ func (d *ValueDocument) MultipleValue() *value.Multiple {
 	}
 
 	t := value.Type(d.T)
-	var v []*value.Value
-	for _, w := range d.V.([]any) {
-		v = append(v, value.New(t, w))
-	}
+	return value.NewMultiple(t, unpackArray(d.V))
+}
 
-	return value.NewMultiple(t, v)
+func unpackArray(s any) []any {
+	v := reflect.ValueOf(s)
+	r := make([]any, v.Len())
+	for i := 0; i < v.Len(); i++ {
+		r[i] = v.Index(i).Interface()
+	}
+	return r
 }

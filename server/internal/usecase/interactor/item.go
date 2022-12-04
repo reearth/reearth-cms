@@ -13,8 +13,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -283,30 +283,31 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		var v []*value.Value
 		if !sf.Multiple() && sf.Type() != value.TypeSelect {
 			f.Value = []any{f.Value}
 		}
 
-		for _, fv := range f.Value.([]any) {
+		var vs []*value.Value
+		as, ok := f.Value.([]any)
+		if !ok {
+			return nil, interfaces.ErrInvalidValue
+		}
+		for _, fv := range as {
 			w := sf.Type().Value(fv)
 			if w == nil {
 				return nil, interfaces.ErrInvalidValue
 			}
-
-			if err := sf.Validate(w); err != nil {
-				return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
-			}
-			v = append(v, w)
+			vs = append(vs, w)
 		}
 
-		if sf.Required() && len(v) == 0 {
-			return nil, schema.ErrValueRequired
+		m := value.MultipleFrom(sf.Type(), vs)
+		if err := sf.Validate(m); err != nil {
+			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
 		return item.NewField(
 			f.Field,
-			value.NewMultiple(sf.Type(), v),
+			m,
 		), nil
 	})
 }

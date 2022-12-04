@@ -34,7 +34,10 @@ func (v *Value) Some() *Optional {
 }
 
 func (v *Value) AsMultiple() *Multiple {
-	return NewMultiple(v.t, []*Value{v})
+	if v == nil {
+		return nil
+	}
+	return MultipleFrom(v.t, []*Value{v})
 }
 
 func (v *Value) Value() interface{} {

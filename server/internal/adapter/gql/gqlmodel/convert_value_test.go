@@ -169,7 +169,7 @@ func TestToValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToValue(tt.v.AsMultiple()))
+			assert.Equal(t, tt.want, ToValue(tt.v.AsMultiple(), false))
 		})
 	}
 }

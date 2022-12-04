@@ -3565,49 +3565,49 @@ union SchemaFieldTypeProperty =
 
 
 type SchemaFieldText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldTextArea {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldRichText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldMarkdown {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldAsset {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 type SchemaFieldDate {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 type SchemaFieldBool {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 type SchemaFieldSelect {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: [String!]!
+  defaultValue: Any
 }
 
 type SchemaFieldInteger {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -3617,55 +3617,55 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
-  defaultValue: String
+  defaultValue: Any
 }
 
 # Inputs
 
 input SchemaFieldTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldTextAreaInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldRichTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaMarkdownTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldAssetInput {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 input SchemaFieldDateInput {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 input SchemaFieldBoolInput {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 input SchemaFieldSelectInput {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTagInput {
   values: [String!]!
-  defaultValue: [String!]
+  defaultValue: Any
 }
 
 input SchemaFieldIntegerInput {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -3675,7 +3675,7 @@ input SchemaFieldReferenceInput {
 }
 
 input SchemaFieldURLInput {
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -15783,9 +15783,9 @@ func (ec *executionContext) _SchemaFieldAsset_defaultValue(ctx context.Context, 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ID)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldAsset_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15795,7 +15795,7 @@ func (ec *executionContext) fieldContext_SchemaFieldAsset_defaultValue(ctx conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15824,9 +15824,9 @@ func (ec *executionContext) _SchemaFieldBool_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldBool_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15836,7 +15836,7 @@ func (ec *executionContext) fieldContext_SchemaFieldBool_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15865,9 +15865,9 @@ func (ec *executionContext) _SchemaFieldDate_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalODateTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15877,7 +15877,7 @@ func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15906,9 +15906,9 @@ func (ec *executionContext) _SchemaFieldInteger_defaultValue(ctx context.Context
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldInteger_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15918,7 +15918,7 @@ func (ec *executionContext) fieldContext_SchemaFieldInteger_defaultValue(ctx con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16029,9 +16029,9 @@ func (ec *executionContext) _SchemaFieldMarkdown_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldMarkdown_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16041,7 +16041,7 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16155,9 +16155,9 @@ func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16167,7 +16167,7 @@ func (ec *executionContext) fieldContext_SchemaFieldRichText_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16281,9 +16281,9 @@ func (ec *executionContext) _SchemaFieldSelect_defaultValue(ctx context.Context,
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16293,7 +16293,7 @@ func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16364,14 +16364,11 @@ func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldTag_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16381,7 +16378,7 @@ func (ec *executionContext) fieldContext_SchemaFieldTag_defaultValue(ctx context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16410,9 +16407,9 @@ func (ec *executionContext) _SchemaFieldText_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldText_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16422,7 +16419,7 @@ func (ec *executionContext) fieldContext_SchemaFieldText_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16492,9 +16489,9 @@ func (ec *executionContext) _SchemaFieldTextArea_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldTextArea_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16504,7 +16501,7 @@ func (ec *executionContext) fieldContext_SchemaFieldTextArea_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16574,9 +16571,9 @@ func (ec *executionContext) _SchemaFieldURL_defaultValue(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldURL_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16586,7 +16583,7 @@ func (ec *executionContext) fieldContext_SchemaFieldURL_defaultValue(ctx context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21776,7 +21773,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21804,7 +21801,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21832,7 +21829,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21860,7 +21857,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21932,7 +21929,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21976,7 +21973,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22012,7 +22009,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22040,7 +22037,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22076,7 +22073,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22444,7 +22441,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -22472,7 +22469,7 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26515,9 +26512,6 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._SchemaFieldTag_defaultValue(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29596,22 +29590,6 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthx�
 	return res
 }
 
-func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalTime(*v)
-	return res
-}
-
 func (ec *executionContext) marshalODeleteAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteAssetPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -29687,23 +29665,6 @@ func (ec *executionContext) marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋree
 		return graphql.Null
 	}
 	return ec._FieldPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (*gqlmodel.ID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	tmp, err := graphql.UnmarshalString(v)
-	res := gqlmodel.ID(tmp)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(string(*v))
-	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
