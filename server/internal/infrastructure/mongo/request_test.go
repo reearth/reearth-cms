@@ -18,7 +18,7 @@ import (
 
 func TestRequest_Filtered(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -80,7 +80,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -143,7 +143,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -204,7 +204,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -316,7 +316,7 @@ func TestRequest_FindByProject(t *testing.T) {
 
 func TestRequest_Remove(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
