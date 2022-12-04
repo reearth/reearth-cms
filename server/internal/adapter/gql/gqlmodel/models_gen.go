@@ -1030,6 +1030,7 @@ const (
 	NodeTypeWorkspace   NodeType = "WORKSPACE"
 	NodeTypeProject     NodeType = "PROJECT"
 	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeRequest     NodeType = "REQUEST"
 	NodeTypeModel       NodeType = "Model"
 	NodeTypeSchema      NodeType = "Schema"
 	NodeTypeItem        NodeType = "Item"
@@ -1041,6 +1042,7 @@ var AllNodeType = []NodeType{
 	NodeTypeWorkspace,
 	NodeTypeProject,
 	NodeTypeAsset,
+	NodeTypeRequest,
 	NodeTypeModel,
 	NodeTypeSchema,
 	NodeTypeItem,
@@ -1049,7 +1051,7 @@ var AllNodeType = []NodeType{
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false

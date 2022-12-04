@@ -3326,6 +3326,7 @@ enum NodeType {
   WORKSPACE
   PROJECT
   ASSET
+  REQUEST
   Model
   Schema
   Item

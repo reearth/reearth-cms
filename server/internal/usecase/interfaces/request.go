@@ -36,7 +36,7 @@ type RequestFilter struct {
 type Request interface {
 	FindByID(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
 	FindByIDs(context.Context, id.RequestIDList, *usecase.Operator) ([]*request.Request, error)
-	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination, *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error)
 	Create(context.Context, CreateRequestParam, *usecase.Operator) (*request.Request, error)
 	Update(context.Context, UpdateRequestParam, *usecase.Operator) (*request.Request, error)
 	Approve(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)

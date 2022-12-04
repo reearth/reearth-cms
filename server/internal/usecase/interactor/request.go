@@ -36,7 +36,14 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator 
 	return r.repos.Request.FindByIDs(ctx, list)
 }
 
-func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error) {
+func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, operator *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error) {
+	if operator.User == nil {
+		return nil, nil, interfaces.ErrInvalidOperator
+	}
+	if !operator.IsReadableProject(pid) {
+		return nil, nil, interfaces.ErrOperationDenied
+	}
+
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:      filter.State,
 		Keyword:    filter.Keyword,
