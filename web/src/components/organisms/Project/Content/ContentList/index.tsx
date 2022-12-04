@@ -1,4 +1,5 @@
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
+import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -11,8 +12,12 @@ const ContentList: React.FC = () => {
     currentModel,
     contentTableFields,
     contentTableColumns,
-    collapsed,
-    collapse,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    selectedItem,
+    handleItemSelect,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleModelSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
@@ -22,15 +27,34 @@ const ContentList: React.FC = () => {
 
   return (
     <ContentListMolecule
-      collapsed={collapsed}
+      commentsPanel={
+        <CommentsPanel
+          collapsed={collapsedCommentsPanel}
+          onCollapse={collapseCommentsPanel}
+          emptyText={
+            selectedItem
+              ? t("No comments.")
+              : t("Please click the comment bubble in table to check comments.")
+          }
+          comments={selectedItem?.comments}
+          threadId={selectedItem?.threadId}
+        />
+      }
+      selectedItem={selectedItem}
+      onItemSelect={handleItemSelect}
+      collapsed={collapsedModelMenu}
       itemsDataLoading={itemsDataLoading}
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
       modelsMenu={
-        <ModelsMenu title={t("Content")} collapsed={collapsed} onModelSelect={handleModelSelect} />
+        <ModelsMenu
+          title={t("Content")}
+          collapsed={collapsedModelMenu}
+          onModelSelect={handleModelSelect}
+        />
       }
-      onCollapse={collapse}
+      onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
       onItemAdd={handleNavigateToItemForm}

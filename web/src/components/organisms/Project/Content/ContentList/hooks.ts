@@ -3,14 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
+import { convertComment, convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
 export default () => {
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
   const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
-  const [collapsed, collapse] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
+  const [selectedItemId, setSelectedItemId] = useState<string>();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
@@ -23,6 +27,7 @@ export default () => {
                 (obj, field) => Object.assign(obj, { [field.schemaFieldId]: field.value }),
                 {},
               ),
+              comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
             }
           : undefined,
       )
@@ -66,13 +71,30 @@ export default () => {
     [workspaceId, projectId, modelId, navigate],
   );
 
+  const handleItemSelect = useCallback(
+    (id: string) => {
+      setSelectedItemId(id);
+      collapseCommentsPanel(false);
+    },
+    [setSelectedItemId],
+  );
+
+  const selectedItem = useMemo(
+    () => convertItem(itemsData?.items.nodes.find(item => item?.id === selectedItemId) as GQLItem),
+    [itemsData?.items.nodes, selectedItemId],
+  );
+
   return {
     currentModel,
     itemsDataLoading,
     contentTableFields,
     contentTableColumns,
-    collapsed,
-    collapse,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    selectedItem,
+    handleItemSelect,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleModelSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
