@@ -21,8 +21,9 @@ type Request implements Node {
 
 type RequestItem {
   itemId: ID!
-  version: String!
-  item: VersionedItem # resolver
+  version: String
+  ref: String
+  item: VersionedItem
 }
 
 enum RequestState {
@@ -37,19 +38,19 @@ input CreateRequestInput {
   projectId: ID!
   title: String!
   description: String
-  state: RequestState # note: approved and closed cannot be accepted. Only draft or waiting is available. Default is waiting.
-  reviewersId: [ID!] # only owners and maintainers, no reviewers is also ok
+  state: RequestState
+  reviewersId: [ID!]
   items: [RequestItemInput!]!
 }
 
-# note: owners, maintainers, and a request creator can update requests
+
 input UpdateRequestInput {
   requestId: ID!
   title: String
   description: String
-  state: RequestState # note: approved cannot not accepted
+  state: RequestState
   reviewersId: [ID!]
-  items: [RequestItemInput!] # maybe?
+  items: [RequestItemInput!]
 }
 
 input RequestItemInput {
