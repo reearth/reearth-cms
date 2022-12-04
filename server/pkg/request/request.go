@@ -3,6 +3,8 @@ package request
 import (
 	"errors"
 	"time"
+
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -39,7 +41,7 @@ func (r *Request) Project() ProjectID {
 }
 
 func (r *Request) Items() []*Item {
-	return r.items
+	return slices.Clone(r.items)
 }
 
 func (r *Request) Title() string {
@@ -99,7 +101,7 @@ func (r *Request) SetReviewers(reviewers []UserID) {
 }
 
 func (r *Request) SetItems(items []*Item) {
-	r.items = items
+	r.items = slices.Clone(items)
 }
 
 func (r *Request) SetState(state State) {
