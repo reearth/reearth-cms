@@ -11,7 +11,7 @@ func (i *Item) Item() ItemID {
 	return i.item
 }
 
-func (i *Item) Version() version.VersionOrRef {
+func (i *Item) Pointer() version.VersionOrRef {
 	return i.pointer
 }
 
