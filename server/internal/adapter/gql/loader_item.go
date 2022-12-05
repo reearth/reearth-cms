@@ -64,6 +64,9 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	}
 
 	s, err := c.schemaUsecase.FindByID(ctx, res[0].Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
 
 	vis := make([]*gqlmodel.VersionedItem, 0, len(res))
 	for _, t := range res {
