@@ -44,6 +44,7 @@ export const assetFragment = gql`
     thread {
       ...threadFragment
     }
+    archiveExtractionStatus
   }
   ${assetFileFragment}
   ${integrationFragment}
