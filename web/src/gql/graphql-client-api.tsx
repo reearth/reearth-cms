@@ -883,7 +883,7 @@ export type RemoveUserFromWorkspaceInput = {
 };
 
 export enum Role {
-  Maintainer = 'MAINTAINER',
+  Maintainer = 'Maintainer',
   Owner = 'OWNER',
   Reader = 'READER',
   Writer = 'WRITER'
