@@ -15,7 +15,20 @@ import (
 
 func TestNewDocument(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().
+		Project(project.NewID()).
+		Size(100).
+		CreatedByUser(u.ID()).
+		File(
+			asset.NewFile().
+				Name("aaa.txt").
+				Path("/aaa.txt").
+				Size(100).
+				Build(),
+		).
+		NewUUID().
+		Thread(id.NewThreadID()).
+		MustBuild()
 
 	// should success
 	assetDoc, _ := NewAsset(a)
@@ -43,7 +56,9 @@ func TestNewDocument(t *testing.T) {
 func TestModelFrom(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).CreatedByUser(u.ID()).File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).NewUUID().CreatedByUser(u.ID()).
+		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").
+			Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
 
 	// should success
 	doc, _, err := NewDocument(a)

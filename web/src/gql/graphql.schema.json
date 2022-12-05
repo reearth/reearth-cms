@@ -6474,7 +6474,7 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "Maintainer",
+            "name": "MAINTAINER",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

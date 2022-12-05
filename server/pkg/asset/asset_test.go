@@ -148,7 +148,7 @@ func TestAsset_UpdateStatus(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).File(NewFile().Build()).NewUUID().MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)
