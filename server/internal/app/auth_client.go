@@ -31,74 +31,127 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
-			var u *user.User
-			if ai := adapter.GetAuthInfo(ctx); ai != nil {
-				var err error
-				userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
-				u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
-					Sub:   ai.Sub,
-					ISS:   ai.Iss,
-					Token: ai.Token,
-				})
-				if err != nil {
-					return err
-				}
-			}
-			if cfg.Debug {
-				if val := req.Header.Get(debugUserHeaderKey); val != "" {
-					uId, err := id.UserIDFrom(val)
-					if err != nil {
-						return err
-					}
-					u, err = cfg.Repos.User.FindByID(ctx, uId)
-					if err != nil {
-						return err
-					}
-				}
-			}
-			if u != nil {
-				op, err := generateUserOperator(ctx, cfg, u)
-				if err != nil {
-					return err
-				}
-
-				ctx = adapter.AttachUser(ctx, u)
-				ctx = adapter.AttachOperator(ctx, op)
+			ctx, err = attachUserOperator(ctx, req, cfg)
+			if err != nil {
+				return err
 			}
 
-			var i *integration.Integration
-			if token := getIntegrationToken(req); token != "" {
-				var err error
-				i, err = cfg.Repos.Integration.FindByToken(ctx, token)
-				if err != nil {
-					if errors.Is(err, rerror.ErrNotFound) {
-						return echo.ErrUnauthorized
-					}
-					return err
-				}
-			}
-			if cfg.Debug {
-				if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
-					iId, err := id.IntegrationIDFrom(val)
-					if err != nil {
-						return err
-					}
-					i, err = cfg.Repos.Integration.FindByID(ctx, iId)
-					if err != nil {
-						return err
-					}
-				}
-			}
-			if i != nil {
-				op, err := generateIntegrationOperator(ctx, cfg, i)
-				if err != nil {
-					return err
-				}
-
-				ctx = adapter.AttachOperator(ctx, op)
+			ctx, err = attachIntegrationOperator(ctx, req, cfg)
+			if err != nil {
+				return err
 			}
 
 			c.SetRequest(req.WithContext(ctx))
+			return next(c)
+		}
+	}
+}
+
+func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
+	var u *user.User
+	if ai := adapter.GetAuthInfo(ctx); ai != nil {
+		var err error
+		userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
+		u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
+			Sub:   ai.Sub,
+			ISS:   ai.Iss,
+			Token: ai.Token,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if cfg.Debug {
+		if val := req.Header.Get(debugUserHeaderKey); val != "" {
+			uId, err := id.UserIDFrom(val)
+			if err != nil {
+				return nil, err
+			}
+			u, err = cfg.Repos.User.FindByID(ctx, uId)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// generate operator
+	if u != nil {
+		op, err := generateUserOperator(ctx, cfg, u)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx = adapter.AttachUser(ctx, u)
+		ctx = adapter.AttachOperator(ctx, op)
+	}
+
+	return ctx, nil
+}
+
+func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
+	var i *integration.Integration
+	if token := getIntegrationToken(req); token != "" {
+		var err error
+		i, err = cfg.Repos.Integration.FindByToken(ctx, token)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return nil, echo.ErrUnauthorized
+			}
+			return nil, err
+		}
+	}
+
+	if cfg.Debug {
+		if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
+			iId, err := id.IntegrationIDFrom(val)
+			if err != nil {
+				return nil, err
+			}
+			i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if i != nil {
+		op, err := generateIntegrationOperator(ctx, cfg, i)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx = adapter.AttachOperator(ctx, op)
+	}
+
+	return ctx, nil
+}
+
+func PublicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// TODO: support limit publication scope
+
+			// req := c.Request()
+			// ctx := req.Context()
+			// if token := req.Header.Get("Reearth-Token"); token != "" {
+			// 	ws, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
+			// 	if err != nil {
+			// 		if errors.Is(err, rerror.ErrNotFound) {
+			// 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+			// 		}
+			// 		return err
+			// 	}
+
+			// 	if !ws.IsPublic() {
+			// 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+			// 	}
+
+			// 	c.SetRequest(req.WithContext(adapter.AttachOperator(ctx, &usecase.Operator{
+			// 		PublicAPIProject: ws.ID(),
+			// 	})))
+			// }
+
 			return next(c)
 		}
 	}
