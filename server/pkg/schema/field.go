@@ -150,17 +150,17 @@ func (f *Field) Clone() *Field {
 
 // Validate the Multiple value against the Field schema
 // if its multiple it will return only the first error
-func (f *Field) Validate(vs *value.Multiple) error {
-	if f.required && (vs.IsEmpty() || vs.First().IsEmpty()) {
+func (f *Field) Validate(m *value.Multiple) error {
+	if f.required && (m.IsEmpty() || m.First().IsEmpty()) {
 		return ErrValueRequired
 	}
-	if vs.IsEmpty() {
+	if m.IsEmpty() {
 		return nil
 	}
-	if !f.multiple && len(vs.Values()) > 1 {
+	if !f.multiple && m.Len() > 1 {
 		return ErrInvalidValue
 	}
-	for _, v := range vs.Values() {
+	for _, v := range m.Values() {
 		if err := f.typeProperty.Validate(v); err != nil {
 			return err
 		}

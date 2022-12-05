@@ -3541,7 +3541,7 @@ type SchemaField {
   title: String!
   description: String
 
-  multiple : Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
 

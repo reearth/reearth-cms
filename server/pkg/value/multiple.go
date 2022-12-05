@@ -61,16 +61,18 @@ func (m *Multiple) Values() []*Value {
 	if m == nil {
 		return nil
 	}
-	return lo.Map(m.v, func(v *Value, _ int) *Value {
-		return v.Clone()
-	})
+	return slices.Clone(m.v)
+}
+
+func (m *Multiple) Len() int {
+	return len(m.v)
 }
 
 func (m *Multiple) First() *Value {
 	if m == nil || len(m.v) == 0 {
 		return nil
 	}
-	return m.v[0].Clone()
+	return m.v[0]
 }
 
 func (m *Multiple) Type() Type {
