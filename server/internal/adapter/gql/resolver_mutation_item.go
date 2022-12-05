@@ -10,6 +10,7 @@ import (
 )
 
 func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error) {
+	op := getOperator(ctx)
 	sid, err := gqlmodel.ToID[id.Schema](input.SchemaID)
 	if err != nil {
 		return nil, err
@@ -22,17 +23,21 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 		SchemaID: sid,
 		ModelID:  mid,
 		Fields:   util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
-	}, getOperator(ctx))
+	}, op)
 	if err != nil {
 		return nil, err
 	}
-
+	s, err := usecases(ctx).Schema.FindByID(ctx, sid, op)
+	if err != nil {
+		return nil, err
+	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value(), false),
+		Item: gqlmodel.ToItem(res.Value(), s),
 	}, nil
 }
 
 func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error) {
+	op := getOperator(ctx)
 	iid, err := gqlmodel.ToID[id.Item](input.ItemID)
 	if err != nil {
 		return nil, err
@@ -40,13 +45,16 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: iid,
 		Fields: util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
-	}, getOperator(ctx))
+	}, op)
 	if err != nil {
 		return nil, err
 	}
-
+	s, err := usecases(ctx).Schema.FindByID(ctx, res.Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value(), false),
+		Item: gqlmodel.ToItem(res.Value(), s),
 	}, nil
 }
 

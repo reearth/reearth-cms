@@ -213,7 +213,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		argsInp   *SchemaFieldTypePropertyInput
 		argsT     SchemaFieldType
 		wantTp    *schema.TypeProperty
-		wantDv    *value.Value
+		wantDv    *value.Multiple
 		wantError error
 	}{
 		{

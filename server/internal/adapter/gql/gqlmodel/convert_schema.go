@@ -78,44 +78,52 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		Asset: func(f *schema.FieldAsset) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesAsset()
-			} else {
-				v, _ = dv.First().ValueAsset()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesAsset()
+				} else {
+					v, _ = dv.First().ValueAsset()
+				}
 			}
 			res = &SchemaFieldAsset{
 				DefaultValue: v,
 			}
 		},
 		DateTime: func(f *schema.FieldDateTime) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesDateTime()
-			} else {
-				v, _ = dv.First().ValueDateTime()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesDateTime()
+				} else {
+					v, _ = dv.First().ValueDateTime()
+				}
 			}
 			res = &SchemaFieldDate{
 				DefaultValue: v,
 			}
 		},
 		Bool: func(f *schema.FieldBool) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesBool()
-			} else {
-				v, _ = dv.First().ValueBool()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesBool()
+				} else {
+					v, _ = dv.First().ValueBool()
+				}
 			}
 			res = &SchemaFieldBool{
 				DefaultValue: v,
 			}
 		},
 		Number: func(f *schema.FieldNumber) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesNumber()
-			} else {
-				v, _ = dv.First().ValueNumber()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesNumber()
+				} else {
+					v, _ = dv.First().ValueNumber()
+				}
 			}
 			res = &SchemaFieldInteger{
 				DefaultValue: v,
@@ -124,11 +132,13 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesInteger()
-			} else {
-				v, _ = dv.First().ValueInteger()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesInteger()
+				} else {
+					v, _ = dv.First().ValueInteger()
+				}
 			}
 			res = &SchemaFieldInteger{
 				DefaultValue: v,
@@ -142,11 +152,13 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		URL: func(f *schema.FieldURL) {
-			var v any
-			if multiple {
-				v, _ = dv.ValuesURL()
-			} else {
-				v, _ = dv.First().ValueURL()
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesURL()
+				} else {
+					v, _ = dv.First().ValueURL()
+				}
 			}
 			res = &SchemaFieldURL{
 				DefaultValue: v,
@@ -157,6 +169,9 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 }
 
 func valueString(dv *value.Multiple, multiple bool) any {
+	if dv == nil {
+		return nil
+	}
 	var v any
 	if multiple {
 		v, _ = dv.ValuesString()
