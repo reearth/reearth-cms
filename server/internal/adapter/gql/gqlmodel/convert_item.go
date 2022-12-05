@@ -71,5 +71,5 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(pid, *iq.Q)
+	return item.NewQuery(pid, lo.FromPtr(iq.Q), nil)
 }

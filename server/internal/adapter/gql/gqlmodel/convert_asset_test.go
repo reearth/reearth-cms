@@ -219,6 +219,38 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	}
 }
 
+func TestConvertAsset_ToStatus(t *testing.T) {
+	s1 := asset.ArchiveExtractionStatusPending
+	want1 := ArchiveExtractionStatusPending
+	got1 := ToArchiveExtractionStatus(&s1)
+	assert.Equal(t, &want1, got1)
+
+	s2 := asset.ArchiveExtractionStatusInProgress
+	want2 := ArchiveExtractionStatusInProgress
+	got2 := ToArchiveExtractionStatus(&s2)
+	assert.Equal(t, &want2, got2)
+
+	s3 := asset.ArchiveExtractionStatusDone
+	want3 := ArchiveExtractionStatusDone
+	got3 := ToArchiveExtractionStatus(&s3)
+	assert.Equal(t, &want3, got3)
+
+	s4 := asset.ArchiveExtractionStatusFailed
+	want4 := ArchiveExtractionStatusFailed
+	got4 := ToArchiveExtractionStatus(&s4)
+	assert.Equal(t, &want4, got4)
+
+	var s5 *asset.ArchiveExtractionStatus = nil
+	want5 := (*ArchiveExtractionStatus)(nil)
+	got5 := ToArchiveExtractionStatus(s5)
+	assert.Equal(t, want5, got5)
+
+	var s6 asset.ArchiveExtractionStatus = "test"
+	want6 := (*ArchiveExtractionStatus)(nil)
+	got6 := ToArchiveExtractionStatus(&s6)
+	assert.Equal(t, want6, got6)
+}
+
 func TestConvertAsset_ToAssetFile(t *testing.T) {
 	c := []*asset.File{}
 	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Children(c).Build()
