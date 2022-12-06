@@ -93,9 +93,12 @@ func (r *Request) Save(ctx context.Context, request *request.Request) error {
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
-		"id": id.String(),
+func (r *Request) RemoveAll(ctx context.Context, ids id.RequestIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveAll(ctx, r.writeFilter(bson.M{
+		"id": bson.M{"$in": ids.Strings()},
 	}))
 }
 

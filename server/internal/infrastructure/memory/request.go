@@ -103,14 +103,11 @@ func (r *Request) Save(ctx context.Context, a *request.Request) error {
 	return nil
 }
 
-func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
+func (r *Request) RemoveAll(ctx context.Context, ids id.RequestIDList) error {
 	if r.err != nil {
 		return r.err
 	}
-
-	if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
-		r.data.Delete(id)
-	}
+	r.data.DeleteAll(ids...)
 	return nil
 }
 func SetRequestError(r repo.Request, err error) {

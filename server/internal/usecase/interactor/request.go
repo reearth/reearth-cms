@@ -156,23 +156,12 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 	})
 }
 
-func (r Request) Delete(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) error {
+func (r Request) DeleteMany(ctx context.Context, requestID id.RequestIDList, operator *usecase.Operator) error {
 	if operator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 
-	return Run0(ctx, operator, r.repos, Usecase().Transaction(), func() error {
-		req, err := r.repos.Request.FindByID(ctx, requestID)
-		if err != nil {
-			return err
-		}
-
-		if !operator.IsWritableProject(req.Project()) {
-			return interfaces.ErrOperationDenied
-		}
-
-		return r.repos.Request.Remove(ctx, requestID)
-	})
+	return r.repos.Request.RemoveAll(ctx, requestID)
 }
 
 func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {

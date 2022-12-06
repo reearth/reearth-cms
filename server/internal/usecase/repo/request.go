@@ -19,5 +19,5 @@ type Request interface {
 	FindByID(context.Context, id.RequestID) (*request.Request, error)
 	FindByIDs(context.Context, id.RequestIDList) ([]*request.Request, error)
 	Save(context.Context, *request.Request) error
-	Remove(context.Context, id.RequestID) error
+	RemoveAll(context.Context, id.RequestIDList) error
 }

@@ -87,14 +87,14 @@ func TestRequest_Remove(t *testing.T) {
 		Writable: []id.ProjectID{pid},
 	})
 
-	err := r.Remove(ctx, req1.ID())
+	err := r.RemoveAll(ctx, id.RequestIDList{req1.ID(), req2.ID()})
 	assert.NoError(t, err)
 	data, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.Equal(t, []*request.Request{req2}, data)
+	assert.Equal(t, 0, len(data))
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.Remove(ctx, req1.ID()))
+	assert.Same(t, wantErr, r.RemoveAll(ctx, id.RequestIDList{}))
 }
 
 func TestRequest_Save(t *testing.T) {

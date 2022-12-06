@@ -338,7 +338,7 @@ func TestRequest_Remove(t *testing.T) {
 	assert.NoError(t, err)
 	err = r.Save(ctx, req2)
 	assert.NoError(t, err)
-	err = r.Remove(ctx, req2.ID())
+	err = r.RemoveAll(ctx, id.RequestIDList{req2.ID(), req1.ID()})
 	assert.NoError(t, err)
 	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
 	assert.Equal(t, 1, len(got))
