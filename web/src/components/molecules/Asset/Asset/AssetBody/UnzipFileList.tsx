@@ -80,7 +80,9 @@ const UnzipFileList: React.FC<Props> = ({
   return (
     <UnzipFileListWrapper>
       {archiveExtractionStatus === "IN_PROGRESS" ? (
-        <Spin tip={t("Decompressing...")} size="large" />
+        <ExtractionInProgressWrapper>
+          <Spin tip={t("Decompressing...")} size="large" />
+        </ExtractionInProgressWrapper>
       ) : archiveExtractionStatus === "FAILED" ? (
         <ExtractionFailedWrapper>
           <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
@@ -108,6 +110,13 @@ const UnzipFileListWrapper = styled.div`
   height: 250px;
   overflow-y: scroll;
   background-color: #f5f5f5;
+`;
+
+const ExtractionInProgressWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 `;
 
 const ExtractionFailedWrapper = styled.div`
