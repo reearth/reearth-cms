@@ -46,6 +46,11 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		previewType = pt.String()
 	}
 
+	archiveExtractionStatus := ""
+	if s := a.ArchiveExtractionStatus(); s != nil {
+		archiveExtractionStatus = s.String()
+	}
+
 	var file *asset.File
 	if f := a.File(); f != nil {
 		file = f
@@ -71,7 +76,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		File:                    ToFile(file),
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().String(),
-		ArchiveExtractionStatus: a.ArchiveExtractionStatus().String(),
+		ArchiveExtractionStatus: archiveExtractionStatus,
 	}, aid
 
 	return ad, id
