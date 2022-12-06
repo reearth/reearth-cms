@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
-import MarkDownInput from "@reearth-cms/components/atoms/MarkDown";
+import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -150,7 +150,7 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <MarkDownInput maxLength={field.typeProperty.maxLength ?? false} />
+              <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item

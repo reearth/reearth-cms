@@ -9,7 +9,7 @@ type Props = {
   onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkDownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
+const MarkdownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
 
@@ -19,7 +19,7 @@ const MarkDownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
   };
 
   return (
-    <>
+    <div>
       <TextArea
         {...props}
         onChange={e => onChange?.(e.target.value)}
@@ -42,11 +42,11 @@ const MarkDownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
         }}>
         <ReactMarkdown>{value}</ReactMarkdown>
       </StyledMD>
-    </>
+    </div>
   );
 };
 
-export default MarkDownInput;
+export default MarkdownInput;
 
 const StyledMD = styled.div`
   cursor: pointer;

@@ -6,7 +6,7 @@ import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import IntegerField from "./IntegerField";
-import MarkDownField from "./MarkDown";
+import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
@@ -61,7 +61,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
     selectedType === "TextArea" ? (
       <TextAreaField />
     ) : selectedType === "MarkdownText" ? (
-      <MarkDownField />
+      <MarkdownField />
     ) : selectedType === "Integer" ? (
       <IntegerField />
     ) : selectedType === "Asset" ? (
