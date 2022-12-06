@@ -287,7 +287,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 	}
 
-	initDB := Connect(t)
+	initDB := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
