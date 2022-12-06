@@ -106,7 +106,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		File(FromFile(d.File)).
 		UUID(d.UUID).
 		Thread(thid).
-		ArchiveExtractionStatus(asset.StatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
+		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
 
 	if d.User != nil {
 		uid, err := id.UserIDFrom(*d.User)
