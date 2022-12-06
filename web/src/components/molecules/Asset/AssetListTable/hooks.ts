@@ -9,29 +9,25 @@ export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   const [status, setStatus] = useState<string>("");
   const [statusColor, setStatusColor] = useState<string>("");
 
-  const RED = "#F5222D";
-  const ORANGE = "#FA8C16";
-  const GREEN = "#52C41A";
-
   const DECOMPRESSED = t("Decompressed");
   const FAILED = t("Failed");
   const DECOMPRESSING = t("Decompressing");
 
   useEffect(() => {
     switch (archiveExtractionStatus) {
-      case "done":
-        setStatusColor(GREEN);
+      case "DONE":
+        setStatusColor("#52C41A");
         setStatus(DECOMPRESSED);
         break;
-      case "failed":
-        setStatusColor(RED);
+      case "FAILED":
+        setStatusColor("#F5222D");
         setStatus(FAILED);
         break;
-      case "in_progress":
-        setStatusColor(ORANGE);
+      case "IN_PROGRESS":
+        setStatusColor("#FA8C16");
         setStatus(DECOMPRESSING);
         break;
-      case "pending":
+      case "PENDING":
       default:
         setStatusColor("");
         setStatus("");

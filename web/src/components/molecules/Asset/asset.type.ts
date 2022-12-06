@@ -1,7 +1,7 @@
 import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
-export type ArchiveExtractionStatus = "pending" | "in_progress" | "done" | "failed" | undefined;
+export type ArchiveExtractionStatus = "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
 
 export type Asset = {
   id: string;
