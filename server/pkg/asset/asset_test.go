@@ -18,8 +18,8 @@ func TestAsset_Type(t *testing.T) {
 	var size uint64 = 15
 	wantPreviewType, _ := PreviewTypeFrom("image")
 	gotPreviewType, _ := PreviewTypeFrom(PreviewTypeImage.String())
-	wantStatus, _ := StatusFrom("pending")
-	gotStatus, _ := StatusFrom(ArchiveExtractionStatusPending.String())
+	wantStatus, _ := ArchiveExtractionStatusFrom("pending")
+	gotStatus, _ := ArchiveExtractionStatusFrom(ArchiveExtractionStatusPending.String())
 
 	got := Asset{
 		id:                      aid,
