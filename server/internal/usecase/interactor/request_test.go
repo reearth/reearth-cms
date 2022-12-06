@@ -7,6 +7,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/user"
@@ -18,7 +19,7 @@ import (
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 	wid := id.NewWorkspaceID()
 
 	req1 := request.New().
@@ -112,7 +113,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 	wid := id.NewWorkspaceID()
 
 	req1 := request.New().
@@ -206,6 +207,126 @@ func TestRequest_FindByIDs(t *testing.T) {
 			requestUC := NewRequest(db, nil)
 
 			got, err := requestUC.FindByIDs(ctx, tc.args.ids, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, len(got))
+		})
+	}
+}
+
+func TestRequest_FindByProject(t *testing.T) {
+	pid := id.NewProjectID()
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	wid := id.NewWorkspaceID()
+
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		Title("foo").
+		MustBuild()
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items([]*request.Item{item}).
+		State(request.StateDraft).
+		Title("hoge").
+		MustBuild()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	op := &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	}
+
+	tests := []struct {
+		name  string
+		seeds []*request.Request
+		args  struct {
+			pid      id.ProjectID
+			filter   interfaces.RequestFilter
+			operator *usecase.Operator
+		}
+		want           int
+		mockRequestErr bool
+		wantErr        error
+	}{
+		{
+			name:  "must find 2",
+			seeds: []*request.Request{req1, req2},
+			args: struct {
+				pid      id.ProjectID
+				filter   interfaces.RequestFilter
+				operator *usecase.Operator
+			}{
+				pid:      pid,
+				operator: op,
+			},
+			want: 2,
+		},
+		{
+			name:  "must find 1",
+			seeds: []*request.Request{req1, req2},
+			args: struct {
+				pid      id.ProjectID
+				filter   interfaces.RequestFilter
+				operator *usecase.Operator
+			}{
+				pid: pid,
+				filter: interfaces.RequestFilter{
+					Keyword: lo.ToPtr("foo"),
+				},
+				operator: op,
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1",
+			seeds: []*request.Request{req1, req2},
+			args: struct {
+				pid      id.ProjectID
+				filter   interfaces.RequestFilter
+				operator *usecase.Operator
+			}{
+				pid: pid,
+				filter: interfaces.RequestFilter{
+					State: lo.ToPtr(request.StateDraft),
+				},
+				operator: op,
+			},
+			want: 1,
+		},
+		{
+			name:           "mock error",
+			mockRequestErr: true,
+			wantErr:        errors.New("test"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockRequestErr {
+				memory.SetRequestError(db.Request, tc.wantErr)
+			}
+			for _, p := range tc.seeds {
+				err := db.Request.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+			requestUC := NewRequest(db, nil)
+
+			got, _, err := requestUC.FindByProject(ctx, tc.args.pid, tc.args.filter, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

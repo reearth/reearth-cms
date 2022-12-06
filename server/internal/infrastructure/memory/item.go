@@ -226,11 +226,11 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return res, nil
 }
 
-func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, v version.Version, ref version.Ref) error {
+func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, vor *version.VersionOrRef, ref version.Ref) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	r.data.UpdateRef(itemID, ref, lo.ToPtr(v.OrRef()))
+	r.data.UpdateRef(itemID, ref, vor)
 	return nil
 }

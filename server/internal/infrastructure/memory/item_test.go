@@ -217,11 +217,11 @@ func TestItem_UpdateRef(t *testing.T) {
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	v, _ := r.FindByID(ctx, i.ID())
-	_ = r.UpdateRef(ctx, i.ID(), v.Version(), vx)
+	_ = r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx)
 	v2, _ := r.FindByID(ctx, i.ID())
 	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), i), v2)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
-	assert.Same(t, wantErr, r.UpdateRef(ctx, i.ID(), v.Version(), vx))
+	assert.Same(t, wantErr, r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx))
 }

@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -172,8 +171,8 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 	}, b)
 }
 
-func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, v version.Version, ref version.Ref) error {
-	return r.client.UpdateRef(ctx, itemID.String(), ref, lo.ToPtr(v.OrRef()))
+func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, vor *version.VersionOrRef, ref version.Ref) error {
+	return r.client.UpdateRef(ctx, itemID.String(), ref, vor)
 }
 
 func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {

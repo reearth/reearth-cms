@@ -38,10 +38,9 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator 
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
-		State:      filter.State,
-		Keyword:    filter.Keyword,
-		Pagination: filter.Pagination,
-	})
+		State:   filter.State,
+		Keyword: filter.Keyword,
+	}, pagination)
 }
 
 func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam, operator *usecase.Operator) (*request.Request, error) {
@@ -200,8 +199,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 
 		// apply changes to items (publish items)
 		for _, item := range req.Items() {
-			err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Version(), version.Public)
-			if err != nil {
+			// public -> latest
+			if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public.OrVersion().Ref(), version.Latest); err != nil {
+				return nil, err
+			}
+			// publish the approved version
+			if err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Pointer().Ref(), version.Public); err != nil {
 				return nil, err
 			}
 		}

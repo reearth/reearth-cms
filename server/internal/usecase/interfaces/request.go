@@ -28,9 +28,8 @@ type UpdateRequestParam struct {
 }
 
 type RequestFilter struct {
-	Keyword    *string
-	State      *request.State
-	Pagination *usecasex.Pagination
+	Keyword *string
+	State   *request.State
 }
 
 type Request interface {
