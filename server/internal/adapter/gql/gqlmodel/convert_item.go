@@ -4,11 +4,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
 
-func ToItem(i *item.Item) *Item {
+func ToItem(i *item.Item, s *schema.Schema) *Item {
 	if i == nil {
 		return nil
 	}
@@ -24,13 +25,13 @@ func ToItem(i *item.Item) *Item {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
 				Type:          ToValueType(f.Type()),
-				Value:         ToValue(f.Value()),
+				Value:         ToValue(f.Value(), s.Field(f.FieldID()).Multiple()),
 			}
 		}),
 	}
 }
 
-func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
+func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema) *VersionedItem {
 	if v == nil {
 		return nil
 	}
@@ -45,7 +46,7 @@ func ToVersionedItem(v *version.Value[*item.Item]) *VersionedItem {
 		Version: v.Version().String(),
 		Parents: parents,
 		Refs:    refs,
-		Value:   ToItem(v.Value()),
+		Value:   ToItem(v.Value(), s),
 	}
 }
 

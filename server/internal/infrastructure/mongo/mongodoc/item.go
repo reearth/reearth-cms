@@ -61,7 +61,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Project: i.Project().String(),
 		Thread:  i.Thread().String(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
-			v := NewOptionalValue(f.Value())
+			v := NewMultipleValue(f.Value())
 			if v == nil {
 				return ItemFieldDocument{}, false
 			}
@@ -122,7 +122,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 			}
 		}
 
-		return item.NewField(sf, f.V.OptionalValue()), nil
+		return item.NewField(sf, f.V.MultipleValue()), nil
 	})
 	if err != nil {
 		return nil, err
