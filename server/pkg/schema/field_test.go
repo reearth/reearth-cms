@@ -73,7 +73,7 @@ func TestField_Clone(t *testing.T) {
 		multiple:     true,
 		required:     true,
 		typeProperty: NewText(nil).TypeProperty(),
-		defaultValue: value.TypeText.Value("aa"),
+		defaultValue: value.TypeText.Value("aa").AsMultiple(),
 		updatedAt:    time.Now(),
 	}
 	c := s.Clone()
@@ -134,33 +134,33 @@ func TestField_SetTypeProperty(t *testing.T) {
 	assert.NoError(t, f.SetTypeProperty(tp))
 	assert.Equal(t, &Field{typeProperty: tp}, f)
 
-	f = &Field{defaultValue: value.TypeText.Value("aaa")}
+	f = &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}
 	assert.ErrorContains(t, f.SetTypeProperty(tp), "it sholud be shorter than 1 characters")
-	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa")}, f)
+	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}, f)
 
 	assert.Same(t, ErrInvalidType, f.SetTypeProperty(nil))
-	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa")}, f)
+	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}, f)
 }
 
 func TestField_SetDefautValue(t *testing.T) {
 	f := &Field{typeProperty: NewText(lo.ToPtr(1)).TypeProperty()}
-	assert.NoError(t, f.SetDefaultValue(value.TypeText.Value("a")))
-	assert.Equal(t, value.TypeText.Value("a"), f.defaultValue)
+	assert.NoError(t, f.SetDefaultValue(value.TypeText.Value("a").AsMultiple()))
+	assert.Equal(t, value.TypeText.Value("a").AsMultiple(), f.defaultValue)
 
 	assert.NoError(t, f.SetDefaultValue(nil))
 	assert.Nil(t, f.defaultValue)
 
-	assert.ErrorContains(t, f.SetDefaultValue(value.TypeText.Value("aaa")), "it sholud be shorter than 1 characters")
+	assert.ErrorContains(t, f.SetDefaultValue(value.TypeText.Value("aaa").AsMultiple()), "it sholud be shorter than 1 characters")
 	assert.Nil(t, f.defaultValue)
 }
 
 func TestField_Validate(t *testing.T) {
 	f := &Field{typeProperty: NewText(lo.ToPtr(1)).TypeProperty()}
-	assert.NoError(t, f.Validate(value.TypeText.Value("a")))
+	assert.NoError(t, f.Validate(value.TypeText.Value("a").AsMultiple()))
 	assert.NoError(t, f.Validate(nil))
 
 	f.required = true
 	assert.Same(t, ErrValueRequired, f.Validate(nil))
 
-	assert.ErrorContains(t, f.Validate(value.TypeText.Value("aaa")), "it sholud be shorter than 1 characters")
+	assert.ErrorContains(t, f.Validate(value.TypeText.Value("aaa").AsMultiple()), "it sholud be shorter than 1 characters")
 }

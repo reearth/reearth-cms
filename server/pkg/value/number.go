@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
+
+	"github.com/samber/lo"
 )
 
 const TypeNumber Type = "number"
@@ -152,5 +154,18 @@ func (v *Value) ValueNumber() (vv Number, ok bool) {
 		return
 	}
 	vv, ok = v.v.(Number)
+	return
+}
+
+func (m *Multiple) ValuesNumber() (vv []Number, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Number, bool) {
+		return v.ValueNumber()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

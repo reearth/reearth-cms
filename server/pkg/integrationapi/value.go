@@ -63,6 +63,9 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValue(v *value.Optional) any {
-	return v.Value().Interface()
+func ToValue(v *value.Multiple, multiple bool) any {
+	if !multiple {
+		return v.First().Interface()
+	}
+	return v.Interface()
 }

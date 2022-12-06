@@ -173,6 +173,47 @@ func TestValue_Some(t *testing.T) {
 	}
 }
 
+func TestValue_AsMultiple(t *testing.T) {
+	tests := []struct {
+		name  string
+		value *Value
+		want  *Multiple
+	}{
+		{
+			name: "ok",
+			value: &Value{
+				t: TypeText,
+				v: "foo",
+			},
+			want: &Multiple{
+				t: TypeText,
+				v: []*Value{{
+					t: TypeText,
+					v: "foo",
+				}},
+			},
+		},
+		{
+			name:  "nil",
+			value: nil,
+			want:  nil,
+		},
+		{
+			name:  "empty",
+			value: &Value{},
+			want:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.value.AsMultiple())
+		})
+	}
+}
+
 func TestValue_Value(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -314,6 +355,15 @@ func TestValue_Interface(t *testing.T) {
 				v: "foo",
 			},
 			want: "foobar",
+		},
+		{
+			name: "Unknown",
+			value: &Value{
+				p: tpm,
+				t: Type("bar"),
+				v: "bar",
+			},
+			want: nil,
 		},
 		{
 			name:  "empty",

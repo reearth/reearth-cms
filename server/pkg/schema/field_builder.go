@@ -13,7 +13,7 @@ var ErrInvalidType = errors.New("invalid type")
 
 type FieldBuilder struct {
 	f   *Field
-	dv  *value.Value
+	dv  *value.Multiple
 	err error
 }
 
@@ -107,7 +107,7 @@ func (b *FieldBuilder) UpdatedAt(t time.Time) *FieldBuilder {
 	return b
 }
 
-func (b *FieldBuilder) DefaultValue(v *value.Value) *FieldBuilder {
+func (b *FieldBuilder) DefaultValue(v *value.Multiple) *FieldBuilder {
 	b.dv = v
 	return b
 }
