@@ -69,7 +69,7 @@ func (b *Builder) Description(desc string) *Builder {
 	return b
 }
 
-func (b *Builder) Items(items []*Item) *Builder {
+func (b *Builder) Items(items ItemList) *Builder {
 	b.r.items = items
 	return b
 }

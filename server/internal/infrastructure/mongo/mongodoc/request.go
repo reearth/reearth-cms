@@ -117,7 +117,7 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 		} else if ri.Ref != nil {
 			vor = version.Ref(*ri.Ref).OrVersion()
 		}
-		return request.NewItem(iid, vor)
+		return request.NewItemWithVersion(iid, vor)
 	})
 	if err != nil {
 		return nil, err

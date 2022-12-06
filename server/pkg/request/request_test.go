@@ -18,7 +18,7 @@ func TestRequest_SetDescription(t *testing.T) {
 
 func TestRequest_SetItems(t *testing.T) {
 	req := &Request{}
-	items := []*Item{{
+	items := ItemList{{
 		item:    id.NewItemID(),
 		pointer: version.New().OrRef(),
 	}}

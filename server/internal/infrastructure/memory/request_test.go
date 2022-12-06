@@ -31,7 +31,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	ctx := context.Background()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req := request.New().
 		NewID().
@@ -39,7 +39,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	r := NewRequest()
@@ -57,7 +57,7 @@ func TestRequest_FindByID(t *testing.T) {
 func TestRequest_Remove(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -65,7 +65,7 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -75,7 +75,7 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -100,7 +100,7 @@ func TestRequest_Remove(t *testing.T) {
 func TestRequest_Save(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -108,7 +108,7 @@ func TestRequest_Save(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -118,7 +118,7 @@ func TestRequest_Save(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{
@@ -142,7 +142,7 @@ func TestRequest_Save(t *testing.T) {
 func TestRequest_FindByIDs(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -150,7 +150,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -160,7 +160,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{
@@ -179,7 +179,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -187,7 +187,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -197,7 +197,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("xxx").
 		State(request.StateDraft).
 		MustBuild()
@@ -208,7 +208,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{

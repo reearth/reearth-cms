@@ -19,7 +19,7 @@ import (
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 	wid := id.NewWorkspaceID()
 
 	req1 := request.New().
@@ -28,7 +28,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -37,7 +37,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -113,7 +113,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 	wid := id.NewWorkspaceID()
 
 	req1 := request.New().
@@ -122,7 +122,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -131,7 +131,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	req3 := request.New().
@@ -140,7 +140,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -219,7 +219,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 	wid := id.NewWorkspaceID()
 
 	req1 := request.New().
@@ -228,7 +228,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -237,7 +237,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		State(request.StateDraft).
 		Title("hoge").
 		MustBuild()

@@ -16,7 +16,7 @@ type Request struct {
 	id          ID
 	workspace   WorkspaceID
 	project     ProjectID
-	items       []*Item
+	items       ItemList
 	title       string
 	description string
 	createdBy   UserID
@@ -40,7 +40,7 @@ func (r *Request) Project() ProjectID {
 	return r.project
 }
 
-func (r *Request) Items() []*Item {
+func (r *Request) Items() ItemList {
 	return slices.Clone(r.items)
 }
 
@@ -100,7 +100,7 @@ func (r *Request) SetReviewers(reviewers []UserID) {
 	r.reviewers = reviewers
 }
 
-func (r *Request) SetItems(items []*Item) {
+func (r *Request) SetItems(items ItemList) {
 	r.items = slices.Clone(items)
 }
 

@@ -18,7 +18,7 @@ import (
 
 func TestRequest_Filtered(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -26,7 +26,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -35,7 +35,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	tests := []struct {
@@ -80,7 +80,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -88,7 +88,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -97,7 +97,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	tests := []struct {
@@ -143,7 +143,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -151,7 +151,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -160,7 +160,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 
@@ -204,7 +204,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -212,7 +212,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -221,7 +221,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		State(request.StateDraft).
 		Title("hoge").
 		MustBuild()
@@ -307,7 +307,7 @@ func TestRequest_FindByProject(t *testing.T) {
 
 func TestRequest_Remove(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -315,7 +315,7 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -324,8 +324,17 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
+		MustBuild()
+	req3 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item}).
+		Title("xxx").
 		MustBuild()
 
 	initDB := mongotest.Connect(t)
@@ -338,8 +347,10 @@ func TestRequest_Remove(t *testing.T) {
 	assert.NoError(t, err)
 	err = r.Save(ctx, req2)
 	assert.NoError(t, err)
+	err = r.Save(ctx, req3)
+	assert.NoError(t, err)
 	err = r.RemoveAll(ctx, id.RequestIDList{req2.ID(), req1.ID()})
 	assert.NoError(t, err)
-	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
+	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID(), req3.ID()})
 	assert.Equal(t, 1, len(got))
 }

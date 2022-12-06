@@ -15,7 +15,7 @@ type CreateRequestParam struct {
 	Description *string
 	State       *request.State
 	Reviewers   id.UserIDList
-	Items       []*request.Item
+	Items       request.ItemList
 }
 
 type UpdateRequestParam struct {
@@ -24,7 +24,7 @@ type UpdateRequestParam struct {
 	Description *string
 	State       *request.State
 	Reviewers   id.UserIDList
-	Items       []*request.Item
+	Items       request.ItemList
 }
 
 type RequestFilter struct {
