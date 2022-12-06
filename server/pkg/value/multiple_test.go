@@ -6,7 +6,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMultipleNew(t *testing.T) {
+func TestNewMultiple(t *testing.T) {
+	m := NewMultiple(TypeUnknown, []any{})
+	assert.Nil(t, m)
+
+	m = NewMultiple(TypeBool, []any{true, "test"})
+	assert.Equal(t, TypeBool, m.t)
+	assert.Equal(t, []*Value{New(TypeBool, true)}, m.v)
+
+	v := []*Value{New(TypeBool, true), New(TypeBool, false)}
+	m = NewMultiple(TypeBool, []any{true, false})
+	assert.NotNil(t, m)
+	assert.Equal(t, TypeBool, m.t)
+	assert.Equal(t, v, m.v)
+	assert.NotSame(t, v, m.v)
+
+}
+
+func TestMultipleFrom(t *testing.T) {
 	m := MultipleFrom(TypeUnknown, []*Value{})
 	assert.Nil(t, m)
 
@@ -40,6 +57,50 @@ func TestMultiple_IsEmpty(t *testing.T) {
 
 	m.v = []*Value{New(TypeBool, true)}
 	assert.False(t, m.IsEmpty())
+}
+
+func TestMultiple_Len(t *testing.T) {
+	var m *Multiple = nil
+	assert.Equal(t, 0, m.Len())
+
+	m = &Multiple{}
+	assert.Equal(t, 0, m.Len())
+
+	m.t = TypeBool
+	assert.Equal(t, 0, m.Len())
+
+	m.v = nil
+	assert.Equal(t, 0, m.Len())
+
+	m.v = []*Value{}
+	assert.Equal(t, 0, m.Len())
+
+	m.v = []*Value{New(TypeBool, true)}
+	assert.Equal(t, 1, m.Len())
+
+	m.v = []*Value{New(TypeBool, true), New(TypeBool, true)}
+	assert.Equal(t, 2, m.Len())
+
+}
+
+func TestMultiple_First(t *testing.T) {
+	var m *Multiple = nil
+	assert.Nil(t, m.First())
+
+	m = &Multiple{}
+	assert.Nil(t, m.First())
+
+	m.t = TypeBool
+	assert.Nil(t, m.First())
+
+	m.v = nil
+	assert.Nil(t, m.First())
+
+	m.v = []*Value{}
+	assert.Nil(t, m.First())
+
+	m.v = []*Value{New(TypeBool, true)}
+	assert.Equal(t, New(TypeBool, true), m.First())
 }
 
 func TestMultiple_Clone(t *testing.T) {

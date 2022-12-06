@@ -65,6 +65,9 @@ func (m *Multiple) Values() []*Value {
 }
 
 func (m *Multiple) Len() int {
+	if m == nil {
+		return 0
+	}
 	return len(m.v)
 }
 
