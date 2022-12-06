@@ -3890,7 +3890,7 @@ input RequestItemInput {
 }
 
 input DeleteRequestInput {
-  requestId: ID!
+  requestIds: [ID!]!
 }
 
 input ApproveRequestInput {
@@ -23780,18 +23780,18 @@ func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"requestId"}
+	fieldsInOrder := [...]string{"requestIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "requestId":
+		case "requestIds":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestId"))
-			it.RequestID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestIds"))
+			it.RequestIds, err = ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

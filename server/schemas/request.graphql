@@ -59,7 +59,7 @@ input RequestItemInput {
 }
 
 input DeleteRequestInput {
-  requestId: ID!
+  requestIds: [ID!]!
 }
 
 input ApproveRequestInput {
