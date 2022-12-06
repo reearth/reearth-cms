@@ -1,41 +1,42 @@
 import styled from "@emotion/styled";
-import { TextAreaProps } from "antd/lib/input";
-import React, { useRef, useState } from "react";
+import { useRef, useState, FocusEvent } from "react";
 import ReactMarkdown from "react-markdown";
 
-import TextArea from "@reearth-cms/components/atoms/TextArea";
+import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
-type MarkDownInputProps = {
+type Props = {
   value?: string;
   onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkDownInput: React.FC<MarkDownInputProps> = ({ value = "", onChange, ...props }) => {
+const MarkDownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
-  const textareaInputReference = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLInputElement>(null);
+
+  const handleBlur = (event: FocusEvent<HTMLTextAreaElement>) => {
+    event.stopPropagation();
+    setShowMD(true);
+  };
 
   return (
     <>
       <TextArea
         {...props}
         onChange={e => onChange?.(e.target.value)}
-        onBlur={valueEvent => {
-          valueEvent.stopPropagation();
-          setShowMD(true);
-        }}
+        onBlur={handleBlur}
         value={value}
         rows={6}
         hidden={showMD}
-        ref={textareaInputReference}
+        ref={textareaRef}
         showCount
       />
       <StyledMD
         hidden={!showMD}
         onClick={() => {
           setShowMD(false);
-          if (textareaInputReference.current) {
+          if (textareaRef.current) {
             setTimeout(() => {
-              textareaInputReference.current?.focus();
+              textareaRef.current?.focus();
             });
           }
         }}>
