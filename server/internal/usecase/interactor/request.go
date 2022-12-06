@@ -161,18 +161,7 @@ func (r Request) Delete(ctx context.Context, requestID id.RequestID, operator *u
 		return interfaces.ErrInvalidOperator
 	}
 
-	return Run0(ctx, operator, r.repos, Usecase().Transaction(), func() error {
-		req, err := r.repos.Request.FindByID(ctx, requestID)
-		if err != nil {
-			return err
-		}
-
-		if !operator.IsWritableProject(req.Project()) {
-			return interfaces.ErrOperationDenied
-		}
-
-		return r.repos.Request.Remove(ctx, requestID)
-	})
+	return r.repos.Request.Remove(ctx, requestID)
 }
 
 func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {
