@@ -259,7 +259,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			//tt.Parallel()
-			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter)
+			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil)
 
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -267,6 +267,6 @@ func TestRequest_FindByProject(t *testing.T) {
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{})
+	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{}, nil)
 	assert.Same(t, wantErr, err)
 }
