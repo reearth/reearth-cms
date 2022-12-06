@@ -30,13 +30,20 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema) VersionedItem {
 }
 
 func NewItem(i *item.Item, s *schema.Schema) Item {
-	fs := lo.Map(i.Fields(), func(f *item.Field, _ int) Field {
+	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
+		if s == nil {
+			return Field{}, false
+		}
 		sf := s.Field(f.FieldID())
+		if sf == nil {
+			return Field{}, false
+		}
+
 		return Field{
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
 			Value: lo.ToPtr(ToValue(f.Value(), sf.Multiple())),
-		}
+		}, true
 	})
 
 	return Item{
