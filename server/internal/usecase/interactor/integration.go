@@ -141,10 +141,11 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 				if err := w.Members().DeleteIntegration(integrationId); err != nil {
 					return err
 				}
-				if err := i.repos.Workspace.Save(ctx, w); err != nil {
-					return err
-				}
 			}
+			if err := i.repos.Workspace.SaveAll(ctx, ws); err != nil {
+				return err
+			}
+
 			return i.repos.Integration.Remove(ctx, integrationId)
 		})
 }
