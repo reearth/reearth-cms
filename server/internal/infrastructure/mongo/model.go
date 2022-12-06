@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	modelIndexes       = []string{"project", "workspace"}
+	modelIndexes       = []string{"project", "workspace", "key"}
 	modelUniqueIndexes = []string{"id"}
 )
 
