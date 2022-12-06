@@ -31,7 +31,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	ctx := context.Background()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req := request.New().
 		NewID().
@@ -57,7 +57,7 @@ func TestRequest_FindByID(t *testing.T) {
 func TestRequest_Remove(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -100,7 +100,7 @@ func TestRequest_Remove(t *testing.T) {
 func TestRequest_Save(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -142,7 +142,7 @@ func TestRequest_Save(t *testing.T) {
 func TestRequest_FindByIDs(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -179,7 +179,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -259,7 +259,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			//tt.Parallel()
-			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter)
+			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil)
 
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -267,6 +267,6 @@ func TestRequest_FindByProject(t *testing.T) {
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{})
+	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{}, nil)
 	assert.Same(t, wantErr, err)
 }

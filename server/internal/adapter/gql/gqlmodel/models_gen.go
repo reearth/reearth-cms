@@ -538,7 +538,8 @@ type RequestEdge struct {
 
 type RequestItem struct {
 	ItemID  ID             `json:"itemId"`
-	Version string         `json:"version"`
+	Version *string        `json:"version"`
+	Ref     *string        `json:"ref"`
 	Item    *VersionedItem `json:"item"`
 }
 

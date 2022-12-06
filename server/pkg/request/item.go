@@ -4,23 +4,23 @@ import "github.com/reearth/reearth-cms/server/pkg/version"
 
 type Item struct {
 	item    ItemID
-	version version.Version
+	pointer version.VersionOrRef
 }
 
 func (i *Item) Item() ItemID {
 	return i.item
 }
 
-func (i *Item) Version() version.Version {
-	return i.version
+func (i *Item) Pointer() version.VersionOrRef {
+	return i.pointer
 }
 
-func NewItem(i ItemID, v version.Version) (*Item, error) {
+func NewItem(i ItemID, v version.VersionOrRef) (*Item, error) {
 	if i.IsNil() {
 		return nil, ErrInvalidID
 	}
 	return &Item{
 		item:    i,
-		version: v,
+		pointer: v,
 	}, nil
 }

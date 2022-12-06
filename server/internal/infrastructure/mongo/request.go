@@ -64,29 +64,27 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) ([]*reque
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter) ([]*request.Request, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, page *usecasex.Pagination) ([]*request.Request, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	var filter interface{} = bson.M{
+	filter := bson.M{
 		"project": id.String(),
 	}
 
 	if uFilter.Keyword != nil {
-		filter = mongox.And(filter, "", bson.M{
-			"title": bson.M{
-				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
-			},
-		})
+		filter["title"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
+		}
 	}
 	if uFilter.State != nil {
-		filter = mongox.And(filter, "", bson.M{
+		filter["state"] = bson.M{
 			"state": uFilter.State.String(),
-		})
+		}
 	}
 
-	return r.paginate(ctx, filter, uFilter.Pagination)
+	return r.paginate(ctx, &filter, page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
@@ -103,7 +101,7 @@ func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 	}))
 }
 
-func (r *Request) paginate(ctx context.Context, filter interface{}, pagination *usecasex.Pagination) ([]*request.Request, *usecasex.PageInfo, error) {
+func (r *Request) paginate(ctx context.Context, filter any, pagination *usecasex.Pagination) ([]*request.Request, *usecasex.PageInfo, error) {
 	c := mongodoc.NewRequestConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
@@ -112,7 +110,7 @@ func (r *Request) paginate(ctx context.Context, filter interface{}, pagination *
 	return c.Result, pageInfo, nil
 }
 
-func (r *Request) find(ctx context.Context, filter interface{}) ([]*request.Request, error) {
+func (r *Request) find(ctx context.Context, filter any) ([]*request.Request, error) {
 	c := mongodoc.NewRequestConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -120,7 +118,7 @@ func (r *Request) find(ctx context.Context, filter interface{}) ([]*request.Requ
 	return c.Result, nil
 }
 
-func (r *Request) findOne(ctx context.Context, filter interface{}) (*request.Request, error) {
+func (r *Request) findOne(ctx context.Context, filter any) (*request.Request, error) {
 	c := mongodoc.NewRequestConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
@@ -141,10 +139,10 @@ func filterRequests(ids []id.RequestID, rows []*request.Request) []*request.Requ
 	return res
 }
 
-func (r *Request) readFilter(filter interface{}) interface{} {
+func (r *Request) readFilter(filter any) interface{} {
 	return applyProjectFilter(filter, r.f.Readable)
 }
 
-func (r *Request) writeFilter(filter interface{}) interface{} {
+func (r *Request) writeFilter(filter any) interface{} {
 	return applyProjectFilter(filter, r.f.Writable)
 }

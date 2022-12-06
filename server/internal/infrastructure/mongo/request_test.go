@@ -18,7 +18,7 @@ import (
 
 func TestRequest_Filtered(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -80,7 +80,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -143,7 +143,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -204,7 +204,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -240,9 +240,6 @@ func TestRequest_FindByProject(t *testing.T) {
 			seeds: []*request.Request{req1, req2},
 			args: args{
 				projectID: pid,
-				RequestFilter: repo.RequestFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
-				},
 			},
 			want: 2,
 		},
@@ -251,9 +248,6 @@ func TestRequest_FindByProject(t *testing.T) {
 			seeds: []*request.Request{req1, req2},
 			args: args{
 				projectID: id.NewProjectID(),
-				RequestFilter: repo.RequestFilter{
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
-				},
 			},
 			want: 0,
 		},
@@ -263,8 +257,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword:    lo.ToPtr("foo"),
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword: lo.ToPtr("foo"),
 				},
 			},
 			want: 1,
@@ -275,8 +268,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					State:      &request.StateDraft,
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					State: &request.StateDraft,
 				},
 			},
 			want: 1,
@@ -287,9 +279,8 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					Keyword:    lo.ToPtr("foo"),
-					State:      &request.StateDraft,
-					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					Keyword: lo.ToPtr("foo"),
+					State:   &request.StateDraft,
 				},
 			},
 			want: 0,
@@ -308,7 +299,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter)
+			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.want, len(got))
 		})
 	}
@@ -316,7 +307,7 @@ func TestRequest_FindByProject(t *testing.T) {
 
 func TestRequest_Remove(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
