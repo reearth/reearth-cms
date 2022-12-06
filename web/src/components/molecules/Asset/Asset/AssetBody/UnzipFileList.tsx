@@ -122,7 +122,7 @@ const ExtractionFailedIcon = styled(Icon)`
   margin-bottom: 28px;
 `;
 
-const ExtractionFailedText = styled.span`
+const ExtractionFailedText = styled.p`
 font-family: Roboto
 font-style: normal
 font-weight: 400
