@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
@@ -81,6 +82,24 @@ func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 	return r.findOne(ctx, bson.M{
 		"key":     key,
 		"project": projectID.String(),
+	})
+}
+
+func (r *Model) FindByIDOrKey(ctx context.Context, modelID *id.ModelID, key *key.Key, pids id.ProjectIDList) (*model.Model, error) {
+	filters := make([]bson.M, 0, 2)
+	if modelID != nil {
+		filters = append(filters, bson.M{"id": modelID.String()})
+	}
+	if key != nil {
+		filters = append(filters, bson.M{"key": key.String()})
+	}
+	if len(filters) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+
+	return r.findOne(ctx, bson.M{
+		"project": bson.M{"$in": pids.Strings()},
+		"$or":     filters,
 	})
 }
 

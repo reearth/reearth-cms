@@ -31,6 +31,7 @@ var (
 	fId    = id.NewFieldID()
 	thId   = id.NewThreadID()
 	icId   = id.NewCommentID()
+	ikey   = key.Random()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -88,7 +89,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("m1").
 		Description("m1 desc").
 		Public(true).
-		Key(key.Random()).
+		Key(ikey).
 		Project(p.ID()).
 		Schema(s.ID()).
 		MustBuild()
@@ -140,15 +141,54 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/models/{modelId}/items", mId).
+	obj := e.GET("/api/models/{modelId}/items", mId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().Keys().
-		Contains("items", "page", "perPage", "totalCount")
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a := obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// key can be also acceptable
+	obj = e.GET("/api/models/{modelId}/items", ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// invalid key
+	e.GET("/api/models/{modelId}/items", "xxx").
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusNotFound)
 }
 
 // Post|/models/{modelId}/items/{itemId}

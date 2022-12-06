@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -16,17 +15,20 @@ import (
 func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
-	m, err := uc.Model.FindByIDs(ctx, []id.ModelID{request.ModelId}, op)
+	m, err := uc.Model.FindByIDOrKey(ctx, request.ModelIdOrKey, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemFilter404Response{}, err
+		}
 		return ItemFilter400Response{}, err
-	}
-	if len(m) == 0 {
-		return ItemFilter400Response{}, rerror.ErrNotFound
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m[0].Schema(), p, op)
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m.Schema(), p, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemFilter404Response{}, err
+		}
 		return ItemFilter400Response{}, err
 	}
 
@@ -46,12 +48,12 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, errors.New("missing fields")
 	}
 
-	m, err := uc.Model.FindByIDs(ctx, []id.ModelID{request.ModelId}, op)
+	m, err := uc.Model.FindByIDOrKey(ctx, request.ModelIdOrKey, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCreate400Response{}, err
+		}
 		return nil, err
-	}
-	if len(m) == 0 {
-		return ItemCreate400Response{}, rerror.ErrNotFound
 	}
 
 	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
@@ -69,9 +71,9 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	}
 
 	cp := interfaces.CreateItemParam{
-		SchemaID: m[0].Schema(),
+		SchemaID: m.Schema(),
 		Fields:   fields,
-		ModelID:  request.ModelId,
+		ModelID:  m.ID(),
 	}
 
 	i, err := uc.Item.Create(ctx, cp, op)
@@ -99,6 +101,9 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 
 	i, err := uc.Item.Update(ctx, up, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUpdate400Response{}, err
+		}
 		return ItemUpdate400Response{}, err
 	}
 
@@ -111,6 +116,9 @@ func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject)
 
 	err := uc.Item.Delete(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemDelete400Response{}, err
+		}
 		return ItemDelete400Response{}, err
 	}
 	return ItemDelete200JSONResponse{
@@ -124,6 +132,9 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemGet404Response{}, err
+		}
 		return nil, err
 	}
 
