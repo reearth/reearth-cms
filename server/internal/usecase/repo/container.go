@@ -21,6 +21,7 @@ type Container struct {
 	Integration Integration
 	Thread      Thread
 	Event       Event
+	Request     Request
 	Transaction usecasex.Transaction
 }
 
@@ -38,6 +39,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,
 		User:        c.User,
+		Request:     c.Request,
 		Item:        c.Item.Filtered(project),
 		Project:     c.Project.Filtered(workspace),
 		Model:       c.Model.Filtered(project),
