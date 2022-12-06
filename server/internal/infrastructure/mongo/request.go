@@ -79,9 +79,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		}
 	}
 	if uFilter.State != nil {
-		filter["state"] = bson.M{
-			"state": uFilter.State.String(),
-		}
+		filter["state"] = uFilter.State.String()
 	}
 
 	return r.paginate(ctx, &filter, page)
