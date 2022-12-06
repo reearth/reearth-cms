@@ -226,7 +226,7 @@ export default () => {
       setSelectedAssetId(id);
       setCollapsed(false);
     },
-    [setSelectedAssetId],
+    [setCollapsed, setSelectedAssetId],
   );
 
   const handleCollapsed = useCallback(
