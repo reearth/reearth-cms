@@ -132,12 +132,13 @@ const ExtractionFailedIcon = styled(Icon)`
 `;
 
 const ExtractionFailedText = styled.p`
-font-family: Roboto
-font-style: normal
-font-weight: 400
-font-size: 14px
-line-height: 22px
-color: rgba(0, 0, 0, 0.85)
+  margin-bottom: 0;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.85);
 `;
 
 export default UnzipFileList;
