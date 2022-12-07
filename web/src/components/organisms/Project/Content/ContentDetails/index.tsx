@@ -16,8 +16,10 @@ const ContentDetails: React.FC = () => {
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
-    collapsed,
-    collapse,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
@@ -44,11 +46,16 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
-      collapsed={collapsed}
-      onCollapse={collapse}
+      collapsed={collapsedModelMenu}
+      onCollapse={collapseModelMenu}
       commentsPanel={
         currentItem ? (
-          <CommentsPanel comments={currentItem.comments} threadId={currentItem.threadId} />
+          <CommentsPanel
+            comments={currentItem.comments}
+            threadId={currentItem.threadId}
+            collapsed={collapsedCommentsPanel}
+            onCollapse={collapseCommentsPanel}
+          />
         ) : undefined
       }
       itemId={itemId}
@@ -60,7 +67,7 @@ const ContentDetails: React.FC = () => {
       onBack={handleNavigateToModel}
       modelsMenu={
         <ModelsMenu
-          collapsed={collapsed}
+          collapsed={collapsedModelMenu}
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
         />

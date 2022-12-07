@@ -98,12 +98,12 @@ func TestToSchemaField(t *testing.T) {
 				ID:           IDFrom(fId),
 				ModelID:      "",
 				Model:        nil,
-				Type:         SchemaFiledTypeText,
+				Type:         SchemaFieldTypeText,
 				TypeProperty: &SchemaFieldText{},
 				Key:          "K123456",
 				Title:        "N1",
 				Description:  lo.ToPtr("D1"),
-				MultiValue:   true,
+				Multiple:     true,
 				Unique:       true,
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),
@@ -127,7 +127,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 
 	type args struct {
 		tp *schema.TypeProperty
-		dv *value.Value
+		dv *value.Multiple
 	}
 	tests := []struct {
 		name string
@@ -200,7 +200,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, ToSchemaFieldTypeProperty(tt.args.tp, tt.args.dv))
+			assert.Equal(t, tt.want, ToSchemaFieldTypeProperty(tt.args.tp, tt.args.dv, false))
 		})
 	}
 }
@@ -211,9 +211,9 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 	tests := []struct {
 		name      string
 		argsInp   *SchemaFieldTypePropertyInput
-		argsT     SchemaFiledType
+		argsT     SchemaFieldType
 		wantTp    *schema.TypeProperty
-		wantDv    *value.Value
+		wantDv    *value.Multiple
 		wantError error
 	}{
 		{
@@ -225,7 +225,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Text: &SchemaFieldTextInput{DefaultValue: nil, MaxLength: nil},
 			},
-			argsT:  SchemaFiledTypeText,
+			argsT:  SchemaFieldTypeText,
 			wantTp: schema.NewText(nil).TypeProperty(),
 		},
 		{
@@ -233,7 +233,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				TextArea: &SchemaFieldTextAreaInput{DefaultValue: nil, MaxLength: nil},
 			},
-			argsT:  SchemaFiledTypeTextArea,
+			argsT:  SchemaFieldTypeTextArea,
 			wantTp: schema.NewTextArea(nil).TypeProperty(),
 		},
 		{
@@ -241,7 +241,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				RichText: &SchemaFieldRichTextInput{DefaultValue: nil, MaxLength: nil},
 			},
-			argsT:  SchemaFiledTypeRichText,
+			argsT:  SchemaFieldTypeRichText,
 			wantTp: schema.NewRichText(nil).TypeProperty(),
 		},
 		{
@@ -249,7 +249,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				MarkdownText: &SchemaMarkdownTextInput{DefaultValue: nil, MaxLength: nil},
 			},
-			argsT:  SchemaFiledTypeMarkdownText,
+			argsT:  SchemaFieldTypeMarkdownText,
 			wantTp: schema.NewMarkdown(nil).TypeProperty(),
 		},
 		{
@@ -257,7 +257,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Bool: &SchemaFieldBoolInput{DefaultValue: nil},
 			},
-			argsT:  SchemaFiledTypeBool,
+			argsT:  SchemaFieldTypeBool,
 			wantTp: schema.NewBool().TypeProperty(),
 		},
 		{
@@ -267,7 +267,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 					DefaultValue: nil,
 				},
 			},
-			argsT:  SchemaFiledTypeDate,
+			argsT:  SchemaFieldTypeDate,
 			wantTp: schema.NewDateTime().TypeProperty(),
 		},
 		{
@@ -277,7 +277,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 					ModelID: ID(mid.String()),
 				},
 			},
-			argsT:  SchemaFiledTypeReference,
+			argsT:  SchemaFieldTypeReference,
 			wantTp: schema.NewReference(mid).TypeProperty(),
 		},
 		{
@@ -285,7 +285,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Asset: &SchemaFieldAssetInput{DefaultValue: nil},
 			},
-			argsT:  SchemaFiledTypeAsset,
+			argsT:  SchemaFieldTypeAsset,
 			wantTp: schema.NewAsset().TypeProperty(),
 		},
 		{
@@ -293,7 +293,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Integer: &SchemaFieldIntegerInput{},
 			},
-			argsT:  SchemaFiledTypeInteger,
+			argsT:  SchemaFieldTypeInteger,
 			wantTp: lo.Must(schema.NewInteger(nil, nil)).TypeProperty(),
 		},
 		{
@@ -301,7 +301,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				URL: &SchemaFieldURLInput{DefaultValue: nil},
 			},
-			argsT:  SchemaFiledTypeURL,
+			argsT:  SchemaFieldTypeURL,
 			wantTp: schema.NewURL().TypeProperty(),
 		},
 		{
@@ -309,7 +309,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Select: &SchemaFieldSelectInput{DefaultValue: nil},
 			},
-			argsT:  SchemaFiledTypeSelect,
+			argsT:  SchemaFieldTypeSelect,
 			wantTp: schema.NewSelect(nil).TypeProperty(),
 		},
 	}
@@ -319,7 +319,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tp, dv, err := FromSchemaTypeProperty(tt.argsInp, tt.argsT)
+			tp, dv, err := FromSchemaTypeProperty(tt.argsInp, tt.argsT, false)
 			assert.Equal(t, tt.wantTp, tp)
 			assert.Equal(t, tt.wantDv, dv)
 			assert.Equal(t, tt.wantError, err)
