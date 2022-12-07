@@ -43,8 +43,16 @@ export type AddUsersToWorkspacePayload = {
   workspace: Workspace;
 };
 
+export enum ArchiveExtractionStatus {
+  Done = 'DONE',
+  Failed = 'FAILED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING'
+}
+
 export type Asset = Node & {
   __typename?: 'Asset';
+  archiveExtractionStatus?: Maybe<ArchiveExtractionStatus>;
   createdAt: Scalars['DateTime'];
   createdBy: Operator;
   createdById: Scalars['ID'];
@@ -875,7 +883,7 @@ export type RemoveUserFromWorkspaceInput = {
 };
 
 export enum Role {
-  Maintainer = 'Maintainer',
+  Maintainer = 'MAINTAINER',
   Owner = 'OWNER',
   Reader = 'READER',
   Writer = 'WRITER'
