@@ -33,6 +33,7 @@ var (
 	fId    = id.NewFieldID()
 	thId   = id.NewThreadID()
 	icId   = id.NewCommentID()
+	pid    = id.NewProjectID()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -65,7 +66,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	p := project.New().NewID().
+	p := project.New().ID(pid).
 		Name("p1").
 		Description("p1 desc").
 		ImageURL(lo.Must(url.Parse("https://test.com"))).

@@ -26,13 +26,17 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/assets/{assetId}", aid).
+	obj := e.GET("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().Keys().
-		Contains("id", "projectId", "name", "url", "contentType", "previewType", "totalSize", "file", "createdAt")
+		Object()
+	obj.Value("id").Equal(aid.String())
+	obj.Value("projectId").Equal(pid)
+	obj.Value("name").Equal("aaa.jpg")
+	obj.Value("contentType").Equal("image/jpg")
+	obj.Value("totalSize").Equal(1000)
 }
 
 // DELETE|/assets/{assetId}
