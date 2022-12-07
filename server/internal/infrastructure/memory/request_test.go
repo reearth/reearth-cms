@@ -54,7 +54,7 @@ func TestRequest_FindByID(t *testing.T) {
 	assert.Same(t, rerror.ErrNotFound, err)
 }
 
-func TestRequest_Remove(t *testing.T) {
+func TestRequest_SaveAll(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
@@ -80,21 +80,19 @@ func TestRequest_Remove(t *testing.T) {
 		MustBuild()
 
 	r := NewRequest()
-	_ = r.Save(ctx, req1)
-	_ = r.Save(ctx, req2)
+	err := r.SaveAll(ctx, pid, request.List{req1, req2})
+	assert.NoError(t, err)
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
 	})
 
-	err := r.RemoveAll(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.NoError(t, err)
 	data, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.Equal(t, 0, len(data))
+	assert.Equal(t, 2, len(data))
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.RemoveAll(ctx, id.RequestIDList{}))
+	assert.Same(t, wantErr, r.SaveAll(ctx, pid, request.List{}))
 }
 
 func TestRequest_Save(t *testing.T) {

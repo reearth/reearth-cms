@@ -55,7 +55,6 @@ input UpdateRequestInput {
 
 input RequestItemInput {
   itemId: ID!
-  version: String!
 }
 
 input DeleteRequestInput {

@@ -544,8 +544,7 @@ type RequestItem struct {
 }
 
 type RequestItemInput struct {
-	ItemID  ID     `json:"itemId"`
-	Version string `json:"version"`
+	ItemID ID `json:"itemId"`
 }
 
 type RequestPayload struct {

@@ -3886,7 +3886,6 @@ input UpdateRequestInput {
 
 input RequestItemInput {
   itemId: ID!
-  version: String!
 }
 
 input DeleteRequestInput {
@@ -24176,7 +24175,7 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId", "version"}
+	fieldsInOrder := [...]string{"itemId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24188,14 +24187,6 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
 			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "version":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
-			it.Version, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

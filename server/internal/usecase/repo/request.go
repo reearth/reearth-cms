@@ -15,9 +15,9 @@ type RequestFilter struct {
 
 type Request interface {
 	Filtered(ProjectFilter) Request
-	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination) ([]*request.Request, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination) (request.List, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.RequestID) (*request.Request, error)
-	FindByIDs(context.Context, id.RequestIDList) ([]*request.Request, error)
+	FindByIDs(context.Context, id.RequestIDList) (request.List, error)
 	Save(context.Context, *request.Request) error
-	RemoveAll(context.Context, id.RequestIDList) error
+	SaveAll(context.Context, id.ProjectID, request.List) error
 }

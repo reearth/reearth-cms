@@ -81,6 +81,20 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 	return doc, id
 }
 
+func NewRequests(requests request.List) ([]*RequestDocument, []string) {
+	res := make([]*RequestDocument, 0, len(requests))
+	ids := make([]string, 0, len(requests))
+	for _, d := range requests {
+		if d == nil {
+			continue
+		}
+		r, rid := NewRequest(d)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
+}
+
 func (d *RequestDocument) Model() (*request.Request, error) {
 	rid, err := id.RequestIDFrom(d.ID)
 	if err != nil {

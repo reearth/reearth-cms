@@ -47,7 +47,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		seeds []*request.Request
+		seeds request.List
 		args  struct {
 			id       id.RequestID
 			operator *usecase.Operator
@@ -58,7 +58,7 @@ func TestRequest_FindByID(t *testing.T) {
 	}{
 		{
 			name:  "find 1 of 2",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: struct {
 				id       id.RequestID
 				operator *usecase.Operator
@@ -71,7 +71,7 @@ func TestRequest_FindByID(t *testing.T) {
 		},
 		{
 			name:  "find 1 of 0",
-			seeds: []*request.Request{},
+			seeds: request.List{},
 			args: struct {
 				id       id.RequestID
 				operator *usecase.Operator
@@ -150,7 +150,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		seeds []*request.Request
+		seeds request.List
 		args  struct {
 			ids      id.RequestIDList
 			operator *usecase.Operator
@@ -161,7 +161,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 	}{
 		{
 			name:  "find 2 of 3",
-			seeds: []*request.Request{req1, req2, req3},
+			seeds: request.List{req1, req2, req3},
 			args: struct {
 				ids      id.RequestIDList
 				operator *usecase.Operator
@@ -173,7 +173,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		},
 		{
 			name:  "find 0 of 3",
-			seeds: []*request.Request{req1, req2, req3},
+			seeds: request.List{req1, req2, req3},
 			args: struct {
 				ids      id.RequestIDList
 				operator *usecase.Operator
@@ -248,7 +248,7 @@ func TestRequest_FindByProject(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		seeds []*request.Request
+		seeds request.List
 		args  struct {
 			pid      id.ProjectID
 			filter   interfaces.RequestFilter
@@ -260,7 +260,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	}{
 		{
 			name:  "must find 2",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: struct {
 				pid      id.ProjectID
 				filter   interfaces.RequestFilter
@@ -273,7 +273,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 1",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: struct {
 				pid      id.ProjectID
 				filter   interfaces.RequestFilter
@@ -289,7 +289,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 1",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: struct {
 				pid      id.ProjectID
 				filter   interfaces.RequestFilter

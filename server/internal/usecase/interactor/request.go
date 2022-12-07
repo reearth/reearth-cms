@@ -32,11 +32,11 @@ func (r Request) FindByID(ctx context.Context, id id.RequestID, operator *usecas
 	return r.repos.Request.FindByID(ctx, id)
 }
 
-func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator *usecase.Operator) ([]*request.Request, error) {
+func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator *usecase.Operator) (request.List, error) {
 	return r.repos.Request.FindByIDs(ctx, list)
 }
 
-func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error) {
+func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:   filter.State,
 		Keyword: filter.Keyword,
@@ -159,6 +159,19 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetReviewers(param.Reviewers)
 		}
 		if param.Items != nil {
+			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs())
+			if err != nil {
+				return nil, err
+			}
+
+			for _, item := range repoItems {
+				if version.MatchVersionOrRef(item.Version().OrRef(), nil,
+					func(r version.Ref) bool {
+						return r == version.Public
+					}) {
+					return nil, errors.New("already published")
+				}
+			}
 			req.SetItems(param.Items)
 		}
 
@@ -170,12 +183,20 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 	})
 }
 
-func (r Request) DeleteMany(ctx context.Context, requestID id.RequestIDList, operator *usecase.Operator) error {
+func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestIDList, operator *usecase.Operator) error {
 	if operator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 
-	return r.repos.Request.RemoveAll(ctx, requestID)
+	return Run0(ctx, operator, r.repos, Usecase().Transaction(), func() error {
+		reqs, err := r.FindByIDs(ctx, ids, operator)
+		if err != nil {
+			return err
+		}
+		reqs.CloseAll()
+
+		return r.repos.Request.SaveAll(ctx, pid, reqs)
+	})
 }
 
 func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {
