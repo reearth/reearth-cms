@@ -70,7 +70,7 @@ export default (assetId?: string) => {
     setIsModalVisible(false);
   }, []);
 
-  const handleCollapsed = useCallback(
+  const handleToggleCommentMenu = useCallback(
     (value: boolean) => {
       setCollapsed(value);
     },
@@ -83,7 +83,7 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
-    handleCollapsed,
+    handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,

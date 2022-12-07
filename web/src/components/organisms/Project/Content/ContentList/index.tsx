@@ -34,7 +34,7 @@ const ContentList: React.FC = () => {
           emptyText={
             selectedItem
               ? t("No comments.")
-              : t("Please click the comment bubble in table to check comments.")
+              : t("Please click the comment bubble in the table to check comments.")
           }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}

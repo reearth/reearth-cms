@@ -18,7 +18,7 @@ const AssetList: React.FC = () => {
     uploadType,
     selectedAsset,
     collapsed,
-    handleCollapsed,
+    handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
@@ -39,11 +39,11 @@ const AssetList: React.FC = () => {
       commentsPanel={
         <CommentsPanel
           collapsed={collapsed}
-          onCollapse={handleCollapsed}
+          onCollapse={handleToggleCommentMenu}
           emptyText={
             selectedAsset
               ? t("No comments.")
-              : t("Please click the comment bubble in table to check comments.")
+              : t("Please click the comment bubble in the table to check comments.")
           }
           comments={assetList.find(asset => asset.id === selectedAsset?.id)?.comments}
           threadId={assetList.find(asset => asset.id === selectedAsset?.id)?.threadId}

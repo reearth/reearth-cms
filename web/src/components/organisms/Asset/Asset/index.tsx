@@ -15,7 +15,7 @@ const Asset: React.FC = () => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
-    handleCollapsed,
+    handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,
@@ -42,7 +42,7 @@ const Asset: React.FC = () => {
           comments={asset?.comments}
           threadId={asset?.threadId}
           collapsed={collapsed}
-          onCollapse={handleCollapsed}
+          onCollapse={handleToggleCommentMenu}
         />
       }
       asset={asset}

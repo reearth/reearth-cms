@@ -229,7 +229,7 @@ export default () => {
     [setCollapsed, setSelectedAssetId],
   );
 
-  const handleCollapsed = useCallback(
+  const handleToggleCommentMenu = useCallback(
     (value: boolean) => {
       setCollapsed(value);
     },
@@ -255,7 +255,7 @@ export default () => {
     uploadType,
     selectedAsset,
     collapsed,
-    handleCollapsed,
+    handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
