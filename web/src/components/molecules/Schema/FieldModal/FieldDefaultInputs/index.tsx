@@ -6,6 +6,7 @@ import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import IntegerField from "./IntegerField";
+import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
@@ -57,8 +58,10 @@ const FieldDefaultInputs: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   return selectedType ? (
-    selectedType === "TextArea" || selectedType === "MarkdownText" ? (
+    selectedType === "TextArea" ? (
       <TextAreaField />
+    ) : selectedType === "MarkdownText" ? (
+      <MarkdownField />
     ) : selectedType === "Integer" ? (
       <IntegerField />
     ) : selectedType === "Asset" ? (

@@ -18,6 +18,7 @@ export type ContentTableField = {
   id: string;
   schemaId: string;
   fields: { [key: string]: any };
+  comments: Comment[];
 };
 
 export type Comment = {

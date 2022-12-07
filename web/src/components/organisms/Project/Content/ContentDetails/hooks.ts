@@ -19,7 +19,8 @@ export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();
   const { projectId, workspaceId, itemId } = useParams();
-  const [collapsed, collapse] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const t = useT();
 
   const handleNavigateToModel = useCallback(
@@ -121,8 +122,10 @@ export default () => {
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
-    collapsed,
-    collapse,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
