@@ -315,9 +315,19 @@ func TestModel_SetKey(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name: "pass",
+			args: args{
+				key: key.New("a"),
+			},
+			want: Model{
+				key: key.New("a"),
+			},
+			wantErr: nil,
+		},
+		{
 			name: "fail",
 			args: args{
-				key: key.New("123"),
+				key: key.New(""),
 			},
 			want:    Model{},
 			wantErr: ErrInvalidKey,
