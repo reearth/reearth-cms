@@ -9,6 +9,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -27,10 +28,12 @@ var (
 	uId    = id.NewUserID()
 	iId    = id.NewIntegrationID()
 	mId    = id.NewModelID()
+	aid    = id.NewAssetID()
 	itmId  = id.NewItemID()
 	fId    = id.NewFieldID()
 	thId   = id.NewThreadID()
 	icId   = id.NewCommentID()
+	pid    = id.NewProjectID()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -63,7 +66,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	p := project.New().NewID().
+	p := project.New().ID(pid).
 		Name("p1").
 		Description("p1 desc").
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
@@ -109,6 +112,21 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	cmt := thread.NewComment(icId, operator.OperatorFromUser(u.ID()), "test comment")
 	th := thread.New().ID(thId).Workspace(w.ID()).Comments([]*thread.Comment{cmt}).MustBuild()
 	if err := r.Thread.Save(ctx, th); err != nil {
+		return err
+	}
+
+	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
+	a := asset.New().ID(aid).
+		Project(p.ID()).
+		CreatedByUser(u.ID()).
+		FileName("aaa.jpg").
+		Size(1000).
+		File(f).
+		UUID(u.ID().String()).
+		Thread(thId).
+		MustBuild()
+
+	if err := r.Asset.Save(ctx, a); err != nil {
 		return err
 	}
 
