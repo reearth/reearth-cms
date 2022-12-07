@@ -13,7 +13,7 @@ import (
 
 type FieldAndValue struct {
 	Field schema.FieldID
-	Value *value.Value
+	Value *value.Multiple
 }
 
 type Item interface {
