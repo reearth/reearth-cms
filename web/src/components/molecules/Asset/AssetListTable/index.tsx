@@ -14,6 +14,7 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
@@ -88,6 +89,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+    },
+    {
+      title: t("Status"),
+      dataIndex: "archiveExtractionStatus",
+      key: "archiveExtractionStatus",
+      render: (_, asset) => {
+        return <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />;
+      },
     },
     {
       title: t("Created At"),

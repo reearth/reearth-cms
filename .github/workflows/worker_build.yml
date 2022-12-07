@@ -35,6 +35,8 @@ jobs:
             if [[ ! -z "$TAG" ]]; then
               echo "::set-output name=new_tag::$TAG"
               echo "::set-output name=new_tag_short::${TAG#v}"
+            else
+              echo "::set-output name=name::rc"
             fi
           else
             echo "::set-output name=name::nightly"

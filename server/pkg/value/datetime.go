@@ -2,6 +2,8 @@ package value
 
 import (
 	"time"
+
+	"github.com/samber/lo"
 )
 
 const TypeDateTime Type = "datetime"
@@ -73,5 +75,18 @@ func (v *Value) ValueDateTime() (vv DateTime, ok bool) {
 		return
 	}
 	vv, ok = v.v.(DateTime)
+	return
+}
+
+func (m *Multiple) ValuesDateTime() (vv []DateTime, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (DateTime, bool) {
+		return v.ValueDateTime()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

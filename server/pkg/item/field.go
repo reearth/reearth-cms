@@ -7,10 +7,10 @@ import (
 
 type Field struct {
 	field FieldID
-	value *value.Optional
+	value *value.Multiple
 }
 
-func NewField(field FieldID, v *value.Optional) *Field {
+func NewField(field FieldID, v *value.Multiple) *Field {
 	if v == nil {
 		return nil
 	}
@@ -25,6 +25,6 @@ func (f *Field) Type() value.Type {
 	return f.value.Type()
 }
 
-func (f *Field) Value() *value.Optional {
+func (f *Field) Value() *value.Multiple {
 	return f.value
 }
