@@ -88,7 +88,7 @@ func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.
 		}
 
 		a := Asset{}
-		if aid, ok := f.Value().Value().ValueAsset(); ok {
+		if aid, ok := f.Value().First().ValueAsset(); ok {
 			if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
 				a = NewAsset(as, urlResolver)
 			}
@@ -100,7 +100,7 @@ func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.
 		}
 
 		return k, &ItemField{
-			Value: f.Value().Value().Interface(),
+			Value: f.Value().First().Interface(),
 			Asset: a,
 		}
 	})).DropEmptyFields()

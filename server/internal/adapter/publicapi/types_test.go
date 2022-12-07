@@ -40,8 +40,8 @@ func TestNewItem(t *testing.T) {
 		Model(id.NewModelID()).
 		Thread(id.NewThreadID()).
 		Fields([]*item.Field{
-			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").Some()),
-			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).Some()),
+			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple()),
+			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple()),
 		}).
 		MustBuild()
 

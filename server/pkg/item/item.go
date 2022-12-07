@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -114,8 +115,11 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 }
 
 func (i *Item) AssetIDs() id.AssetIDList {
-	return lo.FilterMap(i.Fields(), func(f *Field, _ int) (id.AssetID, bool) {
-		return f.Value().Value().ValueAsset()
+	fm := lo.FlatMap(i.fields, func(f *Field, _ int) []*value.Value {
+		return f.Value().Values()
+	})
+	return lo.FilterMap(fm, func(v *value.Value, _ int) (id.AssetID, bool) {
+		return v.ValueAsset()
 	})
 }
 
