@@ -87,6 +87,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "11.18.6",
+    "react-markdown": "8.0.4",
     "react-resizable": "^3.0.4",
     "react-router-dom": "6.4.0",
     "react-svg": "15.1.9",

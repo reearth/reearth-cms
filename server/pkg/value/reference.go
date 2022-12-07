@@ -2,6 +2,7 @@ package value
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 const TypeReference Type = "reference"
@@ -49,5 +50,18 @@ func (v *Value) ValueReference() (vv Reference, ok bool) {
 		return
 	}
 	vv, ok = v.v.(Reference)
+	return
+}
+
+func (m *Multiple) ValuesReference() (vv []Reference, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Reference, bool) {
+		return v.ValueReference()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

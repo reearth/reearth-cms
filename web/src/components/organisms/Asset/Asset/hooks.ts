@@ -17,6 +17,7 @@ export default (assetId?: string) => {
   const t = useT();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
@@ -69,11 +70,20 @@ export default (assetId?: string) => {
     setIsModalVisible(false);
   }, []);
 
+  const handleToggleCommentMenu = useCallback(
+    (value: boolean) => {
+      setCollapsed(value);
+    },
+    [setCollapsed],
+  );
+
   return {
     asset,
     isLoading: loading,
     selectedPreviewType,
     isModalVisible,
+    collapsed,
+    handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,

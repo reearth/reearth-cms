@@ -3,16 +3,22 @@ on:
   push:
     branches: [main, release]
     paths:
-      - .github/workflows/server.yml
+      - server/**
+      - .github/workflows/ci_server.yml
       - .github/workflows/server_build.yml
       - .github/workflows/deploy_test.yml
-      - server/**
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
   pull_request:
     paths:
-      - .github/workflows/server.yml
+      - server/**
+      - .github/workflows/ci_server.yml
       - .github/workflows/server_build.yml
       - .github/workflows/deploy_test.yml
-      - server/**
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
