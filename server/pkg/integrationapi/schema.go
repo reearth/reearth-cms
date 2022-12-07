@@ -13,7 +13,7 @@ type ItemAndSchema struct {
 
 func NewItemAndSchema(i item.ItemAndSchema) ItemAndSchema {
 	return ItemAndSchema{
-		Item:   NewItem(i.Item),
+		Item:   NewItem(i.Item, i.Schema),
 		Schema: NewSchema(i.Schema),
 	}
 }

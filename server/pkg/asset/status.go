@@ -13,7 +13,7 @@ const (
 	ArchiveExtractionStatusFailed     ArchiveExtractionStatus = "failed"
 )
 
-func StatusFrom(s string) (ArchiveExtractionStatus, bool) {
+func ArchiveExtractionStatusFrom(s string) (ArchiveExtractionStatus, bool) {
 	ss := strings.ToLower(s)
 	switch ArchiveExtractionStatus(ss) {
 	case ArchiveExtractionStatusPending:
@@ -29,12 +29,12 @@ func StatusFrom(s string) (ArchiveExtractionStatus, bool) {
 	}
 }
 
-func StatusFromRef(s *string) *ArchiveExtractionStatus {
+func ArchiveExtractionStatusFromRef(s *string) *ArchiveExtractionStatus {
 	if s == nil {
 		return nil
 	}
 
-	ss, ok := StatusFrom(*s)
+	ss, ok := ArchiveExtractionStatusFrom(*s)
 	if !ok {
 		return nil
 	}
