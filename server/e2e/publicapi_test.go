@@ -225,22 +225,22 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey)).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").Some()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).Some()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
 	}).MustBuild()
 
 	i2 := item.New().ID(publicAPIItem2ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").Some()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple()),
 	}).MustBuild()
 
 	i3 := item.New().ID(publicAPIItem3ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").Some()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).Some()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple()),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple()),
 	}).MustBuild()
 
 	// not public
 	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").Some()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple()),
 	}).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p1))
