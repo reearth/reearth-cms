@@ -1,6 +1,7 @@
 import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
+export type ArchiveExtractionStatus = "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
 
 export type Asset = {
   id: string;
@@ -15,6 +16,7 @@ export type Asset = {
   url: string;
   threadId: string;
   comments: Comment[];
+  archiveExtractionStatus?: ArchiveExtractionStatus;
 };
 
 export type AssetFile = {
