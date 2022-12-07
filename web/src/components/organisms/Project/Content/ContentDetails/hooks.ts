@@ -6,7 +6,7 @@ import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   Item as GQLItem,
-  SchemaFiledType,
+  SchemaFieldType,
   useCreateItemMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -43,7 +43,7 @@ export default () => {
         variables: {
           modelId: currentModel.id,
           schemaId: data.schemaId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -70,7 +70,7 @@ export default () => {
       const item = await updateItem({
         variables: {
           itemId: data.itemId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.updateItem) {
