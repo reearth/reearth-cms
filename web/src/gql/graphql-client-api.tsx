@@ -133,7 +133,7 @@ export type CreateFieldInput = {
   multiValue: Scalars['Boolean'];
   required: Scalars['Boolean'];
   title: Scalars['String'];
-  type: SchemaFiledType;
+  type: SchemaFieldType;
   typeProperty: SchemaFieldTypePropertyInput;
   unique: Scalars['Boolean'];
 };
@@ -347,13 +347,13 @@ export type ItemEdge = {
 export type ItemField = {
   __typename?: 'ItemField';
   schemaFieldId: Scalars['ID'];
-  type: SchemaFiledType;
+  type: SchemaFieldType;
   value?: Maybe<Scalars['Any']>;
 };
 
 export type ItemFieldInput = {
   schemaFieldId: Scalars['ID'];
-  type: SchemaFiledType;
+  type: SchemaFieldType;
   value: Scalars['Any'];
 };
 
@@ -883,7 +883,7 @@ export type RemoveUserFromWorkspaceInput = {
 };
 
 export enum Role {
-  Maintainer = 'Maintainer',
+  Maintainer = 'MAINTAINER',
   Owner = 'OWNER',
   Reader = 'READER',
   Writer = 'WRITER'
@@ -905,10 +905,10 @@ export type SchemaField = {
   key: Scalars['String'];
   model: Model;
   modelId: Scalars['ID'];
-  multiValue: Scalars['Boolean'];
+  multiple: Scalars['Boolean'];
   required: Scalars['Boolean'];
   title: Scalars['String'];
-  type: SchemaFiledType;
+  type: SchemaFieldType;
   typeProperty?: Maybe<SchemaFieldTypeProperty>;
   unique: Scalars['Boolean'];
   updatedAt: Scalars['DateTime'];
@@ -916,47 +916,47 @@ export type SchemaField = {
 
 export type SchemaFieldAsset = {
   __typename?: 'SchemaFieldAsset';
-  defaultValue?: Maybe<Scalars['ID']>;
+  defaultValue?: Maybe<Scalars['Any']>;
 };
 
 export type SchemaFieldAssetInput = {
-  defaultValue?: InputMaybe<Scalars['ID']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
 };
 
 export type SchemaFieldBool = {
   __typename?: 'SchemaFieldBool';
-  defaultValue?: Maybe<Scalars['Boolean']>;
+  defaultValue?: Maybe<Scalars['Any']>;
 };
 
 export type SchemaFieldBoolInput = {
-  defaultValue?: InputMaybe<Scalars['Boolean']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
 };
 
 export type SchemaFieldDate = {
   __typename?: 'SchemaFieldDate';
-  defaultValue?: Maybe<Scalars['DateTime']>;
+  defaultValue?: Maybe<Scalars['Any']>;
 };
 
 export type SchemaFieldDateInput = {
-  defaultValue?: InputMaybe<Scalars['DateTime']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
 };
 
 export type SchemaFieldInteger = {
   __typename?: 'SchemaFieldInteger';
-  defaultValue?: Maybe<Scalars['Int']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   max?: Maybe<Scalars['Int']>;
   min?: Maybe<Scalars['Int']>;
 };
 
 export type SchemaFieldIntegerInput = {
-  defaultValue?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   max?: InputMaybe<Scalars['Int']>;
   min?: InputMaybe<Scalars['Int']>;
 };
 
 export type SchemaFieldMarkdown = {
   __typename?: 'SchemaFieldMarkdown';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   maxLength?: Maybe<Scalars['Int']>;
 };
 
@@ -971,58 +971,73 @@ export type SchemaFieldReferenceInput = {
 
 export type SchemaFieldRichText = {
   __typename?: 'SchemaFieldRichText';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   maxLength?: Maybe<Scalars['Int']>;
 };
 
 export type SchemaFieldRichTextInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
 export type SchemaFieldSelect = {
   __typename?: 'SchemaFieldSelect';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   values: Array<Scalars['String']>;
 };
 
 export type SchemaFieldSelectInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   values: Array<Scalars['String']>;
 };
 
 export type SchemaFieldTag = {
   __typename?: 'SchemaFieldTag';
-  defaultValue: Array<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   values: Array<Scalars['String']>;
 };
 
 export type SchemaFieldTagInput = {
-  defaultValue?: InputMaybe<Array<Scalars['String']>>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   values: Array<Scalars['String']>;
 };
 
 export type SchemaFieldText = {
   __typename?: 'SchemaFieldText';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   maxLength?: Maybe<Scalars['Int']>;
 };
 
 export type SchemaFieldTextArea = {
   __typename?: 'SchemaFieldTextArea';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
   maxLength?: Maybe<Scalars['Int']>;
 };
 
 export type SchemaFieldTextAreaInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
 export type SchemaFieldTextInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
 };
+
+export enum SchemaFieldType {
+  Asset = 'Asset',
+  Bool = 'Bool',
+  Date = 'Date',
+  Integer = 'Integer',
+  MarkdownText = 'MarkdownText',
+  Reference = 'Reference',
+  RichText = 'RichText',
+  Select = 'Select',
+  Tag = 'Tag',
+  Text = 'Text',
+  TextArea = 'TextArea',
+  Url = 'URL'
+}
 
 export type SchemaFieldTypeProperty = SchemaFieldAsset | SchemaFieldBool | SchemaFieldDate | SchemaFieldInteger | SchemaFieldMarkdown | SchemaFieldReference | SchemaFieldRichText | SchemaFieldSelect | SchemaFieldTag | SchemaFieldText | SchemaFieldTextArea | SchemaFieldUrl;
 
@@ -1043,30 +1058,15 @@ export type SchemaFieldTypePropertyInput = {
 
 export type SchemaFieldUrl = {
   __typename?: 'SchemaFieldURL';
-  defaultValue?: Maybe<Scalars['String']>;
+  defaultValue?: Maybe<Scalars['Any']>;
 };
 
 export type SchemaFieldUrlInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
 };
 
-export enum SchemaFiledType {
-  Asset = 'Asset',
-  Bool = 'Bool',
-  Date = 'Date',
-  Integer = 'Integer',
-  MarkdownText = 'MarkdownText',
-  Reference = 'Reference',
-  RichText = 'RichText',
-  Select = 'Select',
-  Tag = 'Tag',
-  Text = 'Text',
-  TextArea = 'TextArea',
-  Url = 'URL'
-}
-
 export type SchemaMarkdownTextInput = {
-  defaultValue?: InputMaybe<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
@@ -1362,7 +1362,7 @@ export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: {
 
 export type CreateFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
-  type: SchemaFiledType;
+  type: SchemaFieldType;
   title: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
@@ -1434,7 +1434,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFiledType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -1443,7 +1443,7 @@ export type CreateItemMutationVariables = Exact<{
 }>;
 
 
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFiledType, schemaFieldId: string }> } } | null };
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
 
 export type DeleteItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
@@ -1458,7 +1458,7 @@ export type UpdateItemMutationVariables = Exact<{
 }>;
 
 
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFiledType, schemaFieldId: string }> } } | null };
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1469,7 +1469,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFiledType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiValue: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: string | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: number | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: string | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: string | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: string | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2210,7 +2210,7 @@ export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteComment
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const CreateFieldDocument = gql`
-    mutation CreateField($modelId: ID!, $type: SchemaFiledType!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   createField(
     input: {modelId: $modelId, type: $type, title: $title, description: $description, key: $key, multiValue: $multiValue, unique: $unique, required: $required, typeProperty: $typeProperty}
   ) {
@@ -2653,7 +2653,7 @@ export const GetModelsDocument = gql`
           description
           required
           unique
-          multiValue
+          multiple
           typeProperty {
             ... on SchemaFieldText {
               defaultValue
