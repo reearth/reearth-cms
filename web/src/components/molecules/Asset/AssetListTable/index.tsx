@@ -16,6 +16,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
@@ -94,9 +95,10 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Status"),
       dataIndex: "archiveExtractionStatus",
       key: "archiveExtractionStatus",
-      render: (_, asset) => {
-        return <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />;
-      },
+      render: (_, asset) =>
+        getExtension(asset.fileName) === "zip" && (
+          <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+        ),
     },
     {
       title: t("Created At"),
