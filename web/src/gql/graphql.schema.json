@@ -1084,7 +1084,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "SchemaFiledType",
+                "name": "SchemaFieldType",
                 "ofType": null
               }
             },
@@ -2873,7 +2873,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "SchemaFiledType",
+                "name": "SchemaFieldType",
                 "ofType": null
               }
             },
@@ -2928,7 +2928,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "SchemaFiledType",
+                "name": "SchemaFieldType",
                 "ofType": null
               }
             },
@@ -6687,7 +6687,7 @@
             "deprecationReason": null
           },
           {
-            "name": "multiValue",
+            "name": "multiple",
             "description": null,
             "args": [],
             "type": {
@@ -6743,7 +6743,7 @@
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "SchemaFiledType",
+                "name": "SchemaFieldType",
                 "ofType": null
               }
             },
@@ -6811,7 +6811,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "ID",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6834,7 +6834,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "ID",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -6857,7 +6857,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "Boolean",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6880,7 +6880,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "Boolean",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -6903,7 +6903,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "DateTime",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6926,7 +6926,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "DateTime",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -6949,7 +6949,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "Int",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -6996,7 +6996,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "Int",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7043,7 +7043,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7132,7 +7132,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7167,7 +7167,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7202,7 +7202,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7249,7 +7249,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7295,21 +7295,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              }
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -7354,17 +7342,9 @@
             "name": "defaultValue",
             "description": null,
             "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -7410,7 +7390,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7445,7 +7425,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7480,7 +7460,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7515,7 +7495,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7537,6 +7517,89 @@
         ],
         "interfaces": null,
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "SchemaFieldType",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "Asset",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Bool",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Date",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Integer",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MarkdownText",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Reference",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "RichText",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Select",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Tag",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Text",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "TextArea",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "URL",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {
@@ -7776,7 +7839,7 @@
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "isDeprecated": false,
@@ -7799,7 +7862,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
@@ -7809,89 +7872,6 @@
         ],
         "interfaces": null,
         "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "ENUM",
-        "name": "SchemaFiledType",
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": [
-          {
-            "name": "Asset",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Bool",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Date",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Integer",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "MarkdownText",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Reference",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "RichText",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Select",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Tag",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "Text",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "TextArea",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "URL",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
         "possibleTypes": null
       },
       {
@@ -7905,7 +7885,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,

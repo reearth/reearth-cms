@@ -19,7 +19,7 @@ export const GET_MODELS = gql`
             description
             required
             unique
-            multiValue
+            multiple
             typeProperty {
               ... on SchemaFieldText {
                 defaultValue

@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 export const CREATE_FIELD = gql`
   mutation CreateField(
     $modelId: ID!
-    $type: SchemaFiledType!
+    $type: SchemaFieldType!
     $title: String!
     $description: String
     $key: String!
