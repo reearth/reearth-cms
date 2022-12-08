@@ -75,10 +75,10 @@ function App() {
                 />
                 <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
                 <Route path=":workspaceId/project/:projectId/asset/:assetId" element={<Asset />} />
-                {/* <Route
+                <Route
                   path=":workspaceId/project/:projectId/request"
                   element={<div>Request page - GOTTA DO THIS PAGE!!!!</div>}
-                /> */}
+                />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
