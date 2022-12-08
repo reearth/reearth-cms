@@ -156,7 +156,7 @@ func TestItem_FindByIDs(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _ := repo.FindByIDs(ctx, tc.Input)
+			got, _ := repo.FindByIDs(ctx, tc.Input, nil)
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}

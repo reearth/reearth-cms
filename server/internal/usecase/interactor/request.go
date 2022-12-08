@@ -58,7 +58,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs())
+		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), nil)
 		if err != nil {
 			return nil, err
 		}

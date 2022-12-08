@@ -47,7 +47,7 @@ func TestItem_Remove(t *testing.T) {
 
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
-	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
+	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()}, nil)
 	assert.Equal(t, item.List{i2}, data.Unwrap())
 
 	err = r.Remove(ctx, i1.ID())
@@ -93,7 +93,7 @@ func TestItem_FindByIDs(t *testing.T) {
 
 	ids := id.ItemIDList{i.ID()}
 	il := item.List{i}
-	out, err := r.FindByIDs(ctx, ids)
+	out, err := r.FindByIDs(ctx, ids, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, il, out.Unwrap())
 }

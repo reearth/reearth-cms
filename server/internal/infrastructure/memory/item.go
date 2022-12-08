@@ -81,12 +81,14 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return res.SortByTimestamp(), nil, nil
 }
 
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList, vor *version.VersionOrRef) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
-
-	return item.VersionedList(r.data.LoadAll(list, version.Latest.OrVersion())).SortByTimestamp(), nil
+	if vor == nil {
+		vor = version.Latest.OrVersion().Ref()
+	}
+	return item.VersionedList(r.data.LoadAll(list, *vor)).SortByTimestamp(), nil
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) (item.VersionedList, error) {
