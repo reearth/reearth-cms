@@ -159,16 +159,13 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetReviewers(param.Reviewers)
 		}
 		if param.Items != nil {
-			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs())
+			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.OrVersion().Ref())
 			if err != nil {
 				return nil, err
 			}
 
 			for _, item := range repoItems {
-				if version.MatchVersionOrRef(item.Version().OrRef(), nil,
-					func(r version.Ref) bool {
-						return r == version.Public
-					}) {
+				if item.Refs().Has(version.Latest) {
 					return nil, errors.New("already published")
 				}
 			}
