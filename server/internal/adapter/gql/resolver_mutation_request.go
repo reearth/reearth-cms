@@ -3,12 +3,10 @@ package gql
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -27,12 +25,8 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input gqlmodel.Cre
 		if err != nil {
 			return nil, err
 		}
-		v, err := uuid.Parse(i.Version)
-		if err != nil {
-			return nil, err
-		}
 
-		return request.NewItem(iid, version.Version(v))
+		return request.NewItem(iid)
 	})
 	if err != nil {
 		return nil, err
@@ -62,7 +56,7 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 	if err != nil {
 		return nil, err
 	}
-	reviewers, err := util.TryMap(input.ReviewersID, gqlmodel.ToID[id.User])
+	reviewers, err := gqlmodel.ToIDs[id.User](input.ReviewersID)
 	if err != nil {
 		return nil, err
 	}
@@ -71,12 +65,8 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 		if err != nil {
 			return nil, err
 		}
-		v, err := uuid.Parse(i.Version)
-		if err != nil {
-			return nil, err
-		}
 
-		return request.NewItem(iid, version.Version(v))
+		return request.NewItem(iid)
 	})
 	if err != nil {
 		return nil, err
@@ -117,16 +107,21 @@ func (r *mutationResolver) ApproveRequest(ctx context.Context, input gqlmodel.Ap
 }
 
 func (r *mutationResolver) DeleteRequest(ctx context.Context, input gqlmodel.DeleteRequestInput) (*gqlmodel.DeleteRequestPayload, error) {
-	rid, err := gqlmodel.ToID[id.Request](input.RequestID)
+	rids, err := gqlmodel.ToIDs[id.Request](input.RequestsID)
 	if err != nil {
 		return nil, err
 	}
-	err = usecases(ctx).Request.Delete(ctx, rid, getOperator(ctx))
+	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Request.CloseAll(ctx, pid, rids, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.DeleteRequestPayload{
-		Request: input.RequestID,
+		Requests: input.RequestsID,
 	}, nil
 }

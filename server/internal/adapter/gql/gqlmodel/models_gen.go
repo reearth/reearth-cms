@@ -257,11 +257,12 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteRequestInput struct {
-	RequestIds []ID `json:"requestIds"`
+	ProjectID  ID   `json:"projectId"`
+	RequestsID []ID `json:"requestsId"`
 }
 
 type DeleteRequestPayload struct {
-	Request ID `json:"request"`
+	Requests []ID `json:"requests"`
 }
 
 type DeleteWebhookInput struct {

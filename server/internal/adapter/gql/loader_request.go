@@ -44,12 +44,11 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 	}
 
 	f := interfaces.RequestFilter{
-		Keyword:    keyword,
-		State:      lo.ToPtr(request.StateFrom(state.String())),
-		Pagination: p.Into(),
+		Keyword: keyword,
+		State:   lo.ToPtr(request.StateFrom(state.String())),
 	}
 
-	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, getOperator(ctx))
+	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

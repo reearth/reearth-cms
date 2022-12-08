@@ -3,31 +3,48 @@ package gqlmodel
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
 
-func ToRequest(i *request.Request) *Request {
-	if i == nil {
+func ToRequest(req *request.Request) *Request {
+	if req == nil {
 		return nil
 	}
+	items := lo.Map(req.Items(), func(itm *request.Item, _ int) *RequestItem {
+		iid := IDFrom(itm.Item())
+		return version.MatchVersionOrRef(
+			itm.Pointer(),
+			func(v version.Version) *RequestItem {
+				return &RequestItem{
+					ItemID:  iid,
+					Version: lo.ToPtr(v.String()),
+				}
+			},
+			func(r version.Ref) *RequestItem {
+				return &RequestItem{
+					ItemID: iid,
+					Ref:    lo.ToPtr(r.String()),
+				}
+			},
+		)
+	})
 
 	return &Request{
-		ID:          IDFrom(i.ID()),
-		Items:       nil,
-		Title:       i.Title(),
-		Description: lo.ToPtr(i.Description()),
-		CreatedBy:   IDFrom(i.CreatedBy()),
-		WorkspaceID: IDFrom(i.Workspace()),
-		ProjectID:   IDFrom(i.Project()),
-		ThreadID:    IDFrom(i.Thread()),
-		ReviewersID: lo.Map(i.Reviewers(), func(t id.UserID, _ int) ID {
-			return IDFrom(t)
-		}),
-		State:      ToRequestState(i.State()),
-		CreatedAt:  i.CreatedAt(),
-		UpdatedAt:  i.UpdatedAt(),
-		ApprovedAt: i.ApprovedAt(),
-		ClosedAt:   i.ClosedAt(),
+		ID:          IDFrom(req.ID()),
+		Items:       items,
+		Title:       req.Title(),
+		Description: lo.ToPtr(req.Description()),
+		CreatedBy:   IDFrom(req.CreatedBy()),
+		WorkspaceID: IDFrom(req.Workspace()),
+		ProjectID:   IDFrom(req.Project()),
+		ThreadID:    IDFrom(req.Thread()),
+		ReviewersID: lo.Map(req.Reviewers(), func(t id.UserID, _ int) ID { return IDFrom(t) }),
+		State:       ToRequestState(req.State()),
+		CreatedAt:   req.CreatedAt(),
+		UpdatedAt:   req.UpdatedAt(),
+		ApprovedAt:  req.ApprovedAt(),
+		ClosedAt:    req.ClosedAt(),
 	}
 }
 func ToRequestState(s request.State) RequestState {
