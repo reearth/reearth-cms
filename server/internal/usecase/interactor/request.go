@@ -185,15 +185,13 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 		return interfaces.ErrInvalidOperator
 	}
 
-	return Run0(ctx, operator, r.repos, Usecase().Transaction(), func() error {
-		reqs, err := r.FindByIDs(ctx, ids, operator)
-		if err != nil {
-			return err
-		}
-		reqs.CloseAll()
+	reqs, err := r.FindByIDs(ctx, ids, operator)
+	if err != nil {
+		return err
+	}
+	reqs.CloseAll()
 
-		return r.repos.Request.SaveAll(ctx, pid, reqs)
-	})
+	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
 
 func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {
@@ -201,30 +199,28 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
-		req, err := r.repos.Request.FindByID(ctx, requestID)
-		if err != nil {
-			return nil, err
-		}
-		if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
-			return nil, interfaces.ErrInvalidOperator
-		}
-		// only reviewers can approve
-		if !req.Reviewers().Has(*operator.User) {
-			return nil, errors.New("only reviewers can approve")
-		}
-		req.SetState(request.StateApproved)
-		if err := r.repos.Request.Save(ctx, req); err != nil {
-			return nil, err
-		}
+	req, err := r.repos.Request.FindByID(ctx, requestID)
+	if err != nil {
+		return nil, err
+	}
+	if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	// only reviewers can approve
+	if !req.Reviewers().Has(*operator.User) {
+		return nil, errors.New("only reviewers can approve")
+	}
+	req.SetState(request.StateApproved)
+	if err := r.repos.Request.Save(ctx, req); err != nil {
+		return nil, err
+	}
 
-		// apply changes to items (publish items)
-		for _, item := range req.Items() {
-			// publish the approved version
-			if err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Pointer().Ref(), version.Public); err != nil {
-				return nil, err
-			}
+	// apply changes to items (publish items)
+	for _, item := range req.Items() {
+		// publish the approved version
+		if err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Pointer().Ref(), version.Public); err != nil {
+			return nil, err
 		}
-		return req, nil
-	})
+	}
+	return req, nil
 }
