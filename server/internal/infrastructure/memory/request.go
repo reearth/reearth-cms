@@ -42,7 +42,7 @@ func (r *Request) FindByID(ctx context.Context, id id.RequestID) (*request.Reque
 	}), rerror.ErrNotFound)
 }
 
-func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) ([]*request.Request, error) {
+func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -53,7 +53,7 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) ([]*reque
 	return res, nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter) ([]*request.Request, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -103,16 +103,18 @@ func (r *Request) Save(ctx context.Context, a *request.Request) error {
 	return nil
 }
 
-func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
+func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests request.List) error {
 	if r.err != nil {
 		return r.err
 	}
-
-	if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
-		r.data.Delete(id)
+	entries := map[id.RequestID]*request.Request{}
+	for _, req := range requests {
+		entries[req.ID()] = req
 	}
+	r.data.StoreAll(entries)
 	return nil
 }
+
 func SetRequestError(r repo.Request, err error) {
 	r.(*Request).err = err
 }

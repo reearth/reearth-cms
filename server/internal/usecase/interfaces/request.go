@@ -2,11 +2,16 @@ package interfaces
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearthx/usecasex"
+)
+
+var (
+	ErrAlreadyPublished = errors.New("already published")
 )
 
 type CreateRequestParam struct {
@@ -15,7 +20,7 @@ type CreateRequestParam struct {
 	Description *string
 	State       *request.State
 	Reviewers   id.UserIDList
-	Items       []*request.Item
+	Items       request.ItemList
 }
 
 type UpdateRequestParam struct {
@@ -24,21 +29,20 @@ type UpdateRequestParam struct {
 	Description *string
 	State       *request.State
 	Reviewers   id.UserIDList
-	Items       []*request.Item
+	Items       request.ItemList
 }
 
 type RequestFilter struct {
-	Keyword    *string
-	State      *request.State
-	Pagination *usecasex.Pagination
+	Keyword *string
+	State   *request.State
 }
 
 type Request interface {
 	FindByID(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
-	FindByIDs(context.Context, id.RequestIDList, *usecase.Operator) ([]*request.Request, error)
-	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecase.Operator) ([]*request.Request, *usecasex.PageInfo, error)
+	FindByIDs(context.Context, id.RequestIDList, *usecase.Operator) (request.List, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination, *usecase.Operator) (request.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateRequestParam, *usecase.Operator) (*request.Request, error)
 	Update(context.Context, UpdateRequestParam, *usecase.Operator) (*request.Request, error)
 	Approve(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
-	Delete(context.Context, id.RequestID, *usecase.Operator) error
+	CloseAll(context.Context, id.ProjectID, id.RequestIDList, *usecase.Operator) error
 }

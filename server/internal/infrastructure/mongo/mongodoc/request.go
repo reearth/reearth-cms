@@ -3,6 +3,7 @@ package mongodoc
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -29,7 +30,8 @@ type RequestDocument struct {
 
 type RequestItem struct {
 	Item    string
-	Version version.Version
+	Version *string
+	Ref     *string
 }
 
 type RequestConsumer = mongox.SliceFuncConsumer[*RequestDocument, *request.Request]
@@ -40,16 +42,29 @@ func NewRequestConsumer() *RequestConsumer {
 
 func NewRequest(r *request.Request) (*RequestDocument, string) {
 	rid := r.ID().String()
+	items := lo.Map(r.Items(), func(i *request.Item, _ int) RequestItem {
+		return version.MatchVersionOrRef(
+			i.Pointer(),
+			func(v version.Version) RequestItem {
+				return RequestItem{
+					Item:    i.Item().String(),
+					Version: lo.ToPtr(v.String()),
+				}
+			},
+			func(r version.Ref) RequestItem {
+				return RequestItem{
+					Item: i.Item().String(),
+					Ref:  lo.ToPtr(r.String()),
+				}
+			},
+		)
+	})
+
 	doc, id := &RequestDocument{
-		ID:        rid,
-		Workspace: r.Workspace().String(),
-		Project:   r.Project().String(),
-		Items: lo.Map(r.Items(), func(i *request.Item, _ int) RequestItem {
-			return RequestItem{
-				Item:    i.Item().String(),
-				Version: i.Version(),
-			}
-		}),
+		ID:          rid,
+		Workspace:   r.Workspace().String(),
+		Project:     r.Project().String(),
+		Items:       items,
 		Title:       r.Title(),
 		Description: r.Description(),
 		CreatedBy:   r.CreatedBy().String(),
@@ -64,6 +79,20 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 	}, rid
 
 	return doc, id
+}
+
+func NewRequests(requests request.List) ([]*RequestDocument, []string) {
+	res := make([]*RequestDocument, 0, len(requests))
+	ids := make([]string, 0, len(requests))
+	for _, d := range requests {
+		if d == nil {
+			continue
+		}
+		r, rid := NewRequest(d)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
 }
 
 func (d *RequestDocument) Model() (*request.Request, error) {
@@ -92,7 +121,17 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 		if err != nil {
 			return nil, err
 		}
-		return request.NewItem(iid, ri.Version)
+		var vor version.VersionOrRef
+		if ri.Version != nil {
+			v, err := uuid.Parse(*ri.Version)
+			if err != nil {
+				return nil, err
+			}
+			vor = version.Version(v).OrRef()
+		} else if ri.Ref != nil {
+			vor = version.Ref(*ri.Ref).OrVersion()
+		}
+		return request.NewItemWithVersion(iid, vor)
 	})
 	if err != nil {
 		return nil, err

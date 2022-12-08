@@ -9,16 +9,15 @@ import (
 )
 
 type RequestFilter struct {
-	State      *request.State
-	Keyword    *string
-	Pagination *usecasex.Pagination
+	State   *request.State
+	Keyword *string
 }
 
 type Request interface {
 	Filtered(ProjectFilter) Request
-	FindByProject(context.Context, id.ProjectID, RequestFilter) ([]*request.Request, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination) (request.List, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.RequestID) (*request.Request, error)
-	FindByIDs(context.Context, id.RequestIDList) ([]*request.Request, error)
+	FindByIDs(context.Context, id.RequestIDList) (request.List, error)
 	Save(context.Context, *request.Request) error
-	Remove(context.Context, id.RequestID) error
+	SaveAll(context.Context, id.ProjectID, request.List) error
 }

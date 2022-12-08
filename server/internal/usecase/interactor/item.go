@@ -36,7 +36,7 @@ func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
-	return i.repos.Item.FindByIDs(ctx, ids)
+	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
 func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {

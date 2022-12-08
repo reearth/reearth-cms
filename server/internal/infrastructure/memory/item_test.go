@@ -47,7 +47,7 @@ func TestItem_Remove(t *testing.T) {
 
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
-	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
+	data, _ := r.FindByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()}, nil)
 	assert.Equal(t, item.List{i2}, data.Unwrap())
 
 	err = r.Remove(ctx, i1.ID())
@@ -93,7 +93,7 @@ func TestItem_FindByIDs(t *testing.T) {
 
 	ids := id.ItemIDList{i.ID()}
 	il := item.List{i}
-	out, err := r.FindByIDs(ctx, ids)
+	out, err := r.FindByIDs(ctx, ids, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, il, out.Unwrap())
 }
@@ -217,11 +217,11 @@ func TestItem_UpdateRef(t *testing.T) {
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	v, _ := r.FindByID(ctx, i.ID())
-	_ = r.UpdateRef(ctx, i.ID(), v.Version(), vx)
+	_ = r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx)
 	v2, _ := r.FindByID(ctx, i.ID())
 	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), i), v2)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
-	assert.Same(t, wantErr, r.UpdateRef(ctx, i.ID(), v.Version(), vx))
+	assert.Same(t, wantErr, r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx))
 }

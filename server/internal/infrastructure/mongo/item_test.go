@@ -156,7 +156,7 @@ func TestItem_FindByIDs(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _ := repo.FindByIDs(ctx, tc.Input)
+			got, _ := repo.FindByIDs(ctx, tc.Input, nil)
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
@@ -493,7 +493,7 @@ func TestItem_UpdateRef(t *testing.T) {
 	r := NewItem(client)
 	_ = r.Save(ctx, i)
 	v, _ := r.FindByID(ctx, i.ID())
-	err := r.UpdateRef(ctx, i.ID(), v.Version(), vx)
+	err := r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx)
 	assert.NoError(t, err)
 	v2, _ := r.FindByID(ctx, i.ID())
 	assert.Equal(t, version.NewRefs(vx, version.Latest), v2.Refs())

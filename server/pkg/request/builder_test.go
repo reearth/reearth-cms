@@ -13,9 +13,9 @@ func TestBuilder_Build(t *testing.T) {
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
 		project:   NewProjectID(),
-		items: []*Item{{
+		items: ItemList{{
 			item:    NewItemID(),
-			version: version.New(),
+			pointer: version.New().OrRef(),
 		}},
 		title:       "title",
 		description: "desc",
@@ -124,9 +124,9 @@ func TestBuilder_Build(t *testing.T) {
 					workspace: NewWorkspaceID(),
 					thread:    NewThreadID(),
 					createdBy: NewUserID(),
-					items: []*Item{{
+					items: ItemList{{
 						item:    NewItemID(),
-						version: version.New(),
+						pointer: version.New().OrRef(),
 					}},
 				},
 			},
@@ -191,9 +191,9 @@ func TestBuilder_Description(t *testing.T) {
 
 func TestBuilder_Items(t *testing.T) {
 	b := &Builder{r: &Request{}}
-	items := []*Item{{
+	items := ItemList{{
 		item:    NewItemID(),
-		version: version.New(),
+		pointer: version.New().OrRef(),
 	}}
 	b.Items(items)
 	assert.Equal(t, items, b.r.Items())

@@ -31,7 +31,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	ctx := context.Background()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req := request.New().
 		NewID().
@@ -39,7 +39,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	r := NewRequest()
@@ -54,10 +54,10 @@ func TestRequest_FindByID(t *testing.T) {
 	assert.Same(t, rerror.ErrNotFound, err)
 }
 
-func TestRequest_Remove(t *testing.T) {
+func TestRequest_SaveAll(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -65,7 +65,7 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -75,32 +75,30 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
 	r := NewRequest()
-	_ = r.Save(ctx, req1)
-	_ = r.Save(ctx, req2)
+	err := r.SaveAll(ctx, pid, request.List{req1, req2})
+	assert.NoError(t, err)
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
 	})
 
-	err := r.Remove(ctx, req1.ID())
-	assert.NoError(t, err)
 	data, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.Equal(t, []*request.Request{req2}, data)
+	assert.Equal(t, 2, len(data))
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	assert.Same(t, wantErr, r.Remove(ctx, req1.ID()))
+	assert.Same(t, wantErr, r.SaveAll(ctx, pid, request.List{}))
 }
 
 func TestRequest_Save(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -108,7 +106,7 @@ func TestRequest_Save(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -118,7 +116,7 @@ func TestRequest_Save(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{
@@ -142,7 +140,7 @@ func TestRequest_Save(t *testing.T) {
 func TestRequest_FindByIDs(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -150,7 +148,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -160,7 +158,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{
@@ -179,7 +177,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	ctx := context.Background()
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -187,7 +185,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 
@@ -197,7 +195,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("xxx").
 		State(request.StateDraft).
 		MustBuild()
@@ -208,7 +206,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	pf := repo.ProjectFilter{
@@ -259,7 +257,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			//tt.Parallel()
-			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter)
+			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil)
 
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -267,6 +265,6 @@ func TestRequest_FindByProject(t *testing.T) {
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{})
+	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{}, nil)
 	assert.Same(t, wantErr, err)
 }

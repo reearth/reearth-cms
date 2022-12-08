@@ -257,7 +257,7 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteRequestInput struct {
-	RequestID ID `json:"requestId"`
+	RequestIds []ID `json:"requestIds"`
 }
 
 type DeleteRequestPayload struct {
@@ -538,13 +538,13 @@ type RequestEdge struct {
 
 type RequestItem struct {
 	ItemID  ID             `json:"itemId"`
-	Version string         `json:"version"`
+	Version *string        `json:"version"`
+	Ref     *string        `json:"ref"`
 	Item    *VersionedItem `json:"item"`
 }
 
 type RequestItemInput struct {
-	ItemID  ID     `json:"itemId"`
-	Version string `json:"version"`
+	ItemID ID `json:"itemId"`
 }
 
 type RequestPayload struct {

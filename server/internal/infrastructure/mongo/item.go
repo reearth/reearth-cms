@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -49,7 +48,7 @@ func (r *Item) FindByID(ctx context.Context, id id.ItemID) (item.Versioned, erro
 	})
 }
 
-func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList, vor *version.VersionOrRef) (item.VersionedList, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -59,7 +58,7 @@ func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList) (item.Versioned
 			"$in": ids.Strings(),
 		},
 	}
-	res, err := r.find(ctx, filter)
+	res, err := r.find(ctx, filter, vor)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +120,7 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	if len(filters) == 0 {
 		return nil, nil
 	}
-	return r.find(ctx, bson.M{"$or": filters})
+	return r.find(ctx, bson.M{"$or": filters}, nil)
 }
 
 func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -172,8 +171,8 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 	}, b)
 }
 
-func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, v version.Version, ref version.Ref) error {
-	return r.client.UpdateRef(ctx, itemID.String(), ref, lo.ToPtr(v.OrRef()))
+func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, vor *version.VersionOrRef, ref version.Ref) error {
+	return r.client.UpdateRef(ctx, itemID.String(), ref, vor)
 }
 
 func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -185,9 +184,12 @@ func (r *Item) paginate(ctx context.Context, filter bson.M, pagination *usecasex
 	return c.Result, pageInfo, nil
 }
 
-func (r *Item) find(ctx context.Context, filter interface{}) (item.VersionedList, error) {
+func (r *Item) find(ctx context.Context, filter interface{}, vor *version.VersionOrRef) (item.VersionedList, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(version.Latest.OrVersion()), c); err != nil {
+	if vor == nil {
+		vor = version.Latest.OrVersion().Ref()
+	}
+	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(*vor), c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
