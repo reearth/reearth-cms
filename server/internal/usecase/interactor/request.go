@@ -68,7 +68,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 				func(r version.Ref) bool {
 					return r == version.Public
 				}) {
-				return nil, errors.New("already published")
+				return nil, interfaces.ErrAlreadyPublished
 			}
 		}
 
@@ -131,10 +131,12 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		if err != nil {
 			return nil, err
 		}
+
 		ws, err := r.repos.Workspace.FindByID(ctx, req.Workspace())
 		if err != nil {
 			return nil, err
 		}
+
 		// only owners, maintainers, and the request creator can update requests
 		canUpdate := *operator.User == req.CreatedBy() || ws.Members().IsOwnerOrMaintainer(*operator.User)
 		if !operator.IsWritableWorkspace(req.Workspace()) && canUpdate {
@@ -147,9 +149,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			}
 			req.SetState(*param.State)
 		}
+
 		if param.Description != nil {
 			req.SetDescription(*param.Description)
 		}
+
 		if param.Reviewers != nil && param.Reviewers.Len() > 0 {
 			for _, rev := range param.Reviewers {
 				if !ws.Members().IsOwnerOrMaintainer(rev) {
@@ -158,6 +162,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			}
 			req.SetReviewers(param.Reviewers)
 		}
+
 		if param.Items != nil {
 			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.OrVersion().Ref())
 			if err != nil {
@@ -166,7 +171,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 
 			for _, item := range repoItems {
 				if item.Refs().Has(version.Latest) {
-					return nil, errors.New("already published")
+					return nil, interfaces.ErrAlreadyPublished
 				}
 			}
 			req.SetItems(param.Items)
