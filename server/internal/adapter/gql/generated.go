@@ -3920,7 +3920,7 @@ type RequestPayload {
 }
 
 type DeleteRequestPayload {
-  requests: [ID!]
+  requests: [ID!]!
 }
 
 type RequestEdge {
@@ -7913,11 +7913,14 @@ func (ec *executionContext) _DeleteRequestPayload_requests(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.([]gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_DeleteRequestPayload_requests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26798,6 +26801,9 @@ func (ec *executionContext) _DeleteRequestPayload(ctx context.Context, sel ast.S
 
 			out.Values[i] = ec._DeleteRequestPayload_requests(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
