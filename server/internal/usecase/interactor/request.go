@@ -58,16 +58,13 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), nil)
+		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.OrVersion().Ref())
 		if err != nil {
 			return nil, err
 		}
 
 		for _, item := range repoItems {
-			if version.MatchVersionOrRef(item.Version().OrRef(), nil,
-				func(r version.Ref) bool {
-					return r == version.Public
-				}) {
+			if item.Refs().Has(version.Latest) {
 				return nil, interfaces.ErrAlreadyPublished
 			}
 		}
