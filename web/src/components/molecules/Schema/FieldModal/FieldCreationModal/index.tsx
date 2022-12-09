@@ -23,7 +23,7 @@ export type FormValues = {
   title: string;
   description: string;
   key: string;
-  multiValue: boolean;
+  multiple: boolean;
   unique: boolean;
   required: boolean;
   type: FieldType;
@@ -58,7 +58,7 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
-  multiValue: false,
+  multiple: false,
   unique: false,
   required: false,
   type: "Text",
@@ -299,7 +299,7 @@ const FieldCreationModal: React.FC<Props> = ({
               </>
             )}
             <Form.Item
-              name="multiValue"
+              name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>

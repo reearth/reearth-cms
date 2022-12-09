@@ -25,7 +25,7 @@ export interface FormValues {
   title: string;
   description: string;
   key: string;
-  multiValue: boolean;
+  multiple: boolean;
   unique: boolean;
   required: boolean;
   typeProperty: SchemaFieldTypePropertyInput;
@@ -61,7 +61,7 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
-  multiValue: false,
+  multiple: false,
   unique: false,
   required: false,
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
@@ -128,7 +128,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       title: selectedField?.title,
       description: selectedField?.description,
       key: selectedField?.key,
-      multiValue: selectedField?.multiValue,
+      multiple: selectedField?.multiple,
       unique: selectedField?.unique,
       required: selectedField?.required,
       defaultValue:
@@ -324,7 +324,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               </>
             )}
             <Form.Item
-              name="multiValue"
+              name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
