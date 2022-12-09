@@ -9,6 +9,7 @@ import ContentDetails from "@reearth-cms/components/organisms/Project/Content/Co
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
 import Public from "@reearth-cms/components/organisms/Project/Public";
+import RequestList from "@reearth-cms/components/organisms/Project/Request/RequestList";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
 import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
 import Integration from "@reearth-cms/components/organisms/Settings/Integration";
@@ -75,10 +76,7 @@ function App() {
                 />
                 <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
                 <Route path=":workspaceId/project/:projectId/asset/:assetId" element={<Asset />} />
-                <Route
-                  path=":workspaceId/project/:projectId/request"
-                  element={<div>Request page - GOTTA DO THIS PAGE!!!!</div>}
-                />
+                <Route path=":workspaceId/project/:projectId/request" element={<RequestList />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
