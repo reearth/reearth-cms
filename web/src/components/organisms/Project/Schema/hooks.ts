@@ -5,7 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
-  SchemaFiledType,
+  SchemaFieldType,
   SchemaFieldTypePropertyInput,
   useDeleteFieldMutation,
   useUpdateFieldMutation,
@@ -128,7 +128,7 @@ export default () => {
           multiValue: data.multiValue,
           unique: data.unique,
           required: data.required,
-          type: data.type as SchemaFiledType,
+          type: data.type as SchemaFieldType,
           typeProperty: data.typeProperty,
         },
       });
