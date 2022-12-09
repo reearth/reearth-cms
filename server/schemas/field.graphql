@@ -181,7 +181,7 @@ input CreateFieldInput {
   title: String!
   description: String
   key: String!
-  multiValue: Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
@@ -195,7 +195,7 @@ input UpdateFieldInput {
   key: String
   required: Boolean
   unique: Boolean
-  multiValue: Boolean
+  multiple: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
