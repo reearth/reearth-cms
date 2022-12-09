@@ -67,7 +67,7 @@ export type Field = {
   description: string | null | undefined;
   required: boolean;
   unique: boolean;
-  multiValue: boolean;
+  multiple: boolean;
   typeProperty?: TypeProperty;
 };
 
