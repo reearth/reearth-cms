@@ -78,7 +78,7 @@ export default () => {
       title: string;
       description: string;
       key: string;
-      multiValue: boolean;
+      multiple: boolean;
       unique: boolean;
       required: boolean;
       typeProperty: SchemaFieldTypePropertyInput;
@@ -91,7 +91,7 @@ export default () => {
           title: data.title,
           description: data.description,
           key: data.key,
-          multiValue: data.multiValue,
+          multiple: data.multiple,
           unique: data.unique,
           required: data.required,
           typeProperty: data.typeProperty,
@@ -112,7 +112,7 @@ export default () => {
       title: string;
       description: string;
       key: string;
-      multiValue: boolean;
+      multiple: boolean;
       unique: boolean;
       required: boolean;
       type: FieldType;
@@ -125,7 +125,7 @@ export default () => {
           title: data.title,
           description: data.description,
           key: data.key,
-          multiValue: data.multiValue,
+          multiple: data.multiple,
           unique: data.unique,
           required: data.required,
           type: data.type as SchemaFieldType,
