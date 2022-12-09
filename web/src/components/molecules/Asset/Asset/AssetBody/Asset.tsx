@@ -15,6 +15,7 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
@@ -115,12 +116,16 @@ const AssetMolecule: React.FC<Props> = ({
           {renderPreview()}
         </Card>
         {displayUnzipFileList && (
-          <Card title={asset.fileName}>
+          <Card
+            title={asset.fileName}
+            toolbar={
+              <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+            }>
             <UnzipFileList
               file={asset.file}
               assetBaseUrl={assetBaseUrl}
+              archiveExtractionStatus={asset.archiveExtractionStatus}
               setAssetUrl={setAssetUrl}
-              style={{ height: "250px", overflowY: "scroll", backgroundColor: "#f5f5f5" }}
             />
           </Card>
         )}

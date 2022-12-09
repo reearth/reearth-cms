@@ -2,6 +2,8 @@ package asset
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Builder struct {
@@ -27,6 +29,12 @@ func (b *Builder) Build() (*Asset, error) {
 	}
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
+	}
+	if b.a.file == nil {
+		return nil, ErrNoFile
+	}
+	if b.a.uuid == "" {
+		return nil, ErrNoUUID
 	}
 	if b.a.createdAt.IsZero() {
 		b.a.createdAt = b.a.id.Timestamp()
@@ -99,7 +107,17 @@ func (b *Builder) UUID(uuid string) *Builder {
 	return b
 }
 
+func (b *Builder) NewUUID() *Builder {
+	b.a.uuid = uuid.NewString()
+	return b
+}
+
 func (b *Builder) Thread(th ThreadID) *Builder {
 	b.a.thread = th
+	return b
+}
+
+func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
+	b.a.archiveExtractionStatus = s
 	return b
 }

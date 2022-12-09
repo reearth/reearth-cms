@@ -10,17 +10,18 @@ import (
 )
 
 type AssetDocument struct {
-	ID          string
-	Project     string
-	CreatedAt   time.Time
-	User        *string
-	Integration *string
-	FileName    string
-	Size        uint64
-	PreviewType string
-	File        *File
-	UUID        string
-	Thread      string
+	ID                      string
+	Project                 string
+	CreatedAt               time.Time
+	User                    *string
+	Integration             *string
+	FileName                string
+	Size                    uint64
+	PreviewType             string
+	File                    *File
+	UUID                    string
+	Thread                  string
+	ArchiveExtractionStatus string
 }
 
 type File struct {
@@ -45,6 +46,11 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		previewType = pt.String()
 	}
 
+	archiveExtractionStatus := ""
+	if s := a.ArchiveExtractionStatus(); s != nil {
+		archiveExtractionStatus = s.String()
+	}
+
 	var file *asset.File
 	if f := a.File(); f != nil {
 		file = f
@@ -59,17 +65,18 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 	}
 
 	ad, id := &AssetDocument{
-		ID:          aid,
-		Project:     a.Project().String(),
-		CreatedAt:   a.CreatedAt(),
-		User:        uid,
-		Integration: iid,
-		FileName:    a.FileName(),
-		Size:        a.Size(),
-		PreviewType: previewType,
-		File:        ToFile(file),
-		UUID:        a.UUID(),
-		Thread:      a.Thread().String(),
+		ID:                      aid,
+		Project:                 a.Project().String(),
+		CreatedAt:               a.CreatedAt(),
+		User:                    uid,
+		Integration:             iid,
+		FileName:                a.FileName(),
+		Size:                    a.Size(),
+		PreviewType:             previewType,
+		File:                    ToFile(file),
+		UUID:                    a.UUID(),
+		Thread:                  a.Thread().String(),
+		ArchiveExtractionStatus: archiveExtractionStatus,
 	}, aid
 
 	return ad, id
@@ -98,7 +105,8 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		File(FromFile(d.File)).
 		UUID(d.UUID).
-		Thread(thid)
+		Thread(thid).
+		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
 
 	if d.User != nil {
 		uid, err := id.UserIDFrom(*d.User)

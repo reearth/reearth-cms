@@ -7,17 +7,20 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
-import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
+  commentsPanel?: JSX.Element;
   collapsed?: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
   itemsDataLoading: boolean;
   contentTableColumns?: ProColumns<ContentTableField>[];
   modelsMenu: React.ReactNode;
+  selectedItem: Item | undefined;
+  onItemSelect: (itemId: string) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -25,12 +28,15 @@ export type Props = {
 };
 
 const ContentListMolecule: React.FC<Props> = ({
+  commentsPanel,
   collapsed,
   model,
   contentTableFields,
   contentTableColumns,
   modelsMenu,
   itemsDataLoading,
+  selectedItem,
+  onItemSelect,
   onCollapse,
   onItemAdd,
   onItemsReload,
@@ -67,6 +73,8 @@ const ContentListMolecule: React.FC<Props> = ({
           />
           <ContentTable
             loading={itemsDataLoading}
+            selectedItem={selectedItem}
+            onItemSelect={onItemSelect}
             onItemsReload={onItemsReload}
             onItemEdit={onItemEdit}
             contentTableFields={contentTableFields}
@@ -74,6 +82,7 @@ const ContentListMolecule: React.FC<Props> = ({
           />
         </Content>
       }
+      right={commentsPanel}
     />
   );
 };

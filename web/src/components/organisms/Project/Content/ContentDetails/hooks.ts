@@ -1,21 +1,26 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  SchemaFiledType,
+  Item as GQLItem,
+  SchemaFieldType,
   useCreateItemMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
+import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
 export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();
   const { projectId, workspaceId, itemId } = useParams();
+  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const t = useT();
 
   const handleNavigateToModel = useCallback(
@@ -38,7 +43,7 @@ export default () => {
         variables: {
           modelId: currentModel.id,
           schemaId: data.schemaId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -65,7 +70,7 @@ export default () => {
       const item = await updateItem({
         variables: {
           itemId: data.itemId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.updateItem) {
@@ -78,9 +83,14 @@ export default () => {
     [updateItem, t],
   );
 
+  const currentItem: Item | undefined = useMemo(
+    () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
+    [itemId, itemsData?.items.nodes],
+  );
+
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    if (!itemId) {
+    if (!currentItem) {
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -98,20 +108,24 @@ export default () => {
         }
       });
     } else {
-      const item = itemsData?.items.nodes.find(item => item?.id === itemId);
-      item?.fields?.forEach(field => {
+      currentItem?.fields?.forEach(field => {
         initialValues[field.schemaFieldId] = field.value;
       });
     }
     return initialValues;
-  }, [itemsData?.items.nodes, itemId, currentModel?.schema.fields]);
+  }, [currentItem, currentModel?.schema.fields]);
 
   return {
     itemId,
     currentModel,
+    currentItem,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,

@@ -1,12 +1,15 @@
+import Icon from "@reearth-cms/components/atoms/Icon";
+import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
-import ContentWrapper from "@reearth-cms/components/molecules/Content/Wrapper";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Props = {
+  collapsed?: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
   initialFormValues: { [key: string]: any };
@@ -19,6 +22,8 @@ export type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  commentsPanel?: JSX.Element;
+  onCollapse?: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -34,8 +39,9 @@ export type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  collapsed,
   model,
-  modelsMenu: ModelsMenu,
+  modelsMenu,
   initialFormValues,
   itemId,
   loading,
@@ -46,6 +52,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  commentsPanel,
+  onCollapse,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -60,33 +68,46 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   return (
-    <ContentWrapper modelsMenu={ModelsMenu}>
-      <ContentForm
-        loading={loading}
-        itemId={itemId}
-        model={model}
-        initialFormValues={initialFormValues}
-        assetList={assetList}
-        fileList={fileList}
-        loadingAssets={loadingAssets}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        onUploadModalCancel={onUploadModalCancel}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onBack={onBack}
-        onItemCreate={onItemCreate}
-        onItemUpdate={onItemUpdate}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onAssetsReload={onAssetsReload}
-        onAssetSearchTerm={onAssetSearchTerm}
-        setFileList={setFileList}
-        setUploadModalVisibility={setUploadModalVisibility}
-      />
-    </ContentWrapper>
+    <ComplexInnerContents
+      left={
+        <Sidebar
+          collapsed={collapsed}
+          onCollapse={onCollapse}
+          collapsedWidth={54}
+          width={208}
+          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
+          {modelsMenu}
+        </Sidebar>
+      }
+      center={
+        <ContentForm
+          loading={loading}
+          itemId={itemId}
+          model={model}
+          initialFormValues={initialFormValues}
+          assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loadingAssets}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          onUploadModalCancel={onUploadModalCancel}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          onBack={onBack}
+          onItemCreate={onItemCreate}
+          onItemUpdate={onItemUpdate}
+          onAssetsCreate={onAssetsCreate}
+          onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsReload={onAssetsReload}
+          onAssetSearchTerm={onAssetSearchTerm}
+          setFileList={setFileList}
+          setUploadModalVisibility={setUploadModalVisibility}
+        />
+      }
+      right={commentsPanel}
+    />
   );
 };
 
