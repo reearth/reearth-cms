@@ -7,7 +7,7 @@ export const CREATE_FIELD = gql`
     $title: String!
     $description: String
     $key: String!
-    $multiValue: Boolean!
+    $multiple: Boolean!
     $unique: Boolean!
     $required: Boolean!
     $typeProperty: SchemaFieldTypePropertyInput!
@@ -19,7 +19,7 @@ export const CREATE_FIELD = gql`
         title: $title
         description: $description
         key: $key
-        multiValue: $multiValue
+        multiple: $multiple
         unique: $unique
         required: $required
         typeProperty: $typeProperty
@@ -39,7 +39,7 @@ export const UPDATE_FIELD = gql`
     $title: String!
     $description: String
     $key: String!
-    $multiValue: Boolean!
+    $multiple: Boolean!
     $unique: Boolean!
     $required: Boolean!
     $typeProperty: SchemaFieldTypePropertyInput!
@@ -51,7 +51,7 @@ export const UPDATE_FIELD = gql`
         title: $title
         description: $description
         key: $key
-        multiValue: $multiValue
+        multiple: $multiple
         unique: $unique
         required: $required
         typeProperty: $typeProperty

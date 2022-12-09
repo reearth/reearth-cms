@@ -123,7 +123,7 @@ type CreateFieldInput struct {
 	Title        string                        `json:"title"`
 	Description  *string                       `json:"description"`
 	Key          string                        `json:"key"`
-	MultiValue   bool                          `json:"multiValue"`
+	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
@@ -691,7 +691,7 @@ type UpdateFieldInput struct {
 	Key          *string                       `json:"key"`
 	Required     *bool                         `json:"required"`
 	Unique       *bool                         `json:"unique"`
-	MultiValue   *bool                         `json:"multiValue"`
+	Multiple     *bool                         `json:"multiple"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
