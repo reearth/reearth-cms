@@ -1,4 +1,5 @@
 import {
+  ArchiveExtractionStatus,
   Asset,
   AssetFile,
   Comment,
@@ -21,12 +22,14 @@ export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset | undefined 
     url: GQLAsset.url,
     threadId: GQLAsset.thread?.id ?? "",
     comments: GQLAsset.thread?.comments?.map(comment => convertComment(comment)) ?? [],
+    archiveExtractionStatus: GQLAsset.archiveExtractionStatus as ArchiveExtractionStatus,
   };
 };
 
 export const convertComment = (GQLComment: GQLComment): Comment => {
   return {
     id: GQLComment.id,
+    authorType: GQLComment.author.__typename === "User" ? "User" : "Integration",
     author: GQLComment.author?.name ?? "",
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),

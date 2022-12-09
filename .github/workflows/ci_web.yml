@@ -5,13 +5,19 @@ on:
       - main
     paths:
       - web/**
-      - .github/workflows/web.yml
+      - .github/workflows/ci_web.yml
       - .github/workflows/deploy_test.yml
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
   pull_request:
     paths:
       - web/**
-      - .github/workflows/web.yml
+      - .github/workflows/ci_web.yml
       - .github/workflows/deploy_test.yml
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
 jobs:
   ci:
     name: ci

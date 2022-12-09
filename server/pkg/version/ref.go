@@ -1,6 +1,9 @@
 package version
 
-import "github.com/chrispappas/golang-generics-set/set"
+import (
+	"github.com/chrispappas/golang-generics-set/set"
+	"github.com/samber/lo"
+)
 
 const Latest = Ref("latest")
 const Public = Ref("public")
@@ -17,6 +20,13 @@ func (r Ref) String() string {
 
 func (r Ref) OrVersion() VersionOrRef {
 	return VersionOrRef{ref: r}
+}
+
+func (r *Ref) OrLatest() *Ref {
+	if r == nil || *r == "" {
+		return lo.ToPtr(Latest)
+	}
+	return r
 }
 
 func (r Ref) IsSpecial() bool {

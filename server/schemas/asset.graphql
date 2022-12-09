@@ -14,6 +14,7 @@ type Asset implements Node {
   thread: Thread
   threadId: ID!
   url: String!
+  archiveExtractionStatus: ArchiveExtractionStatus
 }
 
 type AssetFile {
@@ -30,6 +31,13 @@ enum PreviewType {
   GEO3D
   MODEL3D
   UNKNOWN
+}
+
+enum ArchiveExtractionStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  FAILED
 }
 
 input CreateAssetInput {

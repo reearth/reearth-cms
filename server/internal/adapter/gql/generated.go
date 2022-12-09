@@ -67,21 +67,22 @@ type ComplexityRoot struct {
 	}
 
 	Asset struct {
-		CreatedAt     func(childComplexity int) int
-		CreatedBy     func(childComplexity int) int
-		CreatedByID   func(childComplexity int) int
-		CreatedByType func(childComplexity int) int
-		File          func(childComplexity int) int
-		FileName      func(childComplexity int) int
-		ID            func(childComplexity int) int
-		PreviewType   func(childComplexity int) int
-		Project       func(childComplexity int) int
-		ProjectID     func(childComplexity int) int
-		Size          func(childComplexity int) int
-		Thread        func(childComplexity int) int
-		ThreadID      func(childComplexity int) int
-		URL           func(childComplexity int) int
-		UUID          func(childComplexity int) int
+		ArchiveExtractionStatus func(childComplexity int) int
+		CreatedAt               func(childComplexity int) int
+		CreatedBy               func(childComplexity int) int
+		CreatedByID             func(childComplexity int) int
+		CreatedByType           func(childComplexity int) int
+		File                    func(childComplexity int) int
+		FileName                func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		PreviewType             func(childComplexity int) int
+		Project                 func(childComplexity int) int
+		ProjectID               func(childComplexity int) int
+		Size                    func(childComplexity int) int
+		Thread                  func(childComplexity int) int
+		ThreadID                func(childComplexity int) int
+		URL                     func(childComplexity int) int
+		UUID                    func(childComplexity int) int
 	}
 
 	AssetConnection struct {
@@ -454,7 +455,7 @@ type ComplexityRoot struct {
 		Key          func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
-		MultiValue   func(childComplexity int) int
+		Multiple     func(childComplexity int) int
 		Required     func(childComplexity int) int
 		Title        func(childComplexity int) int
 		Type         func(childComplexity int) int
@@ -742,6 +743,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddUsersToWorkspacePayload.Workspace(childComplexity), true
+
+	case "Asset.archiveExtractionStatus":
+		if e.complexity.Asset.ArchiveExtractionStatus == nil {
+			break
+		}
+
+		return e.complexity.Asset.ArchiveExtractionStatus(childComplexity), true
 
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
@@ -2656,12 +2664,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.ModelID(childComplexity), true
 
-	case "SchemaField.multiValue":
-		if e.complexity.SchemaField.MultiValue == nil {
+	case "SchemaField.multiple":
+		if e.complexity.SchemaField.Multiple == nil {
 			break
 		}
 
-		return e.complexity.SchemaField.MultiValue(childComplexity), true
+		return e.complexity.SchemaField.Multiple(childComplexity), true
 
 	case "SchemaField.required":
 		if e.complexity.SchemaField.Required == nil {
@@ -3400,6 +3408,7 @@ schema {
   thread: Thread
   threadId: ID!
   url: String!
+  archiveExtractionStatus: ArchiveExtractionStatus
 }
 
 type AssetFile {
@@ -3416,6 +3425,13 @@ enum PreviewType {
   GEO3D
   MODEL3D
   UNKNOWN
+}
+
+enum ArchiveExtractionStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  FAILED
 }
 
 input CreateAssetInput {
@@ -3566,7 +3582,7 @@ enum Role {
     # a eole who can have full control of project
     OWNER
     # a eole who can maintain a project
-    Maintainer
+    MAINTAINER
 }
 
 input CreateWorkspaceInput {
@@ -3949,7 +3965,7 @@ extend type Mutation {
 
 # extend type Mutation {}
 `, BuiltIn: false},
-	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFiledType {
+	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
   RichText
@@ -3968,13 +3984,13 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  multiValue: Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
 
@@ -3998,49 +4014,49 @@ union SchemaFieldTypeProperty =
 
 
 type SchemaFieldText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldTextArea {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldRichText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldMarkdown {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldAsset {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 type SchemaFieldDate {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 type SchemaFieldBool {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 type SchemaFieldSelect {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: [String!]!
+  defaultValue: Any
 }
 
 type SchemaFieldInteger {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -4050,55 +4066,55 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
-  defaultValue: String
+  defaultValue: Any
 }
 
 # Inputs
 
 input SchemaFieldTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldTextAreaInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldRichTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaMarkdownTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldAssetInput {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 input SchemaFieldDateInput {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 input SchemaFieldBoolInput {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 input SchemaFieldSelectInput {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTagInput {
   values: [String!]!
-  defaultValue: [String!]
+  defaultValue: Any
 }
 
 input SchemaFieldIntegerInput {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -4108,7 +4124,7 @@ input SchemaFieldReferenceInput {
 }
 
 input SchemaFieldURLInput {
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -4128,7 +4144,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
 
 input CreateFieldInput {
   modelId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   title: String!
   description: String
   key: String!
@@ -4187,7 +4203,7 @@ extend type Mutation {
 
 type ItemField {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   value: Any
 }
 
@@ -4201,7 +4217,7 @@ type VersionedItem {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   value: Any!
 }
 
@@ -6350,6 +6366,47 @@ func (ec *executionContext) fieldContext_Asset_url(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_archiveExtractionStatus(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ArchiveExtractionStatus, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ArchiveExtractionStatus)
+	fc.Result = res
+	return ec.marshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_archiveExtractionStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ArchiveExtractionStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetConnection_edges(ctx, field)
 	if err != nil {
@@ -6469,6 +6526,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -6684,6 +6743,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -7362,6 +7423,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -8013,8 +8076,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_title(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
-			case "multiValue":
-				return ec.fieldContext_SchemaField_multiValue(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
@@ -9529,9 +9592,9 @@ func (ec *executionContext) _ItemField_type(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.SchemaFieldType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9541,7 +9604,7 @@ func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type SchemaFieldType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14888,6 +14951,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -17376,8 +17441,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_title(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
-			case "multiValue":
-				return ec.fieldContext_SchemaField_multiValue(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
@@ -17639,9 +17704,9 @@ func (ec *executionContext) _SchemaField_type(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.SchemaFiledType)
+	res := resTmp.(gqlmodel.SchemaFieldType)
 	fc.Result = res
-	return ec.marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17651,7 +17716,7 @@ func (ec *executionContext) fieldContext_SchemaField_type(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFiledType does not have child fields")
+			return nil, errors.New("field of type SchemaFieldType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17827,8 +17892,8 @@ func (ec *executionContext) fieldContext_SchemaField_description(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaField_multiValue(ctx, field)
+func (ec *executionContext) _SchemaField_multiple(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_multiple(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -17841,7 +17906,7 @@ func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MultiValue, nil
+		return obj.Multiple, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17858,7 +17923,7 @@ func (ec *executionContext) _SchemaField_multiValue(ctx context.Context, field g
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SchemaField_multiValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SchemaField_multiple(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaField",
 		Field:      field,
@@ -18070,9 +18135,9 @@ func (ec *executionContext) _SchemaFieldAsset_defaultValue(ctx context.Context, 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ID)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldAsset_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18082,7 +18147,7 @@ func (ec *executionContext) fieldContext_SchemaFieldAsset_defaultValue(ctx conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18111,9 +18176,9 @@ func (ec *executionContext) _SchemaFieldBool_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldBool_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18123,7 +18188,7 @@ func (ec *executionContext) fieldContext_SchemaFieldBool_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18152,9 +18217,9 @@ func (ec *executionContext) _SchemaFieldDate_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalODateTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18164,7 +18229,7 @@ func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18193,9 +18258,9 @@ func (ec *executionContext) _SchemaFieldInteger_defaultValue(ctx context.Context
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldInteger_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18205,7 +18270,7 @@ func (ec *executionContext) fieldContext_SchemaFieldInteger_defaultValue(ctx con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18316,9 +18381,9 @@ func (ec *executionContext) _SchemaFieldMarkdown_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldMarkdown_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18328,7 +18393,7 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18442,9 +18507,9 @@ func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18454,7 +18519,7 @@ func (ec *executionContext) fieldContext_SchemaFieldRichText_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18568,9 +18633,9 @@ func (ec *executionContext) _SchemaFieldSelect_defaultValue(ctx context.Context,
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18580,7 +18645,7 @@ func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18651,14 +18716,11 @@ func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldTag_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18668,7 +18730,7 @@ func (ec *executionContext) fieldContext_SchemaFieldTag_defaultValue(ctx context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18697,9 +18759,9 @@ func (ec *executionContext) _SchemaFieldText_defaultValue(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldText_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18709,7 +18771,7 @@ func (ec *executionContext) fieldContext_SchemaFieldText_defaultValue(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18779,9 +18841,9 @@ func (ec *executionContext) _SchemaFieldTextArea_defaultValue(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldTextArea_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18791,7 +18853,7 @@ func (ec *executionContext) fieldContext_SchemaFieldTextArea_defaultValue(ctx co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18861,9 +18923,9 @@ func (ec *executionContext) _SchemaFieldURL_defaultValue(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldURL_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18873,7 +18935,7 @@ func (ec *executionContext) fieldContext_SchemaFieldURL_defaultValue(ctx context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19199,6 +19261,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_threadId(ctx, field)
 			case "url":
 				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -23055,7 +23119,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -23897,7 +23961,7 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx, v)
+			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24221,7 +24285,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24249,7 +24313,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24277,7 +24341,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24305,7 +24369,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24377,7 +24441,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24421,7 +24485,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24457,7 +24521,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24485,7 +24549,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24521,7 +24585,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24889,7 +24953,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24917,7 +24981,7 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26176,6 +26240,10 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "archiveExtractionStatus":
+
+			out.Values[i] = ec._Asset_archiveExtractionStatus(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29140,9 +29208,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._SchemaField_description(ctx, field, obj)
 
-		case "multiValue":
+		case "multiple":
 
-			out.Values[i] = ec._SchemaField_multiValue(ctx, field, obj)
+			out.Values[i] = ec._SchemaField_multiple(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -29433,9 +29501,6 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._SchemaFieldTag_defaultValue(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -31895,19 +31960,19 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._SchemaField(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
-	res, err := ec.unmarshalInputSchemaFieldTypePropertyInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, v interface{}) (gqlmodel.SchemaFiledType, error) {
-	var res gqlmodel.SchemaFiledType
+func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldType, error) {
+	var res gqlmodel.SchemaFieldType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSchemaFiledType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFiledType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFiledType) graphql.Marshaler {
+func (ec *executionContext) marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFieldType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
+	res, err := ec.unmarshalInputSchemaFieldTypePropertyInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -32630,6 +32695,22 @@ func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, v interface{}) (*gqlmodel.ArchiveExtractionStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ArchiveExtractionStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ArchiveExtractionStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Asset) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -32900,23 +32981,6 @@ func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (*gqlmodel.ID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	tmp, err := graphql.UnmarshalString(v)
-	res := gqlmodel.ID(tmp)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(string(*v))
-	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

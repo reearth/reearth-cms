@@ -53,7 +53,7 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Request:     NewRequestLoader(usecases.Request),
 		Schema:      NewSchemaLoader(usecases.Schema),
 		Integration: NewIntegrationLoader(usecases.Integration),
-		Item:        NewItemLoader(usecases.Item),
+		Item:        NewItemLoader(usecases.Item, usecases.Schema),
 		Thread:      NewThreadLoader(usecases.Thread),
 	}
 }

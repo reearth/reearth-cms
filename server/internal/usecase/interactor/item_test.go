@@ -125,7 +125,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(pid).
 		Fields([]*item.Field{
-			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
+			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple()),
 		}).
 		Thread(id.NewThreadID()).
 		MustBuild()
@@ -136,7 +136,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(pid).
 		Fields([]*item.Field{
-			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
+			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple()),
 		}).
 		Thread(id.NewThreadID()).
 		MustBuild()
@@ -412,8 +412,8 @@ func TestItem_Search(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
 	i1 := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
@@ -452,7 +452,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "foo"),
+				query:    item.NewQuery(pid, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -469,7 +469,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "hoge"),
+				query:    item.NewQuery(pid, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -486,7 +486,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "xxx"),
+				query:    item.NewQuery(pid, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
@@ -559,10 +559,10 @@ func TestItem_Create(t *testing.T) {
 	assert.NotNil(t, item)
 	assert.Equal(t, s.ID(), item.Value().Schema())
 
-	it, err := db.Item.FindByID(ctx, item.Value().ID())
+	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item, it)
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
@@ -660,10 +660,10 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, i.ID(), item.Value().ID())
 	assert.Equal(t, s.ID(), item.Value().Schema())
 
-	it, err := db.Item.FindByID(ctx, item.Value().ID())
+	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.Value(), it.Value())
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{

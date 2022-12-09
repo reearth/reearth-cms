@@ -46,6 +46,10 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 	return c, nil
 }
 
+func NewWithDB(ctx context.Context, db *mongo.Database) (*repo.Container, error) {
+	return New(ctx, db.Client(), db.Name())
+}
+
 func Init(r *repo.Container) error {
 	if r == nil {
 		return nil

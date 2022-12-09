@@ -20,6 +20,12 @@ func TestRef_OrVersion(t *testing.T) {
 	assert.Equal(t, VersionOrRef{}, Ref("").OrVersion())
 }
 
+func TestRef_OrLatest(t *testing.T) {
+	assert.Equal(t, lo.ToPtr(Latest), lo.ToPtr(Latest).OrLatest())
+	assert.Equal(t, lo.ToPtr(Latest), lo.ToPtr(Ref("")).OrLatest())
+	assert.Equal(t, lo.ToPtr(Ref("aaa")), lo.ToPtr(Ref("aaa")).OrLatest())
+}
+
 func TestRef_IsSpecial(t *testing.T) {
 	assert.False(t, Ref("x").IsSpecial())
 	assert.True(t, Ref("").IsSpecial())

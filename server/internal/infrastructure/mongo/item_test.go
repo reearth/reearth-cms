@@ -26,7 +26,7 @@ func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
@@ -62,7 +62,7 @@ func TestItem_FindByID(t *testing.T) {
 			err := repo.Save(ctx, tc.RepoData)
 			assert.NoError(tt, err)
 
-			got, err := repo.FindByID(ctx, tc.Input)
+			got, err := repo.FindByID(ctx, tc.Input, nil)
 			if tc.WantErr {
 				assert.Equal(tt, err, rerror.ErrNotFound)
 			} else {
@@ -76,7 +76,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	iid := id.NewItemID()
 	sfid := schema.NewFieldID()
 	pid := id.NewProjectID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	now1 := time.Now().Truncate(time.Millisecond).UTC()
 	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).Timestamp(now1).MustBuild()
 	now2 := now1.Add(time.Second).UTC()
@@ -117,7 +117,7 @@ func TestItem_FindByIDs(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
@@ -168,7 +168,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
@@ -212,7 +212,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -263,7 +263,7 @@ func TestItem_FindByProject(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, _, _ := repo.FindByProject(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.FindByProject(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
@@ -274,7 +274,7 @@ func TestItem_Remove(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).Some())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
@@ -289,7 +289,7 @@ func TestItem_Remove(t *testing.T) {
 	err := r.Remove(ctx, i1.ID())
 	assert.NoError(t, err)
 
-	got, err := r.FindByID(ctx, i1.ID())
+	got, err := r.FindByID(ctx, i1.ID(), nil)
 	assert.Nil(t, got)
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
@@ -362,8 +362,8 @@ func TestItem_Search(t *testing.T) {
 	sid := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	pid := id.NewProjectID()
 	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -376,13 +376,13 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(pid, "foo"),
+			Input:    item.NewQuery(pid, "foo", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(pid, "hoge"),
+			Input:    item.NewQuery(pid, "hoge", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 1,
 		},
@@ -393,7 +393,7 @@ func TestItem_Search(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
-			//tt.Parallel()
+			// tt.Parallel()
 
 			client := mongox.NewClientWithDatabase(init(t))
 
@@ -415,8 +415,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	sid := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
 	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -440,7 +440,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				fields: []repo.FieldAndValue{
 					{
 						Field: f2.FieldID(),
-						Value: f2.Value().Value(),
+						Value: f2.Value(),
 					},
 				},
 			},
@@ -454,7 +454,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				fields: []repo.FieldAndValue{
 					{
 						Field: f1.FieldID(),
-						Value: f1.Value().Value(),
+						Value: f1.Value(),
 					},
 				},
 			},
@@ -477,7 +477,7 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields)
+			got, err := repo.FindByModelAndValue(ctx, tc.Input.model, tc.Input.fields, nil)
 			assert.Equal(tt, tc.WantErr, err)
 			assert.Equal(tt, tc.Expected, len(got))
 		})
@@ -492,9 +492,9 @@ func TestItem_UpdateRef(t *testing.T) {
 	client := mongox.NewClientWithDatabase(init(t))
 	r := NewItem(client)
 	_ = r.Save(ctx, i)
-	v, _ := r.FindByID(ctx, i.ID())
-	err := r.UpdateRef(ctx, i.ID(), v.Version().OrRef().Ref(), vx)
+	v, _ := r.FindByID(ctx, i.ID(), nil)
+	err := r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref())
 	assert.NoError(t, err)
-	v2, _ := r.FindByID(ctx, i.ID())
+	v2, _ := r.FindByID(ctx, i.ID(), nil)
 	assert.Equal(t, version.NewRefs(vx, version.Latest), v2.Refs())
 }
