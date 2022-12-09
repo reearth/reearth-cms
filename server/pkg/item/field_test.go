@@ -13,6 +13,6 @@ func TestNewField(t *testing.T) {
 	assert.Nil(t, NewField(f, nil))
 	assert.Equal(t, &Field{
 		field: f,
-		value: value.TypeBool.Value(true).Some(),
-	}, NewField(f, value.TypeBool.Value(true).Some()))
+		value: value.TypeBool.Value(true).AsMultiple(),
+	}, NewField(f, value.TypeBool.Value(true).AsMultiple()))
 }

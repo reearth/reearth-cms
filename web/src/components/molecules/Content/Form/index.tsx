@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
+import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -113,7 +114,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   return (
-    <Form form={form} layout="vertical" initialValues={formValues}>
+    <StyledForm form={form} layout="vertical" initialValues={formValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -125,7 +126,7 @@ const ContentForm: React.FC<Props> = ({
       />
       <FormItemsWrapper>
         {model?.schema.fields.map(field =>
-          field.type === "TextArea" || field.type === "MarkdownText" ? (
+          field.type === "TextArea" ? (
             <Form.Item
               extra={field.description}
               rules={[
@@ -136,7 +137,20 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? 500} />
+              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+            </Form.Item>
+          ) : field.type === "MarkdownText" ? (
+            <Form.Item
+              extra={field.description}
+              rules={[
+                {
+                  required: field.required,
+                  message: t("Please input field!"),
+                },
+              ]}
+              name={field.id}
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
@@ -234,9 +248,17 @@ const ContentForm: React.FC<Props> = ({
           ),
         )}
       </FormItemsWrapper>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+`;
 
 const FormItemsWrapper = styled.div`
   width: 50%;

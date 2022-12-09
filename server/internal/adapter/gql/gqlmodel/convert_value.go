@@ -2,72 +2,75 @@ package gqlmodel
 
 import "github.com/reearth/reearth-cms/server/pkg/value"
 
-func ToValueType(t value.Type) SchemaFiledType {
+func ToValueType(t value.Type) SchemaFieldType {
 	switch t {
 	case value.TypeText:
-		return SchemaFiledTypeText
+		return SchemaFieldTypeText
 	case value.TypeTextArea:
-		return SchemaFiledTypeTextArea
+		return SchemaFieldTypeTextArea
 	case value.TypeRichText:
-		return SchemaFiledTypeRichText
+		return SchemaFieldTypeRichText
 	case value.TypeMarkdown:
-		return SchemaFiledTypeMarkdownText
+		return SchemaFieldTypeMarkdownText
 	case value.TypeAsset:
-		return SchemaFiledTypeAsset
+		return SchemaFieldTypeAsset
 	case value.TypeDateTime:
-		return SchemaFiledTypeDate
+		return SchemaFieldTypeDate
 	case value.TypeBool:
-		return SchemaFiledTypeBool
+		return SchemaFieldTypeBool
 	case value.TypeSelect:
-		return SchemaFiledTypeSelect
+		return SchemaFieldTypeSelect
 	case value.TypeNumber:
-		return SchemaFiledTypeInteger
+		return SchemaFieldTypeInteger
 	case value.TypeInteger:
-		return SchemaFiledTypeInteger
+		return SchemaFieldTypeInteger
 	case value.TypeReference:
-		return SchemaFiledTypeReference
+		return SchemaFieldTypeReference
 	case value.TypeURL:
-		return SchemaFiledTypeURL
+		return SchemaFieldTypeURL
 	default:
 		return ""
 	}
 }
 
-func FromValueType(t SchemaFiledType) value.Type {
+func FromValueType(t SchemaFieldType) value.Type {
 	switch t {
-	case SchemaFiledTypeText:
+	case SchemaFieldTypeText:
 		return value.TypeText
-	case SchemaFiledTypeTextArea:
+	case SchemaFieldTypeTextArea:
 		return value.TypeTextArea
-	case SchemaFiledTypeRichText:
+	case SchemaFieldTypeRichText:
 		return value.TypeRichText
-	case SchemaFiledTypeMarkdownText:
+	case SchemaFieldTypeMarkdownText:
 		return value.TypeMarkdown
-	case SchemaFiledTypeAsset:
+	case SchemaFieldTypeAsset:
 		return value.TypeAsset
-	case SchemaFiledTypeDate:
+	case SchemaFieldTypeDate:
 		return value.TypeDateTime
-	case SchemaFiledTypeBool:
+	case SchemaFieldTypeBool:
 		return value.TypeBool
-	case SchemaFiledTypeSelect:
+	case SchemaFieldTypeSelect:
 		return value.TypeSelect
-	// case SchemaFiledTypeNumber:
+	// case SchemaFieldTypeNumber:
 	// return value.TypeNumber
-	case SchemaFiledTypeInteger:
+	case SchemaFieldTypeInteger:
 		return value.TypeInteger
-	case SchemaFiledTypeReference:
+	case SchemaFieldTypeReference:
 		return value.TypeReference
-	case SchemaFiledTypeURL:
+	case SchemaFieldTypeURL:
 		return value.TypeURL
 	default:
 		return ""
 	}
 }
 
-func ToValue(v *value.Optional) any {
-	return v.Value().Interface()
+func ToValue(v *value.Multiple, multiple bool) any {
+	if !multiple {
+		return v.First().Interface()
+	}
+	return v.Interface()
 }
 
-func FromValue(t SchemaFiledType, v any) *value.Value {
+func FromValue(t SchemaFieldType, v any) *value.Value {
 	return FromValueType(t).Value(v)
 }

@@ -1,6 +1,10 @@
 package value
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/samber/lo"
+)
 
 const TypeBool Type = "bool"
 
@@ -44,7 +48,7 @@ func (*propertyBool) Validate(i any) bool {
 
 func (*propertyBool) Equal(v, w any) bool {
 	vv := v.(Bool)
-	ww := v.(Bool)
+	ww := w.(Bool)
 	return vv == ww
 }
 
@@ -57,5 +61,18 @@ func (v *Value) ValueBool() (vv bool, ok bool) {
 		return
 	}
 	vv, ok = v.v.(Bool)
+	return
+}
+
+func (m *Multiple) ValuesBool() (vv []bool, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (bool, bool) {
+		return v.ValueBool()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

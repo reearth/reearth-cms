@@ -20,6 +20,7 @@ func TestRandom(t *testing.T) {
 func TestKey_IsValid(t *testing.T) {
 	assert.True(t, Key{key: "aaa"}.IsValid())
 	assert.False(t, Key{}.IsValid())
+	assert.False(t, Key{key: "id"}.IsValid())
 }
 
 func TestKey_String(t *testing.T) {

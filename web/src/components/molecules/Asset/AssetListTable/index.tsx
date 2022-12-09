@@ -14,7 +14,9 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
@@ -22,6 +24,8 @@ export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
   loading: boolean;
+  selectedAsset: Asset | undefined;
+  onAssetSelect: (assetId: string) => void;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
@@ -37,6 +41,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   assetsPerPage,
   selection,
   loading,
+  selectedAsset,
+  onAssetSelect,
   onEdit,
   onSearchTerm,
   setSelection,
@@ -57,7 +63,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       dataIndex: "commentsCount",
       key: "commentsCount",
       render: (_, asset) => {
-        return <CustomTag value={asset.comments?.length || 0} />;
+        return (
+          <Button type="link" onClick={() => onAssetSelect(asset.id)}>
+            <CustomTag
+              value={asset.comments?.length || 0}
+              color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
+            />
+          </Button>
+        );
       },
     },
     {
@@ -77,6 +90,15 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+    },
+    {
+      title: t("Status"),
+      dataIndex: "archiveExtractionStatus",
+      key: "archiveExtractionStatus",
+      render: (_, asset) =>
+        getExtension(asset.fileName) === "zip" && (
+          <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+        ),
     },
     {
       title: t("Created At"),

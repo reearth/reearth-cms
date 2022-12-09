@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -34,26 +35,26 @@ func (r *Item) Filtered(filter repo.ProjectFilter) repo.Item {
 	}
 }
 
-func (r *Item) FindByID(ctx context.Context, itemID id.ItemID) (item.Versioned, error) {
+func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (item.Versioned, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, version.Latest.OrVersion())
+	item, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
 	return item, nil
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
 			res = append(res, itv)
@@ -63,14 +64,14 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, paginatio
 	return res.SortByTimestamp(), nil, nil
 }
 
-func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Project() == projectID {
 			res = append(res, itv)
@@ -81,17 +82,33 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return res.SortByTimestamp(), nil, nil
 }
 
-func (r *Item) FindByIDs(ctx context.Context, list id.ItemIDList, vor *version.VersionOrRef) (item.VersionedList, error) {
+func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	var res item.VersionedList
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		it := itv.Value()
+		if it.Model() == modelID {
+			res = append(res, itv)
+		}
+		return true
+	})
+
+	return res.SortByTimestamp(), nil, nil
+}
+
+func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
-	if vor == nil {
-		vor = version.Latest.OrVersion().Ref()
-	}
-	return item.VersionedList(r.data.LoadAll(list, *vor)).SortByTimestamp(), nil
+
+	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).SortByTimestamp(), nil
 }
 
-func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) (item.VersionedList, error) {
+func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -103,7 +120,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, id id.ItemID) (item.Vers
 	}), nil
 }
 
-func (r *Item) Save(ctx context.Context, t *item.Item) error {
+func (r *Item) Save(_ context.Context, t *item.Item) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -116,7 +133,12 @@ func (r *Item) Save(ctx context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
+func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+	r.data.UpdateRef(item, ref, vr)
+	return nil
+}
+
+func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -133,7 +155,7 @@ func (r *Item) Remove(ctx context.Context, itemID id.ItemID) error {
 	return nil
 }
 
-func (r *Item) IsArchived(ctx context.Context, itemID id.ItemID) (bool, error) {
+func (r *Item) IsArchived(_ context.Context, itemID id.ItemID) (bool, error) {
 	if r.err != nil {
 		return false, r.err
 	}
@@ -146,7 +168,7 @@ func (r *Item) IsArchived(ctx context.Context, itemID id.ItemID) (bool, error) {
 	return r.data.IsArchived(itemID), nil
 }
 
-func (r *Item) Archive(ctx context.Context, itemID id.ItemID, projectID id.ProjectID, archived bool) error {
+func (r *Item) Archive(_ context.Context, itemID id.ItemID, projectID id.ProjectID, archived bool) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -179,7 +201,7 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -191,12 +213,14 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
 		if _, ok := lo.Find(itv.Fields(), func(f *item.Field) bool {
-			if s, ok := f.Value().Value().ValueString(); ok {
-				if strings.Contains(s, qq) {
-					return true
+			return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
+				if s, ok := v.ValueString(); ok {
+					if strings.Contains(s, qq) {
+						return true
+					}
 				}
-			}
-			return false
+				return false
+			})
 		}); ok {
 			res = append(res, it)
 		}
@@ -205,14 +229,14 @@ func (r *Item) Search(ctx context.Context, q *item.Query, pagination *usecasex.P
 	return res, nil, nil
 }
 
-func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue) (item.VersionedList, error) {
+func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	var res item.VersionedList
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(version.Latest.OrVersion())
+		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Model() == modelID {
 			for _, f := range fields {
@@ -226,13 +250,4 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 		return true
 	})
 	return res, nil
-}
-
-func (r *Item) UpdateRef(ctx context.Context, itemID id.ItemID, vor *version.VersionOrRef, ref version.Ref) error {
-	if r.err != nil {
-		return r.err
-	}
-
-	r.data.UpdateRef(itemID, ref, vor)
-	return nil
 }

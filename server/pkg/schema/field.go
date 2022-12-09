@@ -19,7 +19,7 @@ type Field struct {
 	multiple     bool
 	required     bool
 	updatedAt    time.Time
-	defaultValue *value.Value
+	defaultValue *value.Multiple
 	typeProperty *TypeProperty
 }
 
@@ -43,11 +43,11 @@ func (f *Field) SetDescription(description string) {
 	f.description = description
 }
 
-func (f *Field) DefaultValue() *value.Value {
+func (f *Field) DefaultValue() *value.Multiple {
 	return f.defaultValue
 }
 
-func (f *Field) SetDefaultValue(v *value.Value) error {
+func (f *Field) SetDefaultValue(v *value.Multiple) error {
 	if v == nil {
 		f.defaultValue = nil
 		return nil
@@ -119,8 +119,10 @@ func (f *Field) SetTypeProperty(tp *TypeProperty) error {
 		return ErrInvalidType
 	}
 	if f.defaultValue != nil {
-		if err := tp.Validate(f.DefaultValue()); err != nil {
-			return err
+		for _, v := range f.defaultValue.Values() {
+			if err := tp.Validate(v); err != nil {
+				return err
+			}
 		}
 	}
 	f.typeProperty = tp
@@ -146,12 +148,22 @@ func (f *Field) Clone() *Field {
 	}
 }
 
-func (f *Field) Validate(v *value.Value) error {
-	if f.required && v.IsEmpty() {
+// Validate the Multiple value against the Field schema
+// if its multiple it will return only the first error
+func (f *Field) Validate(m *value.Multiple) error {
+	if f.required && (m.IsEmpty() || m.First().IsEmpty()) {
 		return ErrValueRequired
 	}
-	if v.IsEmpty() {
+	if m.IsEmpty() {
 		return nil
 	}
-	return f.typeProperty.Validate(v)
+	if !f.multiple && m.Len() > 1 {
+		return ErrInvalidValue
+	}
+	for _, v := range m.Values() {
+		if err := f.typeProperty.Validate(v); err != nil {
+			return err
+		}
+	}
+	return nil
 }

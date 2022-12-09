@@ -1,3 +1,4 @@
-import TextArea from "antd/lib/input/TextArea";
+import TextArea, { TextAreaProps } from "antd/lib/input/TextArea";
 
 export default TextArea;
+export type { TextAreaProps };

@@ -51,6 +51,25 @@ func (f *File) AppendChild(c *File) {
 	f.children = append(f.children, c)
 }
 
+func (f *File) Clone() *File {
+	if f == nil {
+		return nil
+	}
+
+	var children []*File
+	if f.children != nil {
+		children = lo.Map(f.children, func(f *File, _ int) *File { return f.Clone() })
+	}
+
+	return &File{
+		name:        f.name,
+		size:        f.size,
+		contentType: f.contentType,
+		path:        f.path,
+		children:    children,
+	}
+}
+
 // TODO:improve this perfomance later
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
@@ -102,7 +121,6 @@ func FoldFiles(files []*File, parent *File) *File {
 
 		foldedDir := FoldFiles(childrenFiles, dir)
 		parent.AppendChild(foldedDir)
-
 	}
 
 	return parent

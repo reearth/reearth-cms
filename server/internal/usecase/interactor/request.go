@@ -58,7 +58,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.OrVersion().Ref())
+		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
 		if err != nil {
 			return nil, err
 		}
@@ -161,7 +161,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		if param.Items != nil {
-			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.OrVersion().Ref())
+			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
 			if err != nil {
 				return nil, err
 			}
@@ -220,7 +220,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	// apply changes to items (publish items)
 	for _, item := range req.Items() {
 		// publish the approved version
-		if err := r.repos.Item.UpdateRef(ctx, item.Item(), item.Pointer().Ref(), version.Public); err != nil {
+		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, item.Pointer().Ref()); err != nil {
 			return nil, err
 		}
 	}

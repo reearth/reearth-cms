@@ -20,9 +20,9 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 	case *asset.Asset:
 		res, err = NewAsset(o, urlResolver(o))
 	case *item.Item:
-		res = NewItem(o)
+		res = NewItem(o, nil)
 	case item.Versioned:
-		res = NewVersionedItem(o)
+		res = NewVersionedItem(o, nil)
 	case item.ItemAndSchema:
 		res = NewItemAndSchema(o)
 	// TODO: add later
