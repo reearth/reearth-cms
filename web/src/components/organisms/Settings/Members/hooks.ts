@@ -17,7 +17,7 @@ import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
-export type RoleUnion = "READER" | "WRITER" | "OWNER";
+export type RoleUnion = "READER" | "WRITER" | "MAINTAINER" | "OWNER";
 
 export default () => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
