@@ -1,11 +1,14 @@
-import { useMemo } from "react";
+import styled from "@emotion/styled";
+import { Key, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ProColumns, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
+import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   className?: string;
@@ -13,8 +16,13 @@ export type Props = {
   contentTableColumns?: ProColumns<ContentTableField>[];
   loading: boolean;
   selectedItem: Item | undefined;
+  selection: {
+    selectedRowKeys: Key[];
+  };
   onItemSelect: (itemId: string) => void;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onItemEdit: (itemId: string) => void;
+  onItemDelete: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
 };
 
@@ -23,10 +31,15 @@ const ContentTable: React.FC<Props> = ({
   contentTableColumns,
   loading,
   selectedItem,
+  selection,
   onItemSelect,
+  setSelection,
   onItemEdit,
+  onItemDelete,
   onItemsReload,
 }) => {
+  const t = useT();
+
   const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
     () => [
       {
@@ -61,6 +74,29 @@ const ContentTable: React.FC<Props> = ({
     [onItemEdit, onItemSelect, selectedItem?.id],
   );
 
+  const rowSelection: TableRowSelection = {
+    selectedRowKeys: selection.selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys: selectedRowKeys,
+      });
+    },
+  };
+
+  const AlertOptions = (props: any) => {
+    return (
+      <Space size={16}>
+        <DeselectButton onClick={props.onCleanSelected}>
+          <Icon icon="clear" /> {t("Deselect")}
+        </DeselectButton>
+        <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
+          <Icon icon="delete" /> {t("Delete")}
+        </DeleteButton>
+      </Space>
+    );
+  };
+
   const options = {
     fullScreen: true,
     reload: onItemsReload,
@@ -72,9 +108,21 @@ const ContentTable: React.FC<Props> = ({
       options={options}
       loading={loading}
       dataSource={contentTableFields}
-      proColumns={[...actionsColumn, ...contentTableColumns]}
+      tableAlertOptionRender={AlertOptions}
+      rowSelection={rowSelection}
+      columns={[...actionsColumn, ...contentTableColumns]}
     />
   ) : null;
 };
 
 export default ContentTable;
+
+const DeselectButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DeleteButton = styled.a`
+  color: #ff7875;
+`;
