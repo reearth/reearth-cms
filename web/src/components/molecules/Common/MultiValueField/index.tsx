@@ -3,6 +3,8 @@ import React, { ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { InputProps } from "@reearth-cms/components/atoms/Input";
+import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "./moveItemArray";
@@ -12,7 +14,8 @@ type Props = {
   value?: string[];
   onChange?: (value: string[]) => void;
   FieldInput: React.FunctionComponent<any>;
-};
+} & TextAreaProps &
+  InputProps;
 
 const MultiValueField: React.FC<Props> = ({
   className,
@@ -52,12 +55,10 @@ const MultiValueField: React.FC<Props> = ({
             disabled={key === value.length - 1}
           />
           <FieldInput
-            style={{ flex: 1, padding: 4 }}
+            style={{ flex: 1 }}
             {...props}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
             value={valueItem}
-            rows={1}
-            showCount
           />
           <FieldButton type="link" icon={<Icon icon="delete" />} onClick={() => deleteInput(key)} />
         </FieldWrapper>
@@ -78,6 +79,7 @@ export default MultiValueField;
 
 const FieldWrapper = styled.div`
   display: flex;
+  margin: 8px 0;
 `;
 
 const FieldButton = styled(Button)`

@@ -14,6 +14,7 @@ import URLField from "./URLField";
 
 export interface Props {
   selectedType: FieldType;
+  multiple?: boolean;
   selectedValues: string[];
   assetList: Asset[];
   fileList: UploadFile[];
@@ -38,6 +39,7 @@ export interface Props {
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
+  multiple,
   assetList,
   defaultValue,
   fileList,
@@ -59,11 +61,11 @@ const FieldDefaultInputs: React.FC<Props> = ({
 }) => {
   return selectedType ? (
     selectedType === "TextArea" ? (
-      <TextAreaField />
+      <TextAreaField multiple={multiple} />
     ) : selectedType === "MarkdownText" ? (
-      <MarkdownField />
+      <MarkdownField multiple={multiple} />
     ) : selectedType === "Integer" ? (
-      <IntegerField />
+      <IntegerField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
         assetList={assetList}
@@ -86,11 +88,11 @@ const FieldDefaultInputs: React.FC<Props> = ({
         setUploadModalVisibility={setUploadModalVisibility}
       />
     ) : selectedType === "Select" ? (
-      <SelectField selectedValues={selectedValues} />
+      <SelectField selectedValues={selectedValues} multiple={multiple} />
     ) : selectedType === "URL" ? (
-      <URLField />
+      <URLField multiple={multiple} />
     ) : (
-      <TextField />
+      <TextField multiple={multiple} />
     )
   ) : null;
 };

@@ -95,6 +95,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const multipleValue: boolean = Form.useWatch("multiple", form);
   const defaultValue: string = Form.useWatch("defaultValue", form);
 
   const handleTabChange = useCallback(
@@ -322,6 +323,7 @@ const FieldCreationModal: React.FC<Props> = ({
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
+              multiple={multipleValue}
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}

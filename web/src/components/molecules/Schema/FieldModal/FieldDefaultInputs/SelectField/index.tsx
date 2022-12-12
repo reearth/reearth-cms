@@ -6,6 +6,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
   selectedValues: string[];
+  multiple?: boolean;
 }
 
 const SelectField: React.FC<Props> = ({ selectedValues }) => {

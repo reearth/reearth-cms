@@ -95,6 +95,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [assetValue, setAssetValue] = useState<string>();
+  const multipleValue: boolean = Form.useWatch("multiple", form);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
@@ -327,7 +328,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox>{t("Support multiple values")}</Checkbox>
+              <Checkbox disabled>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -348,6 +349,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
               selectedValues={selectedValues}
+              multiple={multipleValue}
               selectedType={selectedType}
               assetList={assetList}
               defaultValue={assetValue}
