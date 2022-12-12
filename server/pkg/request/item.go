@@ -1,6 +1,11 @@
 package request
 
-import "github.com/reearth/reearth-cms/server/pkg/version"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/version"
+)
+
+type ItemList []*Item
 
 type Item struct {
 	item    ItemID
@@ -15,7 +20,7 @@ func (i *Item) Pointer() version.VersionOrRef {
 	return i.pointer
 }
 
-func NewItem(i ItemID, v version.VersionOrRef) (*Item, error) {
+func NewItemWithVersion(i ItemID, v version.VersionOrRef) (*Item, error) {
 	if i.IsNil() {
 		return nil, ErrInvalidID
 	}
@@ -23,4 +28,17 @@ func NewItem(i ItemID, v version.VersionOrRef) (*Item, error) {
 		item:    i,
 		pointer: v,
 	}, nil
+}
+
+func NewItem(i ItemID) (*Item, error) {
+	ptr := version.Public.OrVersion()
+	return NewItemWithVersion(i, ptr)
+}
+
+func (l ItemList) IDs() id.ItemIDList {
+	ids := id.ItemIDList{}
+	for _, item := range l {
+		ids = ids.Add(item.Item())
+	}
+	return ids
 }

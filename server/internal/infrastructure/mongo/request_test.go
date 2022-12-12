@@ -18,7 +18,7 @@ import (
 
 func TestRequest_Filtered(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -26,7 +26,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -35,18 +35,18 @@ func TestRequest_Filtered(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	tests := []struct {
 		name    string
-		seeds   []*request.Request
+		seeds   request.List
 		args    repo.ProjectFilter
 		wantErr error
 	}{
 		{
 			name:  "operation denied",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: repo.ProjectFilter{
 				Readable: []id.ProjectID{},
 				Writable: []id.ProjectID{},
@@ -55,7 +55,7 @@ func TestRequest_Filtered(t *testing.T) {
 		},
 		{
 			name:  "success",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 
 			args: repo.ProjectFilter{
 				Readable: []id.ProjectID{pid},
@@ -80,7 +80,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -88,7 +88,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -97,25 +97,25 @@ func TestRequest_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	tests := []struct {
 		name    string
-		seeds   []*request.Request
+		seeds   request.List
 		args    request.ID
 		want    *request.Request
 		wantErr error
 	}{
 		{
 			name:  "success",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args:  req1.ID(),
 			want:  req1,
 		},
 		{
 			name:    "not found",
-			seeds:   []*request.Request{req1, req2},
+			seeds:   request.List{req1, req2},
 			args:    id.NewRequestID(),
 			wantErr: rerror.ErrNotFound,
 		},
@@ -143,7 +143,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -151,7 +151,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -160,25 +160,25 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 
 	tests := []struct {
 		name  string
-		seeds []*request.Request
+		seeds request.List
 		args  id.RequestIDList
 		want  int
 	}{
 		{
 			name:  "must find 2",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args:  id.RequestIDList{req1.ID(), req2.ID()},
 			want:  2,
 		},
 		{
 			name:  "must find 1",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args:  id.RequestIDList{id.NewRequestID(), req1.ID()},
 			want:  1,
 		},
@@ -204,7 +204,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -212,7 +212,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -221,7 +221,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		State(request.StateDraft).
 		Title("hoge").
 		MustBuild()
@@ -231,13 +231,13 @@ func TestRequest_FindByProject(t *testing.T) {
 	}
 	tests := []struct {
 		name  string
-		seeds []*request.Request
+		seeds request.List
 		args  args
 		want  int
 	}{
 		{
 			name:  "must find 2",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: args{
 				projectID: pid,
 			},
@@ -245,7 +245,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 0",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: args{
 				projectID: id.NewProjectID(),
 			},
@@ -253,7 +253,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 1",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
@@ -264,7 +264,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 1",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
@@ -275,7 +275,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		},
 		{
 			name:  "must find 0",
-			seeds: []*request.Request{req1, req2},
+			seeds: request.List{req1, req2},
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
@@ -305,9 +305,9 @@ func TestRequest_FindByProject(t *testing.T) {
 	}
 }
 
-func TestRequest_Remove(t *testing.T) {
+func TestRequest_SaveAll(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItem(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -315,7 +315,7 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -324,8 +324,17 @@ func TestRequest_Remove(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items([]*request.Item{item}).
+		Items(request.ItemList{item}).
 		Title("hoge").
+		MustBuild()
+	req3 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item}).
+		Title("xxx").
 		MustBuild()
 
 	initDB := mongotest.Connect(t)
@@ -334,12 +343,8 @@ func TestRequest_Remove(t *testing.T) {
 
 	r := NewRequest(client)
 	ctx := context.Background()
-	err := r.Save(ctx, req1)
+	err := r.SaveAll(ctx, pid, request.List{req1, req2, req3})
 	assert.NoError(t, err)
-	err = r.Save(ctx, req2)
-	assert.NoError(t, err)
-	err = r.Remove(ctx, req2.ID())
-	assert.NoError(t, err)
-	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID()})
-	assert.Equal(t, 1, len(got))
+	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID(), req3.ID()})
+	assert.Equal(t, 3, len(got))
 }

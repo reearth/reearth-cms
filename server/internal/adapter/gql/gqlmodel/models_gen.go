@@ -258,7 +258,7 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteRequestInput struct {
-	RequestID ID `json:"requestId"`
+	RequestIds []ID `json:"requestIds"`
 }
 
 type DeleteRequestPayload struct {
@@ -545,8 +545,7 @@ type RequestItem struct {
 }
 
 type RequestItemInput struct {
-	ItemID  ID     `json:"itemId"`
-	Version string `json:"version"`
+	ItemID ID `json:"itemId"`
 }
 
 type RequestPayload struct {

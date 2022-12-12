@@ -55,11 +55,10 @@ input UpdateRequestInput {
 
 input RequestItemInput {
   itemId: ID!
-  version: String!
 }
 
 input DeleteRequestInput {
-  requestId: ID!
+  requestIds: [ID!]!
 }
 
 input ApproveRequestInput {

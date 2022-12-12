@@ -13,7 +13,7 @@ func TestBuilder_Build(t *testing.T) {
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
 		project:   NewProjectID(),
-		items: []*Item{{
+		items: ItemList{{
 			item:    NewItemID(),
 			pointer: version.New().OrRef(),
 		}},
@@ -124,7 +124,7 @@ func TestBuilder_Build(t *testing.T) {
 					workspace: NewWorkspaceID(),
 					thread:    NewThreadID(),
 					createdBy: NewUserID(),
-					items: []*Item{{
+					items: ItemList{{
 						item:    NewItemID(),
 						pointer: version.New().OrRef(),
 					}},
@@ -191,7 +191,7 @@ func TestBuilder_Description(t *testing.T) {
 
 func TestBuilder_Items(t *testing.T) {
 	b := &Builder{r: &Request{}}
-	items := []*Item{{
+	items := ItemList{{
 		item:    NewItemID(),
 		pointer: version.New().OrRef(),
 	}}
