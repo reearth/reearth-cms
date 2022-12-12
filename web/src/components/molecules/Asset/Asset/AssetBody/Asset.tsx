@@ -3,6 +3,7 @@ import { createWorldTerrain, Viewer } from "cesium";
 import { useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
+import MVTPreview from "@reearth-cms/components/atoms/MVTPreview";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -91,6 +92,8 @@ const AssetMolecule: React.FC<Props> = ({
         ) : (
           <Image src={assetUrl} alt="asset-preview" />
         );
+      case selectedPreviewType === "MVT" && assetFileExt === "mvt":
+        return <MVTPreview />;
       default:
         return <ViewerNotSupported />;
     }
