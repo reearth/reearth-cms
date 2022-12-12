@@ -66,6 +66,16 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
+			Name: "mvt",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeMVT,
+				Bool: true,
+			},
+		},
+		{
 			Name: "unknown",
 			Expected: struct {
 				TA   PreviewType
@@ -103,6 +113,7 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	g := PreviewTypeGeo
 	g3d := PreviewTypeGeo3d
 	m := PreviewTypeModel3d
+	mvt := PreviewTypeMVT
 	u := PreviewTypeUnknown
 
 	tests := []struct {
@@ -134,6 +145,11 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 			Name:     "model3d",
 			Input:    lo.ToPtr("model3d"),
 			Expected: &m,
+		},
+		{
+			Name:     "mvt",
+			Input:    lo.ToPtr("mvt"),
+			Expected: &mvt,
 		},
 		{
 			Name:     "unknown",

@@ -3083,6 +3083,7 @@ enum PreviewType {
   GEO
   GEO3D
   MODEL3D
+  MVT
   UNKNOWN
 }
 
