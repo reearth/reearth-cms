@@ -190,6 +190,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			want: &SchemaFieldURL{DefaultValue: nil},
 		},
 		{
+			name: "url",
+			args: args{tp: schema.NewURL().TypeProperty(), dv: value.New(value.TypeURL, "https://hogo.com").AsMultiple()},
+			want: &SchemaFieldURL{DefaultValue: "https://hogo.com"},
+		},
+		{
 			name: "select",
 			args: args{tp: schema.NewSelect([]string{"v1"}).TypeProperty()},
 			want: &SchemaFieldSelect{Values: []string{"v1"}, DefaultValue: nil},

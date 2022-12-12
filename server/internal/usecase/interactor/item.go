@@ -290,7 +290,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		if !sf.Multiple() && sf.Type() != value.TypeSelect {
+		if !sf.Multiple() {
 			f.Value = []any{f.Value}
 		}
 
