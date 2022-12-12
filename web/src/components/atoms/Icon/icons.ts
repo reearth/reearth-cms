@@ -35,6 +35,8 @@ import {
   UserAddOutlined,
   ClearOutlined,
   CloseCircleFilled,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 
 import Asset from "./Icons/asset.svg";
@@ -99,4 +101,6 @@ export default {
   userAdd: UserAddOutlined,
   clear: ClearOutlined,
   closeCircle: CloseCircleFilled,
+  arrowUp: ArrowUpOutlined,
+  arrowDown: ArrowDownOutlined,
 };
