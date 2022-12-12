@@ -97,7 +97,7 @@ const ModelFormModal: React.FC<Props> = ({
           name="key"
           label={t("Model key")}
           extra={t(
-            "Model key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+            "Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
           )}
           rules={[
             {
