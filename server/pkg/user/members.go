@@ -212,6 +212,10 @@ func (m *Members) IsOnlyOwner(u ID) bool {
 	return len(m.UsersByRole(RoleOwner)) == 1 && m.users[u].Role == RoleOwner
 }
 
+func (m *Members) IsOwnerOrMaintainer(u ID) bool {
+	return m.users[u].Role == RoleOwner || m.users[u].Role == RoleMaintainer
+}
+
 func (m *Members) Fixed() bool {
 	if m == nil {
 		return false
