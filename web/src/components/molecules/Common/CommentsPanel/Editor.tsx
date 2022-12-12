@@ -28,6 +28,8 @@ const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
     } catch (info) {
       setSubmitting(false);
       console.log("Validate Failed:", info);
+    } finally {
+      setSubmitting(false);
     }
   }, [form, onCommentCreate]);
 
