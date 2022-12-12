@@ -26,6 +26,7 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 		User:        NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
 		Project:     NewProject(r, g),
 		Item:        NewItem(r, g),
+		Request:     NewRequest(r, g),
 		Model:       NewModel(r, g),
 		Schema:      NewSchema(r, g),
 		Integration: NewIntegration(r, g),
