@@ -168,14 +168,6 @@ const FieldCreationModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
-  const handleLinkAsset = useCallback(
-    (_asset?: Asset) => {
-      form.setFieldValue("defaultValue", _asset?.id ?? "");
-      setAssetValue(_asset?.id);
-    },
-    [form],
-  );
-
   return (
     <Modal
       title={
@@ -339,7 +331,6 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
-              onLink={handleLinkAsset}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
             />
