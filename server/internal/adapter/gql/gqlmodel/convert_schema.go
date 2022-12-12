@@ -155,9 +155,11 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			var v any = nil
 			if dv != nil {
 				if multiple {
-					v, _ = dv.ValuesURL()
+					urls, _ := dv.ValuesURL()
+					v = lo.Map(urls, func(v value.URL, _ int) string { return v.String() })
 				} else {
-					v, _ = dv.First().ValueURL()
+					url, _ := dv.First().ValueURL()
+					v = url.String()
 				}
 			}
 			res = &SchemaFieldURL{

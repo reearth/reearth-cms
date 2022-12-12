@@ -7,7 +7,7 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{5,32}$")
+var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{1,32}$")
 
 type Key struct {
 	key string
