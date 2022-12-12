@@ -17,9 +17,6 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   ci:
     name: ci
