@@ -10,8 +10,8 @@ export default (
   uploadType: UploadType,
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
-  onLink: (asset?: Asset) => void,
   setUploadModalVisibility: (visible: boolean) => void,
+  onChange?: (value: string) => void,
 ) => {
   const [visible, setVisible] = useState(false);
   const handleClick = useCallback(() => {
@@ -37,8 +37,8 @@ export default (
 
   const handleUploadAndLink = useCallback(async () => {
     const asset = await handleAssetUpload();
-    if (asset) onLink(asset);
-  }, [handleAssetUpload, onLink]);
+    if (asset) onChange?.(asset.id);
+  }, [handleAssetUpload, onChange]);
 
   return {
     visible,
