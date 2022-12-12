@@ -219,8 +219,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 
 	// apply changes to items (publish items)
 	for _, item := range req.Items() {
-		// publish the approved version
-		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, item.Pointer().Ref()); err != nil {
+		// If approved version is already on public, no change and no error
+		if item.Pointer().IsRef(version.Public) {
+			continue
+		}
+		// publish the latest version
+		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 			return nil, err
 		}
 	}
