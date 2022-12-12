@@ -14,7 +14,7 @@ type URL = *url.URL
 
 func (p *propertyURL) ToValue(i any) (any, bool) {
 	if v, ok := i.(string); ok {
-		if u, err := url.Parse(v); err == nil {
+		if u, err := url.Parse(v); err == nil && u.String() != "" {
 			return u, true
 		}
 		return nil, false
