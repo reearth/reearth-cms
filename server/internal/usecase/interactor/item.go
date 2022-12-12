@@ -112,7 +112,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, param.ModelID); err != nil {
+		if err := i.checkUnique(ctx, fields, s, param.ModelID, nil); err != nil {
 			return nil, err
 		}
 
@@ -200,7 +200,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, itv.Model()); err != nil {
+		if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
 			return nil, err
 		}
 
@@ -245,22 +245,29 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	})
 }
 
-func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID) error {
+func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {
+		if itm != nil {
+			oldF := itm.Field(f.FieldID())
+			if oldF != nil && f.Value().Equal(oldF.Value()) {
+				continue
+			}
+		}
+
 		sf := s.Field(f.FieldID())
 		if sf == nil {
 			return interfaces.ErrInvalidField
 		}
 
-		vv := f.Value()
-		if !sf.Unique() || vv.IsEmpty() {
+		newV := f.Value()
+		if !sf.Unique() || newV.IsEmpty() {
 			continue
 		}
 
 		fieldsArg = append(fieldsArg, repo.FieldAndValue{
 			Field: f.FieldID(),
-			Value: vv,
+			Value: newV,
 		})
 	}
 
