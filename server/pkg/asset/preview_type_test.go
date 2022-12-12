@@ -71,7 +71,7 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 				TA   PreviewType
 				Bool bool
 			}{
-				TA:   PreviewTypeMVT,
+				TA:   PreviewTypeMvt,
 				Bool: true,
 			},
 		},
@@ -113,7 +113,7 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	g := PreviewTypeGeo
 	g3d := PreviewTypeGeo3d
 	m := PreviewTypeModel3d
-	mvt := PreviewTypeMVT
+	mvt := PreviewTypeMvt
 	u := PreviewTypeUnknown
 
 	tests := []struct {

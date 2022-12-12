@@ -58,6 +58,8 @@ func FromPreviewType(p *PreviewType) *asset.PreviewType {
 		p2 = asset.PreviewTypeGeo3d
 	case PreviewTypeModel3d:
 		p2 = asset.PreviewTypeModel3d
+	case PreviewTypeMvt:
+		p2 = asset.PreviewTypeMvt
 	case PreviewTypeUnknown:
 		p2 = asset.PreviewTypeUnknown
 	default:
@@ -82,6 +84,8 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 		p2 = PreviewTypeGeo3d
 	case asset.PreviewTypeModel3d:
 		p2 = PreviewTypeModel3d
+	case asset.PreviewTypeMvt:
+		p2 = PreviewTypeMvt
 	case asset.PreviewTypeUnknown:
 		p2 = PreviewTypeUnknown
 	default:

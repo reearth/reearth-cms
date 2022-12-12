@@ -82,14 +82,17 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 	var pt4 PreviewType = PreviewTypeModel3d
 	want4 := asset.PreviewTypeModel3d
 
-	var pt5 *PreviewType = nil
-	want5 := (*asset.PreviewType)(nil)
+	var pt5 PreviewType = PreviewTypeMvt
+	want5 := asset.PreviewTypeMvt
 
-	var pt6 PreviewType = "test"
+	var pt6 *PreviewType = nil
 	want6 := (*asset.PreviewType)(nil)
 
-	var pt7 PreviewType = PreviewTypeUnknown
-	want7 := asset.PreviewTypeUnknown
+	var pt7 PreviewType = "test"
+	want7 := (*asset.PreviewType)(nil)
+
+	var pt8 PreviewType = PreviewTypeUnknown
+	want8 := asset.PreviewTypeUnknown
 
 	tests := []struct {
 		name string
@@ -117,19 +120,24 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 			want: &want4,
 		},
 		{
-			name: "to asset nil",
-			arg:  pt5,
-			want: want5,
+			name: "to asset mvt",
+			arg:  &pt5,
+			want: &want5,
 		},
 		{
-			name: "to asset other",
-			arg:  &pt6,
+			name: "to asset nil",
+			arg:  pt6,
 			want: want6,
 		},
 		{
-			name: "to asset unknown",
+			name: "to asset other",
 			arg:  &pt7,
-			want: &want7,
+			want: want7,
+		},
+		{
+			name: "to asset unknown",
+			arg:  &pt8,
+			want: &want8,
 		},
 	}
 
@@ -157,14 +165,17 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	var pt4 asset.PreviewType = asset.PreviewTypeModel3d
 	want4 := PreviewTypeModel3d
 
-	var pt5 *asset.PreviewType = nil
-	want5 := (*PreviewType)(nil)
+	var pt5 asset.PreviewType = asset.PreviewTypeModel3d
+	want5 := PreviewTypeModel3d
 
-	var pt6 asset.PreviewType = "test"
+	var pt6 *asset.PreviewType = nil
 	want6 := (*PreviewType)(nil)
 
-	var pt7 asset.PreviewType = asset.PreviewTypeUnknown
-	want7 := PreviewTypeUnknown
+	var pt7 asset.PreviewType = "test"
+	want7 := (*PreviewType)(nil)
+
+	var pt8 asset.PreviewType = asset.PreviewTypeUnknown
+	want8 := PreviewTypeUnknown
 
 	tests := []struct {
 		name string
@@ -192,19 +203,24 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 			want: &want4,
 		},
 		{
-			name: "to asset nil",
-			arg:  pt5,
-			want: want5,
+			name: "to asset mvt",
+			arg:  &pt5,
+			want: &want5,
 		},
 		{
-			name: "to asset other",
-			arg:  &pt6,
+			name: "to asset nil",
+			arg:  pt6,
 			want: want6,
 		},
 		{
-			name: "to asset unknown",
+			name: "to asset other",
 			arg:  &pt7,
-			want: &want7,
+			want: want7,
+		},
+		{
+			name: "to asset unknown",
+			arg:  &pt8,
+			want: &want8,
 		},
 	}
 

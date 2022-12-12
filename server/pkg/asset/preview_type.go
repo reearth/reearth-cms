@@ -13,7 +13,7 @@ const (
 	PreviewTypeGeo     PreviewType = "geo"
 	PreviewTypeGeo3d   PreviewType = "geo3d"
 	PreviewTypeModel3d PreviewType = "model3d"
-	PreviewTypeMVT     PreviewType = "mvt"
+	PreviewTypeMvt     PreviewType = "mvt"
 	PreviewTypeUnknown PreviewType = "unknown"
 )
 
@@ -28,8 +28,8 @@ func PreviewTypeFrom(p string) (PreviewType, bool) {
 		return PreviewTypeGeo3d, true
 	case PreviewTypeModel3d:
 		return PreviewTypeModel3d, true
-	case PreviewTypeMVT:
-		return PreviewTypeMVT, true
+	case PreviewTypeMvt:
+		return PreviewTypeMvt, true
 	case PreviewTypeUnknown:
 		return PreviewTypeUnknown, true
 	default:
