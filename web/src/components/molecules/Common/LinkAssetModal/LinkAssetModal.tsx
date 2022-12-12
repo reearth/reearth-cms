@@ -100,8 +100,6 @@ const LinkAssetModal: React.FC<Props> = ({
             onMouseLeave={() => setHoveredAssetId(undefined)}
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
-              console.log(asset.id);
-
               onChange?.(link ? asset.id : "");
               onLinkAssetModalCancel();
             }}
