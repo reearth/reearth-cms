@@ -74,6 +74,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
           <Select placeholder={t("select role")}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
+            <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="OWNER">{t("Owner")}</Option>
           </Select>
         </Form.Item>

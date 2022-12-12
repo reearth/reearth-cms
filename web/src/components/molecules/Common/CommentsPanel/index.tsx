@@ -49,7 +49,7 @@ const CommentsPanel: React.FC<Props> = ({
               <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
             ) : null}
 
-            <Editor onCommentCreate={onCommentCreate} />
+            <Editor disabled={!comments} onCommentCreate={onCommentCreate} />
           </>
         )}
       </ContentWrapper>

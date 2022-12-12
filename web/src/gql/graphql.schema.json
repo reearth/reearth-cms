@@ -1029,7 +1029,7 @@
             "deprecationReason": null
           },
           {
-            "name": "multiValue",
+            "name": "multiple",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -8252,7 +8252,7 @@
             "deprecationReason": null
           },
           {
-            "name": "multiValue",
+            "name": "multiple",
             "description": null,
             "type": {
               "kind": "SCALAR",
