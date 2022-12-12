@@ -294,20 +294,12 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			f.Value = []any{f.Value}
 		}
 
-		var vs []*value.Value
 		as, ok := f.Value.([]any)
 		if !ok {
 			return nil, interfaces.ErrInvalidValue
 		}
-		for _, fv := range as {
-			w := sf.Type().Value(fv)
-			if w == nil {
-				return nil, interfaces.ErrInvalidValue
-			}
-			vs = append(vs, w)
-		}
 
-		m := value.MultipleFrom(sf.Type(), vs)
+		m := value.NewMultiple(sf.Type(), as)
 		if err := sf.Validate(m); err != nil {
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
