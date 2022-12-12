@@ -4148,7 +4148,7 @@ input CreateFieldInput {
   title: String!
   description: String
   key: String!
-  multiValue: Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
@@ -4162,7 +4162,7 @@ input UpdateFieldInput {
   key: String
   required: Boolean
   unique: Boolean
-  multiValue: Boolean
+  multiple: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -23103,7 +23103,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiValue", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -23150,11 +23150,11 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-		case "multiValue":
+		case "multiple":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
-			it.MultiValue, err = ec.unmarshalNBoolean2bool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
+			it.Multiple, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25089,7 +25089,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiValue", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiple", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25152,11 +25152,11 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-		case "multiValue":
+		case "multiple":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiValue"))
-			it.MultiValue, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
+			it.Multiple, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
