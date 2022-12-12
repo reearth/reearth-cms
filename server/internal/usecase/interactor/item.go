@@ -248,7 +248,6 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {
-
 		if itm != nil {
 			oldF := itm.Field(f.FieldID())
 			if oldF != nil && f.Value().Equal(oldF.Value()) {
