@@ -3,7 +3,7 @@ import { CSSProperties } from "react";
 import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
-export type PreviewType = "GEO" | "GEO3D" | "IMAGE" | "MODEL3D" | "UNKNOWN";
+export type PreviewType = "GEO" | "GEO3D" | "IMAGE" | "MODEL3D" | "MVT" | "UNKNOWN";
 
 type Props = {
   onTypeChange: (
@@ -31,7 +31,8 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value 
     },
     { id: 3, name: t("GEO3D"), value: "GEO3D" },
     { id: 4, name: t("MODEL3D/GLB"), value: "MODEL3D" },
-    { id: 5, name: t("Unknown Type"), value: "UNKNOWN" },
+    { id: 5, name: t("MVT"), value: "MVT" },
+    { id: 6, name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
     <Select style={style} value={value} onChange={onTypeChange}>

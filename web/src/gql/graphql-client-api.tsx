@@ -700,6 +700,7 @@ export enum PreviewType {
   Geo3D = 'GEO3D',
   Image = 'IMAGE',
   Model3D = 'MODEL3D',
+  Mvt = 'MVT',
   Unknown = 'UNKNOWN'
 }
 
