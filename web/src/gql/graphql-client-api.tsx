@@ -130,7 +130,7 @@ export type CreateFieldInput = {
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
   modelId: Scalars['ID'];
-  multiValue: Scalars['Boolean'];
+  multiple: Scalars['Boolean'];
   required: Scalars['Boolean'];
   title: Scalars['String'];
   type: SchemaFieldType;
@@ -1110,7 +1110,7 @@ export type UpdateFieldInput = {
   fieldId: Scalars['ID'];
   key?: InputMaybe<Scalars['String']>;
   modelId: Scalars['ID'];
-  multiValue?: InputMaybe<Scalars['Boolean']>;
+  multiple?: InputMaybe<Scalars['Boolean']>;
   required?: InputMaybe<Scalars['Boolean']>;
   title?: InputMaybe<Scalars['String']>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
@@ -1366,7 +1366,7 @@ export type CreateFieldMutationVariables = Exact<{
   title: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
-  multiValue: Scalars['Boolean'];
+  multiple: Scalars['Boolean'];
   unique: Scalars['Boolean'];
   required: Scalars['Boolean'];
   typeProperty: SchemaFieldTypePropertyInput;
@@ -1381,7 +1381,7 @@ export type UpdateFieldMutationVariables = Exact<{
   title: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
-  multiValue: Scalars['Boolean'];
+  multiple: Scalars['Boolean'];
   unique: Scalars['Boolean'];
   required: Scalars['Boolean'];
   typeProperty: SchemaFieldTypePropertyInput;
@@ -2210,9 +2210,9 @@ export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteComment
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const CreateFieldDocument = gql`
-    mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $title: String!, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   createField(
-    input: {modelId: $modelId, type: $type, title: $title, description: $description, key: $key, multiValue: $multiValue, unique: $unique, required: $required, typeProperty: $typeProperty}
+    input: {modelId: $modelId, type: $type, title: $title, description: $description, key: $key, multiple: $multiple, unique: $unique, required: $required, typeProperty: $typeProperty}
   ) {
     field {
       id
@@ -2240,7 +2240,7 @@ export type CreateFieldMutationFn = Apollo.MutationFunction<CreateFieldMutation,
  *      title: // value for 'title'
  *      description: // value for 'description'
  *      key: // value for 'key'
- *      multiValue: // value for 'multiValue'
+ *      multiple: // value for 'multiple'
  *      unique: // value for 'unique'
  *      required: // value for 'required'
  *      typeProperty: // value for 'typeProperty'
@@ -2255,9 +2255,9 @@ export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMuta
 export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
 export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
 export const UpdateFieldDocument = gql`
-    mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $description: String, $key: String!, $multiValue: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   updateField(
-    input: {modelId: $modelId, fieldId: $fieldId, title: $title, description: $description, key: $key, multiValue: $multiValue, unique: $unique, required: $required, typeProperty: $typeProperty}
+    input: {modelId: $modelId, fieldId: $fieldId, title: $title, description: $description, key: $key, multiple: $multiple, unique: $unique, required: $required, typeProperty: $typeProperty}
   ) {
     field {
       id
@@ -2285,7 +2285,7 @@ export type UpdateFieldMutationFn = Apollo.MutationFunction<UpdateFieldMutation,
  *      title: // value for 'title'
  *      description: // value for 'description'
  *      key: // value for 'key'
- *      multiValue: // value for 'multiValue'
+ *      multiple: // value for 'multiple'
  *      unique: // value for 'unique'
  *      required: // value for 'required'
  *      typeProperty: // value for 'typeProperty'

@@ -8,7 +8,7 @@ import (
 
 func TestNew(t *testing.T) {
 	assert.Equal(t, Key{key: "aaaaaaa"}, New("aaaaaaa"))
-	assert.Equal(t, Key{}, New("aaaa"))
+	assert.Equal(t, Key{key: "aaaa"}, New("aaaa"))
 }
 
 func TestRandom(t *testing.T) {
