@@ -236,7 +236,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="key"
               label="Field Key"
               extra={t(
-                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+                "Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.",
               )}
               rules={[
                 {
