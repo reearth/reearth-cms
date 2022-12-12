@@ -1,10 +1,10 @@
 import moment from "moment";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
@@ -29,14 +29,10 @@ const CommentMoecule: React.FC<Props> = ({ comment }) => {
               />
             }
             offset={[0, 24]}>
-            <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-              {comment.author.charAt(0)}
-            </Avatar>
+            <UserAvatar username={comment.author} />
           </Badge>
         ) : (
-          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-            {comment.author.charAt(0)}
-          </Avatar>
+          <UserAvatar username={comment.author} />
         )
       }
       content={<>{comment.content}</>}
