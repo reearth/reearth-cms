@@ -25,7 +25,7 @@ const initialValues: FormValues = {
   name: "",
   description: "",
   logoUrl: "",
-  type: IntegrationType.Public,
+  type: IntegrationType.Private,
 };
 
 const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
@@ -38,7 +38,7 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
       .then(async (values: FormValues) => {
         // TODO: when assets upload is ready to use
         values.logoUrl = "_";
-        values.type = IntegrationType.Public;
+        values.type = IntegrationType.Private;
         await onSubmit?.(values);
         onClose();
         form.resetFields();
