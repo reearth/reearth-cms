@@ -161,7 +161,7 @@ type ComplexityRoot struct {
 	}
 
 	DeleteRequestPayload struct {
-		Request func(childComplexity int) int
+		Requests func(childComplexity int) int
 	}
 
 	DeleteWebhookPayload struct {
@@ -1066,12 +1066,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteProjectPayload.ProjectID(childComplexity), true
 
-	case "DeleteRequestPayload.request":
-		if e.complexity.DeleteRequestPayload.Request == nil {
+	case "DeleteRequestPayload.requests":
+		if e.complexity.DeleteRequestPayload.Requests == nil {
 			break
 		}
 
-		return e.complexity.DeleteRequestPayload.Request(childComplexity), true
+		return e.complexity.DeleteRequestPayload.Requests(childComplexity), true
 
 	case "DeleteWebhookPayload.webhookId":
 		if e.complexity.DeleteWebhookPayload.WebhookID == nil {
@@ -3342,6 +3342,7 @@ enum NodeType {
   WORKSPACE
   PROJECT
   ASSET
+  REQUEST
   Model
   Schema
   Item
@@ -3905,7 +3906,8 @@ input RequestItemInput {
 }
 
 input DeleteRequestInput {
-  requestIds: [ID!]!
+  projectId: ID!
+  requestsId: [ID!]!
 }
 
 input ApproveRequestInput {
@@ -3918,7 +3920,7 @@ type RequestPayload {
 }
 
 type DeleteRequestPayload {
-  request: ID!
+  requests: [ID!]!
 }
 
 type RequestEdge {
@@ -7890,8 +7892,8 @@ func (ec *executionContext) fieldContext_DeleteProjectPayload_projectId(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteRequestPayload_request(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteRequestPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteRequestPayload_request(ctx, field)
+func (ec *executionContext) _DeleteRequestPayload_requests(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteRequestPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteRequestPayload_requests(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7904,7 +7906,7 @@ func (ec *executionContext) _DeleteRequestPayload_request(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Request, nil
+		return obj.Requests, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7916,12 +7918,12 @@ func (ec *executionContext) _DeleteRequestPayload_request(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.([]gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DeleteRequestPayload_request(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DeleteRequestPayload_requests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteRequestPayload",
 		Field:      field,
@@ -12633,8 +12635,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteRequest(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "request":
-				return ec.fieldContext_DeleteRequestPayload_request(ctx, field)
+			case "requests":
+				return ec.fieldContext_DeleteRequestPayload_requests(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteRequestPayload", field.Name)
 		},
@@ -23843,18 +23845,26 @@ func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"requestIds"}
+	fieldsInOrder := [...]string{"projectId", "requestsId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "requestIds":
+		case "projectId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestIds"))
-			it.RequestIds, err = ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "requestsId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestsId"))
+			it.RequestsID, err = ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26787,9 +26797,9 @@ func (ec *executionContext) _DeleteRequestPayload(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteRequestPayload")
-		case "request":
+		case "requests":
 
-			out.Values[i] = ec._DeleteRequestPayload_request(ctx, field, obj)
+			out.Values[i] = ec._DeleteRequestPayload_requests(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

@@ -58,7 +58,8 @@ input RequestItemInput {
 }
 
 input DeleteRequestInput {
-  requestIds: [ID!]!
+  projectId: ID!
+  requestsId: [ID!]!
 }
 
 input ApproveRequestInput {
@@ -71,7 +72,7 @@ type RequestPayload {
 }
 
 type DeleteRequestPayload {
-  request: ID!
+  requests: [ID!]!
 }
 
 type RequestEdge {

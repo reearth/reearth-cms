@@ -258,11 +258,12 @@ type DeleteProjectPayload struct {
 }
 
 type DeleteRequestInput struct {
-	RequestIds []ID `json:"requestIds"`
+	ProjectID  ID   `json:"projectId"`
+	RequestsID []ID `json:"requestsId"`
 }
 
 type DeleteRequestPayload struct {
-	Request ID `json:"request"`
+	Requests []ID `json:"requests"`
 }
 
 type DeleteWebhookInput struct {
@@ -1076,6 +1077,7 @@ const (
 	NodeTypeWorkspace   NodeType = "WORKSPACE"
 	NodeTypeProject     NodeType = "PROJECT"
 	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeRequest     NodeType = "REQUEST"
 	NodeTypeModel       NodeType = "Model"
 	NodeTypeSchema      NodeType = "Schema"
 	NodeTypeItem        NodeType = "Item"
@@ -1087,6 +1089,7 @@ var AllNodeType = []NodeType{
 	NodeTypeWorkspace,
 	NodeTypeProject,
 	NodeTypeAsset,
+	NodeTypeRequest,
 	NodeTypeModel,
 	NodeTypeSchema,
 	NodeTypeItem,
@@ -1095,7 +1098,7 @@ var AllNodeType = []NodeType{
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false
