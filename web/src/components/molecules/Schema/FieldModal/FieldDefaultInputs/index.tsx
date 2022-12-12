@@ -28,7 +28,6 @@ export interface Props {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
-  onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -39,7 +38,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
   assetList,
-  defaultValue,
   fileList,
   loadingAssets,
   uploading,
@@ -51,7 +49,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   setUploadType,
   onAssetSearchTerm,
   onAssetsReload,
-  onLink,
   onAssetsCreate,
   onAssetCreateFromUrl,
   setFileList,
@@ -67,7 +64,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
     ) : selectedType === "Asset" ? (
       <AssetField
         assetList={assetList}
-        defaultValue={defaultValue}
         fileList={fileList}
         loadingAssets={loadingAssets}
         uploading={uploading}
@@ -79,7 +75,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
         setUploadType={setUploadType}
         onAssetsCreate={onAssetsCreate}
         onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
