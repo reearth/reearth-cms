@@ -24,7 +24,12 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               fields: item?.fields?.reduce(
-                (obj, field) => Object.assign(obj, { [field.schemaFieldId]: field.value }),
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value,
+                  }),
                 {},
               ),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
