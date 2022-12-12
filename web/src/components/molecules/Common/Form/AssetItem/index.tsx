@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -16,7 +15,7 @@ import useHooks from "./hooks";
 type Props = {
   assetList: Asset[];
   fileList: UploadFile[];
-  defaultValue?: string;
+  value?: string;
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
@@ -27,22 +26,17 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
-  onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-} & FormItemProps &
-  FormItemLabelProps;
+  onChange?: (value: string) => void;
+};
 
 const AssetItem: React.FC<Props> = ({
-  name,
-  label,
-  extra,
-  rules,
   assetList,
   fileList,
-  defaultValue,
+  value,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -53,14 +47,13 @@ const AssetItem: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
-  onLink,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onChange,
 }) => {
   const t = useT();
-  const { Item } = Form;
   const {
     visible,
     handleClick,
@@ -73,8 +66,8 @@ const AssetItem: React.FC<Props> = ({
     uploadType,
     onAssetsCreate,
     onAssetCreateFromUrl,
-    onLink,
     setUploadModalVisibility,
+    onChange,
   );
   const [assetValue, setAssetValue] = useState<Asset>();
 
@@ -97,11 +90,11 @@ const AssetItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    setAssetValue(assetList.find(asset => asset.id === defaultValue));
-  }, [defaultValue, assetList, setAssetValue]);
+    setAssetValue(assetList.find(asset => asset.id === value));
+  }, [value, assetList, setAssetValue]);
 
   return (
-    <Item name={name} label={label} extra={extra} rules={rules}>
+    <>
       {assetValue ? (
         <AssetButton onClick={handleClick}>
           <div>
@@ -131,14 +124,14 @@ const AssetItem: React.FC<Props> = ({
         uploadType={uploadType}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
-        onLink={onLink}
+        onChange={onChange}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
         onUploadModalCancel={onUploadModalCancel}
         onUploadAndLink={handleUploadAndLink}
       />
-    </Item>
+    </>
   );
 };
 

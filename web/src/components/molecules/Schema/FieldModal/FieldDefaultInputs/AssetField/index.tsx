@@ -1,3 +1,4 @@
+import Form from "@reearth-cms/components/atoms/Form";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -20,14 +21,12 @@ type Props = {
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
-  onLink: (asset?: Asset) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
 };
 const AssetField: React.FC<Props> = ({
   assetList,
   fileList,
-  defaultValue,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -40,35 +39,32 @@ const AssetField: React.FC<Props> = ({
   onAssetCreateFromUrl,
   onAssetSearchTerm,
   onAssetsReload,
-  onLink,
   setFileList,
   setUploadModalVisibility,
 }) => {
   const t = useT();
 
   return (
-    <AssetItem
-      name="defaultValue"
-      label={t("Set default value")}
-      defaultValue={defaultValue}
-      assetList={assetList}
-      fileList={fileList}
-      loadingAssets={loadingAssets}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      onUploadModalCancel={onUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={onAssetsCreate}
-      onAssetCreateFromUrl={onAssetCreateFromUrl}
-      onLink={onLink}
-      onAssetSearchTerm={onAssetSearchTerm}
-      onAssetsReload={onAssetsReload}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
-    />
+    <Form.Item name="defaultValue" label={t("Set default value")}>
+      <AssetItem
+        assetList={assetList}
+        fileList={fileList}
+        loadingAssets={loadingAssets}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        onUploadModalCancel={onUploadModalCancel}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
+        onAssetSearchTerm={onAssetSearchTerm}
+        onAssetsReload={onAssetsReload}
+        setFileList={setFileList}
+        setUploadModalVisibility={setUploadModalVisibility}
+      />
+    </Form.Item>
   );
 };
 
