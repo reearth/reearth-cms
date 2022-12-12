@@ -19,6 +19,8 @@ import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
+import MultiValueField from "../../Common/MultiValueField";
+
 export interface Props {
   itemId?: string;
   initialFormValues: any;
@@ -137,7 +139,16 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+              {field.multiple ? (
+                <MultiValueField
+                  rows={3}
+                  showCount
+                  maxLength={field.typeProperty.maxLength ?? false}
+                  FieldInput={TextArea}
+                />
+              ) : (
+                <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+              )}
             </Form.Item>
           ) : field.type === "MarkdownText" ? (
             <Form.Item
@@ -150,7 +161,14 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+              {field.multiple ? (
+                <MultiValueField
+                  maxLength={field.typeProperty.maxLength ?? false}
+                  FieldInput={MarkdownInput}
+                />
+              ) : (
+                <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+              )}
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
@@ -163,11 +181,20 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <InputNumber
-                type="number"
-                min={field.typeProperty.min}
-                max={field.typeProperty.max}
-              />
+              {field.multiple ? (
+                <MultiValueField
+                  type="number"
+                  min={field.typeProperty.min}
+                  max={field.typeProperty.max}
+                  FieldInput={InputNumber}
+                />
+              ) : (
+                <InputNumber
+                  type="number"
+                  min={field.typeProperty.min}
+                  max={field.typeProperty.max}
+                />
+              )}
             </Form.Item>
           ) : field.type === "Asset" ? (
             <AssetItem
@@ -225,12 +252,26 @@ const ContentForm: React.FC<Props> = ({
                 {
                   message: "URL is not valid",
                   validator: async (_, value) => {
-                    if (!validateURL(value) && value.length > 0) return Promise.reject();
+                    if (
+                      Array.isArray(value) &&
+                      value.some((valueItem: string) => !validateURL(valueItem))
+                    )
+                      return Promise.reject();
+                    else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
+                      return Promise.reject();
                     return Promise.resolve();
                   },
                 },
               ]}>
-              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              {field.multiple ? (
+                <MultiValueField
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                  FieldInput={Input}
+                />
+              ) : (
+                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              )}
             </Form.Item>
           ) : (
             <Form.Item
@@ -243,7 +284,15 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              {field.multiple ? (
+                <MultiValueField
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                  FieldInput={Input}
+                />
+              ) : (
+                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              )}
             </Form.Item>
           ),
         )}

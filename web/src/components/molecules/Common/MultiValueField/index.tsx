@@ -11,8 +11,8 @@ import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
   className?: string;
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  value?: (string | number)[];
+  onChange?: (value: (string | number)[]) => void;
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;
@@ -26,13 +26,16 @@ const MultiValueField: React.FC<Props> = ({
 }) => {
   const t = useT();
   const handleInput = (e: ChangeEvent<HTMLInputElement>, id: number) => {
-    onChange?.(value?.map((valueItem, index) => (index === id ? e.target.value : valueItem)));
+    onChange?.(
+      value?.map((valueItem, index) =>
+        index === id ? (typeof e === "number" ? e : e.target.value) : valueItem,
+      ),
+    );
   };
 
   const deleteInput = (key: number) => {
     onChange?.(
       value.filter((_, index) => {
-        console.log(index, key);
         return index !== key;
       }),
     );
