@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { useWorkspace, useProject } from "@reearth-cms/state";
 
 export default (
   fileList: UploadFile[],
@@ -13,7 +15,10 @@ export default (
   setUploadModalVisibility: (visible: boolean) => void,
   onChange?: (value: string) => void,
 ) => {
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
+  const [currentWorkspace] = useWorkspace();
+  const [currentProject] = useProject();
   const handleClick = useCallback(() => {
     setVisible(true);
   }, [setVisible]);
@@ -40,11 +45,16 @@ export default (
     if (asset) onChange?.(asset.id);
   }, [handleAssetUpload, onChange]);
 
+  const handleNavigateToAsset = (asset: Asset) => {
+    navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/asset/${asset.id}`);
+  };
+
   return {
     visible,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
     handleUploadAndLink,
+    handleNavigateToAsset,
   };
 };

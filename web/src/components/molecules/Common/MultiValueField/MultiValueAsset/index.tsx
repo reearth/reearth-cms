@@ -70,51 +70,49 @@ const MultiValueAsset: React.FC<Props> = ({
 
   return (
     <div className={className}>
-      {value?.map((valueItem, key) => (
-        <FieldWrapper key={key}>
-          <FieldButton
-            type="link"
-            icon={<Icon icon="arrowUp" />}
-            onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-            disabled={key === 0}
-          />
-          <FieldButton
-            type="link"
-            icon={<Icon icon="arrowDown" />}
-            onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-            disabled={key === value.length - 1}
-          />
-          {/* <FieldInput
-            style={{ flex: 1 }}
-            {...props}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
-            value={valueItem}
-          /> */}
-
-          <AssetItem
-            {...props}
-            value={valueItem}
-            assetList={assetList}
-            fileList={fileList}
-            loadingAssets={loadingAssets}
-            uploading={uploading}
-            uploadModalVisibility={uploadModalVisibility}
-            uploadUrl={uploadUrl}
-            uploadType={uploadType}
-            onUploadModalCancel={onUploadModalCancel}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
-            onAssetsCreate={onAssetsCreate}
-            onAssetCreateFromUrl={onAssetCreateFromUrl}
-            onAssetsReload={onAssetsReload}
-            onAssetSearchTerm={onAssetSearchTerm}
-            setFileList={setFileList}
-            setUploadModalVisibility={setUploadModalVisibility}
-            onChange={(e: string) => handleInput(e, key)}
-          />
-          <FieldButton type="link" icon={<Icon icon="delete" />} onClick={() => deleteInput(key)} />
-        </FieldWrapper>
-      ))}
+      {Array.isArray(value) &&
+        value?.map((valueItem, key) => (
+          <FieldWrapper key={key}>
+            <FieldButton
+              type="link"
+              icon={<Icon icon="arrowUp" />}
+              onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
+              disabled={key === 0}
+            />
+            <FieldButton
+              type="link"
+              icon={<Icon icon="arrowDown" />}
+              onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
+              disabled={key === value.length - 1}
+            />
+            <AssetItem
+              {...props}
+              value={valueItem}
+              assetList={assetList}
+              fileList={fileList}
+              loadingAssets={loadingAssets}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              uploadUrl={uploadUrl}
+              uploadType={uploadType}
+              onUploadModalCancel={onUploadModalCancel}
+              setUploadUrl={setUploadUrl}
+              setUploadType={setUploadType}
+              onAssetsCreate={onAssetsCreate}
+              onAssetCreateFromUrl={onAssetCreateFromUrl}
+              onAssetsReload={onAssetsReload}
+              onAssetSearchTerm={onAssetSearchTerm}
+              setFileList={setFileList}
+              setUploadModalVisibility={setUploadModalVisibility}
+              onChange={(e: string) => handleInput(e, key)}
+            />
+            <FieldButton
+              type="link"
+              icon={<Icon icon="delete" />}
+              onClick={() => deleteInput(key)}
+            />
+          </FieldWrapper>
+        ))}
       <Button
         icon={<Icon icon="plus" />}
         type="primary"
@@ -132,6 +130,7 @@ export default MultiValueAsset;
 
 const FieldWrapper = styled.div`
   display: flex;
+  align-items: center;
   margin: 8px 0;
 `;
 
