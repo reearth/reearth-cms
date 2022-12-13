@@ -104,7 +104,7 @@ const FieldCreationModal: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (selectedType === "Asset") {
+    if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
     }
   }, [form, selectedType, multipleValue]);
