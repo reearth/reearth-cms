@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -16,8 +16,6 @@ type Props = {
 };
 
 const MultiValueSelect: React.FC<Props> = ({ className, selectedValues, value = [], onChange }) => {
-  console.log(value);
-
   const t = useT();
   const { Option } = Select;
   const handleInput = useCallback(
