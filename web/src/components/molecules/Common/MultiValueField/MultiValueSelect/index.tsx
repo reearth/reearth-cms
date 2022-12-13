@@ -15,13 +15,7 @@ type Props = {
   onChange?: (value: string[]) => void;
 };
 
-const MultiValueSelect: React.FC<Props> = ({
-  className,
-  selectedValues,
-  value = [],
-  onChange,
-  ...props
-}) => {
+const MultiValueSelect: React.FC<Props> = ({ className, selectedValues, value = [], onChange }) => {
   console.log(value);
 
   const t = useT();
@@ -63,7 +57,6 @@ const MultiValueSelect: React.FC<Props> = ({
             />
             <Select
               style={{ flex: 1 }}
-              {...props}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
               {selectedValues?.map((value: string) => (
