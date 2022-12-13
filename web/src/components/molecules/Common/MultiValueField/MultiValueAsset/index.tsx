@@ -52,7 +52,6 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  ...props
 }) => {
   const t = useT();
   const handleInput = (e: string, id: number) => {
@@ -85,7 +84,6 @@ const MultiValueAsset: React.FC<Props> = ({
               disabled={key === value.length - 1}
             />
             <AssetItem
-              {...props}
               value={valueItem}
               assetList={assetList}
               fileList={fileList}
