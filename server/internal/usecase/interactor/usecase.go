@@ -108,7 +108,7 @@ func (u *uc) checkPermission(op *usecase.Operator) error {
 		ok = op.IsWritableWorkspace(u.writableWorkspaces...)
 	}
 	if ok && u.maintainableWorkspaces != nil {
-		ok = op.IsOwningWorkspace(u.maintainableWorkspaces...)
+		ok = op.IsMaintainingWorkspace(u.maintainableWorkspaces...)
 	}
 	if ok && u.ownableWorkspaces != nil {
 		ok = op.IsOwningWorkspace(u.ownableWorkspaces...)
