@@ -46,6 +46,7 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -72,6 +73,7 @@ const ContentForm: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -216,6 +218,7 @@ const ContentForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onNavigateToAsset={onNavigateToAsset}
                 />
               ) : (
                 <AssetItem
@@ -235,6 +238,7 @@ const ContentForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onNavigateToAsset={onNavigateToAsset}
                 />
               )}
             </Form.Item>

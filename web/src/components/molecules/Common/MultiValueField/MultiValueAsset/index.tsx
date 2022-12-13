@@ -31,6 +31,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const MultiValueAsset: React.FC<Props> = ({
@@ -53,6 +54,7 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -91,6 +93,7 @@ const MultiValueAsset: React.FC<Props> = ({
               disabled={key === value.length - 1}
             />
             <AssetItem
+              onNavigateToAsset={onNavigateToAsset}
               value={valueItem}
               assetList={assetList}
               fileList={fileList}

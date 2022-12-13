@@ -25,6 +25,7 @@ type Props = {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 const AssetField: React.FC<Props> = ({
   multiple,
@@ -44,6 +45,7 @@ const AssetField: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
 
@@ -67,6 +69,7 @@ const AssetField: React.FC<Props> = ({
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onNavigateToAsset={onNavigateToAsset}
         />
       ) : (
         <AssetItem
@@ -86,6 +89,7 @@ const AssetField: React.FC<Props> = ({
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onNavigateToAsset={onNavigateToAsset}
         />
       )}
     </Form.Item>

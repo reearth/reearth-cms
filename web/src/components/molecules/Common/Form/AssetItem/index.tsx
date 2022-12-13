@@ -31,6 +31,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -52,6 +53,7 @@ const AssetItem: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onChange,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const {
@@ -60,7 +62,6 @@ const AssetItem: React.FC<Props> = ({
     handleLinkAssetModalCancel,
     displayUploadModal,
     handleUploadAndLink,
-    handleNavigateToAsset,
   } = useHooks(
     fileList,
     uploadUrl,
@@ -105,14 +106,14 @@ const AssetItem: React.FC<Props> = ({
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
               </div>
             </AssetButton>
-            <AssetName type="link" onClick={() => handleNavigateToAsset(assetValue)}>
+            <AssetName type="link" onClick={() => onNavigateToAsset(assetValue)}>
               {assetValue.fileName}
             </AssetName>
           </AssetDetailsWrapper>
           <AssetIcon
             type="link"
             icon={<Icon icon="arrowSquareOut" size={20} />}
-            onClick={() => handleNavigateToAsset(assetValue)}
+            onClick={() => onNavigateToAsset(assetValue)}
           />
         </>
       ) : (
