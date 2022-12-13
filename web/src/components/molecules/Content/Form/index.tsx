@@ -13,6 +13,9 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -43,6 +46,7 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -69,6 +73,7 @@ const ContentForm: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -127,7 +132,16 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+              {field.multiple ? (
+                <MultiValueField
+                  rows={3}
+                  showCount
+                  maxLength={field.typeProperty.maxLength ?? false}
+                  FieldInput={TextArea}
+                />
+              ) : (
+                <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+              )}
             </Form.Item>
           ) : field.type === "MarkdownText" ? (
             <Form.Item
@@ -140,7 +154,14 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+              {field.multiple ? (
+                <MultiValueField
+                  maxLength={field.typeProperty.maxLength ?? false}
+                  FieldInput={MarkdownInput}
+                />
+              ) : (
+                <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+              )}
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
@@ -153,11 +174,20 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <InputNumber
-                type="number"
-                min={field.typeProperty.min}
-                max={field.typeProperty.max}
-              />
+              {field.multiple ? (
+                <MultiValueField
+                  type="number"
+                  min={field.typeProperty.min}
+                  max={field.typeProperty.max}
+                  FieldInput={InputNumber}
+                />
+              ) : (
+                <InputNumber
+                  type="number"
+                  min={field.typeProperty.min}
+                  max={field.typeProperty.max}
+                />
+              )}
             </Form.Item>
           ) : field.type === "Asset" ? (
             <Form.Item
@@ -170,37 +200,64 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <AssetItem
-                assetList={assetList}
-                fileList={fileList}
-                loadingAssets={loadingAssets}
-                uploading={uploading}
-                uploadModalVisibility={uploadModalVisibility}
-                uploadUrl={uploadUrl}
-                uploadType={uploadType}
-                onUploadModalCancel={onUploadModalCancel}
-                setUploadUrl={setUploadUrl}
-                setUploadType={setUploadType}
-                onAssetsCreate={onAssetsCreate}
-                onAssetCreateFromUrl={onAssetCreateFromUrl}
-                onAssetsReload={onAssetsReload}
-                onAssetSearchTerm={onAssetSearchTerm}
-                setFileList={setFileList}
-                setUploadModalVisibility={setUploadModalVisibility}
-              />
+              {field.multiple ? (
+                <MultiValueAsset
+                  assetList={assetList}
+                  fileList={fileList}
+                  loadingAssets={loadingAssets}
+                  uploading={uploading}
+                  uploadModalVisibility={uploadModalVisibility}
+                  uploadUrl={uploadUrl}
+                  uploadType={uploadType}
+                  onUploadModalCancel={onUploadModalCancel}
+                  setUploadUrl={setUploadUrl}
+                  setUploadType={setUploadType}
+                  onAssetsCreate={onAssetsCreate}
+                  onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsReload={onAssetsReload}
+                  onAssetSearchTerm={onAssetSearchTerm}
+                  setFileList={setFileList}
+                  setUploadModalVisibility={setUploadModalVisibility}
+                  onNavigateToAsset={onNavigateToAsset}
+                />
+              ) : (
+                <AssetItem
+                  assetList={assetList}
+                  fileList={fileList}
+                  loadingAssets={loadingAssets}
+                  uploading={uploading}
+                  uploadModalVisibility={uploadModalVisibility}
+                  uploadUrl={uploadUrl}
+                  uploadType={uploadType}
+                  onUploadModalCancel={onUploadModalCancel}
+                  setUploadUrl={setUploadUrl}
+                  setUploadType={setUploadType}
+                  onAssetsCreate={onAssetsCreate}
+                  onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsReload={onAssetsReload}
+                  onAssetSearchTerm={onAssetSearchTerm}
+                  setFileList={setFileList}
+                  setUploadModalVisibility={setUploadModalVisibility}
+                  onNavigateToAsset={onNavigateToAsset}
+                />
+              )}
             </Form.Item>
           ) : field.type === "Select" ? (
             <Form.Item
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <Select>
-                {field.typeProperty?.values?.map((value: string) => (
-                  <Option key={value} value={value}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
+              {field.multiple ? (
+                <MultiValueSelect selectedValues={field.typeProperty?.values} />
+              ) : (
+                <Select>
+                  {field.typeProperty?.values?.map((value: string) => (
+                    <Option key={value} value={value}>
+                      {value}
+                    </Option>
+                  ))}
+                </Select>
+              )}
             </Form.Item>
           ) : field.type === "URL" ? (
             <Form.Item
@@ -215,12 +272,26 @@ const ContentForm: React.FC<Props> = ({
                 {
                   message: "URL is not valid",
                   validator: async (_, value) => {
-                    if (!validateURL(value) && value.length > 0) return Promise.reject();
+                    if (
+                      Array.isArray(value) &&
+                      value.some((valueItem: string) => !validateURL(valueItem))
+                    )
+                      return Promise.reject();
+                    else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
+                      return Promise.reject();
                     return Promise.resolve();
                   },
                 },
               ]}>
-              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              {field.multiple ? (
+                <MultiValueField
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                  FieldInput={Input}
+                />
+              ) : (
+                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              )}
             </Form.Item>
           ) : (
             <Form.Item
@@ -233,7 +304,15 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              {field.multiple ? (
+                <MultiValueField
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                  FieldInput={Input}
+                />
+              ) : (
+                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+              )}
             </Form.Item>
           ),
         )}
