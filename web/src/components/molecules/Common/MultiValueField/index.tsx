@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { ChangeEvent, useCallback } from "react";
+import { ChangeEvent, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -36,7 +36,7 @@ const MultiValueField: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const deleteInput = useCallback(
+  const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
         value.filter((_, index) => {
@@ -69,7 +69,11 @@ const MultiValueField: React.FC<Props> = ({
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
             value={valueItem}
           />
-          <FieldButton type="link" icon={<Icon icon="delete" />} onClick={() => deleteInput(key)} />
+          <FieldButton
+            type="link"
+            icon={<Icon icon="delete" />}
+            onClick={() => handleInputDelete(key)}
+          />
         </FieldWrapper>
       ))}
       <Button

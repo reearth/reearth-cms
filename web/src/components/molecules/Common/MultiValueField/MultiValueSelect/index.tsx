@@ -27,7 +27,7 @@ const MultiValueSelect: React.FC<Props> = ({ className, selectedValues, value = 
     [onChange, value],
   );
 
-  const deleteInput = useCallback(
+  const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
         value.filter((_, index) => {
@@ -68,7 +68,7 @@ const MultiValueSelect: React.FC<Props> = ({ className, selectedValues, value = 
             <FieldButton
               type="link"
               icon={<Icon icon="delete" />}
-              onClick={() => deleteInput(key)}
+              onClick={() => handleInputDelete(key)}
             />
           </FieldWrapper>
         ))}

@@ -62,7 +62,7 @@ const MultiValueAsset: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const deleteInput = useCallback(
+  const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
         value.filter((_, index) => {
@@ -113,7 +113,7 @@ const MultiValueAsset: React.FC<Props> = ({
             <FieldButton
               type="link"
               icon={<Icon icon="delete" />}
-              onClick={() => deleteInput(key)}
+              onClick={() => handleInputDelete(key)}
             />
           </FieldWrapper>
         ))}
