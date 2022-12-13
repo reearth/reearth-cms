@@ -94,7 +94,6 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [assetValue, setAssetValue] = useState<string>();
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
@@ -115,12 +114,6 @@ const FieldUpdateModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
-
-  useEffect(() => {
-    if (selectedType === "Asset") {
-      setAssetValue(selectedField?.typeProperty.assetDefaultValue);
-    }
-  }, [selectedField, selectedType]);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -193,14 +186,6 @@ const FieldUpdateModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
-  const handleLinkAsset = useCallback(
-    (_asset?: Asset) => {
-      form.setFieldValue("defaultValue", _asset?.id);
-      setAssetValue(_asset?.id);
-    },
-    [form],
-  );
-
   return (
     <Modal
       title={
@@ -251,7 +236,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="key"
               label="Field Key"
               extra={t(
-                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+                "Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.",
               )}
               rules={[
                 {
@@ -350,7 +335,6 @@ const FieldUpdateModal: React.FC<Props> = ({
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
-              defaultValue={assetValue}
               fileList={fileList}
               loadingAssets={loadingAssets}
               uploading={uploading}
@@ -362,7 +346,6 @@ const FieldUpdateModal: React.FC<Props> = ({
               setUploadType={setUploadType}
               onAssetsCreate={onAssetsCreate}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onLink={handleLinkAsset}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}

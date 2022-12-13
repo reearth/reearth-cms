@@ -51,6 +51,10 @@ type AddUsersToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type ApproveRequestInput struct {
+	RequestID ID `json:"requestId"`
+}
+
 type Asset struct {
 	ID                      ID                       `json:"id"`
 	Project                 *Project                 `json:"project"`
@@ -156,6 +160,15 @@ type CreateProjectInput struct {
 	Alias       *string `json:"alias"`
 }
 
+type CreateRequestInput struct {
+	ProjectID   ID                  `json:"projectId"`
+	Title       string              `json:"title"`
+	Description *string             `json:"description"`
+	State       *RequestState       `json:"state"`
+	ReviewersID []ID                `json:"reviewersId"`
+	Items       []*RequestItemInput `json:"items"`
+}
+
 type CreateThreadInput struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
@@ -242,6 +255,15 @@ type DeleteProjectInput struct {
 
 type DeleteProjectPayload struct {
 	ProjectID ID `json:"projectId"`
+}
+
+type DeleteRequestInput struct {
+	ProjectID  ID   `json:"projectId"`
+	RequestsID []ID `json:"requestsId"`
+}
+
+type DeleteRequestPayload struct {
+	Requests []ID `json:"requests"`
 }
 
 type DeleteWebhookInput struct {
@@ -478,6 +500,57 @@ type RemoveMyAuthInput struct {
 type RemoveUserFromWorkspaceInput struct {
 	WorkspaceID ID `json:"workspaceId"`
 	UserID      ID `json:"userId"`
+}
+
+type Request struct {
+	ID          ID             `json:"id"`
+	Items       []*RequestItem `json:"items"`
+	Title       string         `json:"title"`
+	Description *string        `json:"description"`
+	CreatedBy   ID             `json:"createdBy"`
+	WorkspaceID ID             `json:"workspaceId"`
+	ProjectID   ID             `json:"projectId"`
+	ThreadID    ID             `json:"threadId"`
+	ReviewersID []ID           `json:"reviewersId"`
+	State       RequestState   `json:"state"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	ApprovedAt  *time.Time     `json:"approvedAt"`
+	ClosedAt    *time.Time     `json:"closedAt"`
+	Thread      *Thread        `json:"thread"`
+	Workspace   *Workspace     `json:"workspace"`
+	Project     *Project       `json:"project"`
+	Reviewers   []*User        `json:"reviewers"`
+}
+
+func (Request) IsNode()        {}
+func (this Request) GetID() ID { return this.ID }
+
+type RequestConnection struct {
+	Edges      []*RequestEdge `json:"edges"`
+	Nodes      []*Request     `json:"nodes"`
+	PageInfo   *PageInfo      `json:"pageInfo"`
+	TotalCount int            `json:"totalCount"`
+}
+
+type RequestEdge struct {
+	Cursor usecasex.Cursor `json:"cursor"`
+	Node   *Request        `json:"node"`
+}
+
+type RequestItem struct {
+	ItemID  ID             `json:"itemId"`
+	Version *string        `json:"version"`
+	Ref     *string        `json:"ref"`
+	Item    *VersionedItem `json:"item"`
+}
+
+type RequestItemInput struct {
+	ItemID ID `json:"itemId"`
+}
+
+type RequestPayload struct {
+	Request *Request `json:"request"`
 }
 
 type Schema struct {
@@ -750,6 +823,15 @@ type UpdateProjectPublicationInput struct {
 	AssetPublic *bool                    `json:"assetPublic"`
 }
 
+type UpdateRequestInput struct {
+	RequestID   ID                  `json:"requestId"`
+	Title       *string             `json:"title"`
+	Description *string             `json:"description"`
+	State       *RequestState       `json:"state"`
+	ReviewersID []ID                `json:"reviewersId"`
+	Items       []*RequestItemInput `json:"items"`
+}
+
 type UpdateUserOfWorkspaceInput struct {
 	WorkspaceID ID   `json:"workspaceId"`
 	UserID      ID   `json:"userId"`
@@ -995,6 +1077,7 @@ const (
 	NodeTypeWorkspace   NodeType = "WORKSPACE"
 	NodeTypeProject     NodeType = "PROJECT"
 	NodeTypeAsset       NodeType = "ASSET"
+	NodeTypeRequest     NodeType = "REQUEST"
 	NodeTypeModel       NodeType = "Model"
 	NodeTypeSchema      NodeType = "Schema"
 	NodeTypeItem        NodeType = "Item"
@@ -1006,6 +1089,7 @@ var AllNodeType = []NodeType{
 	NodeTypeWorkspace,
 	NodeTypeProject,
 	NodeTypeAsset,
+	NodeTypeRequest,
 	NodeTypeModel,
 	NodeTypeSchema,
 	NodeTypeItem,
@@ -1014,7 +1098,7 @@ var AllNodeType = []NodeType{
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
 		return true
 	}
 	return false
@@ -1171,6 +1255,51 @@ func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RequestState string
+
+const (
+	RequestStateDraft    RequestState = "DRAFT"
+	RequestStateWaiting  RequestState = "WAITING"
+	RequestStateClosed   RequestState = "CLOSED"
+	RequestStateApproved RequestState = "APPROVED"
+)
+
+var AllRequestState = []RequestState{
+	RequestStateDraft,
+	RequestStateWaiting,
+	RequestStateClosed,
+	RequestStateApproved,
+}
+
+func (e RequestState) IsValid() bool {
+	switch e {
+	case RequestStateDraft, RequestStateWaiting, RequestStateClosed, RequestStateApproved:
+		return true
+	}
+	return false
+}
+
+func (e RequestState) String() string {
+	return string(e)
+}
+
+func (e *RequestState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RequestState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RequestState", str)
+	}
+	return nil
+}
+
+func (e RequestState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

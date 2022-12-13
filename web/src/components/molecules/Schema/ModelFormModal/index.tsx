@@ -38,7 +38,11 @@ const ModelFormModal: React.FC<Props> = ({
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
-    form.setFieldsValue(model ?? {});
+    if (!model) {
+      form.resetFields();
+    } else {
+      form.setFieldsValue(model);
+    }
   }, [form, model]);
 
   const handleSubmit = useCallback(async () => {
@@ -93,7 +97,7 @@ const ModelFormModal: React.FC<Props> = ({
           name="key"
           label={t("Model key")}
           extra={t(
-            "Model key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+            "Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
           )}
           rules={[
             {

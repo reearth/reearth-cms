@@ -151,7 +151,7 @@ func (f *Field) Clone() *Field {
 // Validate the Multiple value against the Field schema
 // if its multiple it will return only the first error
 func (f *Field) Validate(m *value.Multiple) error {
-	if f.required && (m.IsEmpty() || m.First().IsEmpty()) {
+	if f.required && m.IsEmpty() {
 		return ErrValueRequired
 	}
 	if m.IsEmpty() {

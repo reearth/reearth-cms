@@ -483,3 +483,18 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 		})
 	}
 }
+
+func TestItem_UpdateRef(t *testing.T) {
+	vx := version.Ref("xxx")
+	ctx := context.Background()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	init := mongotest.Connect(t)
+	client := mongox.NewClientWithDatabase(init(t))
+	r := NewItem(client)
+	_ = r.Save(ctx, i)
+	v, _ := r.FindByID(ctx, i.ID(), nil)
+	err := r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref())
+	assert.NoError(t, err)
+	v2, _ := r.FindByID(ctx, i.ID(), nil)
+	assert.Equal(t, version.NewRefs(vx, version.Latest), v2.Refs())
+}
