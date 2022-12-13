@@ -14,6 +14,7 @@ import URLField from "./URLField";
 
 export interface Props {
   selectedType: FieldType;
+  multiple?: boolean;
   selectedValues: string[];
   assetList: Asset[];
   fileList: UploadFile[];
@@ -32,11 +33,13 @@ export interface Props {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
+  multiple,
   assetList,
   fileList,
   loadingAssets,
@@ -53,16 +56,18 @@ const FieldDefaultInputs: React.FC<Props> = ({
   onAssetCreateFromUrl,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   return selectedType ? (
     selectedType === "TextArea" ? (
-      <TextAreaField />
+      <TextAreaField multiple={multiple} />
     ) : selectedType === "MarkdownText" ? (
-      <MarkdownField />
+      <MarkdownField multiple={multiple} />
     ) : selectedType === "Integer" ? (
-      <IntegerField />
+      <IntegerField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
+        multiple={multiple}
         assetList={assetList}
         fileList={fileList}
         loadingAssets={loadingAssets}
@@ -79,13 +84,14 @@ const FieldDefaultInputs: React.FC<Props> = ({
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
         setUploadModalVisibility={setUploadModalVisibility}
+        onNavigateToAsset={onNavigateToAsset}
       />
     ) : selectedType === "Select" ? (
-      <SelectField selectedValues={selectedValues} />
+      <SelectField selectedValues={selectedValues} multiple={multiple} />
     ) : selectedType === "URL" ? (
-      <URLField />
+      <URLField multiple={multiple} />
     ) : (
-      <TextField />
+      <TextField multiple={multiple} />
     )
   ) : null;
 };
