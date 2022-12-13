@@ -106,11 +106,11 @@ const AssetItem: React.FC<Props> = ({
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
               </div>
             </AssetButton>
-            <AssetName type="link" onClick={() => onNavigateToAsset(assetValue)}>
+            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(assetValue)}>
               {assetValue.fileName}
-            </AssetName>
+            </AssetLinkedName>
           </AssetDetailsWrapper>
-          <AssetIcon
+          <AssetLink
             type="link"
             icon={<Icon icon="arrowSquareOut" size={20} />}
             onClick={() => onNavigateToAsset(assetValue)}
@@ -162,13 +162,13 @@ const AssetWrapper = styled.div`
   width: 100%;
 `;
 
-const AssetIcon = styled(Button)`
+const AssetLink = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
   top: 3px;
 `;
 
-const AssetName = styled(Button)`
+const AssetLinkedName = styled(Button)`
   color: #1890ff;
   margin-left: 12px;
 `;
