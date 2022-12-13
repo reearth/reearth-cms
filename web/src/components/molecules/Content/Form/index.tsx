@@ -20,6 +20,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import MultiValueField from "../../Common/MultiValueField";
+import MultiValueSelect from "../../Common/MultiValueField/MultiValueSelect";
 
 export interface Props {
   itemId?: string;
@@ -221,13 +222,17 @@ const ContentForm: React.FC<Props> = ({
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <Select>
-                {field.typeProperty?.values?.map((value: string) => (
-                  <Option key={value} value={value}>
-                    {value}
-                  </Option>
-                ))}
-              </Select>
+              {field.multiple ? (
+                <MultiValueSelect selectedValues={field.typeProperty?.values} />
+              ) : (
+                <Select>
+                  {field.typeProperty?.values?.map((value: string) => (
+                    <Option key={value} value={value}>
+                      {value}
+                    </Option>
+                  ))}
+                </Select>
+              )}
             </Form.Item>
           ) : field.type === "URL" ? (
             <Form.Item
