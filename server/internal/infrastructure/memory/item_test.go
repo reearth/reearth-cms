@@ -209,3 +209,19 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
 }
+
+func TestItem_UpdateRef(t *testing.T) {
+	vx := version.Ref("xxx")
+	ctx := context.Background()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	r := NewItem()
+	_ = r.Save(ctx, i)
+	v, _ := r.FindByID(ctx, i.ID(), nil)
+	_ = r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref())
+	v2, _ := r.FindByID(ctx, i.ID(), nil)
+	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), i), v2)
+
+	wantErr := errors.New("test")
+	SetItemError(r, wantErr)
+	assert.Same(t, wantErr, r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref()))
+}

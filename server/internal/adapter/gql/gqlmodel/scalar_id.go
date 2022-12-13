@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearthx/idx"
+	"github.com/reearth/reearthx/util"
 )
 
 type ID string
@@ -46,4 +47,8 @@ func ToIDRef[A idx.Type](a *ID) *idx.ID[A] {
 
 func ToStringIDRef[T idx.Type](a *ID) *idx.StringID[T] {
 	return idx.StringIDFromRef[T]((*string)(a))
+}
+
+func ToIDs[A idx.Type](a []ID) ([]idx.ID[A], error) {
+	return util.TryMap(a, ToID[A])
 }

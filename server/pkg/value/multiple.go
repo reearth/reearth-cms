@@ -41,7 +41,9 @@ func MultipleFrom(t Type, v []*Value) *Multiple {
 }
 
 func (m *Multiple) IsEmpty() bool {
-	return m == nil || m.t == TypeUnknown || len(m.v) == 0
+	return m == nil || m.t == TypeUnknown || lo.EveryBy(m.v, func(w *Value) bool {
+		return w.IsEmpty()
+	})
 }
 
 func (m *Multiple) Clone() *Multiple {
