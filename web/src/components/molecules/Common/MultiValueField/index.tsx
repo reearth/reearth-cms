@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -25,21 +25,27 @@ const MultiValueField: React.FC<Props> = ({
   ...props
 }) => {
   const t = useT();
-  const handleInput = (e: ChangeEvent<HTMLInputElement>, id: number) => {
-    onChange?.(
-      value?.map((valueItem, index) =>
-        index === id ? (typeof e === "number" ? e : e.target.value) : valueItem,
-      ),
-    );
-  };
+  const handleInput = useCallback(
+    (e: ChangeEvent<HTMLInputElement>, id: number) => {
+      onChange?.(
+        value?.map((valueItem, index) =>
+          index === id ? (typeof e === "number" ? e : e.target.value) : valueItem,
+        ),
+      );
+    },
+    [onChange, value],
+  );
 
-  const deleteInput = (key: number) => {
-    onChange?.(
-      value.filter((_, index) => {
-        return index !== key;
-      }),
-    );
-  };
+  const deleteInput = useCallback(
+    (key: number) => {
+      onChange?.(
+        value.filter((_, index) => {
+          return index !== key;
+        }),
+      );
+    },
+    [onChange, value],
+  );
 
   return (
     <div className={className}>

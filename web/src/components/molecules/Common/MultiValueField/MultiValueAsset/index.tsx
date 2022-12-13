@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -54,17 +55,23 @@ const MultiValueAsset: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   const t = useT();
-  const handleInput = (e: string, id: number) => {
-    onChange?.(value?.map((valueItem, index) => (index === id ? e : valueItem)));
-  };
+  const handleInput = useCallback(
+    (e: string, id: number) => {
+      onChange?.(value?.map((valueItem, index) => (index === id ? e : valueItem)));
+    },
+    [onChange, value],
+  );
 
-  const deleteInput = (key: number) => {
-    onChange?.(
-      value.filter((_, index) => {
-        return index !== key;
-      }),
-    );
-  };
+  const deleteInput = useCallback(
+    (key: number) => {
+      onChange?.(
+        value.filter((_, index) => {
+          return index !== key;
+        }),
+      );
+    },
+    [onChange, value],
+  );
 
   return (
     <div className={className}>
