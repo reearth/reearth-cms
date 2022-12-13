@@ -270,7 +270,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			return nil, nil, ErrInvalidTypeProperty
 		}
 		if multiple {
-			dv = value.NewMultiple(value.TypeBool, unpackArray(x.DefaultValue))
+			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
 		}
@@ -326,6 +326,9 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 
 // TODO: move to util
 func unpackArray(s any) []any {
+	if s == nil {
+		return nil
+	}
 	v := reflect.ValueOf(s)
 	r := make([]any, v.Len())
 	for i := 0; i < v.Len(); i++ {
