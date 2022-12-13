@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
 import { convertComment, convertItem } from "../convertItem";
@@ -16,6 +17,8 @@ export default () => {
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
 
+  const { assetList } = useAssetHooks();
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
       ?.map(item =>
@@ -26,9 +29,12 @@ export default () => {
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.join(", ")
-                      : field.value,
+                    [field.schemaFieldId]:
+                      field.type === "Asset"
+                        ? assetList.find(asset => asset.id === field.value)?.fileName
+                        : Array.isArray(field.value)
+                        ? field.value.join(", ")
+                        : field.value,
                   }),
                 {},
               ),
@@ -37,7 +43,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [itemsData?.items.nodes]);
+  }, [assetList, itemsData?.items.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     return currentModel?.schema.fields.map(field => ({

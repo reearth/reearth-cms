@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -74,12 +74,10 @@ const ContentForm: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { Option } = Select;
-  const [formValues, setFormValues] = useState<any>();
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
-    setFormValues(initialFormValues);
   }, [form, initialFormValues]);
 
   const handleBack = useCallback(() => {
@@ -107,16 +105,8 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const handleLink = useCallback(
-    (fieldId: string, _asset?: Asset) => {
-      setFormValues({ ...formValues, [fieldId]: _asset?.id });
-      form.setFieldValue(fieldId, _asset?.id);
-    },
-    [form, formValues, setFormValues],
-  );
-
   return (
-    <StyledForm form={form} layout="vertical" initialValues={formValues}>
+    <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
       <PageHeader
         title={model?.name}
         onBack={handleBack}
@@ -197,7 +187,7 @@ const ContentForm: React.FC<Props> = ({
               )}
             </Form.Item>
           ) : field.type === "Asset" ? (
-            <AssetItem
+            <Form.Item
               extra={field.description}
               rules={[
                 {
@@ -205,27 +195,27 @@ const ContentForm: React.FC<Props> = ({
                   message: t("Please input field!"),
                 },
               ]}
-              defaultValue={formValues ? formValues[field.id] : null}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetsReload={onAssetsReload}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onLink={_asset => handleLink(field.id, _asset)}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
-            />
+              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              <AssetItem
+                assetList={assetList}
+                fileList={fileList}
+                loadingAssets={loadingAssets}
+                uploading={uploading}
+                uploadModalVisibility={uploadModalVisibility}
+                uploadUrl={uploadUrl}
+                uploadType={uploadType}
+                onUploadModalCancel={onUploadModalCancel}
+                setUploadUrl={setUploadUrl}
+                setUploadType={setUploadType}
+                onAssetsCreate={onAssetsCreate}
+                onAssetCreateFromUrl={onAssetCreateFromUrl}
+                onAssetsReload={onAssetsReload}
+                onAssetSearchTerm={onAssetSearchTerm}
+                setFileList={setFileList}
+                setUploadModalVisibility={setUploadModalVisibility}
+              />
+            </Form.Item>
           ) : field.type === "Select" ? (
             <Form.Item
               extra={field.description}
