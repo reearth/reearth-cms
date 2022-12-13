@@ -65,6 +65,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <IntegerField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
+        multiple={multiple}
         assetList={assetList}
         fileList={fileList}
         loadingAssets={loadingAssets}

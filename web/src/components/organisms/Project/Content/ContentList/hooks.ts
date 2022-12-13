@@ -31,7 +31,11 @@ export default () => {
                   Object.assign(obj, {
                     [field.schemaFieldId]:
                       field.type === "Asset"
-                        ? assetList.find(asset => asset.id === field.value)?.fileName
+                        ? Array.isArray(field.value)
+                          ? field.value
+                              .map(value => assetList.find(asset => asset.id === value)?.fileName)
+                              .join(", ")
+                          : assetList.find(asset => asset.id === field.value)?.fileName
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value,

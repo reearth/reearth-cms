@@ -13,14 +13,14 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
-
-import MultiValueField from "../../Common/MultiValueField";
-import MultiValueSelect from "../../Common/MultiValueField/MultiValueSelect";
 
 export interface Props {
   itemId?: string;
@@ -198,24 +198,45 @@ const ContentForm: React.FC<Props> = ({
               ]}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              <AssetItem
-                assetList={assetList}
-                fileList={fileList}
-                loadingAssets={loadingAssets}
-                uploading={uploading}
-                uploadModalVisibility={uploadModalVisibility}
-                uploadUrl={uploadUrl}
-                uploadType={uploadType}
-                onUploadModalCancel={onUploadModalCancel}
-                setUploadUrl={setUploadUrl}
-                setUploadType={setUploadType}
-                onAssetsCreate={onAssetsCreate}
-                onAssetCreateFromUrl={onAssetCreateFromUrl}
-                onAssetsReload={onAssetsReload}
-                onAssetSearchTerm={onAssetSearchTerm}
-                setFileList={setFileList}
-                setUploadModalVisibility={setUploadModalVisibility}
-              />
+              {field.multiple ? (
+                <MultiValueAsset
+                  assetList={assetList}
+                  fileList={fileList}
+                  loadingAssets={loadingAssets}
+                  uploading={uploading}
+                  uploadModalVisibility={uploadModalVisibility}
+                  uploadUrl={uploadUrl}
+                  uploadType={uploadType}
+                  onUploadModalCancel={onUploadModalCancel}
+                  setUploadUrl={setUploadUrl}
+                  setUploadType={setUploadType}
+                  onAssetsCreate={onAssetsCreate}
+                  onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsReload={onAssetsReload}
+                  onAssetSearchTerm={onAssetSearchTerm}
+                  setFileList={setFileList}
+                  setUploadModalVisibility={setUploadModalVisibility}
+                />
+              ) : (
+                <AssetItem
+                  assetList={assetList}
+                  fileList={fileList}
+                  loadingAssets={loadingAssets}
+                  uploading={uploading}
+                  uploadModalVisibility={uploadModalVisibility}
+                  uploadUrl={uploadUrl}
+                  uploadType={uploadType}
+                  onUploadModalCancel={onUploadModalCancel}
+                  setUploadUrl={setUploadUrl}
+                  setUploadType={setUploadType}
+                  onAssetsCreate={onAssetsCreate}
+                  onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsReload={onAssetsReload}
+                  onAssetSearchTerm={onAssetSearchTerm}
+                  setFileList={setFileList}
+                  setUploadModalVisibility={setUploadModalVisibility}
+                />
+              )}
             </Form.Item>
           ) : field.type === "Select" ? (
             <Form.Item
