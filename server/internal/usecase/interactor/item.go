@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -186,7 +187,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		itv := itm.Value()
-		if !operator.CanUpdate(itv) {
+		// only owners, maintainers, and the item creator(writer) can update the item
+		canUpdate := operator.IsMaintainingProject(itv.Project()) ||
+			operator.IsOwningProject(itv.Project()) ||
+			(operator.CanUpdate(itv) && reflect.DeepEqual(itv.User(), operator.User))
+
+		if !canUpdate {
 			return nil, interfaces.ErrOperationDenied
 		}
 

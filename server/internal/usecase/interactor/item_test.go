@@ -626,11 +626,12 @@ func TestItem_Create(t *testing.T) {
 }
 
 func TestItem_Update(t *testing.T) {
+	uid := id.NewUserID()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
-	i := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Model(m.ID()).Project(s.Project()).User(uid).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Model(m.ID()).Project(s.Project()).User(uid).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -642,7 +643,7 @@ func TestItem_Update(t *testing.T) {
 	itemUC.ignoreEvent = true
 
 	op := &usecase.Operator{
-		User:             id.NewUserID().Ref(),
+		User:             uid.Ref(),
 		ReadableProjects: []id.ProjectID{s.Project()},
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
