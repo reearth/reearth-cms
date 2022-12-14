@@ -67,6 +67,7 @@ func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList, ref *version.Re
 }
 
 func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	fmt.Println(pagination.Cursor)
 	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
 	}, ref, pagination)
