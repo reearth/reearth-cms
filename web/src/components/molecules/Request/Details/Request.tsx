@@ -15,11 +15,13 @@ import RequestSidebarWrapper from "./SidebarWrapper";
 type Props = {
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
+  onCommentCreate: (content: string) => Promise<void>;
   currentRequest: Request;
 };
 
 const RequestMolecule: React.FC<Props> = ({
   currentRequest,
+  onCommentCreate,
   onRequestApprove,
   onRequestDelete,
 }) => {
@@ -55,11 +57,7 @@ const RequestMolecule: React.FC<Props> = ({
       />
       <BodyWrapper>
         <ThreadWrapper>
-          <RequestThread
-            onCommentCreate={async (content: string) => {
-              console.log(content);
-            }}
-          />
+          <RequestThread onCommentCreate={onCommentCreate} />
         </ThreadWrapper>
         <RequestSidebarWrapper />
       </BodyWrapper>

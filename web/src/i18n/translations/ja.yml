@@ -84,15 +84,14 @@ Role: ロール
 API key: APIキー
 Account: アカウント
 unique: ''
+New Request: ''
 Please input field!: ''
 New Item: ''
-New Request: ''
 Title: ''
 Please input the title of your request!: ''
 Description: 説明
 Please select a reviewer!: ''
 Reviewer: ''
-Owner: オーナー
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -101,6 +100,7 @@ select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
 Maintainer: ''
+Owner: オーナー
 Name: 名前
 Creator: 作成者
 No Integration yet: まだインテグレーションはありません
@@ -160,6 +160,8 @@ API Key Only: ''
 Public Scope: ''
 Choose the scope of your project. This affects all the models shown below that are switched on.: ''
 Save changes: 変更を保存
+Approve: ''
+State: ''
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
@@ -221,6 +223,8 @@ Failed to create item.: ''
 Successfully created Item!: ''
 Failed to update item.: ''
 Successfully updated Item!: ''
+Failed to create request.: ''
+Successfully created request!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to delete model.: ''
@@ -229,6 +233,10 @@ Failed to update model.: ''
 Successfully updated model!: ''
 Failed to update publication settings.: ''
 Successfully updated publication settings!: ''
+Failed to delete one or more requests.: ''
+One or more requests were successfully deleted!: ''
+Failed to approve request.: ''
+Successfully approved request!: ''
 Failed to delete field.: ''
 Successfully deleted field!: ''
 Failed to update field.: ''

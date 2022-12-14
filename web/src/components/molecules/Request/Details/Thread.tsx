@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
 
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
-import Thread from "@reearth-cms/components/molecules/Common/CommentsPanel/Thread";
-import { useT } from "@reearth-cms/i18n";
+import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
+
+import RequestEditor from "./Editor";
 
 export type Props = {
   comments?: Comment[];
@@ -10,19 +11,19 @@ export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
 };
 
-const RequestThread: React.FC<Props> = ({ comments, emptyText }) => {
-  const t = useT();
-
+const RequestThread: React.FC<Props> = ({ comments, emptyText, onCommentCreate }) => {
+  comments = [{ author: "asd", authorType: "User", content: "hello", createdAt: "asd", id: "asd" }];
   return (
     <ContentWrapper>
       <ThreadWrapper>
-        <Title>{t("Comments")}</Title>
         <CommentsContainer>
-          <Thread comments={comments} />
+          {comments && comments?.length > 0 && <RequestCommentList comments={comments} />}
         </CommentsContainer>
       </ThreadWrapper>
 
       {!comments || comments.length === 0 ? <EmptyTextWrapper>{emptyText}</EmptyTextWrapper> : null}
+
+      <RequestEditor onCommentCreate={onCommentCreate} />
     </ContentWrapper>
   );
 };
@@ -32,10 +33,6 @@ export default RequestThread;
 const ThreadWrapper = styled.div`
   padding: 12px;
   overflow: auto;
-`;
-
-const Title = styled.h3`
-  font-size: 18px;
 `;
 
 const CommentsContainer = styled.div`
