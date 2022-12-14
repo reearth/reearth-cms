@@ -1,14 +1,42 @@
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Menu from "@reearth-cms/components/atoms/Menu";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {};
+import { Request } from "../types";
 
-const RequestMolecule: React.FC<Props> = () => {
+import RequestSidebarWrapper from "./SidebarWrapper";
+
+type Props = {
+  onRequestApprove: (requestId: string) => Promise<void>;
+  onRequestDelete: (requestsId: string[]) => Promise<void>;
+  currentRequest: Request;
+};
+
+const RequestMolecule: React.FC<Props> = ({
+  currentRequest,
+  onRequestApprove,
+  onRequestDelete,
+}) => {
   const t = useT();
+
+  const RequestMenu = (
+    <Menu
+      items={[
+        {
+          key: "delete",
+          label: t("Delete"),
+          onClick: () => onRequestDelete([currentRequest.id]),
+        },
+      ]}
+    />
+  );
+
   return (
     <Content>
       <PageHeader
@@ -16,17 +44,24 @@ const RequestMolecule: React.FC<Props> = () => {
         onBack={() => {}}
         extra={
           <>
-            <Button>{t("Close")}</Button>
-            <Button type="primary">{t("Approve")}</Button>
+            <Button type="primary" onClick={() => onRequestApprove(currentRequest.id)}>
+              {t("Approve")}
+            </Button>
+            <Dropdown key="options" overlay={RequestMenu} trigger={["click"]}>
+              <Button icon={<Icon icon="ellipsis" />} />
+            </Dropdown>
           </>
         }
       />
       <BodyWrapper>
-        <RequestThread
-          onCommentCreate={async (content: string) => {
-            console.log(content);
-          }}
-        />
+        <ThreadWrapper>
+          <RequestThread
+            onCommentCreate={async (content: string) => {
+              console.log(content);
+            }}
+          />
+        </ThreadWrapper>
+        <RequestSidebarWrapper />
       </BodyWrapper>
     </Content>
   );
@@ -41,6 +76,11 @@ const Content = styled.div`
 
 const BodyWrapper = styled.div`
   padding: 24px;
+  display: flex;
+`;
+
+const ThreadWrapper = styled.div`
+  flex: 1;
 `;
 
 export default RequestMolecule;

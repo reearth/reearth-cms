@@ -1,19 +1,23 @@
 import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
-import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
-import RequestSidebarWrapper from "@reearth-cms/components/molecules/Request/Details/SidebarWrapper";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 export type Props = {
   currentRequest?: Request;
+  onRequestApprove: (requestId: string) => Promise<void>;
+  onRequestDelete: (requestsId: string[]) => Promise<void>;
 };
 
-const RequestDetailsMolecule: React.FC<Props> = ({ currentRequest }) => {
-  return (
-    <ComplexInnerContents
-      center={<RequestMolecule />}
-      right={<RequestSidebarWrapper currentRequest={currentRequest} />}
+const RequestDetailsMolecule: React.FC<Props> = ({
+  currentRequest,
+  onRequestApprove,
+  onRequestDelete,
+}) => {
+  return currentRequest ? (
+    <RequestMolecule
+      onRequestApprove={onRequestApprove}
+      onRequestDelete={onRequestDelete}
+      currentRequest={currentRequest}
     />
-  );
+  ) : null;
 };
-
 export default RequestDetailsMolecule;

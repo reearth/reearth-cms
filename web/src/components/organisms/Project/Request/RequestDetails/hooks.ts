@@ -1,12 +1,20 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
-import { useGetRequestsQuery, Request as GQLRequest } from "@reearth-cms/gql/graphql-client-api";
+import {
+  useGetRequestsQuery,
+  Request as GQLRequest,
+  useDeleteRequestMutation,
+  useApproveRequestMutation,
+} from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
 
 export default () => {
+  const t = useT();
   const [currentProject] = useProject();
   const { requestId } = useParams();
 
@@ -25,7 +33,46 @@ export default () => {
     [requestId, data?.requests.nodes],
   );
 
+  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const handleRequestDelete = useCallback(
+    (requestsId: string[]) =>
+      (async () => {
+        if (!projectId) return;
+        const result = await deleteRequestMutation({
+          variables: { projectId, requestsId },
+          refetchQueries: ["GetRequests"],
+        });
+        if (result.errors) {
+          Notification.error({ message: t("Failed to delete one or more requests.") });
+        }
+        if (result) {
+          Notification.success({ message: t("One or more requests were successfully deleted!") });
+        }
+      })(),
+    [t, projectId, deleteRequestMutation],
+  );
+
+  const [approveRequestMutation] = useApproveRequestMutation();
+  const handleRequestApprove = useCallback(
+    (requestId: string) =>
+      (async () => {
+        const result = await approveRequestMutation({
+          variables: { requestId },
+          refetchQueries: ["GetRequests"],
+        });
+        if (result.errors) {
+          Notification.error({ message: t("Failed to approve request.") });
+        }
+        if (result) {
+          Notification.success({ message: t("Successfully approved request!") });
+        }
+      })(),
+    [approveRequestMutation, t],
+  );
+
   return {
     currentRequest,
+    handleRequestDelete,
+    handleRequestApprove,
   };
 };
