@@ -272,13 +272,17 @@ const ContentForm: React.FC<Props> = ({
                 {
                   message: "URL is not valid",
                   validator: async (_, value) => {
-                    if (
-                      Array.isArray(value) &&
-                      value.some((valueItem: string) => !validateURL(valueItem))
-                    )
-                      return Promise.reject();
-                    else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
-                      return Promise.reject();
+                    if (value) {
+                      if (
+                        Array.isArray(value) &&
+                        value.some(
+                          (valueItem: string) => !validateURL(valueItem) && valueItem.length > 0,
+                        )
+                      )
+                        return Promise.reject();
+                      else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
+                        return Promise.reject();
+                    }
                     return Promise.resolve();
                   },
                 },
