@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
@@ -56,7 +56,10 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
-  const displayUnzipFileList = compressedFileFormats.includes(assetFileExt);
+  const displayUnzipFileList = useMemo(
+    () => compressedFileFormats.includes(assetFileExt),
+    [assetFileExt],
+  );
   const isSVG = assetFileExt === "svg";
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;

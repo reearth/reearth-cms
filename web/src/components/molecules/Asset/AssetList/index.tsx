@@ -7,11 +7,7 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import {
-  fileFormats,
-  imageFormats,
-  compressedFileFormats,
-} from "@reearth-cms/components/molecules/Common/Asset";
+import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
 export type UploadType = "local" | "url";
 
@@ -87,7 +83,7 @@ const AssetList: React.FC<Props> = ({
     multiple: true,
     directory: false,
     showUploadList: true,
-    accept: imageFormats + "," + fileFormats + "," + compressedFileFormats,
+    accept: acceptedFormats,
     listType: "picture",
     onRemove: file => {
       const index = fileList.indexOf(file);
