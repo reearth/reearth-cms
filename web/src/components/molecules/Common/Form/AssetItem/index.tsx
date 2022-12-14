@@ -6,7 +6,11 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import {
+  fileFormats,
+  imageFormats,
+  compressedFileFormats,
+} from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -79,7 +83,7 @@ const AssetItem: React.FC<Props> = ({
     maxCount: 1,
     directory: false,
     showUploadList: true,
-    accept: imageFormats + "," + fileFormats,
+    accept: imageFormats + "," + fileFormats + "," + compressedFileFormats,
     listType: "picture",
     onRemove: _file => {
       setFileList([]);
