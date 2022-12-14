@@ -42,6 +42,7 @@ const ContentDetails: React.FC = () => {
     handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
+    handleNavigateToAsset,
   } = useAssetHooks();
 
   return (
@@ -88,6 +89,7 @@ const ContentDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
+      onNavigateToAsset={handleNavigateToAsset}
     />
   );
 };

@@ -36,7 +36,7 @@ const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
   return (
     <StyledForm form={form} layout="vertical">
       <Form.Item name="content">
-        <TextArea rows={4} maxLength={100} showCount autoSize />
+        <TextArea rows={4} maxLength={1000} showCount autoSize />
       </Form.Item>
       <StyledFormItem>
         <Button

@@ -52,6 +52,7 @@ export type Props = {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const initialValues: FormValues = {
@@ -87,6 +88,7 @@ const FieldCreationModal: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -94,6 +96,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const multipleValue: boolean = Form.useWatch("multiple", form);
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -101,6 +104,12 @@ const FieldCreationModal: React.FC<Props> = ({
     },
     [setActiveTab],
   );
+
+  useEffect(() => {
+    if (selectedType === "Asset" || selectedType === "Select") {
+      form.setFieldValue("defaultValue", null);
+    }
+  }, [form, selectedType, multipleValue]);
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -139,7 +148,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
+            integer: { defaultValue: values.defaultValue, min: +values.min, max: +values.max },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
@@ -306,6 +315,7 @@ const FieldCreationModal: React.FC<Props> = ({
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
+              multiple={multipleValue}
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
@@ -324,6 +334,7 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
+              onNavigateToAsset={onNavigateToAsset}
             />
           </TabPane>
         </Tabs>

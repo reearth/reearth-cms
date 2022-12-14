@@ -6,7 +6,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -31,6 +31,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -52,6 +53,7 @@ const AssetItem: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onChange,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const {
@@ -77,7 +79,7 @@ const AssetItem: React.FC<Props> = ({
     maxCount: 1,
     directory: false,
     showUploadList: true,
-    accept: imageFormats + "," + fileFormats,
+    accept: acceptedFormats,
     listType: "picture",
     onRemove: _file => {
       setFileList([]);
@@ -94,14 +96,26 @@ const AssetItem: React.FC<Props> = ({
   }, [value, assetList, setAssetValue]);
 
   return (
-    <>
+    <AssetWrapper>
       {assetValue ? (
-        <AssetButton onClick={handleClick}>
-          <div>
-            <Icon icon="folder" size={24} />
-            <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
-          </div>
-        </AssetButton>
+        <>
+          <AssetDetailsWrapper>
+            <AssetButton onClick={handleClick}>
+              <div>
+                <Icon icon="folder" size={24} />
+                <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
+              </div>
+            </AssetButton>
+            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(assetValue)}>
+              {assetValue.fileName}
+            </AssetLinkedName>
+          </AssetDetailsWrapper>
+          <AssetLink
+            type="link"
+            icon={<Icon icon="arrowSquareOut" size={20} />}
+            onClick={() => onNavigateToAsset(assetValue)}
+          />
+        </>
       ) : (
         <AssetButton onClick={handleClick}>
           <div>
@@ -131,7 +145,7 @@ const AssetItem: React.FC<Props> = ({
         onUploadModalCancel={onUploadModalCancel}
         onUploadAndLink={handleUploadAndLink}
       />
-    </>
+    </AssetWrapper>
   );
 };
 
@@ -139,6 +153,29 @@ const AssetButton = styled(Button)`
   width: 100px;
   height: 100px;
   border: 1px dashed #d9d9d9;
+`;
+
+const AssetWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const AssetLink = styled(Button)`
+  color: #000000d9;
+  margin-top: 4px;
+  top: 3px;
+`;
+
+const AssetLinkedName = styled(Button)`
+  color: #1890ff;
+  margin-left: 12px;
+`;
+
+const AssetDetailsWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 export default AssetItem;
