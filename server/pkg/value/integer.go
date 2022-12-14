@@ -152,11 +152,11 @@ func (*propertyInteger) Validate(i any) bool {
 
 func (*propertyInteger) Equal(v, w any) bool {
 	vv := v.(Integer)
-	ww := v.(Integer)
+	ww := w.(Integer)
 	return vv == ww
 }
 
-func (*propertyInteger) IsEmpty(v any) bool {
+func (*propertyInteger) IsEmpty(_ any) bool {
 	return false
 }
 
