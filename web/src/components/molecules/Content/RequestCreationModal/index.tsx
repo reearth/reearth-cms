@@ -5,25 +5,47 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { RequestState } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type FormValues = {
   title: string;
   description: string;
+  state: RequestState;
+  reviewersId: string[];
+  items: {
+    itemId: string;
+  }[];
 };
 
 export type Props = {
   open?: boolean;
+  itemId: string;
+  workspaceUserMembers: Member[];
   onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onSubmit?: (data: FormValues) => Promise<void>;
 };
 
 const initialValues: FormValues = {
   title: "",
   description: "",
+  state: RequestState.Waiting,
+  reviewersId: [],
+  items: [
+    {
+      itemId: "",
+    },
+  ],
 };
 
-const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const RequestCreationModal: React.FC<Props> = ({
+  open,
+  itemId,
+  workspaceUserMembers,
+  onClose,
+  onSubmit,
+}) => {
   const t = useT();
   const [form] = Form.useForm();
   const { Option } = Select;
@@ -31,13 +53,16 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
+      values.items = [{ itemId }];
+      values.state = RequestState.Waiting;
+      values.reviewersId = [values.reviewersId];
       await onSubmit?.(values);
       onClose?.(true);
       form.resetFields();
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [form, onClose, onSubmit]);
+  }, [itemId, form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
     onClose?.(true);
@@ -55,8 +80,8 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
           <TextArea rows={4} showCount maxLength={100} />
         </Form.Item>
         <Form.Item
-          name="role"
-          label="Role"
+          name="reviewersId"
+          label="Reviewer"
           rules={[
             {
               required: true,
@@ -64,7 +89,11 @@ const RequestCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
             },
           ]}>
           <Select placeholder={t("Reviewer")}>
-            <Option value="OWNER">{t("Owner")}</Option>
+            {workspaceUserMembers.map(member => (
+              <Option key={member.userId} value={member.userId}>
+                {member.user.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       </Form>

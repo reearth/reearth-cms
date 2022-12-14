@@ -18,11 +18,16 @@ const ContentDetails: React.FC = () => {
     itemUpdatingLoading,
     collapsedModelMenu,
     collapsedCommentsPanel,
+    requestModalShown,
+    workspaceUserMembers,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
+    handleRequestCreate,
+    handleModalClose,
+    handleModalOpen,
   } = useHooks();
 
   const {
@@ -90,6 +95,11 @@ const ContentDetails: React.FC = () => {
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
       onNavigateToAsset={handleNavigateToAsset}
+      requestModalShown={requestModalShown}
+      onRequestCreate={handleRequestCreate}
+      onModalClose={handleModalClose}
+      onModalOpen={handleModalOpen}
+      workspaceUserMembers={workspaceUserMembers}
     />
   );
 };

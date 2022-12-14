@@ -4,23 +4,31 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   Item as GQLItem,
+  RequestState,
   SchemaFieldType,
   useCreateItemMutation,
+  useCreateRequestMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useWorkspace } from "@reearth-cms/state";
 
 import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
+
+// export type RequestState = "WAITING" | "DRAFT" | "CLOSED" | "APPROVED";
 
 export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();
   const { projectId, workspaceId, itemId } = useParams();
+  const [currentWorkspace] = useWorkspace();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
+  const [requestModalShown, setRequestModalShown] = useState(false);
   const t = useT();
 
   const handleNavigateToModel = useCallback(
@@ -115,6 +123,56 @@ export default () => {
     return initialValues;
   }, [currentItem, currentModel?.schema.fields]);
 
+  const workspaceUserMembers = useMemo((): Member[] => {
+    return (
+      currentWorkspace?.members
+        ?.map<Member | undefined>(member =>
+          member.__typename === "WorkspaceUserMember" && member.user
+            ? {
+                userId: member.userId,
+                user: member.user,
+                role: member.role,
+              }
+            : undefined,
+        )
+        .filter((user): user is Member => !!user) ?? []
+    );
+  }, [currentWorkspace]);
+
+  const [createRequestMutation] = useCreateRequestMutation();
+
+  const handleRequestCreate = useCallback(
+    async (data: {
+      title: string;
+      description: string;
+      state: RequestState;
+      reviewersId: string[];
+      items: { itemId: string }[];
+    }) => {
+      if (!projectId) return;
+      const request = await createRequestMutation({
+        variables: {
+          projectId,
+          title: data.title,
+          description: data.description,
+          state: data.state,
+          reviewersId: data.reviewersId,
+          items: data.items,
+        },
+      });
+      if (request.errors || !request.data?.createRequest) {
+        Notification.error({ message: t("Failed to create request.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully created request!") });
+      setRequestModalShown(false);
+    },
+    [createRequestMutation, projectId, t],
+  );
+  const handleModalClose = useCallback(() => setRequestModalShown(false), []);
+
+  const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
+
   return {
     itemId,
     currentModel,
@@ -124,10 +182,15 @@ export default () => {
     itemUpdatingLoading,
     collapsedModelMenu,
     collapsedCommentsPanel,
+    requestModalShown,
+    workspaceUserMembers,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
+    handleRequestCreate,
+    handleModalClose,
+    handleModalOpen,
   };
 };

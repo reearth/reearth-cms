@@ -7,6 +7,8 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { RequestState } from "@reearth-cms/gql/graphql-client-api";
 
 export type Props = {
   collapsed?: boolean;
@@ -23,6 +25,8 @@ export type Props = {
   uploadUrl: string;
   uploadType: UploadType;
   commentsPanel?: JSX.Element;
+  requestModalShown: boolean;
+  workspaceUserMembers: Member[];
   onCollapse?: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -37,6 +41,17 @@ export type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onNavigateToAsset: (asset: Asset) => void;
+  onRequestCreate: (data: {
+    title: string;
+    description: string;
+    state: RequestState;
+    reviewersId: string[];
+    items: {
+      itemId: string;
+    }[];
+  }) => Promise<void>;
+  onModalClose: () => void;
+  onModalOpen: () => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -54,6 +69,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   uploadUrl,
   uploadType,
   commentsPanel,
+  requestModalShown,
+  workspaceUserMembers,
   onCollapse,
   onUploadModalCancel,
   setUploadUrl,
@@ -68,6 +85,9 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onNavigateToAsset,
+  onRequestCreate,
+  onModalClose,
+  onModalOpen,
 }) => {
   return (
     <ComplexInnerContents
@@ -107,6 +127,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onNavigateToAsset={onNavigateToAsset}
+          requestModalShown={requestModalShown}
+          onRequestCreate={onRequestCreate}
+          onModalClose={onModalClose}
+          onModalOpen={onModalOpen}
+          workspaceUserMembers={workspaceUserMembers}
         />
       }
       right={commentsPanel}
