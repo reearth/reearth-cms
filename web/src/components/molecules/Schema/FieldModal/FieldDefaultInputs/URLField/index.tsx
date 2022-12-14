@@ -21,9 +21,15 @@ const URLField: React.FC<Props> = ({ multiple }) => {
         {
           message: "URL is not valid",
           validator: async (_, value) => {
-            if (multiple && value.some((valueItem: string) => !validateURL(valueItem)))
-              return Promise.reject();
-            else if (!multiple && !validateURL(value) && value?.length > 0) return Promise.reject();
+            if (value) {
+              if (
+                multiple &&
+                value.some((valueItem: string) => !validateURL(valueItem) && valueItem.length > 0)
+              )
+                return Promise.reject();
+              else if (!multiple && !validateURL(value) && value?.length > 0)
+                return Promise.reject();
+            }
             return Promise.resolve();
           },
         },
