@@ -117,6 +117,7 @@ func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 
 func (r *Request) paginate(ctx context.Context, filter any, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewRequestConsumer()
+
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)

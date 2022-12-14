@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
@@ -16,7 +16,11 @@ import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import {
+  fileFormats,
+  imageFormats,
+  compressedFileFormats,
+} from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -52,7 +56,10 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const assetFileExt = getExtension(asset.fileName) ?? "";
-  const displayUnzipFileList = assetFileExt === "zip";
+  const displayUnzipFileList = useMemo(
+    () => compressedFileFormats.includes(assetFileExt),
+    [assetFileExt],
+  );
   const isSVG = assetFileExt === "svg";
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
@@ -62,7 +69,7 @@ const AssetMolecule: React.FC<Props> = ({
       case (selectedPreviewType === "GEO" ||
         selectedPreviewType === "GEO3D" ||
         selectedPreviewType === "MODEL3D") &&
-        fileFormats.includes(assetFileExt):
+        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return (
           <TilesetPreview
             viewerProps={{

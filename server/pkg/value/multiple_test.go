@@ -147,7 +147,7 @@ func TestMultiple_Interface(t *testing.T) {
 	assert.Equal(t, []any{true, false}, m.Interface())
 
 	m = nil
-	assert.Nil(t, m.Interface())
+	assert.Equal(t, []any{}, m.Interface())
 }
 
 func TestMultiple_Validate(t *testing.T) {
