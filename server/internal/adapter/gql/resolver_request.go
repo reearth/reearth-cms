@@ -13,21 +13,18 @@ func (r *Resolver) Request() RequestResolver {
 type requestResolver struct{ *Resolver }
 
 func (r requestResolver) Thread(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Thread, error) {
-	//TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Thread.Load(obj.ThreadID)
 }
 
 func (r requestResolver) Workspace(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Workspace, error) {
-	//TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Workspace.Load(obj.WorkspaceID)
 }
 
 func (r requestResolver) Project(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Project, error) {
-	//TODO implement me
-	panic("implement me")
+	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }
 
 func (r requestResolver) Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error) {
-	//TODO implement me
-	panic("implement me")
+	res, err := dataloaders(ctx).User.LoadAll(obj.ReviewersID)
+	return res, err[0]
 }

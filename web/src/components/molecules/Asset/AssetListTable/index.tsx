@@ -20,6 +20,8 @@ import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
+import { compressedFileFormats } from "../../Common/Asset";
+
 export type AssetListTableProps = {
   assetList: Asset[];
   assetsPerPage: number | undefined;
@@ -95,10 +97,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Status"),
       dataIndex: "archiveExtractionStatus",
       key: "archiveExtractionStatus",
-      render: (_, asset) =>
-        getExtension(asset.fileName) === "zip" && (
-          <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
-        ),
+      render: (_, asset) => {
+        const assetExtension = getExtension(asset.fileName);
+        return (
+          compressedFileFormats.includes(assetExtension) && (
+            <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+          )
+        );
+      },
     },
     {
       title: t("Created At"),

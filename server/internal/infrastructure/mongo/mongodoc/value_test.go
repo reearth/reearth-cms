@@ -30,7 +30,7 @@ func TestNewMultipleValue(t *testing.T) {
 	assert.Nil(t, NewMultipleValue(nil))
 	assert.Equal(t, &ValueDocument{
 		T: "bool",
-		V: ([]any)(nil),
+		V: []any{},
 	}, NewMultipleValue(value.MultipleFrom(value.TypeBool, nil)))
 	assert.Equal(t, &ValueDocument{
 		T: "bool",

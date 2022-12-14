@@ -37,7 +37,7 @@ func (*propertyAsset) Validate(i any) bool {
 
 func (*propertyAsset) Equal(v, w any) bool {
 	vv := v.(Asset)
-	ww := v.(Asset)
+	ww := w.(Asset)
 	return vv == ww
 }
 
@@ -55,7 +55,7 @@ func (v *Value) ValueAsset() (vv Asset, ok bool) {
 
 func (m *Multiple) ValuesAsset() (vv []Asset, ok bool) {
 	if m == nil {
-		return
+		return nil, false
 	}
 	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Asset, bool) {
 		return v.ValueAsset()
@@ -63,5 +63,5 @@ func (m *Multiple) ValuesAsset() (vv []Asset, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }
