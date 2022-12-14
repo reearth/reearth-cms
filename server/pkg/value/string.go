@@ -54,7 +54,7 @@ func (*propertyString) Validate(i any) bool {
 
 func (*propertyString) Equal(v, w any) bool {
 	vv := v.(String)
-	ww := v.(String)
+	ww := w.(String)
 	return vv == ww
 }
 
