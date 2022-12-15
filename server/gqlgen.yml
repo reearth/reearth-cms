@@ -75,6 +75,10 @@ models:
         resolver: true
       reviewers:
         resolver: true
+  RequestItem:
+    fields:
+      item:
+        resolver: true
   SchemaField:
     fields:
       model:

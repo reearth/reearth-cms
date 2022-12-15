@@ -51,6 +51,25 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
+func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) (*gqlmodel.VersionedItem, error) {
+	op := getOperator(ctx)
+	iId, err := gqlmodel.ToID[id.Item](itemID)
+	if err != nil {
+		return nil, err
+	}
+
+	itm, err := c.usecase.FindPublicByID(ctx, iId, op)
+	if err != nil {
+		return nil, err
+	}
+	s, err := c.schemaUsecase.FindByID(ctx, itm.Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ToVersionedItem(itm, s), nil
+}
+
 func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
 	op := getOperator(ctx)
 	iId, err := gqlmodel.ToID[id.Item](itemID)

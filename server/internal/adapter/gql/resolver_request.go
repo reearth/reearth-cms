@@ -35,3 +35,12 @@ func (r requestResolver) Reviewers(ctx context.Context, obj *gqlmodel.Request) (
 func (r requestResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.User, error) {
 	return dataloaders(ctx).User.Load(obj.CreatedByID)
 }
+func (r *Resolver) RequestItem() RequestItemResolver {
+	return &requestItemResolver{r}
+}
+
+type requestItemResolver struct{ *Resolver }
+
+func (r requestItemResolver) Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error) {
+	return loaders(ctx).Item.FindVersionedItem(ctx, obj.ItemID)
+}

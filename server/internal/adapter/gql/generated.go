@@ -50,6 +50,7 @@ type ResolverRoot interface {
 	Project() ProjectResolver
 	Query() QueryResolver
 	Request() RequestResolver
+	RequestItem() RequestItemResolver
 	Schema() SchemaResolver
 	SchemaField() SchemaFieldResolver
 	Thread() ThreadResolver
@@ -706,6 +707,9 @@ type RequestResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Workspace, error)
 	Project(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Project, error)
 	Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error)
+}
+type RequestItemResolver interface {
+	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
@@ -17245,7 +17249,7 @@ func (ec *executionContext) _RequestItem_item(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Item, nil
+		return ec.resolvers.RequestItem().Item(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17263,8 +17267,8 @@ func (ec *executionContext) fieldContext_RequestItem_item(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "RequestItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "version":
@@ -29108,7 +29112,7 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._RequestItem_itemId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "version":
 
@@ -29119,9 +29123,22 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._RequestItem_ref(ctx, field, obj)
 
 		case "item":
+			field := field
 
-			out.Values[i] = ec._RequestItem_item(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RequestItem_item(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
