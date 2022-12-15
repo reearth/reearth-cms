@@ -28,4 +28,5 @@ export type {
   OptionConfig,
   TableRowSelection,
   TablePaginationConfig,
+  ParamsType,
 };
