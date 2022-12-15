@@ -133,7 +133,9 @@ export default () => {
               }
             : undefined,
         )
-        .filter((user): user is Member => !!user) ?? []
+        .filter(
+          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+        ) ?? []
     );
   }, [currentWorkspace]);
 
