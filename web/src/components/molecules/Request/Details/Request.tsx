@@ -48,9 +48,11 @@ const RequestMolecule: React.FC<Props> = ({
         onBack={onBack}
         extra={
           <>
-            <Button type="primary" onClick={() => onRequestApprove(currentRequest.id)}>
-              {t("Approve")}
-            </Button>
+            {currentRequest.state === "WAITING" && (
+              <Button type="primary" onClick={() => onRequestApprove(currentRequest.id)}>
+                {t("Approve")}
+              </Button>
+            )}
             <Dropdown key="options" overlay={RequestMenu} trigger={["click"]}>
               <Button icon={<Icon icon="ellipsis" />} />
             </Dropdown>
@@ -59,9 +61,9 @@ const RequestMolecule: React.FC<Props> = ({
       />
       <BodyWrapper>
         <ThreadWrapper>
-          <RequestThread onCommentCreate={onCommentCreate} />
+          <RequestThread comments={currentRequest.comments} onCommentCreate={onCommentCreate} />
         </ThreadWrapper>
-        <RequestSidebarWrapper />
+        <RequestSidebarWrapper currentRequest={currentRequest} />
       </BodyWrapper>
     </Content>
   );

@@ -12,7 +12,6 @@ export type Props = {
 };
 
 const RequestThread: React.FC<Props> = ({ comments, emptyText, onCommentCreate }) => {
-  comments = [{ author: "asd", authorType: "User", content: "hello", createdAt: "asd", id: "asd" }];
   return (
     <ContentWrapper>
       <ThreadWrapper>
