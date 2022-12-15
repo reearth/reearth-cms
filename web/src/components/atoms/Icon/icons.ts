@@ -35,8 +35,11 @@ import {
   UserAddOutlined,
   ClearOutlined,
   CloseCircleFilled,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 
+import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import Asset from "./Icons/asset.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
@@ -99,4 +102,7 @@ export default {
   userAdd: UserAddOutlined,
   clear: ClearOutlined,
   closeCircle: CloseCircleFilled,
+  arrowUp: ArrowUpOutlined,
+  arrowDown: ArrowDownOutlined,
+  arrowSquareOut: ArrowSquareOut,
 };

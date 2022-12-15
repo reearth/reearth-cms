@@ -20,7 +20,6 @@ func TestNewMultiple(t *testing.T) {
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
 	assert.NotSame(t, v, m.v)
-
 }
 
 func TestMultipleFrom(t *testing.T) {
@@ -36,7 +35,6 @@ func TestMultipleFrom(t *testing.T) {
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
 	assert.NotSame(t, v, m.v)
-
 }
 
 func TestMultiple_IsEmpty(t *testing.T) {
@@ -80,7 +78,6 @@ func TestMultiple_Len(t *testing.T) {
 
 	m.v = []*Value{New(TypeBool, true), New(TypeBool, true)}
 	assert.Equal(t, 2, m.Len())
-
 }
 
 func TestMultiple_First(t *testing.T) {
@@ -150,7 +147,7 @@ func TestMultiple_Interface(t *testing.T) {
 	assert.Equal(t, []any{true, false}, m.Interface())
 
 	m = nil
-	assert.Nil(t, m.Interface())
+	assert.Equal(t, []any{}, m.Interface())
 }
 
 func TestMultiple_Validate(t *testing.T) {

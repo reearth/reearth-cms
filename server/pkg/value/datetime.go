@@ -62,7 +62,7 @@ func (*propertyDateTime) Validate(i any) bool {
 
 func (*propertyDateTime) Equal(v, w any) bool {
 	vv := v.(DateTime)
-	ww := v.(DateTime)
+	ww := w.(DateTime)
 	return vv.Equal(ww)
 }
 

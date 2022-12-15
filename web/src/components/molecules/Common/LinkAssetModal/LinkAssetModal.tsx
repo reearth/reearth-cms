@@ -32,7 +32,7 @@ type Props = {
   uploadType: UploadType;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
-  onLink: (asset?: Asset) => void;
+  onChange?: (value: string) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
@@ -54,7 +54,7 @@ const LinkAssetModal: React.FC<Props> = ({
   uploadType,
   setUploadUrl,
   setUploadType,
-  onLink,
+  onChange,
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
@@ -100,7 +100,7 @@ const LinkAssetModal: React.FC<Props> = ({
             onMouseLeave={() => setHoveredAssetId(undefined)}
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
-              onLink(link ? asset : undefined);
+              onChange?.(link ? asset.id : "");
               onLinkAssetModalCancel();
             }}
           />

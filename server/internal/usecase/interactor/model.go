@@ -47,7 +47,7 @@ func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, op
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *model.Model, err error) {
-			if !operator.IsWritableProject(param.ProjectId) {
+			if !operator.IsMaintainingProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
