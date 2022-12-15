@@ -3,28 +3,34 @@ import styled from "@emotion/styled";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
+import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 import RequestEditor from "./Editor";
 
 export type Props = {
   me?: User;
-  comments?: Comment[];
+  currentRequest: Request;
   emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
 };
 
-const RequestThread: React.FC<Props> = ({ me, comments, emptyText, onCommentCreate }) => {
+const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onCommentCreate }) => {
   return (
     <ContentWrapper>
       <ThreadWrapper>
+        <RequestDescription currentRequest={currentRequest} />
         <CommentsContainer>
-          {comments && comments?.length > 0 && <RequestCommentList comments={comments} />}
+          {currentRequest.comments && currentRequest.comments?.length > 0 && (
+            <RequestCommentList comments={currentRequest.comments} />
+          )}
         </CommentsContainer>
       </ThreadWrapper>
 
-      {!comments || comments.length === 0 ? <EmptyTextWrapper>{emptyText}</EmptyTextWrapper> : null}
+      {!currentRequest.comments || currentRequest.comments.length === 0 ? (
+        <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
+      ) : null}
 
       <AntDComment
         avatar={

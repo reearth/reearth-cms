@@ -54,7 +54,7 @@ const RequestMolecule: React.FC<Props> = ({
         <ThreadWrapper>
           <RequestThread
             me={me}
-            comments={currentRequest.comments}
+            currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
           />
         </ThreadWrapper>

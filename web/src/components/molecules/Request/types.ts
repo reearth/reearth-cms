@@ -6,6 +6,7 @@ export type Request = {
   id: string;
   threadId: string;
   title: string;
+  description: string;
   comments: Comment[];
   createdAt: Date;
   reviewers: User[];

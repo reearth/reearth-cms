@@ -7,6 +7,7 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     id: GQLRequest.id,
     threadId: GQLRequest.thread?.id ?? "",
     title: GQLRequest.title,
+    description: GQLRequest.description ?? "",
     comments: GQLRequest.thread?.comments?.map(comment => convertComment(comment)) ?? [],
     createdAt: GQLRequest.createdAt,
     reviewers: GQLRequest.reviewers,
