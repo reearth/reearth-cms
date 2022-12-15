@@ -1,4 +1,5 @@
 import moment from "moment";
+import { useMemo } from "react";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -12,7 +13,10 @@ type Props = {
 };
 
 const CommentMolecule: React.FC<Props> = ({ comment }) => {
-  const fromNow = moment(comment.createdAt?.toString()).fromNow();
+  const fromNow = useMemo(
+    () => moment(comment.createdAt?.toString()).fromNow(),
+    [comment.createdAt],
+  );
 
   return (
     <AntDComment
