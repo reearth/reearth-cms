@@ -76,7 +76,7 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = {
     selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: any) => {
+    onChange: (selectedRowKeys: Key[]) => {
       setSelection({
         ...selection,
         selectedRowKeys: selectedRowKeys,
