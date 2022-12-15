@@ -23,9 +23,7 @@ const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
       const values = await form.validateFields();
       await onCommentCreate?.(values.content);
       form.resetFields();
-      setSubmitting(false);
     } catch (info) {
-      setSubmitting(false);
       console.log("Validate Failed:", info);
     } finally {
       setSubmitting(false);

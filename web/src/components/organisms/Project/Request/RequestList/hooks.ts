@@ -57,9 +57,12 @@ export default () => {
     [setselectedRequestId],
   );
 
-  const handleNavigateToRequest = (request: Request) => {
-    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${request.id}`);
-  };
+  const handleNavigateToRequest = useCallback(
+    (request: Request) => {
+      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${request.id}`);
+    },
+    [currentWorkspace?.id, navigate, projectId],
+  );
 
   const [deleteRequestMutation] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(

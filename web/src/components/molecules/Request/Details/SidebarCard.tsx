@@ -25,7 +25,7 @@ const SideBarCardWrapper = styled.div`
   box-shadow: 0 4px 4px 0 #00000025;
 `;
 
-const CardTitle = styled.span`
+const CardTitle = styled.h2`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
@@ -35,7 +35,7 @@ const CardTitle = styled.span`
   margin-bottom: 4px;
 `;
 
-const CardValue = styled.span`
+const CardValue = styled.p`
   font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
