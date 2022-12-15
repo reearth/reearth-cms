@@ -3,8 +3,13 @@ import RequestDetailsMolecule from "@reearth-cms/components/molecules/Request/De
 import useHooks from "./hooks";
 
 const RequestDetails: React.FC = () => {
-  const { currentRequest, handleRequestApprove, handleRequestDelete, handleCommentCreate } =
-    useHooks();
+  const {
+    currentRequest,
+    handleRequestApprove,
+    handleRequestDelete,
+    handleCommentCreate,
+    handleNavigateToRequestsList,
+  } = useHooks();
 
   return (
     <RequestDetailsMolecule
@@ -12,6 +17,7 @@ const RequestDetails: React.FC = () => {
       onRequestApprove={handleRequestApprove}
       onRequestDelete={handleRequestDelete}
       onCommentCreate={handleCommentCreate}
+      onBack={handleNavigateToRequestsList}
     />
   );
 };

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -12,11 +12,13 @@ import {
   useAddCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject } from "@reearth-cms/state";
+import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
+  const navigate = useNavigate();
   const [currentProject] = useProject();
+  const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
@@ -94,10 +96,15 @@ export default () => {
     [createComment, currentRequest?.threadId, t],
   );
 
+  const handleNavigateToRequestsList = () => {
+    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
+  };
+
   return {
     currentRequest,
     handleRequestDelete,
     handleRequestApprove,
     handleCommentCreate,
+    handleNavigateToRequestsList,
   };
 };

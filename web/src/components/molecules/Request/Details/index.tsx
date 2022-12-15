@@ -6,6 +6,7 @@ export type Props = {
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onBack: () => void;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
@@ -13,13 +14,15 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onRequestApprove,
   onRequestDelete,
   onCommentCreate,
+  onBack,
 }) => {
   return currentRequest ? (
     <RequestMolecule
+      currentRequest={currentRequest}
       onRequestApprove={onRequestApprove}
       onRequestDelete={onRequestDelete}
-      currentRequest={currentRequest}
       onCommentCreate={onCommentCreate}
+      onBack={onBack}
     />
   ) : null;
 };

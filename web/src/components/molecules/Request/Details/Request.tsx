@@ -13,10 +13,11 @@ import { Request } from "../types";
 import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
+  currentRequest: Request;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
-  currentRequest: Request;
+  onBack: () => void;
 };
 
 const RequestMolecule: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const RequestMolecule: React.FC<Props> = ({
   onCommentCreate,
   onRequestApprove,
   onRequestDelete,
+  onBack,
 }) => {
   const t = useT();
 
@@ -42,8 +44,8 @@ const RequestMolecule: React.FC<Props> = ({
   return (
     <Content>
       <PageHeader
-        title={"Request name"}
-        onBack={() => {}}
+        title={currentRequest.title}
+        onBack={onBack}
         extra={
           <>
             <Button type="primary" onClick={() => onRequestApprove(currentRequest.id)}>
