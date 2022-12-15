@@ -20,10 +20,10 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   };
 
   return (
-    <div className={className}>
+    <MarkdownWrapper className={className}>
       <TextArea
         {...props}
-        onChange={e => onChange?.(e.target.value)}
+        onChange={e => onChange?.(e)}
         onBlur={handleBlur}
         value={value}
         rows={6}
@@ -43,11 +43,15 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
         }}>
         <ReactMarkdown>{value}</ReactMarkdown>
       </StyledMD>
-    </div>
+    </MarkdownWrapper>
   );
 };
 
 export default MarkdownInput;
+
+const MarkdownWrapper = styled.div`
+  width: 100%;
+`;
 
 const StyledMD = styled.div`
   cursor: pointer;

@@ -21,6 +21,7 @@ type Container struct {
 	User        User
 	Item        Item
 	Project     Project
+	Request     Request
 	Model       Model
 	Schema      Schema
 	Integration Integration

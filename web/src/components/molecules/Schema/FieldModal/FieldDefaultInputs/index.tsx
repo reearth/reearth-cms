@@ -14,6 +14,7 @@ import URLField from "./URLField";
 
 export interface Props {
   selectedType: FieldType;
+  multiple?: boolean;
   selectedValues: string[];
   assetList: Asset[];
   fileList: UploadFile[];
@@ -28,18 +29,18 @@ export interface Props {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
-  onLink: (asset?: Asset) => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
+  multiple,
   assetList,
-  defaultValue,
   fileList,
   loadingAssets,
   uploading,
@@ -51,23 +52,23 @@ const FieldDefaultInputs: React.FC<Props> = ({
   setUploadType,
   onAssetSearchTerm,
   onAssetsReload,
-  onLink,
   onAssetsCreate,
   onAssetCreateFromUrl,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   return selectedType ? (
     selectedType === "TextArea" ? (
-      <TextAreaField />
+      <TextAreaField multiple={multiple} />
     ) : selectedType === "MarkdownText" ? (
-      <MarkdownField />
+      <MarkdownField multiple={multiple} />
     ) : selectedType === "Integer" ? (
-      <IntegerField />
+      <IntegerField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
+        multiple={multiple}
         assetList={assetList}
-        defaultValue={defaultValue}
         fileList={fileList}
         loadingAssets={loadingAssets}
         uploading={uploading}
@@ -79,18 +80,18 @@ const FieldDefaultInputs: React.FC<Props> = ({
         setUploadType={setUploadType}
         onAssetsCreate={onAssetsCreate}
         onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onLink={onLink}
         onAssetSearchTerm={onAssetSearchTerm}
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
         setUploadModalVisibility={setUploadModalVisibility}
+        onNavigateToAsset={onNavigateToAsset}
       />
     ) : selectedType === "Select" ? (
-      <SelectField selectedValues={selectedValues} />
+      <SelectField selectedValues={selectedValues} multiple={multiple} />
     ) : selectedType === "URL" ? (
-      <URLField />
+      <URLField multiple={multiple} />
     ) : (
-      <TextField />
+      <TextField multiple={multiple} />
     )
   ) : null;
 };

@@ -40,7 +40,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, err
 		}
 
-		if !operator.IsWritableProject(s.Project()) {
+		if !operator.IsMaintainingProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -79,7 +79,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			return nil, err
 		}
 
-		if !operator.IsWritableProject(s.Project()) {
+		if !operator.IsMaintainingProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
@@ -147,7 +147,7 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 				return err
 			}
 
-			if !operator.IsWritableProject(s.Project()) {
+			if !operator.IsMaintainingProject(s.Project()) {
 				return interfaces.ErrOperationDenied
 			}
 
