@@ -4,10 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   Item as GQLItem,
-  Comment as GQLComment,
   useDeleteItemMutation,
+  Comment as GQLComment,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -26,6 +27,8 @@ export default () => {
     selectedRowKeys: [],
   });
 
+  const { assetList } = useAssetHooks();
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
       ?.map(item =>
@@ -34,7 +37,19 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               fields: item?.fields?.reduce(
-                (obj, field) => Object.assign(obj, { [field.schemaFieldId]: field.value }),
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]:
+                      field.type === "Asset"
+                        ? Array.isArray(field.value)
+                          ? field.value
+                              .map(value => assetList.find(asset => asset.id === value)?.fileName)
+                              .join(", ")
+                          : assetList.find(asset => asset.id === field.value)?.fileName
+                        : Array.isArray(field.value)
+                        ? field.value.join(", ")
+                        : field.value,
+                  }),
                 {},
               ),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
@@ -42,7 +57,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [itemsData?.items.nodes]);
+  }, [assetList, itemsData?.items.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     return currentModel?.schema.fields.map(field => ({

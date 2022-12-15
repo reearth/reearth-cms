@@ -141,11 +141,11 @@ func (*propertyNumber) Validate(i any) bool {
 
 func (*propertyNumber) Equal(v, w any) bool {
 	vv := v.(Number)
-	ww := v.(Number)
+	ww := w.(Number)
 	return vv == ww
 }
 
-func (*propertyNumber) IsEmpty(v any) bool {
+func (*propertyNumber) IsEmpty(_ any) bool {
 	return false
 }
 

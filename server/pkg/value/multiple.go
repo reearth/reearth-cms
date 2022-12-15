@@ -41,7 +41,9 @@ func MultipleFrom(t Type, v []*Value) *Multiple {
 }
 
 func (m *Multiple) IsEmpty() bool {
-	return m == nil || m.t == TypeUnknown || len(m.v) == 0
+	return m == nil || m.t == TypeUnknown || lo.EveryBy(m.v, func(w *Value) bool {
+		return w.IsEmpty()
+	})
 }
 
 func (m *Multiple) Clone() *Multiple {
@@ -88,7 +90,7 @@ func (m *Multiple) Type() Type {
 // Interface converts the value into generic representation
 func (m *Multiple) Interface() []any {
 	if m.IsEmpty() {
-		return nil
+		return []any{}
 	}
 
 	return lo.Map(m.v, func(v *Value, i int) any {

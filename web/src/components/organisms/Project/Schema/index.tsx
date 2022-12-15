@@ -32,6 +32,7 @@ const ProjectSchema: React.FC = () => {
     handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsReload,
+    handleNavigateToAsset,
   } = useAssetHooks();
 
   const {
@@ -89,6 +90,7 @@ const ProjectSchema: React.FC = () => {
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onNavigateToAsset={handleNavigateToAsset}
         />
       )}
       {selectedType && (
@@ -115,6 +117,7 @@ const ProjectSchema: React.FC = () => {
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onNavigateToAsset={handleNavigateToAsset}
         />
       )}
     </>
