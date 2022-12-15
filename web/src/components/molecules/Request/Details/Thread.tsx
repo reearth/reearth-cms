@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 
+import Avatar from "@reearth-cms/components/atoms/Avatar";
+import AntDComment from "@reearth-cms/components/atoms/Comment";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 
@@ -22,7 +24,14 @@ const RequestThread: React.FC<Props> = ({ comments, emptyText, onCommentCreate }
 
       {!comments || comments.length === 0 ? <EmptyTextWrapper>{emptyText}</EmptyTextWrapper> : null}
 
-      <RequestEditor onCommentCreate={onCommentCreate} />
+      <AntDComment
+        avatar={
+          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+            {comments?.[0].author.charAt(0)}
+          </Avatar>
+        }
+        content={<RequestEditor onCommentCreate={onCommentCreate} />}
+      />
     </ContentWrapper>
   );
 };

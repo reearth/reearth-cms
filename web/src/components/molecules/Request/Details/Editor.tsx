@@ -49,7 +49,7 @@ const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
 export default RequestEditor;
 
 const StyledForm = styled(Form)`
-  padding: 12px;
+  padding: 0 12px;
 `;
 
 const StyledFormItem = styled(Form.Item)`
