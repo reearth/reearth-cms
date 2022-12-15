@@ -1,4 +1,4 @@
-Download: ダウンロード
+Download: 'ダウンロード'
 Loading: ローディング中
 Oops!: ''
 PAGE NOT FOUND ON SERVER: ''
@@ -19,53 +19,53 @@ Auto: ''
 Service Language: ''
 This will change the UI language: ''
 Language: ''
-Asset Type: アセットの種類
-Created Time: 作成日時
-Created By: 作成者
+Asset Type: 'アセットの種類'
+Created Time: '作成日時'
+Created By: '作成者'
 Asset: アセット
-Source Code: ''
-Render: ''
+Source Code: 'ソースコード'
+Render: 'レンダー'
 PNG/JPEG/TIFF/SVG: ''
 JSON/SHAPEFILE/KML/CZML: ''
 GEO3D: ''
 MODEL3D/GLB: ''
 MVT: ''
-Unknown Type: 不明
-Could not display svg: svgを表示できませんでした。
-Decompressing...: 解凍中
-Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
-Not supported: プレビュー対応していないデータフォーマットです。
-Decompressed: 解凍完了
-Failed: 失敗
-Decompressing: 解凍中
-File: ファイル
-Size: サイズ
-Preview Type: プレビュータイプ
-Status: ステータス
-Created At: 作成日時
+Unknown Type: '不明'
+Could not display svg: 'svgを表示できませんでした。'
+Decompressing...: '解凍中'
+Failed to decompress. Please check the file and try again.: '解凍に失敗しました。 ファイルを確認して、もう一度お試しください。'
+Not supported: 'プレビュー対応していないデータフォーマットです。'
+Decompressed: '解凍完了'
+Failed: '失敗'
+Decompressing: '解凍中'
+File: 'ファイル'
+Size: 'サイズ'
+Preview Type: 'プレビュータイプ'
+Status: 'ステータス'
+Created At: '作成日時'
 ID: ''
-Deselect: ''
+Deselect: '選択解除'
 Delete: 削除
-Upload Asset: アセットをアップロード
-Click or drag files to this area to upload: このエリアにファイルをクリックまたはドラッグしてアップロードします
-Single or multiple file upload is supported: 複数のファイルのアップロードが可能です。
-Asset Uploader: アセットアップローダー
-Local: ローカル
+Upload Asset: 'アセットをアップロード'
+Click or drag files to this area to upload: 'このエリアにファイルをクリックまたはドラッグしてアップロードします'
+Single or multiple file upload is supported: '複数のファイルのアップロードが可能です。'
+Asset Uploader: 'アセットアップローダー'
+Local: 'ローカル'
 URL: ''
 Cancel: キャンセル
-Uploading: アップロード中
-Upload and Link: アップロードとリンク
-Upload: アップロード
-Please input the URL of the asset!: アセットのURLを入力してください!
-Please input a valid URL: 有効なURLを入力してください
-Comment: コメント
-Comments: コメント
+Uploading: 'アップロード中'
+Upload and Link: 'アップロードとリンク'
+Upload: 'アップロード'
+Please input the URL of the asset!: 'アセットのURLを入力してください!'
+Please input a valid URL: '有効なURLを入力してください'
+Comment: 'コメント'
+Comments: 'コメント'
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
-Link Asset: アセットをリンク
+Link Asset: 'アセットをリンク'
 New: 追加
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
@@ -204,19 +204,19 @@ Failed to update language.: ''
 Successfully updated language!: ''
 Failed to delete user.: ''
 Successfully deleted user!: ''
-Failed to update asset.: アセットの更新に失敗しました。
-Asset was successfully updated!: アセットの更新に成功しました。
-Failed to add one or more assets.: アセットの追加に失敗しました。
-Successfully added one or more assets!: アセットの追加に成功しました。
-Successfully added asset!: アセットの追加に成功しました。
-Failed to add asset.: アセットを追加に失敗しました。
-Failed to delete one or more assets.: アセットの削除に失敗しました。
-One or more assets were successfully deleted!: アセットの削除に成功しました。
-No comments.: コメントはありません。
-Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
+Failed to update asset.: 'アセットの更新に失敗しました。'
+Asset was successfully updated!: 'アセットの更新に成功しました。'
+Failed to add one or more assets.: 'アセットの追加に失敗しました。'
+Successfully added one or more assets!: 'アセットの追加に成功しました。'
+Successfully added asset!: 'アセットの追加に成功しました。'
+Failed to add asset.: 'アセットを追加に失敗しました。'
+Failed to delete one or more assets.: 'アセットの削除に失敗しました。'
+One or more assets were successfully deleted!: 'アセットの削除に成功しました。'
+No comments.: 'コメントはありません。'
+Please click the comment bubble in the table to check comments.: 'コメントを確認するには、表のコメントアイコンををクリックしてください。'
 Successfully created workspace!: ''
-Failed to create comment.: コメントの作成に失敗しました。
-Successfully created comment!: コメントが作成に成功しました。
+Failed to create comment.: 'コメントの作成に失敗しました。'
+Successfully created comment!: 'コメントが作成に成功しました。'
 Failed to create item.: ''
 Successfully created Item!: ''
 Failed to update item.: ''
