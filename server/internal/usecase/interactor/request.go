@@ -214,7 +214,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	}
 
 	if req.State() != request.StateWaiting {
-		return nil, errors.New("only waiting requests can be approved")
+		return nil, errors.New("only requests with status waiting can be approved")
 	}
 	req.SetState(request.StateApproved)
 
