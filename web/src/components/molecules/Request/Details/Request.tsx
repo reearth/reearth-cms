@@ -36,16 +36,17 @@ const RequestMolecule: React.FC<Props> = ({
         onBack={onBack}
         extra={
           <>
-            {currentRequest.state !== "CLOSED" && (
-              <Button type="primary" onClick={() => onRequestDelete([currentRequest.id])}>
-                {t("Close")}
-              </Button>
-            )}
-            {currentRequest.state === "WAITING" && (
-              <Button type="primary" onClick={() => onRequestApprove(currentRequest.id)}>
-                {t("Approve")}
-              </Button>
-            )}
+            <Button
+              disabled={currentRequest.state !== "CLOSED" && currentRequest.state !== "APPROVED"}
+              onClick={() => onRequestDelete([currentRequest.id])}>
+              {t("Close")}
+            </Button>
+            <Button
+              disabled={currentRequest.state !== "WAITING"}
+              type="primary"
+              onClick={() => onRequestApprove(currentRequest.id)}>
+              {t("Approve")}
+            </Button>
           </>
         }
       />
