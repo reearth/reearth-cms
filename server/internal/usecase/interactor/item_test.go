@@ -644,7 +644,7 @@ func TestItem_Update(t *testing.T) {
 	op := &usecase.Operator{
 		User:             id.NewUserID().Ref(),
 		ReadableProjects: []id.ProjectID{s.Project()},
-		WritableProjects: []id.ProjectID{s.Project()},
+		OwningProjects:   []id.ProjectID{s.Project()},
 	}
 
 	// ok
@@ -761,8 +761,8 @@ func TestItem_Delete(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		WritableProjects: id.ProjectIDList{i1.Project()},
+		User:           lo.ToPtr(u.ID()),
+		OwningProjects: id.ProjectIDList{i1.Project()},
 	}
 	ctx := context.Background()
 

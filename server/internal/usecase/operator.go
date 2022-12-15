@@ -153,8 +153,11 @@ func (o *Operator) Operator() operator.Operator {
 }
 
 func (o *Operator) CanUpdate(obj Ownable) bool {
-	isOwned := obj.User() == o.User || obj.Integration() == o.Integration
 	isWriter := o.IsWritableProject(obj.Project())
 	isMaintainer := o.IsMaintainingProject(obj.Project())
-	return isMaintainer || (isWriter && isOwned)
+	return isMaintainer || (isWriter && o.Owns(obj))
+}
+
+func (o *Operator) Owns(obj Ownable) bool {
+	return (o.User != nil && obj.User() == o.User) || (o.Integration != nil && obj.Integration() == o.Integration)
 }
