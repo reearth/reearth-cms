@@ -1,46 +1,27 @@
+import { Viewer } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
-import { FC, useEffect, useState } from "react";
-import { useCesium } from "resium";
+import { useEffect } from "react";
 
-// import { ImageryProviderOption } from "./index";
+import { ImageryProviderOption } from "./imagery.type";
 
-// type Props = {
-//   imageryOption: ImageryProviderOption;
-// };
-export const Imagery: FC = () => {
-  const { viewer } = useCesium();
-  const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
+type Props = {
+  imageryOption: ImageryProviderOption;
+  viewer: Viewer | undefined;
+};
+
+export const Imagery: React.FC<Props> = ({ imageryOption, viewer }) => {
   useEffect(() => {
-    const imageryProvider = new MVTImageryProvider({
-      urlTemplate: "http://localhost:8080/sample_mvt/{z}/{x}/{y}.mvt",
-      layerName: "layerName",
-      style: _feature => {
-        if (isFeatureSelected) {
-          return {
-            strokeStyle: "orange",
-            fillStyle: "orange",
-            lineWidth: 1,
-          };
-        }
-        return {
-          strokeStyle: "green",
-          fillStyle: "green",
-          lineWidth: 1,
-        };
-      },
-      onSelectFeature: _feature => {
-        setIsFeatureSelected(v => !v);
-      },
-      credit: "cesium.js",
-    });
+    const imageryProvider = new MVTImageryProvider(imageryOption);
+    if (viewer) {
+      const layers = viewer.scene.imageryLayers;
+      const currentLayer = layers.addImageryProvider(imageryProvider);
+      currentLayer.alpha = 0.5;
 
-    const layers = viewer.scene.imageryLayers;
-    const currentLayer = layers.addImageryProvider(imageryProvider);
-    currentLayer.alpha = 0.5;
+      return () => {
+        layers.remove(currentLayer);
+      };
+    }
+  }, [viewer, imageryOption.urlTemplate, imageryOption]);
 
-    return () => {
-      layers.remove(currentLayer);
-    };
-  }, [viewer, isFeatureSelected]);
   return <div />;
 };

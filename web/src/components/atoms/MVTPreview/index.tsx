@@ -1,14 +1,29 @@
-import styled from "@emotion/styled";
+import { Viewer } from "cesium";
+import { ComponentProps } from "react";
+import { Viewer as ResiumViewer } from "resium";
 
-type Props = {};
+import { Imagery } from "./Imagery";
+import { ImageryProviderOption } from "./imagery.type";
 
-const MVTPreview: React.FC<Props> = () => {
-  return <Wrapper>this is mvt previewer</Wrapper>;
+type Props = {
+  viewerProps?: ComponentProps<typeof ResiumViewer>;
+  imageryOption: ImageryProviderOption;
+  onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
-const Wrapper = styled.div`
-  width: 100%;
-  height: 500px;
-`;
+const MVTPreview: React.FC<Props> = ({ viewerProps, imageryOption, onGetViewer }) => {
+  let viewer: Viewer | undefined;
+
+  return (
+    <ResiumViewer
+      {...viewerProps}
+      ref={e => {
+        viewer = e?.cesiumElement;
+        onGetViewer(viewer);
+      }}>
+      <Imagery imageryOption={imageryOption} viewer={viewer} />
+    </ResiumViewer>
+  );
+};
 
 export default MVTPreview;

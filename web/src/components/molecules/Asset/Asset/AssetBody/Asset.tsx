@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import MVTPreview from "@reearth-cms/components/atoms/MVTPreview";
+import {
+  ImageryProviderOption,
+  URLTemplate,
+} from "@reearth-cms/components/atoms/MVTPreview/imagery.type";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -65,6 +69,10 @@ const AssetMolecule: React.FC<Props> = ({
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
+  const imageryOption: ImageryProviderOption = {
+    urlTemplate: assetUrl as URLTemplate,
+    layerName: asset.fileName,
+  };
   const renderPreview = () => {
     switch (true) {
       case (selectedPreviewType === "GEO" ||
@@ -100,7 +108,26 @@ const AssetMolecule: React.FC<Props> = ({
           <Image src={assetUrl} alt="asset-preview" />
         );
       case selectedPreviewType === "MVT" && assetFileExt === "mvt":
-        return <MVTPreview />;
+        return (
+          <MVTPreview
+            viewerProps={{
+              terrainProvider: createWorldTerrain(),
+              navigationHelpButton: false,
+              homeButton: false,
+              projectionPicker: false,
+              sceneModePicker: false,
+              baseLayerPicker: false,
+              fullscreenButton: false,
+              vrButton: false,
+              selectionIndicator: false,
+              timeline: false,
+              animation: false,
+              geocoder: false,
+            }}
+            imageryOption={imageryOption}
+            onGetViewer={getViewer}
+          />
+        );
       default:
         return <ViewerNotSupported />;
     }
