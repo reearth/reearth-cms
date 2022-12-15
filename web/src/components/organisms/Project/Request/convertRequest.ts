@@ -6,8 +6,13 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
   return {
     id: GQLRequest.id,
     threadId: GQLRequest.thread?.id ?? "",
+    title: GQLRequest.title,
     comments: GQLRequest.thread?.comments?.map(comment => convertComment(comment)) ?? [],
     createdAt: GQLRequest.createdAt,
+    reviewers: GQLRequest.reviewers,
+    state: GQLRequest.state,
+    createdBy: GQLRequest.createdBy,
+    updatedAt: GQLRequest.updatedAt,
   };
 };
 

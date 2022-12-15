@@ -58,7 +58,7 @@ export default () => {
   );
 
   const handleNavigateToRequest = (request: Request) => {
-    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/asset/${request.id}`);
+    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${request.id}`);
   };
 
   const [deleteRequestMutation] = useDeleteRequestMutation();

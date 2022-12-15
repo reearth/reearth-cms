@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Key } from "react";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -50,29 +51,74 @@ const RequestListTable: React.FC<Props> = ({
   const columns: ProColumns<Request>[] = [
     {
       title: "",
-      render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(asset)} />
+      render: (_, request) => (
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request)} />
       ),
     },
     {
       title: () => <Icon icon="message" />,
       dataIndex: "commentsCount",
       key: "commentsCount",
-      render: (_, asset) => {
+      render: (_, request) => {
         return (
-          <Button type="link" onClick={() => onRequestSelect(asset.id)}>
+          <Button type="link" onClick={() => onRequestSelect(request.id)}>
             <CustomTag
-              value={asset.comments?.length || 0}
-              color={asset.id === selectedRequest?.id ? "#87e8de" : undefined}
+              value={request.comments?.length || 0}
+              color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
             />
           </Button>
         );
       },
     },
     {
+      title: t("Title"),
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: t("State"),
+      dataIndex: "requestState",
+      key: "requestState",
+      render: (_, request) => {
+        let color = "";
+        switch (request.state) {
+          case "APPROVED":
+            color = "#52C41A";
+            break;
+          case "CLOSED":
+            color = "#F5222D";
+            break;
+          case "WAITING":
+            color = "#FA8C16";
+            break;
+          case "DRAFT":
+          default:
+            break;
+        }
+        return <Badge color={color} text={request.state} />;
+      },
+    },
+    {
+      title: t("Created By"),
+      dataIndex: "createdBy",
+      key: "createdBy",
+    },
+    {
+      title: t("reviewers"),
+      dataIndex: "reviewers.name",
+      key: "reviewers",
+    },
+    {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
+      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
+      render: (_text, record) => dateTimeFormat(record.createdAt),
+    },
+    {
+      title: t("Updated At"),
+      dataIndex: "updatedAt",
+      key: "updatedAt",
       sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
