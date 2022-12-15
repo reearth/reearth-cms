@@ -20,8 +20,8 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
   return (
     <ContentWrapper>
       <ThreadWrapper>
-        <RequestDescription currentRequest={currentRequest} />
         <CommentsContainer>
+          <RequestDescription currentRequest={currentRequest} />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList comments={currentRequest.comments} />
           )}
@@ -31,6 +31,8 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
       {!currentRequest.comments || currentRequest.comments.length === 0 ? (
         <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
       ) : null}
+
+      <ThreadDivider />
 
       <AntDComment
         avatar={
@@ -47,7 +49,7 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
 export default RequestThread;
 
 const ThreadWrapper = styled.div`
-  padding: 12px;
+  padding: 0 12px;
   overflow: auto;
 `;
 
@@ -66,4 +68,10 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+`;
+
+const ThreadDivider = styled.div`
+  border-top: 1px solid #d9d9d9;
+  width: calc(100% - 12px);
+  padding: 0 12px;
 `;

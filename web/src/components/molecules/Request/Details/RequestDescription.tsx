@@ -42,25 +42,11 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
 };
 
 const StyledAntDComment = styled(AntDComment)`
+  .ant-comment-inner {
+    padding-top: 0;
+  }
   .ant-comment-content {
     background-color: #fff;
     padding: 12px 24px;
   }
 `;
-
-// const RequestDescription = styled.div`
-//   .ant-comment {
-//     .ant-comment-content {
-//       &:before {
-//         content: "";
-//         display: block;
-//         position: absolute;
-//         width: 4px;
-//         height: 32px;
-//         background-color: #d9d9d9;
-//         left: 16px;
-//         top: -32px;
-//       }
-//     }
-//   }
-// `;
