@@ -58,7 +58,7 @@ func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) 
 		return nil, err
 	}
 
-	itm, err := c.usecase.FindPublicByID(ctx, iId, op)
+	itm, err := c.usecase.FindByID(ctx, iId, op)
 	if err != nil {
 		return nil, err
 	}
