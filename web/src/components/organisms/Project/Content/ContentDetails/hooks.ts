@@ -3,11 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
+import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   Item as GQLItem,
-  RequestState,
+  RequestState as GQLRequestState,
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
@@ -155,7 +156,7 @@ export default () => {
           projectId,
           title: data.title,
           description: data.description,
-          state: data.state,
+          state: data.state as GQLRequestState,
           reviewersId: data.reviewersId,
           items: data.items,
         },
