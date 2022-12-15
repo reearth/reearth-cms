@@ -19,7 +19,11 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
   return (
     <StyledAntDComment
       author={<a>{currentRequest.createdBy?.name}</a>}
-      avatar={<Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>D</Avatar>}
+      avatar={
+        <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+          {currentRequest.createdBy?.name.charAt(0)}
+        </Avatar>
+      }
       content={
         <>
           <h1>{currentRequest.title}</h1>
