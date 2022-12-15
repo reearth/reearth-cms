@@ -90,7 +90,7 @@ func (m *Multiple) Type() Type {
 // Interface converts the value into generic representation
 func (m *Multiple) Interface() []any {
 	if m.IsEmpty() {
-		return nil
+		return []any{}
 	}
 
 	return lo.Map(m.v, func(v *Value, i int) any {
