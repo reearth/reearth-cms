@@ -106,6 +106,9 @@ const RequestListTable: React.FC<Props> = ({
     {
       title: t("reviewers"),
       dataIndex: "reviewers.name",
+      render: (_, request) => {
+        return request.reviewers.map(reviewer => reviewer.name);
+      },
       key: "reviewers",
     },
     {

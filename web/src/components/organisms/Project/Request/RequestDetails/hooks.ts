@@ -51,9 +51,10 @@ export default () => {
         }
         if (result) {
           Notification.success({ message: t("One or more requests were successfully deleted!") });
+          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
         }
       })(),
-    [t, projectId, deleteRequestMutation],
+    [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
   );
 
   const [approveRequestMutation] = useApproveRequestMutation();
