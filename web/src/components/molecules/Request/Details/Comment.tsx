@@ -6,10 +6,10 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
-  comment: Comment;
+  comment: CommentType;
 };
 
 const ThreadCommentMoecule: React.FC<Props> = ({ comment }) => {
