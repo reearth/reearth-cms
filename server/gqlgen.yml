@@ -79,6 +79,8 @@ models:
     fields:
       item:
         resolver: true
+      versioned:
+        resolver: true
   SchemaField:
     fields:
       model:

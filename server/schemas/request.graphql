@@ -24,7 +24,8 @@ type RequestItem {
   itemId: ID!
   version: String
   ref: String
-  item: VersionedItem
+  item: Item!
+  versioned: VersionedItem!
 }
 
 enum RequestState {
