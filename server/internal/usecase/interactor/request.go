@@ -191,7 +191,7 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	if err != nil {
 		return err
 	}
-	reqs.CloseAll()
+	reqs.UpdateStatus(request.StateClosed)
 
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
@@ -212,7 +212,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	if !req.Reviewers().Has(*operator.User) {
 		return nil, errors.New("only reviewers can approve")
 	}
+
+	if req.State() != request.StateWaiting {
+		return nil, errors.New("only requests with status waiting can be approved")
+	}
 	req.SetState(request.StateApproved)
+
 	if err := r.repos.Request.Save(ctx, req); err != nil {
 		return nil, err
 	}

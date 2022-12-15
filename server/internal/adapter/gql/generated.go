@@ -402,6 +402,7 @@ type ComplexityRoot struct {
 		ClosedAt    func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		CreatedBy   func(childComplexity int) int
+		CreatedByID func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Items       func(childComplexity int) int
@@ -701,6 +702,7 @@ type QueryResolver interface {
 }
 type RequestResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Thread, error)
+	CreatedBy(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.User, error)
 	Workspace(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Workspace, error)
 	Project(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Project, error)
 	Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error)
@@ -2419,6 +2421,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Request.CreatedBy(childComplexity), true
 
+	case "Request.createdById":
+		if e.complexity.Request.CreatedByID == nil {
+			break
+		}
+
+		return e.complexity.Request.CreatedByID(childComplexity), true
+
 	case "Request.description":
 		if e.complexity.Request.Description == nil {
 			break
@@ -3851,7 +3860,7 @@ extend type Mutation {
   items: [RequestItem!]!
   title: String!
   description: String
-  createdBy: ID!
+  createdById: ID!
   workspaceId: ID!
   projectId: ID!
   threadId: ID!
@@ -3862,6 +3871,7 @@ extend type Mutation {
   approvedAt: DateTime
   closedAt: DateTime
   thread: Thread
+  createdBy: User
   workspace: Workspace
   project: Project
   reviewers: [User!]!
@@ -16040,8 +16050,8 @@ func (ec *executionContext) fieldContext_Request_description(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Request) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Request_createdBy(ctx, field)
+func (ec *executionContext) _Request_createdById(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Request) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Request_createdById(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16054,7 +16064,7 @@ func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedBy, nil
+		return obj.CreatedByID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16071,7 +16081,7 @@ func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphq
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Request_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Request_createdById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Request",
 		Field:      field,
@@ -16525,6 +16535,55 @@ func (ec *executionContext) fieldContext_Request_thread(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Request) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Request_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Request().CreatedBy(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Request_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Request",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Request_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Request) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Request_workspace(ctx, field)
 	if err != nil {
@@ -16786,8 +16845,8 @@ func (ec *executionContext) fieldContext_RequestConnection_nodes(ctx context.Con
 				return ec.fieldContext_Request_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Request_description(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Request_createdBy(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Request_createdById(ctx, field)
 			case "workspaceId":
 				return ec.fieldContext_Request_workspaceId(ctx, field)
 			case "projectId":
@@ -16808,6 +16867,8 @@ func (ec *executionContext) fieldContext_RequestConnection_nodes(ctx context.Con
 				return ec.fieldContext_Request_closedAt(ctx, field)
 			case "thread":
 				return ec.fieldContext_Request_thread(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Request_createdBy(ctx, field)
 			case "workspace":
 				return ec.fieldContext_Request_workspace(ctx, field)
 			case "project":
@@ -17007,8 +17068,8 @@ func (ec *executionContext) fieldContext_RequestEdge_node(ctx context.Context, f
 				return ec.fieldContext_Request_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Request_description(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Request_createdBy(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Request_createdById(ctx, field)
 			case "workspaceId":
 				return ec.fieldContext_Request_workspaceId(ctx, field)
 			case "projectId":
@@ -17029,6 +17090,8 @@ func (ec *executionContext) fieldContext_RequestEdge_node(ctx context.Context, f
 				return ec.fieldContext_Request_closedAt(ctx, field)
 			case "thread":
 				return ec.fieldContext_Request_thread(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Request_createdBy(ctx, field)
 			case "workspace":
 				return ec.fieldContext_Request_workspace(ctx, field)
 			case "project":
@@ -17266,8 +17329,8 @@ func (ec *executionContext) fieldContext_RequestPayload_request(ctx context.Cont
 				return ec.fieldContext_Request_title(ctx, field)
 			case "description":
 				return ec.fieldContext_Request_description(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Request_createdBy(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Request_createdById(ctx, field)
 			case "workspaceId":
 				return ec.fieldContext_Request_workspaceId(ctx, field)
 			case "projectId":
@@ -17288,6 +17351,8 @@ func (ec *executionContext) fieldContext_RequestPayload_request(ctx context.Cont
 				return ec.fieldContext_Request_closedAt(ctx, field)
 			case "thread":
 				return ec.fieldContext_Request_thread(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Request_createdBy(ctx, field)
 			case "workspace":
 				return ec.fieldContext_Request_workspace(ctx, field)
 			case "project":
@@ -28784,9 +28849,9 @@ func (ec *executionContext) _Request(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Request_description(ctx, field, obj)
 
-		case "createdBy":
+		case "createdById":
 
-			out.Values[i] = ec._Request_createdBy(ctx, field, obj)
+			out.Values[i] = ec._Request_createdById(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -28858,6 +28923,23 @@ func (ec *executionContext) _Request(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Request_thread(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "createdBy":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Request_createdBy(ctx, field, obj)
 				return res
 			}
 
