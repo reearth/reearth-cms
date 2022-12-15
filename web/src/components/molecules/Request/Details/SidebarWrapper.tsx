@@ -30,7 +30,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({ currentRequest }) => {
           text={currentRequest?.state}
         />
       </SidebarCard>
-      <SidebarCard title={t("Created By")}>{currentRequest?.createdBy}</SidebarCard>
+      <SidebarCard title={t("Created By")}>{currentRequest?.createdBy?.name}</SidebarCard>
       <SidebarCard title={t("Created Time")}>{formattedCreatedAt}</SidebarCard>
     </SideBarWrapper>
   );

@@ -100,16 +100,19 @@ const RequestListTable: React.FC<Props> = ({
     },
     {
       title: t("Created By"),
-      dataIndex: "createdBy",
+      dataIndex: "createdBy.name",
       key: "createdBy",
+      render: (_, request) => {
+        return request.createdBy?.name;
+      },
     },
     {
       title: t("reviewers"),
       dataIndex: "reviewers.name",
+      key: "reviewers",
       render: (_, request) => {
         return request.reviewers.map(reviewer => reviewer.name);
       },
-      key: "reviewers",
     },
     {
       title: t("Created At"),

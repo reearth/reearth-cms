@@ -11,7 +11,7 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     createdAt: GQLRequest.createdAt,
     reviewers: GQLRequest.reviewers,
     state: GQLRequest.state,
-    createdBy: GQLRequest.createdBy,
+    createdBy: GQLRequest.createdBy ?? undefined,
     updatedAt: GQLRequest.updatedAt,
   };
 };

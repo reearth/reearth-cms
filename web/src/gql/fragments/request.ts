@@ -17,7 +17,11 @@ export const requestFragment = gql`
     }
     title
     description
-    createdBy
+    createdBy {
+      id
+      name
+      email
+    }
     workspaceId
     projectId
     threadId

@@ -10,7 +10,7 @@ export type Request = {
   createdAt: Date;
   reviewers: User[];
   state: RequestState;
-  createdBy: string;
+  createdBy?: User;
   updatedAt: Date;
 };
 
