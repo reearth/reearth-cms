@@ -31,3 +31,7 @@ func (r requestResolver) Reviewers(ctx context.Context, obj *gqlmodel.Request) (
 	}
 	return res, nil
 }
+
+func (r requestResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.User, error) {
+	return dataloaders(ctx).User.Load(obj.CreatedByID)
+}

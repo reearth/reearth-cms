@@ -36,7 +36,7 @@ func TestToRequest(t *testing.T) {
 		}},
 		Title:       "foo",
 		Description: lo.ToPtr("xxx"),
-		CreatedBy:   IDFrom(req.CreatedBy()),
+		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
 		ThreadID:    IDFrom(req.Thread()),

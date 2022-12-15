@@ -507,7 +507,7 @@ type Request struct {
 	Items       []*RequestItem `json:"items"`
 	Title       string         `json:"title"`
 	Description *string        `json:"description"`
-	CreatedBy   ID             `json:"createdBy"`
+	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
 	ThreadID    ID             `json:"threadId"`
@@ -518,6 +518,7 @@ type Request struct {
 	ApprovedAt  *time.Time     `json:"approvedAt"`
 	ClosedAt    *time.Time     `json:"closedAt"`
 	Thread      *Thread        `json:"thread"`
+	CreatedBy   *User          `json:"createdBy"`
 	Workspace   *Workspace     `json:"workspace"`
 	Project     *Project       `json:"project"`
 	Reviewers   []*User        `json:"reviewers"`
