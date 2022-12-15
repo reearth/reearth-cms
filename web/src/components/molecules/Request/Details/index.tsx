@@ -1,7 +1,9 @@
 import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 export type Props = {
+  me?: User;
   currentRequest?: Request;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -10,6 +12,7 @@ export type Props = {
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
+  me,
   currentRequest,
   onRequestApprove,
   onRequestDelete,
@@ -18,6 +21,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
 }) => {
   return currentRequest ? (
     <RequestMolecule
+      me={me}
       currentRequest={currentRequest}
       onRequestApprove={onRequestApprove}
       onRequestDelete={onRequestDelete}

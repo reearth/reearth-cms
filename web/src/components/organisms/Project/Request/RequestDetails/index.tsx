@@ -4,6 +4,7 @@ import useHooks from "./hooks";
 
 const RequestDetails: React.FC = () => {
   const {
+    me,
     currentRequest,
     handleRequestApprove,
     handleRequestDelete,
@@ -13,6 +14,7 @@ const RequestDetails: React.FC = () => {
 
   return (
     <RequestDetailsMolecule
+      me={me}
       currentRequest={currentRequest}
       onRequestApprove={handleRequestApprove}
       onRequestDelete={handleRequestDelete}

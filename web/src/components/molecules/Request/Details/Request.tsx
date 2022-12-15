@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { useT } from "@reearth-cms/i18n";
 
@@ -10,6 +11,7 @@ import { Request } from "../types";
 import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
+  me?: User;
   currentRequest: Request;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -18,6 +20,7 @@ type Props = {
 };
 
 const RequestMolecule: React.FC<Props> = ({
+  me,
   currentRequest,
   onCommentCreate,
   onRequestApprove,
@@ -48,7 +51,11 @@ const RequestMolecule: React.FC<Props> = ({
       />
       <BodyWrapper>
         <ThreadWrapper>
-          <RequestThread comments={currentRequest.comments} onCommentCreate={onCommentCreate} />
+          <RequestThread
+            me={me}
+            comments={currentRequest.comments}
+            onCommentCreate={onCommentCreate}
+          />
         </ThreadWrapper>
         <RequestSidebarWrapper currentRequest={currentRequest} />
       </BodyWrapper>

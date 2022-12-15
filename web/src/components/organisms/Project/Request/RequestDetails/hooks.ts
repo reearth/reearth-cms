@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
@@ -10,6 +11,7 @@ import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useAddCommentMutation,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
@@ -20,6 +22,19 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
+
+  const { data: userData } = useGetMeQuery();
+
+  const me: User | undefined = useMemo(() => {
+    return userData?.me
+      ? {
+          id: userData.me.id,
+          name: userData.me.name,
+          lang: userData.me.lang,
+          email: userData.me.email,
+        }
+      : undefined;
+  }, [userData]);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -102,6 +117,7 @@ export default () => {
   };
 
   return {
+    me,
     currentRequest,
     handleRequestDelete,
     handleRequestApprove,

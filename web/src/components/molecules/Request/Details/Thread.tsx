@@ -2,18 +2,20 @@ import styled from "@emotion/styled";
 
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 
 import RequestEditor from "./Editor";
 
 export type Props = {
+  me?: User;
   comments?: Comment[];
   emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
 };
 
-const RequestThread: React.FC<Props> = ({ comments, emptyText, onCommentCreate }) => {
+const RequestThread: React.FC<Props> = ({ me, comments, emptyText, onCommentCreate }) => {
   return (
     <ContentWrapper>
       <ThreadWrapper>
@@ -27,7 +29,7 @@ const RequestThread: React.FC<Props> = ({ comments, emptyText, onCommentCreate }
       <AntDComment
         avatar={
           <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-            {comments?.[0].author.charAt(0)}
+            {me?.name.charAt(0)}
           </Avatar>
         }
         content={<RequestEditor onCommentCreate={onCommentCreate} />}
