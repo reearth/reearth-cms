@@ -287,10 +287,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 		var min, max *int64
 		if x.Min != nil {
-			min = lo.ToPtr(int64(*min))
+			min = lo.ToPtr(int64(*x.Min))
 		}
 		if x.Max != nil {
-			min = lo.ToPtr(int64(*max))
+			max = lo.ToPtr(int64(*x.Max))
 		}
 		tpi, err2 := schema.NewInteger(min, max)
 		if err2 != nil {

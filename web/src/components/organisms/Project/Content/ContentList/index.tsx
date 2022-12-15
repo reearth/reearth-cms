@@ -15,6 +15,8 @@ const ContentList: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
+    selection,
+    setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -22,6 +24,7 @@ const ContentList: React.FC = () => {
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
+    handleItemDelete,
     itemsDataLoading,
   } = useHooks();
 
@@ -47,6 +50,7 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
+      selection={selection}
       modelsMenu={
         <ModelsMenu
           title={t("Content")}
@@ -54,9 +58,11 @@ const ContentList: React.FC = () => {
           onModelSelect={handleModelSelect}
         />
       }
+      setSelection={setSelection}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
     />
   );
