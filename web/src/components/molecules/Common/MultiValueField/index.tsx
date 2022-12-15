@@ -29,7 +29,7 @@ const MultiValueField: React.FC<Props> = ({
     (e: ChangeEvent<HTMLInputElement>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
-          index === id ? (typeof e === "number" ? e : e.target.value) : valueItem,
+          index === id ? (typeof e === "number" ? e : e?.target.value) : valueItem,
         ),
       );
     },
