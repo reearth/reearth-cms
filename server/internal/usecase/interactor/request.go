@@ -191,7 +191,7 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	if err != nil {
 		return err
 	}
-	reqs.CloseAll()
+	reqs.UpdateStatus(request.StateClosed)
 
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
