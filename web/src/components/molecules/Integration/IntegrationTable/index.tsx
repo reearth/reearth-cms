@@ -1,25 +1,39 @@
 import styled from "@emotion/styled";
+import { Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import ProTable, { ListToolBarProps, ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, {
+  ListToolBarProps,
+  ProColumns,
+  TableRowSelection,
+} from "@reearth-cms/components/atoms/ProTable";
+import Space from "@reearth-cms/components/atoms/Space";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   integrationMembers?: IntegrationMember[];
+  selection: {
+    selectedRowKeys: Key[];
+  };
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
 };
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,
+  selection,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
+  setSelection,
+  onIntegrationRemove,
 }) => {
   const t = useT();
 
@@ -60,6 +74,29 @@ const IntegrationTable: React.FC<Props> = ({
     },
   };
 
+  const rowSelection: TableRowSelection = {
+    selectedRowKeys: selection.selectedRowKeys,
+    onChange: (selectedRowKeys: Key[]) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys: selectedRowKeys,
+      });
+    },
+  };
+
+  const AlertOptions = (props: any) => {
+    return (
+      <Space size={16}>
+        <DeselectButton onClick={props.onCleanSelected}>
+          <Icon icon="clear" /> {t("Deselect")}
+        </DeselectButton>
+        <DeleteButton onClick={() => onIntegrationRemove?.(props.selectedRowKeys)}>
+          <Icon icon="delete" /> {t("Remove")}
+        </DeleteButton>
+      </Space>
+    );
+  };
+
   const options = {
     fullScreen: true,
     reload: false,
@@ -98,9 +135,11 @@ const IntegrationTable: React.FC<Props> = ({
           options={options}
           dataSource={integrationMembers}
           columns={columns}
+          tableAlertOptionRender={AlertOptions}
           search={false}
           rowKey="id"
           toolbar={handleToolbarEvents}
+          rowSelection={rowSelection}
           pagination={false}
         />
       </ConfigProvider>
@@ -139,3 +178,13 @@ const Title = styled.h1`
 `;
 
 export default IntegrationTable;
+
+const DeselectButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DeleteButton = styled.a`
+  color: #ff7875;
+`;

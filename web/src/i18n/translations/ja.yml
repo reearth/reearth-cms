@@ -102,6 +102,7 @@ Writer: 編集者
 Maintainer: ''
 Name: 名前
 Creator: 作成者
+Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: ''
 Or read: 読む
@@ -220,6 +221,8 @@ Failed to create item.: ''
 Successfully created Item!: ''
 Failed to update item.: ''
 Successfully updated Item!: ''
+Failed to delete one or more items.: ''
+One or more items were successfully deleted!: ''
 Failed to create model.: ''
 Successfully created model!: ''
 Failed to delete model.: ''
@@ -245,6 +248,8 @@ Failed to connect integration.: ''
 Successfully connected integration to the workspace!: ''
 Failed to update workspace integration.: ''
 Successfully updated workspace integration!: ''
+Failed to delete one or more intagrations.: ''
+One or more integrations were successfully deleted!: ''
 Failed to add one or more members.: ''
 Successfully added member(s) to the workspace!: ''
 Failed to delete member from the workspace.: ''
@@ -252,7 +257,6 @@ Successfully removed member from the workspace!: ''
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Change Role?: ロールを変更
-Remove: 削除
 Members: メンバー
 New Member: メンバーを追加
 search for a member: 検索
