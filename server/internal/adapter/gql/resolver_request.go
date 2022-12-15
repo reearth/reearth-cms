@@ -41,10 +41,14 @@ func (r *Resolver) RequestItem() RequestItemResolver {
 
 type requestItemResolver struct{ *Resolver }
 
-func (r requestItemResolver) Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.Item, error) {
-	return dataloaders(ctx).Item.Load(obj.ItemID)
+func (r requestItemResolver) Schema(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.Schema, error) {
+	itm, err := dataloaders(ctx).Item.Load(obj.ItemID)
+	if err != nil {
+		return nil, err
+	}
+	return dataloaders(ctx).Schema.Load(itm.SchemaID)
 }
 
-func (r requestItemResolver) Versioned(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error) {
+func (r requestItemResolver) Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error) {
 	return loaders(ctx).Item.FindVersionedItem(ctx, obj.ItemID)
 }

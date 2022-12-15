@@ -79,7 +79,7 @@ models:
     fields:
       item:
         resolver: true
-      versioned:
+      schema:
         resolver: true
   SchemaField:
     fields:

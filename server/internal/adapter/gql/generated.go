@@ -433,11 +433,11 @@ type ComplexityRoot struct {
 	}
 
 	RequestItem struct {
-		Item      func(childComplexity int) int
-		ItemID    func(childComplexity int) int
-		Ref       func(childComplexity int) int
-		Version   func(childComplexity int) int
-		Versioned func(childComplexity int) int
+		Item    func(childComplexity int) int
+		ItemID  func(childComplexity int) int
+		Ref     func(childComplexity int) int
+		Schema  func(childComplexity int) int
+		Version func(childComplexity int) int
 	}
 
 	RequestPayload struct {
@@ -710,8 +710,8 @@ type RequestResolver interface {
 	Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error)
 }
 type RequestItemResolver interface {
-	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.Item, error)
-	Versioned(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
+	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
+	Schema(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.Schema, error)
 }
 type SchemaResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
@@ -2595,19 +2595,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RequestItem.Ref(childComplexity), true
 
+	case "RequestItem.schema":
+		if e.complexity.RequestItem.Schema == nil {
+			break
+		}
+
+		return e.complexity.RequestItem.Schema(childComplexity), true
+
 	case "RequestItem.version":
 		if e.complexity.RequestItem.Version == nil {
 			break
 		}
 
 		return e.complexity.RequestItem.Version(childComplexity), true
-
-	case "RequestItem.versioned":
-		if e.complexity.RequestItem.Versioned == nil {
-			break
-		}
-
-		return e.complexity.RequestItem.Versioned(childComplexity), true
 
 	case "RequestPayload.request":
 		if e.complexity.RequestPayload.Request == nil {
@@ -3894,8 +3894,8 @@ type RequestItem {
   itemId: ID!
   version: String
   ref: String
-  item: Item!
-  versioned: VersionedItem!
+  item: VersionedItem
+  schema: Schema
 }
 
 enum RequestState {
@@ -15972,8 +15972,8 @@ func (ec *executionContext) fieldContext_Request_items(ctx context.Context, fiel
 				return ec.fieldContext_RequestItem_ref(ctx, field)
 			case "item":
 				return ec.fieldContext_RequestItem_item(ctx, field)
-			case "versioned":
-				return ec.fieldContext_RequestItem_versioned(ctx, field)
+			case "schema":
+				return ec.fieldContext_RequestItem_schema(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RequestItem", field.Name)
 		},
@@ -17268,83 +17268,14 @@ func (ec *executionContext) _RequestItem_item(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Item)
-	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RequestItem_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RequestItem",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Item_id(ctx, field)
-			case "schemaId":
-				return ec.fieldContext_Item_schemaId(ctx, field)
-			case "threadId":
-				return ec.fieldContext_Item_threadId(ctx, field)
-			case "modelId":
-				return ec.fieldContext_Item_modelId(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Item_projectId(ctx, field)
-			case "schema":
-				return ec.fieldContext_Item_schema(ctx, field)
-			case "project":
-				return ec.fieldContext_Item_project(ctx, field)
-			case "thread":
-				return ec.fieldContext_Item_thread(ctx, field)
-			case "fields":
-				return ec.fieldContext_Item_fields(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Item_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RequestItem_versioned(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RequestItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RequestItem_versioned(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RequestItem().Versioned(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.VersionedItem)
 	fc.Result = res
-	return ec.marshalNVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx, field.Selections, res)
+	return ec.marshalOVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RequestItem_versioned(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RequestItem_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RequestItem",
 		Field:      field,
@@ -17362,6 +17293,57 @@ func (ec *executionContext) fieldContext_RequestItem_versioned(ctx context.Conte
 				return ec.fieldContext_VersionedItem_value(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VersionedItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RequestItem_schema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RequestItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RequestItem_schema(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RequestItem().Schema(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Schema)
+	fc.Result = res
+	return ec.marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RequestItem_schema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RequestItem",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Schema_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Schema_projectId(ctx, field)
+			case "fields":
+				return ec.fieldContext_Schema_fields(ctx, field)
+			case "project":
+				return ec.fieldContext_Schema_project(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
 		},
 	}
 	return fc, nil
@@ -29213,9 +29195,6 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._RequestItem_item(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			}
 
@@ -29223,7 +29202,7 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
-		case "versioned":
+		case "schema":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -29232,10 +29211,7 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._RequestItem_versioned(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._RequestItem_schema(ctx, field, obj)
 				return res
 			}
 
@@ -31269,10 +31245,6 @@ func (ec *executionContext) marshalNIntegrationType2githubᚗcomᚋreearthᚋree
 	return v
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Item) graphql.Marshaler {
-	return ec._Item(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Item) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -32397,10 +32369,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNVersionedItem2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx context.Context, sel ast.SelectionSet, v gqlmodel.VersionedItem) graphql.Marshaler {
-	return ec._VersionedItem(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNVersionedItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.VersionedItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -33420,6 +33388,13 @@ func (ec *executionContext) marshalORequestState2ᚖgithubᚗcomᚋreearthᚋree
 	return v
 }
 
+func (ec *executionContext) marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Schema) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Schema(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {
 	if v == nil {
 		return nil, nil
@@ -33688,6 +33663,13 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOVersionedItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐVersionedItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.VersionedItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._VersionedItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOWebhookPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WebhookPayload) graphql.Marshaler {
