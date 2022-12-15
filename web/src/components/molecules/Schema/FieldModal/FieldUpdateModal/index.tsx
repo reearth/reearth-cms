@@ -165,7 +165,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
+            integer: { defaultValue: values.defaultValue, min: values.min, max: values.max },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
