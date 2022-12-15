@@ -6,9 +6,9 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { RequestState } from "@reearth-cms/gql/graphql-client-api";
 
 export type Props = {
   collapsed?: boolean;

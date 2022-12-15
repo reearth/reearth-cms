@@ -19,8 +19,6 @@ import { useWorkspace } from "@reearth-cms/state";
 import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
-// export type RequestState = "WAITING" | "DRAFT" | "CLOSED" | "APPROVED";
-
 export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();

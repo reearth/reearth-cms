@@ -19,9 +19,9 @@ import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValu
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { RequestState } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 

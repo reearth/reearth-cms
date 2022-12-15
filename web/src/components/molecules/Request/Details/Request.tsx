@@ -37,7 +37,7 @@ const RequestMolecule: React.FC<Props> = ({
         extra={
           <>
             <Button
-              disabled={currentRequest.state !== "CLOSED" && currentRequest.state !== "APPROVED"}
+              disabled={currentRequest.state === "CLOSED" || currentRequest.state === "APPROVED"}
               onClick={() => onRequestDelete([currentRequest.id])}>
               {t("Close")}
             </Button>

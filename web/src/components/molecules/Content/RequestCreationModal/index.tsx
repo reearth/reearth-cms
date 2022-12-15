@@ -5,8 +5,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { RequestState } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type FormValues = {
@@ -30,7 +30,7 @@ export type Props = {
 const initialValues: FormValues = {
   title: "",
   description: "",
-  state: RequestState.Waiting,
+  state: "WAITING",
   reviewersId: [],
   items: [
     {
@@ -54,7 +54,7 @@ const RequestCreationModal: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.items = [{ itemId }];
-      values.state = RequestState.Waiting;
+      values.state = "WAITING";
       values.reviewersId = [values.reviewersId];
       await onSubmit?.(values);
       onClose?.(true);
