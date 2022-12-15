@@ -26,5 +26,12 @@ func (r requestResolver) Project(ctx context.Context, obj *gqlmodel.Request) (*g
 
 func (r requestResolver) Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error) {
 	res, err := dataloaders(ctx).User.LoadAll(obj.ReviewersID)
-	return res, err[0]
+	if len(err) > 0 {
+		return nil, err[0]
+	}
+	return res, nil
+}
+
+func (r requestResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.User, error) {
+	return dataloaders(ctx).User.Load(obj.CreatedByID)
 }

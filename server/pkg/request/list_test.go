@@ -31,7 +31,7 @@ func TestList_CloseAll(t *testing.T) {
 		MustBuild()
 
 	list := List{req1, req2}
-	list.CloseAll()
+	list.UpdateStatus(StateClosed)
 	for _, request := range list {
 		assert.Equal(t, StateClosed, request.State())
 	}

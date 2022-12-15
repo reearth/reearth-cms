@@ -35,7 +35,7 @@ func ToRequest(req *request.Request) *Request {
 		Items:       items,
 		Title:       req.Title(),
 		Description: lo.ToPtr(req.Description()),
-		CreatedBy:   IDFrom(req.CreatedBy()),
+		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
 		ThreadID:    IDFrom(req.Thread()),

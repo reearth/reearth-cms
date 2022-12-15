@@ -67,6 +67,8 @@ models:
     fields:
       project:
         resolver: true
+      createdBy:
+        resolver: true
       workspace:
         resolver: true
       thread:
