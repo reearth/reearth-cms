@@ -11,7 +11,7 @@ type Props = {
   comment: Comment;
 };
 
-const CommentMoecule: React.FC<Props> = ({ comment }) => {
+const CommentMolecule: React.FC<Props> = ({ comment }) => {
   const fromNow = moment(comment.createdAt?.toString()).fromNow();
 
   return (
@@ -51,4 +51,4 @@ const CommentMoecule: React.FC<Props> = ({ comment }) => {
   );
 };
 
-export default CommentMoecule;
+export default CommentMolecule;

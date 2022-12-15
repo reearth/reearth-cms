@@ -12,7 +12,7 @@ type Props = {
   comment: CommentType;
 };
 
-const ThreadCommentMoecule: React.FC<Props> = ({ comment }) => {
+const ThreadCommentMolecule: React.FC<Props> = ({ comment }) => {
   const fromNow = moment(comment.createdAt?.toString()).fromNow();
 
   return (
@@ -52,7 +52,7 @@ const ThreadCommentMoecule: React.FC<Props> = ({ comment }) => {
   );
 };
 
-export default ThreadCommentMoecule;
+export default ThreadCommentMolecule;
 
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content {

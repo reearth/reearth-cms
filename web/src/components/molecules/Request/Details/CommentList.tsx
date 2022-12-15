@@ -1,6 +1,6 @@
 import List from "@reearth-cms/components/atoms/List";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
-import ThreadCommentMoecule from "@reearth-cms/components/molecules/Request/Details/Comment";
+import ThreadCommentMolecule from "@reearth-cms/components/molecules/Request/Details/Comment";
 
 type Props = {
   comments: Comment[];
@@ -10,6 +10,6 @@ export const RequestCommentList: React.FC<Props> = ({ comments }: { comments: Co
   <List
     dataSource={comments}
     itemLayout="horizontal"
-    renderItem={props => <ThreadCommentMoecule comment={props} />}
+    renderItem={props => <ThreadCommentMolecule comment={props} />}
   />
 );
