@@ -380,6 +380,7 @@ func TestProject_Update(t *testing.T) {
 					ID:          p1.ID(),
 					Name:        lo.ToPtr("test123"),
 					Description: lo.ToPtr("desc321"),
+					Alias:       lo.ToPtr("alias"),
 				},
 				operator: op,
 			},
@@ -388,6 +389,7 @@ func TestProject_Update(t *testing.T) {
 				Workspace(wid1).
 				Name("test123").
 				Description("desc321").
+				Alias("alias").
 				UpdatedAt(mocktime).
 				MustBuild(),
 			wantErr: nil,
@@ -400,6 +402,7 @@ func TestProject_Update(t *testing.T) {
 					ID:          p2.ID(),
 					Name:        lo.ToPtr("test123"),
 					Description: lo.ToPtr("desc321"),
+					Alias:       lo.ToPtr("alias"),
 				},
 				operator: op,
 			},
