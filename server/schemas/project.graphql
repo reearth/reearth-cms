@@ -43,6 +43,7 @@ input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  alias: String
   publication: UpdateProjectPublicationInput
 }
 

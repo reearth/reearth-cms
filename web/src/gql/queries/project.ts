@@ -50,12 +50,20 @@ export const CHECK_PROJECT_ALIAS = gql`
 `;
 
 export const CREATE_PROJECT = gql`
-  mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!) {
-    createProject(input: { workspaceId: $workspaceId, name: $name, description: $description }) {
+  mutation CreateProject(
+    $workspaceId: ID!
+    $name: String!
+    $description: String!
+    $alias: String!
+  ) {
+    createProject(
+      input: { workspaceId: $workspaceId, name: $name, description: $description, alias: $alias }
+    ) {
       project {
         id
         name
         description
+        alias
         publication {
           scope
           assetPublic
@@ -78,6 +86,7 @@ export const UPDATE_PROJECT = gql`
     $projectId: ID!
     $name: String
     $description: String
+    $alias: String
     $publication: UpdateProjectPublicationInput
   ) {
     updateProject(
@@ -85,6 +94,7 @@ export const UPDATE_PROJECT = gql`
         projectId: $projectId
         name: $name
         description: $description
+        alias: $alias
         publication: $publication
       }
     ) {
