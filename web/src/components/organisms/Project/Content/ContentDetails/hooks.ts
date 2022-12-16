@@ -3,20 +3,23 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   Item as GQLItem,
   RequestState as GQLRequestState,
+  Request as GQLRequest,
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
+  useGetRequestsQuery,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
+import { convertRequest } from "../../Request/convertRequest";
 import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
@@ -28,7 +31,25 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
+
+  const { data: requestData } = useGetRequestsQuery({
+    variables: {
+      projectId: projectId ?? "",
+      first: 100,
+    },
+    skip: !projectId,
+  });
+
+  const requests: Request[] = useMemo(
+    () =>
+      (requestData?.requests.nodes
+        .map(request => request as GQLRequest)
+        .map(convertRequest)
+        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
+    [requestData?.requests.nodes],
+  );
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -174,7 +195,18 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
+  const handleAddItemToRequestModalClose = useCallback(
+    () => setAddItemToRequestModalShown(false),
+    [],
+  );
+
+  const handleAddItemToRequestModalOpen = useCallback(
+    () => setAddItemToRequestModalShown(true),
+    [],
+  );
+
   return {
+    requests,
     itemId,
     currentModel,
     currentItem,
@@ -184,6 +216,7 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    addItemToRequestModalShown,
     workspaceUserMembers,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -193,5 +226,7 @@ export default () => {
     handleRequestCreate,
     handleModalClose,
     handleModalOpen,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
   };
 };
