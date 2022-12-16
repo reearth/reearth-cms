@@ -52,6 +52,7 @@ export type Props = {
       itemId: string;
     }[];
   }) => Promise<void>;
+  onChange: (request: Request) => void;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -92,6 +93,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setUploadModalVisibility,
   onNavigateToAsset,
   onRequestCreate,
+  onChange,
   onModalClose,
   onModalOpen,
   onAddItemToRequestModalClose,
@@ -123,6 +125,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onChange={onChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}

@@ -22,6 +22,7 @@ const ContentDetails: React.FC = () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
@@ -83,6 +84,7 @@ const ContentDetails: React.FC = () => {
           onModelSelect={handleNavigateToModel}
         />
       }
+      onChange={handleAddItemToRequest}
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loading}

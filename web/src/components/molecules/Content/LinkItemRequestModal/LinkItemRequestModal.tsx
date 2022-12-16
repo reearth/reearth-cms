@@ -17,7 +17,7 @@ type Props = {
   onLinkItemRequestModalCancel: () => void;
   linkedRequest?: Request;
   requestList: Request[];
-  onChange?: (value: string) => void;
+  onChange?: (value: Request) => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
@@ -49,7 +49,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
             onMouseLeave={() => setHoveredRequestId(undefined)}
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
-              onChange?.(link ? request.id : "");
+              onChange?.(request);
               onLinkItemRequestModalCancel();
             }}
           />

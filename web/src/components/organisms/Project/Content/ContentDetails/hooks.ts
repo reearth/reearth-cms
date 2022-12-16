@@ -15,6 +15,7 @@ import {
   useCreateRequestMutation,
   useGetRequestsQuery,
   useUpdateItemMutation,
+  useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -111,6 +112,8 @@ export default () => {
     [updateItem, t],
   );
 
+  // handleAddItemToRequest
+
   const currentItem: Item | undefined = useMemo(
     () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
     [itemId, itemsData?.items.nodes],
@@ -160,6 +163,31 @@ export default () => {
         ) ?? []
     );
   }, [currentWorkspace]);
+
+  const [updateRequest] = useUpdateRequestMutation();
+
+  const handleAddItemToRequest = useCallback(
+    async (request: Request) => {
+      if (!currentItem) return;
+      const item = await updateRequest({
+        variables: {
+          requestId: request.id,
+          description: request.description,
+          items: [...request.items.map(item => ({ itemId: item.id })), { itemId: currentItem.id }],
+          reviewersId: request.reviewers.map(reviewer => reviewer.id),
+          title: request.title,
+          state: request.state as GQLRequestState,
+        },
+      });
+      if (item.errors || !item.data?.updateRequest) {
+        Notification.error({ message: t("Failed to update request.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully updated Request!") });
+    },
+    [updateRequest, currentItem, t],
+  );
 
   const [createRequestMutation] = useCreateRequestMutation();
 
@@ -218,6 +246,7 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
