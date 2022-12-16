@@ -8,8 +8,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearthx/appx"
 	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
@@ -33,15 +35,17 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 		otelecho.Middleware("reearth-cms/worker"),
 	)
 
+	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), ContextAuthInfo, false)))
+
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, "pong") })
 
 	t := handler.DecompressHandler()
-	api.POST("/decompress", t)
+	api.POST("/decompress", t, m2mJWTMiddleware)
 
 	wh := handler.WebhookHandler()
-	api.POST("/webhook", wh)
+	api.POST("/webhook", wh, m2mJWTMiddleware)
 
 	return e
 }

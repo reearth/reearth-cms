@@ -136,6 +136,11 @@ func (t *TaskRunner) buildRequest(url string, message []byte) *taskspb.CreateTas
 					Headers:    map[string]string{"Content-Type": "application/json"},
 					Url:        url,
 					Body:       message,
+					AuthorizationHeader: &taskspb.HttpRequest_OidcToken{
+						OidcToken: &taskspb.OidcToken{
+							ServiceAccountEmail: t.conf.SAEmail,
+						},
+					},
 				},
 			},
 		},

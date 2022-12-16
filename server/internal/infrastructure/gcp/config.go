@@ -9,6 +9,7 @@ type TaskConfig struct {
 	SubscriberURL string
 	Topic         string
 	GCSHost       string
+	SAEmail       string
 }
 
 func (c *TaskConfig) buildQueueUrl() (string, error) {

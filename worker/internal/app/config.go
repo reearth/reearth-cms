@@ -2,10 +2,12 @@ package app
 
 import (
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -18,6 +20,7 @@ type Config struct {
 	GCS        GCSConfig
 	PubSub     PubSubConfig
 	GCP        GCPConfig `envconfig:"GCP"`
+	AuthM2M    AuthM2MConfig
 }
 
 type GCSConfig struct {
@@ -32,6 +35,14 @@ type GCPConfig struct {
 
 type PubSubConfig struct {
 	Topic string `default:"decompress"`
+}
+
+type AuthM2MConfig struct {
+	ISS   string
+	AUD   []string
+	ALG   *string
+	TTL   *int
+	Email string
 }
 
 func ReadConfig(debug bool) (*Config, error) {
@@ -49,4 +60,21 @@ func ReadConfig(debug bool) (*Config, error) {
 	}
 
 	return &c, err
+}
+
+func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
+	domain := a.ISS
+	if a.ISS == "" {
+		return nil
+	}
+	if !strings.HasPrefix(domain, "https://") && !strings.HasPrefix(domain, "http://") {
+		domain = "https://" + domain
+	}
+
+	return []appx.JWTProvider{{
+		ISS: domain,
+		AUD: a.AUD,
+		ALG: a.ALG,
+		TTL: a.TTL,
+	}}
 }
