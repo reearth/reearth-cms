@@ -9,9 +9,6 @@ export const requestFragment = gql`
       itemId
       version
       ref
-      model {
-        name
-      }
       item {
         version
         parents
@@ -19,6 +16,9 @@ export const requestFragment = gql`
         value {
           id
           schemaId
+          model {
+            name
+          }
           fields {
             schemaFieldId
             type
