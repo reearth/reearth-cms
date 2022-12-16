@@ -21,6 +21,7 @@ type UpdateProjectParam struct {
 	ID          id.ProjectID
 	Name        *string
 	Description *string
+	Alias       *string
 	Publication *UpdateProjectPublicationParam
 }
 

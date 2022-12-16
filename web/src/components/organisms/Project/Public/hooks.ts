@@ -35,15 +35,19 @@ export default () => {
   const [updateModelMutation] = useUpdateModelMutation();
 
   const handlePublicUpdate = useCallback(
-    async (scope?: PublicScope, modelsToUpdate?: Model[]) => {
+    async (alias?: string, scope?: PublicScope, modelsToUpdate?: Model[]) => {
       if (!currentProject?.id) return;
       let errors = false;
 
-      if (scope && scope !== currentProject.scope) {
+      if ((scope && scope !== currentProject.scope) || alias) {
         const gqlScope =
           scope === "public" ? ProjectPublicationScope.Public : ProjectPublicationScope.Private;
         const projRes = await updateProjectMutation({
-          variables: { projectId: currentProject.id, publication: { scope: gqlScope } },
+          variables: {
+            alias: alias,
+            projectId: currentProject.id,
+            publication: { scope: gqlScope },
+          },
         });
         if (projRes.errors) {
           errors = true;
@@ -71,5 +75,10 @@ export default () => {
     [currentProject, t, updateProjectMutation, updateModelMutation],
   );
 
-  return { projectScope: currentProject?.scope, models, handlePublicUpdate };
+  return {
+    projectScope: currentProject?.scope,
+    models,
+    alias: currentProject?.alias,
+    handlePublicUpdate,
+  };
 };

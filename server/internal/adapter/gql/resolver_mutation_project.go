@@ -51,6 +51,7 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		ID:          pid,
 		Name:        input.Name,
 		Description: input.Description,
+		Alias:       input.Alias,
 		Publication: pub,
 	}, getOperator(ctx))
 	if err != nil {
