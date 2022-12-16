@@ -26,6 +26,7 @@ type RequestItem {
   ref: String
   item: VersionedItem
   schema: Schema
+  model: Model
 }
 
 enum RequestState {

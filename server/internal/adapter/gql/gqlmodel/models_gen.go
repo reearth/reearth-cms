@@ -545,6 +545,7 @@ type RequestItem struct {
 	Ref     *string        `json:"ref"`
 	Item    *VersionedItem `json:"item"`
 	Schema  *Schema        `json:"schema"`
+	Model   *Model         `json:"model"`
 }
 
 type RequestItemInput struct {

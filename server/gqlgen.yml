@@ -81,6 +81,8 @@ models:
         resolver: true
       schema:
         resolver: true
+      model:
+        resolver: true
   SchemaField:
     fields:
       model:
