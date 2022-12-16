@@ -89,11 +89,13 @@ const RequestCreationModal: React.FC<Props> = ({
             },
           ]}>
           <Select placeholder={t("Reviewer")}>
-            {workspaceUserMembers.map(member => (
-              <Option key={member.userId} value={member.userId}>
-                {member.user.name}
-              </Option>
-            ))}
+            {workspaceUserMembers
+              .filter(member => member.role === "OWNER" || member.role === "MAINTAINER")
+              .map(member => (
+                <Option key={member.userId} value={member.userId}>
+                  {member.user.name}
+                </Option>
+              ))}
           </Select>
         </Form.Item>
       </Form>
