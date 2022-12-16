@@ -141,8 +141,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				AssetID: a.ID().String(),
 				Path:    a.RootPath(),
 			}
-			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
-				return nil, err
+
+			if i.gateways.TaskRunner != nil {
+				if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+					return nil, err
+				}
 			}
 
 			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress))
