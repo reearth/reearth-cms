@@ -26,7 +26,7 @@ const MultiValueField: React.FC<Props> = ({
 }) => {
   const t = useT();
   const handleInput = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, id: number) => {
+    (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
           index === id ? (typeof e === "number" ? e : e?.target.value) : valueItem,
