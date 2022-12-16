@@ -26,9 +26,7 @@ func TestToIntegration(t *testing.T) {
 			name:        "nil",
 			integration: nil,
 			user:        id.NewUserID(),
-			want: &Integration{
-				Name: "deleted integration",
-			},
+			want:        nil,
 		},
 		{
 			name: "success",

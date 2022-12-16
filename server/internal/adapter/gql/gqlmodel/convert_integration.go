@@ -10,9 +10,7 @@ import (
 
 func ToIntegration(i *integration.Integration, uId *id.UserID) *Integration {
 	if i == nil {
-		return &Integration{
-			Name: "deleted integration",
-		}
+		return nil
 	}
 
 	var c *IntegrationConfig = nil
