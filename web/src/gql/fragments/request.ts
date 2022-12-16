@@ -13,6 +13,57 @@ export const requestFragment = gql`
         version
         parents
         refs
+        value {
+          id
+          schemaId
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+          schema {
+            id
+            fields {
+              id
+              type
+              title
+              key
+              description
+              required
+              unique
+              multiple
+              typeProperty {
+                ... on SchemaFieldText {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldTextArea {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldMarkdown {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldAsset {
+                  assetDefaultValue: defaultValue
+                }
+                ... on SchemaFieldSelect {
+                  selectDefaultValue: defaultValue
+                  values
+                }
+                ... on SchemaFieldInteger {
+                  integerDefaultValue: defaultValue
+                  min
+                  max
+                }
+                ... on SchemaFieldURL {
+                  defaultValue
+                }
+              }
+            }
+          }
+        }
       }
     }
     title
