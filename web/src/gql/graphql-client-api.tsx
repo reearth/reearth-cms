@@ -1671,10 +1671,11 @@ export type CreateProjectMutationVariables = Exact<{
   workspaceId: Scalars['ID'];
   name: Scalars['String'];
   description: Scalars['String'];
+  alias: Scalars['String'];
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1687,6 +1688,7 @@ export type UpdateProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  alias?: InputMaybe<Scalars['String']>;
   publication?: InputMaybe<UpdateProjectPublicationInput>;
 }>;
 
@@ -3295,14 +3297,15 @@ export type CheckProjectAliasQueryHookResult = ReturnType<typeof useCheckProject
 export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckProjectAliasLazyQuery>;
 export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!) {
+    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!) {
   createProject(
-    input: {workspaceId: $workspaceId, name: $name, description: $description}
+    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias}
   ) {
     project {
       id
       name
       description
+      alias
       publication {
         scope
         assetPublic
@@ -3329,6 +3332,7 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *      workspaceId: // value for 'workspaceId'
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      alias: // value for 'alias'
  *   },
  * });
  */
@@ -3373,9 +3377,9 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $publication: UpdateProjectPublicationInput) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, publication: $publication}
+    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication}
   ) {
     project {
       id
@@ -3408,6 +3412,7 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      projectId: // value for 'projectId'
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      alias: // value for 'alias'
  *      publication: // value for 'publication'
  *   },
  * });
