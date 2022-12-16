@@ -11,8 +11,6 @@ import {
 
 export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | undefined => {
   if (!GQLRequest) return;
-  console.log(GQLRequest.items);
-
   return {
     id: GQLRequest.id,
     threadId: GQLRequest.thread?.id ?? "",
