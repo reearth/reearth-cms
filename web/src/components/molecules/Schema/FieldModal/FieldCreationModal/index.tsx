@@ -148,7 +148,11 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: values.defaultValue, min: +values.min, max: +values.max },
+            integer: {
+              defaultValue: values.defaultValue ?? null,
+              min: values.min ?? null,
+              max: values.max ?? null,
+            },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
