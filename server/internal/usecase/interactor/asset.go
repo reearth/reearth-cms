@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -136,13 +137,13 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, err
 			}
 
-			// taskPayload := task.DecompressAssetPayload{
-			// 	AssetID: a.ID().String(),
-			// 	Path:    a.RootPath(),
-			// }
-			// if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
-			// 	return nil, err
-			// }
+			taskPayload := task.DecompressAssetPayload{
+				AssetID: a.ID().String(),
+				Path:    a.RootPath(),
+			}
+			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+				return nil, err
+			}
 
 			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress))
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
