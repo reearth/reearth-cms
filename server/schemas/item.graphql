@@ -5,6 +5,7 @@ type Item implements Node {
   modelId: ID!
   projectId: ID!
   schema: Schema!
+  model: Model!
   project: Project!
   thread: Thread!
   fields: [ItemField!]!

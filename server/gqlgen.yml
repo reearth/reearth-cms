@@ -53,6 +53,8 @@ models:
         resolver: true
       thread:
         resolver: true
+      model:
+        resolver: true
   Model:
     fields:
       project:
@@ -78,10 +80,6 @@ models:
   RequestItem:
     fields:
       item:
-        resolver: true
-      schema:
-        resolver: true
-      model:
         resolver: true
   SchemaField:
     fields:
