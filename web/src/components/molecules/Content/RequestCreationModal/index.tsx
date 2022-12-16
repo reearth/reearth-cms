@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Select from "@reearth-cms/components/atoms/Select";
+import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -48,14 +48,22 @@ const RequestCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const { Option } = Select;
+
+  const reviewers: SelectProps["options"] = [];
+  workspaceUserMembers
+    .filter(member => member.role === "OWNER" || member.role === "MAINTAINER")
+    .forEach(member => {
+      reviewers.push({
+        label: member.user.name,
+        value: member.userId,
+      });
+    });
 
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
       values.items = [{ itemId }];
       values.state = "WAITING";
-      values.reviewersId = [values.reviewersId];
       await onSubmit?.(values);
       onClose?.(true);
       form.resetFields();
@@ -88,15 +96,7 @@ const RequestCreationModal: React.FC<Props> = ({
               message: t("Please select a reviewer!"),
             },
           ]}>
-          <Select placeholder={t("Reviewer")}>
-            {workspaceUserMembers
-              .filter(member => member.role === "OWNER" || member.role === "MAINTAINER")
-              .map(member => (
-                <Option key={member.userId} value={member.userId}>
-                  {member.user.name}
-                </Option>
-              ))}
-          </Select>
+          <Select placeholder={t("Reviewer")} mode="multiple" options={reviewers} allowClear />
         </Form.Item>
       </Form>
     </Modal>
