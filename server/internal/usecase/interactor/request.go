@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 )
 
 type Request struct {
@@ -173,7 +174,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			}
 			req.SetItems(param.Items)
 		}
-
+		req.SetUpdatedAt(util.Now())
 		if err := r.repos.Request.Save(ctx, req); err != nil {
 			return nil, err
 		}

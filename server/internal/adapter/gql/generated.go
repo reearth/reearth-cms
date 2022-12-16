@@ -50,6 +50,7 @@ type ResolverRoot interface {
 	Project() ProjectResolver
 	Query() QueryResolver
 	Request() RequestResolver
+	RequestItem() RequestItemResolver
 	Schema() SchemaResolver
 	SchemaField() SchemaFieldResolver
 	Thread() ThreadResolver
@@ -202,6 +203,7 @@ type ComplexityRoot struct {
 		CreatedAt func(childComplexity int) int
 		Fields    func(childComplexity int) int
 		ID        func(childComplexity int) int
+		Model     func(childComplexity int) int
 		ModelID   func(childComplexity int) int
 		Project   func(childComplexity int) int
 		ProjectID func(childComplexity int) int
@@ -625,6 +627,7 @@ type IntegrationResolver interface {
 }
 type ItemResolver interface {
 	Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Schema, error)
+	Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error)
 	Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Project, error)
 	Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error)
 }
@@ -706,6 +709,9 @@ type RequestResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Workspace, error)
 	Project(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Project, error)
 	Reviewers(ctx context.Context, obj *gqlmodel.Request) ([]*gqlmodel.User, error)
+}
+type RequestItemResolver interface {
+	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
@@ -1207,6 +1213,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ID(childComplexity), true
+
+	case "Item.model":
+		if e.complexity.Item.Model == nil {
+			break
+		}
+
+		return e.complexity.Item.Model(childComplexity), true
 
 	case "Item.modelId":
 		if e.complexity.Item.ModelID == nil {
@@ -4206,6 +4219,7 @@ extend type Mutation {
   modelId: ID!
   projectId: ID!
   schema: Schema!
+  model: Model!
   project: Project!
   thread: Thread!
   fields: [ItemField!]!
@@ -9001,6 +9015,74 @@ func (ec *executionContext) fieldContext_Item_schema(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_model(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_model(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Item().Model(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Model)
+	fc.Result = res
+	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Model_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Model_projectId(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "name":
+				return ec.fieldContext_Model_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Model_description(ctx, field)
+			case "key":
+				return ec.fieldContext_Model_key(ctx, field)
+			case "project":
+				return ec.fieldContext_Model_project(ctx, field)
+			case "schema":
+				return ec.fieldContext_Model_schema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Model_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Model_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_project(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_project(ctx, field)
 	if err != nil {
@@ -9316,6 +9398,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "schema":
 				return ec.fieldContext_Item_schema(ctx, field)
+			case "model":
+				return ec.fieldContext_Item_model(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -9521,6 +9605,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "schema":
 				return ec.fieldContext_Item_schema(ctx, field)
+			case "model":
+				return ec.fieldContext_Item_model(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -9716,6 +9802,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "schema":
 				return ec.fieldContext_Item_schema(ctx, field)
+			case "model":
+				return ec.fieldContext_Item_model(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -17246,7 +17334,7 @@ func (ec *executionContext) _RequestItem_item(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Item, nil
+		return ec.resolvers.RequestItem().Item(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17264,8 +17352,8 @@ func (ec *executionContext) fieldContext_RequestItem_item(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "RequestItem",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "version":
@@ -19825,6 +19913,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "schema":
 				return ec.fieldContext_Item_schema(ctx, field)
+			case "model":
+				return ec.fieldContext_Item_model(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -27199,6 +27289,26 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "model":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Item_model(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "project":
 			field := field
 
@@ -29117,7 +29227,7 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._RequestItem_itemId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "version":
 
@@ -29128,9 +29238,22 @@ func (ec *executionContext) _RequestItem(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._RequestItem_ref(ctx, field, obj)
 
 		case "item":
+			field := field
 
-			out.Values[i] = ec._RequestItem_item(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RequestItem_item(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
