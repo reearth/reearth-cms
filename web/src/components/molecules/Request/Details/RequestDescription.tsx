@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 type Props = {
@@ -28,6 +29,19 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
         <>
           <h1>{currentRequest.title}</h1>
           <p>{currentRequest.description}</p>
+          {currentRequest.items
+            .filter(item => item.columns && item.fields)
+            .map((item, index) => (
+              <>
+                <h1>{item.modelName}</h1>
+                <ResizableProTable
+                  pagination={false}
+                  key={index}
+                  dataSource={[item.fields]}
+                  columns={item.columns}
+                />
+              </>
+            ))}
         </>
       }
       datetime={
