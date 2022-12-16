@@ -9,6 +9,9 @@ export const requestFragment = gql`
       itemId
       version
       ref
+      model {
+        name
+      }
       item {
         version
         parents
