@@ -8,6 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
+  alias: string;
   description: string;
 }
 
@@ -19,6 +20,7 @@ export type Props = {
 
 const initialValues: FormValues = {
   name: "",
+  alias: "",
   description: "",
 };
 
