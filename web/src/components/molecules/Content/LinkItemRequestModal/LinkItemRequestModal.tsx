@@ -35,6 +35,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 
   const submit = () => {
     onChange?.(requestList.find(request => request.id === selectedRequestId) as Request);
+    setSelectedRequestId(undefined);
     onLinkItemRequestModalCancel();
   };
 

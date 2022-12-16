@@ -59,7 +59,7 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["GetItems"],
+    refetchQueries: ["GetItems", "GetRequests"],
   });
 
   const handleItemCreate = useCallback(
