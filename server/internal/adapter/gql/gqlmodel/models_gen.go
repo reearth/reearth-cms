@@ -818,6 +818,7 @@ type UpdateProjectInput struct {
 	ProjectID   ID                             `json:"projectId"`
 	Name        *string                        `json:"name"`
 	Description *string                        `json:"description"`
+	Alias       *string                        `json:"alias"`
 	Publication *UpdateProjectPublicationInput `json:"publication"`
 }
 

@@ -65,12 +65,13 @@ export default () => {
   );
 
   const handleProjectCreate = useCallback(
-    async (data: { name: string; description: string }) => {
+    async (data: { name: string; alias: string; description: string }) => {
       if (!workspaceId) return;
       const project = await createNewProject({
         variables: {
           workspaceId,
           name: data.name,
+          alias: data.alias,
           description: data.description,
         },
       });

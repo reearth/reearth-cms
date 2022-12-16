@@ -90,6 +90,12 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 				proj.UpdateDescription(*p.Description)
 			}
 
+			if p.Alias != nil {
+				if err := proj.UpdateAlias(*p.Alias); err != nil {
+					return nil, err
+				}
+			}
+
 			if p.Publication != nil {
 				pub := proj.Publication()
 				if pub == nil {

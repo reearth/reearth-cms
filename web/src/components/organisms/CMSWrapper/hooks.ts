@@ -99,6 +99,7 @@ export default () => {
           name: project.name,
           description: project.description,
           scope: convertScope(project.publication?.scope),
+          alias: project.alias,
         });
       }
     } else {

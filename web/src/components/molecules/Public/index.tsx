@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
@@ -23,13 +24,15 @@ export type ModelDataType = {
 
 export type Props = {
   projectScope?: PublicScope;
+  alias?: string;
   models?: Model[];
-  onPublicUpdate?: (scope?: PublicScope, modelsToUpdate?: Model[]) => void;
+  onPublicUpdate?: (alias?: string, scope?: PublicScope, modelsToUpdate?: Model[]) => void;
 };
 
-const Public: React.FC<Props> = ({ projectScope, models: rawModels, onPublicUpdate }) => {
+const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPublicUpdate }) => {
   const t = useT();
   const [scope, changeScope] = useState(projectScope);
+  const [aliasState, setAlias] = useState(alias);
   const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
   const [models, setModels] = useState<Model[] | undefined>(rawModels);
 
@@ -41,16 +44,24 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, onPublicUpda
     setModels(rawModels);
   }, [rawModels]);
 
+  useEffect(() => {
+    setAlias(alias);
+  }, [alias]);
+
   const saveDisabled = useMemo(
-    () => updatedModels.length === 0 && projectScope === scope,
-    [projectScope, scope, updatedModels],
+    () => updatedModels.length === 0 && projectScope === scope && alias === aliasState,
+    [updatedModels.length, projectScope, scope, alias, aliasState],
   );
+
+  const handlerAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setAlias(e.currentTarget.value);
+  }, []);
 
   const handlePublicUpdate = useCallback(() => {
     if (!scope && updatedModels.length === 0) return;
-    onPublicUpdate?.(scope, updatedModels);
+    onPublicUpdate?.(aliasState, scope, updatedModels);
     setUpdatedModels([]);
-  }, [scope, updatedModels, onPublicUpdate]);
+  }, [scope, aliasState, updatedModels, onPublicUpdate]);
 
   const handleUpdatedModels = useCallback(
     (model: Model) => {
@@ -113,18 +124,25 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, onPublicUpda
         <div>
           <p>{t("Public Scope")}</p>
           <Select value={scope} onChange={changeScope} style={{ minWidth: "130px" }}>
+            <Subtext>
+              {t(
+                "Choose the scope of your project. This affects all the models shown below that are switched on.",
+              )}
+            </Subtext>
             {publicScopeList.map(type => (
               <Select.Option key={type.id} value={type.value}>
                 {type.name}
               </Select.Option>
             ))}
           </Select>
-          <Subtext>
-            {t(
-              "Choose the scope of your project. This affects all the models shown below that are switched on.",
-            )}
-          </Subtext>
         </div>
+        <p>{t("Project Alias")}</p>
+        <Input value={aliasState} onChange={handlerAliasChange} />
+        <Subtext>
+          {t(
+            "Choose the scope of your project. This affects all the models shown below that are switched on.",
+          )}
+        </Subtext>
         <TableWrapper>
           <Table dataSource={dataSource} columns={columns} pagination={false} />
         </TableWrapper>
