@@ -1,13 +1,12 @@
 import { useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
-import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Radio from "@reearth-cms/components/atoms/Radio";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -23,43 +22,41 @@ type Props = {
 const LinkItemRequestModal: React.FC<Props> = ({
   visible,
   onLinkItemRequestModalCancel,
-  linkedRequest,
   requestList,
   onChange,
 }) => {
+  const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const t = useT();
-  const [hoveredRequestId, setHoveredRequestId] = useState<string>();
 
   const pagination: TablePaginationConfig = {
     pageSize: 5,
     showSizeChanger: false,
   };
 
+  const submit = () => {
+    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request);
+    onLinkItemRequestModalCancel();
+  };
+
   const columns: ProColumns<Request>[] = [
     {
       title: "",
       render: (_, request) => {
-        const link =
-          (request.id === linkedRequest?.id && hoveredRequestId !== request.id) ||
-          (request.id !== linkedRequest?.id && hoveredRequestId === request.id);
         return (
-          <Button
-            type="link"
-            onMouseEnter={() => setHoveredRequestId(request.id)}
-            onMouseLeave={() => setHoveredRequestId(undefined)}
-            icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.(request);
-              onLinkItemRequestModalCancel();
+          <Radio.Group
+            onChange={() => {
+              setSelectedRequestId(request.id);
             }}
-          />
+            value={selectedRequestId}>
+            <Radio value={request.id} />
+          </Radio.Group>
         );
       },
     },
     {
       title: t("Title"),
-      dataIndex: "fileName",
-      key: "fileName",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: t("State"),
@@ -119,6 +116,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
       visible={visible}
       title={t("Add to Request")}
       centered
+      onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
       bodyStyle={{
