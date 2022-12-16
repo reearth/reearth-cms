@@ -700,7 +700,7 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, s.ID(), item.Value().Schema())
 
 	// update no permission
-	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i3.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
