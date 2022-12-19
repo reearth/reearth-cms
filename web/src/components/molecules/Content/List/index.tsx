@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -20,11 +21,16 @@ export type Props = {
   contentTableColumns?: ProColumns<ContentTableField>[];
   modelsMenu: React.ReactNode;
   selectedItem: Item | undefined;
+  selection: {
+    selectedRowKeys: Key[];
+  };
   onItemSelect: (itemId: string) => void;
+  setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
   onItemEdit: (itemId: string) => void;
+  onItemDelete: (itemIds: string[]) => Promise<void>;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -36,11 +42,14 @@ const ContentListMolecule: React.FC<Props> = ({
   modelsMenu,
   itemsDataLoading,
   selectedItem,
+  selection,
+  setSelection,
   onItemSelect,
   onCollapse,
   onItemAdd,
   onItemsReload,
   onItemEdit,
+  onItemDelete,
 }) => {
   const t = useT();
 
@@ -74,11 +83,14 @@ const ContentListMolecule: React.FC<Props> = ({
           <ContentTable
             loading={itemsDataLoading}
             selectedItem={selectedItem}
+            selection={selection}
+            setSelection={setSelection}
             onItemSelect={onItemSelect}
             onItemsReload={onItemsReload}
             onItemEdit={onItemEdit}
             contentTableFields={contentTableFields}
             contentTableColumns={contentTableColumns}
+            onItemDelete={onItemDelete}
           />
         </Content>
       }

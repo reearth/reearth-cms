@@ -8,6 +8,7 @@ schema:
   - ./schemas/workspace.graphql
   - ./schemas/project.graphql
   - ./schemas/model.graphql
+  - ./schemas/request.graphql
   - ./schemas/schema.graphql
   - ./schemas/field.graphql
   - ./schemas/item.graphql
@@ -52,6 +53,8 @@ models:
         resolver: true
       thread:
         resolver: true
+      model:
+        resolver: true
   Model:
     fields:
       project:
@@ -61,6 +64,22 @@ models:
   Schema:
     fields:
       project:
+        resolver: true
+  Request:
+    fields:
+      project:
+        resolver: true
+      createdBy:
+        resolver: true
+      workspace:
+        resolver: true
+      thread:
+        resolver: true
+      reviewers:
+        resolver: true
+  RequestItem:
+    fields:
+      item:
         resolver: true
   SchemaField:
     fields:

@@ -54,6 +54,7 @@ export interface Props {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const initialValues: FormValues = {
@@ -90,11 +91,12 @@ const FieldUpdateModal: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [assetValue, setAssetValue] = useState<string>();
+  const multipleValue: boolean = Form.useWatch("multiple", form);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
@@ -115,12 +117,6 @@ const FieldUpdateModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
-
-  useEffect(() => {
-    if (selectedType === "Asset") {
-      setAssetValue(selectedField?.typeProperty.assetDefaultValue);
-    }
-  }, [selectedField, selectedType]);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -169,7 +165,11 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
+            integer: {
+              defaultValue: values.defaultValue ?? null,
+              min: values.min ?? null,
+              max: values.max ?? null,
+            },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
@@ -192,14 +192,6 @@ const FieldUpdateModal: React.FC<Props> = ({
     form.resetFields();
     setActiveTab("settings");
   }, [form]);
-
-  const handleLinkAsset = useCallback(
-    (_asset?: Asset) => {
-      form.setFieldValue("defaultValue", _asset?.id);
-      setAssetValue(_asset?.id);
-    },
-    [form],
-  );
 
   return (
     <Modal
@@ -251,7 +243,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="key"
               label="Field Key"
               extra={t(
-                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+                "Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.",
               )}
               rules={[
                 {
@@ -327,7 +319,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox>{t("Support multiple values")}</Checkbox>
+              <Checkbox disabled>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -348,9 +340,9 @@ const FieldUpdateModal: React.FC<Props> = ({
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
               selectedValues={selectedValues}
+              multiple={multipleValue}
               selectedType={selectedType}
               assetList={assetList}
-              defaultValue={assetValue}
               fileList={fileList}
               loadingAssets={loadingAssets}
               uploading={uploading}
@@ -362,11 +354,11 @@ const FieldUpdateModal: React.FC<Props> = ({
               setUploadType={setUploadType}
               onAssetsCreate={onAssetsCreate}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onLink={handleLinkAsset}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
+              onNavigateToAsset={onNavigateToAsset}
             />
           </TabPane>
         </Tabs>

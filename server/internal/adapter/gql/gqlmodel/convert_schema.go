@@ -155,9 +155,11 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			var v any = nil
 			if dv != nil {
 				if multiple {
-					v, _ = dv.ValuesURL()
+					urls, _ := dv.ValuesURL()
+					v = lo.Map(urls, func(v value.URL, _ int) string { return v.String() })
 				} else {
-					v, _ = dv.First().ValueURL()
+					url, _ := dv.First().ValueURL()
+					v = url.String()
 				}
 			}
 			res = &SchemaFieldURL{
@@ -268,7 +270,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			return nil, nil, ErrInvalidTypeProperty
 		}
 		if multiple {
-			dv = value.NewMultiple(value.TypeBool, unpackArray(x.DefaultValue))
+			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
 		}
@@ -285,10 +287,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 		var min, max *int64
 		if x.Min != nil {
-			min = lo.ToPtr(int64(*min))
+			min = lo.ToPtr(int64(*x.Min))
 		}
 		if x.Max != nil {
-			min = lo.ToPtr(int64(*max))
+			max = lo.ToPtr(int64(*x.Max))
 		}
 		tpi, err2 := schema.NewInteger(min, max)
 		if err2 != nil {
@@ -324,6 +326,9 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 
 // TODO: move to util
 func unpackArray(s any) []any {
+	if s == nil {
+		return nil
+	}
 	v := reflect.ValueOf(s)
 	r := make([]any, v.Len())
 	for i := 0; i < v.Len(); i++ {

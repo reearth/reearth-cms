@@ -69,6 +69,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
           <Select placeholder={t("select role")}>
             <Option value="OWNER">{t("Owner")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
+            <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="READER">{t("Reader")}</Option>
           </Select>
         </Form.Item>

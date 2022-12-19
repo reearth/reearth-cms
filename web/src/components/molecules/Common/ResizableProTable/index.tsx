@@ -3,47 +3,44 @@ import { useEffect, useState } from "react";
 
 import ProTable, {
   ProColumns,
-  OptionConfig,
-  ListToolBarProps,
+  ProTableProps,
+  ParamsType,
 } from "@reearth-cms/components/atoms/ProTable";
 import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 
-export type Props = {
-  dataSource?: any[];
-  proColumns?: ProColumns<any, "text">[];
-  loading: boolean;
-  options?: false | OptionConfig | undefined;
-  toolbar?: ListToolBarProps | undefined;
-};
+export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
 
 const ResizableProTable: React.FC<Props> = ({
   dataSource,
-  proColumns,
+  columns,
   loading,
   options,
   toolbar,
+  rowSelection,
+  tableAlertOptionRender,
+  pagination,
 }) => {
-  const [columns, setColumns] = useState<ProColumns<any, "text">[]>([]);
+  const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>([]);
 
   useEffect(() => {
-    if (proColumns) {
-      setColumns(proColumns);
+    if (columns) {
+      setResizableColumns(columns);
     }
-  }, [proColumns, setColumns]);
+  }, [columns, setResizableColumns]);
 
   const handleResize =
     (index: number) =>
     (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-      const newColumns = [...columns];
+      const newColumns = [...resizableColumns];
       newColumns[index] = {
         ...newColumns[index],
         width: size.width,
       };
-      setColumns(newColumns);
+      setResizableColumns(newColumns);
     };
 
-  const mergeColumns: ProColumns<any, "text">[] = columns?.map((col, index) => ({
+  const mergeColumns: ProColumns<any, "text">[] = resizableColumns?.map((col, index) => ({
     ...col,
     onHeaderCell: column => ({
       minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
@@ -67,7 +64,10 @@ const ResizableProTable: React.FC<Props> = ({
         loading={loading}
         toolbar={toolbar}
         options={options}
+        tableAlertOptionRender={tableAlertOptionRender}
+        rowSelection={rowSelection}
         tableStyle={{ overflowX: "scroll" }}
+        pagination={pagination}
       />
     </Wrapper>
   );

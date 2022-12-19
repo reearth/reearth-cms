@@ -18,6 +18,7 @@ export default () => {
   const { projectId, workspaceId } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const logoUrl = window.REEARTH_CONFIG?.logoUrl;
 
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [currentProject, setCurrentProject] = useProject();
@@ -99,6 +100,7 @@ export default () => {
           name: project.name,
           description: project.description,
           scope: convertScope(project.publication?.scope),
+          alias: project.alias,
         });
       }
     } else {
@@ -121,6 +123,7 @@ export default () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    logoUrl,
   };
 };
 

@@ -56,7 +56,7 @@ func (f *Field) SetDefaultValue(v *value.Multiple) error {
 	if v.Type() != f.Type() {
 		return ErrInvalidValue
 	}
-	if err := f.Validate(v); err != nil {
+	if err := f.ValidateValue(v); err != nil {
 		return err
 	}
 	f.defaultValue = v
@@ -118,7 +118,7 @@ func (f *Field) SetTypeProperty(tp *TypeProperty) error {
 	if tp == nil {
 		return ErrInvalidType
 	}
-	if f.defaultValue != nil {
+	if !f.defaultValue.IsEmpty() {
 		for _, v := range f.defaultValue.Values() {
 			if err := tp.Validate(v); err != nil {
 				return err
@@ -151,9 +151,13 @@ func (f *Field) Clone() *Field {
 // Validate the Multiple value against the Field schema
 // if its multiple it will return only the first error
 func (f *Field) Validate(m *value.Multiple) error {
-	if f.required && (m.IsEmpty() || m.First().IsEmpty()) {
+	if f.required && m.IsEmpty() {
 		return ErrValueRequired
 	}
+	return f.ValidateValue(m)
+}
+
+func (f *Field) ValidateValue(m *value.Multiple) error {
 	if m.IsEmpty() {
 		return nil
 	}

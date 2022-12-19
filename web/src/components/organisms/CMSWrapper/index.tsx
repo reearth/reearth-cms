@@ -24,6 +24,7 @@ const CMSWrapper: React.FC = () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    logoUrl,
   } = useHooks();
 
   return (
@@ -40,6 +41,7 @@ const CMSWrapper: React.FC = () => {
             currentWorkspace={currentWorkspace}
             currentProject={currentProject}
             username={username}
+            logoUrl={logoUrl}
           />
         }
         sidebarComponent={
