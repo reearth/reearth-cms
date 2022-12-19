@@ -16,10 +16,12 @@ const Workspace: React.FC = () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
+    coverImageUrl,
   } = useHooks();
 
   return (
     <WorkspaceWrapper
+      coverImageUrl={coverImageUrl}
       projects={projects}
       projectModal={projectModalShown}
       workspaceModal={workspaceModalShown}

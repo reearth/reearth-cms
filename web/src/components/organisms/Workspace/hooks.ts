@@ -14,6 +14,7 @@ import { useWorkspace } from "@reearth-cms/state";
 export default () => {
   const t = useT();
   const navigate = useNavigate();
+  const coverImageUrl = window.REEARTH_CONFIG?.coverImageUrl;
 
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
@@ -135,5 +136,6 @@ export default () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
+    coverImageUrl,
   };
 };
