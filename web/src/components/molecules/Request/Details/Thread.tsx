@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
@@ -40,11 +40,7 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
       <ThreadDivider />
 
       <AntDComment
-        avatar={
-          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-            {me?.name.charAt(0)}
-          </Avatar>
-        }
+        avatar={<UserAvatar username={me?.name} />}
         content={<RequestEditor onCommentCreate={onCommentCreate} />}
       />
     </ContentWrapper>

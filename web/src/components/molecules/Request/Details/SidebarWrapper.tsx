@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { FocusEventHandler, useCallback, useState } from "react";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -102,11 +102,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       <SidebarCard title={t("Reviewer")}>
         <div style={{ display: "flex", margin: "4px 0" }}>
           {currentRequest?.reviewers.map((reviewer, index) => (
-            <Avatar
-              key={index}
-              style={{ color: "#fff", backgroundColor: "#3F3D45", marginRight: "8px" }}>
-              {reviewer.name.charAt(0)}
-            </Avatar>
+            <UserAvatar username={reviewer.name} key={index} style={{ marginRight: "8px" }} />
           ))}
         </div>
         <Select
