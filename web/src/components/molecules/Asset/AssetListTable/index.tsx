@@ -13,7 +13,6 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
@@ -118,7 +117,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
-      render: (_, record) => <UserAvatar username={record.createdBy} />,
     },
     {
       title: t("ID"),
