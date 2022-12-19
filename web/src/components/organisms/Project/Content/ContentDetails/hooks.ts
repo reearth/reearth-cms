@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import {
+  Request,
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
@@ -12,15 +13,18 @@ import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   Item as GQLItem,
   RequestState as GQLRequestState,
+  Request as GQLRequest,
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
+  useGetRequestsQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
+import { convertRequest } from "../../Request/convertRequest";
 import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
@@ -32,7 +36,25 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
+
+  const { data: requestData } = useGetRequestsQuery({
+    variables: {
+      projectId: projectId ?? "",
+      first: 100,
+    },
+    skip: !projectId,
+  });
+
+  const requests: Request[] = useMemo(
+    () =>
+      (requestData?.requests.nodes
+        .map(request => request as GQLRequest)
+        .map(convertRequest)
+        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
+    [requestData?.requests.nodes],
+  );
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -41,7 +63,7 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["GetItems"],
+    refetchQueries: ["GetItems", "GetRequests"],
   });
 
   const handleItemCreate = useCallback(
@@ -94,6 +116,8 @@ export default () => {
     [updateItem, t],
   );
 
+  // handleAddItemToRequest
+
   const currentItem: Item | undefined = useMemo(
     () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
     [itemId, itemsData?.items.nodes],
@@ -143,6 +167,31 @@ export default () => {
         ) ?? []
     );
   }, [currentWorkspace]);
+
+  const [updateRequest] = useUpdateRequestMutation();
+
+  const handleAddItemToRequest = useCallback(
+    async (request: Request) => {
+      if (!currentItem) return;
+      const item = await updateRequest({
+        variables: {
+          requestId: request.id,
+          description: request.description,
+          items: [...request.items.map(item => ({ itemId: item.id })), { itemId: currentItem.id }],
+          reviewersId: request.reviewers.map(reviewer => reviewer.id),
+          title: request.title,
+          state: request.state as GQLRequestState,
+        },
+      });
+      if (item.errors || !item.data?.updateRequest) {
+        Notification.error({ message: t("Failed to update request.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully updated Request!") });
+    },
+    [updateRequest, currentItem, t],
+  );
 
   const [createRequestMutation] = useCreateRequestMutation();
 
@@ -203,7 +252,18 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
+  const handleAddItemToRequestModalClose = useCallback(
+    () => setAddItemToRequestModalShown(false),
+    [],
+  );
+
+  const handleAddItemToRequestModalOpen = useCallback(
+    () => setAddItemToRequestModalShown(true),
+    [],
+  );
+
   return {
+    requests,
     itemId,
     currentModel,
     currentItem,
@@ -213,7 +273,9 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    addItemToRequestModalShown,
     workspaceUserMembers,
+    handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
@@ -223,5 +285,7 @@ export default () => {
     handleRequestUpdate,
     handleModalClose,
     handleModalOpen,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
   };
 };

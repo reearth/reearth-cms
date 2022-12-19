@@ -22,6 +22,7 @@ export interface Props {
   currentProject?: Project;
   onWorkspaceModalOpen: () => void;
   onNavigateToSettings: () => void;
+  logoUrl?: string;
 }
 
 const HeaderMolecule: React.FC<Props> = ({
@@ -32,6 +33,7 @@ const HeaderMolecule: React.FC<Props> = ({
   currentProject,
   onWorkspaceModalOpen,
   onNavigateToSettings,
+  logoUrl,
 }) => {
   const t = useT();
   const { logout } = useAuth();
@@ -132,7 +134,11 @@ const HeaderMolecule: React.FC<Props> = ({
 
   return (
     <MainHeader>
-      <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      {logoUrl ? (
+        <LogoIcon src={logoUrl} onClick={handleHomeNavigation} />
+      ) : (
+        <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      )}
       <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
@@ -172,6 +178,12 @@ const Logo = styled.div`
   line-height: 48px;
   cursor: pointer;
   padding: 0 40px 0 20px;
+`;
+
+const LogoIcon = styled.img`
+  width: 100px;
+  margin: 0 0 0 10px;
+  cursor: pointer;
 `;
 
 const Spacer = styled.div`

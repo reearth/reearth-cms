@@ -65,7 +65,7 @@ export default () => {
           Notification.error({ message: t("Failed to delete one or more requests.") });
         }
         if (result) {
-          Notification.success({ message: t("One or more requests were successfully deleted!") });
+          Notification.success({ message: t("One or more requests were successfully closed!") });
           navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
         }
       })(),
@@ -85,6 +85,7 @@ export default () => {
         }
         if (result) {
           Notification.success({ message: t("Successfully approved request!") });
+          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
         }
       })(),
     [approveRequestMutation, t],

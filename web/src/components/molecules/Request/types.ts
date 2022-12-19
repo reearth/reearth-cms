@@ -17,6 +17,7 @@ export type Request = {
   createdBy?: User;
   updatedAt: Date;
   items: {
+    id: string;
     fields?: ContentTableField;
     columns?: ProColumns<ContentTableField>[];
     modelName?: string;

@@ -17,15 +17,17 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  requests: Request[];
   itemId?: string;
   initialFormValues: any;
   loading: boolean;
@@ -38,6 +40,7 @@ export interface Props {
   uploadUrl: string;
   uploadType: UploadType;
   requestModalShown: boolean;
+  addItemToRequestModalShown: boolean;
   workspaceUserMembers: Member[];
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -61,11 +64,15 @@ export interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
+  onChange: (request: Request) => void;
   onModalClose: () => void;
   onModalOpen: () => void;
+  onAddItemToRequestModalClose: () => void;
+  onAddItemToRequestModalOpen: () => void;
 }
 
 const ContentForm: React.FC<Props> = ({
+  requests,
   itemId,
   model,
   initialFormValues,
@@ -78,6 +85,7 @@ const ContentForm: React.FC<Props> = ({
   uploadUrl,
   uploadType,
   requestModalShown,
+  addItemToRequestModalShown,
   workspaceUserMembers,
   onUploadModalCancel,
   setUploadUrl,
@@ -93,8 +101,11 @@ const ContentForm: React.FC<Props> = ({
   setUploadModalVisibility,
   onNavigateToAsset,
   onRequestCreate,
+  onChange,
   onModalClose,
   onModalOpen,
+  onAddItemToRequestModalClose,
+  onAddItemToRequestModalOpen,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -141,9 +152,14 @@ const ContentForm: React.FC<Props> = ({
                 {t("Save")}
               </Button>
               {itemId && (
-                <Button type="primary" onClick={onModalOpen}>
-                  {t("New Request")}
-                </Button>
+                <>
+                  <Button type="primary" onClick={onModalOpen}>
+                    {t("New Request")}
+                  </Button>
+                  <Button type="primary" onClick={onAddItemToRequestModalOpen}>
+                    {t("Add to Request")}
+                  </Button>
+                </>
               )}
             </>
           }
@@ -352,13 +368,22 @@ const ContentForm: React.FC<Props> = ({
         </FormItemsWrapper>
       </StyledForm>
       {itemId && (
-        <RequestCreationModal
-          itemId={itemId}
-          open={requestModalShown}
-          onClose={onModalClose}
-          onSubmit={onRequestCreate}
-          workspaceUserMembers={workspaceUserMembers}
-        />
+        <>
+          <RequestCreationModal
+            itemId={itemId}
+            open={requestModalShown}
+            onClose={onModalClose}
+            onSubmit={onRequestCreate}
+            workspaceUserMembers={workspaceUserMembers}
+          />
+          <LinkItemRequestModal
+            onChange={onChange}
+            onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+            visible={addItemToRequestModalShown}
+            linkedRequest={undefined}
+            requestList={requests}
+          />
+        </>
       )}
     </>
   );

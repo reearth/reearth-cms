@@ -6,11 +6,12 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Props = {
+  requests: Request[];
   collapsed?: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
@@ -26,6 +27,7 @@ export type Props = {
   uploadType: UploadType;
   commentsPanel?: JSX.Element;
   requestModalShown: boolean;
+  addItemToRequestModalShown: boolean;
   workspaceUserMembers: Member[];
   onCollapse?: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
@@ -50,11 +52,15 @@ export type Props = {
       itemId: string;
     }[];
   }) => Promise<void>;
+  onChange: (request: Request) => void;
   onModalClose: () => void;
   onModalOpen: () => void;
+  onAddItemToRequestModalClose: () => void;
+  onAddItemToRequestModalOpen: () => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  requests,
   collapsed,
   model,
   modelsMenu,
@@ -70,6 +76,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   uploadType,
   commentsPanel,
   requestModalShown,
+  addItemToRequestModalShown,
   workspaceUserMembers,
   onCollapse,
   onUploadModalCancel,
@@ -86,8 +93,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setUploadModalVisibility,
   onNavigateToAsset,
   onRequestCreate,
+  onChange,
   onModalClose,
   onModalOpen,
+  onAddItemToRequestModalClose,
+  onAddItemToRequestModalOpen,
 }) => {
   return (
     <ComplexInnerContents
@@ -103,6 +113,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          requests={requests}
           loading={loading}
           itemId={itemId}
           model={model}
@@ -114,6 +125,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onChange={onChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
@@ -128,9 +140,12 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           setUploadModalVisibility={setUploadModalVisibility}
           onNavigateToAsset={onNavigateToAsset}
           requestModalShown={requestModalShown}
+          addItemToRequestModalShown={addItemToRequestModalShown}
           onRequestCreate={onRequestCreate}
           onModalClose={onModalClose}
           onModalOpen={onModalOpen}
+          onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+          onAddItemToRequestModalClose={onAddItemToRequestModalClose}
           workspaceUserMembers={workspaceUserMembers}
         />
       }

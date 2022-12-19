@@ -23,7 +23,8 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     createdBy: GQLRequest.createdBy ?? undefined,
     updatedAt: GQLRequest.updatedAt,
     items: GQLRequest.items.map(item => ({
-      modelName: item.item?.value?.schema?.fields?.[0]?.model?.name,
+      id: item.itemId,
+      modelName: item?.item?.value.model.name,
       fields: getContentTableFields(item),
       columns: item.item?.value.schema
         ? getContentTableColumns(item.item?.value.schema)

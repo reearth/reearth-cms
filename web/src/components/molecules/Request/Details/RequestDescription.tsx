@@ -34,7 +34,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
               .filter(item => item.columns && item.fields)
               .map((item, index) => (
                 <>
-                  {/* <RequestModelName /> */}
+                  <RequestModelName>{item.modelName}</RequestModelName>
                   <RequestTableWrapper>
                     <ResizableProTable
                       pagination={false}
@@ -101,13 +101,13 @@ const RequestItemsWrapper = styled.div`
   }
 `;
 
-// const RequestModelName = styled.h1`
-//   display: inline-block;
-//   padding: 8px 16px;
-//   box-shadow: inset -1px 0px 0px #f0f0f0, inset 0px 1px 0px #f0f0f0, inset 1px 0px 0px #f0f0f0;
-//   border-radius: 2px 2px 0px 0px;
-//   margin-bottom: 0;
-// `;
+const RequestModelName = styled.h1`
+  display: inline-block;
+  padding: 8px 16px;
+  box-shadow: inset -1px 0px 0px #f0f0f0, inset 0px 1px 0px #f0f0f0, inset 1px 0px 0px #f0f0f0;
+  border-radius: 2px 2px 0px 0px;
+  margin-bottom: 0;
+`;
 
 const RequestTableWrapper = styled.div`
   padding: 12px;

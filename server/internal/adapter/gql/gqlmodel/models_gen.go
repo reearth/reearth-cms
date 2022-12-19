@@ -321,6 +321,7 @@ type Item struct {
 	ModelID   ID           `json:"modelId"`
 	ProjectID ID           `json:"projectId"`
 	Schema    *Schema      `json:"schema"`
+	Model     *Model       `json:"model"`
 	Project   *Project     `json:"project"`
 	Thread    *Thread      `json:"thread"`
 	Fields    []*ItemField `json:"fields"`
@@ -816,6 +817,7 @@ type UpdateProjectInput struct {
 	ProjectID   ID                             `json:"projectId"`
 	Name        *string                        `json:"name"`
 	Description *string                        `json:"description"`
+	Alias       *string                        `json:"alias"`
 	Publication *UpdateProjectPublicationInput `json:"publication"`
 }
 

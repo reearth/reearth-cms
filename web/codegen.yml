@@ -1,5 +1,5 @@
 overwrite: true
-schema: ../server/schemas/*.graphql
+schema: http://localhost:8080/api/graphql
 documents:
   - src/gql/fragments/*.ts
   - src/gql/queries/*.ts

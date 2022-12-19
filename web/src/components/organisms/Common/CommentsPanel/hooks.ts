@@ -12,7 +12,7 @@ export default ({ threadId }: Params) => {
   const t = useT();
 
   const [createComment] = useAddCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "GetItems"],
+    refetchQueries: ["GetAsset", "GetAssets", "GetItems", "GetRequests"],
   });
 
   const handleCommentCreate = useCallback(

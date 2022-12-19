@@ -16,6 +16,9 @@ export const requestFragment = gql`
         value {
           id
           schemaId
+          model {
+            name
+          }
           fields {
             schemaFieldId
             type

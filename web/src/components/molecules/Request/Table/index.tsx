@@ -169,7 +169,7 @@ const RequestListTable: React.FC<Props> = ({
         </DeselectButton>
         <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
         <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Delete")}
+          <Icon icon="delete" /> {t("Close")}
         </DeleteButton>
       </Space>
     );

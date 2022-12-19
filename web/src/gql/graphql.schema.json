@@ -2828,6 +2828,22 @@
             "deprecationReason": null
           },
           {
+            "name": "model",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Model",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "modelId",
             "description": null,
             "args": [],
@@ -7420,18 +7436,6 @@
             "deprecationReason": null
           },
           {
-            "name": "schema",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "Schema",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "version",
             "description": null,
             "args": [],
@@ -9784,6 +9788,18 @@
         "description": null,
         "fields": null,
         "inputFields": [
+          {
+            "name": "alias",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "description",
             "description": null,

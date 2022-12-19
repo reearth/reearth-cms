@@ -18,7 +18,7 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests, selectRequests] = useState<Request[]>([]);
+  const [selectedRequests] = useState<Request[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
@@ -77,8 +77,8 @@ export default () => {
           Notification.error({ message: t("Failed to delete one or more requests.") });
         }
         if (result) {
-          Notification.success({ message: t("One or more requests were successfully deleted!") });
-          selectRequests([]);
+          Notification.success({ message: t("One or more requests were successfully closed!") });
+          setSelection({ selectedRowKeys: [] });
         }
       })(),
     [t, projectId, deleteRequestMutation],
