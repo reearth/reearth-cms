@@ -107,11 +107,6 @@ const LinkItemRequestModal: React.FC<Props> = ({
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
-    {
-      title: t("Created By"),
-      dataIndex: "createdBy",
-      key: "createdBy",
-    },
   ];
 
   return (

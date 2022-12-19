@@ -10,6 +10,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
@@ -133,6 +134,7 @@ const LinkAssetModal: React.FC<Props> = ({
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
+      render: (_, record) => <UserAvatar username={record.createdBy} />,
     },
   ];
 
