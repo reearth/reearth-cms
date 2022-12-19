@@ -21,6 +21,7 @@ export type Project = {
   description?: string;
   alias: string;
   scope?: PublicScope;
+  assetPublic?: boolean;
 };
 
 const project = atom<Project | undefined>(undefined);
