@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import moment from "moment";
 import { useMemo } from "react";
 
@@ -6,20 +7,20 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 type Props = {
-  comment: Comment;
+  comment: CommentType;
 };
 
-const CommentMolecule: React.FC<Props> = ({ comment }) => {
+const ThreadCommentMolecule: React.FC<Props> = ({ comment }) => {
   const fromNow = useMemo(
     () => moment(comment.createdAt?.toString()).fromNow(),
     [comment.createdAt],
   );
 
   return (
-    <AntDComment
+    <StyledAntDComment
       author={<a>{comment.author}</a>}
       avatar={
         comment.authorType === "Integration" ? (
@@ -33,21 +34,13 @@ const CommentMolecule: React.FC<Props> = ({ comment }) => {
               />
             }
             offset={[0, 24]}>
-            <Avatar
-              style={{
-                color: "#fff",
-                backgroundColor: comment.author === "Anonymous" ? "#BFBFBF" : "#3F3D45",
-              }}>
-              {comment.author === "Anonymous" ? <Icon icon="user" /> : comment.author.charAt(0)}
+            <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+              {comment.author.charAt(0)}
             </Avatar>
           </Badge>
         ) : (
-          <Avatar
-            style={{
-              color: "#fff",
-              backgroundColor: comment.author === "Anonymous" ? "#BFBFBF" : "#3F3D45",
-            }}>
-            {comment.author === "Anonymous" ? <Icon icon="user" /> : comment.author.charAt(0)}
+          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
+            {comment.author.charAt(0)}
           </Avatar>
         )
       }
@@ -63,4 +56,11 @@ const CommentMolecule: React.FC<Props> = ({ comment }) => {
   );
 };
 
-export default CommentMolecule;
+export default ThreadCommentMolecule;
+
+const StyledAntDComment = styled(AntDComment)`
+  .ant-comment-content {
+    background-color: #fff;
+    padding: 12px 24px;
+  }
+`;
