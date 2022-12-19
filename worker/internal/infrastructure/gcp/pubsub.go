@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/reearth/reearth-cms/worker/pkg/asset"
+	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
@@ -41,5 +42,7 @@ func (c *PubSub) NotifyAssetDecompressed(ctx context.Context, assetID string, st
 	if _, err := result.Get(ctx); err != nil {
 		return err
 	}
+
+	log.Infof("decompress notified via PubSub: Msg=%s", string(body))
 	return nil
 }
