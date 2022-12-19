@@ -4,16 +4,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
+import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-
-import { Request } from "../types";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
   me?: User;
   currentRequest: Request;
+  workspaceUserMembers: Member[];
   onRequestApprove: (requestId: string) => Promise<void>;
+  onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
   onBack: () => void;
@@ -22,8 +24,10 @@ type Props = {
 const RequestMolecule: React.FC<Props> = ({
   me,
   currentRequest,
+  workspaceUserMembers,
   onCommentCreate,
   onRequestApprove,
+  onRequestUpdate,
   onRequestDelete,
   onBack,
 }) => {
@@ -58,7 +62,11 @@ const RequestMolecule: React.FC<Props> = ({
             onCommentCreate={onCommentCreate}
           />
         </ThreadWrapper>
-        <RequestSidebarWrapper currentRequest={currentRequest} />
+        <RequestSidebarWrapper
+          currentRequest={currentRequest}
+          workspaceUserMembers={workspaceUserMembers}
+          onRequestUpdate={onRequestUpdate}
+        />
       </BodyWrapper>
     </Content>
   );

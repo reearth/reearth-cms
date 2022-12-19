@@ -3,7 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  RequestUpdatePayload,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
@@ -13,6 +16,7 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useUpdateItemMutation,
+  useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -170,6 +174,31 @@ export default () => {
     },
     [createRequestMutation, projectId, t],
   );
+
+  const [updateRequestMutation] = useUpdateRequestMutation();
+
+  const handleRequestUpdate = useCallback(
+    async (data: RequestUpdatePayload) => {
+      if (!data.requestId) return;
+      const request = await updateRequestMutation({
+        variables: {
+          requestId: data.requestId,
+          title: data.title,
+          description: data.description,
+          state: data.state as GQLRequestState,
+          reviewersId: data.reviewersId,
+          items: data.items,
+        },
+      });
+      if (request.errors || !request.data?.updateRequest) {
+        Notification.error({ message: t("Failed to update request.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated request!") });
+      setRequestModalShown(false);
+    },
+    [updateRequestMutation, t],
+  );
   const handleModalClose = useCallback(() => setRequestModalShown(false), []);
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
@@ -191,6 +220,7 @@ export default () => {
     handleItemUpdate,
     handleNavigateToModel,
     handleRequestCreate,
+    handleRequestUpdate,
     handleModalClose,
     handleModalOpen,
   };

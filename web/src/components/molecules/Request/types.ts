@@ -23,6 +23,17 @@ export type Request = {
   }[];
 };
 
+export type RequestUpdatePayload = {
+  requestId: string;
+  title?: string;
+  description?: string;
+  state?: RequestState;
+  reviewersId?: string[];
+  items?: {
+    itemId: string;
+  }[];
+};
+
 export type Comment = {
   id: string;
   author: string;
