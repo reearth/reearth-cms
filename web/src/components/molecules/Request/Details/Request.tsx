@@ -65,10 +65,10 @@ const RequestMolecule: React.FC<Props> = ({
 };
 
 const Content = styled.div`
+  padding: 16px;
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  background: #fafafa;
 `;
 
 const BodyWrapper = styled.div`

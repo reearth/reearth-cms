@@ -37,7 +37,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({ currentRequest }) => {
 };
 
 const SideBarWrapper = styled.div`
-  background-color: #fff;
+  background-color: #fafafa;
   padding: 8px;
   width: 272px;
 `;
