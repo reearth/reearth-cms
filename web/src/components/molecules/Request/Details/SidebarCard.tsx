@@ -22,7 +22,9 @@ const SideBarCardWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 4px 0 #00000025;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 2px;
 `;
 
 const CardTitle = styled.h2`

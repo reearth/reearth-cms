@@ -27,24 +27,25 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
       }
       content={
         <>
-          <RequestTitle>{currentRequest.title}</RequestTitle>
-          <RequestText>{currentRequest.description}</RequestText>
+          <RequestTextWrapper>
+            <RequestTitle>{currentRequest.title}</RequestTitle>
+            <RequestText>{currentRequest.description}</RequestText>
+          </RequestTextWrapper>
           <RequestItemsWrapper>
             {currentRequest.items
               .filter(item => item.columns && item.fields)
               .map((item, index) => (
-                <>
+                <RequestItemWrapper key={index}>
                   <RequestModelName>{item.modelName}</RequestModelName>
                   <RequestTableWrapper>
                     <ResizableProTable
                       pagination={false}
                       options={false}
-                      key={index}
                       dataSource={[item.fields]}
                       columns={item.columns}
                     />
                   </RequestTableWrapper>
-                </>
+                </RequestItemWrapper>
               ))}
           </RequestItemsWrapper>
         </>
@@ -62,9 +63,8 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
 
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
-    padding: 21px 24px;
-    margin: 0 -21px;
-    margin-bottom: 24px;
+    padding: 16px 24px;
+    margin: 0;
     border-bottom: 1px solid #f0f0f0;
     .ant-comment-content-author-name {
       font-weight: 400;
@@ -77,7 +77,6 @@ const StyledAntDComment = styled(AntDComment)`
   }
   .ant-comment-content {
     background-color: #fff;
-    padding: 12px 24px;
   }
 `;
 
@@ -87,30 +86,39 @@ const RequestTitle = styled.h1`
   color: #000000d9;
 `;
 
-const RequestText = styled.p`
-  padding: 21px 24px;
-  padding-top: 8px;
-  margin: 0 -21px;
+const RequestTextWrapper = styled.div`
+  padding: 24px;
   border-bottom: 1px solid #f0f0f0;
 `;
 
+const RequestText = styled.p`
+  padding-top: 8px;
+`;
+
 const RequestItemsWrapper = styled.div`
-  padding: 12px 0;
+  padding: 12px;
   .ant-pro-card-body {
     padding: 0;
+  }
+`;
+
+const RequestItemWrapper = styled.div`
+  + div {
+    margin-top: 24px;
   }
 `;
 
 const RequestModelName = styled.h1`
   display: inline-block;
   padding: 8px 16px;
-  box-shadow: inset -1px 0px 0px #f0f0f0, inset 0px 1px 0px #f0f0f0, inset 1px 0px 0px #f0f0f0;
+  border: 1px solid #f0f0f0;
+  border-bottom: none;
   border-radius: 2px 2px 0px 0px;
   margin-bottom: 0;
 `;
 
 const RequestTableWrapper = styled.div`
   padding: 12px;
-  box-shadow: inset -1px 0px 0px #f0f0f0, inset 0px 1px 0px #f0f0f0, inset 1px 0px 0px #f0f0f0;
+  border: 1px solid #f0f0f0;
   border-radius: 2px 2px 0px 0px;
 `;
