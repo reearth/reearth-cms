@@ -32,6 +32,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
 			return err
 		}
+		log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
 		return c.NoContent(http.StatusOK)
 	}
 }
