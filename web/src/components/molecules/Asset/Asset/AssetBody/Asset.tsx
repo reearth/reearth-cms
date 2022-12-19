@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -147,7 +148,9 @@ const AssetMolecule: React.FC<Props> = ({
           />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>{asset.createdBy}</SideBarCard>
+        <SideBarCard title={t("Created By")}>
+          <UserAvatar username={asset.createdBy} shadow />
+        </SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );

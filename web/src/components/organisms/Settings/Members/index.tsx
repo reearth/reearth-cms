@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -9,6 +8,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Search from "@reearth-cms/components/atoms/Search";
 import Table from "@reearth-cms/components/atoms/Table";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -91,11 +91,7 @@ const Members: React.FC = () => {
   const dataSource = workspaceUserMembers?.map(member => ({
     key: member.userId,
     name: member.user.name,
-    thumbnail: (
-      <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-        {member.user.name.charAt(0)}
-      </Avatar>
-    ),
+    thumbnail: <UserAvatar username={member.user.name} />,
     email: member.user.email,
     role: member.role,
     action: (
