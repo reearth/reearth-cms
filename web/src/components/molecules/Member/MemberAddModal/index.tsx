@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input, { SearchProps } from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -121,13 +121,7 @@ const MemberAddModal: React.FC<Props> = ({
           {searchedUser && (
             <SearchedUserResult>
               <SearchedUserAvatar>
-                <Avatar
-                  style={{
-                    color: "#fff",
-                    backgroundColor: "#3F3D45",
-                  }}>
-                  {searchedUser.name.charAt(0)}
-                </Avatar>
+                <UserAvatar username={searchedUser.name} />
               </SearchedUserAvatar>
               <SearchedUserName>{searchedUser.name}</SearchedUserName>
               <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
@@ -148,7 +142,7 @@ const MemberAddModal: React.FC<Props> = ({
                 .map(user => (
                   <SearchedUserResult key={user?.id} style={{ marginBottom: "6px" }}>
                     <SearchedUserAvatar>
-                      <UserAvatar>{user?.name.charAt(0)}</UserAvatar>
+                      <UserAvatar username={user?.name} />
                     </SearchedUserAvatar>
                     <SearchedUserName>{user?.name}</SearchedUserName>
                     <SearchedUserEmail>{user?.email}</SearchedUserEmail>
@@ -206,8 +200,4 @@ const SearchedUserResult = styled.div`
   border-radius: 8px;
 `;
 
-const UserAvatar = styled(Avatar)`
-  color: #fff;
-  background-color: #3f3d45;
-`;
 export default MemberAddModal;
