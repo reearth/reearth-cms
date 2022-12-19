@@ -29,7 +29,11 @@ export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset | undefined 
 export const convertComment = (GQLComment: GQLComment): Comment => {
   return {
     id: GQLComment.id,
-    authorType: GQLComment.author.__typename === "User" ? "User" : "Integration",
+    authorType: GQLComment.author
+      ? GQLComment.author.__typename === "User"
+        ? "User"
+        : "Integration"
+      : null,
     author: GQLComment.author?.name ?? "",
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),

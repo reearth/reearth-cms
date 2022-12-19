@@ -2,21 +2,44 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import { useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 type Props = {
   currentRequest: Request;
+  onItemEdit: (itemId: string, modelId?: string) => void;
 };
 
-export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
+export const RequestDescription: React.FC<Props> = ({ onItemEdit, currentRequest }) => {
   const fromNow = useMemo(
     () => moment(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
   );
+
+  const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
+    () => [
+      {
+        render: (_, contentField) => (
+          <Button
+            type="link"
+            icon={<Icon icon="edit" />}
+            onClick={() => onItemEdit(contentField.id, contentField.modelId)}
+          />
+        ),
+        width: 48,
+        minWidth: 48,
+      },
+    ],
+    [onItemEdit],
+  );
+
   return (
     <StyledAntDComment
       author={<a>{currentRequest.createdBy?.name}</a>}
@@ -38,7 +61,10 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
                       pagination={false}
                       options={false}
                       dataSource={[item.fields]}
-                      columns={item.columns}
+                      columns={[
+                        ...actionsColumn,
+                        ...(item.columns as ProColumns<ContentTableField, "text">[]),
+                      ]}
                     />
                   </RequestTableWrapper>
                 </RequestItemWrapper>
