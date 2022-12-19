@@ -90,25 +90,17 @@ const LinkItemRequestModal: React.FC<Props> = ({
         return request.createdBy?.name;
       },
     },
-
     {
-      title: t("reviewers"),
+      title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => {
-        return request.reviewers.map(reviewer => reviewer.name);
-      },
+      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
-    },
-    {
-      title: t("Created By"),
-      dataIndex: "createdBy",
-      key: "createdBy",
     },
   ];
 

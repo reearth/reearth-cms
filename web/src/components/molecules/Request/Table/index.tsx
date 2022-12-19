@@ -107,12 +107,10 @@ const RequestListTable: React.FC<Props> = ({
       },
     },
     {
-      title: t("reviewers"),
+      title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => {
-        return request.reviewers.map(reviewer => reviewer.name);
-      },
+      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
     },
     {
       title: t("Created At"),

@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import { useMemo } from "react";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
@@ -20,11 +20,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest }) => {
   return (
     <StyledAntDComment
       author={<a>{currentRequest.createdBy?.name}</a>}
-      avatar={
-        <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-          {currentRequest.createdBy?.name.charAt(0)}
-        </Avatar>
-      }
+      avatar={<UserAvatar username={currentRequest.createdBy?.name} />}
       content={
         <>
           <RequestTextWrapper>
