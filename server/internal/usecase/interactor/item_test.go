@@ -626,11 +626,13 @@ func TestItem_Create(t *testing.T) {
 }
 
 func TestItem_Update(t *testing.T) {
+	uId := id.NewUserID().Ref()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
-	i := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().User(id.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -638,13 +640,14 @@ func TestItem_Update(t *testing.T) {
 	lo.Must0(db.Model.Save(ctx, m))
 	lo.Must0(db.Item.Save(ctx, i))
 	lo.Must0(db.Item.Save(ctx, i2))
+	lo.Must0(db.Item.Save(ctx, i3))
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
 
 	op := &usecase.Operator{
-		User:             id.NewUserID().Ref(),
+		User:             uId,
 		ReadableProjects: []id.ProjectID{s.Project()},
-		OwningProjects:   []id.ProjectID{s.Project()},
+		WritableProjects: []id.ProjectID{s.Project()},
 	}
 
 	// ok
@@ -695,6 +698,19 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
 	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	// update no permission
+	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i3.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, op)
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
 
 	// duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -754,15 +770,15 @@ func TestItem_Update(t *testing.T) {
 }
 
 func TestItem_Delete(t *testing.T) {
-	sid := id.NewSchemaID()
-	id1 := id.NewItemID()
-	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	sid := id.NewSchemaID()
+	id1 := id.NewItemID()
+	i1 := item.New().ID(id1).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+
 	op := &usecase.Operator{
-		User:           lo.ToPtr(u.ID()),
-		OwningProjects: id.ProjectIDList{i1.Project()},
+		User:             lo.ToPtr(u.ID()),
+		WritableProjects: id.ProjectIDList{i1.Project()},
 	}
 	ctx := context.Background()
 
