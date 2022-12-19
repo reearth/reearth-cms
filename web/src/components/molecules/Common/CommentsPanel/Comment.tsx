@@ -29,13 +29,21 @@ const CommentMoecule: React.FC<Props> = ({ comment }) => {
               />
             }
             offset={[0, 24]}>
-            <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-              {comment.author.charAt(0)}
+            <Avatar
+              style={{
+                color: "#fff",
+                backgroundColor: comment.author === "Anonymous" ? "#BFBFBF" : "#3F3D45",
+              }}>
+              {comment.author === "Anonymous" ? <Icon icon="user" /> : comment.author.charAt(0)}
             </Avatar>
           </Badge>
         ) : (
-          <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }}>
-            {comment.author.charAt(0)}
+          <Avatar
+            style={{
+              color: "#fff",
+              backgroundColor: comment.author === "Anonymous" ? "#BFBFBF" : "#3F3D45",
+            }}>
+            {comment.author === "Anonymous" ? <Icon icon="user" /> : comment.author.charAt(0)}
           </Avatar>
         )
       }

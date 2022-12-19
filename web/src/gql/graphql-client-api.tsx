@@ -43,6 +43,10 @@ export type AddUsersToWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type ApproveRequestInput = {
+  requestId: Scalars['ID'];
+};
+
 export enum ArchiveExtractionStatus {
   Done = 'DONE',
   Failed = 'FAILED',
@@ -165,6 +169,15 @@ export type CreateProjectInput = {
   workspaceId: Scalars['ID'];
 };
 
+export type CreateRequestInput = {
+  description?: InputMaybe<Scalars['String']>;
+  items: Array<RequestItemInput>;
+  projectId: Scalars['ID'];
+  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  state?: InputMaybe<RequestState>;
+  title: Scalars['String'];
+};
+
 export type CreateThreadInput = {
   workspaceId: Scalars['ID'];
 };
@@ -262,6 +275,16 @@ export type DeleteProjectPayload = {
   projectId: Scalars['ID'];
 };
 
+export type DeleteRequestInput = {
+  projectId: Scalars['ID'];
+  requestsId: Array<Scalars['ID']>;
+};
+
+export type DeleteRequestPayload = {
+  __typename?: 'DeleteRequestPayload';
+  requests: Array<Scalars['ID']>;
+};
+
 export type DeleteWebhookInput = {
   integrationId: Scalars['ID'];
   webhookId: Scalars['ID'];
@@ -321,6 +344,7 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  model: Model;
   modelId: Scalars['ID'];
   project: Project;
   projectId: Scalars['ID'];
@@ -431,12 +455,14 @@ export type Mutation = {
   addComment?: Maybe<CommentPayload>;
   addIntegrationToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   addUsersToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
+  approveRequest?: Maybe<RequestPayload>;
   createAsset?: Maybe<CreateAssetPayload>;
   createField?: Maybe<FieldPayload>;
   createIntegration?: Maybe<IntegrationPayload>;
   createItem?: Maybe<ItemPayload>;
   createModel?: Maybe<ModelPayload>;
   createProject?: Maybe<ProjectPayload>;
+  createRequest?: Maybe<RequestPayload>;
   createThread?: Maybe<ThreadPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
@@ -448,6 +474,7 @@ export type Mutation = {
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
+  deleteRequest?: Maybe<DeleteRequestPayload>;
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishModel?: Maybe<PublishModelPayload>;
@@ -463,6 +490,7 @@ export type Mutation = {
   updateMe?: Maybe<UpdateMePayload>;
   updateModel?: Maybe<ModelPayload>;
   updateProject?: Maybe<ProjectPayload>;
+  updateRequest?: Maybe<RequestPayload>;
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
@@ -481,6 +509,11 @@ export type MutationAddIntegrationToWorkspaceArgs = {
 
 export type MutationAddUsersToWorkspaceArgs = {
   input: AddUsersToWorkspaceInput;
+};
+
+
+export type MutationApproveRequestArgs = {
+  input: ApproveRequestInput;
 };
 
 
@@ -511,6 +544,11 @@ export type MutationCreateModelArgs = {
 
 export type MutationCreateProjectArgs = {
   input: CreateProjectInput;
+};
+
+
+export type MutationCreateRequestArgs = {
+  input: CreateRequestInput;
 };
 
 
@@ -566,6 +604,11 @@ export type MutationDeleteModelArgs = {
 
 export type MutationDeleteProjectArgs = {
   input: DeleteProjectInput;
+};
+
+
+export type MutationDeleteRequestArgs = {
+  input: DeleteRequestInput;
 };
 
 
@@ -644,6 +687,11 @@ export type MutationUpdateProjectArgs = {
 };
 
 
+export type MutationUpdateRequestArgs = {
+  input: UpdateRequestInput;
+};
+
+
 export type MutationUpdateUserOfWorkspaceArgs = {
   input: UpdateUserOfWorkspaceInput;
 };
@@ -668,6 +716,7 @@ export enum NodeType {
   Item = 'Item',
   Model = 'Model',
   Project = 'PROJECT',
+  Request = 'REQUEST',
   Schema = 'Schema',
   User = 'USER',
   Workspace = 'WORKSPACE'
@@ -776,6 +825,7 @@ export type Query = {
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
+  requests: RequestConnection;
   searchItem: ItemConnection;
   searchUser?: Maybe<User>;
   versionsByItem: Array<VersionedItem>;
@@ -845,6 +895,17 @@ export type QueryProjectsArgs = {
 };
 
 
+export type QueryRequestsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  key?: InputMaybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['Int']>;
+  projectId: Scalars['ID'];
+  state?: InputMaybe<RequestState>;
+};
+
+
 export type QuerySearchItemArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
   before?: InputMaybe<Scalars['Cursor']>;
@@ -881,6 +942,67 @@ export type RemoveUserFromWorkspaceInput = {
   userId: Scalars['ID'];
   workspaceId: Scalars['ID'];
 };
+
+export type Request = Node & {
+  __typename?: 'Request';
+  approvedAt?: Maybe<Scalars['DateTime']>;
+  closedAt?: Maybe<Scalars['DateTime']>;
+  createdAt: Scalars['DateTime'];
+  createdBy?: Maybe<User>;
+  createdById: Scalars['ID'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  items: Array<RequestItem>;
+  project?: Maybe<Project>;
+  projectId: Scalars['ID'];
+  reviewers: Array<User>;
+  reviewersId: Array<Scalars['ID']>;
+  state: RequestState;
+  thread?: Maybe<Thread>;
+  threadId: Scalars['ID'];
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  workspace?: Maybe<Workspace>;
+  workspaceId: Scalars['ID'];
+};
+
+export type RequestConnection = {
+  __typename?: 'RequestConnection';
+  edges: Array<RequestEdge>;
+  nodes: Array<Maybe<Request>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type RequestEdge = {
+  __typename?: 'RequestEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Request>;
+};
+
+export type RequestItem = {
+  __typename?: 'RequestItem';
+  item?: Maybe<VersionedItem>;
+  itemId: Scalars['ID'];
+  ref?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+};
+
+export type RequestItemInput = {
+  itemId: Scalars['ID'];
+};
+
+export type RequestPayload = {
+  __typename?: 'RequestPayload';
+  request: Request;
+};
+
+export enum RequestState {
+  Approved = 'APPROVED',
+  Closed = 'CLOSED',
+  Draft = 'DRAFT',
+  Waiting = 'WAITING'
+}
 
 export enum Role {
   Maintainer = 'MAINTAINER',
@@ -1173,6 +1295,15 @@ export type UpdateProjectInput = {
 export type UpdateProjectPublicationInput = {
   assetPublic?: InputMaybe<Scalars['Boolean']>;
   scope?: InputMaybe<ProjectPublicationScope>;
+};
+
+export type UpdateRequestInput = {
+  description?: InputMaybe<Scalars['String']>;
+  items?: InputMaybe<Array<RequestItemInput>>;
+  requestId: Scalars['ID'];
+  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  state?: InputMaybe<RequestState>;
+  title?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateUserOfWorkspaceInput = {
@@ -1513,7 +1644,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
