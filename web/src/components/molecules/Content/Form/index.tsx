@@ -17,12 +17,17 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  requests: Request[];
   itemId?: string;
   initialFormValues: any;
   loading: boolean;
@@ -34,6 +39,9 @@ export interface Props {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  requestModalShown: boolean;
+  addItemToRequestModalShown: boolean;
+  workspaceUserMembers: Member[];
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -47,9 +55,24 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onNavigateToAsset: (asset: Asset) => void;
+  onRequestCreate: (data: {
+    title: string;
+    description: string;
+    state: RequestState;
+    reviewersId: string[];
+    items: {
+      itemId: string;
+    }[];
+  }) => Promise<void>;
+  onChange: (request: Request) => void;
+  onModalClose: () => void;
+  onModalOpen: () => void;
+  onAddItemToRequestModalClose: () => void;
+  onAddItemToRequestModalOpen: () => void;
 }
 
 const ContentForm: React.FC<Props> = ({
+  requests,
   itemId,
   model,
   initialFormValues,
@@ -61,6 +84,9 @@ const ContentForm: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  requestModalShown,
+  addItemToRequestModalShown,
+  workspaceUserMembers,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -74,6 +100,12 @@ const ContentForm: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onNavigateToAsset,
+  onRequestCreate,
+  onChange,
+  onModalClose,
+  onModalOpen,
+  onAddItemToRequestModalClose,
+  onAddItemToRequestModalOpen,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -109,219 +141,251 @@ const ContentForm: React.FC<Props> = ({
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
   return (
-    <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
-      <PageHeader
-        title={model?.name}
-        onBack={handleBack}
-        extra={
-          <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
-            {t("Save")}
-          </Button>
-        }
-      />
-      <FormItemsWrapper>
-        {model?.schema.fields.map(field =>
-          field.type === "TextArea" ? (
-            <Form.Item
-              extra={field.description}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-              ]}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueField
-                  rows={3}
-                  showCount
-                  maxLength={field.typeProperty.maxLength ?? false}
-                  FieldInput={TextArea}
-                />
-              ) : (
-                <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+    <>
+      <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
+        <PageHeader
+          title={model?.name}
+          onBack={handleBack}
+          extra={
+            <>
+              <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
+                {t("Save")}
+              </Button>
+              {itemId && (
+                <>
+                  <Button type="primary" onClick={onModalOpen}>
+                    {t("New Request")}
+                  </Button>
+                  <Button type="primary" onClick={onAddItemToRequestModalOpen}>
+                    {t("Add to Request")}
+                  </Button>
+                </>
               )}
-            </Form.Item>
-          ) : field.type === "MarkdownText" ? (
-            <Form.Item
-              extra={field.description}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-              ]}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueField
-                  maxLength={field.typeProperty.maxLength ?? false}
-                  FieldInput={MarkdownInput}
-                />
-              ) : (
-                <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
-              )}
-            </Form.Item>
-          ) : field.type === "Integer" ? (
-            <Form.Item
-              extra={field.description}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-              ]}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueField
-                  type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
-                  FieldInput={InputNumber}
-                />
-              ) : (
-                <InputNumber
-                  type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
-                />
-              )}
-            </Form.Item>
-          ) : field.type === "Asset" ? (
-            <Form.Item
-              extra={field.description}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-              ]}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueAsset
-                  assetList={assetList}
-                  fileList={fileList}
-                  loadingAssets={loadingAssets}
-                  uploading={uploading}
-                  uploadModalVisibility={uploadModalVisibility}
-                  uploadUrl={uploadUrl}
-                  uploadType={uploadType}
-                  onUploadModalCancel={onUploadModalCancel}
-                  setUploadUrl={setUploadUrl}
-                  setUploadType={setUploadType}
-                  onAssetsCreate={onAssetsCreate}
-                  onAssetCreateFromUrl={onAssetCreateFromUrl}
-                  onAssetsReload={onAssetsReload}
-                  onAssetSearchTerm={onAssetSearchTerm}
-                  setFileList={setFileList}
-                  setUploadModalVisibility={setUploadModalVisibility}
-                  onNavigateToAsset={onNavigateToAsset}
-                />
-              ) : (
-                <AssetItem
-                  assetList={assetList}
-                  fileList={fileList}
-                  loadingAssets={loadingAssets}
-                  uploading={uploading}
-                  uploadModalVisibility={uploadModalVisibility}
-                  uploadUrl={uploadUrl}
-                  uploadType={uploadType}
-                  onUploadModalCancel={onUploadModalCancel}
-                  setUploadUrl={setUploadUrl}
-                  setUploadType={setUploadType}
-                  onAssetsCreate={onAssetsCreate}
-                  onAssetCreateFromUrl={onAssetCreateFromUrl}
-                  onAssetsReload={onAssetsReload}
-                  onAssetSearchTerm={onAssetSearchTerm}
-                  setFileList={setFileList}
-                  setUploadModalVisibility={setUploadModalVisibility}
-                  onNavigateToAsset={onNavigateToAsset}
-                />
-              )}
-            </Form.Item>
-          ) : field.type === "Select" ? (
-            <Form.Item
-              extra={field.description}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueSelect selectedValues={field.typeProperty?.values} />
-              ) : (
-                <Select>
-                  {field.typeProperty?.values?.map((value: string) => (
-                    <Option key={value} value={value}>
-                      {value}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </Form.Item>
-          ) : field.type === "URL" ? (
-            <Form.Item
-              extra={field.description}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-                {
-                  message: "URL is not valid",
-                  validator: async (_, value) => {
-                    if (value) {
-                      if (
-                        Array.isArray(value) &&
-                        value.some(
-                          (valueItem: string) => !validateURL(valueItem) && valueItem.length > 0,
-                        )
-                      )
-                        return Promise.reject();
-                      else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
-                        return Promise.reject();
-                    }
-                    return Promise.resolve();
+            </>
+          }
+        />
+        <FormItemsWrapper>
+          {model?.schema.fields.map(field =>
+            field.type === "TextArea" ? (
+              <Form.Item
+                extra={field.description}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
                   },
-                },
-              ]}>
-              {field.multiple ? (
-                <MultiValueField
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                  FieldInput={Input}
-                />
-              ) : (
-                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
-              )}
-            </Form.Item>
-          ) : (
-            <Form.Item
-              extra={field.description}
-              rules={[
-                {
-                  required: field.required,
-                  message: t("Please input field!"),
-                },
-              ]}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-              {field.multiple ? (
-                <MultiValueField
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                  FieldInput={Input}
-                />
-              ) : (
-                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
-              )}
-            </Form.Item>
-          ),
-        )}
-      </FormItemsWrapper>
-    </StyledForm>
+                ]}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueField
+                    rows={3}
+                    showCount
+                    maxLength={field.typeProperty.maxLength ?? false}
+                    FieldInput={TextArea}
+                  />
+                ) : (
+                  <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+                )}
+              </Form.Item>
+            ) : field.type === "MarkdownText" ? (
+              <Form.Item
+                extra={field.description}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueField
+                    maxLength={field.typeProperty.maxLength ?? false}
+                    FieldInput={MarkdownInput}
+                  />
+                ) : (
+                  <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+                )}
+              </Form.Item>
+            ) : field.type === "Integer" ? (
+              <Form.Item
+                extra={field.description}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueField
+                    type="number"
+                    min={field.typeProperty.min}
+                    max={field.typeProperty.max}
+                    FieldInput={InputNumber}
+                  />
+                ) : (
+                  <InputNumber
+                    type="number"
+                    min={field.typeProperty.min}
+                    max={field.typeProperty.max}
+                  />
+                )}
+              </Form.Item>
+            ) : field.type === "Asset" ? (
+              <Form.Item
+                extra={field.description}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueAsset
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                    onNavigateToAsset={onNavigateToAsset}
+                  />
+                ) : (
+                  <AssetItem
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                    onNavigateToAsset={onNavigateToAsset}
+                  />
+                )}
+              </Form.Item>
+            ) : field.type === "Select" ? (
+              <Form.Item
+                extra={field.description}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueSelect selectedValues={field.typeProperty?.values} />
+                ) : (
+                  <Select>
+                    {field.typeProperty?.values?.map((value: string) => (
+                      <Option key={value} value={value}>
+                        {value}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </Form.Item>
+            ) : field.type === "URL" ? (
+              <Form.Item
+                extra={field.description}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                  {
+                    message: "URL is not valid",
+                    validator: async (_, value) => {
+                      if (value) {
+                        if (
+                          Array.isArray(value) &&
+                          value.some(
+                            (valueItem: string) => !validateURL(valueItem) && valueItem.length > 0,
+                          )
+                        )
+                          return Promise.reject();
+                        else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
+                          return Promise.reject();
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}>
+                {field.multiple ? (
+                  <MultiValueField
+                    showCount={true}
+                    maxLength={field.typeProperty.maxLength ?? 500}
+                    FieldInput={Input}
+                  />
+                ) : (
+                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                )}
+              </Form.Item>
+            ) : (
+              <Form.Item
+                extra={field.description}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? (
+                  <MultiValueField
+                    showCount={true}
+                    maxLength={field.typeProperty.maxLength ?? 500}
+                    FieldInput={Input}
+                  />
+                ) : (
+                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                )}
+              </Form.Item>
+            ),
+          )}
+        </FormItemsWrapper>
+      </StyledForm>
+      {itemId && (
+        <>
+          <RequestCreationModal
+            itemId={itemId}
+            open={requestModalShown}
+            onClose={onModalClose}
+            onSubmit={onRequestCreate}
+            workspaceUserMembers={workspaceUserMembers}
+          />
+          <LinkItemRequestModal
+            onChange={onChange}
+            onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+            visible={addItemToRequestModalShown}
+            linkedRequest={undefined}
+            requestList={requests}
+          />
+        </>
+      )}
+    </>
   );
 };
 

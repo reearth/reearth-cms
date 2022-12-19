@@ -1420,6 +1420,8 @@ export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string
 
 export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
 
+export type RequestFragmentFragment = { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> };
+
 export type ThreadFragmentFragment = { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> };
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
@@ -1691,6 +1693,58 @@ export type UpdateProjectMutationVariables = Exact<{
 
 
 export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+
+export type GetRequestsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  key?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type GetRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', edges: Array<{ __typename?: 'RequestEdge', cursor: string, node?: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | null }>, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | null> } };
+
+export type CreateRequestMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  title: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  items: Array<RequestItemInput> | RequestItemInput;
+}>;
+
+
+export type CreateRequestMutation = { __typename?: 'Mutation', createRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type UpdateRequestMutationVariables = Exact<{
+  requestId: Scalars['ID'];
+  title?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  items?: InputMaybe<Array<RequestItemInput> | RequestItemInput>;
+}>;
+
+
+export type UpdateRequestMutation = { __typename?: 'Mutation', updateRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type ApproveRequestMutationVariables = Exact<{
+  requestId: Scalars['ID'];
+}>;
+
+
+export type ApproveRequestMutation = { __typename?: 'Mutation', approveRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type DeleteRequestMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  requestsId: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
 
 export type GetUserBySearchQueryVariables = Exact<{
   nameOrEmail: Scalars['String'];
@@ -1966,6 +2020,105 @@ export const AssetFragmentFragmentDoc = gql`
     ${IntegrationFragmentFragmentDoc}
 ${AssetFileFragmentFragmentDoc}
 ${ThreadFragmentFragmentDoc}`;
+export const RequestFragmentFragmentDoc = gql`
+    fragment requestFragment on Request {
+  id
+  items {
+    itemId
+    version
+    ref
+    item {
+      version
+      parents
+      refs
+      value {
+        id
+        schemaId
+        model {
+          name
+        }
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+        schema {
+          id
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            multiple
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  title
+  description
+  createdBy {
+    id
+    name
+    email
+  }
+  workspaceId
+  projectId
+  threadId
+  reviewersId
+  state
+  createdAt
+  updatedAt
+  approvedAt
+  closedAt
+  thread {
+    ...threadFragment
+  }
+  project {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+  reviewers {
+    id
+    name
+    email
+  }
+}
+    ${ThreadFragmentFragmentDoc}`;
 export const WorkspaceFragmentFragmentDoc = gql`
     fragment WorkspaceFragment on Workspace {
   id
@@ -3270,6 +3423,216 @@ export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const GetRequestsDocument = gql`
+    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+  requests(
+    projectId: $projectId
+    key: $key
+    state: $state
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+  ) {
+    edges {
+      cursor
+      node {
+        ...requestFragment
+      }
+    }
+    nodes {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+
+/**
+ * __useGetRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRequestsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      key: // value for 'key'
+ *      state: // value for 'state'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *   },
+ * });
+ */
+export function useGetRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
+      }
+export function useGetRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
+        }
+export type GetRequestsQueryHookResult = ReturnType<typeof useGetRequestsQuery>;
+export type GetRequestsLazyQueryHookResult = ReturnType<typeof useGetRequestsLazyQuery>;
+export type GetRequestsQueryResult = Apollo.QueryResult<GetRequestsQuery, GetRequestsQueryVariables>;
+export const CreateRequestDocument = gql`
+    mutation CreateRequest($projectId: ID!, $title: String!, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]!) {
+  createRequest(
+    input: {projectId: $projectId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  ) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type CreateRequestMutationFn = Apollo.MutationFunction<CreateRequestMutation, CreateRequestMutationVariables>;
+
+/**
+ * __useCreateRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRequestMutation, { data, loading, error }] = useCreateRequestMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      state: // value for 'state'
+ *      reviewersId: // value for 'reviewersId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useCreateRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateRequestMutation, CreateRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRequestMutation, CreateRequestMutationVariables>(CreateRequestDocument, options);
+      }
+export type CreateRequestMutationHookResult = ReturnType<typeof useCreateRequestMutation>;
+export type CreateRequestMutationResult = Apollo.MutationResult<CreateRequestMutation>;
+export type CreateRequestMutationOptions = Apollo.BaseMutationOptions<CreateRequestMutation, CreateRequestMutationVariables>;
+export const UpdateRequestDocument = gql`
+    mutation UpdateRequest($requestId: ID!, $title: String, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]) {
+  updateRequest(
+    input: {requestId: $requestId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  ) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type UpdateRequestMutationFn = Apollo.MutationFunction<UpdateRequestMutation, UpdateRequestMutationVariables>;
+
+/**
+ * __useUpdateRequestMutation__
+ *
+ * To run a mutation, you first call `useUpdateRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRequestMutation, { data, loading, error }] = useUpdateRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      state: // value for 'state'
+ *      reviewersId: // value for 'reviewersId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useUpdateRequestMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRequestMutation, UpdateRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRequestMutation, UpdateRequestMutationVariables>(UpdateRequestDocument, options);
+      }
+export type UpdateRequestMutationHookResult = ReturnType<typeof useUpdateRequestMutation>;
+export type UpdateRequestMutationResult = Apollo.MutationResult<UpdateRequestMutation>;
+export type UpdateRequestMutationOptions = Apollo.BaseMutationOptions<UpdateRequestMutation, UpdateRequestMutationVariables>;
+export const ApproveRequestDocument = gql`
+    mutation ApproveRequest($requestId: ID!) {
+  approveRequest(input: {requestId: $requestId}) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type ApproveRequestMutationFn = Apollo.MutationFunction<ApproveRequestMutation, ApproveRequestMutationVariables>;
+
+/**
+ * __useApproveRequestMutation__
+ *
+ * To run a mutation, you first call `useApproveRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveRequestMutation, { data, loading, error }] = useApproveRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useApproveRequestMutation(baseOptions?: Apollo.MutationHookOptions<ApproveRequestMutation, ApproveRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveRequestMutation, ApproveRequestMutationVariables>(ApproveRequestDocument, options);
+      }
+export type ApproveRequestMutationHookResult = ReturnType<typeof useApproveRequestMutation>;
+export type ApproveRequestMutationResult = Apollo.MutationResult<ApproveRequestMutation>;
+export type ApproveRequestMutationOptions = Apollo.BaseMutationOptions<ApproveRequestMutation, ApproveRequestMutationVariables>;
+export const DeleteRequestDocument = gql`
+    mutation DeleteRequest($projectId: ID!, $requestsId: [ID!]!) {
+  deleteRequest(input: {projectId: $projectId, requestsId: $requestsId}) {
+    requests
+  }
+}
+    `;
+export type DeleteRequestMutationFn = Apollo.MutationFunction<DeleteRequestMutation, DeleteRequestMutationVariables>;
+
+/**
+ * __useDeleteRequestMutation__
+ *
+ * To run a mutation, you first call `useDeleteRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRequestMutation, { data, loading, error }] = useDeleteRequestMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      requestsId: // value for 'requestsId'
+ *   },
+ * });
+ */
+export function useDeleteRequestMutation(baseOptions?: Apollo.MutationHookOptions<DeleteRequestMutation, DeleteRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteRequestMutation, DeleteRequestMutationVariables>(DeleteRequestDocument, options);
+      }
+export type DeleteRequestMutationHookResult = ReturnType<typeof useDeleteRequestMutation>;
+export type DeleteRequestMutationResult = Apollo.MutationResult<DeleteRequestMutation>;
+export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<DeleteRequestMutation, DeleteRequestMutationVariables>;
 export const GetUserBySearchDocument = gql`
     query GetUserBySearch($nameOrEmail: String!) {
   searchUser(nameOrEmail: $nameOrEmail) {
