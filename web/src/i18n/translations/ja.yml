@@ -161,6 +161,7 @@ Warning: 注意
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 Model: モデル
 Switch: 切り替え
+Assets: ''
 Private: 非公開
 API Key Only: APIキーのみ
 Public Scope: 公開
