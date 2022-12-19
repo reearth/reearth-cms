@@ -155,7 +155,7 @@ func (o *Operator) Operator() operator.Operator {
 func (o *Operator) CanUpdate(obj Ownable) bool {
 	isWriter := o.IsWritableProject(obj.Project())
 	isMaintainer := o.IsMaintainingProject(obj.Project())
-	return isMaintainer || (isWriter && o.Owns(obj))
+	return isMaintainer || (isWriter && o.Owns(obj)) || o.Machine
 }
 
 func (o *Operator) Owns(obj Ownable) bool {
