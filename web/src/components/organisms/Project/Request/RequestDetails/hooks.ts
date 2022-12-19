@@ -119,6 +119,7 @@ export default () => {
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string, modelId?: string) => {
+      if (!modelId) return;
       window.open(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}/details/${itemId}`,
       );
