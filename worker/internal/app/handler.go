@@ -26,10 +26,10 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			log.Errorf("failed to decompress: err=%s", err.Error())
 			return err
 		}
+		log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
 
 		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
 			log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
-
 			return err
 		}
 		return c.NoContent(http.StatusOK)
