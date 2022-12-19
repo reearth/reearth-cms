@@ -98,7 +98,9 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           text={currentRequest?.state}
         />
       </SidebarCard>
-      <SidebarCard title={t("Created By")}>{currentRequest?.createdBy?.name}</SidebarCard>
+      <SidebarCard title={t("Created By")}>
+        <UserAvatar username={currentRequest?.createdBy?.name} />
+      </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
         <div style={{ display: "flex", margin: "4px 0" }}>
           {currentRequest?.reviewers.map((reviewer, index) => (

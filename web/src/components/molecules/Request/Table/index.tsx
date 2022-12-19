@@ -14,6 +14,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -102,17 +103,19 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Created By"),
       dataIndex: "createdBy.name",
       key: "createdBy",
-      render: (_, request) => {
-        return request.createdBy?.name;
-      },
+      render: (_, request) => <UserAvatar username={request.createdBy?.name} />,
     },
     {
-      title: t("reviewers"),
+      title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => {
-        return request.reviewers.map(reviewer => reviewer.name);
-      },
+      render: (_, request) => (
+        <div>
+          {request.reviewers.map((reviewer, index) => (
+            <UserAvatar username={reviewer.name} key={index} style={{ marginRight: "8px" }} />
+          ))}
+        </div>
+      ),
     },
     {
       title: t("Created At"),
