@@ -26,10 +26,10 @@ const StyledListWrapper = styled.div`
         display: block;
         position: absolute;
         width: 4px;
-        height: 32px;
+        height: 24px;
         background-color: #d9d9d9;
         left: 16px;
-        top: -32px;
+        top: -28px;
       }
     }
   }

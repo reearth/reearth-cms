@@ -16,6 +16,8 @@ export type Request = {
   state: RequestState;
   createdBy?: User;
   updatedAt: Date;
+  approvedAt?: Date;
+  closedAt?: Date;
   items: {
     id: string;
     fields?: ContentTableField;

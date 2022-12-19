@@ -22,6 +22,8 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     state: GQLRequest.state,
     createdBy: GQLRequest.createdBy ?? undefined,
     updatedAt: GQLRequest.updatedAt,
+    approvedAt: GQLRequest.approvedAt ?? undefined,
+    closedAt: GQLRequest.closedAt ?? undefined,
     items: GQLRequest.items.map(item => ({
       id: item.itemId,
       modelName: item?.item?.value.model.name,

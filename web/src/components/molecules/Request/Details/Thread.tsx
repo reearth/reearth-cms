@@ -8,6 +8,7 @@ import { RequestDescription } from "@reearth-cms/components/molecules/Request/De
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 import RequestEditor from "./Editor";
+import RequestStatus from "./RequestStatus";
 
 export type Props = {
   me?: User;
@@ -26,6 +27,10 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
             <RequestCommentList comments={currentRequest.comments} />
           )}
         </CommentsContainer>
+        <StyledRequestStatus
+          approvedAt={currentRequest.approvedAt}
+          closedAt={currentRequest.closedAt}
+        />
       </ThreadWrapper>
 
       {!currentRequest.comments || currentRequest.comments.length === 0 ? (
@@ -47,6 +52,10 @@ const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onComme
 };
 
 export default RequestThread;
+
+const StyledRequestStatus = styled(RequestStatus)`
+  display: inline-block;
+`;
 
 const ThreadWrapper = styled.div`
   padding: 0 12px;
