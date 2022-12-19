@@ -30,7 +30,7 @@ export type AssetFile = {
 export type Comment = {
   id: string;
   author: string;
-  authorType: "User" | "Integration";
+  authorType: "User" | "Integration" | null;
   content: string;
   createdAt: string;
 };

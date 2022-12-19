@@ -50,14 +50,12 @@ const RequestCreationModal: React.FC<Props> = ({
   const [form] = Form.useForm();
 
   const reviewers: SelectProps["options"] = [];
-  workspaceUserMembers
-    .filter(member => member.role === "OWNER" || member.role === "MAINTAINER")
-    .forEach(member => {
-      reviewers.push({
-        label: member.user.name,
-        value: member.userId,
-      });
+  for (const member of workspaceUserMembers) {
+    reviewers.push({
+      label: member.user.name,
+      value: member.userId,
     });
+  }
 
   const handleSubmit = useCallback(async () => {
     try {
