@@ -208,6 +208,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 
+			if a.ArchiveExtractionStatus().String() == asset.ArchiveExtractionStatusDone.String() || a.ArchiveExtractionStatus().String() == asset.ArchiveExtractionStatusFailed.String() {
+				return a, nil
+			}
+
 			if !op.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
 			}
