@@ -1,24 +1,24 @@
 Download: ダウンロード
 Loading: ローディング中
 Oops!: ''
-PAGE NOT FOUND ON SERVER: ''
-Go back Home: ''
-Are you sure you want to delete your account?: ''
-Danger Zone: ''
-Delete Personal Account: ''
-Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
-Account Name: ''
+PAGE NOT FOUND ON SERVER: 'ページが見つかりません。'
+Go back Home: 'ホームへ戻る'
+Are you sure you want to delete your account?: '本当にアカウントを削除してよろしいですか？'
+Danger Zone: '重要操作'
+Delete Personal Account: 'アカウントを削除'
+Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: 'アカウントとそれに関連するすべてのコンテンツを削除します。この操作は取り消すことができません。よろしいですか？'
+Account Name: 'アカウント名'
 This is your ID that is used between Re:Earth and Re:Earth CMS.: ''
-Your Email: ''
-Please enter the email address you want to use to log in with Re:Earth CMS.: ''
-Save: ''
-Account Settings: ''
-General: ''
-Service: ''
-Auto: ''
-Service Language: ''
-This will change the UI language: ''
-Language: ''
+Your Email: 'メールアドレス'
+Please enter the email address you want to use to log in with Re:Earth CMS.: 'ログインに利用するメールアドレスを入力してください。'
+Save: '保存'
+Account Settings: 'アカウント設定'
+General: '一般'
+Service: 'サービス'
+Auto: '自動'
+Service Language: '利用言語'
+This will change the UI language: 'UIの言語設定を変更します。'
+Language: '言語'
 Asset Type: アセットの種類
 Created Time: 作成日時
 Created By: 作成者
@@ -74,7 +74,7 @@ Project description: プロジェクト概要
 Overview: 概要
 Schema: スキーマ
 Content: コンテンツ
-Request: ''
+Request: 'リクエスト'
 Public: 公開
 Settings: 設定
 Workspace name: ワークスペース名
@@ -90,8 +90,8 @@ New Request: 新規リクエスト
 Add to Request: ''
 Please input field!: フィールドを入力してください。
 Title: タイトル
-State: ''
-Reviewers: ''
+State: 'ステータス'
+Reviewers: 'レビュワー'
 New Item: 新規アイテム
 Please input the title of your request!: リクエストのタイトルを入力してください。
 Description: 説明
@@ -167,11 +167,11 @@ Public Scope: 公開
 Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
 Project Alias: プロジェクトエイリアス
 Save changes: 変更を保存
-Close: ''
-Approve: ''
-Approved: ''
-Closed: ''
-Updated At: ''
+Close: 'クローズ'
+Approve: '承認'
+Approved: '承認済み'
+Closed: 'クローズ済み'
+Updated At: '更新日時'
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
@@ -233,11 +233,11 @@ Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
-Failed to update request.: ''
-Successfully updated Request!: ''
-Failed to create request.: ''
-Successfully created request!: ''
-Successfully updated request!: ''
+Failed to update request.: 'リクエストの更新に失敗しました。'
+Successfully updated Request!: 'リクエストの更新に成功しました。'
+Failed to create request.: 'リクエストの作成に失敗しました。'
+Successfully created request!: 'リクエストの作成に成功しました。'
+Successfully updated request!: 'リクエストの更新に成功しました。'
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 Failed to create model.: モデルの作成に失敗しました。
@@ -248,10 +248,10 @@ Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
 Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
-Failed to delete one or more requests.: ''
-One or more requests were successfully closed!: ''
-Failed to approve request.: ''
-Successfully approved request!: ''
+Failed to delete one or more requests.: 'リクエストの削除に失敗しました。'
+One or more requests were successfully closed!: 'リクエストのクローズに成功しました。'
+Failed to approve request.: 'リクエストの承認に失敗しました。'
+Successfully approved request!: 'リクエストの承認に成功しました。'
 Failed to delete field.: フィールドの削除に失敗しました。
 Successfully deleted field!: フィールドの削除に成功しました。
 Failed to update field.: フィールドの更新に失敗しました。
