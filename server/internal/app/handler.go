@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -34,7 +35,7 @@ func NotifyHandler() echo.HandlerFunc {
 			return err
 		}
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=$s", input.AssetID, input.Type, input.Status)
-		return c.JSON(200, "OK")
+		return c.JSON(http.StatusOK, "OK")
 	}
 }
 
