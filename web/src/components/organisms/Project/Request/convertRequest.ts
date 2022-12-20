@@ -38,7 +38,11 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
 export const convertComment = (GQLComment: GQLComment): Comment => {
   return {
     id: GQLComment.id,
-    authorType: GQLComment.author.__typename === "User" ? "User" : "Integration",
+    authorType: GQLComment.author
+      ? GQLComment.author.__typename === "User"
+        ? "User"
+        : "Integration"
+      : null,
     author: GQLComment.author?.name ?? "",
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),
@@ -50,6 +54,7 @@ export const getContentTableFields = (requestItem: RequestItem): ContentTableFie
     ? {
         id: requestItem.item.value.id,
         schemaId: requestItem.item.value.schemaId,
+        modelId: requestItem.item.value.modelId,
         fields: requestItem.item.value.fields?.reduce(
           (obj, field) =>
             Object.assign(obj, {

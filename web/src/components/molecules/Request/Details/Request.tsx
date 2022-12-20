@@ -18,6 +18,7 @@ type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onItemEdit: (itemId: string, modelId?: string) => void;
   onBack: () => void;
 };
 
@@ -29,6 +30,7 @@ const RequestMolecule: React.FC<Props> = ({
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
+  onItemEdit,
   onBack,
 }) => {
   const t = useT();
@@ -60,6 +62,7 @@ const RequestMolecule: React.FC<Props> = ({
             me={me}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
+            onItemEdit={onItemEdit}
           />
         </ThreadWrapper>
         <RequestSidebarWrapper
