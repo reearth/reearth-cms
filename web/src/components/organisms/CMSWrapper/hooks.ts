@@ -101,6 +101,7 @@ export default () => {
           description: project.description,
           scope: convertScope(project.publication?.scope),
           alias: project.alias,
+          assetPublic: project.publication?.assetPublic,
         });
       }
     } else {
