@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -335,4 +336,47 @@ func TestRequest_FindByProject(t *testing.T) {
 			assert.Equal(t, tc.want, len(got))
 		})
 	}
+}
+
+func TestRequest_Approve(t *testing.T) {
+	// TODO: add error cases
+	pid := id.NewProjectID()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	item, _ := request.NewItem(i.ID())
+	wid := id.NewWorkspaceID()
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	req1 := request.New().
+		NewID().
+		Workspace(wid).
+		Project(pid).
+		Reviewers(id.UserIDList{u.ID()}).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item}).
+		Title("foo").
+		MustBuild()
+	op := &usecase.Operator{
+		User:             lo.ToPtr(u.ID()),
+		OwningWorkspaces: id.WorkspaceIDList{wid},
+	}
+	ctx := context.Background()
+
+	db := memory.New()
+	//if tc.mockRequestErr {
+	//	memory.SetRequestError(db.Request, tc.wantErr)
+	//}
+	err := db.Request.Save(ctx, req1)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i)
+	assert.NoError(t, err)
+
+	requestUC := NewRequest(db, nil)
+	_, err = requestUC.Approve(ctx, req1.ID(), op)
+	assert.NoError(t, err)
+
+	itemUC := NewItem(db, nil)
+	itm, err := itemUC.FindByID(ctx, i.ID(), op)
+	assert.NoError(t, err)
+	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), i)
+	assert.Equal(t, expected, itm)
 }
