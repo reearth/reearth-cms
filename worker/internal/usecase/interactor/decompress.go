@@ -22,6 +22,9 @@ func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) err
 }
 
 func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) error {
+	if assetID == "" || assetPath == "" {
+		return errors.New("invalid params")
+	}
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
 	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 

@@ -222,6 +222,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 					Name(path.Base(f.Name)).
 					Path(f.Name).
 					GuessContentType().
+					Size(uint64(f.Size)).
 					Build()
 			}), func(f *asset.File, _ int) bool {
 				return a.File().Path() != f.Path()
