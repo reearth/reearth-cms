@@ -26,14 +26,27 @@ export type Props = {
   projectScope?: PublicScope;
   alias?: string;
   models?: Model[];
-  onPublicUpdate?: (alias?: string, scope?: PublicScope, modelsToUpdate?: Model[]) => void;
+  assetPublic?: boolean;
+  onPublicUpdate?: (
+    alias?: string,
+    scope?: PublicScope,
+    modelsToUpdate?: Model[],
+    assetPublic?: boolean,
+  ) => void;
 };
 
-const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPublicUpdate }) => {
+const Public: React.FC<Props> = ({
+  projectScope,
+  models: rawModels,
+  alias,
+  assetPublic,
+  onPublicUpdate,
+}) => {
   const t = useT();
   const [scope, changeScope] = useState(projectScope);
   const [aliasState, setAlias] = useState(alias);
   const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
+  const [assetState, setAssetState] = useState<boolean | undefined>(assetPublic);
   const [models, setModels] = useState<Model[] | undefined>(rawModels);
 
   useEffect(() => {
@@ -48,9 +61,17 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPub
     setAlias(alias);
   }, [alias]);
 
+  useEffect(() => {
+    setAssetState(assetPublic);
+  }, [assetPublic]);
+
   const saveDisabled = useMemo(
-    () => updatedModels.length === 0 && projectScope === scope && alias === aliasState,
-    [updatedModels.length, projectScope, scope, alias, aliasState],
+    () =>
+      updatedModels.length === 0 &&
+      projectScope === scope &&
+      alias === aliasState &&
+      assetPublic === assetState,
+    [updatedModels.length, projectScope, scope, alias, aliasState, assetPublic, assetState],
   );
 
   const handlerAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,9 +80,9 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPub
 
   const handlePublicUpdate = useCallback(() => {
     if (!scope && updatedModels.length === 0) return;
-    onPublicUpdate?.(aliasState, scope, updatedModels);
+    onPublicUpdate?.(aliasState, scope, updatedModels, assetState);
     setUpdatedModels([]);
-  }, [scope, aliasState, updatedModels, onPublicUpdate]);
+  }, [scope, aliasState, updatedModels, onPublicUpdate, assetState]);
 
   const handleUpdatedModels = useCallback(
     (model: Model) => {
@@ -74,6 +95,10 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPub
     },
     [updatedModels],
   );
+
+  const handleUpdatedAssetState = useCallback((state: boolean) => {
+    setAssetState(state);
+  }, []);
 
   const columns: TableColumnsType<ModelDataType> = [
     {
@@ -90,23 +115,39 @@ const Public: React.FC<Props> = ({ projectScope, models: rawModels, alias, onPub
     },
   ];
 
-  const dataSource: ModelDataType[] | undefined = useMemo(
-    () =>
-      models?.map(m => {
-        return {
-          name: m.name ?? "",
-          public: (
-            <Switch
-              checked={m.public}
-              onChange={(publicState: boolean) =>
-                handleUpdatedModels({ id: m.id, public: publicState })
-              }
-            />
-          ),
-        };
-      }),
-    [models, handleUpdatedModels],
-  );
+  const dataSource: ModelDataType[] | undefined = useMemo(() => {
+    let columns = [
+      {
+        name: t("Assets"),
+        public: (
+          <Switch
+            checked={assetState}
+            onChange={(publicState: boolean) => handleUpdatedAssetState(publicState)}
+          />
+        ),
+      },
+    ];
+
+    if (models) {
+      columns = [
+        ...models.map(m => {
+          return {
+            name: m.name ?? "",
+            public: (
+              <Switch
+                checked={m.public}
+                onChange={(publicState: boolean) =>
+                  handleUpdatedModels({ id: m.id, public: publicState })
+                }
+              />
+            ),
+          };
+        }),
+        ...columns,
+      ];
+    }
+    return columns;
+  }, [models, assetState, handleUpdatedAssetState, handleUpdatedModels, t]);
 
   const publicScopeList = [
     { id: 1, name: t("Private"), value: "private" },
