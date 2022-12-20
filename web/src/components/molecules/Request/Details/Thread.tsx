@@ -15,14 +15,21 @@ export type Props = {
   currentRequest: Request;
   emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
+  onItemEdit: (itemId: string, modelId?: string) => void;
 };
 
-const RequestThread: React.FC<Props> = ({ me, currentRequest, emptyText, onCommentCreate }) => {
+const RequestThread: React.FC<Props> = ({
+  me,
+  currentRequest,
+  emptyText,
+  onCommentCreate,
+  onItemEdit,
+}) => {
   return (
     <ContentWrapper>
       <ThreadWrapper>
         <CommentsContainer>
-          <RequestDescription currentRequest={currentRequest} />
+          <RequestDescription onItemEdit={onItemEdit} currentRequest={currentRequest} />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList comments={currentRequest.comments} />
           )}

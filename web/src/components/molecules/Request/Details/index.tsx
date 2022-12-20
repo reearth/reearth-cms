@@ -11,6 +11,7 @@ export type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onItemEdit: (itemId: string, modelId?: string) => void;
   onBack: () => void;
 };
 
@@ -22,6 +23,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onRequestUpdate,
   onRequestDelete,
   onCommentCreate,
+  onItemEdit,
   onBack,
 }) => {
   return currentRequest ? (
@@ -33,6 +35,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       onRequestUpdate={onRequestUpdate}
       onRequestDelete={onRequestDelete}
       onCommentCreate={onCommentCreate}
+      onItemEdit={onItemEdit}
       onBack={onBack}
     />
   ) : null;

@@ -11,6 +11,7 @@ const RequestDetails: React.FC = () => {
     handleRequestDelete,
     handleCommentCreate,
     handleNavigateToRequestsList,
+    handleNavigateToItemEditForm,
   } = useHooks();
 
   const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
@@ -25,6 +26,7 @@ const RequestDetails: React.FC = () => {
       onRequestDelete={handleRequestDelete}
       onCommentCreate={handleCommentCreate}
       onBack={handleNavigateToRequestsList}
+      onItemEdit={handleNavigateToItemEditForm}
     />
   );
 };

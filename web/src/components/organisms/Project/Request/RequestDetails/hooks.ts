@@ -88,7 +88,7 @@ export default () => {
           navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
         }
       })(),
-    [approveRequestMutation, t],
+    [currentWorkspace?.id, projectId, navigate, t, approveRequestMutation],
   );
 
   const [createComment] = useAddCommentMutation({
@@ -117,6 +117,16 @@ export default () => {
     navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
   };
 
+  const handleNavigateToItemEditForm = useCallback(
+    (itemId: string, modelId?: string) => {
+      if (!modelId) return;
+      window.open(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}/details/${itemId}`,
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id],
+  );
+
   return {
     me,
     currentRequest,
@@ -124,5 +134,6 @@ export default () => {
     handleRequestApprove,
     handleCommentCreate,
     handleNavigateToRequestsList,
+    handleNavigateToItemEditForm,
   };
 };
