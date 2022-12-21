@@ -389,7 +389,7 @@ type ComplexityRoot struct {
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
-		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
+		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		SearchItem                func(childComplexity int, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
 		VersionsByItem            func(childComplexity int, itemID gqlmodel.ID) int
@@ -698,7 +698,7 @@ type QueryResolver interface {
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
-	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error)
+	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error)
 	Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error)
@@ -2361,7 +2361,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].(*gqlmodel.RequestState), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
+		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].(*gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["first"].(*int), args["last"].(*int), args["after"].(*usecasex.Cursor), args["before"].(*usecasex.Cursor)), true
 
 	case "Query.searchItem":
 		if e.complexity.Query.SearchItem == nil {
@@ -3964,6 +3964,8 @@ extend type Query {
     projectId: ID!
     key: String
     state: RequestState
+    createdBy: ID
+    reviewer: ID
     first: Int
     last: Int
     after: Cursor
@@ -5483,42 +5485,60 @@ func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawAr
 		}
 	}
 	args["state"] = arg2
-	var arg3 *int
+	var arg3 *gqlmodel.ID
+	if tmp, ok := rawArgs["createdBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+		arg3, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["createdBy"] = arg3
+	var arg4 *gqlmodel.ID
+	if tmp, ok := rawArgs["reviewer"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reviewer"))
+		arg4, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["reviewer"] = arg4
+	var arg5 *int
 	if tmp, ok := rawArgs["first"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg5, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["first"] = arg3
-	var arg4 *int
+	args["first"] = arg5
+	var arg6 *int
 	if tmp, ok := rawArgs["last"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		arg6, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["last"] = arg4
-	var arg5 *usecasex.Cursor
+	args["last"] = arg6
+	var arg7 *usecasex.Cursor
 	if tmp, ok := rawArgs["after"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg5, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		arg7, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["after"] = arg5
-	var arg6 *usecasex.Cursor
+	args["after"] = arg7
+	var arg8 *usecasex.Cursor
 	if tmp, ok := rawArgs["before"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg6, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
+		arg8, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["before"] = arg6
+	args["before"] = arg8
 	return args, nil
 }
 
@@ -15524,7 +15544,7 @@ func (ec *executionContext) _Query_requests(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Requests(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].(*gqlmodel.RequestState), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
+		return ec.resolvers.Query().Requests(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].(*gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["first"].(*int), fc.Args["last"].(*int), fc.Args["after"].(*usecasex.Cursor), fc.Args["before"].(*usecasex.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33195,6 +33215,23 @@ func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (*gqlmodel.ID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := gqlmodel.ID(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
