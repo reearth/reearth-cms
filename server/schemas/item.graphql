@@ -4,6 +4,10 @@ type Item implements Node {
   threadId: ID!
   modelId: ID!
   projectId: ID!
+  integrationId: ID
+  userId: ID
+  integration: Integration
+  user: User
   schema: Schema!
   model: Model!
   project: Project!
