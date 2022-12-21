@@ -26,20 +26,25 @@ const PreviewToolbar: React.FC<Props> = ({
   handleModalCancel,
 }) => {
   const t = useT();
+  const isSVGButtonVisible = selectedPreviewType === "IMAGE" && isSVG;
+  const isFullScreenButtonVisible = selectedPreviewType !== "UNKNOWN";
+
   return (
     <>
-      {selectedPreviewType === "IMAGE" && isSVG && (
+      {isSVGButtonVisible && (
         <>
           <Button onClick={handleCodeSourceClick}>{t("Source Code")}</Button>
           <Button onClick={handleRenderClick}>{t("Render")}</Button>
         </>
       )}
-      <Button
-        type="link"
-        icon={<Icon icon="fullscreen" />}
-        size="large"
-        onClick={handleFullScreen}
-      />
+      {isFullScreenButtonVisible && (
+        <Button
+          type="link"
+          icon={<Icon icon="fullscreen" />}
+          size="large"
+          onClick={handleFullScreen}
+        />
+      )}
       <PreviewModal url={url} visible={isModalVisible} handleCancel={handleModalCancel} />
     </>
   );
