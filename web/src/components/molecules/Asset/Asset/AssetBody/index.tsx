@@ -13,6 +13,7 @@ export type Props = {
   asset?: Asset;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  isTileSetPreviewVisible: boolean;
   commentsPanel?: JSX.Element;
   onTypeChange: (
     value: PreviewType,
@@ -28,6 +29,7 @@ const AssetWrapper: React.FC<Props> = ({
   asset,
   selectedPreviewType,
   isModalVisible,
+  isTileSetPreviewVisible,
   commentsPanel,
   onTypeChange,
   onModalCancel,
@@ -50,6 +52,7 @@ const AssetWrapper: React.FC<Props> = ({
             asset={asset}
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
+            isTileSetPreviewVisible={isTileSetPreviewVisible}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}

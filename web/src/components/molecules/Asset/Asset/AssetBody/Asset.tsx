@@ -33,6 +33,7 @@ type Props = {
   asset: Asset;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  isTileSetPreviewVisible: boolean;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -47,6 +48,7 @@ const AssetMolecule: React.FC<Props> = ({
   asset,
   selectedPreviewType,
   isModalVisible,
+  isTileSetPreviewVisible,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -67,9 +69,7 @@ const AssetMolecule: React.FC<Props> = ({
   };
   const renderPreview = () => {
     switch (true) {
-      case (selectedPreviewType === "GEO" ||
-        selectedPreviewType === "GEO3D" ||
-        selectedPreviewType === "MODEL3D") &&
+      case isTileSetPreviewVisible &&
         (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return (
           <TilesetPreview

@@ -15,6 +15,7 @@ const Asset: React.FC = () => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
+    isTileSetPreviewVisible,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
@@ -48,6 +49,7 @@ const Asset: React.FC = () => {
       asset={asset}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
+      isTileSetPreviewVisible={isTileSetPreviewVisible}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}

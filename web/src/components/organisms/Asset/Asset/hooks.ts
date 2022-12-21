@@ -58,13 +58,18 @@ export default (assetId?: string) => {
     setSelectedPreviewType(value);
   }, []);
 
+  const isTileSetPreviewVisible =
+    selectedPreviewType === "GEO" ||
+    selectedPreviewType === "GEO3D" ||
+    selectedPreviewType === "MODEL3D";
+
   const handleFullScreen = useCallback(() => {
-    if (selectedPreviewType === "GEO") {
+    if (isTileSetPreviewVisible) {
       viewerRef?.canvas.requestFullscreen();
     } else {
       setIsModalVisible(true);
     }
-  }, [selectedPreviewType]);
+  }, [isTileSetPreviewVisible]);
 
   const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
@@ -83,6 +88,7 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
+    isTileSetPreviewVisible,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
