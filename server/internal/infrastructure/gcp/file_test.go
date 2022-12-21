@@ -12,7 +12,7 @@ import (
 
 func TestFile_GetURL(t *testing.T) {
 	bucketname := "asset.cms.test"
-	host := "https://localhost:8080"
+	host := "http://localhost:8080"
 	r, err := NewFile(bucketname, host, "")
 	assert.NoError(t, err)
 

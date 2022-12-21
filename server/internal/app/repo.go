@@ -48,7 +48,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	} else {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
-		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.Host, conf.GCS.PublicationCacheControl)
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}

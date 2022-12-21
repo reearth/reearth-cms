@@ -3,7 +3,6 @@ package gcp
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/url"
 	"path"
@@ -27,29 +26,24 @@ const (
 
 type fileRepo struct {
 	bucketName   string
-	base         *url.URL
+	host         *url.URL
 	cacheControl string
 }
 
-func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, host, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
 
-	var u *url.URL
-	if base == "" {
-		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
-	}
-
 	var err error
-	u, _ = url.Parse(base)
+	u, _ := url.Parse(host)
 	if err != nil {
 		return nil, errors.New("invalid base URL")
 	}
 
 	return &fileRepo{
 		bucketName:   bucketName,
-		base:         u,
+		host:         u,
 		cacheControl: cacheControl,
 	}, nil
 }
@@ -136,7 +130,8 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
-	return getURL(f.base, a.UUID(), a.FileName())
+	// http://localhost:8080/assets/xx/xxxxxx-xxxx-xxxx-xxxxxxxxxxxx/filename.xxx
+	return getURL(f.host, a.UUID(), a.FileName())
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
