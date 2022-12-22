@@ -73,7 +73,8 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(pid, lo.FromPtr(iq.Q), nil)
+
+	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
 }
 
 func ToItemSort(is *ItemSort) *item.Sort {

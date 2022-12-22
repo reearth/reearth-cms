@@ -361,6 +361,7 @@ type ItemPayload struct {
 
 type ItemQuery struct {
 	Project ID      `json:"project"`
+	Schema  *ID     `json:"schema"`
 	Q       *string `json:"q"`
 }
 

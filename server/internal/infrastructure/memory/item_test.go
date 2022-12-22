@@ -175,7 +175,7 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	_ = r.Save(ctx, i3)
-	q := item.NewQuery(pid, "foo", nil)
+	q := item.NewQuery(pid, sid.Ref(), "foo", nil)
 	got, _, _ := r.Search(ctx, q, nil, nil)
 	assert.Equal(t, 2, len(got))
 

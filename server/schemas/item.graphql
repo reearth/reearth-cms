@@ -79,6 +79,7 @@ input ItemSort {
 
 input ItemQuery {
   project: ID!
+  schema: ID
   q: String
 }
 

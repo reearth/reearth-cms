@@ -452,7 +452,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "foo", nil),
+				query:    item.NewQuery(pid, nil, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -469,7 +469,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "hoge", nil),
+				query:    item.NewQuery(pid, nil, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -486,7 +486,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "xxx", nil),
+				query:    item.NewQuery(pid, nil, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
