@@ -26,12 +26,6 @@ export const GET_ASSETS = gql`
       totalCount
     }
   }
-  fragment FileFragment on AssetFile {
-    name
-    size
-    contentType
-    path
-  }
 `;
 
 export const GET_ASSET = gql`
@@ -39,12 +33,6 @@ export const GET_ASSET = gql`
     asset(assetId: $assetId) {
       ...assetFragment
     }
-  }
-  fragment FileFragment on AssetFile {
-    name
-    size
-    contentType
-    path
   }
 `;
 
