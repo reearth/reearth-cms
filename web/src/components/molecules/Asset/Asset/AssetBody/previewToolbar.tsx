@@ -1,7 +1,7 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
-import { ViewerType } from "@reearth-cms/components/organisms/Asset/Asset/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -24,8 +24,8 @@ const PreviewToolbar: React.FC<Props> = ({
   handleModalCancel,
 }) => {
   const t = useT();
-  const isSVGButtonVisible = viewerType === "SVG";
-  const isFullScreenButtonVisible = viewerType !== "Unsupported";
+  const isSVGButtonVisible = viewerType === "svg";
+  const isFullScreenButtonVisible = viewerType !== "unsupported";
 
   return (
     <>

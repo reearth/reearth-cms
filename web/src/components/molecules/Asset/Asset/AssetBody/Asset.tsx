@@ -6,7 +6,7 @@ import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -17,7 +17,6 @@ import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import { ViewerType } from "@reearth-cms/components/organisms/Asset/Asset/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -60,7 +59,7 @@ const AssetMolecule: React.FC<Props> = ({
   };
   const renderPreview = () => {
     switch (true) {
-      case viewerType === "TileSet":
+      case viewerType === "cesium":
         return (
           <TilesetPreview
             viewerProps={{
@@ -83,11 +82,11 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case viewerType === "Image":
+      case viewerType === "image":
         return <Image src={assetUrl} alt="asset-preview" />;
-      case viewerType === "SVG":
+      case viewerType === "svg":
         return <SVGPreview url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "Unsupported":
+      case viewerType === "unsupported":
       default:
         return <ViewerNotSupported />;
     }

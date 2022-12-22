@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, PreviewType, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   fileFormats,
@@ -18,8 +18,6 @@ import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 
 import { convertAsset } from "../convertAsset";
-
-export type ViewerType = "TileSet" | "Image" | "SVG" | "Unsupported";
 
 export default (assetId?: string) => {
   const t = useT();
@@ -66,7 +64,7 @@ export default (assetId?: string) => {
     setSelectedPreviewType(value);
   }, []);
 
-  const [viewerType, setViewerType] = useState<ViewerType>("Unsupported");
+  const [viewerType, setViewerType] = useState<ViewerType>("unsupported");
   const assetFileExt = getExtension(asset?.fileName);
   const isSVG = assetFileExt === "svg";
 
@@ -76,13 +74,13 @@ export default (assetId?: string) => {
         selectedPreviewType === "GEO3D" ||
         selectedPreviewType === "MODEL3D") &&
         (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("TileSet");
+        setViewerType("cesium");
         break;
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        isSVG ? setViewerType("SVG") : setViewerType("Image");
+        isSVG ? setViewerType("svg") : setViewerType("image");
         break;
       default:
-        setViewerType("Unsupported");
+        setViewerType("unsupported");
         break;
     }
   }, [asset?.previewType, assetFileExt, isSVG, selectedPreviewType]);
@@ -93,9 +91,9 @@ export default (assetId?: string) => {
   );
 
   const handleFullScreen = useCallback(() => {
-    if (viewerType === "TileSet") {
+    if (viewerType === "cesium") {
       viewerRef?.canvas.requestFullscreen();
-    } else if (viewerType === "Image" || viewerType === "SVG") {
+    } else if (viewerType === "image" || viewerType === "svg") {
       setIsModalVisible(true);
     }
   }, [viewerType]);
