@@ -5,6 +5,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/sort"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -73,4 +74,11 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 		return nil
 	}
 	return item.NewQuery(pid, lo.FromPtr(iq.Q), nil)
+}
+
+func ToItemSort(is *ItemSort) *item.Sort {
+	return &item.Sort{
+		Direction: sort.DirectionFrom(is.Direction.String()),
+		SortBy:    item.SortTypeFrom(is.SortBy.String()),
+	}
 }

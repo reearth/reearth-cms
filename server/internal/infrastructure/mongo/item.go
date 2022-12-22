@@ -66,18 +66,18 @@ func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList, ref *version.Re
 	return filterItems(ids, res), nil
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
 	}, ref, pagination)
-	return res.SortByTimestamp(), pi, err
+	return res.Sort(sort), pi, err
 }
 
 func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
 	}, ref, pagination)
-	return res.SortByTimestamp(), pi, err
+	return res.SortByTimestamp(""), pi, err
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -87,7 +87,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *v
 	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, ref, pagination)
-	return res.SortByTimestamp(), pi, err
+	return res.SortByTimestamp(""), pi, err
 }
 
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
@@ -130,15 +130,16 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
-func (i *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
-	return i.paginate(ctx, bson.M{
+	res, pi, err := i.paginate(ctx, bson.M{
 		"project": query.Project().String(),
 		"$or": []bson.M{
 			{"fields.v.v": bson.M{"$regex": regex}},
 			{"fields.value": bson.M{"$regex": regex}}, // compat
 		},
 	}, query.Ref(), pagination)
+	return res.Sort(sort), pi, err
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {
@@ -149,7 +150,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 		return nil, err
 	}
 
-	return item.VersionedList(c.Result).SortByTimestamp(), nil
+	return item.VersionedList(c.Result).SortByTimestamp(""), nil
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {

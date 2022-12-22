@@ -212,7 +212,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.Input, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -404,7 +404,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, _, _ := repo.Search(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.Search(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.Expected, len(got))
 		})
 	}

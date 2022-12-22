@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/sort"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -39,12 +40,32 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 
 type VersionedList []*version.Value[*Item]
 
-func (l VersionedList) SortByTimestamp() VersionedList {
+func (l VersionedList) SortByTimestamp(dir sort.Direction) VersionedList {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b Versioned) bool {
-		return a.Value().timestamp.Before(b.Value().Timestamp())
-	})
+
+	if dir == sort.DescDirection {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().timestamp.After(b.Value().Timestamp())
+		})
+	} else {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().timestamp.Before(b.Value().Timestamp())
+		})
+	}
 	return m
+}
+func (l VersionedList) Sort(st *Sort) VersionedList {
+	m := slices.Clone(l)
+	if st == nil {
+		return m
+	}
+
+	switch st.SortBy {
+	case SortTypeDate:
+		return l.SortByTimestamp(st.Direction)
+	default:
+		return l.SortByTimestamp(sort.AscDirection)
+	}
 }
 
 func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {

@@ -364,6 +364,11 @@ type ItemQuery struct {
 	Q       *string `json:"q"`
 }
 
+type ItemSort struct {
+	SortBy    ItemSortType   `json:"sortBy"`
+	Direction *SortDirection `json:"direction"`
+}
+
 type KeyAvailability struct {
 	Key       string `json:"key"`
 	Available bool   `json:"available"`
@@ -1073,6 +1078,45 @@ func (e IntegrationType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type ItemSortType string
+
+const (
+	ItemSortTypeDate ItemSortType = "DATE"
+)
+
+var AllItemSortType = []ItemSortType{
+	ItemSortTypeDate,
+}
+
+func (e ItemSortType) IsValid() bool {
+	switch e {
+	case ItemSortTypeDate:
+		return true
+	}
+	return false
+}
+
+func (e ItemSortType) String() string {
+	return string(e)
+}
+
+func (e *ItemSortType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ItemSortType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ItemSortType", str)
+	}
+	return nil
+}
+
+func (e ItemSortType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type NodeType string
 
 const (
@@ -1407,6 +1451,47 @@ func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SchemaFieldType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SortDirection string
+
+const (
+	SortDirectionAsc  SortDirection = "ASC"
+	SortDirectionDesc SortDirection = "DESC"
+)
+
+var AllSortDirection = []SortDirection{
+	SortDirectionAsc,
+	SortDirectionDesc,
+}
+
+func (e SortDirection) IsValid() bool {
+	switch e {
+	case SortDirectionAsc, SortDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e SortDirection) String() string {
+	return string(e)
+}
+
+func (e *SortDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SortDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SortDirection", str)
+	}
+	return nil
+}
+
+func (e SortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
