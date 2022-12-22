@@ -86,6 +86,7 @@ const AssetMolecule: React.FC<Props> = ({
               timeline: false,
               animation: false,
               geocoder: false,
+              shouldAnimate: true,
             }}
             tilesetProps={{
               url: assetUrl,
@@ -149,7 +150,7 @@ const AssetMolecule: React.FC<Props> = ({
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
-          <UserAvatar username={asset.createdBy} shadow />
+          <UserAvatar username={asset.createdBy} />
         </SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
