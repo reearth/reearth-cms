@@ -28,6 +28,7 @@ type UpdateFieldParam struct {
 	FieldId      id.FieldID
 	Name         *string
 	Description  *string
+	Order        *int
 	Key          *string
 	Multiple     *bool
 	Unique       *bool

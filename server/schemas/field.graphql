@@ -21,6 +21,7 @@ type SchemaField {
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
+  order: Int!
   description: String
 
   multiple: Boolean!
@@ -192,6 +193,7 @@ input UpdateFieldInput {
   fieldId: ID!
   title: String
   description: String
+  order: Int
   key: String
   required: Boolean
   unique: Boolean

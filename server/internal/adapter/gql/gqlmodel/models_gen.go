@@ -573,6 +573,7 @@ type SchemaField struct {
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
+	Order        int                     `json:"order"`
 	Description  *string                 `json:"description"`
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
@@ -763,6 +764,7 @@ type UpdateFieldInput struct {
 	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
+	Order        *int                          `json:"order"`
 	Key          *string                       `json:"key"`
 	Required     *bool                         `json:"required"`
 	Unique       *bool                         `json:"unique"`
