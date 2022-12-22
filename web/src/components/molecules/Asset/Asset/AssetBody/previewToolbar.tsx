@@ -1,14 +1,13 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
-import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { ViewerType } from "@reearth-cms/components/organisms/Asset/Asset/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   url: string;
-  selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  isSVG?: boolean;
+  viewerType?: ViewerType;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
@@ -17,17 +16,16 @@ type Props = {
 
 const PreviewToolbar: React.FC<Props> = ({
   url,
-  selectedPreviewType,
   isModalVisible,
-  isSVG,
+  viewerType,
   handleCodeSourceClick,
   handleRenderClick,
   handleFullScreen,
   handleModalCancel,
 }) => {
   const t = useT();
-  const isSVGButtonVisible = selectedPreviewType === "IMAGE" && isSVG;
-  const isFullScreenButtonVisible = selectedPreviewType !== "UNKNOWN";
+  const isSVGButtonVisible = viewerType === "SVG";
+  const isFullScreenButtonVisible = viewerType !== "Unsupported";
 
   return (
     <>

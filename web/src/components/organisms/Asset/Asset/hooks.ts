@@ -4,14 +4,22 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
+  fileFormats,
+  imageFormats,
+  compressedFileFormats,
+} from "@reearth-cms/components/molecules/Common/Asset";
+import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 
 import { convertAsset } from "../convertAsset";
+
+export type ViewerType = "TileSet" | "Image" | "SVG" | "Unsupported";
 
 export default (assetId?: string) => {
   const t = useT();
@@ -58,18 +66,39 @@ export default (assetId?: string) => {
     setSelectedPreviewType(value);
   }, []);
 
-  const isTileSetPreviewVisible =
-    selectedPreviewType === "GEO" ||
-    selectedPreviewType === "GEO3D" ||
-    selectedPreviewType === "MODEL3D";
+  const [viewerType, setViewerType] = useState<ViewerType>("Unsupported");
+  const assetFileExt = getExtension(asset?.fileName);
+  const isSVG = assetFileExt === "svg";
+
+  useEffect(() => {
+    switch (true) {
+      case (selectedPreviewType === "GEO" ||
+        selectedPreviewType === "GEO3D" ||
+        selectedPreviewType === "MODEL3D") &&
+        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("TileSet");
+        break;
+      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
+        isSVG ? setViewerType("SVG") : setViewerType("Image");
+        break;
+      default:
+        setViewerType("Unsupported");
+        break;
+    }
+  }, [asset?.previewType, assetFileExt, isSVG, selectedPreviewType]);
+
+  const displayUnzipFileList = useMemo(
+    () => compressedFileFormats.includes(assetFileExt),
+    [assetFileExt],
+  );
 
   const handleFullScreen = useCallback(() => {
-    if (isTileSetPreviewVisible) {
+    if (viewerType === "TileSet") {
       viewerRef?.canvas.requestFullscreen();
-    } else {
+    } else if (viewerType === "Image" || viewerType === "SVG") {
       setIsModalVisible(true);
     }
-  }, [isTileSetPreviewVisible]);
+  }, [viewerType]);
 
   const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
@@ -88,7 +117,8 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
-    isTileSetPreviewVisible,
+    viewerType,
+    displayUnzipFileList,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
