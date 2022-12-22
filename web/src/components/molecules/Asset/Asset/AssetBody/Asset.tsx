@@ -18,6 +18,7 @@ import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBo
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -57,6 +58,8 @@ const AssetMolecule: React.FC<Props> = ({
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
+  const extension = getExtension(asset.fileName);
+
   const renderPreview = () => {
     switch (true) {
       case viewerType === "cesium":
@@ -77,9 +80,8 @@ const AssetMolecule: React.FC<Props> = ({
               geocoder: false,
               shouldAnimate: true,
             }}
-            tilesetProps={{
-              url: assetUrl,
-            }}
+            url={assetUrl}
+            extension={extension}
             onGetViewer={getViewer}
           />
         );

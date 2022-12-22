@@ -1,32 +1,46 @@
 import { Viewer } from "cesium";
 import { ComponentProps } from "react";
-import { Viewer as ResiumViewer, Cesium3DTileset as Resium3DTileset } from "resium";
+import { Viewer as ResiumViewer } from "resium";
 
-// import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
+import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 import CzmlComponent from "./CzmlComponent";
 
 type TilesetPreviewProps = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
-  tilesetProps: ComponentProps<typeof Resium3DTileset>;
+  url: string;
+  extension: string;
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
 const TilesetPreview: React.FC<TilesetPreviewProps> = ({
-  // viewerProps,
-  // tilesetProps,
+  viewerProps,
+  url,
+  extension,
   onGetViewer,
 }) => {
   let viewer: Viewer | undefined;
 
+  const renderAsset = () => {
+    switch (extension) {
+      case "czml":
+        return <CzmlComponent data={url} viewer={viewer} />;
+      case "kml":
+        return <CzmlComponent data={url} viewer={viewer} />;
+      case "geojson":
+        return <CzmlComponent data={url} viewer={viewer} />;
+      case "json":
+      default:
+        return <Cesium3dTileSetComponent url={url} viewer={viewer} />;
+    }
+  };
   return (
     <ResiumViewer
-      // {...viewerProps}
+      {...viewerProps}
       ref={e => {
         viewer = e?.cesiumElement;
         onGetViewer(viewer);
       }}>
-      {/* <Cesium3dTileSetComponent {...tilesetProps} viewer={viewer} /> */}
-      <CzmlComponent />
+      {renderAsset()}
     </ResiumViewer>
   );
 };
