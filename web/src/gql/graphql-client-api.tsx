@@ -344,6 +344,8 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  integration?: Maybe<Integration>;
+  integrationId?: Maybe<Scalars['ID']>;
   model: Model;
   modelId: Scalars['ID'];
   project: Project;
@@ -352,6 +354,8 @@ export type Item = Node & {
   schemaId: Scalars['ID'];
   thread: Thread;
   threadId: Scalars['ID'];
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['ID']>;
 };
 
 export type ItemConnection = {
@@ -1568,7 +1572,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2754,6 +2758,12 @@ export const GetItemsDocument = gql`
     nodes {
       id
       schemaId
+      user {
+        name
+      }
+      integration {
+        name
+      }
       fields {
         schemaFieldId
         type
