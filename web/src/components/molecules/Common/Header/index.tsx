@@ -6,6 +6,7 @@ import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { useT } from "@reearth-cms/i18n";
 import { Project, Workspace } from "@reearth-cms/state";
@@ -65,7 +66,11 @@ const HeaderMolecule: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id === personalWorkspace?.id)
             ?.map(workspace => ({
-              label: <MenuText>{workspace.name}</MenuText>,
+              label: (
+                <Tooltip title={workspace.name} placement="right">
+                  <MenuText>{workspace.name}</MenuText>
+                </Tooltip>
+              ),
               key: workspace.id,
               icon: <UserAvatar username={workspace.name} size="small" />,
               style: { paddingLeft: 0, paddingRight: 0 },
@@ -82,7 +87,11 @@ const HeaderMolecule: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id !== personalWorkspace?.id)
             ?.map(workspace => ({
-              label: <MenuText>{workspace.name}</MenuText>,
+              label: (
+                <Tooltip title={workspace.name} placement="right">
+                  <MenuText>{workspace.name}</MenuText>
+                </Tooltip>
+              ),
               key: workspace.id,
               icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
               style: { paddingLeft: 0, paddingRight: 0 },
