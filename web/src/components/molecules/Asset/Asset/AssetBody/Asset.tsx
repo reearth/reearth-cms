@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
 import { useState } from "react";
 
+import CesiumViewer from "@reearth-cms/components/atoms/CesiumViewer";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
@@ -64,7 +64,7 @@ const AssetMolecule: React.FC<Props> = ({
     switch (true) {
       case viewerType === "cesium":
         return (
-          <TilesetPreview
+          <CesiumViewer
             viewerProps={{
               terrainProvider: createWorldTerrain(),
               navigationHelpButton: false,

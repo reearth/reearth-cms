@@ -7,19 +7,14 @@ import CzmlComponent from "./CzmlComponent";
 import GeoJsonComponent from "./GeoJsonComponent";
 import KmlComponent from "./KmlComponent";
 
-type TilesetPreviewProps = {
+type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
   extension: string;
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
-const TilesetPreview: React.FC<TilesetPreviewProps> = ({
-  viewerProps,
-  url,
-  extension,
-  onGetViewer,
-}) => {
+const CesiumViewer: React.FC<Props> = ({ viewerProps, url, extension, onGetViewer }) => {
   let viewer: Viewer | undefined;
 
   const renderAsset = () => {
@@ -47,4 +42,4 @@ const TilesetPreview: React.FC<TilesetPreviewProps> = ({
   );
 };
 
-export default TilesetPreview;
+export default CesiumViewer;
