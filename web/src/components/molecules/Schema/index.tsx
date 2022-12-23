@@ -46,7 +46,7 @@ const Schema: React.FC<Props> = ({
             <ModelFieldList
               fields={model?.schema.fields}
               handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-              handleFieldDelete={onFieldDelete}
+              onFieldDelete={onFieldDelete}
             />
           </ModelFieldListWrapper>
         </Content>

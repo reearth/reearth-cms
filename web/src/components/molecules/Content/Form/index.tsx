@@ -295,7 +295,7 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueSelect selectedValues={field.typeProperty?.values} />
                 ) : (
-                  <Select>
+                  <Select allowClear>
                     {field.typeProperty?.values?.map((value: string) => (
                       <Option key={value} value={value}>
                         {value}
