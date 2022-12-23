@@ -18,7 +18,6 @@ import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/As
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import CesiumViewer from "@reearth-cms/components/molecules/Asset/CesiumViewer";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -26,6 +25,7 @@ import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
+  assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
   viewerType: ViewerType;
@@ -42,6 +42,7 @@ export let viewerRef: Viewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
+  assetFileExt,
   selectedPreviewType,
   isModalVisible,
   viewerType,
@@ -58,7 +59,6 @@ const AssetMolecule: React.FC<Props> = ({
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
-  const extension = getExtension(asset.fileName);
 
   const renderPreview = () => {
     switch (true) {
@@ -81,7 +81,7 @@ const AssetMolecule: React.FC<Props> = ({
               shouldAnimate: true,
             }}
             url={assetUrl}
-            extension={extension}
+            assetFileExt={assetFileExt}
             onGetViewer={getViewer}
           />
         );

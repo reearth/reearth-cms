@@ -10,15 +10,15 @@ import KmlComponent from "./KmlComponent";
 type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
-  extension: string;
+  assetFileExt?: string;
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
-const CesiumViewer: React.FC<Props> = ({ viewerProps, url, extension, onGetViewer }) => {
+const CesiumViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
   let viewer: Viewer | undefined;
 
   const renderAsset = () => {
-    switch (extension) {
+    switch (assetFileExt) {
       case "czml":
         return <CzmlComponent data={url} viewer={viewer} />;
       case "kml":

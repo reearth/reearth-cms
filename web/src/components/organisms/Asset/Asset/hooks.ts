@@ -111,6 +111,7 @@ export default (assetId?: string) => {
 
   return {
     asset,
+    assetFileExt,
     isLoading: loading,
     selectedPreviewType,
     isModalVisible,
