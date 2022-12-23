@@ -4,6 +4,8 @@ import { Viewer as ResiumViewer } from "resium";
 
 import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 import CzmlComponent from "./CzmlComponent";
+import GeoJsonComponent from "./GeoJsonComponent";
+import KmlComponent from "./KmlComponent";
 
 type TilesetPreviewProps = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
@@ -25,9 +27,9 @@ const TilesetPreview: React.FC<TilesetPreviewProps> = ({
       case "czml":
         return <CzmlComponent data={url} viewer={viewer} />;
       case "kml":
-        return <CzmlComponent data={url} viewer={viewer} />;
+        return <KmlComponent data={url} viewer={viewer} />;
       case "geojson":
-        return <CzmlComponent data={url} viewer={viewer} />;
+        return <GeoJsonComponent data={url} viewer={viewer} />;
       case "json":
       default:
         return <Cesium3dTileSetComponent url={url} viewer={viewer} />;
