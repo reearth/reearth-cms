@@ -139,7 +139,7 @@ const AssetMolecule: React.FC<Props> = ({
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
-          <UserAvatar username={asset.createdBy} />
+          <UserAvatar username={asset.createdBy} shadow />
         </SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
