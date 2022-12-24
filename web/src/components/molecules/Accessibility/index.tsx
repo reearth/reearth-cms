@@ -2,7 +2,9 @@ import styled from "@emotion/styled";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
@@ -35,7 +37,7 @@ export type Props = {
   ) => void;
 };
 
-const Public: React.FC<Props> = ({
+const Accessibility: React.FC<Props> = ({
   projectScope,
   models: rawModels,
   alias,
@@ -48,6 +50,7 @@ const Public: React.FC<Props> = ({
   const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
   const [assetState, setAssetState] = useState<boolean | undefined>(assetPublic);
   const [models, setModels] = useState<Model[] | undefined>(rawModels);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     changeScope(projectScope);
@@ -151,59 +154,46 @@ const Public: React.FC<Props> = ({
 
   const publicScopeList = [
     { id: 1, name: t("Private"), value: "private" },
-    // {
-    //   id: 2,
-    //   name: t("API Key Only"),
-    //   value: "limited",
-    // },
     { id: 3, name: t("Public"), value: "public" },
   ];
 
   return (
-    <InnerContent title={t("Public")} flexChildren>
-      <>
-        <div>
-          <p>{t("Public Scope")}</p>
-          <Select value={scope} onChange={changeScope} style={{ minWidth: "130px" }}>
-            <Subtext>
-              {t(
-                "Choose the scope of your project. This affects all the models shown below that are switched on.",
-              )}
-            </Subtext>
-            {publicScopeList.map(type => (
-              <Select.Option key={type.id} value={type.value}>
-                {type.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
-        <p>{t("Project Alias")}</p>
-        <Input value={aliasState} onChange={handlerAliasChange} />
-        <Subtext>
-          {t(
-            "Choose the scope of your project. This affects all the models shown below that are switched on.",
-          )}
-        </Subtext>
-        <TableWrapper>
-          <Table dataSource={dataSource} columns={columns} pagination={false} />
-        </TableWrapper>
-        <Button type="primary" disabled={saveDisabled} onClick={handlePublicUpdate}>
-          {t("Save changes")}
-        </Button>
-      </>
+    <InnerContent title={t("Accessibility")} flexChildren>
+      <ContentSection title="">
+        <Form form={form} style={{ maxWidth: 304 }} layout="vertical" autoComplete="off">
+          <Form.Item
+            label={t("Public Scope")}
+            extra={t(
+              "Choose the scope of your project. This affects all the models shown below that are switched on.",
+            )}>
+            <Select value={scope} onChange={changeScope}>
+              {publicScopeList.map(type => (
+                <Select.Option key={type.id} value={type.value}>
+                  {type.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label={t("Project Alias")}>
+            <Input value={aliasState} onChange={handlerAliasChange} />
+          </Form.Item>
+
+          <TableWrapper>
+            <Table dataSource={dataSource} columns={columns} pagination={false} />
+          </TableWrapper>
+          <Button type="primary" disabled={saveDisabled} onClick={handlePublicUpdate}>
+            {t("Save changes")}
+          </Button>
+        </Form>
+      </ContentSection>
     </InnerContent>
   );
 };
 
-export default Public;
+export default Accessibility;
 
 const TableWrapper = styled.div`
   width: 304px;
   margin: 24px 0;
-`;
-
-const Subtext = styled.p`
-  margin-top: 3px;
-  color: rgba(0, 0, 0, 0.45);
-  padding: 0;
 `;
