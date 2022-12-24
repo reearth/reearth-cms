@@ -65,6 +65,7 @@ export default () => {
       pagination: pagination(sort),
       sort: sort?.type as GQLSortType,
       keyword: searchTerm,
+      withFiles: false,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -103,7 +104,7 @@ export default () => {
           await Promise.all(
             files.map(async file => {
               const result = await createAssetMutation({
-                variables: { projectId, file },
+                variables: { projectId, file, withFiles: false },
               });
               if (result.errors || !result.data?.createAsset) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
@@ -130,7 +131,7 @@ export default () => {
       setUploading(true);
       try {
         const result = await createAssetMutation({
-          variables: { projectId, file: null, url },
+          variables: { projectId, file: null, url, withFiles: false },
         });
         if (result.data?.createAsset) {
           Notification.success({ message: t("Successfully added asset!") });
