@@ -7,9 +7,9 @@ servers:
   - url: https//cms.reearth.io/api/v1
     description: main server for accessing the cms integration api
 paths:
-  '/models/{modelId}/items':
+  '/models/{modelIdOrKey}/items':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
       operationId: ItemFilter
       security:
@@ -47,6 +47,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     post:
       operationId: ItemCreate
       security:
@@ -102,6 +104,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     patch:
       operationId: ItemUpdate
       security:
@@ -130,6 +134,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: ItemDelete
       security:
@@ -174,6 +180,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     post:
       operationId: ItemCommentCreate
       security:
@@ -198,6 +206,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/items/{itemId}/comments/{commentId}':
     parameters:
       - $ref: '#/components/parameters/itemIdParam'
@@ -228,6 +238,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: ItemCommentDelete
       security:
@@ -315,6 +327,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     post:
       operationId: AssetCreate
       security:
@@ -347,6 +361,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/assets/{assetId}':
     parameters:
       - $ref: '#/components/parameters/assetIdParam'
@@ -363,6 +379,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: AssetDelete
       responses:
@@ -380,6 +398,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/assets/{assetId}/comments':
     parameters:
       - $ref: '#/components/parameters/assetIdParam'
@@ -403,6 +423,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     post:
       operationId: AssetCommentCreate
       security:
@@ -427,6 +449,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/assets/{assetId}/comments/{commentId}':
     parameters:
       - $ref: '#/components/parameters/assetIdParam'
@@ -457,6 +481,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: AssetCommentDelete
       security:
@@ -491,10 +517,17 @@ components:
     modelIdParam:
       name: modelId
       in: path
-      description: ID of the selected model within the selected project
+      description: ID of the model in the project
       required: true
       schema:
         x-go-type: id.ModelID
+        type: string
+    modelIdOrKeyParam:
+      name: modelIdOrKey
+      in: path
+      description: ID or key of the model in the project
+      required: true
+      schema:
         type: string
     itemIdParam:
       name: itemId
@@ -692,6 +725,8 @@ components:
         type:
           $ref: '#/components/schemas/valueType'
         value: {}
+        key:
+          type: string
     refOrVersion:
       type: object
       properties:

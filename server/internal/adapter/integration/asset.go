@@ -2,12 +2,14 @@ package integration
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -33,6 +35,9 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetFilter404Response{}, err
+		}
 		return AssetFilter400Response{}, err
 	}
 
@@ -78,14 +83,20 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		File:      f,
 		URL:       url,
 	}
+
 	a, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetCreate404Response{}, err
+		}
 		return AssetCreate400Response{}, err
 	}
+
 	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetCreate400Response{}, err
 	}
+
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -94,8 +105,12 @@ func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObjec
 	op := adapter.Operator(ctx)
 	aId, err := uc.Asset.Delete(ctx, request.AssetId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetDelete404Response{}, err
+		}
 		return AssetDelete400Response{}, err
 	}
+
 	return AssetDelete200JSONResponse{
 		Id: &aId,
 	}, nil
@@ -107,11 +122,16 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 
 	a, err := uc.Asset.FindByID(ctx, request.AssetId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetGet404Response{}, err
+		}
 		return AssetGet400Response{}, err
 	}
+
 	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
 	if err != nil {
 		return AssetGet400Response{}, err
 	}
+
 	return AssetGet200JSONResponse(*aa), nil
 }
