@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 )
 
@@ -14,9 +15,11 @@ var (
 )
 
 func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) {
-	// note: version is not used currently
+	// note: version (v) is not used currently
 
 	switch o := obj.(type) {
+	case *event.Event[any]:
+		res, err = NewEvent(o, v, urlResolver)
 	case *asset.Asset:
 		res, err = NewAsset(o, urlResolver(o))
 	case *item.Item:
