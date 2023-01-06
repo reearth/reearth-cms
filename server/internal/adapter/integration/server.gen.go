@@ -65,11 +65,11 @@ type ServerInterface interface {
 	// (PATCH /items/{itemId}/comments/{commentId})
 	ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
 	// Returns a list of items.
-	// (GET /models/{modelId}/items)
-	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
+	// (GET /models/{modelIdOrKey}/items)
+	ItemFilter(ctx echo.Context, modelIdOrKey ModelIdOrKeyParam, params ItemFilterParams) error
 
-	// (POST /models/{modelId}/items)
-	ItemCreate(ctx echo.Context, modelId ModelIdParam) error
+	// (POST /models/{modelIdOrKey}/items)
+	ItemCreate(ctx echo.Context, modelIdOrKey ModelIdOrKeyParam) error
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
@@ -357,12 +357,12 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx echo.Context) error {
 // ItemFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "modelId", runtime.ParamLocationPath, ctx.Param("modelId"), &modelId)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "modelIdOrKey", runtime.ParamLocationPath, ctx.Param("modelIdOrKey"), &modelIdOrKey)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{""})
@@ -405,25 +405,25 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ItemFilter(ctx, modelId, params)
+	err = w.Handler.ItemFilter(ctx, modelIdOrKey, params)
 	return err
 }
 
 // ItemCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemCreate(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "modelId", runtime.ParamLocationPath, ctx.Param("modelId"), &modelId)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "modelIdOrKey", runtime.ParamLocationPath, ctx.Param("modelIdOrKey"), &modelIdOrKey)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ItemCreate(ctx, modelId)
+	err = w.Handler.ItemCreate(ctx, modelIdOrKey)
 	return err
 }
 
@@ -534,8 +534,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/items/:itemId/comments", wrapper.ItemCommentCreate)
 	router.DELETE(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete)
 	router.PATCH(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate)
-	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
-	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
+	router.GET(baseURL+"/models/:modelIdOrKey/items", wrapper.ItemFilter)
+	router.POST(baseURL+"/models/:modelIdOrKey/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 
@@ -578,6 +578,14 @@ func (response AssetDelete401Response) VisitAssetDeleteResponse(w http.ResponseW
 	return nil
 }
 
+type AssetDelete404Response struct {
+}
+
+func (response AssetDelete404Response) VisitAssetDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type AssetGetRequestObject struct {
 	AssetId AssetIdParam `json:"assetId"`
 }
@@ -607,6 +615,14 @@ type AssetGet401Response = UnauthorizedErrorResponse
 
 func (response AssetGet401Response) VisitAssetGetResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type AssetGet404Response struct {
+}
+
+func (response AssetGet404Response) VisitAssetGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -644,6 +660,14 @@ func (response AssetCommentList401Response) VisitAssetCommentListResponse(w http
 	return nil
 }
 
+type AssetCommentList404Response struct {
+}
+
+func (response AssetCommentList404Response) VisitAssetCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type AssetCommentCreateRequestObject struct {
 	AssetId AssetIdParam `json:"assetId"`
 	Body    *AssetCommentCreateJSONRequestBody
@@ -674,6 +698,14 @@ type AssetCommentCreate401Response = UnauthorizedErrorResponse
 
 func (response AssetCommentCreate401Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type AssetCommentCreate404Response struct {
+}
+
+func (response AssetCommentCreate404Response) VisitAssetCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -754,6 +786,14 @@ func (response AssetCommentUpdate401Response) VisitAssetCommentUpdateResponse(w 
 	return nil
 }
 
+type AssetCommentUpdate404Response struct {
+}
+
+func (response AssetCommentUpdate404Response) VisitAssetCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemDeleteRequestObject struct {
 	ItemId ItemIdParam `json:"itemId"`
 }
@@ -829,6 +869,14 @@ func (response ItemGet401Response) VisitItemGetResponse(w http.ResponseWriter) e
 	return nil
 }
 
+type ItemGet404Response struct {
+}
+
+func (response ItemGet404Response) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemUpdateRequestObject struct {
 	ItemId ItemIdParam `json:"itemId"`
 	Body   *ItemUpdateJSONRequestBody
@@ -859,6 +907,14 @@ type ItemUpdate401Response = UnauthorizedErrorResponse
 
 func (response ItemUpdate401Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type ItemUpdate404Response struct {
+}
+
+func (response ItemUpdate404Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -896,6 +952,14 @@ func (response ItemCommentList401Response) VisitItemCommentListResponse(w http.R
 	return nil
 }
 
+type ItemCommentList404Response struct {
+}
+
+func (response ItemCommentList404Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemCommentCreateRequestObject struct {
 	ItemId ItemIdParam `json:"itemId"`
 	Body   *ItemCommentCreateJSONRequestBody
@@ -926,6 +990,14 @@ type ItemCommentCreate401Response = UnauthorizedErrorResponse
 
 func (response ItemCommentCreate401Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentCreate404Response struct {
+}
+
+func (response ItemCommentCreate404Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -1006,9 +1078,17 @@ func (response ItemCommentUpdate401Response) VisitItemCommentUpdateResponse(w ht
 	return nil
 }
 
+type ItemCommentUpdate404Response struct {
+}
+
+func (response ItemCommentUpdate404Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemFilterRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Params  ItemFilterParams
+	ModelIdOrKey ModelIdOrKeyParam `json:"modelIdOrKey"`
+	Params       ItemFilterParams
 }
 
 type ItemFilterResponseObject interface {
@@ -1044,9 +1124,17 @@ func (response ItemFilter401Response) VisitItemFilterResponse(w http.ResponseWri
 	return nil
 }
 
+type ItemFilter404Response struct {
+}
+
+func (response ItemFilter404Response) VisitItemFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemCreateRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Body    *ItemCreateJSONRequestBody
+	ModelIdOrKey ModelIdOrKeyParam `json:"modelIdOrKey"`
+	Body         *ItemCreateJSONRequestBody
 }
 
 type ItemCreateResponseObject interface {
@@ -1115,6 +1203,14 @@ func (response AssetFilter401Response) VisitAssetFilterResponse(w http.ResponseW
 	return nil
 }
 
+type AssetFilter404Response struct {
+}
+
+func (response AssetFilter404Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type AssetCreateRequestObject struct {
 	ProjectId     ProjectIdParam `json:"projectId"`
 	JSONBody      *AssetCreateJSONRequestBody
@@ -1146,6 +1242,14 @@ type AssetCreate401Response = UnauthorizedErrorResponse
 
 func (response AssetCreate401Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type AssetCreate404Response struct {
+}
+
+func (response AssetCreate404Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -1191,10 +1295,10 @@ type StrictServerInterface interface {
 	// (PATCH /items/{itemId}/comments/{commentId})
 	ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error)
 	// Returns a list of items.
-	// (GET /models/{modelId}/items)
+	// (GET /models/{modelIdOrKey}/items)
 	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
 
-	// (POST /models/{modelId}/items)
+	// (POST /models/{modelIdOrKey}/items)
 	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
@@ -1578,10 +1682,10 @@ func (sh *strictHandler) ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam,
 }
 
 // ItemFilter operation middleware
-func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error {
+func (sh *strictHandler) ItemFilter(ctx echo.Context, modelIdOrKey ModelIdOrKeyParam, params ItemFilterParams) error {
 	var request ItemFilterRequestObject
 
-	request.ModelId = modelId
+	request.ModelIdOrKey = modelIdOrKey
 	request.Params = params
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
@@ -1604,10 +1708,10 @@ func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, para
 }
 
 // ItemCreate operation middleware
-func (sh *strictHandler) ItemCreate(ctx echo.Context, modelId ModelIdParam) error {
+func (sh *strictHandler) ItemCreate(ctx echo.Context, modelIdOrKey ModelIdOrKeyParam) error {
 	var request ItemCreateRequestObject
 
-	request.ModelId = modelId
+	request.ModelIdOrKey = modelIdOrKey
 
 	var body ItemCreateJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -1702,37 +1806,37 @@ func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam)
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"249eMwAA",
+	"H4sIAAAAAAAC/+xazXLbOBJ+FRR2j7Qob2YvumntmS3vz4xrPTmlfIDJpoSYBJgGaEdR6d23AJAUJIIS",
+	"Zctly84lsUgA/Lr76z+ylzSRRSkFCK3oZElLhqwADWh/MaVAX6XX5qL5nYJKkJeaS0En9OqSyIzoORAF",
+	"OSQaUmI30Ihyc79kek4jKlgBdNKcRSOK8K3iCCmdaKwgoiqZQ8HM+XpRmqVKIxczGtHvZzN5Vl/k6Whq",
+	"j7ikq1VkYBcgDgJXbwnDa897DsCL+hAHkWsoDsFn1ofBuZOeg+zKnOBgFTKF/Cr9A/8Nix3gkNzDosFo",
+	"9xAu7I8S5VdIevTon34AYAOsZDPoAfRZQUq0rHXlULAZNBC+VYCLNYb61vpZKWSsyjWdnEe04IIXVWH/",
+	"bvQjNMwAHQjA66PhcGeFofx9HNGCfa+xjMf7kTm1H8Koegt55HpeG6+99yjxXpUsgbAd26ftNOIWy67r",
+	"TY5oCNkwNTKCkBnGPQD2qBIhC6uR5kyDMmQEYXT3ZX2hrO5yntDbKMA1JVFfctyDL4WMC7B6k5gCkpQj",
+	"JGZRo2oEVUqhgORc6Yg88jwnd0D4TEg0Lp15m7kiQmpSIigQGtIeUVOOPaIakJ6gzP6yF3tlPFTAkFg9",
+	"OM3xPUATBKYhnfpm8a9VZVr/HQBumeMeb5PQZ8EqPZfIf0D6K6LErjjTJAGliJb3IIyaC64UFzNDKS4e",
+	"WM5TpxALdZ3ZbMJDWQJq7p6VSKFB6D8tpE6MijwhJkuaSSyYtQvTcKZ5YVypsyXjuT3rr4bCE/qXeJ1w",
+	"4xpQbNeYjJEekgUbSwRwlggPHB4bORob8MKFoxlI9+8nQ0Ibsu1flbgX8lEErOKFnwEQvTgQUS01y2/4",
+	"Dx+pqIo7E9Z8KgzWaIV5OIHUV+SdTU/rIqFrZ8eo/bIwsTDnuOXb2qxUHa40zFAzQ8WQ4mpOHYtPgziy",
+	"WYh09JJxyNOuVgYd/ZvZW1u2Vsguaj+wvAKruVVE7Q86WfaAco6y5ZFznqcIwuLTUKihvtRYEJEtPDP0",
+	"una/L5m8GLqhwpwOybbWgscfDd9NMDT/TRGYSbQ8mf/prhYM71PjixFtimpDCxrROylzE3dt7jT72axh",
+	"oeUjQgYIwiZ24yohTj4AKi4FpKYuDCj9KWEO8lQdYCXDwICZBnGwqWbbYrbHcNi0NS2mVpiq4mlIjm08",
+	"CNnmCXt3PCGi1eYYALBLLkNESCrkenFjlOsseAcMAaeVo67VutnkLq+PnWtdupTLRSa7ifV/8CtDPT+7",
+	"+O8NubJxjtnqZ3p9ZQ7h2rjsnlWtcPR8NB6NjbyyBMFKTif002g8+kSdk1ngsWW7ipd1v7hyoHLQ1ncM",
+	"S+3hxubUpsJLd3OravjbeOwldBvzyzLnid0cf1VO2+vi5QmR0G9Ht42yirY06cRy9dQqor84eFsVvKtV",
+	"iKm3QWnSNuPEBU6777zPtVrx427FZHf+0n3i71KTTFYidZBnriYKKPmfNgI9S8O7woELcaeqNv+lyZfw",
+	"U9ZL4o2XKqvbVdTlfFwXLlbP/Uaps/x/XI1+RPr7jx8UzptCqxMOB7tG83bmTdt6HWqtof0g++XWmvJZ",
+	"VIhoKdUeY1/Y1Fw35aD0P2S6eJal+4rTsOU2XwWsXjAktJTqEuZE2bHT0+Nl+wZyf8qrufBqmW9ne9G1",
+	"l5OFMEE2XP1DOnm0d/3Wm20bFphO5ru58LlMP3xccDog03fBs4iqqigYLjzBPHvbA2KbnOOl+z6wM26Y",
+	"lunV4oX39eGAYGG/h5xqjKirtu12SlcoVCPciEYBK7lS+7AY075qN7x5MdfbfGsQsN30lI3mO9yWodSI",
+	"Hhz2/a9/GzE8GLN2MuLIsf04r2peOw98HDJuUyQQ+fc3jEZL76RfNE/4kO1iJ6QEu0XP0j+bxZNuFnt8",
+	"fGir6BHh9DpF38k/onsfs0/0iPCzTfTbxNMnWaBOMNYmG12i/Uim4qU/m7WK20S9u1WxCZbIzBXCdpSI",
+	"ZDzXYOxMmEjd5AgXs3Dx+ptde3BHsx5eGeAKG9M8A9avJ82GLPYnwgasP14vthVvG3sNqrC2yuPuZ0o7",
+	"tzZZ7pw6a8fh9i+0Ux4XsnJytWvHwVG2vXlgSv5188fvxII13KsUIBGsAPWOestNz3pCi9md5NxTFR63",
+	"HAz0kW9pnuTU2tU3RflB9Wk9EqbiZTsctqq/cByQV+pPvAclFvsm9J1lltfMFvX39xPLEm9/OOBZacGJ",
+	"94S8sDUp7ieFF3PGI+eWoTOeq4gWVa55yVDHmcTiLGWa7c5absywHbS644LZueYBHczq5wzMy9HcnYMP",
+	"Dcs3n1cwLoi7TTKJhNmZb8NOPQeSFIpwb/SMlbwef3RDbiqOk0KNEIChno+4jFnJ44dzurpd/T8AAP//",
+	"gIRwtwQ1AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

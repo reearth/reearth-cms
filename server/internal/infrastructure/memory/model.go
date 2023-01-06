@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -90,6 +91,25 @@ func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*mod
 
 	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
 		return m.Key().String() == key && m.Project() == pid
+	})
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return m, nil
+}
+
+func (r *Model) FindByIDOrKey(ctx context.Context, modelID *id.ModelID, key *key.Key, pids id.ProjectIDList) (*model.Model, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	if modelID == nil && key == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+		return r.f.CanRead(m.Project()) && pids.Has(m.Project()) && (modelID != nil && m.ID() == *modelID || key != nil && m.Key().String() == key.String())
 	})
 	if m == nil {
 		return nil, rerror.ErrNotFound
