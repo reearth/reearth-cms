@@ -1,21 +1,31 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
-import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
+import {
+  Item as GQLItem,
+  useDeleteItemMutation,
+  Comment as GQLComment,
+} from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 import { convertComment, convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
 
 export default () => {
+  const t = useT();
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
   const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
+  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
+    selectedRowKeys: [],
+  });
 
   const { assetList } = useAssetHooks();
 
@@ -86,6 +96,29 @@ export default () => {
     [workspaceId, projectId, modelId, navigate],
   );
 
+  const [deleteItemMutation] = useDeleteItemMutation();
+  const handleItemDelete = useCallback(
+    (itemIds: string[]) =>
+      (async () => {
+        const results = await Promise.all(
+          itemIds.map(async itemId => {
+            const result = await deleteItemMutation({
+              variables: { itemId },
+              refetchQueries: ["GetItems"],
+            });
+            if (result.errors) {
+              Notification.error({ message: t("Failed to delete one or more items.") });
+            }
+          }),
+        );
+        if (results) {
+          Notification.success({ message: t("One or more items were successfully deleted!") });
+          setSelection({ selectedRowKeys: [] });
+        }
+      })(),
+    [t, deleteItemMutation],
+  );
+
   const handleItemSelect = useCallback(
     (id: string) => {
       setSelectedItemId(id);
@@ -107,6 +140,8 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
+    selection,
+    setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -114,5 +149,6 @@ export default () => {
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
+    handleItemDelete,
   };
 };

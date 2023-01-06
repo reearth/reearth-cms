@@ -7,7 +7,7 @@ type Thread {
 
 type Comment {
   id: ID!
-  author: Operator!
+  author: Operator
   authorType: OperatorType!
   authorId: ID!
   content: String!

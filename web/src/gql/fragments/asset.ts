@@ -21,7 +21,7 @@ export const assetFragment = gql`
     fileName
     size
     previewType
-    file {
+    file @include(if: $withFiles) {
       ...assetFileFragment
       children {
         ...assetFileFragment

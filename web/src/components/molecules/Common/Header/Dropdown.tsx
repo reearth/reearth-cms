@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import DropdownAtom from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 
 export type Props = {
   className?: string;
@@ -17,12 +17,7 @@ const Dropdown: React.FC<Props> = ({ className, menu, name, personal }) => {
     <StyledDropdown className={className} overlay={menu} trigger={["click"]}>
       <a onClick={e => e.preventDefault()}>
         <Space>
-          <Avatar
-            shape={personal ? "circle" : "square"}
-            style={{ color: "#fff", backgroundColor: "#3F3D45" }}
-            size={"small"}>
-            {name?.charAt(0)}
-          </Avatar>
+          <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
           <Text>{name}</Text>
           <StyledIcon icon="caretDown" />
         </Space>

@@ -10,6 +10,7 @@ import { Project as ProjectType } from "@reearth-cms/components/molecules/Worksp
 import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
 
 export type Props = {
+  coverImageUrl?: string;
   projects?: ProjectType[];
   projectModal?: boolean;
   workspaceModal?: boolean;
@@ -25,6 +26,7 @@ export type Props = {
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
+  coverImageUrl,
   projects,
   projectModal,
   workspaceModal,
@@ -40,7 +42,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper>
-      <Greeting />
+      <Greeting coverImageUrl={coverImageUrl} />
       <Content>
         <WorkspaceHeader
           onProjectSearch={onProjectSearch}

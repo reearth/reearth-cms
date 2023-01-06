@@ -5,7 +5,7 @@ on:
     types: [completed]
     branches: [main]
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}-${{github.event.workflow_run.name}}
   cancel-in-progress: true
 env:
   # server

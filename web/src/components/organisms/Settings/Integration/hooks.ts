@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { Key, useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -12,6 +12,7 @@ import {
   Role as GQLRole,
   Integration as GQLIntegration,
   useUpdateIntegrationOfWorkspaceMutation,
+  useRemoveIntegrationFromWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -20,6 +21,9 @@ export default (workspaceId?: string) => {
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>();
+  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
+    selectedRowKeys: [],
+  });
   const { data, refetch } = useGetMeQuery();
   const t = useT();
 
@@ -130,6 +134,33 @@ export default (workspaceId?: string) => {
     [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
   );
 
+  const [removeIntegrationFromWorkspaceMutation] = useRemoveIntegrationFromWorkspaceMutation();
+
+  const handleIntegrationRemove = useCallback(
+    (integrationIds: string[]) =>
+      (async () => {
+        if (!workspaceId) return;
+        const results = await Promise.all(
+          integrationIds.map(async integrationId => {
+            const result = await removeIntegrationFromWorkspaceMutation({
+              variables: { workspaceId, integrationId },
+              refetchQueries: ["GetMe"],
+            });
+            if (result.errors) {
+              Notification.error({ message: t("Failed to delete one or more intagrations.") });
+            }
+          }),
+        );
+        if (results) {
+          Notification.success({
+            message: t("One or more integrations were successfully deleted!"),
+          });
+          setSelection({ selectedRowKeys: [] });
+        }
+      })(),
+    [t, removeIntegrationFromWorkspaceMutation, workspaceId],
+  );
+
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
   }, []);
@@ -140,12 +171,15 @@ export default (workspaceId?: string) => {
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     handleIntegrationConnect,
+    handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
     selectedIntegrationMember,
+    selection,
     handleSearchTerm,
+    setSelection,
   };
 };

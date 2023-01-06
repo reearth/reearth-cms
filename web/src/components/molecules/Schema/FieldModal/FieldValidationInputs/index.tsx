@@ -1,7 +1,7 @@
 import React from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
+import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import { useT } from "@reearth-cms/i18n";
 
 import { FieldType } from "../../types";
@@ -15,15 +15,15 @@ const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
   return selectedType ? (
     selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <Form.Item name="maxLength" label={t("Set maximum length")}>
-        <Input type="number" />
+        <InputNumber type="number" />
       </Form.Item>
     ) : selectedType === "Integer" ? (
       <>
         <Form.Item name="min" label={t("Set minimum value")}>
-          <Input type="number" />
+          <InputNumber type="number" />
         </Form.Item>
         <Form.Item name="max" label={t("Set maximum value")}>
-          <Input type="number" />
+          <InputNumber type="number" />
         </Form.Item>
       </>
     ) : null

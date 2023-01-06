@@ -21,16 +21,22 @@ const Integration: React.FC = () => {
     integrationSettingsModalShown,
     handleUpdateIntegration,
     selectedIntegrationMember,
+    selection,
     handleSearchTerm,
+    setSelection,
+    handleIntegrationRemove,
   } = useHooks(workspaceId);
 
   return (
     <>
       <IntegrationTable
+        integrationMembers={workspaceIntegrationMembers}
+        selection={selection}
         onSearchTerm={handleSearchTerm}
         onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
-        integrationMembers={workspaceIntegrationMembers}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
+        setSelection={setSelection}
+        onIntegrationRemove={handleIntegrationRemove}
       />
       <IntegrationConnectModal
         integrations={integrations}

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -106,4 +108,14 @@ func (r *Request) SetItems(items ItemList) {
 
 func (r *Request) SetState(state State) {
 	r.state = state
+	switch state {
+	case StateClosed:
+		r.closedAt = lo.ToPtr(util.Now())
+	case StateApproved:
+		r.approvedAt = lo.ToPtr(util.Now())
+	}
+}
+
+func (r *Request) SetUpdatedAt(d time.Time) {
+	r.updatedAt = d
 }
