@@ -1,4 +1,5 @@
 import { ProColumns } from "@ant-design/pro-table";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, Comment } from "@reearth-cms/components/molecules/Request/types";
@@ -9,7 +10,7 @@ import {
   RequestItem,
 } from "@reearth-cms/gql/graphql-client-api";
 
-export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | undefined => {
+export const convertRequest = (GQLRequest: GQLRequest | undefined, assetList?: Asset[]): Request | undefined => {
   if (!GQLRequest) return;
   return {
     id: GQLRequest.id,
@@ -27,7 +28,7 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     items: GQLRequest.items.map(item => ({
       id: item.itemId,
       modelName: item?.item?.value.model.name,
-      fields: getContentTableFields(item),
+      fields: getContentTableFields(item, assetList),
       columns: item.item?.value.schema
         ? getContentTableColumns(item.item?.value.schema)
         : undefined,
@@ -49,7 +50,7 @@ export const convertComment = (GQLComment: GQLComment): Comment => {
   };
 };
 
-export const getContentTableFields = (requestItem: RequestItem): ContentTableField | undefined => {
+export const getContentTableFields = (requestItem: RequestItem, assetList?: Asset[]): ContentTableField | undefined => {
   return requestItem.item
     ? {
         id: requestItem.item.value.id,
@@ -57,12 +58,19 @@ export const getContentTableFields = (requestItem: RequestItem): ContentTableFie
         modelId: requestItem.item.value.modelId,
         fields: requestItem.item.value.fields?.reduce(
           (obj, field) =>
-            Object.assign(obj, {
-              [field.schemaFieldId]: Array.isArray(field.value)
+          Object.assign(obj, {
+            [field.schemaFieldId]:
+              field.type === "Asset" && assetList
+                ? Array.isArray(field.value)
+                  ? field.value
+                      .map(value => assetList.find(asset => asset.id === value)?.fileName)
+                      .join(", ")
+                  : assetList.find(asset => asset.id === field.value)?.fileName
+                : Array.isArray(field.value)
                 ? field.value.join(", ")
                 : field.value,
-            }),
-          {},
+          }),
+        {},
         ),
         comments: [],
       }
@@ -72,8 +80,6 @@ export const getContentTableFields = (requestItem: RequestItem): ContentTableFie
 export const getContentTableColumns = (
   schema: Schema,
 ): ProColumns<ContentTableField>[] | undefined => {
-  console.log(schema);
-
   return schema.fields.map(field => ({
     title: field.title,
     dataIndex: ["fields", field.id],

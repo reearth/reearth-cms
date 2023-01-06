@@ -15,6 +15,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
+import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export default () => {
   const t = useT();
@@ -22,6 +23,9 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
+
+
+  const { assetList } = useAssetHooks();
 
   const { data: userData } = useGetMeQuery();
 
@@ -48,8 +52,8 @@ export default () => {
 
   const currentRequest: Request | undefined = useMemo(
     () =>
-      convertRequest(data?.requests.nodes.find(request => request?.id === requestId) as GQLRequest),
-    [requestId, data?.requests.nodes],
+      convertRequest(data?.requests.nodes.find(request => request?.id === requestId) as GQLRequest, assetList),
+    [requestId, data?.requests.nodes, assetList],
   );
 
   const [deleteRequestMutation] = useDeleteRequestMutation();
