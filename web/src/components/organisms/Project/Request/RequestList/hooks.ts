@@ -43,8 +43,7 @@ export default () => {
   const requests: Request[] = useMemo(
     () =>
       (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
+        .map(request => convertRequest(request as GQLRequest))
         .filter(request => !!request) as Request[]) ?? [],
     [data?.requests.nodes],
   );
