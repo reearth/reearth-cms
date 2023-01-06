@@ -4,14 +4,19 @@ on:
     branches: [main, release]
     paths:
       - worker/**
-      - .github/workflows/worker.yml
+      - .github/workflows/ci_worker.yml
+      - .github/workflows/deploy_test.yml
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
   pull_request:
     paths:
       - worker/**
-      - .github/workflows/worker.yml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+      - .github/workflows/ci_worker.yml
+      - .github/workflows/deploy_test.yml
+      - .github/workflows/pr_title.yml
+      - .github/workflows/stage.yml
+      - .github/workflows/release.yml
 jobs:
   ci:
     name: ci

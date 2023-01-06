@@ -6,7 +6,7 @@ import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   Item as GQLItem,
-  SchemaFiledType,
+  SchemaFieldType,
   useCreateItemMutation,
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -19,7 +19,8 @@ export default () => {
   const { currentModel, itemsData } = useContentHooks();
   const navigate = useNavigate();
   const { projectId, workspaceId, itemId } = useParams();
-  const [collapsed, collapse] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const t = useT();
 
   const handleNavigateToModel = useCallback(
@@ -42,7 +43,7 @@ export default () => {
         variables: {
           modelId: currentModel.id,
           schemaId: data.schemaId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -69,7 +70,7 @@ export default () => {
       const item = await updateItem({
         variables: {
           itemId: data.itemId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFiledType })),
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
         },
       });
       if (item.errors || !item.data?.updateItem) {
@@ -121,8 +122,10 @@ export default () => {
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
-    collapsed,
-    collapse,
+    collapsedModelMenu,
+    collapsedCommentsPanel,
+    collapseCommentsPanel,
+    collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,

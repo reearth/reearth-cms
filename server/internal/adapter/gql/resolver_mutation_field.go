@@ -21,7 +21,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type)
+	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type, input.Multiple)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		Name:         input.Title,
 		Description:  input.Description,
 		Key:          input.Key,
-		Multiple:     input.MultiValue,
+		Multiple:     input.Multiple,
 		Unique:       input.Unique,
 		Required:     input.Required,
 		DefaultValue: dv,
@@ -74,7 +74,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 
 	dbField := s.Field(fId)
 
-	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()))
+	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()), dbField.Multiple())
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		Name:         input.Title,
 		Description:  input.Description,
 		Key:          input.Key,
-		Multiple:     input.MultiValue,
+		Multiple:     input.Multiple,
 		Unique:       input.Unique,
 		Required:     input.Required,
 		DefaultValue: dv,

@@ -2,6 +2,8 @@ package value
 
 import (
 	"net/url"
+
+	"github.com/samber/lo"
 )
 
 const TypeURL Type = "url"
@@ -12,7 +14,7 @@ type URL = *url.URL
 
 func (p *propertyURL) ToValue(i any) (any, bool) {
 	if v, ok := i.(string); ok {
-		if u, err := url.Parse(v); err == nil {
+		if u, err := url.Parse(v); err == nil && u.String() != "" {
 			return u, true
 		}
 		return nil, false
@@ -37,7 +39,7 @@ func (*propertyURL) Validate(i any) bool {
 
 func (*propertyURL) Equal(v, w any) bool {
 	vv := v.(URL)
-	ww := v.(URL)
+	ww := w.(URL)
 	return vv.String() == ww.String()
 }
 
@@ -50,5 +52,18 @@ func (v *Value) ValueURL() (vv URL, ok bool) {
 		return
 	}
 	vv, ok = v.v.(URL)
+	return
+}
+
+func (m *Multiple) ValuesURL() (vv []URL, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (URL, bool) {
+		return v.ValueURL()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

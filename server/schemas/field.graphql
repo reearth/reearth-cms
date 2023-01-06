@@ -1,4 +1,4 @@
-enum SchemaFiledType {
+enum SchemaFieldType {
   Text
   TextArea
   RichText
@@ -17,13 +17,13 @@ type SchemaField {
   id: ID!
   modelId: ID!
   model: Model!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
   description: String
 
-  multiValue: Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
 
@@ -47,49 +47,49 @@ union SchemaFieldTypeProperty =
 
 
 type SchemaFieldText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldTextArea {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldRichText {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldMarkdown {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 type SchemaFieldAsset {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 type SchemaFieldDate {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 type SchemaFieldBool {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 type SchemaFieldSelect {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 type SchemaFieldTag {
   values: [String!]!
-  defaultValue: [String!]!
+  defaultValue: Any
 }
 
 type SchemaFieldInteger {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -99,55 +99,55 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
-  defaultValue: String
+  defaultValue: Any
 }
 
 # Inputs
 
 input SchemaFieldTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldTextAreaInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldRichTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaMarkdownTextInput {
-  defaultValue: String
+  defaultValue: Any
   maxLength: Int
 }
 
 input SchemaFieldAssetInput {
-  defaultValue: ID
+  defaultValue: Any
 }
 
 input SchemaFieldDateInput {
-  defaultValue: DateTime
+  defaultValue: Any
 }
 
 input SchemaFieldBoolInput {
-  defaultValue: Boolean
+  defaultValue: Any
 }
 
 input SchemaFieldSelectInput {
   values: [String!]!
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTagInput {
   values: [String!]!
-  defaultValue: [String!]
+  defaultValue: Any
 }
 
 input SchemaFieldIntegerInput {
-  defaultValue: Int
+  defaultValue: Any
   min: Int
   max: Int
 }
@@ -157,7 +157,7 @@ input SchemaFieldReferenceInput {
 }
 
 input SchemaFieldURLInput {
-  defaultValue: String
+  defaultValue: Any
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -177,11 +177,11 @@ input SchemaFieldTypePropertyInput @onlyOne {
 
 input CreateFieldInput {
   modelId: ID!
-  type: SchemaFiledType!
+  type: SchemaFieldType!
   title: String!
   description: String
   key: String!
-  multiValue: Boolean!
+  multiple: Boolean!
   unique: Boolean!
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
@@ -195,7 +195,7 @@ input UpdateFieldInput {
   key: String
   required: Boolean
   unique: Boolean
-  multiValue: Boolean
+  multiple: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 

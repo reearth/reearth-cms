@@ -2,12 +2,11 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { FormItemProps, FormItemLabelProps } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -16,7 +15,7 @@ import useHooks from "./hooks";
 type Props = {
   assetList: Asset[];
   fileList: UploadFile[];
-  defaultValue?: string;
+  value?: string;
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
@@ -27,22 +26,18 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
-  onLink: (asset?: Asset) => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-} & FormItemProps &
-  FormItemLabelProps;
+  onChange?: (value: string) => void;
+  onNavigateToAsset: (asset: Asset) => void;
+};
 
 const AssetItem: React.FC<Props> = ({
-  name,
-  label,
-  extra,
-  rules,
   assetList,
   fileList,
-  defaultValue,
+  value,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -53,14 +48,14 @@ const AssetItem: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
-  onLink,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onChange,
+  onNavigateToAsset,
 }) => {
   const t = useT();
-  const { Item } = Form;
   const {
     visible,
     handleClick,
@@ -73,8 +68,8 @@ const AssetItem: React.FC<Props> = ({
     uploadType,
     onAssetsCreate,
     onAssetCreateFromUrl,
-    onLink,
     setUploadModalVisibility,
+    onChange,
   );
   const [assetValue, setAssetValue] = useState<Asset>();
 
@@ -84,7 +79,7 @@ const AssetItem: React.FC<Props> = ({
     maxCount: 1,
     directory: false,
     showUploadList: true,
-    accept: imageFormats + "," + fileFormats,
+    accept: acceptedFormats,
     listType: "picture",
     onRemove: _file => {
       setFileList([]);
@@ -97,18 +92,30 @@ const AssetItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    setAssetValue(assetList.find(asset => asset.id === defaultValue));
-  }, [defaultValue, assetList, setAssetValue]);
+    setAssetValue(assetList.find(asset => asset.id === value));
+  }, [value, assetList, setAssetValue]);
 
   return (
-    <Item name={name} label={label} extra={extra} rules={rules}>
+    <AssetWrapper>
       {assetValue ? (
-        <AssetButton onClick={handleClick}>
-          <div>
-            <Icon icon="folder" size={24} />
-            <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
-          </div>
-        </AssetButton>
+        <>
+          <AssetDetailsWrapper>
+            <AssetButton onClick={handleClick}>
+              <div>
+                <Icon icon="folder" size={24} />
+                <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
+              </div>
+            </AssetButton>
+            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(assetValue)}>
+              {assetValue.fileName}
+            </AssetLinkedName>
+          </AssetDetailsWrapper>
+          <AssetLink
+            type="link"
+            icon={<Icon icon="arrowSquareOut" size={20} />}
+            onClick={() => onNavigateToAsset(assetValue)}
+          />
+        </>
       ) : (
         <AssetButton onClick={handleClick}>
           <div>
@@ -131,14 +138,14 @@ const AssetItem: React.FC<Props> = ({
         uploadType={uploadType}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
-        onLink={onLink}
+        onChange={onChange}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
         onUploadModalCancel={onUploadModalCancel}
         onUploadAndLink={handleUploadAndLink}
       />
-    </Item>
+    </AssetWrapper>
   );
 };
 
@@ -146,6 +153,29 @@ const AssetButton = styled(Button)`
   width: 100px;
   height: 100px;
   border: 1px dashed #d9d9d9;
+`;
+
+const AssetWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const AssetLink = styled(Button)`
+  color: #000000d9;
+  margin-top: 4px;
+  top: 3px;
+`;
+
+const AssetLinkedName = styled(Button)`
+  color: #1890ff;
+  margin-left: 12px;
+`;
+
+const AssetDetailsWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 export default AssetItem;

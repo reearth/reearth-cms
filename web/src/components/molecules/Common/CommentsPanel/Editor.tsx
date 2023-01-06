@@ -10,9 +10,10 @@ const { TextArea } = Input;
 
 type EditorProps = {
   onCommentCreate: (content: string) => Promise<void>;
+  disabled: boolean;
 };
 
-const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
+const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const t = useT();
@@ -25,17 +26,21 @@ const Editor: React.FC<EditorProps> = ({ onCommentCreate }) => {
       form.resetFields();
       setSubmitting(false);
     } catch (info) {
+      setSubmitting(false);
       console.log("Validate Failed:", info);
+    } finally {
+      setSubmitting(false);
     }
   }, [form, onCommentCreate]);
 
   return (
     <StyledForm form={form} layout="vertical">
       <Form.Item name="content">
-        <TextArea rows={4} maxLength={100} showCount autoSize />
+        <TextArea rows={4} maxLength={1000} showCount autoSize />
       </Form.Item>
       <StyledFormItem>
         <Button
+          disabled={disabled}
           htmlType="submit"
           loading={submitting}
           onClick={handleSubmit}

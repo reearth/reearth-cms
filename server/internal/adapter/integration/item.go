@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -23,8 +24,13 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, err
 	}
 
+	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	if err != nil {
+		return ItemFilter400Response{}, err
+	}
+
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, m.Schema(), p, op)
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, ss.ID(), p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilter404Response{}, err
@@ -33,7 +39,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 	}
 
 	return ItemFilter200JSONResponse{
-		Items:      lo.ToPtr(util.Map(items, integrationapi.NewVersionedItem)),
+		Items:      lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem { return integrationapi.NewVersionedItem(i, ss) })),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
@@ -56,6 +62,11 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return nil, err
 	}
 
+	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	if err != nil {
+		return ItemCreate400Response{}, err
+	}
+
 	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
 	for _, f := range *request.Body.Fields {
 		var v any
@@ -71,7 +82,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	}
 
 	cp := interfaces.CreateItemParam{
-		SchemaID: m.Schema(),
+		SchemaID: ss.ID(),
 		Fields:   fields,
 		ModelID:  m.ID(),
 	}
@@ -81,7 +92,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i)), nil
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -92,6 +103,16 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, errors.New("missing fields")
 	}
 
+	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
 	up := interfaces.UpdateItemParam{
 		ItemID: request.ItemId,
 		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
@@ -99,7 +120,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		}),
 	}
 
-	i, err := uc.Item.Update(ctx, up, op)
+	i, err = uc.Item.Update(ctx, up, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemUpdate400Response{}, err
@@ -107,7 +128,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i)), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -138,5 +159,10 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return nil, err
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i)), nil
+	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
+	if err != nil {
+		return ItemGet400Response{}, err
+	}
+
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
 }

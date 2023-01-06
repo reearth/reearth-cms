@@ -2,6 +2,7 @@ package value
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 const TypeAsset Type = "asset"
@@ -36,7 +37,7 @@ func (*propertyAsset) Validate(i any) bool {
 
 func (*propertyAsset) Equal(v, w any) bool {
 	vv := v.(Asset)
-	ww := v.(Asset)
+	ww := w.(Asset)
 	return vv == ww
 }
 
@@ -50,4 +51,17 @@ func (v *Value) ValueAsset() (vv Asset, ok bool) {
 	}
 	vv, ok = v.v.(Asset)
 	return
+}
+
+func (m *Multiple) ValuesAsset() (vv []Asset, ok bool) {
+	if m == nil {
+		return nil, false
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Asset, bool) {
+		return v.ValueAsset()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
+	return vv, true
 }

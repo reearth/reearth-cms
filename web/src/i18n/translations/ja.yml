@@ -1,4 +1,4 @@
-Download: ''
+Download: 'ダウンロード'
 Loading: ローディング中
 Oops!: ''
 PAGE NOT FOUND ON SERVER: ''
@@ -19,46 +19,53 @@ Auto: ''
 Service Language: ''
 This will change the UI language: ''
 Language: ''
-Asset Type: ''
-Created Time: ''
-Created By: ''
+Asset Type: 'アセットの種類'
+Created Time: '作成日時'
+Created By: '作成者'
 Asset: アセット
-Source Code: ''
-Render: ''
+Source Code: 'ソースコード'
+Render: 'レンダー'
 PNG/JPEG/TIFF/SVG: ''
 JSON/SHAPEFILE/KML/CZML: ''
 GEO3D: ''
 MODEL3D/GLB: ''
-Unknown Type: ''
-Could not display svg: ''
-Not supported: ''
-File: ''
-Size: ''
-Preview Type: ''
-Created At: ''
+Unknown Type: '不明'
+Could not display svg: 'svgを表示できませんでした。'
+Decompressing...: '解凍中'
+Failed to decompress. Please check the file and try again.: '解凍に失敗しました。 ファイルを確認して、もう一度お試しください。'
+Not supported: 'プレビュー対応していないデータフォーマットです。'
+Decompressed: '解凍完了'
+Failed: '失敗'
+Decompressing: '解凍中'
+File: 'ファイル'
+Size: 'サイズ'
+Preview Type: 'プレビュータイプ'
+Status: 'ステータス'
+Created At: '作成日時'
 ID: ''
-Deselect: ''
+Deselect: '選択解除'
 Delete: 削除
-Upload Asset: ''
-Click or drag files to this area to upload: ''
-Single or multiple file upload is supported: ''
-Asset Uploader: ''
-Local: ''
+Upload Asset: 'アセットをアップロード'
+Click or drag files to this area to upload: 'このエリアにファイルをクリックまたはドラッグしてアップロードします'
+Single or multiple file upload is supported: '複数のファイルのアップロードが可能です。'
+Asset Uploader: 'アセットアップローダー'
+Local: 'ローカル'
 URL: ''
 Cancel: キャンセル
-Uploading: ''
-Upload and Link: ''
-Upload: ''
-Please input the URL of the asset!: ''
-Please input a valid URL: ''
-Comment: ''
-Comments: ''
+Uploading: 'アップロード中'
+Upload and Link: 'アップロードとリンク'
+Upload: 'アップロード'
+Please input the URL of the asset!: 'アセットのURLを入力してください!'
+Please input a valid URL: '有効なURLを入力してください'
+Comment: 'コメント'
+Comments: 'コメント'
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
-Link Asset: ''
+Link Asset: 'アセットをリンク'
+New: 追加
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project description: プロジェクト概要
@@ -92,6 +99,7 @@ Please input the appropriate role for this integration!: このインテグレ�
 select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
+Maintainer: ''
 Name: 名前
 Creator: 作成者
 No Integration yet: まだインテグレーションはありません
@@ -154,12 +162,11 @@ Save changes: 変更を保存
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
-Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
+Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: ''
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
 Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
 Option value: オプションの値
-New: 追加
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
 Prevents saving an entry if this field is empty: このフィールドを必須項目とします
@@ -169,6 +176,7 @@ Set field as unique: ユニーク制約
 Default value: デフォルト値
 Set default value: デフォルト値を設定
 Default value must be a valid URL and start with 'http://' or 'https://'.: ''
+Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.: ''
 Validation: バリデーション
 Ensures that multiple entries can't have the same value for this field: ''
 Set maximum length: 最大長
@@ -179,7 +187,7 @@ Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
 Model description: モデル概要
 Model key: モデルキー
-Model key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.: ''
+Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: ''
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
@@ -195,17 +203,19 @@ Failed to update language.: ''
 Successfully updated language!: ''
 Failed to delete user.: ''
 Successfully deleted user!: ''
-Failed to update asset.: ''
-Asset was successfully updated!: ''
-Failed to add one or more assets.: ''
-Successfully added one or more assets!: ''
-Successfully added asset!: ''
-Failed to add asset.: ''
-Failed to delete one or more assets.: ''
-One or more assets were successfully deleted!: ''
+Failed to update asset.: 'アセットの更新に失敗しました。'
+Asset was successfully updated!: 'アセットの更新に成功しました。'
+Failed to add one or more assets.: 'アセットの追加に失敗しました。'
+Successfully added one or more assets!: 'アセットの追加に成功しました。'
+Successfully added asset!: 'アセットの追加に成功しました。'
+Failed to add asset.: 'アセットを追加に失敗しました。'
+Failed to delete one or more assets.: 'アセットの削除に失敗しました。'
+One or more assets were successfully deleted!: 'アセットの削除に成功しました。'
+No comments.: 'コメントはありません。'
+Please click the comment bubble in the table to check comments.: 'コメントを確認するには、表のコメントアイコンををクリックしてください。'
 Successfully created workspace!: ''
-Failed to create comment.: ''
-Successfully created comment!: ''
+Failed to create comment.: 'コメントの作成に失敗しました。'
+Successfully created comment!: 'コメントが作成に成功しました。'
 Failed to create item.: ''
 Successfully created Item!: ''
 Failed to update item.: ''

@@ -7,11 +7,12 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import { fileFormats, imageFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 
 export type UploadType = "local" | "url";
 
 type Props = {
+  commentsPanel?: JSX.Element;
   assetList: Asset[];
   assetsPerPage: number | undefined;
   fileList: UploadFile[];
@@ -23,6 +24,8 @@ type Props = {
   loading: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  selectedAsset: Asset | undefined;
+  onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -38,6 +41,7 @@ type Props = {
 };
 
 const AssetList: React.FC<Props> = ({
+  commentsPanel,
   assetList,
   assetsPerPage,
   fileList,
@@ -47,6 +51,8 @@ const AssetList: React.FC<Props> = ({
   loading,
   uploadUrl,
   uploadType,
+  selectedAsset,
+  onAssetSelect,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -77,7 +83,7 @@ const AssetList: React.FC<Props> = ({
     multiple: true,
     directory: false,
     showUploadList: true,
-    accept: imageFormats + "," + fileFormats,
+    accept: acceptedFormats,
     listType: "picture",
     onRemove: file => {
       const index = fileList.indexOf(file);
@@ -119,6 +125,8 @@ const AssetList: React.FC<Props> = ({
             assetsPerPage={assetsPerPage}
             selection={selection}
             loading={loading}
+            selectedAsset={selectedAsset}
+            onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
             setSelection={setSelection}
@@ -127,6 +135,7 @@ const AssetList: React.FC<Props> = ({
           />
         </Wrapper>
       }
+      right={commentsPanel}
     />
   );
 };

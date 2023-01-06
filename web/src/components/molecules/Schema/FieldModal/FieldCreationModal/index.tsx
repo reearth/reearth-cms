@@ -23,7 +23,7 @@ export type FormValues = {
   title: string;
   description: string;
   key: string;
-  multiValue: boolean;
+  multiple: boolean;
   unique: boolean;
   required: boolean;
   type: FieldType;
@@ -52,13 +52,14 @@ export type Props = {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
-  multiValue: false,
+  multiple: false,
   unique: false,
   required: false,
   type: "Text",
@@ -87,15 +88,15 @@ const FieldCreationModal: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [assetValue, setAssetValue] = useState<string>();
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
-  const defaultValue: string = Form.useWatch("defaultValue", form);
+  const multipleValue: boolean = Form.useWatch("multiple", form);
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -103,6 +104,12 @@ const FieldCreationModal: React.FC<Props> = ({
     },
     [setActiveTab],
   );
+
+  useEffect(() => {
+    if (selectedType === "Asset" || selectedType === "Select") {
+      form.setFieldValue("defaultValue", null);
+    }
+  }, [form, selectedType, multipleValue]);
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -113,12 +120,6 @@ const FieldCreationModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
-
-  useEffect(() => {
-    if (selectedType === "Asset") {
-      setAssetValue(defaultValue);
-    }
-  }, [selectedType, defaultValue]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -147,7 +148,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: +values.defaultValue, min: +values.min, max: +values.max },
+            integer: { defaultValue: values.defaultValue, min: +values.min, max: +values.max },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
@@ -167,14 +168,6 @@ const FieldCreationModal: React.FC<Props> = ({
     form.resetFields();
     setActiveTab("settings");
   }, [form]);
-
-  const handleLinkAsset = useCallback(
-    (_asset?: Asset) => {
-      form.setFieldValue("defaultValue", _asset?.id ?? "");
-      setAssetValue(_asset?.id);
-    },
-    [form],
-  );
 
   return (
     <Modal
@@ -226,7 +219,7 @@ const FieldCreationModal: React.FC<Props> = ({
               name="key"
               label="Field Key"
               extra={t(
-                "Field key must be unique and at least 5 characters long. It can only contain letters, numbers, underscores and dashes.",
+                "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
               )}
               rules={[
                 {
@@ -299,7 +292,7 @@ const FieldCreationModal: React.FC<Props> = ({
               </>
             )}
             <Form.Item
-              name="multiValue"
+              name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
@@ -322,10 +315,10 @@ const FieldCreationModal: React.FC<Props> = ({
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
+              multiple={multipleValue}
               selectedValues={selectedValues}
               selectedType={selectedType}
               assetList={assetList}
-              defaultValue={assetValue}
               fileList={fileList}
               loadingAssets={loadingAssets}
               uploading={uploading}
@@ -339,9 +332,9 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsReload={onAssetsReload}
-              onLink={handleLinkAsset}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
+              onNavigateToAsset={onNavigateToAsset}
             />
           </TabPane>
         </Tabs>

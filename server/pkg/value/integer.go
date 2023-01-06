@@ -5,6 +5,8 @@ import (
 	"math"
 	"strconv"
 	"time"
+
+	"github.com/samber/lo"
 )
 
 const TypeInteger Type = "integer"
@@ -150,11 +152,11 @@ func (*propertyInteger) Validate(i any) bool {
 
 func (*propertyInteger) Equal(v, w any) bool {
 	vv := v.(Integer)
-	ww := v.(Integer)
+	ww := w.(Integer)
 	return vv == ww
 }
 
-func (*propertyInteger) IsEmpty(v any) bool {
+func (*propertyInteger) IsEmpty(_ any) bool {
 	return false
 }
 
@@ -163,5 +165,18 @@ func (v *Value) ValueInteger() (vv Integer, ok bool) {
 		return
 	}
 	vv, ok = v.v.(Integer)
+	return
+}
+
+func (m *Multiple) ValuesInteger() (vv []Integer, ok bool) {
+	if m == nil {
+		return
+	}
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Integer, bool) {
+		return v.ValueInteger()
+	})
+	if len(vv) != len(m.v) {
+		return nil, false
+	}
 	return
 }

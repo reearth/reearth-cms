@@ -125,7 +125,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(pid).
 		Fields([]*item.Field{
-			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
+			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple()),
 		}).
 		Thread(id.NewThreadID()).
 		MustBuild()
@@ -136,7 +136,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(pid).
 		Fields([]*item.Field{
-			item.NewField(sf1.ID(), value.TypeBool.Value(true).Some()),
+			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple()),
 		}).
 		Thread(id.NewThreadID()).
 		MustBuild()
@@ -412,8 +412,8 @@ func TestItem_Search(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").Some())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").Some())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
 	i1 := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
@@ -562,7 +562,7 @@ func TestItem_Create(t *testing.T) {
 	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item, it)
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
@@ -630,12 +630,14 @@ func TestItem_Update(t *testing.T) {
 	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
 	i := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
 	lo.Must0(db.Schema.Save(ctx, s))
 	lo.Must0(db.Model.Save(ctx, m))
 	lo.Must0(db.Item.Save(ctx, i))
+	lo.Must0(db.Item.Save(ctx, i2))
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
 
@@ -663,7 +665,7 @@ func TestItem_Update(t *testing.T) {
 	it, err := db.Item.FindByID(ctx, item.Value().ID(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.Value(), it.Value())
-	assert.Equal(t, value.TypeText.Value("xxx"), it.Value().Field(sf.ID()).Value().Value())
+	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -679,9 +681,24 @@ func TestItem_Update(t *testing.T) {
 	assert.ErrorContains(t, err, "it sholud be shorter than 10")
 	assert.Nil(t, item)
 
-	// duplicated
+	// update same item is not a duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx", // duplicated
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, i.ID(), item.Value().ID())
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	// duplicate
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i2.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID(),

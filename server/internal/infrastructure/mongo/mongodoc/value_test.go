@@ -16,7 +16,7 @@ func TestNewValue(t *testing.T) {
 }
 
 func TestNewOptionalValue(t *testing.T) {
-	assert.Nil(t, NewValue(nil))
+	assert.Nil(t, NewOptionalValue(nil))
 	assert.Equal(t, &ValueDocument{
 		T: "bool",
 	}, NewOptionalValue(value.TypeBool.None()))
@@ -24,4 +24,16 @@ func TestNewOptionalValue(t *testing.T) {
 		T: "bool",
 		V: true,
 	}, NewOptionalValue(value.TypeBool.Value(true).Some()))
+}
+
+func TestNewMultipleValue(t *testing.T) {
+	assert.Nil(t, NewMultipleValue(nil))
+	assert.Equal(t, &ValueDocument{
+		T: "bool",
+		V: []any{},
+	}, NewMultipleValue(value.MultipleFrom(value.TypeBool, nil)))
+	assert.Equal(t, &ValueDocument{
+		T: "bool",
+		V: []any{true},
+	}, NewMultipleValue(value.MultipleFrom(value.TypeBool, []*value.Value{value.TypeBool.Value(true)})))
 }

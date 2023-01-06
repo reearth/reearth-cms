@@ -76,7 +76,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Multiple:     f.Multiple(),
 			Required:     f.Required(),
 			UpdatedAt:    f.UpdatedAt(),
-			DefaultValue: NewValue(f.DefaultValue()),
+			DefaultValue: NewMultipleValue(f.DefaultValue()),
 			TypeProperty: TypePropertyDocument{
 				Type: string(f.Type()),
 			},
@@ -210,7 +210,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).
-			DefaultValue(fd.DefaultValue.Value()).
+			DefaultValue(fd.DefaultValue.MultipleValue()).
 			Build()
 	})
 	if err != nil {

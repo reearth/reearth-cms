@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -32,15 +33,15 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 	}
 }
 
-func (i Item) FindByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
 	return i.repos.Item.FindByID(ctx, itemID, nil)
 }
 
-func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
 	return i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
 }
 
-func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
@@ -63,7 +64,7 @@ func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.P
 	return i.repos.Item.FindByModel(ctx, m.ID(), nil, p)
 }
 
-func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
 		return nil, nil, err
@@ -72,22 +73,22 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	sfids := s.Fields().IDs()
+	sfIds := s.Fields().IDs()
 	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, p)
-	return res.FilterFields(sfids), page, err
+	return res.FilterFields(sfIds), page, err
 }
 
-func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.VersionedList, error) {
+func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	return i.repos.Item.Search(ctx, q, p)
 }
 
@@ -111,7 +112,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, param.ModelID); err != nil {
+		if err := i.checkUnique(ctx, fields, s, param.ModelID, nil); err != nil {
 			return nil, err
 		}
 
@@ -199,7 +200,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, itv.Model()); err != nil {
+		if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
 			return nil, err
 		}
 
@@ -244,22 +245,29 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	})
 }
 
-func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID) error {
+func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {
+		if itm != nil {
+			oldF := itm.Field(f.FieldID())
+			if oldF != nil && f.Value().Equal(oldF.Value()) {
+				continue
+			}
+		}
+
 		sf := s.Field(f.FieldID())
 		if sf == nil {
 			return interfaces.ErrInvalidField
 		}
 
-		vv := f.Value().Value()
-		if !sf.Unique() || vv.IsEmpty() {
+		newV := f.Value()
+		if !sf.Unique() || newV.IsEmpty() {
 			continue
 		}
 
 		fieldsArg = append(fieldsArg, repo.FieldAndValue{
 			Field: f.FieldID(),
-			Value: vv,
+			Value: newV,
 		})
 	}
 
@@ -282,18 +290,23 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		v := sf.Type().Value(f.Value)
-		if v == nil {
+		if !sf.Multiple() {
+			f.Value = []any{f.Value}
+		}
+
+		as, ok := f.Value.([]any)
+		if !ok {
 			return nil, interfaces.ErrInvalidValue
 		}
 
-		if err := sf.Validate(v); err != nil {
+		m := value.NewMultiple(sf.Type(), as)
+		if err := sf.Validate(m); err != nil {
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
 		return item.NewField(
 			f.Field,
-			v.Some(),
+			m,
 		), nil
 	})
 }

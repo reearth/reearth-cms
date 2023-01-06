@@ -186,3 +186,15 @@ var TaskIDListFrom = idx.ListFrom[Task]
 type TaskIDSet = idx.Set[Task]
 
 var NewTaskIDSet = idx.NewSet[Task]
+
+type Request struct{}
+
+func (Request) Type() string { return "request" }
+
+type RequestID = idx.ID[Request]
+type RequestIDList = idx.List[Request]
+
+var NewRequestID = idx.New[Request]
+var MustRequestID = idx.Must[Request]
+var RequestIDFrom = idx.From[Request]
+var RequestIDFromRef = idx.FromRef[Request]

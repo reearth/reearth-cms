@@ -33,6 +33,13 @@ func (v *Value) Some() *Optional {
 	return OptionalFrom(v)
 }
 
+func (v *Value) AsMultiple() *Multiple {
+	if v == nil {
+		return nil
+	}
+	return MultipleFrom(v.t, []*Value{v})
+}
+
 func (v *Value) Value() interface{} {
 	if v == nil {
 		return nil
