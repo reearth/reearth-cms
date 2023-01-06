@@ -46,7 +46,17 @@ func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, op
 }
 
 func (i Model) FindByIDOrKey(ctx context.Context, q string, operator *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByIDOrKey(ctx, id.ModelIDFromRef(&q), lo.ToPtr(key.New(q)), operator.AllReadableProjects())
+	if q == "" {
+		return nil, errors.New("invalid key")
+	}
+
+	var k *key.Key
+	mid := id.ModelIDFromRef(&q)
+	if mid == nil {
+		k = lo.ToPtr(key.New(q))
+	}
+
+	return i.repos.Model.FindByIDOrKey(ctx, mid, k, operator.AllReadableProjects())
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
