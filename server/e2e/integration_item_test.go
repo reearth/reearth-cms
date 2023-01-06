@@ -33,7 +33,9 @@ var (
 	fId    = id.NewFieldID()
 	thId   = id.NewThreadID()
 	icId   = id.NewCommentID()
+	ikey   = key.Random()
 	pid    = id.NewProjectID()
+	sfKey  = key.Random()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -76,7 +78,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).RandomKey().MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	s := schema.New().NewID().
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -91,7 +93,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("m1").
 		Description("m1 desc").
 		Public(true).
-		Key(key.Random()).
+		Key(ikey).
 		Project(p.ID()).
 		Schema(s.ID()).
 		MustBuild()
@@ -158,15 +160,54 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/models/{modelId}/items", mId).
+	obj := e.GET("/api/models/{modelId}/items", mId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().Keys().
-		Contains("items", "page", "perPage", "totalCount")
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a := obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// key can be also acceptable
+	obj = e.GET("/api/models/{modelId}/items", ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// invalid key
+	e.GET("/api/models/{modelId}/items", "xxx").
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusNotFound)
 }
 
 // Post|/models/{modelId}/items/{itemId}
@@ -208,11 +249,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Object()
 	r.Keys().
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]interface{}{
+	r.Value("fields").Equal([]any{
 		map[string]string{
 			"id":    fId.String(),
 			"type":  "text",
 			"value": "test value",
+			"key":   sfKey.String(),
 		},
 	})
 	r.Value("modelId").Equal(mId.String())
@@ -263,6 +305,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			"id":    fId.String(),
 			"type":  "text",
 			"value": "test value",
+			"key":   sfKey.String(),
 		},
 	})
 	r.Value("modelId").Equal(mId.String())
