@@ -725,6 +725,8 @@ components:
         type:
           $ref: '#/components/schemas/valueType'
         value: {}
+        key:
+          type: string
     refOrVersion:
       type: object
       properties:

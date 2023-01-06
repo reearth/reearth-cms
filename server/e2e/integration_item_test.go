@@ -35,6 +35,7 @@ var (
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	pid    = id.NewProjectID()
+	sfKey  = key.Random()
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -77,7 +78,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).RandomKey().MustBuild()
+	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	s := schema.New().NewID().
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -248,11 +249,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Object()
 	r.Keys().
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]interface{}{
+	r.Value("fields").Equal([]any{
 		map[string]string{
 			"id":    fId.String(),
 			"type":  "text",
 			"value": "test value",
+			"key":   sfKey.String(),
 		},
 	})
 	r.Value("modelId").Equal(mId.String())
@@ -303,6 +305,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			"id":    fId.String(),
 			"type":  "text",
 			"value": "test value",
+			"key":   sfKey.String(),
 		},
 	})
 	r.Value("modelId").Equal(mId.String())
