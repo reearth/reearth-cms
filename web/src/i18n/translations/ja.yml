@@ -231,6 +231,10 @@ Please click the comment bubble in the table to check comments.: コメントを
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントが作成に成功しました。
+Failed to update comment.: ''
+Successfully updated comment!: ''
+Failed to delete comment.: ''
+Successfully deleted comment!: ''
 Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
