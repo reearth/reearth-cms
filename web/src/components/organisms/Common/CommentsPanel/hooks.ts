@@ -1,7 +1,13 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { useAddCommentMutation, useDeleteCommentMutation, useUpdateCommentMutation } from "@reearth-cms/gql/graphql-client-api";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import {
+  useAddCommentMutation,
+  useDeleteCommentMutation,
+  useGetMeQuery,
+  useUpdateCommentMutation,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 type Params = {
@@ -10,6 +16,19 @@ type Params = {
 
 export default ({ threadId }: Params) => {
   const t = useT();
+
+  const { data: userData } = useGetMeQuery();
+
+  const me: User | undefined = useMemo(() => {
+    return userData?.me
+      ? {
+          id: userData.me.id,
+          name: userData.me.name,
+          lang: userData.me.lang,
+          email: userData.me.email,
+        }
+      : undefined;
+  }, [userData]);
 
   const [createComment] = useAddCommentMutation({
     refetchQueries: ["GetAsset", "GetAssets", "GetItems", "GetRequests"],
@@ -44,7 +63,7 @@ export default ({ threadId }: Params) => {
         variables: {
           threadId,
           commentId,
-          content
+          content,
         },
       });
       if (comment.errors || !comment.data?.updateComment) {
@@ -66,7 +85,7 @@ export default ({ threadId }: Params) => {
       const comment = await deleteComment({
         variables: {
           threadId,
-          commentId
+          commentId,
         },
       });
       if (comment.errors || !comment.data?.deleteComment) {
@@ -78,10 +97,10 @@ export default ({ threadId }: Params) => {
     [deleteComment, threadId, t],
   );
 
-
   return {
+    me,
     handleCommentCreate,
     handleCommentUpdate,
-    handleCommentDelete
+    handleCommentDelete,
   };
 };

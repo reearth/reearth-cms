@@ -8,7 +8,7 @@ type Props = {
   comments: Comment[];
 };
 
-export const RequestCommentList: React.FC<Props> = ({ comments }: { comments: Comment[] }) => (
+export const RequestCommentList: React.FC<Props> = ({ comments }) => (
   <StyledListWrapper>
     <List
       dataSource={comments}

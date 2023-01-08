@@ -21,9 +21,9 @@ const ThreadCommentMolecule: React.FC<Props> = ({ comment }) => {
 
   return (
     <StyledAntDComment
-      author={<a>{comment.author}</a>}
+      author={<a>{comment.author.name}</a>}
       avatar={
-        comment.authorType === "Integration" ? (
+        comment.author.type === "Integration" ? (
           <Badge
             count={
               <Icon
@@ -34,10 +34,10 @@ const ThreadCommentMolecule: React.FC<Props> = ({ comment }) => {
               />
             }
             offset={[0, 24]}>
-            <UserAvatar username={comment.author} />
+            <UserAvatar username={comment.author.name} />
           </Badge>
         ) : (
-          <UserAvatar username={comment.author} />
+          <UserAvatar username={comment.author.name} />
         )
       }
       content={<>{comment.content}</>}

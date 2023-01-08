@@ -38,6 +38,7 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   CheckCircleFilled,
+  CheckOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -107,4 +108,5 @@ export default {
   arrowDown: ArrowDownOutlined,
   arrowSquareOut: ArrowSquareOut,
   checkCircle: CheckCircleFilled,
+  check: CheckOutlined,
 };
