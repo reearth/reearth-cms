@@ -16,6 +16,8 @@ export type Props = {
   emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
   onItemEdit: (itemId: string, modelId?: string) => void;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -24,6 +26,8 @@ const RequestThread: React.FC<Props> = ({
   emptyText,
   onCommentCreate,
   onItemEdit,
+  onCommentUpdate,
+  onCommentDelete,
 }) => {
   return (
     <ContentWrapper>
@@ -31,7 +35,12 @@ const RequestThread: React.FC<Props> = ({
         <CommentsContainer>
           <RequestDescription onItemEdit={onItemEdit} currentRequest={currentRequest} />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
-            <RequestCommentList comments={currentRequest.comments} />
+            <RequestCommentList
+              me={me}
+              comments={currentRequest.comments}
+              onCommentUpdate={onCommentUpdate}
+              onCommentDelete={onCommentDelete}
+            />
           )}
         </CommentsContainer>
         <StyledRequestStatus

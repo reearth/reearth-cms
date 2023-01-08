@@ -18,6 +18,8 @@ type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
   onItemEdit: (itemId: string, modelId?: string) => void;
   onBack: () => void;
 };
@@ -27,6 +29,8 @@ const RequestMolecule: React.FC<Props> = ({
   currentRequest,
   workspaceUserMembers,
   onCommentCreate,
+  onCommentUpdate,
+  onCommentDelete,
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
@@ -62,6 +66,8 @@ const RequestMolecule: React.FC<Props> = ({
             me={me}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
+            onCommentUpdate={onCommentUpdate}
+            onCommentDelete={onCommentDelete}
             onItemEdit={onItemEdit}
           />
         </ThreadWrapper>

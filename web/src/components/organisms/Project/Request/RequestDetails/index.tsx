@@ -10,6 +10,8 @@ const RequestDetails: React.FC = () => {
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
+    handleCommentUpdate,
+    handleCommentDelete,
     handleNavigateToRequestsList,
     handleNavigateToItemEditForm,
   } = useHooks();
@@ -25,6 +27,8 @@ const RequestDetails: React.FC = () => {
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
       onCommentCreate={handleCommentCreate}
+      onCommentUpdate={handleCommentUpdate}
+      onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
       onItemEdit={handleNavigateToItemEditForm}
     />
