@@ -58,6 +58,8 @@ export default ({ threadId }: Params) => {
 
   const handleCommentUpdate = useCallback(
     async (commentId: string, content: string) => {
+      console.log(content);
+
       if (!threadId) return;
       const comment = await updateComment({
         variables: {
