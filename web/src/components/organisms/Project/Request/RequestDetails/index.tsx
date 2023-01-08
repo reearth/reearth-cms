@@ -6,6 +6,8 @@ import useHooks from "./hooks";
 const RequestDetails: React.FC = () => {
   const {
     me,
+    isCloseActionEnabled,
+    isApproveActionEnabled,
     currentRequest,
     handleRequestApprove,
     handleRequestDelete,
@@ -19,6 +21,8 @@ const RequestDetails: React.FC = () => {
   return (
     <RequestDetailsMolecule
       me={me}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
       onRequestApprove={handleRequestApprove}

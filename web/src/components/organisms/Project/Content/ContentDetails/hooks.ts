@@ -116,8 +116,6 @@ export default () => {
     [updateItem, t],
   );
 
-  // handleAddItemToRequest
-
   const currentItem: Item | undefined = useMemo(
     () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
     [itemId, itemsData?.items.nodes],

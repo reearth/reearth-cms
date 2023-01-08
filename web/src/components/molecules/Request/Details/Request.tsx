@@ -12,6 +12,8 @@ import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
   me?: User;
+  isCloseActionEnabled: boolean;
+  isApproveActionEnabled: boolean;
   currentRequest: Request;
   workspaceUserMembers: Member[];
   onRequestApprove: (requestId: string) => Promise<void>;
@@ -24,6 +26,8 @@ type Props = {
 
 const RequestMolecule: React.FC<Props> = ({
   me,
+  isCloseActionEnabled,
+  isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
   onCommentCreate,
@@ -43,12 +47,25 @@ const RequestMolecule: React.FC<Props> = ({
         extra={
           <>
             <Button
-              disabled={currentRequest.state === "CLOSED" || currentRequest.state === "APPROVED"}
+              disabled={!isCloseActionEnabled}
               onClick={() => onRequestDelete([currentRequest.id])}>
               {t("Close")}
             </Button>
             <Button
-              disabled={currentRequest.state !== "WAITING"}
+              hidden={currentRequest.state !== "CLOSED"}
+              onClick={() =>
+                onRequestUpdate({
+                  requestId: currentRequest.id,
+                  title: currentRequest?.title,
+                  description: currentRequest?.description,
+                  reviewersId: currentRequest.reviewers.map(reviewer => reviewer.id),
+                  state: "WAITING",
+                })
+              }>
+              {t("Reopen")}
+            </Button>
+            <Button
+              disabled={!isApproveActionEnabled}
               type="primary"
               onClick={() => onRequestApprove(currentRequest.id)}>
               {t("Approve")}
