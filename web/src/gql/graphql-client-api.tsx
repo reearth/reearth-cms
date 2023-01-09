@@ -1028,6 +1028,7 @@ export type SchemaField = {
   model: Model;
   modelId: Scalars['ID'];
   multiple: Scalars['Boolean'];
+  order: Scalars['Int'];
   required: Scalars['Boolean'];
   title: Scalars['String'];
   type: SchemaFieldType;
@@ -1233,6 +1234,7 @@ export type UpdateFieldInput = {
   key?: InputMaybe<Scalars['String']>;
   modelId: Scalars['ID'];
   multiple?: InputMaybe<Scalars['Boolean']>;
+  order?: InputMaybe<Scalars['Int']>;
   required?: InputMaybe<Scalars['Boolean']>;
   title?: InputMaybe<Scalars['String']>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
@@ -1516,6 +1518,7 @@ export type UpdateFieldMutationVariables = Exact<{
   fieldId: Scalars['ID'];
   title: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
+  order?: InputMaybe<Scalars['Int']>;
   key: Scalars['String'];
   multiple: Scalars['Boolean'];
   unique: Scalars['Boolean'];
@@ -1605,7 +1608,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order: number, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2541,9 +2544,9 @@ export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMuta
 export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
 export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
 export const UpdateFieldDocument = gql`
-    mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   updateField(
-    input: {modelId: $modelId, fieldId: $fieldId, title: $title, description: $description, key: $key, multiple: $multiple, unique: $unique, required: $required, typeProperty: $typeProperty}
+    input: {modelId: $modelId, fieldId: $fieldId, title: $title, description: $description, order: $order, key: $key, multiple: $multiple, unique: $unique, required: $required, typeProperty: $typeProperty}
   ) {
     field {
       id
@@ -2570,6 +2573,7 @@ export type UpdateFieldMutationFn = Apollo.MutationFunction<UpdateFieldMutation,
  *      fieldId: // value for 'fieldId'
  *      title: // value for 'title'
  *      description: // value for 'description'
+ *      order: // value for 'order'
  *      key: // value for 'key'
  *      multiple: // value for 'multiple'
  *      unique: // value for 'unique'
@@ -2940,6 +2944,7 @@ export const GetModelsDocument = gql`
           required
           unique
           multiple
+          order
           typeProperty {
             ... on SchemaFieldText {
               defaultValue

@@ -107,6 +107,60 @@ export default () => {
     [modelId, updateField, t],
   );
 
+  const handleFieldOrder = useCallback(
+    async (data: Field, order: number) => {
+      if (data.type === "Text") {
+        data.typeProperty = {
+          text: { ...data.typeProperty },
+        };
+      } else if (data.type === "TextArea") {
+        data.typeProperty = {
+          textArea: { ...data.typeProperty },
+        };
+      } else if (data.type === "MarkdownText") {
+        data.typeProperty = {
+          markdownText: { ...data.typeProperty },
+        };
+      } else if (data.type === "Asset") {
+        data.typeProperty = {
+          asset: { ...data.typeProperty },
+        };
+      } else if (data.type === "Select") {
+        data.typeProperty = {
+          select: { ...data.typeProperty },
+        };
+      } else if (data.type === "Integer") {
+        data.typeProperty = {
+          integer: {
+            ...data.typeProperty,
+          },
+        };
+      }
+      if (!modelId) return;
+      const field = await updateField({
+        variables: {
+          modelId,
+          fieldId: data.id,
+          title: data.title,
+          description: data.description,
+          key: data.key,
+          multiple: data.multiple,
+          unique: data.unique,
+          required: data.required,
+          typeProperty: data.typeProperty,
+          order,
+        },
+      });
+      if (field.errors || !field.data?.updateField) {
+        Notification.error({ message: t("Failed to update field.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated field!") });
+      setFieldUpdateModalShown(false);
+    },
+    [modelId, updateField, t],
+  );
+
   const handleFieldCreate = useCallback(
     async (data: {
       title: string;
@@ -183,6 +237,7 @@ export default () => {
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
+    handleFieldOrder,
     handleFieldDelete,
   };
 };

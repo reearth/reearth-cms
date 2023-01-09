@@ -13,6 +13,7 @@ export type Props = {
   model?: Model;
   modelsMenu?: JSX.Element;
   onCollapse?: (collapse: boolean) => void;
+  onFieldReorder: (data: Field, order: number) => Promise<void> | void;
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
@@ -23,6 +24,7 @@ const Schema: React.FC<Props> = ({
   model,
   modelsMenu,
   onCollapse,
+  onFieldReorder,
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
@@ -46,6 +48,7 @@ const Schema: React.FC<Props> = ({
             <ModelFieldList
               fields={model?.schema.fields}
               handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+              onFieldReorder={onFieldReorder}
               onFieldDelete={onFieldDelete}
             />
           </ModelFieldListWrapper>
