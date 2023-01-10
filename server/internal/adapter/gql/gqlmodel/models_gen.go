@@ -573,7 +573,7 @@ type SchemaField struct {
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
-	Order        int                     `json:"order"`
+	Order        *int                    `json:"order"`
 	Description  *string                 `json:"description"`
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`

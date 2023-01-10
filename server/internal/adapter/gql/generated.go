@@ -4020,7 +4020,7 @@ type SchemaField {
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
-  order: Int!
+  order: Int
   description: String
 
   multiple: Boolean!
@@ -18040,14 +18040,11 @@ func (ec *executionContext) _SchemaField_order(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -29488,9 +29485,6 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._SchemaField_order(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "description":
 
 			out.Values[i] = ec._SchemaField_description(ctx, field, obj)

@@ -36,7 +36,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty(), sf.DefaultValue(), sf.Multiple()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
-		Order:        sf.Order(),
+		Order:        lo.ToPtr(sf.Order()),
 		Description:  lo.ToPtr(sf.Description()),
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),

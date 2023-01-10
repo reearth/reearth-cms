@@ -21,7 +21,7 @@ type SchemaField {
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
-  order: Int!
+  order: Int
   description: String
 
   multiple: Boolean!
