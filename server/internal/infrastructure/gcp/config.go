@@ -9,6 +9,7 @@ type TaskConfig struct {
 	SubscriberURL string
 	Topic         string
 	GCSHost       string
+	Timeout       int64 `default:"1800"` // second
 }
 
 func (c *TaskConfig) buildQueueUrl() (string, error) {

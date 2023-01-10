@@ -2,10 +2,12 @@ package integration
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -15,6 +17,9 @@ func (s Server) ItemCommentList(ctx context.Context, request ItemCommentListRequ
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentList404Response{}, err
+		}
 		return ItemCommentList400Response{}, err
 	}
 
@@ -37,6 +42,9 @@ func (s Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreate
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentCreate404Response{}, err
+		}
 		return ItemCommentCreate400Response{}, err
 	}
 
@@ -55,6 +63,9 @@ func (s Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdate
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentUpdate404Response{}, err
+		}
 		return ItemCommentUpdate400Response{}, err
 	}
 
@@ -72,6 +83,9 @@ func (s Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelete
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemCommentDelete404Response{}, err
+		}
 		return ItemCommentDelete400Response{}, err
 	}
 
