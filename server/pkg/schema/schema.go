@@ -42,6 +42,7 @@ func (s *Schema) AddField(f *Field) {
 		return
 	}
 
+	f.order = s.Fields().Count() + 1
 	s.fields = append(s.fields, f)
 }
 
@@ -51,7 +52,8 @@ func (s *Schema) Field(fId FieldID) *Field {
 }
 
 func (s *Schema) Fields() FieldList {
-	return slices.Clone(s.fields)
+	var fl FieldList = slices.Clone(s.fields)
+	return fl.Ordered()
 }
 
 func (s *Schema) RemoveField(fid FieldID) {
