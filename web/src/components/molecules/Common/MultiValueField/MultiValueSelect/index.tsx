@@ -1,10 +1,9 @@
-import { PropertySafetyFilled } from "@ant-design/icons";
 import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
+import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
