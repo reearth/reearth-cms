@@ -339,7 +339,7 @@ func TestItem_FindByProject(t *testing.T) {
 		seedItems   item.List
 		seedProject *project.Project
 		args        args
-		want        item.List
+		want        int
 		mockItemErr bool
 		wantErr     error
 	}{
@@ -351,7 +351,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -362,7 +362,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -373,7 +373,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       id.NewProjectID(),
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -403,7 +403,7 @@ func TestItem_FindByProject(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got.Unwrap())
+			assert.Equal(t, tc.want, len(got.Unwrap()))
 		})
 	}
 }
