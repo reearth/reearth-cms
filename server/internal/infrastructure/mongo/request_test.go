@@ -205,14 +205,16 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
+	reviewer := id.NewUserID()
+	creator := id.NewUserID()
 	req1 := request.New().
 		NewID().
 		Workspace(id.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(creator).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
+		Reviewers(id.UserIDList{reviewer}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -269,6 +271,28 @@ func TestRequest_FindByProject(t *testing.T) {
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
 					State: &request.StateDraft,
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Reviewer: reviewer.Ref(),
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					CreatedBy: creator.Ref(),
 				},
 			},
 			want: 1,
