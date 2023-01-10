@@ -48,6 +48,7 @@ func TestToSchema(t *testing.T) {
 					ID:          IDFrom(fId),
 					Type:        "Text",
 					Description: lo.ToPtr(""),
+					Order:       lo.ToPtr(0),
 					TypeProperty: &SchemaFieldText{
 						DefaultValue: nil,
 						MaxLength:    nil,
