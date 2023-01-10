@@ -137,6 +137,7 @@ type CommentAuthorType string
 // Field defines model for field.
 type Field struct {
 	Id    *id.FieldID  `json:"id,omitempty"`
+	Key   *string      `json:"key,omitempty"`
 	Type  *ValueType   `json:"type,omitempty"`
 	Value *interface{} `json:"value,omitempty"`
 }
@@ -215,6 +216,9 @@ type CommentIdParam = id.CommentID
 
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
+
+// ModelIdOrKeyParam defines model for modelIdOrKeyParam.
+type ModelIdOrKeyParam = string
 
 // ModelIdParam defines model for modelIdParam.
 type ModelIdParam = id.ModelID

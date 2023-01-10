@@ -28,6 +28,7 @@ export default (assetId?: string) => {
   const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: assetId ?? "",
+      withFiles: true,
     },
   });
 
@@ -41,7 +42,7 @@ export default (assetId?: string) => {
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType: previewType as GQLPreviewType },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType, withFiles: false },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {

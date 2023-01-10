@@ -3,6 +3,7 @@ package key
 import (
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,6 +27,12 @@ func TestKey_IsValid(t *testing.T) {
 func TestKey_String(t *testing.T) {
 	assert.Equal(t, "aaaaaa", Key{key: "aaaaaa"}.String())
 	assert.Equal(t, "aaa", Key{key: "aaa"}.String())
+}
+
+func TestKey_StringRef(t *testing.T) {
+	assert.Equal(t, lo.ToPtr("aaaaaa"), (&Key{key: "aaaaaa"}).StringRef())
+	assert.Equal(t, lo.ToPtr("aaa"), (&Key{key: "aaa"}).StringRef())
+	assert.Nil(t, (*Key)(nil).StringRef())
 }
 
 func TestKey_Clone(t *testing.T) {

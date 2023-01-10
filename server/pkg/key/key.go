@@ -5,6 +5,7 @@ import (
 
 	"github.com/goombaio/namegenerator"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{1,32}$")
@@ -31,4 +32,11 @@ func (k Key) IsValid() bool {
 
 func (k Key) String() string {
 	return k.key
+}
+
+func (k *Key) StringRef() *string {
+	if k == nil {
+		return nil
+	}
+	return lo.ToPtr(k.key)
 }
