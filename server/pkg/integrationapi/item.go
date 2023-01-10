@@ -5,6 +5,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -43,6 +44,7 @@ func NewItem(i *item.Item, s *schema.Schema) Item {
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
 			Value: lo.ToPtr(ToValue(f.Value(), sf.Multiple())),
+			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 		}, true
 	})
 
