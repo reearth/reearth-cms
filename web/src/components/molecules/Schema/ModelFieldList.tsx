@@ -13,7 +13,7 @@ import { Field } from "./types";
 export interface Props {
   className?: string;
   fields?: Field[];
-  onFieldReorder: (data: Field, order: number) => Promise<void> | void;
+  onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
 }
@@ -52,7 +52,7 @@ const ModelFieldList: React.FC<Props> = ({
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-    onFieldReorder(removed, endIndex);
+    onFieldReorder(result);
     return result;
   };
 

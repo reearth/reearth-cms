@@ -13,7 +13,7 @@ export type Props = {
   model?: Model;
   modelsMenu?: JSX.Element;
   onCollapse?: (collapse: boolean) => void;
-  onFieldReorder: (data: Field, order: number) => Promise<void> | void;
+  onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;

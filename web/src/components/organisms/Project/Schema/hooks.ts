@@ -107,56 +107,66 @@ export default () => {
     [modelId, updateField, t],
   );
 
-  const handleFieldOrder = useCallback(
-    async (data: Field, order: number) => {
-      if (data.type === "Text") {
-        data.typeProperty = {
-          text: { ...data.typeProperty },
-        };
-      } else if (data.type === "TextArea") {
-        data.typeProperty = {
-          textArea: { ...data.typeProperty },
-        };
-      } else if (data.type === "MarkdownText") {
-        data.typeProperty = {
-          markdownText: { ...data.typeProperty },
-        };
-      } else if (data.type === "Asset") {
-        data.typeProperty = {
-          asset: { ...data.typeProperty },
-        };
-      } else if (data.type === "Select") {
-        data.typeProperty = {
-          select: { ...data.typeProperty },
-        };
-      } else if (data.type === "Integer") {
-        data.typeProperty = {
-          integer: {
-            ...data.typeProperty,
-          },
-        };
-      }
-      if (!modelId) return;
-      const field = await updateField({
-        variables: {
-          modelId,
-          fieldId: data.id,
-          title: data.title,
-          description: data.description,
-          key: data.key,
-          multiple: data.multiple,
-          unique: data.unique,
-          required: data.required,
-          typeProperty: data.typeProperty,
-          order,
+  const getDataType = (field: Field) => {
+    if (field.type === "TextArea") {
+      return {
+        textArea: { ...field.typeProperty },
+      };
+    } else if (field.type === "MarkdownText") {
+      return {
+        markdownText: { ...field.typeProperty },
+      };
+    } else if (field.type === "Asset") {
+      return {
+        asset: { ...field.typeProperty },
+      };
+    } else if (field.type === "Select") {
+      return {
+        select: { ...field.typeProperty },
+      };
+    } else if (field.type === "Integer") {
+      return {
+        integer: {
+          ...field.typeProperty,
         },
-      });
-      if (field.errors || !field.data?.updateField) {
-        Notification.error({ message: t("Failed to update field.") });
-        return;
+      };
+    } else {
+      return {
+        text: { ...field.typeProperty },
+      };
+    }
+  };
+
+  const handleFieldOrder = useCallback(
+    async (fields: Field[]) => {
+      if (!modelId) return;
+      const results = (
+        await Promise.all(
+          fields.map(async (field, index) => {
+            const result = await updateField({
+              variables: {
+                modelId,
+                fieldId: field.id,
+                title: field.title,
+                description: field.description,
+                key: field.key,
+                multiple: field.multiple,
+                unique: field.unique,
+                required: field.required,
+                typeProperty: getDataType(field),
+                order: index,
+              },
+            });
+            if (result.errors || !result.data?.updateField) {
+              Notification.error({ message: t("Failed to update one or more field.") });
+              return;
+            }
+          }),
+        )
+      ).filter(Boolean);
+      if (results?.length > 0) {
+        Notification.success({ message: t("Successfully updated one or more fields!") });
       }
-      Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
     },
     [modelId, updateField, t],
   );
