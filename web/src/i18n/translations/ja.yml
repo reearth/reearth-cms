@@ -3,6 +3,16 @@ Loading: ローディング中
 Oops!: ''
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
+Model: モデル
+Switch: 切り替え
+Assets: ''
+Private: 非公開
+Public: 公開
+Accessibility: ''
+Public Scope: 公開
+Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
+Project Alias: プロジェクトエイリアス
+Save changes: 変更を保存
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
 Danger Zone: 重要操作
 Delete Personal Account: アカウントを削除
@@ -75,7 +85,6 @@ Overview: 概要
 Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
-Public: 公開
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください。
@@ -159,15 +168,6 @@ Delete Model: モデルを削除
 Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
 Warning: 注意
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
-Model: モデル
-Switch: 切り替え
-Assets: ''
-Private: 非公開
-API Key Only: APIキーのみ
-Public Scope: 公開
-Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
-Project Alias: プロジェクトエイリアス
-Save changes: 変更を保存
 Close: クローズ
 Approve: 承認
 Approved: 承認済み
@@ -231,6 +231,8 @@ Please click the comment bubble in the table to check comments.: コメントを
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントが作成に成功しました。
+Failed to update publication settings.: 公開設定の更新に失敗しました。
+Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
@@ -248,8 +250,6 @@ Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
-Failed to update publication settings.: 公開設定の更新に失敗しました。
-Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to delete one or more requests.: リクエストの削除に失敗しました。
 One or more requests were successfully closed!: リクエストのクローズに成功しました。
 Failed to approve request.: リクエストの承認に失敗しました。
