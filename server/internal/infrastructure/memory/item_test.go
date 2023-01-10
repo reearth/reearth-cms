@@ -133,11 +133,11 @@ func TestItem_FindBySchema(t *testing.T) {
 	_ = r.Save(ctx, i1)
 	_ = r.Save(ctx, i2)
 
-	got, _, err := r.FindBySchema(ctx, sid1, nil, nil)
+	got, _, err := r.FindBySchema(ctx, sid1, nil, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, item.List{i1}, got.Unwrap())
 
-	got, _, err = r.FindBySchema(ctx, sid2, nil, nil)
+	got, _, err = r.FindBySchema(ctx, sid2, nil, nil, nil)
 	assert.NoError(t, err)
 	assert.Nil(t, got)
 }
@@ -175,8 +175,8 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	_ = r.Save(ctx, i3)
-	q := item.NewQuery(pid, "foo", nil)
-	got, _, _ := r.Search(ctx, q, nil)
+	q := item.NewQuery(pid, sid.Ref(), "foo", nil)
+	got, _, _ := r.Search(ctx, q, nil, nil)
 	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")

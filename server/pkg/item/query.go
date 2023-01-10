@@ -8,13 +8,15 @@ import (
 
 type Query struct {
 	project id.ProjectID
+	schema  *id.SchemaID
 	q       string
 	ref     *version.Ref
 }
 
-func NewQuery(project id.ProjectID, q string, ref *version.Ref) *Query {
+func NewQuery(project id.ProjectID, schema *id.SchemaID, q string, ref *version.Ref) *Query {
 	return &Query{
 		project: project,
+		schema:  schema,
 		q:       q,
 		ref:     ref,
 	}
@@ -27,6 +29,10 @@ func (q *Query) Q() string {
 
 func (q *Query) Project() id.ProjectID {
 	return q.project
+}
+
+func (q *Query) Schema() *id.SchemaID {
+	return q.schema
 }
 
 func (q *Query) Ref() *version.Ref {
