@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type TaskRunner struct {
@@ -138,6 +139,7 @@ func (t *TaskRunner) buildRequest(url string, message []byte) *taskspb.CreateTas
 					Body:       message,
 				},
 			},
+			DispatchDeadline: &durationpb.Duration{Seconds: t.conf.Timeout},
 		},
 	}
 }
