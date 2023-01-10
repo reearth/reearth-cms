@@ -154,7 +154,7 @@ const Accessibility: React.FC<Props> = ({
 
   const publicScopeList = [
     { id: 1, name: t("Private"), value: "private" },
-    { id: 3, name: t("Public"), value: "public" },
+    { id: 2, name: t("Public"), value: "public" },
   ];
 
   return (
