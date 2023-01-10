@@ -19,12 +19,12 @@ const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewe
   const renderAsset = () => {
     switch (assetFileExt) {
       case "czml":
-        return <CzmlComponent data={url} viewer={viewer} />;
+        return <CzmlComponent data={url} />;
       case "kml":
-        return <KmlComponent data={url} viewer={viewer} />;
+        return <KmlComponent data={url} />;
       case "geojson":
       default:
-        return <GeoJsonComponent data={url} viewer={viewer} />;
+        return <GeoJsonComponent data={url} />;
     }
   };
   return (

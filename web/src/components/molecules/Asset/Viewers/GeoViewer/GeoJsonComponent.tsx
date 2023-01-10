@@ -1,12 +1,12 @@
-import { Viewer, GeoJsonDataSource } from "cesium";
+import { GeoJsonDataSource } from "cesium";
 import { ComponentProps } from "react";
-import { GeoJsonDataSource as ResiumGeoJsonDataSource } from "resium";
+import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
 
-type Props = {
-  viewer?: Viewer | undefined;
-} & ComponentProps<typeof ResiumGeoJsonDataSource>;
+type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
-const GeoJsonComponent: React.FC<Props> = ({ viewer, data }) => {
+const GeoJsonComponent: React.FC<Props> = ({ data }) => {
+  const { viewer } = useCesium();
+
   const onLoad = async (ds: GeoJsonDataSource) => {
     try {
       await viewer?.zoomTo(ds);

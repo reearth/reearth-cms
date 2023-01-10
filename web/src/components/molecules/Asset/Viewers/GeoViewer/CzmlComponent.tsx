@@ -1,12 +1,12 @@
-import { Viewer, CzmlDataSource } from "cesium";
+import { CzmlDataSource } from "cesium";
 import { ComponentProps } from "react";
-import { CzmlDataSource as ResiumCzmlDataSource } from "resium";
+import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
 
-type Props = {
-  viewer?: Viewer | undefined;
-} & ComponentProps<typeof ResiumCzmlDataSource>;
+type Props = ComponentProps<typeof ResiumCzmlDataSource>;
 
-const CzmlComponent: React.FC<Props> = ({ viewer, data }) => {
+const CzmlComponent: React.FC<Props> = ({ data }) => {
+  const { viewer } = useCesium();
+
   const onLoad = async (ds: CzmlDataSource) => {
     try {
       await viewer?.zoomTo(ds);

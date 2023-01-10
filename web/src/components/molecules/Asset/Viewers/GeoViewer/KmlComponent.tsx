@@ -1,12 +1,12 @@
-import { Viewer, KmlDataSource } from "cesium";
+import { KmlDataSource } from "cesium";
 import { ComponentProps } from "react";
-import { KmlDataSource as ResiumKmlDataSource } from "resium";
+import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
-type Props = {
-  viewer?: Viewer | undefined;
-} & ComponentProps<typeof ResiumKmlDataSource>;
+type Props = ComponentProps<typeof ResiumKmlDataSource>;
 
-const KmlComponent: React.FC<Props> = ({ viewer, data }) => {
+const KmlComponent: React.FC<Props> = ({ data }) => {
+  const { viewer } = useCesium();
+
   const onLoad = async (ds: KmlDataSource) => {
     try {
       await viewer?.zoomTo(ds);

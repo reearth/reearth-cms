@@ -20,7 +20,7 @@ const Geo3dViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
         viewer = e?.cesiumElement;
         onGetViewer(viewer);
       }}>
-      <Cesium3dTileSetComponent url={url} viewer={viewer} />
+      <Cesium3dTileSetComponent url={url} />
     </ResiumViewer>
   );
 };
