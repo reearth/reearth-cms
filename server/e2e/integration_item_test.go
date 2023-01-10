@@ -338,7 +338,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	e.POST("/api/models/%s/items", ikey).
+	e.POST("/api/models/{modelId}/items", ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
