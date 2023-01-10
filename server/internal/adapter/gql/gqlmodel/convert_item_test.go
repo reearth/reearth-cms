@@ -155,6 +155,7 @@ func TestToVersionedItem(t *testing.T) {
 
 func TestToItemQuery(t *testing.T) {
 	pid := id.NewProjectID()
+	sid := id.NewSchemaID()
 	str := "foo"
 	tests := []struct {
 		name  string
@@ -165,9 +166,10 @@ func TestToItemQuery(t *testing.T) {
 			name: "should pass",
 			input: ItemQuery{
 				Project: IDFrom(pid),
+				Schema:  IDFromRef(sid.Ref()),
 				Q:       &str,
 			},
-			want: item.NewQuery(pid, str, nil),
+			want: item.NewQuery(pid, sid.Ref(), str, nil),
 		},
 		{
 			name: "invalid project id",
