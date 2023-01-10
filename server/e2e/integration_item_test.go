@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
@@ -35,6 +34,7 @@ var (
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	pid    = id.NewProjectID()
+	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 )
 
@@ -73,6 +73,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Description("p1 desc").
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
+		Alias(palias).
 		MustBuild()
 	if err := r.Project.Save(ctx, p); err != nil {
 		return err
@@ -135,7 +136,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	return nil
 }
 
-// Get|/models/{modelId}/items
+// GET /models/{modelId}/items
 func TestIntegrationItemListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -181,7 +182,103 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	a.First().Object().Value("refs").Equal([]string{"latest"})
 
 	// key can be also acceptable
-	obj = e.GET("/api/models/{modelId}/items", ikey).
+	// obj = e.GET("/api/models/{modelId}/items", ikey).
+	// 	WithHeader("authorization", "Bearer "+secret).
+	// 	WithQuery("page", 1).
+	// 	WithQuery("perPage", 5).
+	// 	Expect().
+	// 	Status(http.StatusOK).
+	// 	JSON().
+	// 	Object()
+
+	// obj.Value("page").Equal(1)
+	// obj.Value("perPage").Equal(5)
+	// obj.Value("totalCount").Equal(1)
+
+	// a = obj.Value("items").Array()
+	// a.Length().Equal(1)
+	// a.First().Object().Value("id").Equal(itmId.String())
+	// a.First().Object().Value("fields").Equal([]any{})
+	// a.First().Object().Value("parents").Equal([]any{})
+	// a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// key cannot be used
+	e.GET("/api/models/{modelId}/items", ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusBadRequest)
+}
+
+// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
+func TestIntegrationItemListWithProjectAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusNotFound)
+
+	obj := e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a := obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// model key can be also usable
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	obj.Value("page").Equal(1)
+	obj.Value("perPage").Equal(5)
+	obj.Value("totalCount").Equal(1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	a.First().Object().Value("id").Equal(itmId.String())
+	a.First().Object().Value("fields").Equal([]any{})
+	a.First().Object().Value("parents").Equal([]any{})
+	a.First().Object().Value("refs").Equal([]string{"latest"})
+
+	// project alias can be also usable
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -202,7 +299,15 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	a.First().Object().Value("refs").Equal([]string{"latest"})
 
 	// invalid key
-	e.GET("/api/models/{modelId}/items", "xxx").
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// invalid project
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", id.NewProjectID(), ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -210,7 +315,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-// Post|/models/{modelId}/items/{itemId}
+// POST /models/{modelId}/items
 func TestIntegrationCreateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -228,7 +333,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(fmt.Sprintf("/api/models/%s/items", id.NewModelID())).
+	e.POST("/api/models/%s/items", id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	e.POST("/api/models/%s/items", ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
@@ -261,7 +371,58 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	r.Value("refs").Equal([]string{"latest"})
 }
 
-// Post|/items/{itemId}
+// POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
+func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId.String(),
+					"value": "test value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	r.Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").Equal([]any{
+		map[string]string{
+			"id":    fId.String(),
+			"type":  "text",
+			"value": "test value",
+			"key":   sfKey.String(),
+		},
+	})
+	r.Value("modelId").Equal(mId.String())
+	r.Value("refs").Equal([]string{"latest"})
+}
+
+// POST /items/{itemId}
 func TestIntegrationUpdateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -312,7 +473,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	r.Value("refs").Equal([]string{"latest"})
 }
 
-// Get|/items/{itemId}
+// GET /items/{itemId}
 func TestIntegrationGetItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -344,7 +505,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 }
 
-// Delete|/items/{itemId}
+// DELETE /items/{itemId}
 func TestIntegrationDeleteItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 

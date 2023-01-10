@@ -14,7 +14,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 type Model struct {
@@ -45,18 +44,8 @@ func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, op
 	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, q string, operator *usecase.Operator) (*model.Model, error) {
-	if q == "" {
-		return nil, errors.New("invalid key")
-	}
-
-	var k *key.Key
-	mid := id.ModelIDFromRef(&q)
-	if mid == nil {
-		k = lo.ToPtr(key.New(q))
-	}
-
-	return i.repos.Model.FindByIDOrKey(ctx, mid, k, operator.AllReadableProjects())
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
