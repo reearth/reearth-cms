@@ -41,9 +41,22 @@ func (l FieldList) SortByID() FieldList {
 func (l FieldList) Clone() FieldList {
 	return util.Map(l, func(f *Field) *Field { return f.Clone() })
 }
+
 func (l FieldList) IDs() (ids id.FieldIDList) {
 	for _, sf := range l {
 		ids = ids.Add(sf.ID())
 	}
 	return
+}
+
+func (l FieldList) Ordered() FieldList {
+	o := slices.Clone(l)
+	slices.SortFunc(o, func(a, b *Field) bool {
+		return a.Order() < b.Order()
+	})
+	return o
+}
+
+func (l FieldList) Count() int {
+	return len(l)
 }

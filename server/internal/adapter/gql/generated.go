@@ -459,6 +459,7 @@ type ComplexityRoot struct {
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
 		Multiple     func(childComplexity int) int
+		Order        func(childComplexity int) int
 		Required     func(childComplexity int) int
 		Title        func(childComplexity int) int
 		Type         func(childComplexity int) int
@@ -2693,6 +2694,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.Multiple(childComplexity), true
 
+	case "SchemaField.order":
+		if e.complexity.SchemaField.Order == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Order(childComplexity), true
+
 	case "SchemaField.required":
 		if e.complexity.SchemaField.Required == nil {
 			break
@@ -4014,6 +4022,7 @@ type SchemaField {
   typeProperty: SchemaFieldTypeProperty
   key: String!
   title: String!
+  order: Int
   description: String
 
   multiple: Boolean!
@@ -4185,6 +4194,7 @@ input UpdateFieldInput {
   fieldId: ID!
   title: String
   description: String
+  order: Int
   key: String
   required: Boolean
   unique: Boolean
@@ -8119,6 +8129,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_key(ctx, field)
 			case "title":
 				return ec.fieldContext_SchemaField_title(ctx, field)
+			case "order":
+				return ec.fieldContext_SchemaField_order(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
 			case "multiple":
@@ -17613,6 +17625,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_key(ctx, field)
 			case "title":
 				return ec.fieldContext_SchemaField_title(ctx, field)
+			case "order":
+				return ec.fieldContext_SchemaField_order(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
 			case "multiple":
@@ -18020,6 +18034,47 @@ func (ec *executionContext) fieldContext_SchemaField_title(ctx context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_order(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25262,7 +25317,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "key", "required", "unique", "multiple", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25298,6 +25353,14 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "order":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+			it.Order, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -29438,6 +29501,10 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "order":
+
+			out.Values[i] = ec._SchemaField_order(ctx, field, obj)
+
 		case "description":
 
 			out.Values[i] = ec._SchemaField_description(ctx, field, obj)

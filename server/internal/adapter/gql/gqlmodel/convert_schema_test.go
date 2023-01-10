@@ -48,6 +48,7 @@ func TestToSchema(t *testing.T) {
 					ID:          IDFrom(fId),
 					Type:        "Text",
 					Description: lo.ToPtr(""),
+					Order:       lo.ToPtr(0),
 					TypeProperty: &SchemaFieldText{
 						DefaultValue: nil,
 						MaxLength:    nil,
@@ -105,6 +106,7 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
+				Order:        lo.ToPtr(0),
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),
 				UpdatedAt:    fId.Timestamp(),
