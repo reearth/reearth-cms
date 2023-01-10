@@ -8,6 +8,8 @@ import (
 
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 )
 
 const (
@@ -93,16 +95,34 @@ const (
 	ItemFilterParamsRefPublic ItemFilterParamsRef = "public"
 )
 
+// Defines values for ItemFilterWithProjectParamsSort.
+const (
+	ItemFilterWithProjectParamsSortCreatedAt ItemFilterWithProjectParamsSort = "createdAt"
+	ItemFilterWithProjectParamsSortUpdatedAt ItemFilterWithProjectParamsSort = "updatedAt"
+)
+
+// Defines values for ItemFilterWithProjectParamsDir.
+const (
+	ItemFilterWithProjectParamsDirAsc  ItemFilterWithProjectParamsDir = "asc"
+	ItemFilterWithProjectParamsDirDesc ItemFilterWithProjectParamsDir = "desc"
+)
+
+// Defines values for ItemFilterWithProjectParamsRef.
+const (
+	Latest ItemFilterWithProjectParamsRef = "latest"
+	Public ItemFilterWithProjectParamsRef = "public"
+)
+
 // Defines values for AssetFilterParamsSort.
 const (
-	CreatedAt AssetFilterParamsSort = "createdAt"
-	UpdatedAt AssetFilterParamsSort = "updatedAt"
+	AssetFilterParamsSortCreatedAt AssetFilterParamsSort = "createdAt"
+	AssetFilterParamsSortUpdatedAt AssetFilterParamsSort = "updatedAt"
 )
 
 // Defines values for AssetFilterParamsDir.
 const (
-	Asc  AssetFilterParamsDir = "asc"
-	Desc AssetFilterParamsDir = "desc"
+	AssetFilterParamsDirAsc  AssetFilterParamsDir = "asc"
+	AssetFilterParamsDirDesc AssetFilterParamsDir = "desc"
 )
 
 // Asset defines model for asset.
@@ -227,7 +247,7 @@ type CommentIdParam = id.CommentID
 type ItemIdParam = id.ItemID
 
 // ModelIdOrKeyParam defines model for modelIdOrKeyParam.
-type ModelIdOrKeyParam = string
+type ModelIdOrKeyParam = model.IDOrKey
 
 // ModelIdParam defines model for modelIdParam.
 type ModelIdParam = id.ModelID
@@ -237,6 +257,9 @@ type PageParam = int
 
 // PerPageParam defines model for perPageParam.
 type PerPageParam = int
+
+// ProjectIdOrAliasParam defines model for projectIdOrAliasParam.
+type ProjectIdOrAliasParam = project.IDOrAlias
 
 // ProjectIdParam defines model for projectIdParam.
 type ProjectIdParam = id.ProjectID
@@ -320,6 +343,42 @@ type ItemCreateJSONBody struct {
 	} `json:"fields,omitempty"`
 }
 
+// ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
+type ItemFilterWithProjectParams struct {
+	// Sort Used to define the order of the response list
+	Sort *ItemFilterWithProjectParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *ItemFilterWithProjectParamsDir `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemFilterWithProjectParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemFilterWithProjectParamsSort defines parameters for ItemFilterWithProject.
+type ItemFilterWithProjectParamsSort string
+
+// ItemFilterWithProjectParamsDir defines parameters for ItemFilterWithProject.
+type ItemFilterWithProjectParamsDir string
+
+// ItemFilterWithProjectParamsRef defines parameters for ItemFilterWithProject.
+type ItemFilterWithProjectParamsRef string
+
+// ItemCreateWithProjectJSONBody defines parameters for ItemCreateWithProject.
+type ItemCreateWithProjectJSONBody struct {
+	Fields *[]struct {
+		Id    *id.FieldID  `json:"id,omitempty"`
+		Type  *ValueType   `json:"type,omitempty"`
+		Value *interface{} `json:"value,omitempty"`
+	} `json:"fields,omitempty"`
+}
+
 // AssetFilterParams defines parameters for AssetFilter.
 type AssetFilterParams struct {
 	// Sort Used to define the order of the response list
@@ -368,6 +427,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// ItemCreateWithProjectJSONRequestBody defines body for ItemCreateWithProject for application/json ContentType.
+type ItemCreateWithProjectJSONRequestBody ItemCreateWithProjectJSONBody
 
 // AssetCreateJSONRequestBody defines body for AssetCreate for application/json ContentType.
 type AssetCreateJSONRequestBody AssetCreateJSONBody
