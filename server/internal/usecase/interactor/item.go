@@ -73,14 +73,14 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *item.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	sfIds := s.Fields().IDs()
-	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, p)
+	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
 	return res.FilterFields(sfIds), page, err
 }
 
@@ -88,8 +88,8 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usec
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, q, p)
+func (i Item) Search(ctx context.Context, q *item.Query, sort *item.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {

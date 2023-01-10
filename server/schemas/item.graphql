@@ -68,14 +68,25 @@ type ItemEdge {
   node: Item
 }
 
+enum ItemSortType {
+  DATE
+}
+
+input ItemSort {
+  sortBy: ItemSortType!
+  direction: SortDirection
+}
+
 input ItemQuery {
   project: ID!
+  schema: ID
   q: String
 }
 
 extend type Query {
   items(
     schemaId: ID!
+    sort: ItemSort
     first: Int
     last: Int
     after: Cursor
@@ -84,6 +95,7 @@ extend type Query {
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(
     query: ItemQuery!
+    sort: ItemSort
     first: Int
     last: Int
     after: Cursor
