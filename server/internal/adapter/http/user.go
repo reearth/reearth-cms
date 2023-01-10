@@ -26,6 +26,11 @@ type PasswordResetInput struct {
 	Password string `json:"password"`
 }
 
+type RegisterUser struct {
+	Sub   string `json:"secret"`
+	Name  string `json:"username"`
+	Email string `json:"email"`
+}
 type SignupInput struct {
 	Secret      *string         `json:"secret"`
 	UserID      *id.UserID      `json:"userId"`
@@ -72,6 +77,27 @@ func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupO
 		WorkspaceID: input.WorkspaceID,
 		Lang:        input.Lang,
 		Theme:       input.Theme,
+	})
+
+	if err != nil {
+		return SignupOutput{}, err
+	}
+
+	return SignupOutput{
+		ID:    u.ID().String(),
+		Name:  u.Name(),
+		Email: u.Email(),
+	}, nil
+}
+
+func (c *UserController) RegisterUser(ctx context.Context, input RegisterUser) (SignupOutput, error) {
+	var u *user.User
+	var err error
+
+	u, err = c.usecase.RegisterUser(ctx, interfaces.RegisterUserParam{
+		Name:  input.Name,
+		Email: input.Email,
+		Sub:   input.Sub,
 	})
 
 	if err != nil {

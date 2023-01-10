@@ -103,6 +103,36 @@ func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *use
 	return u, nil
 }
 
+func (i *User) RegisterUser(ctx context.Context, param interfaces.RegisterUserParam) (*user.User, error) {
+	if param.Sub == "" {
+		return nil, rerror.ErrNotFound
+	}
+	//TODO: what to do with existed user?
+	_, err := i.repos.User.FindBySub(ctx, param.Sub)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	//TODO: can we use access token here?
+	u, workspace, err := user.Init(user.InitParams{
+		Email: param.Email,
+		Name:  param.Name,
+		Sub:   user.AuthFromAuth0Sub(param.Sub).Ref(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.User.Create(ctx, u); err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.Workspace.Save(ctx, workspace); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
 func (i *User) FindOrCreate(ctx context.Context, param interfaces.UserFindOrCreateParam) (u *user.User, err error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, error) {
 		if param.Sub == "" {
