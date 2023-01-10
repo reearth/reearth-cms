@@ -212,7 +212,7 @@ func TestItem_FindBySchema(t *testing.T) {
 				Writable: []id.ProjectID{pid},
 			})
 
-			got, _, err := r.FindBySchema(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, err := r.FindBySchema(ctx, tc.Input, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
 		})
@@ -360,6 +360,7 @@ func TestItem_Archive(t *testing.T) {
 
 func TestItem_Search(t *testing.T) {
 	sid := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
@@ -368,6 +369,7 @@ func TestItem_Search(t *testing.T) {
 	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i4 := item.New().NewID().Schema(sid2).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
 		Name     string
 		Input    *item.Query
@@ -376,14 +378,20 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(pid, "foo", nil),
+			Input:    item.NewQuery(pid, nil, "foo", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(pid, "hoge", nil),
+			Input:    item.NewQuery(pid, nil, "hoge", nil),
 			RepoData: item.List{i1, i2, i3},
+			Expected: 1,
+		},
+		{
+			Name:     "must find one item",
+			Input:    item.NewQuery(pid, sid2.Ref(), "foo", nil),
+			RepoData: item.List{i1, i2, i3, i4},
 			Expected: 1,
 		},
 	}
@@ -404,7 +412,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, _, _ := repo.Search(ctx, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.Search(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.Expected, len(got))
 		})
 	}
