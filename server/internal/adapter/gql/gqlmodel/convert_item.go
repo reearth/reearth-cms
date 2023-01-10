@@ -15,12 +15,14 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 	}
 
 	return &Item{
-		ID:        IDFrom(i.ID()),
-		ProjectID: IDFrom(i.Project()),
-		SchemaID:  IDFrom(i.Schema()),
-		ModelID:   IDFrom(i.Model()),
-		ThreadID:  IDFrom(i.Thread()),
-		CreatedAt: i.Timestamp(),
+		ID:            IDFrom(i.ID()),
+		ProjectID:     IDFrom(i.Project()),
+		SchemaID:      IDFrom(i.Schema()),
+		ModelID:       IDFrom(i.Model()),
+		UserID:        IDFromRef(i.User()),
+		IntegrationID: IDFromRef(i.Integration()),
+		ThreadID:      IDFrom(i.Thread()),
+		CreatedAt:     i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),

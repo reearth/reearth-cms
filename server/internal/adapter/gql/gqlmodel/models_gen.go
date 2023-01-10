@@ -315,17 +315,21 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID        ID           `json:"id"`
-	SchemaID  ID           `json:"schemaId"`
-	ThreadID  ID           `json:"threadId"`
-	ModelID   ID           `json:"modelId"`
-	ProjectID ID           `json:"projectId"`
-	Schema    *Schema      `json:"schema"`
-	Model     *Model       `json:"model"`
-	Project   *Project     `json:"project"`
-	Thread    *Thread      `json:"thread"`
-	Fields    []*ItemField `json:"fields"`
-	CreatedAt time.Time    `json:"createdAt"`
+	ID            ID           `json:"id"`
+	SchemaID      ID           `json:"schemaId"`
+	ThreadID      ID           `json:"threadId"`
+	ModelID       ID           `json:"modelId"`
+	ProjectID     ID           `json:"projectId"`
+	IntegrationID *ID          `json:"integrationId"`
+	UserID        *ID          `json:"userId"`
+	Integration   *Integration `json:"integration"`
+	User          *User        `json:"user"`
+	Schema        *Schema      `json:"schema"`
+	Model         *Model       `json:"model"`
+	Project       *Project     `json:"project"`
+	Thread        *Thread      `json:"thread"`
+	Fields        []*ItemField `json:"fields"`
+	CreatedAt     time.Time    `json:"createdAt"`
 }
 
 func (Item) IsNode()        {}
