@@ -137,6 +137,7 @@ type CommentAuthorType string
 // Field defines model for field.
 type Field struct {
 	Id    *id.FieldID  `json:"id,omitempty"`
+	Key   *string      `json:"key,omitempty"`
 	Type  *ValueType   `json:"type,omitempty"`
 	Value *interface{} `json:"value,omitempty"`
 }
@@ -159,6 +160,16 @@ type Item struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
+// Model defines model for model.
+type Model struct {
+	CreatedAt *time.Time    `json:"createdAt,omitempty"`
+	Id        *id.ModelID   `json:"id,omitempty"`
+	Key       *string       `json:"key,omitempty"`
+	ProjectId *id.ProjectID `json:"projectId,omitempty"`
+	SchemaId  *id.SchemaID  `json:"schemaId,omitempty"`
+	UpdatedAt *time.Time    `json:"updatedAt,omitempty"`
+}
+
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
 	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
@@ -174,7 +185,6 @@ type Schema struct {
 	Fields    *[]SchemaField `json:"fields,omitempty"`
 	Id        *id.SchemaID   `json:"id,omitempty"`
 	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
-	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -215,6 +225,9 @@ type CommentIdParam = id.CommentID
 
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
+
+// ModelIdOrKeyParam defines model for modelIdOrKeyParam.
+type ModelIdOrKeyParam = string
 
 // ModelIdParam defines model for modelIdParam.
 type ModelIdParam = id.ModelID
