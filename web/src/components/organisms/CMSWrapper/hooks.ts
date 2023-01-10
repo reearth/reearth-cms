@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Public";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
