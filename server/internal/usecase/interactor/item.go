@@ -103,6 +103,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
@@ -112,7 +117,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, param.ModelID, nil); err != nil {
+		if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
 			return nil, err
 		}
 
@@ -127,9 +132,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		ib := item.New().
 			NewID().
-			Schema(param.SchemaID).
+			Schema(s.ID()).
 			Project(s.Project()).
-			Model(param.ModelID).
+			Model(m.ID()).
 			Thread(th.ID()).
 			Fields(fields)
 
@@ -158,8 +163,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Workspace: s.Workspace(),
 			Type:      event.ItemCreate,
 			Object:    vi,
-			WebhookObject: item.ItemAndSchema{
+			WebhookObject: item.ItemModelSchema{
 				Item:   vi.Value(),
+				Model:  m,
 				Schema: s,
 			},
 			Operator: operator.Operator(),
@@ -190,6 +196,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
+		m, err := i.repos.Model.FindByID(ctx, itv.Model())
+		if err != nil {
+			return nil, err
+		}
+
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 		if err != nil {
 			return nil, err
@@ -213,8 +224,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
 			Object:    itm,
-			WebhookObject: item.ItemAndSchema{
+			WebhookObject: item.ItemModelSchema{
 				Item:   itv,
+				Model:  m,
 				Schema: s,
 			},
 			Operator: operator.Operator(),

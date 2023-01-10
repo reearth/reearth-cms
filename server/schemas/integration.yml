@@ -606,6 +606,26 @@ components:
           - latest
           - public
   schemas:
+    model:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ModelID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        key:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     schema:
       type: object
       properties:
@@ -620,9 +640,6 @@ components:
           items:
             $ref: '#/components/schemas/schemaField'
         createdAt:
-          type: string
-          format: date-time
-        updatedAt:
           type: string
           format: date-time
     valueType:

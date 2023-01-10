@@ -39,8 +39,9 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator 
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
-		State:   filter.State,
-		Keyword: filter.Keyword,
+		State:    filter.State,
+		Keyword:  filter.Keyword,
+		Reviewer: filter.Reviewer,
 	}, pagination)
 }
 
