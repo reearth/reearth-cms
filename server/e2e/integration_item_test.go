@@ -181,27 +181,6 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	a.First().Object().Value("parents").Equal([]any{})
 	a.First().Object().Value("refs").Equal([]string{"latest"})
 
-	// key can be also acceptable
-	// obj = e.GET("/api/models/{modelId}/items", ikey).
-	// 	WithHeader("authorization", "Bearer "+secret).
-	// 	WithQuery("page", 1).
-	// 	WithQuery("perPage", 5).
-	// 	Expect().
-	// 	Status(http.StatusOK).
-	// 	JSON().
-	// 	Object()
-
-	// obj.Value("page").Equal(1)
-	// obj.Value("perPage").Equal(5)
-	// obj.Value("totalCount").Equal(1)
-
-	// a = obj.Value("items").Array()
-	// a.Length().Equal(1)
-	// a.First().Object().Value("id").Equal(itmId.String())
-	// a.First().Object().Value("fields").Equal([]any{})
-	// a.First().Object().Value("parents").Equal([]any{})
-	// a.First().Object().Value("refs").Equal([]string{"latest"})
-
 	// key cannot be used
 	e.GET("/api/models/{modelId}/items", ikey).
 		WithHeader("authorization", "Bearer "+secret).
