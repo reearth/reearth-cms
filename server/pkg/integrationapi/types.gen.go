@@ -160,6 +160,16 @@ type Item struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
+// Model defines model for model.
+type Model struct {
+	CreatedAt *time.Time    `json:"createdAt,omitempty"`
+	Id        *id.ModelID   `json:"id,omitempty"`
+	Key       *string       `json:"key,omitempty"`
+	ProjectId *id.ProjectID `json:"projectId,omitempty"`
+	SchemaId  *id.SchemaID  `json:"schemaId,omitempty"`
+	UpdatedAt *time.Time    `json:"updatedAt,omitempty"`
+}
+
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
 	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
@@ -175,7 +185,6 @@ type Schema struct {
 	Fields    *[]SchemaField `json:"fields,omitempty"`
 	Id        *id.SchemaID   `json:"id,omitempty"`
 	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
-	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 // SchemaField defines model for schemaField.

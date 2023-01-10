@@ -21,6 +21,7 @@ type Webhook struct {
 	EventID   string    `json:"eventId"`
 	EventType string    `json:"type"`
 	EventData any       `json:"data"`
+	Operator  any       `json:"operator"`
 }
 
 type requestBody struct {
@@ -28,6 +29,7 @@ type requestBody struct {
 	Timestamp time.Time `json:"timestamp"`
 	Type      string    `json:"type"`
 	Data      any       `json:"data"`
+	Operator  any       `json:"operator"`
 }
 
 func Send(ctx context.Context, w *Webhook) error {
@@ -65,6 +67,7 @@ func (w Webhook) requestBody() ([]byte, error) {
 		Timestamp: w.Timestamp,
 		Type:      w.EventType,
 		Data:      w.EventData,
+		Operator:  w.Operator,
 	}
 	return json.Marshal(b)
 }
