@@ -39,8 +39,8 @@ const ProjectMenu: React.FC<Props> = ({
 
   const items: ItemType[] = [
     {
-      label: t("Public"),
-      key: "public",
+      label: t("Accessibility"),
+      key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
@@ -61,8 +61,8 @@ const ProjectMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
       } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-      } else if (e.key === "public") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/public`);
+      } else if (e.key === "accessibility") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
       } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {
