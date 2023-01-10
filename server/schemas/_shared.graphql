@@ -61,6 +61,11 @@ type KeyAvailability {
   available: Boolean!
 }
 
+enum SortDirection {
+  ASC
+  DESC
+}
+
 # Basic types
 
 scalar DateTime

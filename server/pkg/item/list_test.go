@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -125,4 +126,27 @@ func TestList_ItemsByField(t *testing.T) {
 			assert.Equal(t, tt.wantCount, len(tt.l.ItemsByField(tt.args.fid, tt.args.value)))
 		})
 	}
+}
+
+func TestVersionedList_SortByTimestamp(t *testing.T) {
+	id1 := NewID()
+	id2 := NewID()
+	now1 := time.Now()
+	now2 := time.Now().Add(time.Second)
+	v1 := version.New()
+	v2 := version.New()
+	list := VersionedList{
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
+	}
+	res := list.SortByTimestamp(AscDirection)
+	assert.Equal(t, VersionedList{
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
+	}, res)
+	res2 := list.SortByTimestamp(DescDirection)
+	assert.Equal(t, VersionedList{
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
+	}, res2)
 }
