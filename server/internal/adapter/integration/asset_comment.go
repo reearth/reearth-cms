@@ -2,11 +2,13 @@ package integration
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -18,6 +20,9 @@ func (s Server) AssetCommentList(ctx context.Context, request AssetCommentListRe
 
 	asset, err := uc.Asset.FindByID(ctx, aID, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetCommentList404Response{}, err
+		}
 		return AssetCommentList400Response{}, err
 	}
 
@@ -40,6 +45,9 @@ func (s Server) AssetCommentCreate(ctx context.Context, request AssetCommentCrea
 
 	asset, err := uc.Asset.FindByID(ctx, request.AssetId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetCommentCreate404Response{}, err
+		}
 		return AssetCommentCreate400Response{}, err
 	}
 
@@ -58,6 +66,9 @@ func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpda
 
 	asset, err := uc.Asset.FindByID(ctx, request.AssetId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetCommentUpdate404Response{}, err
+		}
 		return AssetCommentUpdate400Response{}, err
 	}
 
@@ -75,6 +86,9 @@ func (s Server) AssetCommentDelete(ctx context.Context, request AssetCommentDele
 
 	asset, err := uc.Asset.FindByID(ctx, request.AssetId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetCommentDelete404Response{}, err
+		}
 		return AssetCommentDelete400Response{}, err
 	}
 
