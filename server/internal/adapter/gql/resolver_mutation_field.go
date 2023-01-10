@@ -86,6 +86,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		Description:  input.Description,
 		Key:          input.Key,
 		Multiple:     input.Multiple,
+		Order:        input.Order,
 		Unique:       input.Unique,
 		Required:     input.Required,
 		DefaultValue: dv,

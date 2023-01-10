@@ -315,17 +315,21 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID        ID           `json:"id"`
-	SchemaID  ID           `json:"schemaId"`
-	ThreadID  ID           `json:"threadId"`
-	ModelID   ID           `json:"modelId"`
-	ProjectID ID           `json:"projectId"`
-	Schema    *Schema      `json:"schema"`
-	Model     *Model       `json:"model"`
-	Project   *Project     `json:"project"`
-	Thread    *Thread      `json:"thread"`
-	Fields    []*ItemField `json:"fields"`
-	CreatedAt time.Time    `json:"createdAt"`
+	ID            ID           `json:"id"`
+	SchemaID      ID           `json:"schemaId"`
+	ThreadID      ID           `json:"threadId"`
+	ModelID       ID           `json:"modelId"`
+	ProjectID     ID           `json:"projectId"`
+	IntegrationID *ID          `json:"integrationId"`
+	UserID        *ID          `json:"userId"`
+	Integration   *Integration `json:"integration"`
+	User          *User        `json:"user"`
+	Schema        *Schema      `json:"schema"`
+	Model         *Model       `json:"model"`
+	Project       *Project     `json:"project"`
+	Thread        *Thread      `json:"thread"`
+	Fields        []*ItemField `json:"fields"`
+	CreatedAt     time.Time    `json:"createdAt"`
 }
 
 func (Item) IsNode()        {}
@@ -361,7 +365,13 @@ type ItemPayload struct {
 
 type ItemQuery struct {
 	Project ID      `json:"project"`
+	Schema  *ID     `json:"schema"`
 	Q       *string `json:"q"`
+}
+
+type ItemSort struct {
+	SortBy    ItemSortType   `json:"sortBy"`
+	Direction *SortDirection `json:"direction"`
 }
 
 type KeyAvailability struct {
@@ -573,6 +583,7 @@ type SchemaField struct {
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
+	Order        *int                    `json:"order"`
 	Description  *string                 `json:"description"`
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
@@ -763,6 +774,7 @@ type UpdateFieldInput struct {
 	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title"`
 	Description  *string                       `json:"description"`
+	Order        *int                          `json:"order"`
 	Key          *string                       `json:"key"`
 	Required     *bool                         `json:"required"`
 	Unique       *bool                         `json:"unique"`
@@ -1070,6 +1082,45 @@ func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e IntegrationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ItemSortType string
+
+const (
+	ItemSortTypeDate ItemSortType = "DATE"
+)
+
+var AllItemSortType = []ItemSortType{
+	ItemSortTypeDate,
+}
+
+func (e ItemSortType) IsValid() bool {
+	switch e {
+	case ItemSortTypeDate:
+		return true
+	}
+	return false
+}
+
+func (e ItemSortType) String() string {
+	return string(e)
+}
+
+func (e *ItemSortType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ItemSortType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ItemSortType", str)
+	}
+	return nil
+}
+
+func (e ItemSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1407,6 +1458,47 @@ func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SchemaFieldType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SortDirection string
+
+const (
+	SortDirectionAsc  SortDirection = "ASC"
+	SortDirectionDesc SortDirection = "DESC"
+)
+
+var AllSortDirection = []SortDirection{
+	SortDirectionAsc,
+	SortDirectionDesc,
+}
+
+func (e SortDirection) IsValid() bool {
+	switch e {
+	case SortDirectionAsc, SortDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e SortDirection) String() string {
+	return string(e)
+}
+
+func (e *SortDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SortDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SortDirection", str)
+	}
+	return nil
+}
+
+func (e SortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

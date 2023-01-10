@@ -15,12 +15,14 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 	}
 
 	return &Item{
-		ID:        IDFrom(i.ID()),
-		ProjectID: IDFrom(i.Project()),
-		SchemaID:  IDFrom(i.Schema()),
-		ModelID:   IDFrom(i.Model()),
-		ThreadID:  IDFrom(i.Thread()),
-		CreatedAt: i.Timestamp(),
+		ID:            IDFrom(i.ID()),
+		ProjectID:     IDFrom(i.Project()),
+		SchemaID:      IDFrom(i.Schema()),
+		ModelID:       IDFrom(i.Model()),
+		UserID:        IDFromRef(i.User()),
+		IntegrationID: IDFromRef(i.Integration()),
+		ThreadID:      IDFrom(i.Thread()),
+		CreatedAt:     i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
@@ -72,5 +74,13 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(pid, lo.FromPtr(iq.Q), nil)
+
+	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
+}
+
+func ToItemSort(is *ItemSort) *item.Sort {
+	return &item.Sort{
+		Direction: item.DirectionFrom(is.Direction.String()),
+		SortBy:    item.SortTypeFrom(is.SortBy.String()),
+	}
 }
