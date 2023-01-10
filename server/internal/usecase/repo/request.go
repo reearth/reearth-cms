@@ -9,8 +9,10 @@ import (
 )
 
 type RequestFilter struct {
-	State   *request.State
-	Keyword *string
+	State     *request.State
+	Keyword   *string
+	Reviewer  *id.UserID
+	CreatedBy *id.UserID
 }
 
 type Request interface {
