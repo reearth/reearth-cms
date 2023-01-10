@@ -2,7 +2,6 @@ import { Viewer } from "cesium";
 import { ComponentProps } from "react";
 import { Viewer as ResiumViewer } from "resium";
 
-import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 import CzmlComponent from "./CzmlComponent";
 import GeoJsonComponent from "./GeoJsonComponent";
 import KmlComponent from "./KmlComponent";
@@ -14,7 +13,7 @@ type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
-const CesiumViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
+const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
   let viewer: Viewer | undefined;
 
   const renderAsset = () => {
@@ -24,10 +23,8 @@ const CesiumViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetVi
       case "kml":
         return <KmlComponent data={url} viewer={viewer} />;
       case "geojson":
-        return <GeoJsonComponent data={url} viewer={viewer} />;
-      case "json":
       default:
-        return <Cesium3dTileSetComponent url={url} viewer={viewer} />;
+        return <GeoJsonComponent data={url} viewer={viewer} />;
     }
   };
   return (
@@ -42,4 +39,4 @@ const CesiumViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetVi
   );
 };
 
-export default CesiumViewer;
+export default GeoViewer;

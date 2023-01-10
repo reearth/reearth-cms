@@ -16,12 +16,16 @@ import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import CesiumViewer from "@reearth-cms/components/molecules/Asset/CesiumViewer";
+import {
+  GeoViewer,
+  Geo3dViewer,
+  SvgViewer,
+  ImageViewer,
+} from "@reearth-cms/components/molecules/Asset/Viewers";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
-import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
@@ -62,9 +66,9 @@ const AssetMolecule: React.FC<Props> = ({
 
   const renderPreview = () => {
     switch (true) {
-      case viewerType === "cesium":
+      case viewerType === "geo":
         return (
-          <CesiumViewer
+          <GeoViewer
             viewerProps={{
               terrainProvider: createWorldTerrain(),
               navigationHelpButton: false,
@@ -85,10 +89,33 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
+      case viewerType === "geo3d":
+        return (
+          <Geo3dViewer
+            viewerProps={{
+              terrainProvider: createWorldTerrain(),
+              navigationHelpButton: false,
+              homeButton: false,
+              projectionPicker: false,
+              sceneModePicker: false,
+              baseLayerPicker: false,
+              fullscreenButton: false,
+              vrButton: false,
+              selectionIndicator: false,
+              timeline: false,
+              animation: false,
+              geocoder: false,
+              shouldAnimate: true,
+            }}
+            url={assetUrl}
+            onGetViewer={getViewer}
+          />
+        );
       case viewerType === "image":
-        return <Image src={assetUrl} alt="asset-preview" />;
+        return <ImageViewer url={assetUrl} />;
       case viewerType === "svg":
-        return <SVGPreview url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+      case viewerType === "model3d":
       case viewerType === "unsupported":
       default:
         return <ViewerNotSupported />;
@@ -162,12 +189,6 @@ const BodyWrapper = styled.div`
   height: 100%;
   overflow-y: auto;
   flex: 1;
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 500px;
-  object-fit: contain;
 `;
 
 const SideBarWrapper = styled.div`

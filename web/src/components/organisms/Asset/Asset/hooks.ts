@@ -4,7 +4,9 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Asset, PreviewType, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
-  fileFormats,
+  geoFormats,
+  geo3dFormats,
+  model3dFormats,
   imageFormats,
   compressedFileFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
@@ -71,11 +73,17 @@ export default (assetId?: string) => {
 
   useEffect(() => {
     switch (true) {
-      case (selectedPreviewType === "GEO" ||
-        selectedPreviewType === "GEO3D" ||
-        selectedPreviewType === "MODEL3D") &&
-        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("cesium");
+      case selectedPreviewType === "GEO" &&
+        (geoFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("geo");
+        break;
+      case selectedPreviewType === "GEO3D" &&
+        (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("geo3d");
+        break;
+      case selectedPreviewType === "MODEL3D" &&
+        (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("model3d");
         break;
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         isSVG ? setViewerType("svg") : setViewerType("image");
@@ -92,7 +100,7 @@ export default (assetId?: string) => {
   );
 
   const handleFullScreen = useCallback(() => {
-    if (viewerType === "cesium") {
+    if (viewerType === "geo" || viewerType === "geo3d" || viewerType === "model3d") {
       viewerRef?.canvas.requestFullscreen();
     } else if (viewerType === "image" || viewerType === "svg") {
       setIsModalVisible(true);
