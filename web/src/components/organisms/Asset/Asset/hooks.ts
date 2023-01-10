@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Asset, PreviewType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, PreviewType, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
+import {
+  fileFormats,
+  imageFormats,
+  compressedFileFormats,
+} from "@reearth-cms/components/molecules/Common/Asset";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -10,6 +15,7 @@ import {
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 
 import { convertAsset } from "../convertAsset";
 
@@ -22,6 +28,7 @@ export default (assetId?: string) => {
   const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: assetId ?? "",
+      withFiles: true,
     },
   });
 
@@ -35,7 +42,7 @@ export default (assetId?: string) => {
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType: previewType as GQLPreviewType },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType, withFiles: false },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
@@ -58,13 +65,39 @@ export default (assetId?: string) => {
     setSelectedPreviewType(value);
   }, []);
 
+  const [viewerType, setViewerType] = useState<ViewerType>("unsupported");
+  const assetFileExt = getExtension(asset?.fileName);
+  const isSVG = assetFileExt === "svg";
+
+  useEffect(() => {
+    switch (true) {
+      case (selectedPreviewType === "GEO" ||
+        selectedPreviewType === "GEO3D" ||
+        selectedPreviewType === "MODEL3D") &&
+        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("cesium");
+        break;
+      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
+        isSVG ? setViewerType("svg") : setViewerType("image");
+        break;
+      default:
+        setViewerType("unsupported");
+        break;
+    }
+  }, [asset?.previewType, assetFileExt, isSVG, selectedPreviewType]);
+
+  const displayUnzipFileList = useMemo(
+    () => compressedFileFormats.includes(assetFileExt),
+    [assetFileExt],
+  );
+
   const handleFullScreen = useCallback(() => {
-    if (selectedPreviewType === "GEO") {
+    if (viewerType === "cesium") {
       viewerRef?.canvas.requestFullscreen();
-    } else {
+    } else if (viewerType === "image" || viewerType === "svg") {
       setIsModalVisible(true);
     }
-  }, [selectedPreviewType]);
+  }, [viewerType]);
 
   const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
@@ -83,6 +116,8 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
+    viewerType,
+    displayUnzipFileList,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
