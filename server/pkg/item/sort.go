@@ -2,12 +2,10 @@ package item
 
 import (
 	"strings"
-
-	"github.com/reearth/reearth-cms/server/pkg/sort"
 )
 
 type Sort struct {
-	Direction sort.Direction
+	Direction Direction
 	SortBy    SortType
 }
 type SortType string

@@ -2,7 +2,6 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/sort"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -40,10 +39,10 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 
 type VersionedList []*version.Value[*Item]
 
-func (l VersionedList) SortByTimestamp(dir sort.Direction) VersionedList {
+func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 	m := slices.Clone(l)
 
-	if dir == sort.DescDirection {
+	if dir == DescDirection {
 		slices.SortFunc(m, func(a, b Versioned) bool {
 			return a.Value().timestamp.After(b.Value().Timestamp())
 		})
@@ -64,7 +63,7 @@ func (l VersionedList) Sort(st *Sort) VersionedList {
 	case SortTypeDate:
 		return l.SortByTimestamp(st.Direction)
 	default:
-		return l.SortByTimestamp(sort.AscDirection)
+		return l.SortByTimestamp(AscDirection)
 	}
 }
 
