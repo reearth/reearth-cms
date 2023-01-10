@@ -201,8 +201,8 @@ func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) 
 	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
 }
 
-func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindBySchema(ctx, schemaID, first, last, before, after)
+func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindBySchema(ctx, schemaID, sort, first, last, before, after)
 }
 
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
@@ -213,8 +213,8 @@ func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.I
 	return loaders(ctx).Item.FindByProject(ctx, projectID, first, last, before, after)
 }
 
-func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, query, &gqlmodel.Pagination{
+func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.Search(ctx, query, sort, &gqlmodel.Pagination{
 		First:  first,
 		Last:   last,
 		After:  after,

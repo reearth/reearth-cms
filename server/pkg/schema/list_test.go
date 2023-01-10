@@ -90,3 +90,18 @@ func TestFieldList_IDs(t *testing.T) {
 	}
 	assert.Equal(t, id.FieldIDList{id1, id2}, list.IDs())
 }
+
+func TestFieldList_Ordered(t *testing.T) {
+	id1 := NewFieldID()
+	id2 := NewFieldID()
+
+	list := FieldList{
+		&Field{id: id2, order: 2},
+		&Field{id: id1, order: 1},
+	}
+	res := list.Ordered()
+	assert.Equal(t, FieldList{
+		&Field{id: id1, order: 1},
+		&Field{id: id2, order: 2},
+	}, res)
+}

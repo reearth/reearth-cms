@@ -70,6 +70,24 @@ func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDLi
 	}, pagination)
 }
 
+func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {
+	pid := id.ID()
+	alias := id.Alias()
+	if pid == nil && (alias == nil || *alias == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	filter := bson.M{}
+	if pid != nil {
+		filter["id"] = pid.String()
+	}
+	if alias != nil {
+		filter["alias"] = *alias
+	}
+
+	return r.findOne(ctx, filter)
+}
+
 func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*project.Project, error) {
 	if name == "" {
 		return nil, rerror.ErrNotFound
