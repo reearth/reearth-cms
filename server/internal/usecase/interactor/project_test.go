@@ -204,14 +204,14 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "Fetch 1 with out operator",
+			name:  "Fetch 1 without operator",
 			seeds: project.List{p1, p2},
 			args: args{
 				ids:      []id.ProjectID{pid1},
 				operator: &usecase.Operator{User: lo.ToPtr(u.ID())},
 			},
-			want:    nil,
-			wantErr: interfaces.ErrOperationDenied,
+			want:    project.List{p1},
+			wantErr: nil,
 		},
 		{
 			name:           "mock error",

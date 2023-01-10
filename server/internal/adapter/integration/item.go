@@ -72,7 +72,8 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, ss.ID(), p, op)
+	// TODO: support sort
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, ss.ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilterWithProject404Response{}, err
