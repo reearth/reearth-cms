@@ -60,7 +60,7 @@ const RequestItemForm: React.FC<Props> = ({
   const { Option } = Select;
   const [form] = Form.useForm();
   return (
-    <StyledForm form={form} disabled={true} layout="vertical" initialValues={initialFormValues}>
+    <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
       <FormItemsWrapper>
         {schema?.fields.map((field: any) =>
           field.type === "TextArea" ? (
@@ -115,6 +115,7 @@ const RequestItemForm: React.FC<Props> = ({
                 />
               ) : (
                 <InputNumber
+                  disabled={true}
                   type="number"
                   min={field.typeProperty.min}
                   max={field.typeProperty.max}
@@ -128,6 +129,7 @@ const RequestItemForm: React.FC<Props> = ({
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
               {field.multiple ? (
                 <MultiValueAsset
+                  disabled={true}
                   assetList={assetList}
                   fileList={fileList}
                   loadingAssets={loadingAssets}
@@ -148,6 +150,7 @@ const RequestItemForm: React.FC<Props> = ({
                 />
               ) : (
                 <AssetItem
+                  disabled={true}
                   assetList={assetList}
                   fileList={fileList}
                   loadingAssets={loadingAssets}
@@ -176,7 +179,7 @@ const RequestItemForm: React.FC<Props> = ({
               {field.multiple ? (
                 <MultiValueSelect disabled={true} selectedValues={field.typeProperty?.values} />
               ) : (
-                <Select allowClear>
+                <Select disabled={true} allowClear>
                   {field.typeProperty?.values?.map((value: string) => (
                     <Option key={value} value={value}>
                       {value}
@@ -198,7 +201,11 @@ const RequestItemForm: React.FC<Props> = ({
                   FieldInput={Input}
                 />
               ) : (
-                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                <Input
+                  disabled={true}
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                />
               )}
             </Form.Item>
           ) : (
@@ -214,7 +221,11 @@ const RequestItemForm: React.FC<Props> = ({
                   FieldInput={Input}
                 />
               ) : (
-                <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                <Input
+                  disabled={true}
+                  showCount={true}
+                  maxLength={field.typeProperty.maxLength ?? 500}
+                />
               )}
             </Form.Item>
           ),

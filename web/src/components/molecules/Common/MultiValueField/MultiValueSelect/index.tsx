@@ -66,6 +66,7 @@ const MultiValueSelect: React.FC<Props> = ({
               </>
             )}
             <Select
+              disabled={disabled}
               style={{ flex: 1 }}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
