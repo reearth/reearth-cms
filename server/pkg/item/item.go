@@ -20,6 +20,7 @@ type Item struct {
 	fields      []*Field
 	timestamp   time.Time
 	thread      ThreadID
+	status      []Status
 	user        *UserID
 	integration *IntegrationID
 }
@@ -36,6 +37,10 @@ func (i *Item) User() *UserID {
 
 func (i *Item) Integration() *IntegrationID {
 	return i.integration
+}
+
+func (i *Item) Status() []Status {
+	return i.status
 }
 
 func (i *Item) Fields() []*Field {
