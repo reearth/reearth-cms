@@ -222,8 +222,8 @@ func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery
 	})
 }
 
-func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error) {
-	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, &gqlmodel.Pagination{
+func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error) {
+	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, &gqlmodel.Pagination{
 		First:  first,
 		Last:   last,
 		After:  after,
