@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/reearth/reearthx/util"
 )
 
 type Project struct {
@@ -28,22 +27,15 @@ func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 }
 
 func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) (project.List, error) {
-	projects, err := i.repos.Project.FindByIDs(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	pIDs := util.Map(projects, func(p *project.Project) id.WorkspaceID { return p.Workspace() })
-	return Run1(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(pIDs...).Transaction(),
-		func() (project.List, error) {
-			return i.repos.Project.FindByIDs(ctx, ids)
-		})
+	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
 func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return Run2(ctx, operator, i.repos, Usecase().WithReadableWorkspaces(wid).Transaction(),
-		func() (project.List, *usecasex.PageInfo, error) {
-			return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
-		})
+	return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
+}
+
+func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, operator *usecase.Operator) (*project.Project, error) {
+	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
 func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
