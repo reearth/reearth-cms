@@ -3491,9 +3491,11 @@ type AssetFile {
 
 enum PreviewType {
   IMAGE
+  IMAGE_SVG
   GEO
-  GEO3D
-  MODEL3D
+  GEO_3D_TILES
+  GEO_MVT
+  MODEL_3D
   UNKNOWN
 }
 
