@@ -78,8 +78,17 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		}
 	}
+
 	if uFilter.State != nil {
 		filter["state"] = uFilter.State.String()
+	}
+
+	if uFilter.CreatedBy != nil {
+		filter["createdby"] = uFilter.CreatedBy.String()
+	}
+
+	if uFilter.Reviewer != nil {
+		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
 	return r.paginate(ctx, &filter, page)

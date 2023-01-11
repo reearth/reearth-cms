@@ -1,11 +1,11 @@
-import PublicMolecule from "@reearth-cms/components/molecules/Public";
+import AccessibilityMolecule from "@reearth-cms/components/molecules/Accessibility";
 
 import useHooks from "./hooks";
 
-const Public: React.FC = () => {
+const Accessibility: React.FC = () => {
   const { projectScope, models, handlePublicUpdate, alias, assetPublic } = useHooks();
   return (
-    <PublicMolecule
+    <AccessibilityMolecule
       assetPublic={assetPublic}
       projectScope={projectScope}
       models={models}
@@ -15,4 +15,4 @@ const Public: React.FC = () => {
   );
 };
 
-export default Public;
+export default Accessibility;

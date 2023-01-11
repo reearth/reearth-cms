@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 export type Props = {
   className?: string;
-  title: string;
+  title?: string;
   danger?: boolean;
   headerActions?: ReactNode;
   children?: ReactNode;
@@ -12,10 +12,12 @@ export type Props = {
 const ContentSection: React.FC<Props> = ({ title, headerActions, children, danger }) => {
   return (
     <Wrapper danger={danger}>
-      <Header>
-        <Title>{title}</Title>
-        {headerActions}
-      </Header>
+      {title && (
+        <Header>
+          <Title>{title}</Title>
+          {headerActions}
+        </Header>
+      )}
       <GridArea>{children}</GridArea>
     </Wrapper>
   );

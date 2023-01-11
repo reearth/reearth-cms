@@ -82,6 +82,11 @@ func (b *FieldBuilder) Required(required bool) *FieldBuilder {
 	return b
 }
 
+func (b *FieldBuilder) Order(o int) *FieldBuilder {
+	b.f.order = o
+	return b
+}
+
 func (b *FieldBuilder) Name(name string) *FieldBuilder {
 	b.f.name = name
 	return b

@@ -39,12 +39,32 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 
 type VersionedList []*version.Value[*Item]
 
-func (l VersionedList) SortByTimestamp() VersionedList {
+func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b Versioned) bool {
-		return a.Value().timestamp.Before(b.Value().Timestamp())
-	})
+
+	if dir == DescDirection {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().timestamp.After(b.Value().Timestamp())
+		})
+	} else {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().timestamp.Before(b.Value().Timestamp())
+		})
+	}
 	return m
+}
+func (l VersionedList) Sort(st *Sort) VersionedList {
+	m := slices.Clone(l)
+	if st == nil {
+		return m
+	}
+
+	switch st.SortBy {
+	case SortTypeDate:
+		return l.SortByTimestamp(st.Direction)
+	default:
+		return l.SortByTimestamp(AscDirection)
+	}
 }
 
 func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {

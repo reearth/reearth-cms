@@ -9,7 +9,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -18,8 +20,9 @@ import (
 )
 
 type Request struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos       *repo.Container
+	gateways    *gateway.Container
+	ignoreEvent bool
 }
 
 func NewRequest(r *repo.Container, g *gateway.Container) *Request {
@@ -29,18 +32,19 @@ func NewRequest(r *repo.Container, g *gateway.Container) *Request {
 	}
 }
 
-func (r Request) FindByID(ctx context.Context, id id.RequestID, operator *usecase.Operator) (*request.Request, error) {
+func (r Request) FindByID(ctx context.Context, id id.RequestID, _ *usecase.Operator) (*request.Request, error) {
 	return r.repos.Request.FindByID(ctx, id)
 }
 
-func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator *usecase.Operator) (request.List, error) {
+func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecase.Operator) (request.List, error) {
 	return r.repos.Request.FindByIDs(ctx, list)
 }
 
-func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
+func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
-		State:   filter.State,
-		Keyword: filter.Keyword,
+		State:    filter.State,
+		Keyword:  filter.Keyword,
+		Reviewer: filter.Reviewer,
 	}, pagination)
 }
 
@@ -64,8 +68,8 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		for _, item := range repoItems {
-			if item.Refs().Has(version.Latest) {
+		for _, itm := range repoItems {
+			if itm.Refs().Has(version.Latest) {
 				return nil, interfaces.ErrAlreadyPublished
 			}
 		}
@@ -167,8 +171,8 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 				return nil, err
 			}
 
-			for _, item := range repoItems {
-				if item.Refs().Has(version.Latest) {
+			for _, itm := range repoItems {
+				if itm.Refs().Has(version.Latest) {
 					return nil, interfaces.ErrAlreadyPublished
 				}
 			}
@@ -202,33 +206,76 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	req, err := r.repos.Request.FindByID(ctx, requestID)
+	req, err := Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
+		req, err := r.repos.Request.FindByID(ctx, requestID)
+		if err != nil {
+			return nil, err
+		}
+		if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
+		}
+		// only reviewers can approve
+		if !req.Reviewers().Has(*operator.User) {
+			return nil, errors.New("only reviewers can approve")
+		}
+
+		if req.State() != request.StateWaiting {
+			return nil, errors.New("only requests with status waiting can be approved")
+		}
+		req.SetState(request.StateApproved)
+
+		if err := r.repos.Request.Save(ctx, req); err != nil {
+			return nil, err
+		}
+
+		// apply changes to items (publish items)
+		for _, itm := range req.Items() {
+			// publish the approved version
+			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+		}
+
+		return req, nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	if !operator.IsOwningWorkspace(req.Workspace()) && !operator.IsMaintainingWorkspace(req.Workspace()) {
-		return nil, interfaces.ErrInvalidOperator
-	}
-	// only reviewers can approve
-	if !req.Reviewers().Has(*operator.User) {
-		return nil, errors.New("only reviewers can approve")
-	}
-
-	if req.State() != request.StateWaiting {
-		return nil, errors.New("only requests with status waiting can be approved")
-	}
-	req.SetState(request.StateApproved)
-
-	if err := r.repos.Request.Save(ctx, req); err != nil {
+	items, err := r.repos.Item.FindByIDs(ctx, req.Items().IDs(), nil)
+	if err != nil {
 		return nil, err
 	}
-
-	// apply changes to items (publish items)
-	for _, item := range req.Items() {
-		// publish the approved version
-		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+	m, err := r.repos.Model.FindByID(ctx, items[0].Value().Model())
+	if err != nil {
+		return nil, err
+	}
+	sch, err := r.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return nil, err
+	}
+	for _, itm := range items {
+		if err := r.event(ctx, Event{
+			Workspace: req.Workspace(),
+			Type:      event.ItemPublish,
+			Object:    itm,
+			WebhookObject: item.ItemModelSchema{
+				Item:   itm.Value(),
+				Model:  m,
+				Schema: sch,
+			},
+			Operator: operator.Operator(),
+		}); err != nil {
 			return nil, err
 		}
 	}
 	return req, nil
+}
+
+func (r Request) event(ctx context.Context, e Event) error {
+	if r.ignoreEvent {
+		return nil
+	}
+
+	_, err := createEvent(ctx, r.repos, r.gateways, e)
+	return err
 }
