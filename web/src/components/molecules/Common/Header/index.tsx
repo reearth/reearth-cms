@@ -3,10 +3,11 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
-import Avatar from "@reearth-cms/components/atoms/Avatar";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { useT } from "@reearth-cms/i18n";
 import { Project, Workspace } from "@reearth-cms/state";
 
@@ -22,6 +23,7 @@ export interface Props {
   currentProject?: Project;
   onWorkspaceModalOpen: () => void;
   onNavigateToSettings: () => void;
+  logoUrl?: string;
 }
 
 const HeaderMolecule: React.FC<Props> = ({
@@ -32,6 +34,7 @@ const HeaderMolecule: React.FC<Props> = ({
   currentProject,
   onWorkspaceModalOpen,
   onNavigateToSettings,
+  logoUrl,
 }) => {
   const t = useT();
   const { logout } = useAuth();
@@ -63,13 +66,13 @@ const HeaderMolecule: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id === personalWorkspace?.id)
             ?.map(workspace => ({
-              label: <MenuText>{workspace.name}</MenuText>,
-              key: workspace.id,
-              icon: (
-                <Avatar style={{ color: "#fff", backgroundColor: "#3F3D45" }} size="small">
-                  {workspace.name.charAt(0)}
-                </Avatar>
+              label: (
+                <Tooltip title={workspace.name} placement="right">
+                  <MenuText>{workspace.name}</MenuText>
+                </Tooltip>
               ),
+              key: workspace.id,
+              icon: <UserAvatar username={workspace.name} size="small" />,
               style: { paddingLeft: 0, paddingRight: 0 },
               onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
@@ -84,19 +87,13 @@ const HeaderMolecule: React.FC<Props> = ({
           children: workspaces
             ?.filter(workspace => workspace.id !== personalWorkspace?.id)
             ?.map(workspace => ({
-              label: <MenuText>{workspace.name}</MenuText>,
-              key: workspace.id,
-              icon: (
-                <Avatar
-                  shape="square"
-                  style={{
-                    color: "#fff",
-                    backgroundColor: "#3F3D45",
-                  }}
-                  size="small">
-                  {workspace.name.charAt(0)}
-                </Avatar>
+              label: (
+                <Tooltip title={workspace.name} placement="right">
+                  <MenuText>{workspace.name}</MenuText>
+                </Tooltip>
               ),
+              key: workspace.id,
+              icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
               style: { paddingLeft: 0, paddingRight: 0 },
               onClick: () => handleWorkspaceNavigation(workspace.id),
             })),
@@ -132,7 +129,11 @@ const HeaderMolecule: React.FC<Props> = ({
 
   return (
     <MainHeader>
-      <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      {logoUrl ? (
+        <LogoIcon src={logoUrl} onClick={handleHomeNavigation} />
+      ) : (
+        <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      )}
       <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
@@ -172,6 +173,12 @@ const Logo = styled.div`
   line-height: 48px;
   cursor: pointer;
   padding: 0 40px 0 20px;
+`;
+
+const LogoIcon = styled.img`
+  width: 100px;
+  margin: 0 0 0 10px;
+  cursor: pointer;
 `;
 
 const Spacer = styled.div`

@@ -3,10 +3,16 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-const Greeting: React.FC = () => {
+export type Props = {
+  coverImageUrl?: string;
+};
+
+const Greeting: React.FC<Props> = ({ coverImageUrl }) => {
   const t = useT();
 
-  return (
+  return coverImageUrl ? (
+    <CoverImage src={coverImageUrl} />
+  ) : (
     <DashboardCard>
       <Text>{t("Welcome to Re:Earth CMS !")}</Text>
     </DashboardCard>
@@ -27,6 +33,11 @@ const Text = styled.p`
   line-height: 28px;
   color: #fff;
   margin: 0;
+`;
+
+const CoverImage = styled.img`
+  width: 100%;
+  object-fit: cover;
 `;
 
 export default Greeting;

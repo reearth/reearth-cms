@@ -19,7 +19,7 @@ const SelectField: React.FC<Props> = ({ selectedValues, multiple }) => {
       {multiple ? (
         <MultiValueSelect selectedValues={selectedValues} />
       ) : (
-        <Select>
+        <Select allowClear>
           {selectedValues?.map((value: string) => (
             <Option key={value} value={value}>
               {value}

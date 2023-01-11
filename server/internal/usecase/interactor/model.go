@@ -44,6 +44,10 @@ func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, op
 	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindByIDOrKey(ctx, p, q)
+}
+
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func() (_ *model.Model, err error) {

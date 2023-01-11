@@ -26,10 +26,10 @@ const MultiValueField: React.FC<Props> = ({
 }) => {
   const t = useT();
   const handleInput = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, id: number) => {
+    (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
-          index === id ? (typeof e === "number" ? e : e.target.value) : valueItem,
+          index === id ? (typeof e === "number" ? e : e?.target.value) : valueItem,
         ),
       );
     },
@@ -51,39 +51,47 @@ const MultiValueField: React.FC<Props> = ({
     <div className={className}>
       {value?.map((valueItem, key) => (
         <FieldWrapper key={key}>
-          <FieldButton
-            type="link"
-            icon={<Icon icon="arrowUp" />}
-            onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-            disabled={key === 0}
-          />
-          <FieldButton
-            type="link"
-            icon={<Icon icon="arrowDown" />}
-            onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-            disabled={key === value.length - 1}
-          />
+          {!props.disabled && (
+            <>
+              <FieldButton
+                type="link"
+                icon={<Icon icon="arrowUp" />}
+                onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
+                disabled={key === 0}
+              />
+              <FieldButton
+                type="link"
+                icon={<Icon icon="arrowDown" />}
+                onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
+                disabled={key === value.length - 1}
+              />
+            </>
+          )}
           <FieldInput
             style={{ flex: 1 }}
             {...props}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
             value={valueItem}
           />
-          <FieldButton
-            type="link"
-            icon={<Icon icon="delete" />}
-            onClick={() => handleInputDelete(key)}
-          />
+          {!props.disabled && (
+            <FieldButton
+              type="link"
+              icon={<Icon icon="delete" />}
+              onClick={() => handleInputDelete(key)}
+            />
+          )}
         </FieldWrapper>
       ))}
-      <Button
-        icon={<Icon icon="plus" />}
-        type="primary"
-        onClick={() => {
-          onChange?.([...value, ""]);
-        }}>
-        {t("New")}
-      </Button>
+      {!props.disabled && (
+        <Button
+          icon={<Icon icon="plus" />}
+          type="primary"
+          onClick={() => {
+            onChange?.([...value, ""]);
+          }}>
+          {t("New")}
+        </Button>
+      )}
     </div>
   );
 };

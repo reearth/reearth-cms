@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Public";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -18,6 +18,7 @@ export default () => {
   const { projectId, workspaceId } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const logoUrl = window.REEARTH_CONFIG?.logoUrl;
 
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [currentProject, setCurrentProject] = useProject();
@@ -99,6 +100,8 @@ export default () => {
           name: project.name,
           description: project.description,
           scope: convertScope(project.publication?.scope),
+          alias: project.alias,
+          assetPublic: project.publication?.assetPublic,
         });
       }
     } else {
@@ -121,6 +124,7 @@ export default () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    logoUrl,
   };
 };
 

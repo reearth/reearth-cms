@@ -22,6 +22,7 @@ type FieldDocument struct {
 	ID           string
 	Name         string
 	Description  string
+	Order        int
 	Key          string
 	Unique       bool
 	Multiple     bool
@@ -71,6 +72,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			ID:           f.ID().String(),
 			Name:         f.Name(),
 			Description:  f.Description(),
+			Order:        f.Order(),
 			Key:          f.Key().String(),
 			Unique:       f.Unique(),
 			Multiple:     f.Multiple(),
@@ -206,6 +208,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Name(fd.Name).
 			Unique(fd.Unique).
 			Multiple(fd.Multiple).
+			Order(fd.Order).
 			Required(fd.Required).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).

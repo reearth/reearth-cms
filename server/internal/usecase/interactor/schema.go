@@ -119,6 +119,10 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			f.SetDescription(*param.Description)
 		}
 
+		if param.Order != nil {
+			f.SetOrder(*param.Order)
+		}
+
 		if param.Required != nil {
 			f.SetRequired(*param.Required)
 		}

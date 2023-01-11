@@ -14,6 +14,7 @@ import { useWorkspace } from "@reearth-cms/state";
 export default () => {
   const t = useT();
   const navigate = useNavigate();
+  const coverImageUrl = window.REEARTH_CONFIG?.coverImageUrl;
 
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
@@ -65,12 +66,13 @@ export default () => {
   );
 
   const handleProjectCreate = useCallback(
-    async (data: { name: string; description: string }) => {
+    async (data: { name: string; alias: string; description: string }) => {
       if (!workspaceId) return;
       const project = await createNewProject({
         variables: {
           workspaceId,
           name: data.name,
+          alias: data.alias,
           description: data.description,
         },
       });
@@ -134,5 +136,6 @@ export default () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
+    coverImageUrl,
   };
 };

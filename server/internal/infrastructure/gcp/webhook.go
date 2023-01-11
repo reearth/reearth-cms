@@ -5,29 +5,22 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	integration "github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearthx/util"
 )
 
 type webhookData struct {
-	URL       string    `json:"url"`
-	Secret    string    `json:"secret"`
-	Timestamp time.Time `json:"timestamp"`
-	EventID   string    `json:"eventId"`
-	EventType string    `json:"type"`
-	EventData any       `json:"data"`
+	URL       string                  `json:"url"`
+	Secret    string                  `json:"secret"`
+	Timestamp time.Time               `json:"timestamp"`
+	EventID   string                  `json:"eventId"`
+	EventType string                  `json:"type"`
+	EventData any                     `json:"data"`
+	Operator  integrationapi.Operator `json:"operator"`
 }
 
 func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) ([]byte, error) {
-	var obj any
-	if w.Override != nil {
-		obj = w.Override
-	} else {
-		obj = w.Event.Object()
-	}
-
-	ed, err := integration.New(obj, "", urlResolver)
+	ed, err := integrationapi.NewEventWith(w.Event, w.Override, "", urlResolver)
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +28,11 @@ func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) (
 	d := webhookData{
 		URL:       w.Webhook.URL().String(),
 		Secret:    w.Webhook.Secret(),
-		Timestamp: util.Now(),
-		EventID:   w.Event.ID().String(),
-		EventType: string(w.Event.Type()),
-		EventData: ed,
+		Timestamp: ed.Timestamp,
+		EventID:   ed.ID,
+		EventType: ed.Type,
+		EventData: ed.Data,
+		Operator:  ed.Operator,
 	}
 
 	return json.Marshal(d)

@@ -27,7 +27,7 @@ const ProjectMenu: React.FC<Props> = ({
     { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
     { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    // { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
@@ -39,8 +39,8 @@ const ProjectMenu: React.FC<Props> = ({
 
   const items: ItemType[] = [
     {
-      label: t("Public"),
-      key: "public",
+      label: t("Accessibility"),
+      key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
@@ -61,8 +61,8 @@ const ProjectMenu: React.FC<Props> = ({
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
       } else if (e.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-      } else if (e.key === "public") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/public`);
+      } else if (e.key === "accessibility") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
       } else if (e.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {

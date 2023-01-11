@@ -233,7 +233,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
+			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -339,7 +339,7 @@ func TestItem_FindByProject(t *testing.T) {
 		seedItems   item.List
 		seedProject *project.Project
 		args        args
-		want        item.List
+		want        int
 		mockItemErr bool
 		wantErr     error
 	}{
@@ -351,7 +351,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -362,7 +362,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -373,7 +373,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       id.NewProjectID(),
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -403,7 +403,7 @@ func TestItem_FindByProject(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got.Unwrap())
+			assert.Equal(t, tc.want, len(got.Unwrap()))
 		})
 	}
 }
@@ -452,7 +452,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "foo", nil),
+				query:    item.NewQuery(pid, nil, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -469,7 +469,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "hoge", nil),
+				query:    item.NewQuery(pid, nil, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -486,7 +486,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "xxx", nil),
+				query:    item.NewQuery(pid, nil, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
@@ -511,7 +511,7 @@ func TestItem_Search(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, tc.args.query, nil, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -626,11 +626,13 @@ func TestItem_Create(t *testing.T) {
 }
 
 func TestItem_Update(t *testing.T) {
+	uId := id.NewUserID().Ref()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
-	i := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().User(id.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -638,11 +640,12 @@ func TestItem_Update(t *testing.T) {
 	lo.Must0(db.Model.Save(ctx, m))
 	lo.Must0(db.Item.Save(ctx, i))
 	lo.Must0(db.Item.Save(ctx, i2))
+	lo.Must0(db.Item.Save(ctx, i3))
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
 
 	op := &usecase.Operator{
-		User:             id.NewUserID().Ref(),
+		User:             uId,
 		ReadableProjects: []id.ProjectID{s.Project()},
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
@@ -695,6 +698,19 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
 	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	// update no permission
+	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i3.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, op)
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
 
 	// duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -754,12 +770,12 @@ func TestItem_Update(t *testing.T) {
 }
 
 func TestItem_Delete(t *testing.T) {
-	sid := id.NewSchemaID()
-	id1 := id.NewItemID()
-	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	sid := id.NewSchemaID()
+	id1 := id.NewItemID()
+	i1 := item.New().ID(id1).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+
 	op := &usecase.Operator{
 		User:             lo.ToPtr(u.ID()),
 		WritableProjects: id.ProjectIDList{i1.Project()},

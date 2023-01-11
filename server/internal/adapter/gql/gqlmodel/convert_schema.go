@@ -36,6 +36,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		TypeProperty: ToSchemaFieldTypeProperty(sf.TypeProperty(), sf.DefaultValue(), sf.Multiple()),
 		Key:          sf.Key().String(),
 		Title:        sf.Name(),
+		Order:        lo.ToPtr(sf.Order()),
 		Description:  lo.ToPtr(sf.Description()),
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
@@ -287,10 +288,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 		var min, max *int64
 		if x.Min != nil {
-			min = lo.ToPtr(int64(*min))
+			min = lo.ToPtr(int64(*x.Min))
 		}
 		if x.Max != nil {
-			min = lo.ToPtr(int64(*max))
+			max = lo.ToPtr(int64(*x.Max))
 		}
 		tpi, err2 := schema.NewInteger(min, max)
 		if err2 != nil {

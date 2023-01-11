@@ -148,7 +148,11 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
-            integer: { defaultValue: values.defaultValue, min: +values.min, max: +values.max },
+            integer: {
+              defaultValue: values.defaultValue ?? null,
+              min: values.min ?? null,
+              max: values.max ?? null,
+            },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
@@ -239,7 +243,7 @@ const FieldCreationModal: React.FC<Props> = ({
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={100} />
+              <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (
               <>

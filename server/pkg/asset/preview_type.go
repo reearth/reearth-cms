@@ -9,11 +9,13 @@ import (
 type PreviewType string
 
 const (
-	PreviewTypeImage   PreviewType = "image"
-	PreviewTypeGeo     PreviewType = "geo"
-	PreviewTypeGeo3d   PreviewType = "geo3d"
-	PreviewTypeModel3d PreviewType = "model3d"
-	PreviewTypeUnknown PreviewType = "unknown"
+	PreviewTypeImage      PreviewType = "image"
+	PreviewTypeImageSvg   PreviewType = "image_svg"
+	PreviewTypeGeo        PreviewType = "geo"
+	PreviewTypeGeo3dTiles PreviewType = "geo_3d_tiles"
+	PreviewTypeGeoMvt     PreviewType = "geo_mvt"
+	PreviewTypeModel3d    PreviewType = "model_3d"
+	PreviewTypeUnknown    PreviewType = "unknown"
 )
 
 func PreviewTypeFrom(p string) (PreviewType, bool) {
@@ -21,10 +23,14 @@ func PreviewTypeFrom(p string) (PreviewType, bool) {
 	switch PreviewType(pp) {
 	case PreviewTypeImage:
 		return PreviewTypeImage, true
+	case PreviewTypeImageSvg:
+		return PreviewTypeImageSvg, true
 	case PreviewTypeGeo:
 		return PreviewTypeGeo, true
-	case PreviewTypeGeo3d:
-		return PreviewTypeGeo3d, true
+	case PreviewTypeGeo3dTiles:
+		return PreviewTypeGeo3dTiles, true
+	case PreviewTypeGeoMvt:
+		return PreviewTypeGeoMvt, true
 	case PreviewTypeModel3d:
 		return PreviewTypeModel3d, true
 	case PreviewTypeUnknown:
@@ -48,6 +54,9 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 
 func PreviewTypeFromContentType(c string) *PreviewType {
 	if strings.HasPrefix(c, "image/") {
+		if strings.HasPrefix(c, "image/svg") {
+			return lo.ToPtr(PreviewTypeImageSvg)
+		}
 		return lo.ToPtr(PreviewTypeImage)
 	}
 	return lo.ToPtr(PreviewTypeUnknown)

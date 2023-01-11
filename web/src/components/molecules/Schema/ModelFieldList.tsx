@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
@@ -10,17 +12,31 @@ import { Field } from "./types";
 export interface Props {
   className?: string;
   fields?: Field[];
-  handleFieldDelete: (fieldId: string) => Promise<void>;
+  onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
 }
 
 const ModelFieldList: React.FC<Props> = ({
   className,
   fields,
-  handleFieldDelete,
+  onFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
   const t = useT();
+  const { confirm } = Modal;
+
+  const handleFieldDeleteConfirmation = useCallback(
+    (fieldId: string) => {
+      confirm({
+        title: t("Are you sure you want to delete this field?"),
+        icon: <Icon icon="exclamationCircle" />,
+        onOk() {
+          onFieldDelete(fieldId);
+        },
+      });
+    },
+    [confirm, onFieldDelete, t],
+  );
 
   return (
     <FieldStyledList
@@ -32,7 +48,7 @@ const ModelFieldList: React.FC<Props> = ({
           actions={[
             <Icon
               icon="delete"
-              onClick={() => handleFieldDelete((item as Field).id)}
+              onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
               key="delete"
             />,
             <Icon

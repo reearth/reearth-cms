@@ -53,6 +53,12 @@ models:
         resolver: true
       thread:
         resolver: true
+      model:
+        resolver: true
+      user:
+        resolver: true
+      integration:
+        resolver: true
   Model:
     fields:
       project:
@@ -67,11 +73,17 @@ models:
     fields:
       project:
         resolver: true
+      createdBy:
+        resolver: true
       workspace:
         resolver: true
       thread:
         resolver: true
       reviewers:
+        resolver: true
+  RequestItem:
+    fields:
+      item:
         resolver: true
   SchemaField:
     fields:

@@ -21,6 +21,7 @@ type Field struct {
 	updatedAt    time.Time
 	defaultValue *value.Multiple
 	typeProperty *TypeProperty
+	order        int
 }
 
 func (f *Field) ID() FieldID {
@@ -39,8 +40,16 @@ func (f *Field) Description() string {
 	return f.description
 }
 
+func (f *Field) Order() int {
+	return f.order
+}
+
 func (f *Field) SetDescription(description string) {
 	f.description = description
+}
+
+func (f *Field) SetOrder(o int) {
+	f.order = o
 }
 
 func (f *Field) DefaultValue() *value.Multiple {
@@ -56,7 +65,7 @@ func (f *Field) SetDefaultValue(v *value.Multiple) error {
 	if v.Type() != f.Type() {
 		return ErrInvalidValue
 	}
-	if err := f.Validate(v); err != nil {
+	if err := f.ValidateValue(v); err != nil {
 		return err
 	}
 	f.defaultValue = v
@@ -118,7 +127,7 @@ func (f *Field) SetTypeProperty(tp *TypeProperty) error {
 	if tp == nil {
 		return ErrInvalidType
 	}
-	if f.defaultValue != nil {
+	if !f.defaultValue.IsEmpty() {
 		for _, v := range f.defaultValue.Values() {
 			if err := tp.Validate(v); err != nil {
 				return err
@@ -154,6 +163,10 @@ func (f *Field) Validate(m *value.Multiple) error {
 	if f.required && m.IsEmpty() {
 		return ErrValueRequired
 	}
+	return f.ValidateValue(m)
+}
+
+func (f *Field) ValidateValue(m *value.Multiple) error {
 	if m.IsEmpty() {
 		return nil
 	}

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import MVTPreview from "@reearth-cms/components/atoms/MVTPreview";
@@ -10,7 +10,8 @@ import {
 } from "@reearth-cms/components/atoms/MVTPreview/imagery.type";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -21,13 +22,7 @@ import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import {
-  fileFormats,
-  imageFormats,
-  compressedFileFormats,
-} from "@reearth-cms/components/molecules/Common/Asset";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -37,6 +32,8 @@ type Props = {
   asset: Asset;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  viewerType: ViewerType;
+  displayUnzipFileList: boolean;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -51,6 +48,8 @@ const AssetMolecule: React.FC<Props> = ({
   asset,
   selectedPreviewType,
   isModalVisible,
+  viewerType,
+  displayUnzipFileList,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -60,12 +59,6 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-  const assetFileExt = getExtension(asset.fileName) ?? "";
-  const displayUnzipFileList = useMemo(
-    () => compressedFileFormats.includes(assetFileExt),
-    [assetFileExt],
-  );
-  const isSVG = assetFileExt === "svg";
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
@@ -75,10 +68,7 @@ const AssetMolecule: React.FC<Props> = ({
   };
   const renderPreview = () => {
     switch (true) {
-      case (selectedPreviewType === "GEO" ||
-        selectedPreviewType === "GEO3D" ||
-        selectedPreviewType === "MODEL3D") &&
-        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+      case viewerType === "cesium":
         return (
           <TilesetPreview
             viewerProps={{
@@ -101,13 +91,11 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        return isSVG ? (
-          <SVGPreview url={assetUrl} svgRender={svgRender} />
-        ) : (
-          <Image src={assetUrl} alt="asset-preview" />
-        );
-      case selectedPreviewType === "MVT" && assetFileExt === "mvt":
+      case viewerType === "image":
+        return <Image src={assetUrl} alt="asset-preview" />;
+      case viewerType === "svg":
+        return <SVGPreview url={assetUrl} svgRender={svgRender} />;
+      case viewerType === "mvt":
         return (
           <MVTPreview
             viewerProps={{
@@ -128,6 +116,7 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
+      case viewerType === "unsupported":
       default:
         return <ViewerNotSupported />;
     }
@@ -141,9 +130,8 @@ const AssetMolecule: React.FC<Props> = ({
           toolbar={
             <PreviewToolbar
               url={assetUrl}
-              selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
-              isSVG={isSVG}
+              viewerType={viewerType}
               handleCodeSourceClick={handleCodeSourceClick}
               handleRenderClick={handleRenderClick}
               handleFullScreen={onChangeToFullScreen}
@@ -177,7 +165,9 @@ const AssetMolecule: React.FC<Props> = ({
           />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>{asset.createdBy}</SideBarCard>
+        <SideBarCard title={t("Created By")}>
+          <UserAvatar username={asset.createdBy} shadow />
+        </SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
   );

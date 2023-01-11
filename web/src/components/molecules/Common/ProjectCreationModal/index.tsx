@@ -8,6 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
   name: string;
+  alias: string;
   description: string;
 }
 
@@ -19,6 +20,7 @@ export type Props = {
 
 const initialValues: FormValues = {
   name: "",
+  alias: "",
   description: "",
 };
 
@@ -49,6 +51,12 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
           name="name"
           label={t("Project name")}
           rules={[{ required: true, message: t("Please input the name of project!") }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name={"alias"}
+          label={t("Project alias")}
+          rules={[{ required: true, message: t("Please input the alias of project!") }]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>

@@ -43,6 +43,10 @@ export type AddUsersToWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type ApproveRequestInput = {
+  requestId: Scalars['ID'];
+};
+
 export enum ArchiveExtractionStatus {
   Done = 'DONE',
   Failed = 'FAILED',
@@ -101,7 +105,7 @@ export enum AssetSortType {
 
 export type Comment = {
   __typename?: 'Comment';
-  author: Operator;
+  author?: Maybe<Operator>;
   authorId: Scalars['ID'];
   authorType: OperatorType;
   content: Scalars['String'];
@@ -163,6 +167,15 @@ export type CreateProjectInput = {
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   workspaceId: Scalars['ID'];
+};
+
+export type CreateRequestInput = {
+  description?: InputMaybe<Scalars['String']>;
+  items: Array<RequestItemInput>;
+  projectId: Scalars['ID'];
+  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  state?: InputMaybe<RequestState>;
+  title: Scalars['String'];
 };
 
 export type CreateThreadInput = {
@@ -262,6 +275,16 @@ export type DeleteProjectPayload = {
   projectId: Scalars['ID'];
 };
 
+export type DeleteRequestInput = {
+  projectId: Scalars['ID'];
+  requestsId: Array<Scalars['ID']>;
+};
+
+export type DeleteRequestPayload = {
+  __typename?: 'DeleteRequestPayload';
+  requests: Array<Scalars['ID']>;
+};
+
 export type DeleteWebhookInput = {
   integrationId: Scalars['ID'];
   webhookId: Scalars['ID'];
@@ -321,6 +344,7 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  model: Model;
   modelId: Scalars['ID'];
   project: Project;
   projectId: Scalars['ID'];
@@ -431,12 +455,14 @@ export type Mutation = {
   addComment?: Maybe<CommentPayload>;
   addIntegrationToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   addUsersToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
+  approveRequest?: Maybe<RequestPayload>;
   createAsset?: Maybe<CreateAssetPayload>;
   createField?: Maybe<FieldPayload>;
   createIntegration?: Maybe<IntegrationPayload>;
   createItem?: Maybe<ItemPayload>;
   createModel?: Maybe<ModelPayload>;
   createProject?: Maybe<ProjectPayload>;
+  createRequest?: Maybe<RequestPayload>;
   createThread?: Maybe<ThreadPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
@@ -448,6 +474,7 @@ export type Mutation = {
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
+  deleteRequest?: Maybe<DeleteRequestPayload>;
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishModel?: Maybe<PublishModelPayload>;
@@ -463,6 +490,7 @@ export type Mutation = {
   updateMe?: Maybe<UpdateMePayload>;
   updateModel?: Maybe<ModelPayload>;
   updateProject?: Maybe<ProjectPayload>;
+  updateRequest?: Maybe<RequestPayload>;
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
@@ -481,6 +509,11 @@ export type MutationAddIntegrationToWorkspaceArgs = {
 
 export type MutationAddUsersToWorkspaceArgs = {
   input: AddUsersToWorkspaceInput;
+};
+
+
+export type MutationApproveRequestArgs = {
+  input: ApproveRequestInput;
 };
 
 
@@ -511,6 +544,11 @@ export type MutationCreateModelArgs = {
 
 export type MutationCreateProjectArgs = {
   input: CreateProjectInput;
+};
+
+
+export type MutationCreateRequestArgs = {
+  input: CreateRequestInput;
 };
 
 
@@ -566,6 +604,11 @@ export type MutationDeleteModelArgs = {
 
 export type MutationDeleteProjectArgs = {
   input: DeleteProjectInput;
+};
+
+
+export type MutationDeleteRequestArgs = {
+  input: DeleteRequestInput;
 };
 
 
@@ -644,6 +687,11 @@ export type MutationUpdateProjectArgs = {
 };
 
 
+export type MutationUpdateRequestArgs = {
+  input: UpdateRequestInput;
+};
+
+
 export type MutationUpdateUserOfWorkspaceArgs = {
   input: UpdateUserOfWorkspaceInput;
 };
@@ -668,6 +716,7 @@ export enum NodeType {
   Item = 'Item',
   Model = 'Model',
   Project = 'PROJECT',
+  Request = 'REQUEST',
   Schema = 'Schema',
   User = 'USER',
   Workspace = 'WORKSPACE'
@@ -777,6 +826,7 @@ export type Query = {
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
+  requests: RequestConnection;
   searchItem: ItemConnection;
   searchUser?: Maybe<User>;
   versionsByItem: Array<VersionedItem>;
@@ -846,6 +896,17 @@ export type QueryProjectsArgs = {
 };
 
 
+export type QueryRequestsArgs = {
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+  first?: InputMaybe<Scalars['Int']>;
+  key?: InputMaybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['Int']>;
+  projectId: Scalars['ID'];
+  state?: InputMaybe<RequestState>;
+};
+
+
 export type QuerySearchItemArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
   before?: InputMaybe<Scalars['Cursor']>;
@@ -882,6 +943,67 @@ export type RemoveUserFromWorkspaceInput = {
   userId: Scalars['ID'];
   workspaceId: Scalars['ID'];
 };
+
+export type Request = Node & {
+  __typename?: 'Request';
+  approvedAt?: Maybe<Scalars['DateTime']>;
+  closedAt?: Maybe<Scalars['DateTime']>;
+  createdAt: Scalars['DateTime'];
+  createdBy?: Maybe<User>;
+  createdById: Scalars['ID'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  items: Array<RequestItem>;
+  project?: Maybe<Project>;
+  projectId: Scalars['ID'];
+  reviewers: Array<User>;
+  reviewersId: Array<Scalars['ID']>;
+  state: RequestState;
+  thread?: Maybe<Thread>;
+  threadId: Scalars['ID'];
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  workspace?: Maybe<Workspace>;
+  workspaceId: Scalars['ID'];
+};
+
+export type RequestConnection = {
+  __typename?: 'RequestConnection';
+  edges: Array<RequestEdge>;
+  nodes: Array<Maybe<Request>>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type RequestEdge = {
+  __typename?: 'RequestEdge';
+  cursor: Scalars['Cursor'];
+  node?: Maybe<Request>;
+};
+
+export type RequestItem = {
+  __typename?: 'RequestItem';
+  item?: Maybe<VersionedItem>;
+  itemId: Scalars['ID'];
+  ref?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+};
+
+export type RequestItemInput = {
+  itemId: Scalars['ID'];
+};
+
+export type RequestPayload = {
+  __typename?: 'RequestPayload';
+  request: Request;
+};
+
+export enum RequestState {
+  Approved = 'APPROVED',
+  Closed = 'CLOSED',
+  Draft = 'DRAFT',
+  Waiting = 'WAITING'
+}
 
 export enum Role {
   Maintainer = 'MAINTAINER',
@@ -1164,6 +1286,7 @@ export type UpdateModelInput = {
 };
 
 export type UpdateProjectInput = {
+  alias?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
@@ -1173,6 +1296,15 @@ export type UpdateProjectInput = {
 export type UpdateProjectPublicationInput = {
   assetPublic?: InputMaybe<Scalars['Boolean']>;
   scope?: InputMaybe<ProjectPublicationScope>;
+};
+
+export type UpdateRequestInput = {
+  description?: InputMaybe<Scalars['String']>;
+  items?: InputMaybe<Array<RequestItemInput>>;
+  requestId: Scalars['ID'];
+  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  state?: InputMaybe<RequestState>;
+  title?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateUserOfWorkspaceInput = {
@@ -1283,13 +1415,15 @@ export type WorkspaceUserMember = {
   userId: Scalars['ID'];
 };
 
-export type AssetFragmentFragment = { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null };
+export type AssetFragmentFragment = { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null };
 
 export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
 
 export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
 
-export type ThreadFragmentFragment = { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> };
+export type RequestFragmentFragment = { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> };
+
+export type ThreadFragmentFragment = { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
 export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
@@ -1298,36 +1432,38 @@ export type GetAssetsQueryVariables = Exact<{
   keyword?: InputMaybe<Scalars['String']>;
   sort?: InputMaybe<AssetSortType>;
   pagination?: InputMaybe<Pagination>;
+  withFiles: Scalars['Boolean'];
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
-
-export type FileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetQueryVariables = Exact<{
   assetId: Scalars['ID'];
+  withFiles: Scalars['Boolean'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } };
+export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
   file?: InputMaybe<Scalars['Upload']>;
   url?: InputMaybe<Scalars['String']>;
+  withFiles: Scalars['Boolean'];
 }>;
 
 
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } } | null };
+export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
 
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
   previewType?: InputMaybe<PreviewType>;
+  withFiles: Scalars['Boolean'];
 }>;
 
 
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } | null } } | null };
+export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
 
 export type DeleteAssetMutationVariables = Exact<{
   assetId: Scalars['ID'];
@@ -1342,7 +1478,7 @@ export type AddCommentMutationVariables = Exact<{
 }>;
 
 
-export type AddCommentMutation = { __typename?: 'Mutation', addComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } } } | null };
+export type AddCommentMutation = { __typename?: 'Mutation', addComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null } } | null };
 
 export type UpdateCommentMutationVariables = Exact<{
   commentId: Scalars['ID'];
@@ -1351,7 +1487,7 @@ export type UpdateCommentMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCommentMutation = { __typename?: 'Mutation', updateComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } } } | null };
+export type UpdateCommentMutation = { __typename?: 'Mutation', updateComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null } } | null };
 
 export type DeleteCommentMutationVariables = Exact<{
   commentId: Scalars['ID'];
@@ -1435,7 +1571,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -1513,7 +1649,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -1537,10 +1673,11 @@ export type CreateProjectMutationVariables = Exact<{
   workspaceId: Scalars['ID'];
   name: Scalars['String'];
   description: Scalars['String'];
+  alias: Scalars['String'];
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1553,11 +1690,64 @@ export type UpdateProjectMutationVariables = Exact<{
   projectId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  alias?: InputMaybe<Scalars['String']>;
   publication?: InputMaybe<UpdateProjectPublicationInput>;
 }>;
 
 
 export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+
+export type GetRequestsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  key?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars['Cursor']>;
+  before?: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type GetRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', edges: Array<{ __typename?: 'RequestEdge', cursor: string, node?: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | null }>, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | null> } };
+
+export type CreateRequestMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  title: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  items: Array<RequestItemInput> | RequestItemInput;
+}>;
+
+
+export type CreateRequestMutation = { __typename?: 'Mutation', createRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type UpdateRequestMutationVariables = Exact<{
+  requestId: Scalars['ID'];
+  title?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<RequestState>;
+  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  items?: InputMaybe<Array<RequestItemInput> | RequestItemInput>;
+}>;
+
+
+export type UpdateRequestMutation = { __typename?: 'Mutation', updateRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type ApproveRequestMutationVariables = Exact<{
+  requestId: Scalars['ID'];
+}>;
+
+
+export type ApproveRequestMutation = { __typename?: 'Mutation', approveRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+
+export type DeleteRequestMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  requestsId: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
 
 export type GetUserBySearchQueryVariables = Exact<{
   nameOrEmail: Scalars['String'];
@@ -1805,7 +1995,7 @@ export const AssetFragmentFragmentDoc = gql`
   fileName
   size
   previewType
-  file {
+  file @include(if: $withFiles) {
     ...assetFileFragment
     children {
       ...assetFileFragment
@@ -1833,6 +2023,106 @@ export const AssetFragmentFragmentDoc = gql`
     ${IntegrationFragmentFragmentDoc}
 ${AssetFileFragmentFragmentDoc}
 ${ThreadFragmentFragmentDoc}`;
+export const RequestFragmentFragmentDoc = gql`
+    fragment requestFragment on Request {
+  id
+  items {
+    itemId
+    version
+    ref
+    item {
+      version
+      parents
+      refs
+      value {
+        id
+        schemaId
+        modelId
+        model {
+          name
+        }
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+        schema {
+          id
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            multiple
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  title
+  description
+  createdBy {
+    id
+    name
+    email
+  }
+  workspaceId
+  projectId
+  threadId
+  reviewersId
+  state
+  createdAt
+  updatedAt
+  approvedAt
+  closedAt
+  thread {
+    ...threadFragment
+  }
+  project {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+  reviewers {
+    id
+    name
+    email
+  }
+}
+    ${ThreadFragmentFragmentDoc}`;
 export const WorkspaceFragmentFragmentDoc = gql`
     fragment WorkspaceFragment on Workspace {
   id
@@ -1864,16 +2154,8 @@ export const WorkspaceFragmentFragmentDoc = gql`
   personal
 }
     ${IntegrationFragmentFragmentDoc}`;
-export const FileFragmentFragmentDoc = gql`
-    fragment FileFragment on AssetFile {
-  name
-  size
-  contentType
-  path
-}
-    `;
 export const GetAssetsDocument = gql`
-    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSortType, $pagination: Pagination) {
+    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSortType, $pagination: Pagination, $withFiles: Boolean!) {
   assets(
     projectId: $projectId
     keyword: $keyword
@@ -1916,6 +2198,7 @@ export const GetAssetsDocument = gql`
  *      keyword: // value for 'keyword'
  *      sort: // value for 'sort'
  *      pagination: // value for 'pagination'
+ *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
@@ -1931,7 +2214,7 @@ export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
 export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
 export const GetAssetDocument = gql`
-    query GetAsset($assetId: ID!) {
+    query GetAsset($assetId: ID!, $withFiles: Boolean!) {
   asset(assetId: $assetId) {
     ...assetFragment
   }
@@ -1951,6 +2234,7 @@ export const GetAssetDocument = gql`
  * const { data, loading, error } = useGetAssetQuery({
  *   variables: {
  *      assetId: // value for 'assetId'
+ *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
@@ -1966,7 +2250,7 @@ export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
 export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
 export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String) {
+    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $withFiles: Boolean!) {
   createAsset(input: {projectId: $projectId, file: $file, url: $url}) {
     asset {
       ...assetFragment
@@ -1992,6 +2276,7 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  *      projectId: // value for 'projectId'
  *      file: // value for 'file'
  *      url: // value for 'url'
+ *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
@@ -2003,7 +2288,7 @@ export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMuta
 export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
 export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
 export const UpdateAssetDocument = gql`
-    mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
+    mutation UpdateAsset($id: ID!, $previewType: PreviewType, $withFiles: Boolean!) {
   updateAsset(input: {id: $id, previewType: $previewType}) {
     asset {
       ...assetFragment
@@ -2028,6 +2313,7 @@ export type UpdateAssetMutationFn = Apollo.MutationFunction<UpdateAssetMutation,
  *   variables: {
  *      id: // value for 'id'
  *      previewType: // value for 'previewType'
+ *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
@@ -3010,14 +3296,15 @@ export type CheckProjectAliasQueryHookResult = ReturnType<typeof useCheckProject
 export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckProjectAliasLazyQuery>;
 export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!) {
+    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!) {
   createProject(
-    input: {workspaceId: $workspaceId, name: $name, description: $description}
+    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias}
   ) {
     project {
       id
       name
       description
+      alias
       publication {
         scope
         assetPublic
@@ -3044,6 +3331,7 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *      workspaceId: // value for 'workspaceId'
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      alias: // value for 'alias'
  *   },
  * });
  */
@@ -3088,9 +3376,9 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $publication: UpdateProjectPublicationInput) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, publication: $publication}
+    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication}
   ) {
     project {
       id
@@ -3123,6 +3411,7 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      projectId: // value for 'projectId'
  *      name: // value for 'name'
  *      description: // value for 'description'
+ *      alias: // value for 'alias'
  *      publication: // value for 'publication'
  *   },
  * });
@@ -3134,6 +3423,216 @@ export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const GetRequestsDocument = gql`
+    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+  requests(
+    projectId: $projectId
+    key: $key
+    state: $state
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+  ) {
+    edges {
+      cursor
+      node {
+        ...requestFragment
+      }
+    }
+    nodes {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+
+/**
+ * __useGetRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRequestsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      key: // value for 'key'
+ *      state: // value for 'state'
+ *      first: // value for 'first'
+ *      last: // value for 'last'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
+ *   },
+ * });
+ */
+export function useGetRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
+      }
+export function useGetRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
+        }
+export type GetRequestsQueryHookResult = ReturnType<typeof useGetRequestsQuery>;
+export type GetRequestsLazyQueryHookResult = ReturnType<typeof useGetRequestsLazyQuery>;
+export type GetRequestsQueryResult = Apollo.QueryResult<GetRequestsQuery, GetRequestsQueryVariables>;
+export const CreateRequestDocument = gql`
+    mutation CreateRequest($projectId: ID!, $title: String!, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]!) {
+  createRequest(
+    input: {projectId: $projectId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  ) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type CreateRequestMutationFn = Apollo.MutationFunction<CreateRequestMutation, CreateRequestMutationVariables>;
+
+/**
+ * __useCreateRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRequestMutation, { data, loading, error }] = useCreateRequestMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      state: // value for 'state'
+ *      reviewersId: // value for 'reviewersId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useCreateRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateRequestMutation, CreateRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRequestMutation, CreateRequestMutationVariables>(CreateRequestDocument, options);
+      }
+export type CreateRequestMutationHookResult = ReturnType<typeof useCreateRequestMutation>;
+export type CreateRequestMutationResult = Apollo.MutationResult<CreateRequestMutation>;
+export type CreateRequestMutationOptions = Apollo.BaseMutationOptions<CreateRequestMutation, CreateRequestMutationVariables>;
+export const UpdateRequestDocument = gql`
+    mutation UpdateRequest($requestId: ID!, $title: String, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]) {
+  updateRequest(
+    input: {requestId: $requestId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  ) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type UpdateRequestMutationFn = Apollo.MutationFunction<UpdateRequestMutation, UpdateRequestMutationVariables>;
+
+/**
+ * __useUpdateRequestMutation__
+ *
+ * To run a mutation, you first call `useUpdateRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRequestMutation, { data, loading, error }] = useUpdateRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *      title: // value for 'title'
+ *      description: // value for 'description'
+ *      state: // value for 'state'
+ *      reviewersId: // value for 'reviewersId'
+ *      items: // value for 'items'
+ *   },
+ * });
+ */
+export function useUpdateRequestMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRequestMutation, UpdateRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRequestMutation, UpdateRequestMutationVariables>(UpdateRequestDocument, options);
+      }
+export type UpdateRequestMutationHookResult = ReturnType<typeof useUpdateRequestMutation>;
+export type UpdateRequestMutationResult = Apollo.MutationResult<UpdateRequestMutation>;
+export type UpdateRequestMutationOptions = Apollo.BaseMutationOptions<UpdateRequestMutation, UpdateRequestMutationVariables>;
+export const ApproveRequestDocument = gql`
+    mutation ApproveRequest($requestId: ID!) {
+  approveRequest(input: {requestId: $requestId}) {
+    request {
+      ...requestFragment
+    }
+  }
+}
+    ${RequestFragmentFragmentDoc}`;
+export type ApproveRequestMutationFn = Apollo.MutationFunction<ApproveRequestMutation, ApproveRequestMutationVariables>;
+
+/**
+ * __useApproveRequestMutation__
+ *
+ * To run a mutation, you first call `useApproveRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveRequestMutation, { data, loading, error }] = useApproveRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useApproveRequestMutation(baseOptions?: Apollo.MutationHookOptions<ApproveRequestMutation, ApproveRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveRequestMutation, ApproveRequestMutationVariables>(ApproveRequestDocument, options);
+      }
+export type ApproveRequestMutationHookResult = ReturnType<typeof useApproveRequestMutation>;
+export type ApproveRequestMutationResult = Apollo.MutationResult<ApproveRequestMutation>;
+export type ApproveRequestMutationOptions = Apollo.BaseMutationOptions<ApproveRequestMutation, ApproveRequestMutationVariables>;
+export const DeleteRequestDocument = gql`
+    mutation DeleteRequest($projectId: ID!, $requestsId: [ID!]!) {
+  deleteRequest(input: {projectId: $projectId, requestsId: $requestsId}) {
+    requests
+  }
+}
+    `;
+export type DeleteRequestMutationFn = Apollo.MutationFunction<DeleteRequestMutation, DeleteRequestMutationVariables>;
+
+/**
+ * __useDeleteRequestMutation__
+ *
+ * To run a mutation, you first call `useDeleteRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRequestMutation, { data, loading, error }] = useDeleteRequestMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      requestsId: // value for 'requestsId'
+ *   },
+ * });
+ */
+export function useDeleteRequestMutation(baseOptions?: Apollo.MutationHookOptions<DeleteRequestMutation, DeleteRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteRequestMutation, DeleteRequestMutationVariables>(DeleteRequestDocument, options);
+      }
+export type DeleteRequestMutationHookResult = ReturnType<typeof useDeleteRequestMutation>;
+export type DeleteRequestMutationResult = Apollo.MutationResult<DeleteRequestMutation>;
+export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<DeleteRequestMutation, DeleteRequestMutationVariables>;
 export const GetUserBySearchDocument = gql`
     query GetUserBySearch($nameOrEmail: String!) {
   searchUser(nameOrEmail: $nameOrEmail) {
