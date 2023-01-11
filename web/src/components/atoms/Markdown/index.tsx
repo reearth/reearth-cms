@@ -32,6 +32,7 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
         showCount
       />
       <StyledMD
+        disabled={props.disabled}
         hidden={!showMD}
         onClick={() => {
           setShowMD(false);
@@ -53,7 +54,7 @@ const MarkdownWrapper = styled.div`
   width: 100%;
 `;
 
-const StyledMD = styled.div`
+const StyledMD = styled.div<{ disabled?: boolean }>`
   cursor: pointer;
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
@@ -65,6 +66,11 @@ const StyledMD = styled.div`
   line-height: 1;
   &:hover,
   &:focus {
-    border-color: #40a9ff;
+    border-color: ${({ disabled }) => (disabled ? "inherited" : "#40a9ff")};
   }
+  background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
+  * {
+    color: ${({ disabled }) => (disabled ? "rgba(0, 0, 0, 0.25)" : "#000")};
+  }
+  ${({ disabled }) => disabled && "pointer-events: none;"}
 `;
