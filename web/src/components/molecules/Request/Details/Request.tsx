@@ -2,7 +2,10 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -18,8 +21,24 @@ type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
-  onItemEdit: (itemId: string, modelId?: string) => void;
   onBack: () => void;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const RequestMolecule: React.FC<Props> = ({
@@ -30,8 +49,24 @@ const RequestMolecule: React.FC<Props> = ({
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
-  onItemEdit,
   onBack,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onAssetsReload,
+  onAssetSearchTerm,
+  setFileList,
+  setUploadModalVisibility,
+  onNavigateToAsset,
 }) => {
   const t = useT();
 
@@ -62,7 +97,23 @@ const RequestMolecule: React.FC<Props> = ({
             me={me}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
-            onItemEdit={onItemEdit}
+            assetList={assetList}
+            fileList={fileList}
+            loadingAssets={loadingAssets}
+            uploading={uploading}
+            uploadModalVisibility={uploadModalVisibility}
+            uploadUrl={uploadUrl}
+            uploadType={uploadType}
+            onUploadModalCancel={onUploadModalCancel}
+            setUploadUrl={setUploadUrl}
+            setUploadType={setUploadType}
+            onAssetsCreate={onAssetsCreate}
+            onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsReload={onAssetsReload}
+            onAssetSearchTerm={onAssetSearchTerm}
+            setFileList={setFileList}
+            setUploadModalVisibility={setUploadModalVisibility}
+            onNavigateToAsset={onNavigateToAsset}
           />
         </ThreadWrapper>
         <RequestSidebarWrapper

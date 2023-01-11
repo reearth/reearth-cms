@@ -32,6 +32,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   onNavigateToAsset: (asset: Asset) => void;
+  disabled?: boolean;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -54,6 +55,7 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   onChange,
   onNavigateToAsset,
+  disabled,
 }) => {
   const t = useT();
   const {
@@ -100,7 +102,7 @@ const AssetItem: React.FC<Props> = ({
       {assetValue ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton onClick={handleClick}>
+            <AssetButton disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
@@ -117,7 +119,7 @@ const AssetItem: React.FC<Props> = ({
           />
         </>
       ) : (
-        <AssetButton onClick={handleClick}>
+        <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
             <Icon icon="linkSolid" size={14} />
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
@@ -166,6 +168,10 @@ const AssetLink = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
   top: 3px;
+  &:disabled {
+    cursor: pointer;
+    pointer-events: auto;
+  }
 `;
 
 const AssetLinkedName = styled(Button)`
