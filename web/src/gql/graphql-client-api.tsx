@@ -344,6 +344,8 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  integration?: Maybe<Integration>;
+  integrationId?: Maybe<Scalars['ID']>;
   model: Model;
   modelId: Scalars['ID'];
   project: Project;
@@ -352,6 +354,8 @@ export type Item = Node & {
   schemaId: Scalars['ID'];
   thread: Thread;
   threadId: Scalars['ID'];
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['ID']>;
 };
 
 export type ItemConnection = {
@@ -389,7 +393,17 @@ export type ItemPayload = {
 export type ItemQuery = {
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
+  schema?: InputMaybe<Scalars['ID']>;
 };
+
+export type ItemSort = {
+  direction?: InputMaybe<SortDirection>;
+  sortBy: ItemSortType;
+};
+
+export enum ItemSortType {
+  Date = 'DATE'
+}
 
 export type KeyAvailability = {
   __typename?: 'KeyAvailability';
@@ -746,10 +760,11 @@ export type Pagination = {
 
 export enum PreviewType {
   Geo = 'GEO',
-  Geo3D = 'GEO3D',
+  Geo_3DTiles = 'GEO_3D_TILES',
+  GeoMvt = 'GEO_MVT',
   Image = 'IMAGE',
-  Model3D = 'MODEL3D',
-  Mvt = 'MVT',
+  ImageSvg = 'IMAGE_SVG',
+  Model_3D = 'MODEL_3D',
   Unknown = 'UNKNOWN'
 }
 
@@ -863,6 +878,7 @@ export type QueryItemsArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   schemaId: Scalars['ID'];
+  sort?: InputMaybe<ItemSort>;
 };
 
 
@@ -899,10 +915,12 @@ export type QueryProjectsArgs = {
 export type QueryRequestsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
   before?: InputMaybe<Scalars['Cursor']>;
+  createdBy?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
   key?: InputMaybe<Scalars['String']>;
   last?: InputMaybe<Scalars['Int']>;
   projectId: Scalars['ID'];
+  reviewer?: InputMaybe<Scalars['ID']>;
   state?: InputMaybe<RequestState>;
 };
 
@@ -913,6 +931,7 @@ export type QuerySearchItemArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   query: ItemQuery;
+  sort?: InputMaybe<ItemSort>;
 };
 
 
@@ -1029,6 +1048,7 @@ export type SchemaField = {
   model: Model;
   modelId: Scalars['ID'];
   multiple: Scalars['Boolean'];
+  order?: Maybe<Scalars['Int']>;
   required: Scalars['Boolean'];
   title: Scalars['String'];
   type: SchemaFieldType;
@@ -1193,6 +1213,11 @@ export type SchemaMarkdownTextInput = {
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC'
+}
+
 export enum Theme {
   Dark = 'DARK',
   Default = 'DEFAULT',
@@ -1234,6 +1259,7 @@ export type UpdateFieldInput = {
   key?: InputMaybe<Scalars['String']>;
   modelId: Scalars['ID'];
   multiple?: InputMaybe<Scalars['Boolean']>;
+  order?: InputMaybe<Scalars['Int']>;
   required?: InputMaybe<Scalars['Boolean']>;
   title?: InputMaybe<Scalars['String']>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
