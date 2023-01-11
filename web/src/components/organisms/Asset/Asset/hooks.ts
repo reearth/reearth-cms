@@ -6,9 +6,10 @@ import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBo
 import {
   geoFormats,
   geo3dFormats,
-  geoMvtFormats,
+  geoMvtFormat,
   model3dFormats,
   imageFormats,
+  imageSVGFormat,
   compressedFileFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
 import {
@@ -68,7 +69,7 @@ export default (assetId?: string) => {
     setSelectedPreviewType(value);
   }, []);
 
-  const [viewerType, setViewerType] = useState<ViewerType>("unsupported");
+  const [viewerType, setViewerType] = useState<ViewerType>("unknown");
   const assetFileExt = getExtension(asset?.fileName);
 
   useEffect(() => {
@@ -79,11 +80,11 @@ export default (assetId?: string) => {
         break;
       case selectedPreviewType === "GEO_3D_TILES" &&
         (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("3d_tiles");
+        setViewerType("geo_3d_tiles");
         break;
       case selectedPreviewType === "GEO_MVT" &&
-        (geoMvtFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("mvt");
+        (geoMvtFormat.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+        setViewerType("geo_mvt");
         break;
       case selectedPreviewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
@@ -92,11 +93,11 @@ export default (assetId?: string) => {
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         setViewerType("image");
         break;
-      case selectedPreviewType === "IMAGE_SVG" && assetFileExt === "svg":
-        setViewerType("svg");
+      case selectedPreviewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
+        setViewerType("image_svg");
         break;
       default:
-        setViewerType("unsupported");
+        setViewerType("unknown");
         break;
     }
   }, [asset?.previewType, assetFileExt, selectedPreviewType]);
@@ -109,12 +110,12 @@ export default (assetId?: string) => {
   const handleFullScreen = useCallback(() => {
     if (
       viewerType === "geo" ||
-      viewerType === "3d_tiles" ||
+      viewerType === "geo_3d_tiles" ||
       viewerType === "model_3d" ||
-      viewerType === "mvt"
+      viewerType === "geo_mvt"
     ) {
       viewerRef?.canvas.requestFullscreen();
-    } else if (viewerType === "image" || viewerType === "svg") {
+    } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     }
   }, [viewerType]);
