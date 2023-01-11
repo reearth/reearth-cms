@@ -7,6 +7,7 @@ import {
   Comment as GQLComment,
   Schema,
   RequestItem,
+  ItemField,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | undefined => {
@@ -27,10 +28,8 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
     items: GQLRequest.items.map(item => ({
       id: item.itemId,
       modelName: item?.item?.value.model.name,
-      fields: getContentTableFields(item),
-      columns: item.item?.value.schema
-        ? getContentTableColumns(item.item?.value.schema)
-        : undefined,
+      initialValues: getInitialFormValues(item.item?.value.fields),
+      schema: item.item?.value.schema ? item.item?.value.schema : undefined,
     })),
   };
 };
@@ -82,4 +81,12 @@ export const getContentTableColumns = (
     minWidth: 128,
     ellipsis: true,
   }));
+};
+
+export const getInitialFormValues = (fields?: ItemField[]): { [key: string]: any } => {
+  const initialValues: { [key: string]: any } = {};
+  fields?.forEach(field => {
+    initialValues[field.schemaFieldId] = field.value;
+  });
+  return initialValues;
 };

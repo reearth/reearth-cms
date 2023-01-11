@@ -1,6 +1,3 @@
-import { ProColumns } from "@ant-design/pro-table";
-
-import { ContentTableField } from "../Content/types";
 import { User } from "../Member/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
@@ -20,9 +17,9 @@ export type Request = {
   closedAt?: Date;
   items: {
     id: string;
-    fields?: ContentTableField;
-    columns?: ProColumns<ContentTableField>[];
     modelName?: string;
+    schema?: any;
+    initialValues: any;
   }[];
 };
 
