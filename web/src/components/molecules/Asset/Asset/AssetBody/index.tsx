@@ -11,6 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   asset?: Asset;
+  assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
   viewerType: ViewerType;
@@ -28,6 +29,7 @@ export type Props = {
 
 const AssetWrapper: React.FC<Props> = ({
   asset,
+  assetFileExt,
   selectedPreviewType,
   isModalVisible,
   viewerType,
@@ -52,6 +54,7 @@ const AssetWrapper: React.FC<Props> = ({
           />
           <AssetMolecule
             asset={asset}
+            assetFileExt={assetFileExt}
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
             viewerType={viewerType}
