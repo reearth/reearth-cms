@@ -66,8 +66,8 @@ func init() {
 }
 
 func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *user.User, err error) {
-	if i.signupSecret != "" && (param.Secret == nil || *param.Secret != i.signupSecret) {
-		return nil, interfaces.ErrSignupInvalidSecret
+	if err := i.verifySignupSecret(param.Secret); err != nil {
+		return nil, err
 	}
 
 	u, workspace, err := user.Init(user.InitParams{
@@ -103,16 +103,20 @@ func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *use
 	return u, nil
 }
 
-func (i *User) RegisterUser(ctx context.Context, param interfaces.RegisterUserParam) (*user.User, error) {
-	if param.Sub == "" {
-		return nil, rerror.ErrNotFound
+func (i *User) SignupAuth0(ctx context.Context, param interfaces.SignupAuth0Param) (*user.User, error) {
+	if err := i.verifySignupSecret(param.Secret); err != nil {
+		return nil, err
 	}
-	//TODO: what to do with existed user?
-	_, err := i.repos.User.FindBySub(ctx, param.Sub)
+	if param.Sub == "" || param.Name == "" || param.Email == "" {
+		return nil, errors.New("invalid parameters")
+	}
+	eu, err := i.repos.User.FindBySub(ctx, param.Sub)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
-	//TODO: can we use access token here?
+	if eu != nil {
+		return nil, repo.ErrDuplicatedUser
+	}
 	u, workspace, err := user.Init(user.InitParams{
 		Email: param.Email,
 		Name:  param.Name,
@@ -328,5 +332,12 @@ func issToURL(iss, p string) *url.URL {
 		return u
 	}
 
+	return nil
+}
+
+func (i *User) verifySignupSecret(secret *string) error {
+	if i.signupSecret != "" && (secret == nil || *secret != i.signupSecret) {
+		return interfaces.ErrSignupInvalidSecret
+	}
 	return nil
 }

@@ -33,16 +33,16 @@ func Signup() echo.HandlerFunc {
 	}
 }
 
-func RegisterUser() echo.HandlerFunc {
+func SignupAuth0() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var inp http1.RegisterUser
+		var inp http1.SignupAuth0Input
 		if err := c.Bind(&inp); err != nil {
 			return &echo.HTTPError{Code: http.StatusBadRequest, Message: fmt.Errorf("failed to parse request body: %w", err)}
 		}
 
 		uc := adapter.Usecases(c.Request().Context())
 		controller := http1.NewUserController(uc.User)
-		output, err := controller.RegisterUser(c.Request().Context(), inp)
+		output, err := controller.SignupAuth0(c.Request().Context(), inp)
 		if err != nil {
 			return err
 		}
