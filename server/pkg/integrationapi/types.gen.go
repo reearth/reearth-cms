@@ -18,11 +18,13 @@ const (
 
 // Defines values for AssetPreviewType.
 const (
-	Geo     AssetPreviewType = "geo"
-	Geo3d   AssetPreviewType = "geo3d"
-	Image   AssetPreviewType = "image"
-	Model3d AssetPreviewType = "model3d"
-	Unknown AssetPreviewType = "unknown"
+	Geo        AssetPreviewType = "geo"
+	Geo3dTiles AssetPreviewType = "geo_3d_Tiles"
+	GeoMvt     AssetPreviewType = "geo_mvt"
+	Image      AssetPreviewType = "image"
+	ImageSvg   AssetPreviewType = "image_svg"
+	Model3d    AssetPreviewType = "model_3d"
+	Unknown    AssetPreviewType = "unknown"
 )
 
 // Defines values for CommentAuthorType.

@@ -36,6 +36,16 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
+			Name: "image_svg",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeImageSvg,
+				Bool: true,
+			},
+		},
+		{
 			Name: "geo",
 			Expected: struct {
 				TA   PreviewType
@@ -46,32 +56,32 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
-			Name: "geo3d",
+			Name: "geo_3d_tiles",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
 			}{
-				TA:   PreviewTypeGeo3d,
+				TA:   PreviewTypeGeo3dTiles,
 				Bool: true,
 			},
 		},
 		{
-			Name: "model3d",
+			Name: "geo_mvt",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeGeoMvt,
+				Bool: true,
+			},
+		},
+		{
+			Name: "model_3d",
 			Expected: struct {
 				TA   PreviewType
 				Bool bool
 			}{
 				TA:   PreviewTypeModel3d,
-				Bool: true,
-			},
-		},
-		{
-			Name: "mvt",
-			Expected: struct {
-				TA   PreviewType
-				Bool bool
-			}{
-				TA:   PreviewTypeMvt,
 				Bool: true,
 			},
 		},
@@ -110,10 +120,11 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 
 func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	i := PreviewTypeImage
+	is := PreviewTypeImageSvg
 	g := PreviewTypeGeo
-	g3d := PreviewTypeGeo3d
+	g3d := PreviewTypeGeo3dTiles
+	mvt := PreviewTypeGeoMvt
 	m := PreviewTypeModel3d
-	mvt := PreviewTypeMvt
 	u := PreviewTypeUnknown
 
 	tests := []struct {
@@ -132,24 +143,29 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 			Expected: &i,
 		},
 		{
+			Name:     "image_svg",
+			Input:    lo.ToPtr("image_svg"),
+			Expected: &is,
+		},
+		{
 			Name:     "geo",
 			Input:    lo.ToPtr("geo"),
 			Expected: &g,
 		},
 		{
-			Name:     "geo3d",
-			Input:    lo.ToPtr("geo3d"),
+			Name:     "geo_3d_tiles",
+			Input:    lo.ToPtr("geo_3d_tiles"),
 			Expected: &g3d,
 		},
 		{
-			Name:     "model3d",
-			Input:    lo.ToPtr("model3d"),
-			Expected: &m,
+			Name:     "geo_mvt",
+			Input:    lo.ToPtr("geo_mvt"),
+			Expected: &mvt,
 		},
 		{
-			Name:     "mvt",
-			Input:    lo.ToPtr("mvt"),
-			Expected: &mvt,
+			Name:     "model_3d",
+			Input:    lo.ToPtr("model_3d"),
+			Expected: &m,
 		},
 		{
 			Name:     "unknown",
@@ -185,6 +201,11 @@ func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	want2 := lo.ToPtr(PreviewTypeUnknown)
 	got2 := PreviewTypeFromContentType(c2)
 	assert.Equal(t, want2, got2)
+
+	c3 := "image/svg"
+	want3 := lo.ToPtr(PreviewTypeImageSvg)
+	got3 := PreviewTypeFromContentType(c3)
+	assert.Equal(t, want3, got3)
 }
 
 func TestPreviewType_String(t *testing.T) {
