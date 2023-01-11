@@ -11,7 +11,7 @@ type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
-const MVTPreview: React.FC<Props> = ({ viewerProps, imageryOption, onGetViewer }) => {
+const MvtViewer: React.FC<Props> = ({ viewerProps, imageryOption, onGetViewer }) => {
   let viewer: Viewer | undefined;
 
   return (
@@ -26,4 +26,4 @@ const MVTPreview: React.FC<Props> = ({ viewerProps, imageryOption, onGetViewer }
   );
 };
 
-export default MVTPreview;
+export default MvtViewer;

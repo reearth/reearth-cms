@@ -3,11 +3,6 @@ import { createWorldTerrain, Viewer } from "cesium";
 import { useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
-import MVTPreview from "@reearth-cms/components/atoms/MVTPreview";
-import {
-  ImageryProviderOption,
-  URLTemplate,
-} from "@reearth-cms/components/atoms/MVTPreview/imagery.type";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -26,7 +21,12 @@ import {
   Geo3dViewer,
   SvgViewer,
   ImageViewer,
+  MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
+import {
+  ImageryProviderOption,
+  URLTemplate,
+} from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/imagery.type";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -97,7 +97,7 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case viewerType === "geo3d":
+      case viewerType === "3d_tiles":
         return (
           <Geo3dViewer
             viewerProps={{
@@ -125,7 +125,7 @@ const AssetMolecule: React.FC<Props> = ({
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
       case viewerType === "mvt":
         return (
-          <MVTPreview
+          <MvtViewer
             viewerProps={{
               terrainProvider: createWorldTerrain(),
               navigationHelpButton: false,
@@ -144,8 +144,7 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model3d":
+      case viewerType === "model_3d":
       case viewerType === "unsupported":
       default:
         return <ViewerNotSupported />;
