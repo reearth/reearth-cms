@@ -52,10 +52,14 @@ func FromPreviewType(p *PreviewType) *asset.PreviewType {
 	switch *p {
 	case PreviewTypeImage:
 		p2 = asset.PreviewTypeImage
+	case PreviewTypeImageSVG:
+		p2 = asset.PreviewTypeImageSvg
 	case PreviewTypeGeo:
 		p2 = asset.PreviewTypeGeo
-	case PreviewTypeGeo3d:
-		p2 = asset.PreviewTypeGeo3d
+	case PreviewTypeGeo3dTiles:
+		p2 = asset.PreviewTypeGeo3dTiles
+	case PreviewTypeGeoMvt:
+		p2 = asset.PreviewTypeGeoMvt
 	case PreviewTypeModel3d:
 		p2 = asset.PreviewTypeModel3d
 	case PreviewTypeUnknown:
@@ -76,10 +80,14 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	switch *p {
 	case asset.PreviewTypeImage:
 		p2 = PreviewTypeImage
+	case asset.PreviewTypeImageSvg:
+		p2 = PreviewTypeImageSVG
 	case asset.PreviewTypeGeo:
 		p2 = PreviewTypeGeo
-	case asset.PreviewTypeGeo3d:
-		p2 = PreviewTypeGeo3d
+	case asset.PreviewTypeGeo3dTiles:
+		p2 = PreviewTypeGeo3dTiles
+	case asset.PreviewTypeGeoMvt:
+		p2 = PreviewTypeGeoMvt
 	case asset.PreviewTypeModel3d:
 		p2 = PreviewTypeModel3d
 	case asset.PreviewTypeUnknown:

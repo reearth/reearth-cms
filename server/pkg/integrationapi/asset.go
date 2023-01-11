@@ -46,12 +46,16 @@ func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 	switch *pt {
 	case asset.PreviewTypeGeo:
 		return lo.ToPtr(Geo)
-	case asset.PreviewTypeGeo3d:
-		return lo.ToPtr(Geo3d)
+	case asset.PreviewTypeGeo3dTiles:
+		return lo.ToPtr(Geo3dTiles)
+	case asset.PreviewTypeGeoMvt:
+		return lo.ToPtr(GeoMvt)
 	case asset.PreviewTypeModel3d:
 		return lo.ToPtr(Model3d)
 	case asset.PreviewTypeImage:
 		return lo.ToPtr(Image)
+	case asset.PreviewTypeImageSvg:
+		return lo.ToPtr(ImageSvg)
 	case asset.PreviewTypeUnknown:
 		return lo.ToPtr(Unknown)
 	default:
