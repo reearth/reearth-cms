@@ -2,7 +2,7 @@ import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSel
 
 export type PreviewType = PreviewTypeType;
 export type ArchiveExtractionStatus = "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
-export type ViewerType = "cesium" | "mvt" | "image" | "svg" | "unsupported";
+export type ViewerType = "geo" | "geo3d" | "mvt" | "model3d" | "image" | "svg" | "unsupported";
 
 export type Asset = {
   id: string;
