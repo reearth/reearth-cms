@@ -74,8 +74,6 @@ export const getContentTableFields = (requestItem: RequestItem): ContentTableFie
 export const getContentTableColumns = (
   schema: Schema,
 ): ProColumns<ContentTableField>[] | undefined => {
-  console.log(schema);
-
   return schema.fields.map(field => ({
     title: field.title,
     dataIndex: ["fields", field.id],
