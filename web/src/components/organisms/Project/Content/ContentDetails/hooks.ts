@@ -191,7 +191,9 @@ export default () => {
     [updateRequest, currentItem, t],
   );
 
-  const [createRequestMutation] = useCreateRequestMutation();
+  const [createRequestMutation] = useCreateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestCreate = useCallback(
     async (data: {
@@ -222,7 +224,9 @@ export default () => {
     [createRequestMutation, projectId, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation();
+  const [updateRequestMutation] = useUpdateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestUpdate = useCallback(
     async (data: RequestUpdatePayload) => {

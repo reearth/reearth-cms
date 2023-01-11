@@ -21,6 +21,7 @@ type Field struct {
 	updatedAt    time.Time
 	defaultValue *value.Multiple
 	typeProperty *TypeProperty
+	order        int
 }
 
 func (f *Field) ID() FieldID {
@@ -39,8 +40,16 @@ func (f *Field) Description() string {
 	return f.description
 }
 
+func (f *Field) Order() int {
+	return f.order
+}
+
 func (f *Field) SetDescription(description string) {
 	f.description = description
+}
+
+func (f *Field) SetOrder(o int) {
+	f.order = o
 }
 
 func (f *Field) DefaultValue() *value.Multiple {

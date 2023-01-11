@@ -47,7 +47,7 @@ func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (
 	return item, nil
 }
 
-func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -61,7 +61,7 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 		}
 		return true
 	})
-	return res.SortByTimestamp(), nil, nil
+	return res.Sort(sort), nil, nil
 }
 
 func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -79,7 +79,7 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *ver
 		return true
 	})
 
-	return res.SortByTimestamp(), nil, nil
+	return res.Sort(nil), nil, nil
 }
 
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -97,7 +97,7 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return true
 	})
 
-	return res.SortByTimestamp(), nil, nil
+	return res.Sort(nil), nil, nil
 }
 
 func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
@@ -105,7 +105,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).SortByTimestamp(), nil
+	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).Sort(nil), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -205,7 +205,7 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, q *item.Query, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -230,7 +230,7 @@ func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pag
 		}
 		return true
 	})
-	return res, nil, nil
+	return res.Sort(sort), nil, nil
 }
 
 func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
