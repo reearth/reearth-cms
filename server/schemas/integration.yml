@@ -859,9 +859,11 @@ components:
           type: string
           enum:
             - image
+            - image_svg
             - geo
-            - geo3d
-            - model3d
+            - geo_3d_Tiles
+            - geo_mvt
+            - model_3d
             - unknown
         totalSize:
           type: number
