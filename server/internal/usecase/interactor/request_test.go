@@ -10,7 +10,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -341,7 +343,9 @@ func TestRequest_FindByProject(t *testing.T) {
 func TestRequest_Approve(t *testing.T) {
 	// TODO: add error cases
 	pid := id.NewProjectID()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(pid).MustBuild()
+	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	item, _ := request.NewItem(i.ID())
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -362,10 +366,14 @@ func TestRequest_Approve(t *testing.T) {
 	ctx := context.Background()
 
 	db := memory.New()
-	//if tc.mockRequestErr {
+	// if tc.mockRequestErr {
 	//	memory.SetRequestError(db.Request, tc.wantErr)
-	//}
+	// }
 	err := db.Request.Save(ctx, req1)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m)
 	assert.NoError(t, err)
 	err = db.Item.Save(ctx, i)
 	assert.NoError(t, err)
