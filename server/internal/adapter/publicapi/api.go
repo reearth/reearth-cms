@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -21,6 +22,7 @@ func GetController(ctx context.Context) *Controller {
 }
 
 func Echo(e *echo.Group) {
+	e.Use(middleware.CORS())
 	e.GET("/:project/:model", PublicApiItemList())
 	e.GET("/:project/:model/:item", PublicApiItem())
 }
