@@ -79,8 +79,15 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 }
 
 func ToItemSort(is *ItemSort) *item.Sort {
+	if is == nil {
+		return nil
+	}
+	var dir string
+	if is.Direction != nil {
+		dir = is.Direction.String()
+	}
 	return &item.Sort{
-		Direction: item.DirectionFrom(is.Direction.String()),
+		Direction: item.DirectionFrom(dir),
 		SortBy:    item.SortTypeFrom(is.SortBy.String()),
 	}
 }
