@@ -98,6 +98,27 @@ func (r *Model) FindByKey(_ context.Context, pid id.ProjectID, key string) (*mod
 	return m, nil
 }
 
+func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q model.IDOrKey) (*model.Model, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	modelID := q.ID()
+	key := q.Key()
+	if modelID == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+		return r.f.CanRead(m.Project()) && (modelID != nil && m.ID() == *modelID || key != nil && m.Key().String() == *key)
+	})
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return m, nil
+}
+
 func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error) {
 	if r.err != nil {
 		return nil, r.err

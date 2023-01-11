@@ -2,6 +2,7 @@ import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSel
 
 export type PreviewType = PreviewTypeType;
 export type ArchiveExtractionStatus = "PENDING" | "IN_PROGRESS" | "DONE" | "FAILED" | undefined;
+export type ViewerType = "cesium" | "image" | "svg" | "unsupported";
 
 export type Asset = {
   id: string;
@@ -30,7 +31,7 @@ export type AssetFile = {
 export type Comment = {
   id: string;
   author: string;
-  authorType: "User" | "Integration";
+  authorType: "User" | "Integration" | null;
   content: string;
   createdAt: string;
 };

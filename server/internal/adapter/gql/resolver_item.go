@@ -23,3 +23,21 @@ func (i itemResolver) Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel
 func (i itemResolver) Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error) {
 	return dataloaders(ctx).Thread.Load(obj.ThreadID)
 }
+
+func (i itemResolver) Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error) {
+	return dataloaders(ctx).Model.Load(obj.ModelID)
+}
+
+func (i itemResolver) User(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error) {
+	if obj.UserID != nil {
+		return dataloaders(ctx).User.Load(*obj.UserID)
+	}
+	return nil, nil
+}
+
+func (i itemResolver) Integration(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Integration, error) {
+	if obj.IntegrationID != nil {
+		return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
+	}
+	return nil, nil
+}

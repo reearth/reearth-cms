@@ -54,3 +54,34 @@ func TestRequest_SetTitle(t *testing.T) {
 	assert.Equal(t, ErrEmptyTitle, err)
 
 }
+
+func TestRequest_SetState1(t *testing.T) {
+	item, _ := NewItem(id.NewItemID())
+
+	req1 := New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(id.NewProjectID()).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(ItemList{item}).
+		Title("foo").
+		MustBuild()
+
+	req2 := New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(id.NewProjectID()).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(ItemList{item}).
+		Title("hoge").
+		MustBuild()
+	req1.SetState(StateClosed)
+	assert.Equal(t, StateClosed, req1.State())
+	assert.NotNil(t, req1.ClosedAt())
+
+	req2.SetState(StateApproved)
+	assert.Equal(t, StateApproved, req2.State())
+	assert.NotNil(t, req2.ApprovedAt())
+}

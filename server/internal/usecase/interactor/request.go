@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 )
 
 type Request struct {
@@ -38,8 +39,9 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, operator 
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, operator *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
-		State:   filter.State,
-		Keyword: filter.Keyword,
+		State:    filter.State,
+		Keyword:  filter.Keyword,
+		Reviewer: filter.Reviewer,
 	}, pagination)
 }
 
@@ -173,7 +175,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			}
 			req.SetItems(param.Items)
 		}
-
+		req.SetUpdatedAt(util.Now())
 		if err := r.repos.Request.Save(ctx, req); err != nil {
 			return nil, err
 		}
@@ -191,7 +193,7 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	if err != nil {
 		return err
 	}
-	reqs.CloseAll()
+	reqs.UpdateStatus(request.StateClosed)
 
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
@@ -212,7 +214,12 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	if !req.Reviewers().Has(*operator.User) {
 		return nil, errors.New("only reviewers can approve")
 	}
+
+	if req.State() != request.StateWaiting {
+		return nil, errors.New("only requests with status waiting can be approved")
+	}
 	req.SetState(request.StateApproved)
+
 	if err := r.repos.Request.Save(ctx, req); err != nil {
 		return nil, err
 	}
@@ -220,7 +227,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	// apply changes to items (publish items)
 	for _, item := range req.Items() {
 		// publish the approved version
-		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, item.Pointer().Ref()); err != nil {
+		if err := r.repos.Item.UpdateRef(ctx, item.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 			return nil, err
 		}
 	}

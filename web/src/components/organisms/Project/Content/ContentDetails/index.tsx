@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    requests,
     itemId,
     currentModel,
     currentItem,
@@ -18,11 +19,20 @@ const ContentDetails: React.FC = () => {
     itemUpdatingLoading,
     collapsedModelMenu,
     collapsedCommentsPanel,
+    requestModalShown,
+    addItemToRequestModalShown,
+    workspaceUserMembers,
+    handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
     handleNavigateToModel,
+    handleRequestCreate,
+    handleModalClose,
+    handleModalOpen,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
   } = useHooks();
 
   const {
@@ -47,6 +57,7 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      requests={requests}
       collapsed={collapsedModelMenu}
       onCollapse={collapseModelMenu}
       commentsPanel={
@@ -73,6 +84,7 @@ const ContentDetails: React.FC = () => {
           onModelSelect={handleNavigateToModel}
         />
       }
+      onChange={handleAddItemToRequest}
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loading}
@@ -90,6 +102,14 @@ const ContentDetails: React.FC = () => {
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
       onNavigateToAsset={handleNavigateToAsset}
+      requestModalShown={requestModalShown}
+      addItemToRequestModalShown={addItemToRequestModalShown}
+      onRequestCreate={handleRequestCreate}
+      onModalClose={handleModalClose}
+      onModalOpen={handleModalOpen}
+      onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
+      onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
+      workspaceUserMembers={workspaceUserMembers}
     />
   );
 };

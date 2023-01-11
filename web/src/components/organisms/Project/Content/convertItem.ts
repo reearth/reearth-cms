@@ -19,8 +19,12 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
 export const convertComment = (GQLComment: GQLComment): Comment => {
   return {
     id: GQLComment.id,
-    authorType: GQLComment.author.__typename === "User" ? "User" : "Integration",
-    author: GQLComment.author?.name ?? "",
+    authorType: GQLComment.author
+      ? GQLComment.author.__typename === "User"
+        ? "User"
+        : "Integration"
+      : null,
+    author: GQLComment.author?.name ?? "Anonymous",
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),
   };

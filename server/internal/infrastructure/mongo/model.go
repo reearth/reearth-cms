@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	modelIndexes       = []string{"project", "workspace"}
+	modelIndexes       = []string{"project", "workspace", "key"}
 	modelUniqueIndexes = []string{"id"}
 )
 
@@ -82,6 +82,26 @@ func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 		"key":     key,
 		"project": projectID.String(),
 	})
+}
+
+func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q model.IDOrKey) (*model.Model, error) {
+	mid := q.ID()
+	key := q.Key()
+	if mid == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	filter := bson.M{
+		"project": projectID.String(),
+	}
+	if mid != nil {
+		filter["id"] = mid.String()
+	}
+	if key != nil {
+		filter["key"] = *key
+	}
+
+	return r.findOne(ctx, filter)
 }
 
 func (r *Model) CountByProject(ctx context.Context, projectID id.ProjectID) (int, error) {

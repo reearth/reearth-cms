@@ -1,6 +1,6 @@
 import { atom, useAtom } from "jotai";
 
-import { PublicScope } from "@reearth-cms/components/molecules/Public";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Workspace = {
@@ -19,7 +19,9 @@ export type Project = {
   id: string;
   name: string;
   description?: string;
+  alias: string;
   scope?: PublicScope;
+  assetPublic?: boolean;
 };
 
 const project = atom<Project | undefined>(undefined);

@@ -6,6 +6,7 @@ export const GET_ASSETS = gql`
     $keyword: String
     $sort: AssetSortType
     $pagination: Pagination
+    $withFiles: Boolean!
   ) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       edges {
@@ -26,30 +27,18 @@ export const GET_ASSETS = gql`
       totalCount
     }
   }
-  fragment FileFragment on AssetFile {
-    name
-    size
-    contentType
-    path
-  }
 `;
 
 export const GET_ASSET = gql`
-  query GetAsset($assetId: ID!) {
+  query GetAsset($assetId: ID!, $withFiles: Boolean!) {
     asset(assetId: $assetId) {
       ...assetFragment
     }
   }
-  fragment FileFragment on AssetFile {
-    name
-    size
-    contentType
-    path
-  }
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($projectId: ID!, $file: Upload, $url: String) {
+  mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $withFiles: Boolean!) {
     createAsset(input: { projectId: $projectId, file: $file, url: $url }) {
       asset {
         ...assetFragment
@@ -59,7 +48,7 @@ export const CREATE_ASSET = gql`
 `;
 
 export const UPDATE_ASSET = gql`
-  mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
+  mutation UpdateAsset($id: ID!, $previewType: PreviewType, $withFiles: Boolean!) {
     updateAsset(input: { id: $id, previewType: $previewType }) {
       asset {
         ...assetFragment
