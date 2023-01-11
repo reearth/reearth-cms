@@ -169,6 +169,7 @@ Are you sure you want to delete the model: 本当にこのモデルを削除し�
 Warning: 注意
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 Close: クローズ
+Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み

@@ -8,6 +8,8 @@ import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Props = {
   me?: User;
+  isCloseActionEnabled: boolean;
+  isApproveActionEnabled: boolean;
   currentRequest?: Request;
   workspaceUserMembers: Member[];
   onRequestApprove: (requestId: string) => Promise<void>;
@@ -36,6 +38,8 @@ export type Props = {
 
 const RequestDetailsMolecule: React.FC<Props> = ({
   me,
+  isCloseActionEnabled,
+  isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
   onRequestApprove,
@@ -64,6 +68,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   return currentRequest ? (
     <RequestMolecule
       me={me}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
       onRequestApprove={onRequestApprove}
