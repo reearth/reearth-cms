@@ -2,42 +2,63 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import { useMemo } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
+import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import Icon from "@reearth-cms/components/atoms/Icon";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+
+import RequestItemForm from "./ItemForm";
+
+const { Panel } = Collapse;
 
 type Props = {
   currentRequest: Request;
-  onItemEdit: (itemId: string, modelId?: string) => void;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  loadingAssets: boolean;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadUrl: string;
+  uploadType: UploadType;
+  onUploadModalCancel: () => void;
+  setUploadUrl: (url: string) => void;
+  setUploadType: (type: UploadType) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetsReload: () => void;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  onNavigateToAsset: (asset: Asset) => void;
 };
 
-export const RequestDescription: React.FC<Props> = ({ onItemEdit, currentRequest }) => {
+export const RequestDescription: React.FC<Props> = ({
+  currentRequest,
+  assetList,
+  fileList,
+  loadingAssets,
+  uploading,
+  uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  onUploadModalCancel,
+  setUploadUrl,
+  setUploadType,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onAssetsReload,
+  onAssetSearchTerm,
+  setFileList,
+  setUploadModalVisibility,
+  onNavigateToAsset,
+}) => {
   const fromNow = useMemo(
     () => moment(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
-  );
-
-  const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
-    () => [
-      {
-        render: (_, contentField) => (
-          <Button
-            type="link"
-            icon={<Icon icon="edit" />}
-            onClick={() => onItemEdit(contentField.id, contentField.modelId)}
-          />
-        ),
-        width: 48,
-        minWidth: 48,
-      },
-    ],
-    [onItemEdit],
   );
 
   return (
@@ -51,24 +72,36 @@ export const RequestDescription: React.FC<Props> = ({ onItemEdit, currentRequest
             <RequestText>{currentRequest.description}</RequestText>
           </RequestTextWrapper>
           <RequestItemsWrapper>
-            {currentRequest.items
-              .filter(item => item.columns && item.fields)
-              .map((item, index) => (
-                <RequestItemWrapper key={index}>
-                  <RequestModelName>{item.modelName}</RequestModelName>
-                  <RequestTableWrapper>
-                    <ResizableProTable
-                      pagination={false}
-                      options={false}
-                      dataSource={[item.fields]}
-                      columns={[
-                        ...actionsColumn,
-                        ...(item.columns as ProColumns<ContentTableField, "text">[]),
-                      ]}
+            <Collapse>
+              {currentRequest.items
+                .filter(item => item.schema)
+                .map((item, index) => (
+                  <Panel header={item.modelName} key={index}>
+                    <RequestItemForm
+                      key={index}
+                      schema={item.schema}
+                      initialFormValues={item.initialValues}
+                      assetList={assetList}
+                      fileList={fileList}
+                      loadingAssets={loadingAssets}
+                      uploading={uploading}
+                      uploadModalVisibility={uploadModalVisibility}
+                      uploadUrl={uploadUrl}
+                      uploadType={uploadType}
+                      onUploadModalCancel={onUploadModalCancel}
+                      setUploadUrl={setUploadUrl}
+                      setUploadType={setUploadType}
+                      onAssetsCreate={onAssetsCreate}
+                      onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsReload={onAssetsReload}
+                      onAssetSearchTerm={onAssetSearchTerm}
+                      setFileList={setFileList}
+                      setUploadModalVisibility={setUploadModalVisibility}
+                      onNavigateToAsset={onNavigateToAsset}
                     />
-                  </RequestTableWrapper>
-                </RequestItemWrapper>
-              ))}
+                  </Panel>
+                ))}
+            </Collapse>
           </RequestItemsWrapper>
         </>
       }
@@ -122,25 +155,4 @@ const RequestItemsWrapper = styled.div`
   .ant-pro-card-body {
     padding: 0;
   }
-`;
-
-const RequestItemWrapper = styled.div`
-  + div {
-    margin-top: 24px;
-  }
-`;
-
-const RequestModelName = styled.h1`
-  display: inline-block;
-  padding: 8px 16px;
-  border: 1px solid #f0f0f0;
-  border-bottom: none;
-  border-radius: 2px 2px 0px 0px;
-  margin-bottom: 0;
-`;
-
-const RequestTableWrapper = styled.div`
-  padding: 12px;
-  border: 1px solid #f0f0f0;
-  border-radius: 2px 2px 0px 0px;
 `;
