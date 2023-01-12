@@ -30,7 +30,7 @@ export default () => {
   const { data, refetch, loading } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      first: 100,
+      pagination: { first: 100 },
       key: searchTerm,
     },
     skip: !projectId,

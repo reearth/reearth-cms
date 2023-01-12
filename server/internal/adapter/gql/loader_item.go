@@ -94,26 +94,19 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	sid, err := gqlmodel.ToID[id.Schema](schemaID)
 	if err != nil {
 		return nil, err
 	}
 
-	p := (&gqlmodel.Pagination{
-		First:  first,
-		Last:   last,
-		After:  after,
-		Before: before,
-	}).Into()
-
 	s, err := c.schemaUsecase.FindByID(ctx, sid, op)
 	if err != nil {
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindBySchema(ctx, sid, p, op)
+	res, pi, err := c.usecase.FindBySchema(ctx, sid, gqlmodel.ToItemSort(sort), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -137,21 +130,14 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, fir
 	}, nil
 }
 
-func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	pid, err := gqlmodel.ToID[id.Project](projectID)
 	if err != nil {
 		return nil, err
 	}
 
-	p := (&gqlmodel.Pagination{
-		First:  first,
-		Last:   last,
-		After:  after,
-		Before: before,
-	}).Into()
-
-	res, pi, err := c.usecase.FindByProject(ctx, pid, p, op)
+	res, pi, err := c.usecase.FindByProject(ctx, pid, p.Into(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -187,10 +173,10 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, f
 	}, nil
 }
 
-func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	q := gqlmodel.ToItemQuery(query)
-	res, pi, err := c.usecase.Search(ctx, q, p.Into(), op)
+	res, pi, err := c.usecase.Search(ctx, q, gqlmodel.ToItemSort(sort), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}

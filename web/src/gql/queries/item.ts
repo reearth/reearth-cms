@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-    items(schemaId: $schemaId, first: $first, last: $last, after: $after, before: $before) {
+  query GetItems($schemaId: ID!, $pagination: Pagination) {
+    items(schemaId: $schemaId, pagination: $pagination) {
       nodes {
         id
         schemaId

@@ -18,13 +18,10 @@ export const GET_PROJECT = gql`
 `;
 
 export const GET_PROJECTS = gql`
-  query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+  query GetProjects($workspaceId: ID!, $pagination: Pagination) {
     projects(
       workspaceId: $workspaceId
-      first: $first
-      last: $last
-      after: $after
-      before: $before
+      pagination: $pagination
     ) {
       nodes {
         id

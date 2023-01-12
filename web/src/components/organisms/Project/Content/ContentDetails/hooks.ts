@@ -42,7 +42,7 @@ export default () => {
   const { data: requestData } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      first: 100,
+      pagination: { first: 100 }
     },
     skip: !projectId,
   });
@@ -115,8 +115,6 @@ export default () => {
     },
     [updateItem, t],
   );
-
-  // handleAddItemToRequest
 
   const currentItem: Item | undefined = useMemo(
     () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
@@ -193,7 +191,9 @@ export default () => {
     [updateRequest, currentItem, t],
   );
 
-  const [createRequestMutation] = useCreateRequestMutation();
+  const [createRequestMutation] = useCreateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestCreate = useCallback(
     async (data: {
@@ -224,7 +224,9 @@ export default () => {
     [createRequestMutation, projectId, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation();
+  const [updateRequestMutation] = useUpdateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestUpdate = useCallback(
     async (data: RequestUpdatePayload) => {

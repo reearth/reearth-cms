@@ -11,7 +11,7 @@ export default () => {
     loading: itemsDataLoading,
   } = useGetItemsQuery({
     notifyOnNetworkStatusChange: true,
-    variables: { schemaId: currentModel?.schema.id ?? "", first: 100 },
+    variables: { schemaId: currentModel?.schema.id ?? "", pagination: { first: 1000 } },
     skip: !currentModel?.schema.id,
   });
 

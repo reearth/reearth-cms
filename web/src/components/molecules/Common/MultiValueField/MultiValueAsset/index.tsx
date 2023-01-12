@@ -32,6 +32,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onNavigateToAsset: (asset: Asset) => void;
+  disabled?: boolean;
 };
 
 const MultiValueAsset: React.FC<Props> = ({
@@ -55,6 +56,7 @@ const MultiValueAsset: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onNavigateToAsset,
+  disabled,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -80,19 +82,24 @@ const MultiValueAsset: React.FC<Props> = ({
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
-            <FieldButton
-              type="link"
-              icon={<Icon icon="arrowUp" />}
-              onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-              disabled={key === 0}
-            />
-            <FieldButton
-              type="link"
-              icon={<Icon icon="arrowDown" />}
-              onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-              disabled={key === value.length - 1}
-            />
+            {!disabled && (
+              <>
+                <FieldButton
+                  type="link"
+                  icon={<Icon icon="arrowUp" />}
+                  onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
+                  disabled={key === 0}
+                />
+                <FieldButton
+                  type="link"
+                  icon={<Icon icon="arrowDown" />}
+                  onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
+                  disabled={key === value.length - 1}
+                />
+              </>
+            )}
             <AssetItem
+              disabled={disabled}
               onNavigateToAsset={onNavigateToAsset}
               value={valueItem}
               assetList={assetList}
@@ -113,22 +120,26 @@ const MultiValueAsset: React.FC<Props> = ({
               setUploadModalVisibility={setUploadModalVisibility}
               onChange={(e: string) => handleInput(e, key)}
             />
-            <FieldButton
-              type="link"
-              icon={<Icon icon="delete" />}
-              onClick={() => handleInputDelete(key)}
-            />
+            {!disabled && (
+              <FieldButton
+                type="link"
+                icon={<Icon icon="delete" />}
+                onClick={() => handleInputDelete(key)}
+              />
+            )}
           </FieldWrapper>
         ))}
-      <Button
-        icon={<Icon icon="plus" />}
-        type="primary"
-        onClick={() => {
-          if (!value) value = [];
-          onChange?.([...value, ""]);
-        }}>
-        {t("New")}
-      </Button>
+      {!disabled && (
+        <Button
+          icon={<Icon icon="plus" />}
+          type="primary"
+          onClick={() => {
+            if (!value) value = [];
+            onChange?.([...value, ""]);
+          }}>
+          {t("New")}
+        </Button>
+      )}
     </div>
   );
 };

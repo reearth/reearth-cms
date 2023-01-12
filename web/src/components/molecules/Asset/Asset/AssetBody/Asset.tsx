@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
 import { createWorldTerrain, Viewer } from "cesium";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import TilesetPreview from "@reearth-cms/components/atoms/TilesetPreview";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -18,21 +17,23 @@ import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBo
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
-  fileFormats,
-  imageFormats,
-  compressedFileFormats,
-} from "@reearth-cms/components/molecules/Common/Asset";
+  GeoViewer,
+  Geo3dViewer,
+  SvgViewer,
+  ImageViewer,
+} from "@reearth-cms/components/molecules/Asset/Viewers";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
-import SVGPreview from "./svgPreview";
 
 type Props = {
   asset: Asset;
+  assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  viewerType: ViewerType;
+  displayUnzipFileList: boolean;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -45,8 +46,11 @@ export let viewerRef: Viewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
+  assetFileExt,
   selectedPreviewType,
   isModalVisible,
+  viewerType,
+  displayUnzipFileList,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -56,23 +60,15 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-  const assetFileExt = getExtension(asset.fileName) ?? "";
-  const displayUnzipFileList = useMemo(
-    () => compressedFileFormats.includes(assetFileExt),
-    [assetFileExt],
-  );
-  const isSVG = assetFileExt === "svg";
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
+
   const renderPreview = () => {
     switch (true) {
-      case (selectedPreviewType === "GEO" ||
-        selectedPreviewType === "GEO3D" ||
-        selectedPreviewType === "MODEL3D") &&
-        (fileFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
+      case viewerType === "geo":
         return (
-          <TilesetPreview
+          <GeoViewer
             viewerProps={{
               terrainProvider: createWorldTerrain(),
               navigationHelpButton: false,
@@ -86,19 +82,41 @@ const AssetMolecule: React.FC<Props> = ({
               timeline: false,
               animation: false,
               geocoder: false,
+              shouldAnimate: true,
             }}
-            tilesetProps={{
-              url: assetUrl,
-            }}
+            url={assetUrl}
+            assetFileExt={assetFileExt}
             onGetViewer={getViewer}
           />
         );
-      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        return isSVG ? (
-          <SVGPreview url={assetUrl} svgRender={svgRender} />
-        ) : (
-          <Image src={assetUrl} alt="asset-preview" />
+      case viewerType === "geo3d":
+        return (
+          <Geo3dViewer
+            viewerProps={{
+              terrainProvider: createWorldTerrain(),
+              navigationHelpButton: false,
+              homeButton: false,
+              projectionPicker: false,
+              sceneModePicker: false,
+              baseLayerPicker: false,
+              fullscreenButton: false,
+              vrButton: false,
+              selectionIndicator: false,
+              timeline: false,
+              animation: false,
+              geocoder: false,
+              shouldAnimate: true,
+            }}
+            url={assetUrl}
+            onGetViewer={getViewer}
+          />
         );
+      case viewerType === "image":
+        return <ImageViewer url={assetUrl} />;
+      case viewerType === "svg":
+        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+      case viewerType === "model3d":
+      case viewerType === "unsupported":
       default:
         return <ViewerNotSupported />;
     }
@@ -112,9 +130,8 @@ const AssetMolecule: React.FC<Props> = ({
           toolbar={
             <PreviewToolbar
               url={assetUrl}
-              selectedPreviewType={selectedPreviewType}
               isModalVisible={isModalVisible}
-              isSVG={isSVG}
+              viewerType={viewerType}
               handleCodeSourceClick={handleCodeSourceClick}
               handleRenderClick={handleRenderClick}
               handleFullScreen={onChangeToFullScreen}
@@ -172,12 +189,6 @@ const BodyWrapper = styled.div`
   height: 100%;
   overflow-y: auto;
   flex: 1;
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 500px;
-  object-fit: contain;
 `;
 
 const SideBarWrapper = styled.div`

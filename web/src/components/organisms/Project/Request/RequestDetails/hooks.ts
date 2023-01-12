@@ -36,12 +36,16 @@ export default () => {
       : undefined;
   }, [userData]);
 
+  const myRole = useMemo(
+    () => currentWorkspace?.members?.find(m => m.userId === me?.id).role,
+    [currentWorkspace?.members, me?.id],
+  );
+
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const { data } = useGetRequestsQuery({
     variables: {
-      projectId: projectId ?? "",
-      first: 100,
+      projectId: projectId ?? "", pagination: { first: 100 },
     },
     skip: !projectId,
   });
@@ -50,6 +54,25 @@ export default () => {
     () =>
       convertRequest(data?.requests.nodes.find(request => request?.id === requestId) as GQLRequest),
     [requestId, data?.requests.nodes],
+  );
+
+  const isCloseActionEnabled: boolean = useMemo(
+    () =>
+      currentRequest?.state !== "CLOSED" &&
+      currentRequest?.state !== "APPROVED" &&
+      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
+      myRole !== "READER" &&
+      myRole !== "WRITER",
+    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
+  );
+
+  const isApproveActionEnabled: boolean = useMemo(
+    () =>
+      currentRequest?.state === "WAITING" &&
+      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
+      myRole !== "READER" &&
+      myRole !== "WRITER",
+    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
   );
 
   const [deleteRequestMutation] = useDeleteRequestMutation();
@@ -129,6 +152,8 @@ export default () => {
 
   return {
     me,
+    isCloseActionEnabled,
+    isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,
     handleRequestApprove,

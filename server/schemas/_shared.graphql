@@ -45,6 +45,7 @@ enum NodeType {
 input Pagination{
   first: Int
   last: Int
+  offset: Int
   after: Cursor
   before: Cursor
 }
@@ -59,6 +60,11 @@ type PageInfo {
 type KeyAvailability {
   key: String!
   available: Boolean!
+}
+
+enum SortDirection {
+  ASC
+  DESC
 }
 
 # Basic types
