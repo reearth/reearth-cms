@@ -30,7 +30,7 @@ export default () => {
   } = useModelHooks({});
 
   const { data } = useGetModelsQuery({
-    variables: { projectId: currentProject?.id ?? "", first: 100 },
+    variables: { projectId: currentProject?.id ?? "", pagination: { first: 100 } },
     skip: !currentProject?.id,
   });
 
