@@ -65,7 +65,7 @@ func init() {
 	}
 }
 
-func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *user.User, err error) {
+func (i *User) Signup(ctx context.Context, param interfaces.SignUpParam) (u *user.User, err error) {
 	if err := i.verifySignupSecret(param.Secret); err != nil {
 		return nil, err
 	}
