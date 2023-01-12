@@ -7,19 +7,13 @@ export const GET_REQUESTS = gql`
     $projectId: ID!
     $key: String
     $state: RequestState
-    $first: Int
-    $last: Int
-    $after: Cursor
-    $before: Cursor
+    $pagination: Pagination
   ) {
     requests(
       projectId: $projectId
       key: $key
       state: $state
-      first: $first
-      last: $last
-      after: $after
-      before: $before
+      pagination: $pagination
     ) {
       edges {
         cursor
