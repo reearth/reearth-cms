@@ -24,6 +24,10 @@ func TestKey_IsValid(t *testing.T) {
 	assert.False(t, Key{key: "id"}.IsValid())
 }
 
+func TestKey_Ref(t *testing.T) {
+	assert.Equal(t, lo.ToPtr(Key{key: "aaa"}), Key{key: "aaa"}.Ref())
+}
+
 func TestKey_String(t *testing.T) {
 	assert.Equal(t, "aaaaaa", Key{key: "aaaaaa"}.String())
 	assert.Equal(t, "aaa", Key{key: "aaa"}.String())

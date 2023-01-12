@@ -37,7 +37,7 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 	})
 }
 
-type VersionedList []*version.Value[*Item]
+type VersionedList []Versioned
 
 func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 	m := slices.Clone(l)

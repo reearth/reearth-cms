@@ -288,7 +288,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 		return err
 	}
 
-	if len(exists) > 0 {
+	if len(exists) > 0 && (itm == nil || len(exists) != 1 || exists[0].Value().ID() != itm.ID()) {
 		return interfaces.ErrDuplicatedItemValue
 	}
 
@@ -297,7 +297,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 
 func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
-		sf := s.Field(f.Field)
+		sf := s.FieldByIDOrKey(f.Field, f.Key)
 		if sf == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
@@ -316,10 +316,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(
-			f.Field,
-			m,
-		), nil
+		return item.NewField(sf.ID(), m), nil
 	})
 }
 
