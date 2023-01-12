@@ -89,12 +89,7 @@ enum AssetSortType {
 
 extend type Query {
   asset(assetId: ID!): Asset!
-  assets(
-    projectId: ID!
-    keyword: String
-    sort: AssetSortType
-    pagination: Pagination
-  ): AssetConnection!
+  assets(projectId: ID!, keyword: String, sort: AssetSortType, pagination: Pagination): AssetConnection!
 }
 
 extend type Mutation {

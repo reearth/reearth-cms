@@ -88,23 +88,9 @@ input ItemQuery {
 }
 
 extend type Query {
-  items(
-    schemaId: ID!
-    sort: ItemSort
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ItemConnection!
+  items(schemaId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(
-    query: ItemQuery!
-    sort: ItemSort
-    first: Int
-    last: Int
-    after: Cursor
-    before: Cursor
-  ): ItemConnection!
+  searchItem(query: ItemQuery!, sort: ItemSort, pagination: Pagination): ItemConnection!
 }
 
 extend type Mutation {
