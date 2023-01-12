@@ -137,6 +137,8 @@ const RequestMolecule: React.FC<Props> = ({
             setFileList={setFileList}
             setUploadModalVisibility={setUploadModalVisibility}
             onNavigateToAsset={onNavigateToAsset}
+            onCommentUpdate={onCommentUpdate}
+            onCommentDelete={onCommentDelete}
           />
         </ThreadWrapper>
         <RequestSidebarWrapper
