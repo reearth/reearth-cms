@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
@@ -9,19 +10,25 @@ import Editor from "./Editor";
 import Thread from "./Thread";
 
 export type Props = {
+  me?: User;
   comments?: Comment[];
   emptyText?: string;
   collapsed: boolean;
   onCollapse: (value: boolean) => void;
   onCommentCreate: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
 };
 
 const CommentsPanel: React.FC<Props> = ({
+  me,
   comments,
   emptyText,
   collapsed,
   onCollapse,
   onCommentCreate,
+  onCommentUpdate,
+  onCommentDelete,
 }) => {
   const t = useT();
 
@@ -41,7 +48,12 @@ const CommentsPanel: React.FC<Props> = ({
             <ThreadWrapper>
               <Title>{t("Comments")}</Title>
               <CommentsContainer>
-                <Thread comments={comments} />
+                <Thread
+                  me={me}
+                  comments={comments}
+                  onCommentUpdate={onCommentUpdate}
+                  onCommentDelete={onCommentDelete}
+                />
               </CommentsContainer>
             </ThreadWrapper>
 
