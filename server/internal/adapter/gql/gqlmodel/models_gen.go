@@ -440,6 +440,7 @@ type PageInfo struct {
 type Pagination struct {
 	First  *int             `json:"first"`
 	Last   *int             `json:"last"`
+	Offset *int             `json:"offset"`
 	After  *usecasex.Cursor `json:"after"`
 	Before *usecasex.Cursor `json:"before"`
 }
@@ -1223,24 +1224,28 @@ func (e OperatorType) MarshalGQL(w io.Writer) {
 type PreviewType string
 
 const (
-	PreviewTypeImage   PreviewType = "IMAGE"
-	PreviewTypeGeo     PreviewType = "GEO"
-	PreviewTypeGeo3d   PreviewType = "GEO3D"
-	PreviewTypeModel3d PreviewType = "MODEL3D"
-	PreviewTypeUnknown PreviewType = "UNKNOWN"
+	PreviewTypeImage      PreviewType = "IMAGE"
+	PreviewTypeImageSVG   PreviewType = "IMAGE_SVG"
+	PreviewTypeGeo        PreviewType = "GEO"
+	PreviewTypeGeo3dTiles PreviewType = "GEO_3D_TILES"
+	PreviewTypeGeoMvt     PreviewType = "GEO_MVT"
+	PreviewTypeModel3d    PreviewType = "MODEL_3D"
+	PreviewTypeUnknown    PreviewType = "UNKNOWN"
 )
 
 var AllPreviewType = []PreviewType{
 	PreviewTypeImage,
+	PreviewTypeImageSVG,
 	PreviewTypeGeo,
-	PreviewTypeGeo3d,
+	PreviewTypeGeo3dTiles,
+	PreviewTypeGeoMvt,
 	PreviewTypeModel3d,
 	PreviewTypeUnknown,
 }
 
 func (e PreviewType) IsValid() bool {
 	switch e {
-	case PreviewTypeImage, PreviewTypeGeo, PreviewTypeGeo3d, PreviewTypeModel3d, PreviewTypeUnknown:
+	case PreviewTypeImage, PreviewTypeImageSVG, PreviewTypeGeo, PreviewTypeGeo3dTiles, PreviewTypeGeoMvt, PreviewTypeModel3d, PreviewTypeUnknown:
 		return true
 	}
 	return false

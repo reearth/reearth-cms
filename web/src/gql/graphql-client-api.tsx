@@ -344,6 +344,8 @@ export type Item = Node & {
   createdAt: Scalars['DateTime'];
   fields: Array<ItemField>;
   id: Scalars['ID'];
+  integration?: Maybe<Integration>;
+  integrationId?: Maybe<Scalars['ID']>;
   model: Model;
   modelId: Scalars['ID'];
   project: Project;
@@ -352,6 +354,8 @@ export type Item = Node & {
   schemaId: Scalars['ID'];
   thread: Thread;
   threadId: Scalars['ID'];
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['ID']>;
 };
 
 export type ItemConnection = {
@@ -389,7 +393,17 @@ export type ItemPayload = {
 export type ItemQuery = {
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
+  schema?: InputMaybe<Scalars['ID']>;
 };
+
+export type ItemSort = {
+  direction?: InputMaybe<SortDirection>;
+  sortBy: ItemSortType;
+};
+
+export enum ItemSortType {
+  Date = 'DATE'
+}
 
 export type KeyAvailability = {
   __typename?: 'KeyAvailability';
@@ -742,13 +756,16 @@ export type Pagination = {
   before?: InputMaybe<Scalars['Cursor']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 export enum PreviewType {
   Geo = 'GEO',
-  Geo3D = 'GEO3D',
+  Geo_3DTiles = 'GEO_3D_TILES',
+  GeoMvt = 'GEO_MVT',
   Image = 'IMAGE',
-  Model3D = 'MODEL3D',
+  ImageSvg = 'IMAGE_SVG',
+  Model_3D = 'MODEL_3D',
   Unknown = 'UNKNOWN'
 }
 
@@ -857,19 +874,14 @@ export type QueryCheckProjectAliasArgs = {
 
 
 export type QueryItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  pagination?: InputMaybe<Pagination>;
   schemaId: Scalars['ID'];
+  sort?: InputMaybe<ItemSort>;
 };
 
 
 export type QueryModelsArgs = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
 };
 
@@ -887,31 +899,25 @@ export type QueryNodesArgs = {
 
 
 export type QueryProjectsArgs = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  pagination?: InputMaybe<Pagination>;
   workspaceId: Scalars['ID'];
 };
 
 
 export type QueryRequestsArgs = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
+  createdBy?: InputMaybe<Scalars['ID']>;
   key?: InputMaybe<Scalars['String']>;
-  last?: InputMaybe<Scalars['Int']>;
+  pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
+  reviewer?: InputMaybe<Scalars['ID']>;
   state?: InputMaybe<RequestState>;
 };
 
 
 export type QuerySearchItemArgs = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
+  pagination?: InputMaybe<Pagination>;
   query: ItemQuery;
+  sort?: InputMaybe<ItemSort>;
 };
 
 
@@ -1028,7 +1034,7 @@ export type SchemaField = {
   model: Model;
   modelId: Scalars['ID'];
   multiple: Scalars['Boolean'];
-  order: Scalars['Int'];
+  order?: Maybe<Scalars['Int']>;
   required: Scalars['Boolean'];
   title: Scalars['String'];
   type: SchemaFieldType;
@@ -1192,6 +1198,11 @@ export type SchemaMarkdownTextInput = {
   defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
 };
+
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC'
+}
 
 export enum Theme {
   Dark = 'DARK',
@@ -1566,10 +1577,7 @@ export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegra
 
 export type GetItemsQueryVariables = Exact<{
   schemaId: Scalars['ID'];
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
+  pagination?: InputMaybe<Pagination>;
 }>;
 
 
@@ -1601,14 +1609,11 @@ export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typ
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
+  pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order: number, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -1655,10 +1660,7 @@ export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Ass
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
+  pagination?: InputMaybe<Pagination>;
 }>;
 
 
@@ -1703,10 +1705,7 @@ export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   key?: InputMaybe<Scalars['String']>;
   state?: InputMaybe<RequestState>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
+  pagination?: InputMaybe<Pagination>;
 }>;
 
 
@@ -2745,14 +2744,8 @@ export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteInt
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
-    query GetItems($schemaId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-  items(
-    schemaId: $schemaId
-    first: $first
-    last: $last
-    after: $after
-    before: $before
-  ) {
+    query GetItems($schemaId: ID!, $pagination: Pagination) {
+  items(schemaId: $schemaId, pagination: $pagination) {
     nodes {
       id
       schemaId
@@ -2782,10 +2775,7 @@ export const GetItemsDocument = gql`
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
  *      schemaId: // value for 'schemaId'
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
+ *      pagination: // value for 'pagination'
  *   },
  * });
  */
@@ -2919,14 +2909,8 @@ export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutati
 export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
 export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
 export const GetModelsDocument = gql`
-    query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-  models(
-    projectId: $projectId
-    first: $first
-    last: $last
-    after: $after
-    before: $before
-  ) {
+    query GetModels($projectId: ID!, $pagination: Pagination) {
+  models(projectId: $projectId, pagination: $pagination) {
     nodes {
       id
       name
@@ -2994,10 +2978,7 @@ export const GetModelsDocument = gql`
  * const { data, loading, error } = useGetModelsQuery({
  *   variables: {
  *      projectId: // value for 'projectId'
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
+ *      pagination: // value for 'pagination'
  *   },
  * });
  */
@@ -3210,14 +3191,8 @@ export type GetProjectQueryHookResult = ReturnType<typeof useGetProjectQuery>;
 export type GetProjectLazyQueryHookResult = ReturnType<typeof useGetProjectLazyQuery>;
 export type GetProjectQueryResult = Apollo.QueryResult<GetProjectQuery, GetProjectQueryVariables>;
 export const GetProjectsDocument = gql`
-    query GetProjects($workspaceId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-  projects(
-    workspaceId: $workspaceId
-    first: $first
-    last: $last
-    after: $after
-    before: $before
-  ) {
+    query GetProjects($workspaceId: ID!, $pagination: Pagination) {
+  projects(workspaceId: $workspaceId, pagination: $pagination) {
     nodes {
       id
       name
@@ -3245,10 +3220,7 @@ export const GetProjectsDocument = gql`
  * const { data, loading, error } = useGetProjectsQuery({
  *   variables: {
  *      workspaceId: // value for 'workspaceId'
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
+ *      pagination: // value for 'pagination'
  *   },
  * });
  */
@@ -3428,15 +3400,12 @@ export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProject
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
 export const GetRequestsDocument = gql`
-    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
+    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination) {
   requests(
     projectId: $projectId
     key: $key
     state: $state
-    first: $first
-    last: $last
-    after: $after
-    before: $before
+    pagination: $pagination
   ) {
     edges {
       cursor
@@ -3466,10 +3435,7 @@ export const GetRequestsDocument = gql`
  *      projectId: // value for 'projectId'
  *      key: // value for 'key'
  *      state: // value for 'state'
- *      first: // value for 'first'
- *      last: // value for 'last'
- *      after: // value for 'after'
- *      before: // value for 'before'
+ *      pagination: // value for 'pagination'
  *   },
  * });
  */

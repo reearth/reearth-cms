@@ -18,11 +18,13 @@ const (
 
 // Defines values for AssetPreviewType.
 const (
-	Geo     AssetPreviewType = "geo"
-	Geo3d   AssetPreviewType = "geo3d"
-	Image   AssetPreviewType = "image"
-	Model3d AssetPreviewType = "model3d"
-	Unknown AssetPreviewType = "unknown"
+	Geo        AssetPreviewType = "geo"
+	Geo3dTiles AssetPreviewType = "geo_3d_Tiles"
+	GeoMvt     AssetPreviewType = "geo_mvt"
+	Image      AssetPreviewType = "image"
+	ImageSvg   AssetPreviewType = "image_svg"
+	Model3d    AssetPreviewType = "model_3d"
+	Unknown    AssetPreviewType = "unknown"
 )
 
 // Defines values for CommentAuthorType.
@@ -336,11 +338,7 @@ type ItemFilterParamsRef string
 
 // ItemCreateJSONBody defines parameters for ItemCreate.
 type ItemCreateJSONBody struct {
-	Fields *[]struct {
-		Id    *id.FieldID  `json:"id,omitempty"`
-		Type  *ValueType   `json:"type,omitempty"`
-		Value *interface{} `json:"value,omitempty"`
-	} `json:"fields,omitempty"`
+	Fields *[]Field `json:"fields,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
@@ -372,11 +370,7 @@ type ItemFilterWithProjectParamsRef string
 
 // ItemCreateWithProjectJSONBody defines parameters for ItemCreateWithProject.
 type ItemCreateWithProjectJSONBody struct {
-	Fields *[]struct {
-		Id    *id.FieldID  `json:"id,omitempty"`
-		Type  *ValueType   `json:"type,omitempty"`
-		Value *interface{} `json:"value,omitempty"`
-	} `json:"fields,omitempty"`
+	Fields *[]Field `json:"fields,omitempty"`
 }
 
 // AssetFilterParams defines parameters for AssetFilter.

@@ -40,7 +40,6 @@ JSON/SHAPEFILE/KML/CZML: ''
 GEO3D: ''
 MODEL3D/GLB: ''
 Unknown Type: 不明
-Could not display svg: svgを表示できませんでした。
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
 Not supported: プレビュー対応していないデータフォーマットです。
@@ -67,6 +66,7 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
+Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
 Personal Account: パーソナルアカウント
@@ -169,6 +169,7 @@ Are you sure you want to delete the model: 本当にこのモデルを削除し�
 Warning: 注意
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 Close: クローズ
+Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
@@ -231,6 +232,10 @@ Please click the comment bubble in the table to check comments.: コメントを
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントが作成に成功しました。
+Failed to update comment.: ''
+Successfully updated comment!: ''
+Failed to delete comment.: ''
+Successfully deleted comment!: ''
 Failed to update publication settings.: 公開設定の更新に失敗しました。
 Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to create item.: アイテムの作成に失敗しました。

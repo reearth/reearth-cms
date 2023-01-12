@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -16,12 +17,17 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
+	cacheSize               = 5 * 1024 * 1024 * 1024 // 5GB
 )
 
 type fileRepo struct {
 	bucketName   string
 	base         *url.URL
 	cacheControl string
+}
+
+type Buffer struct {
+	b bytes.Reader
 }
 
 func NewFile(bucketName, base string, cacheControl string) (gateway.File, error) {
@@ -52,7 +58,8 @@ func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser,
 		return nil, 0, rerror.ErrNotFound
 	}
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
-	return f.NewGCSReaderAt(ctx, objectName)
+	// return f.NewGCSReaderAt(ctx, objectName)
+	return f.readAll(ctx, objectName)
 }
 
 // Upload is the function which allows this func's user to generate the function to upload asset to GCS dynamically
@@ -87,13 +94,51 @@ func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gatew
 		log.Errorf("gcs: rawGCSReaderAt err: ObjectName=%s, err=%+v\n", objectName, err)
 		return nil, 0, rerror.ErrInternalBy(err)
 	}
-
 	return rowReaderAt, size, nil
 }
 
 type rawGCSReaderAt struct {
 	ctx context.Context
 	obj *storage.ObjectHandle
+}
+
+func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
+	if objectName == "" {
+		return nil, 0, rerror.ErrNotFound
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: read bucket err: %+v\n", err)
+		return nil, 0, rerror.ErrInternalBy(err)
+	}
+
+	obj := bucket.Object(objectName)
+	r, err := obj.NewReader(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// read all data on memory
+	objectData, err := io.ReadAll(r)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	reader := bytes.NewReader(objectData)
+	bufReader := Buffer{
+		*reader,
+	}
+
+	return &bufReader, int64(len(objectData)), nil
+}
+
+func (b *Buffer) Close() error {
+	return nil
+}
+
+func (b *Buffer) ReadAt(b2 []byte, off int64) (n int, err error) {
+	return b.b.ReadAt(b2, off)
 }
 
 // newRawGCSReaderAt implements io.ReadAt

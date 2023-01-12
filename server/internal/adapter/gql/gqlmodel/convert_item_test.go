@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -91,7 +92,7 @@ func TestToItemParam(t *testing.T) {
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
-				Field: sfid,
+				Field: &sfid,
 				Type:  value.TypeText,
 				Value: "foo",
 			},
@@ -185,4 +186,20 @@ func TestToItemQuery(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
+}
+
+func TestToItemSort(t *testing.T) {
+	input1 := &ItemSort{
+		SortBy:    ItemSortTypeDate,
+		Direction: lo.ToPtr(SortDirectionDesc),
+	}
+	want1 := &item.Sort{
+		Direction: item.DescDirection,
+		SortBy:    item.SortTypeDate,
+	}
+	got1 := ToItemSort(input1)
+	assert.Equal(t, want1, got1)
+	got2 := ToItemSort(nil)
+	var want2 *item.Sort
+	assert.Equal(t, want2, got2)
 }

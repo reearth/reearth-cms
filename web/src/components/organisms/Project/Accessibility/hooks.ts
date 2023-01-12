@@ -20,7 +20,7 @@ export default () => {
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: currentProject?.id ?? "",
-      first: 100,
+      pagination: { first: 100 },
     },
     skip: !currentProject?.id,
   });

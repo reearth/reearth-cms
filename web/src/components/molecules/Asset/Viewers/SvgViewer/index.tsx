@@ -5,7 +5,7 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = { url: string; svgRender: boolean };
 
-const SVGPreview: React.FC<Props> = ({ url, svgRender }) => {
+const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
   const [svgText, setSvgText] = useState("");
 
@@ -37,4 +37,4 @@ const Image = styled.img`
   object-fit: contain;
 `;
 
-export default SVGPreview;
+export default SvgViewer;

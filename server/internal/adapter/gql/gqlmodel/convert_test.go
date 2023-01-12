@@ -140,6 +140,28 @@ func TestPagination_Into(t *testing.T) {
 				Last:   nil,
 			}.Wrap(),
 		},
+		{
+			name: "success offset",
+			args: &Pagination{
+				First:  lo.ToPtr(10),
+				Offset: lo.ToPtr(50),
+			},
+			want: usecasex.OffsetPagination{
+				Limit:  10,
+				Offset: 50,
+			}.Wrap(),
+		},
+		{
+			name: "success offset",
+			args: &Pagination{
+				First:  nil,
+				Offset: lo.ToPtr(50),
+			},
+			want: usecasex.OffsetPagination{
+				Limit:  50,
+				Offset: 50,
+			}.Wrap(),
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
