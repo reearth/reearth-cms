@@ -24,13 +24,15 @@ export default () => {
     selectedRowKeys: [],
   });
   const [selectedRequestId, setselectedRequestId] = useState<string>();
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const { data, refetch, loading } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      pagination: { first: 100 },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
       key: searchTerm,
     },
     skip: !projectId,
@@ -93,6 +95,11 @@ export default () => {
     setSearchTerm(term);
   }, []);
 
+  const handlePageChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
+
   return {
     requests,
     loading,
@@ -107,5 +114,9 @@ export default () => {
     handleRequestsReload,
     handleRequestDelete,
     handleSearchTerm,
+    totalCount: data?.requests.totalCount ?? 0,
+    page,
+    pageSize,
+    handlePageChange,
   };
 };

@@ -19,6 +19,10 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
   onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onPageChange: (page: number, pageSize: number) => void;
+  totalCount: number;
+  page: number;
+  pageSize: number;
 };
 
 const RequestListMolecule: React.FC<Props> = ({
@@ -33,6 +37,10 @@ const RequestListMolecule: React.FC<Props> = ({
   setSelection,
   onRequestsReload,
   onRequestDelete,
+  onPageChange,
+  totalCount,
+  page,
+  pageSize,
 }) => {
   return (
     <ComplexInnerContents
@@ -49,6 +57,10 @@ const RequestListMolecule: React.FC<Props> = ({
             setSelection={setSelection}
             onRequestSelect={onRequestSelect}
             selectedRequest={selectedRequest}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
           />
         </Content>
       }

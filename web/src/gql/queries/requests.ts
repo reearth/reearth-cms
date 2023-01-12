@@ -3,18 +3,8 @@ import { gql } from "@apollo/client";
 import { requestFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_REQUESTS = gql`
-  query GetRequests(
-    $projectId: ID!
-    $key: String
-    $state: RequestState
-    $pagination: Pagination
-  ) {
-    requests(
-      projectId: $projectId
-      key: $key
-      state: $state
-      pagination: $pagination
-    ) {
+  query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination) {
+    requests(projectId: $projectId, key: $key, state: $state, pagination: $pagination) {
       edges {
         cursor
         node {
@@ -24,6 +14,7 @@ export const GET_REQUESTS = gql`
       nodes {
         ...requestFragment
       }
+      totalCount
     }
   }
 

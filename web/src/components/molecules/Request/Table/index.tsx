@@ -32,6 +32,10 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
   onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onPageChange: (page: number, pageSize: number) => void;
+  totalCount: number;
+  page: number;
+  pageSize: number;
 };
 
 const RequestListTable: React.FC<Props> = ({
@@ -45,6 +49,10 @@ const RequestListTable: React.FC<Props> = ({
   setSelection,
   onRequestsReload,
   onRequestDelete,
+  onPageChange,
+  totalCount,
+  page,
+  pageSize,
 }) => {
   const t = useT();
 
@@ -134,7 +142,11 @@ const RequestListTable: React.FC<Props> = ({
   };
 
   const pagination: TablePaginationConfig = {
-    showSizeChanger: false,
+    showSizeChanger: true,
+    current: page,
+    total: totalCount,
+    pageSize: pageSize,
+    onChange: onPageChange,
   };
 
   const rowSelection: TableRowSelection = {
