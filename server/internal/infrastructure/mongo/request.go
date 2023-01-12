@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -80,7 +81,11 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 	}
 
 	if uFilter.State != nil {
-		filter["state"] = uFilter.State.String()
+		filter["state"] = bson.M{
+			"$in": lo.Map(uFilter.State, func(s request.State, _ int) string {
+				return s.String()
+			}),
+		}
 	}
 
 	if uFilter.CreatedBy != nil {
