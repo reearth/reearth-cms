@@ -25,6 +25,16 @@ func (p *Pagination) Into() *usecasex.Pagination {
 	if p == nil {
 		return nil
 	}
+	if p.Offset != nil {
+		var limit int64 = 50
+		if p.First != nil {
+			limit = int64(*p.First)
+		}
+		return usecasex.OffsetPagination{
+			Offset: int64(*p.Offset),
+			Limit:  limit,
+		}.Wrap()
+	}
 	return usecasex.CursorPagination{
 		Before: p.Before,
 		After:  p.After,

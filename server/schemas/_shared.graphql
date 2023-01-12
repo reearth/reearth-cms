@@ -45,6 +45,7 @@ enum NodeType {
 input Pagination{
   first: Int
   last: Int
+  offset: Int
   after: Cursor
   before: Cursor
 }

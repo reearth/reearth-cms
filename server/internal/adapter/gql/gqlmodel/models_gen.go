@@ -440,6 +440,7 @@ type PageInfo struct {
 type Pagination struct {
 	First  *int             `json:"first"`
 	Last   *int             `json:"last"`
+	Offset *int             `json:"offset"`
 	After  *usecasex.Cursor `json:"after"`
 	Before *usecasex.Cursor `json:"before"`
 }
