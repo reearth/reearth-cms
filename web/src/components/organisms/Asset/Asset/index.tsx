@@ -11,6 +11,7 @@ const Asset: React.FC = () => {
   const { workspaceId, projectId, assetId } = useParams();
   const {
     asset,
+    assetFileExt,
     isLoading,
     selectedPreviewType,
     isModalVisible,
@@ -48,6 +49,7 @@ const Asset: React.FC = () => {
         />
       }
       asset={asset}
+      assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
       viewerType={viewerType}
