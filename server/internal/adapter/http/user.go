@@ -62,7 +62,7 @@ type SignupOutput struct {
 
 func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupOutput, error) {
 
-	if input.Sub != nil && input.Email != "" && input.Name != "" {
+	if input.Sub != nil && *input.Sub != "" && input.Email != "" && input.Name != "" {
 		u, err := c.usecase.SignupOIDC(ctx, interfaces.SignupOIDC{
 			Name:   input.Name,
 			Email:  input.Email,
