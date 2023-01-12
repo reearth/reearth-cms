@@ -82,7 +82,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
-	api.POST("/signup", SignupAuth0(), usecaseMiddleware)
+	api.POST("/signup", Signup(), usecaseMiddleware)
 
 	publicapi.Echo(api.Group("/p", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
 	integration.RegisterHandlers(api.Group(

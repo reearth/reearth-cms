@@ -103,7 +103,7 @@ func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *use
 	return u, nil
 }
 
-func (i *User) SignupAuth0(ctx context.Context, param interfaces.SignupAuth0Param) (*user.User, error) {
+func (i *User) SignupOIDC(ctx context.Context, param interfaces.SignupOIDC) (*user.User, error) {
 	if err := i.verifySignupSecret(param.Secret); err != nil {
 		return nil, err
 	}

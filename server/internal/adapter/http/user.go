@@ -26,13 +26,8 @@ type PasswordResetInput struct {
 	Password string `json:"password"`
 }
 
-type SignupAuth0Input struct {
-	Sub    string  `json:"sub"`
-	Name   string  `json:"username"`
-	Email  string  `json:"email"`
-	Secret *string `json:"secret"`
-}
 type SignupInput struct {
+	Sub         *string         `json:"sub"`
 	Secret      *string         `json:"secret"`
 	UserID      *id.UserID      `json:"userId"`
 	WorkspaceID *id.WorkspaceID `json:"workspaceId"`
@@ -66,10 +61,27 @@ type SignupOutput struct {
 }
 
 func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupOutput, error) {
-	var u *user.User
-	var err error
+	
+	if input.Sub != nil {
+		u, err := c.usecase.SignupOIDC(ctx, interfaces.SignupOIDC{
+			Name:   input.Name,
+			Email:  input.Email,
+			Sub:    *input.Sub,
+			Secret: input.Secret,
+		})
 
-	u, err = c.usecase.SignUp(ctx, interfaces.SignUpParam{
+		if err != nil {
+			return SignupOutput{}, err
+		}
+
+		return SignupOutput{
+			ID:    u.ID().String(),
+			Name:  u.Name(),
+			Email: u.Email(),
+		}, nil
+	}
+
+	u, err := c.usecase.SignUp(ctx, interfaces.SignUpParam{
 		Name:        input.Name,
 		Email:       input.Email,
 		Password:    input.Password,
@@ -78,28 +90,6 @@ func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupO
 		WorkspaceID: input.WorkspaceID,
 		Lang:        input.Lang,
 		Theme:       input.Theme,
-	})
-
-	if err != nil {
-		return SignupOutput{}, err
-	}
-
-	return SignupOutput{
-		ID:    u.ID().String(),
-		Name:  u.Name(),
-		Email: u.Email(),
-	}, nil
-}
-
-func (c *UserController) SignupAuth0(ctx context.Context, input SignupAuth0Input) (SignupOutput, error) {
-	var u *user.User
-	var err error
-
-	u, err = c.usecase.SignupAuth0(ctx, interfaces.SignupAuth0Param{
-		Name:   input.Name,
-		Email:  input.Email,
-		Sub:    input.Sub,
-		Secret: input.Secret,
 	})
 
 	if err != nil {

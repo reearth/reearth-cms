@@ -22,7 +22,7 @@ var (
 	ErrUserAlreadyExists               = errors.New("user already exists")
 )
 
-type SignupAuth0Param struct {
+type SignupOIDC struct {
 	Email  string
 	Name   string
 	Secret *string
@@ -62,7 +62,7 @@ type UpdateMeParam struct {
 type User interface {
 	Fetch(context.Context, []id.UserID, *usecase.Operator) ([]*user.User, error)
 	SignUp(context.Context, SignUpParam) (*user.User, error)
-	SignupAuth0(context.Context, SignupAuth0Param) (*user.User, error)
+	SignupOIDC(context.Context, SignupOIDC) (*user.User, error)
 	FindOrCreate(context.Context, UserFindOrCreateParam) (*user.User, error)
 	UpdateMe(context.Context, UpdateMeParam, *usecase.Operator) (*user.User, error)
 	RemoveMyAuth(context.Context, string, *usecase.Operator) (*user.User, error)
