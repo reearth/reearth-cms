@@ -5,7 +5,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination {
@@ -31,7 +30,7 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 
 	var k *key.Key
 	if f.Key != nil {
-		k = lo.ToPtr(key.New(*f.Key))
+		k = key.New(*f.Key).Ref()
 	}
 
 	return interfaces.ItemFieldParam{

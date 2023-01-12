@@ -199,21 +199,22 @@ func TestSchema_Field(t *testing.T) {
 }
 
 func TestSchema_FieldByIDOrKey(t *testing.T) {
-	fid1 := NewFieldID()
-	fid2 := NewFieldID()
-	fid3 := NewFieldID()
-	k := key.New("KEY")
-	f1 := &Field{id: fid1, name: "f1"}
-	f2 := &Field{id: fid2, name: "f2"}
-	f3 := &Field{id: fid3, name: "f3", key: k}
-	s := &Schema{fields: []*Field{f1, f2, f3}}
+	f1 := &Field{id: NewFieldID(), name: "f1"}
+	f2 := &Field{id: NewFieldID(), name: "f2"}
+	f3 := &Field{id: NewFieldID(), name: "f3", key: key.New("KEY")}
+	f4 := &Field{id: NewFieldID(), name: "f4", key: key.New("id")}
+	s := &Schema{fields: []*Field{f1, f2, f3, f4}}
 
-	assert.Equal(t, f1, s.FieldByIDOrKey(&fid1, nil))
-	assert.Equal(t, f2, s.FieldByIDOrKey(&fid2, nil))
-	assert.Equal(t, f3, s.FieldByIDOrKey(&fid3, nil))
-	assert.Equal(t, f3, s.FieldByIDOrKey(nil, &k))
+	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), nil))
+	assert.Equal(t, f2, s.FieldByIDOrKey(f2.ID().Ref(), nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(f3.ID().Ref(), nil))
+	assert.Equal(t, f4, s.FieldByIDOrKey(f4.ID().Ref(), nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(nil, f3.Key().Ref()))
+	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), f3.Key().Ref()))
 	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), nil))
-	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), key.New("x").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("x").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("id").Ref()))
 }
 
 func TestSchema_Fields(t *testing.T) {
