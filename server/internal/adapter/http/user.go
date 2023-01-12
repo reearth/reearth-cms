@@ -60,7 +60,7 @@ type SignupOutput struct {
 	Email string `json:"email"`
 }
 
-func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupOutput, error) {
+func (c *UserController) Signup(ctx context.Context, input SignupInput) (SignupOutput, error) {
 
 	if input.Sub != nil && *input.Sub != "" && input.Email != "" && input.Name != "" {
 		u, err := c.usecase.SignupOIDC(ctx, interfaces.SignupOIDC{
@@ -81,7 +81,7 @@ func (c *UserController) SignUp(ctx context.Context, input SignupInput) (SignupO
 		}, nil
 	}
 
-	u, err := c.usecase.SignUp(ctx, interfaces.SignUpParam{
+	u, err := c.usecase.Signup(ctx, interfaces.SignupParam{
 		Name:        input.Name,
 		Email:       input.Email,
 		Password:    input.Password,
