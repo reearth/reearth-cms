@@ -40,7 +40,6 @@ JSON/SHAPEFILE/KML/CZML: ''
 GEO3D: ''
 MODEL3D/GLB: ''
 Unknown Type: 不明
-Could not display svg: svgを表示できませんでした。
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
 Not supported: プレビュー対応していないデータフォーマットです。
@@ -67,6 +66,7 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
+Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
 Personal Account: パーソナルアカウント
