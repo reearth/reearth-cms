@@ -63,7 +63,7 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 
 	return &interfaces.ItemFieldParam{
-		Field: fid,
+		Field: &fid,
 		Type:  FromValueType(field.Type),
 		Value: field.Value,
 	}

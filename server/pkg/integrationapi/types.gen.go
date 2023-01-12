@@ -338,11 +338,7 @@ type ItemFilterParamsRef string
 
 // ItemCreateJSONBody defines parameters for ItemCreate.
 type ItemCreateJSONBody struct {
-	Fields *[]struct {
-		Id    *id.FieldID  `json:"id,omitempty"`
-		Type  *ValueType   `json:"type,omitempty"`
-		Value *interface{} `json:"value,omitempty"`
-	} `json:"fields,omitempty"`
+	Fields *[]Field `json:"fields,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
@@ -374,11 +370,7 @@ type ItemFilterWithProjectParamsRef string
 
 // ItemCreateWithProjectJSONBody defines parameters for ItemCreateWithProject.
 type ItemCreateWithProjectJSONBody struct {
-	Fields *[]struct {
-		Id    *id.FieldID  `json:"id,omitempty"`
-		Type  *ValueType   `json:"type,omitempty"`
-		Value *interface{} `json:"value,omitempty"`
-	} `json:"fields,omitempty"`
+	Fields *[]Field `json:"fields,omitempty"`
 }
 
 // AssetFilterParams defines parameters for AssetFilter.

@@ -1,19 +1,35 @@
 import styled from "@emotion/styled";
 
 import List from "@reearth-cms/components/atoms/List";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ThreadCommentMolecule from "@reearth-cms/components/molecules/Request/Details/Comment";
 
 type Props = {
+  me?: User;
   comments: Comment[];
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
 };
 
-export const RequestCommentList: React.FC<Props> = ({ comments }: { comments: Comment[] }) => (
+export const RequestCommentList: React.FC<Props> = ({
+  me,
+  comments,
+  onCommentUpdate,
+  onCommentDelete,
+}) => (
   <StyledListWrapper>
     <List
       dataSource={comments}
       itemLayout="horizontal"
-      renderItem={props => <ThreadCommentMolecule comment={props} />}
+      renderItem={props => (
+        <ThreadCommentMolecule
+          comment={props}
+          me={me}
+          onCommentUpdate={onCommentUpdate}
+          onCommentDelete={onCommentDelete}
+        />
+      )}
     />
   </StyledListWrapper>
 );
