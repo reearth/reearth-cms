@@ -37,12 +37,15 @@ export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | un
 export const convertComment = (GQLComment: GQLComment): Comment => {
   return {
     id: GQLComment.id,
-    authorType: GQLComment.author
-      ? GQLComment.author.__typename === "User"
-        ? "User"
-        : "Integration"
-      : null,
-    author: GQLComment.author?.name ?? "",
+    author: {
+      id: GQLComment.author?.id,
+      name: GQLComment.author?.name ?? "",
+      type: GQLComment.author
+        ? GQLComment.author.__typename === "User"
+          ? "User"
+          : "Integration"
+        : null,
+    },
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),
   };

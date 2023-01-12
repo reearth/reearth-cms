@@ -22,7 +22,7 @@ export default ({ projectId }: Params) => {
   const workspaceId = currentWorkspace?.id;
 
   const { data } = useGetProjectsQuery({
-    variables: { workspaceId: workspaceId ?? "", first: 100 },
+    variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
     skip: !workspaceId,
   });
 

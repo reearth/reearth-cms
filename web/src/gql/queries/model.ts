@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_MODELS = gql`
-  query GetModels($projectId: ID!, $first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-    models(projectId: $projectId, first: $first, last: $last, after: $after, before: $before) {
+  query GetModels($projectId: ID!, $pagination: Pagination) {
+    models(projectId: $projectId, pagination: $pagination) {
       nodes {
         id
         name

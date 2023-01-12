@@ -92,7 +92,7 @@ func TestToItemParam(t *testing.T) {
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
-				Field: sfid,
+				Field: &sfid,
 				Type:  value.TypeText,
 				Value: "foo",
 			},

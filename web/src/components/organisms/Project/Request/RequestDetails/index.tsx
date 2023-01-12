@@ -13,6 +13,8 @@ const RequestDetails: React.FC = () => {
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
+    handleCommentUpdate,
+    handleCommentDelete,
     handleNavigateToRequestsList,
   } = useHooks();
 
@@ -49,6 +51,8 @@ const RequestDetails: React.FC = () => {
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
       onCommentCreate={handleCommentCreate}
+      onCommentUpdate={handleCommentUpdate}
+      onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
       assetList={assetList}
       fileList={fileList}
