@@ -110,13 +110,23 @@ func (i *User) SignupOIDC(ctx context.Context, param interfaces.SignupOIDC) (*us
 	if param.Sub == "" || param.Name == "" || param.Email == "" {
 		return nil, errors.New("invalid parameters")
 	}
-	eu, err := i.repos.User.FindBySub(ctx, param.Sub)
+
+	eu, err := i.repos.User.FindByEmail(ctx, param.Email)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 	if eu != nil {
 		return nil, repo.ErrDuplicatedUser
 	}
+
+	eu, err = i.repos.User.FindBySub(ctx, param.Sub)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	if eu != nil {
+		return nil, repo.ErrDuplicatedUser
+	}
+	
 	u, workspace, err := user.Init(user.InitParams{
 		Email: param.Email,
 		Name:  param.Name,
