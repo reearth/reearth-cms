@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -48,6 +49,11 @@ func (s *Schema) AddField(f *Field) {
 
 func (s *Schema) Field(fId FieldID) *Field {
 	f, _ := lo.Find(s.fields, func(f *Field) bool { return f.id == fId })
+	return f
+}
+
+func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+	f, _ := lo.Find(s.fields, func(f *Field) bool { return fId != nil && f.id == *fId || key != nil && f.key == *key })
 	return f
 }
 

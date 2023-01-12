@@ -198,6 +198,24 @@ func TestSchema_Field(t *testing.T) {
 	}
 }
 
+func TestSchema_FieldByIDOrKey(t *testing.T) {
+	fid1 := NewFieldID()
+	fid2 := NewFieldID()
+	fid3 := NewFieldID()
+	k := key.New("KEY")
+	f1 := &Field{id: fid1, name: "f1"}
+	f2 := &Field{id: fid2, name: "f2"}
+	f3 := &Field{id: fid3, name: "f3", key: k}
+	s := &Schema{fields: []*Field{f1, f2, f3}}
+
+	assert.Equal(t, f1, s.FieldByIDOrKey(&fid1, nil))
+	assert.Equal(t, f2, s.FieldByIDOrKey(&fid2, nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(&fid3, nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(nil, &k))
+	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), nil))
+	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), key.New("x").Ref()))
+}
+
 func TestSchema_Fields(t *testing.T) {
 	fid1 := NewFieldID()
 	fid2 := NewFieldID()

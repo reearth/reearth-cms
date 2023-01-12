@@ -348,6 +348,30 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	})
 	r.Value("modelId").Equal(mId.String())
 	r.Value("refs").Equal([]string{"latest"})
+
+	e.POST("/api/models/{modelId}/items", mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey.String(),
+					"value": "test value 2",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId.String(),
+				"type":  "text",
+				"value": "test value 2",
+				"key":   sfKey.String(),
+			},
+		})
 }
 
 // POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
@@ -399,32 +423,56 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 	})
 	r.Value("modelId").Equal(mId.String())
 	r.Value("refs").Equal([]string{"latest"})
+
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey.String(),
+					"value": "test value 2",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId.String(),
+				"type":  "text",
+				"value": "test value 2",
+				"key":   sfKey.String(),
+			},
+		})
 }
 
-// POST /items/{itemId}
+// PATCH /items/{itemId}
 func TestIntegrationUpdateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	e.PATCH("/api/items/{itemId}", id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	e.PATCH("/api/items/{itemId}", id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	e.PATCH("/api/items/{itemId}", id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/models/{modelId}/items", id.NewModelID()).
+	e.PATCH("/api/items/{itemId}", id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	r := e.POST("/api/models/{modelId}/items", mId).
+	r := e.PATCH("/api/items/{itemId}", itmId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -450,6 +498,30 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	})
 	r.Value("modelId").Equal(mId.String())
 	r.Value("refs").Equal([]string{"latest"})
+
+	e.PATCH("/api/items/{itemId}", itmId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey.String(),
+					"value": "test value 2",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId.String(),
+				"type":  "text",
+				"value": "test value 2",
+				"key":   sfKey.String(),
+			},
+		})
 }
 
 // GET /items/{itemId}

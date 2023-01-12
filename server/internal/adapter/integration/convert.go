@@ -3,7 +3,9 @@ package integration
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Pagination {
@@ -26,8 +28,15 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 	if f.Value != nil {
 		v = *f.Value
 	}
+
+	var k *key.Key
+	if f.Key != nil {
+		k = lo.ToPtr(key.New(*f.Key))
+	}
+
 	return interfaces.ItemFieldParam{
-		Field: *f.Id,
+		Field: f.Id,
+		Key:   k,
 		Type:  integrationapi.FromValueType(f.Type),
 		Value: v,
 	}

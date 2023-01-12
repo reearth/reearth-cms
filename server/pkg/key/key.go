@@ -30,6 +30,10 @@ func (k Key) IsValid() bool {
 	return k.key != "" && k.key != "id"
 }
 
+func (k Key) Ref() *Key {
+	return &k
+}
+
 func (k Key) String() string {
 	return k.key
 }
