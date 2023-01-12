@@ -23,10 +23,6 @@ import {
   ImageViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
-import {
-  ImageryProviderOption,
-  URLTemplate,
-} from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/imagery.type";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -67,10 +63,6 @@ const AssetMolecule: React.FC<Props> = ({
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
-  };
-  const imageryOption: ImageryProviderOption = {
-    urlTemplate: assetUrl as URLTemplate,
-    layerName: asset.fileName,
   };
 
   const renderPreview = () => {
@@ -137,7 +129,7 @@ const AssetMolecule: React.FC<Props> = ({
               animation: false,
               geocoder: false,
             }}
-            imageryOption={imageryOption}
+            url={assetUrl}
             onGetViewer={getViewer}
           />
         );

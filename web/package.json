@@ -79,7 +79,7 @@
     "antd": "4.22.2",
     "apollo-upload-client": "17.0.0",
     "cesium": "1.100.0",
-    "cesium-mvt-imagery-provider": "1.0.0",
+    "cesium-mvt-imagery-provider": "1.1.1",
     "formik": "2.2.9",
     "graphiql": "2.2.0",
     "graphql": "16.6.0",
