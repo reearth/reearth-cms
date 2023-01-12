@@ -37,8 +37,6 @@ export type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onNavigateToAsset: (asset: Asset) => void;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
-  onCommentDelete: (commentId: string) => Promise<void>;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -65,8 +63,6 @@ const RequestThread: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onNavigateToAsset,
-  onCommentUpdate,
-  onCommentDelete,
 }) => {
   return (
     <ContentWrapper>
