@@ -12,6 +12,8 @@ import {
   useApproveRequestMutation,
   useAddCommentMutation,
   useGetMeQuery,
+  useUpdateCommentMutation,
+  useDeleteCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
@@ -46,7 +48,7 @@ export default () => {
   const { data } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      first: 100,
+      pagination: { first: 100 },
     },
     skip: !projectId,
   });
@@ -151,6 +153,51 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id],
   );
 
+  const [updateComment] = useUpdateCommentMutation({
+    refetchQueries: ["GetRequests"],
+  });
+
+  const handleCommentUpdate = useCallback(
+    async (commentId: string, content: string) => {
+      if (!currentRequest?.threadId) return;
+      const comment = await updateComment({
+        variables: {
+          threadId: currentRequest.threadId,
+          commentId,
+          content,
+        },
+      });
+      if (comment.errors || !comment.data?.updateComment) {
+        Notification.error({ message: t("Failed to update comment.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated comment!") });
+    },
+    [updateComment, currentRequest?.threadId, t],
+  );
+
+  const [deleteComment] = useDeleteCommentMutation({
+    refetchQueries: ["GetRequests"],
+  });
+
+  const handleCommentDelete = useCallback(
+    async (commentId: string) => {
+      if (!currentRequest?.threadId) return;
+      const comment = await deleteComment({
+        variables: {
+          threadId: currentRequest.threadId,
+          commentId,
+        },
+      });
+      if (comment.errors || !comment.data?.deleteComment) {
+        Notification.error({ message: t("Failed to delete comment.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully deleted comment!") });
+    },
+    [deleteComment, currentRequest?.threadId, t],
+  );
+
   return {
     me,
     isCloseActionEnabled,
@@ -159,6 +206,8 @@ export default () => {
     handleRequestDelete,
     handleRequestApprove,
     handleCommentCreate,
+    handleCommentUpdate,
+    handleCommentDelete,
     handleNavigateToRequestsList,
     handleNavigateToItemEditForm,
   };

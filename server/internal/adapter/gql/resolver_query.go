@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearthx/usecasex"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -177,8 +176,8 @@ func (r *queryResolver) SearchUser(ctx context.Context, nameOrEmail string) (*gq
 	return loaders(ctx).User.SearchUser(ctx, nameOrEmail)
 }
 
-func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ProjectConnection, error) {
-	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, first, last, before, after)
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
+	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, p)
 }
 
 func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
@@ -189,8 +188,8 @@ func (r *queryResolver) Asset(ctx context.Context, assetId gqlmodel.ID) (*gqlmod
 	return loaders(ctx).Asset.FindByID(ctx, assetId)
 }
 
-func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ModelConnection, error) {
-	return loaders(ctx).Model.FindByProject(ctx, projectID, first, last, before, after)
+func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {
+	return loaders(ctx).Model.FindByProject(ctx, projectID, p)
 }
 
 func (r *queryResolver) CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
@@ -201,32 +200,22 @@ func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) 
 	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
 }
 
-func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindBySchema(ctx, schemaID, sort, first, last, before, after)
+func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindBySchema(ctx, schemaID, sort, p)
 }
 
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
 }
 
-func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindByProject(ctx, projectID, first, last, before, after)
+func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindByProject(ctx, projectID, p)
 }
 
-func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, query, sort, &gqlmodel.Pagination{
-		First:  first,
-		Last:   last,
-		After:  after,
-		Before: before,
-	})
+func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.Search(ctx, query, sort, p)
 }
 
-func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, first *int, last *int, after *usecasex.Cursor, before *usecasex.Cursor) (*gqlmodel.RequestConnection, error) {
-	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, &gqlmodel.Pagination{
-		First:  first,
-		Last:   last,
-		After:  after,
-		Before: before,
-	})
+func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error) {
+	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, p)
 }

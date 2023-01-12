@@ -23,6 +23,8 @@ type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -50,6 +52,8 @@ const RequestMolecule: React.FC<Props> = ({
   currentRequest,
   workspaceUserMembers,
   onCommentCreate,
+  onCommentUpdate,
+  onCommentDelete,
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
@@ -114,6 +118,8 @@ const RequestMolecule: React.FC<Props> = ({
             me={me}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
+            onCommentUpdate={onCommentUpdate}
+            onCommentDelete={onCommentDelete}
             assetList={assetList}
             fileList={fileList}
             loadingAssets={loadingAssets}

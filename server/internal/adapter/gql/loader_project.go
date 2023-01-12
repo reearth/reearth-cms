@@ -38,20 +38,13 @@ func (c *ProjectLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmod
 	return projects, nil
 }
 
-func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmodel.ID, first *int, last *int, before *usecasex.Cursor, after *usecasex.Cursor) (*gqlmodel.ProjectConnection, error) {
+func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
 	wid, err := gqlmodel.ToID[id.Workspace](workspaceId)
 	if err != nil {
 		return nil, err
 	}
 
-	p := (&gqlmodel.Pagination{
-		First:  first,
-		Last:   last,
-		After:  after,
-		Before: before,
-	}).Into()
-
-	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, p, getOperator(ctx))
+	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
