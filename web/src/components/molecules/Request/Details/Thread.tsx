@@ -18,6 +18,8 @@ export type Props = {
   currentRequest: Request;
   emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -42,6 +44,8 @@ const RequestThread: React.FC<Props> = ({
   currentRequest,
   emptyText,
   onCommentCreate,
+  onCommentUpdate,
+  onCommentDelete,
   assetList,
   fileList,
   loadingAssets,
@@ -85,7 +89,12 @@ const RequestThread: React.FC<Props> = ({
             onNavigateToAsset={onNavigateToAsset}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
-            <RequestCommentList comments={currentRequest.comments} />
+            <RequestCommentList
+              me={me}
+              comments={currentRequest.comments}
+              onCommentUpdate={onCommentUpdate}
+              onCommentDelete={onCommentDelete}
+            />
           )}
         </CommentsContainer>
         <StyledRequestStatus
