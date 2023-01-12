@@ -30,7 +30,7 @@ export default () => {
     loading: loadingProjects,
     refetch,
   } = useGetProjectsQuery({
-    variables: { workspaceId: workspaceId ?? "", first: 100 },
+    variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
     skip: !workspaceId,
   });
 
