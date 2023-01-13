@@ -744,6 +744,11 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int        `json:"maxLength"`
 }
 
+type Sort struct {
+	Key      string `json:"key"`
+	Reverted *bool  `json:"reverted"`
+}
+
 type Thread struct {
 	ID          ID         `json:"id"`
 	Workspace   *Workspace `json:"workspace"`

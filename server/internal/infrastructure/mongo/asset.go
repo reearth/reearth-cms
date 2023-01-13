@@ -120,14 +120,15 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 }
 
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *asset.SortType, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
-	var sortstr *string
-	if sort != nil {
-		sortstr2 := string(*sort)
-		sortstr = &sortstr2
-	}
+	//
+	//var sortstr *string
+	//if sort != nil {
+	//	sortstr2 := string(*sort)
+	//	sortstr = &sortstr2
+	//}
 
 	c := mongodoc.NewAssetConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sortstr, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

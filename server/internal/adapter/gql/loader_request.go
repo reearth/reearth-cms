@@ -37,7 +37,7 @@ func (c *RequestLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmod
 	}), nil
 }
 
-func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error) {
+func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error) {
 	pid, err := gqlmodel.ToID[id.Project](projectId)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,9 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 		})
 	}
 	f.Reviewer = gqlmodel.ToIDRef[id.User](reviewer)
+	f.CreatedBy = gqlmodel.ToIDRef[id.User](createdBy)
 
-	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, p.Into(), getOperator(ctx))
+	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, sort.Into(), p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
