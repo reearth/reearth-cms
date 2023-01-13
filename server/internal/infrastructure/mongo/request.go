@@ -96,7 +96,8 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
-	return r.paginate(ctx, &filter, page)
+	rl, p, err := r.paginate(ctx, &filter, page)
+	return rl.Ordered(), p, err
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
