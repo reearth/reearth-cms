@@ -160,14 +160,12 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
       title: t("Updated At"),
       dataIndex: "updatedAt",
       key: "updatedAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
   ];
