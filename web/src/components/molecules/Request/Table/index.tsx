@@ -226,8 +226,8 @@ const RequestListTable: React.FC<Props> = ({
           pagination.current ?? 1,
           pagination.pageSize ?? 10,
           filters?.requestState as RequestState[] | null,
-          !!filters?.reviewers?.[0],
           !!filters.createdBy?.[0],
+          !!filters?.reviewers?.[0],
         );
       }}
     />
