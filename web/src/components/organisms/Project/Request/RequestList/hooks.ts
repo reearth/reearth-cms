@@ -30,7 +30,12 @@ export default () => {
   const [selectedRequestId, setselectedRequestId] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [requestState, setRequestState] = useState<RequestState | null>("WAITING");
+  const [requestState, setRequestState] = useState<RequestState[]>([
+    "APPROVED",
+    "CLOSED",
+    "DRAFT",
+    "WAITING",
+  ]);
   const [createdByMe, setCreatedByMe] = useState<boolean>(false);
   const [reviewedByMe, setReviewedByMe] = useState<boolean>(false);
 
@@ -43,7 +48,7 @@ export default () => {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       key: searchTerm,
-      state: requestState as GQLRequestState,
+      state: requestState as GQLRequestState[],
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
       createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
@@ -111,13 +116,13 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      requestState?: RequestState | null,
+      requestState?: RequestState[] | null,
       createdByMe?: boolean,
       reviewedByMe?: boolean,
     ) => {
       setPage(page);
       setPageSize(pageSize);
-      setRequestState(requestState ?? null);
+      setRequestState(requestState ?? ["APPROVED", "CLOSED", "DRAFT", "WAITING"]);
       setCreatedByMe(createdByMe ?? false);
       setReviewedByMe(reviewedByMe ?? false);
     },

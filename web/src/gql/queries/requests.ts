@@ -6,7 +6,7 @@ export const GET_REQUESTS = gql`
   query GetRequests(
     $projectId: ID!
     $key: String
-    $state: RequestState
+    $state: [RequestState!]
     $pagination: Pagination
     $createdBy: ID
     $reviewer: ID

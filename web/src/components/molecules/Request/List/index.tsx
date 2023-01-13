@@ -22,7 +22,7 @@ export type Props = {
   onRequestTableChange: (
     page: number,
     pageSize: number,
-    requestState?: RequestState | null,
+    requestState?: RequestState[] | null,
     createdByMe?: boolean,
     reviewedByMe?: boolean,
   ) => void;

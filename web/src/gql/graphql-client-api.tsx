@@ -910,7 +910,7 @@ export type QueryRequestsArgs = {
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
   reviewer?: InputMaybe<Scalars['ID']>;
-  state?: InputMaybe<RequestState>;
+  state?: InputMaybe<Array<RequestState>>;
 };
 
 
@@ -1703,7 +1703,7 @@ export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: {
 export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   key?: InputMaybe<Scalars['String']>;
-  state?: InputMaybe<RequestState>;
+  state?: InputMaybe<Array<RequestState> | RequestState>;
   pagination?: InputMaybe<Pagination>;
   createdBy?: InputMaybe<Scalars['ID']>;
   reviewer?: InputMaybe<Scalars['ID']>;
@@ -3399,7 +3399,7 @@ export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProject
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
 export const GetRequestsDocument = gql`
-    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination, $createdBy: ID, $reviewer: ID) {
+    query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID) {
   requests(
     projectId: $projectId
     key: $key

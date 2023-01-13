@@ -34,7 +34,7 @@ export type Props = {
   onRequestTableChange: (
     page: number,
     pageSize: number,
-    requestState?: RequestState | null,
+    requestState?: RequestState[] | null,
     createdByMe?: boolean,
     reviewedByMe?: boolean,
   ) => void;
@@ -110,22 +110,12 @@ const RequestListTable: React.FC<Props> = ({
         }
         return <Badge color={color} text={request.state} />;
       },
-      valueEnum: {
-        all: { text: "All", status: "Default" },
-        APPROVED: {
-          text: "APPROVED",
-        },
-        CLOSED: {
-          text: "CLOSED",
-        },
-        WAITING: {
-          text: "WAITING",
-        },
-        DRAFT: {
-          text: "DRAFT",
-        },
-      },
-      filters: true,
+      filters: [
+        { text: "WAITING", value: "WAITING" },
+        { text: "APPROVED", value: "APPROVED" },
+        { text: "CLOSED", value: "CLOSED" },
+        { text: "DRAFT", value: "DRAFT" },
+      ],
     },
     {
       title: t("Created By"),
@@ -232,10 +222,12 @@ const RequestListTable: React.FC<Props> = ({
       tableStyle={{ overflowX: "scroll" }}
       loading={loading}
       onChange={(pagination, filters) => {
+        console.log(filters);
+
         onRequestTableChange(
           pagination.current ?? 1,
           pagination.pageSize ?? 10,
-          (filters?.requestState?.[0] as RequestState | null) ?? null,
+          filters?.requestState as RequestState[] | null,
           !!filters?.reviewers?.[0],
           !!filters.createdBy?.[0],
         );
