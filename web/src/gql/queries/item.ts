@@ -23,6 +23,28 @@ export const GET_ITEMS = gql`
   ${threadFragment}
 `;
 
+export const SEARCH_ITEM = gql`
+  query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
+    searchItem(query: $query, sort: $sort, pagination: $pagination) {
+      nodes {
+        id
+        schemaId
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+        thread {
+          ...threadFragment
+        }
+      }
+      totalCount
+    }
+  }
+
+  ${threadFragment}
+`;
+
 export const CREATE_ITEM = gql`
   mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
     createItem(input: { modelId: $modelId, schemaId: $schemaId, fields: $fields }) {

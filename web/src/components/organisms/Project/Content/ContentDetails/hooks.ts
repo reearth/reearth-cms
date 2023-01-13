@@ -117,8 +117,8 @@ export default () => {
   );
 
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
-    [itemId, itemsData?.items.nodes],
+    () => convertItem(itemsData?.searchItem.nodes.find(item => item?.id === itemId) as GQLItem),
+    [itemId, itemsData?.searchItem.nodes],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {

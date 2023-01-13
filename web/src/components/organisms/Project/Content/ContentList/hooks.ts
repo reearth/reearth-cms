@@ -30,7 +30,7 @@ export default () => {
   const { assetList } = useAssetHooks();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
-    return itemsData?.items.nodes
+    return itemsData?.searchItem.nodes
       ?.map(item =>
         item
           ? {
@@ -57,7 +57,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [assetList, itemsData?.items.nodes]);
+  }, [assetList, itemsData?.searchItem.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     return currentModel?.schema.fields.map(field => ({
@@ -128,8 +128,9 @@ export default () => {
   );
 
   const selectedItem = useMemo(
-    () => convertItem(itemsData?.items.nodes.find(item => item?.id === selectedItemId) as GQLItem),
-    [itemsData?.items.nodes, selectedItemId],
+    () =>
+      convertItem(itemsData?.searchItem.nodes.find(item => item?.id === selectedItemId) as GQLItem),
+    [itemsData?.searchItem.nodes, selectedItemId],
   );
 
   return {
