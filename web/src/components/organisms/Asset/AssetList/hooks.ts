@@ -9,7 +9,6 @@ import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAss
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
-  Maybe,
   useDeleteAssetMutation,
   Asset as GQLAsset,
   AssetSortType as GQLSortType,
@@ -18,24 +17,6 @@ import { useT } from "@reearth-cms/i18n";
 
 type AssetSortType = "date" | "name" | "size";
 type UploadType = "local" | "url";
-
-const assetsPerPage = 10;
-// Todo: this is temporary until implementing cursor pagination
-const assetsFetchCount = 500;
-
-function pagination(
-  sort?: { type?: Maybe<AssetSortType>; reverse?: boolean },
-  endCursor?: string | null,
-) {
-  const reverseOrder = !sort?.type || sort?.type === "date" ? !sort?.reverse : !!sort?.reverse;
-
-  return {
-    after: !reverseOrder ? endCursor : undefined,
-    before: reverseOrder ? endCursor : undefined,
-    first: !reverseOrder ? assetsFetchCount : undefined,
-    last: reverseOrder ? assetsFetchCount : undefined,
-  };
-}
 
 export default () => {
   const t = useT();
@@ -52,6 +33,8 @@ export default () => {
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const [createAssetMutation] = useCreateAssetMutation();
 
@@ -59,10 +42,10 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const gqlCache = useApolloClient().cache;
 
-  const { data, refetch, loading, fetchMore, networkStatus } = useGetAssetsQuery({
+  const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
     variables: {
       projectId: projectId ?? "",
-      pagination: pagination(sort),
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: sort?.type as GQLSortType,
       keyword: searchTerm,
       withFiles: false,
@@ -71,21 +54,8 @@ export default () => {
     skip: !projectId,
   });
 
-  const hasMoreAssets =
-    data?.assets.pageInfo?.hasNextPage || data?.assets.pageInfo?.hasPreviousPage;
-
   const isRefetching = networkStatus === 3;
   const [selectedAssets, selectAsset] = useState<Asset[]>([]);
-
-  const handleGetMoreAssets = useCallback(() => {
-    if (hasMoreAssets) {
-      fetchMore({
-        variables: {
-          pagination: pagination(sort, data?.assets.pageInfo.endCursor),
-        },
-      });
-    }
-  }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -242,9 +212,13 @@ export default () => {
     [assetList, selectedAssetId],
   );
 
+  const handleAssetTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
+
   return {
     assetList,
-    assetsPerPage,
     selection,
     fileList,
     uploading,
@@ -267,8 +241,8 @@ export default () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetTableChange,
     handleAssetDelete,
-    handleGetMoreAssets,
     handleSortChange,
     handleSearchTerm,
     handleAssetsReload,
