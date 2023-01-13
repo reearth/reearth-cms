@@ -319,7 +319,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox disabled>{t("Support multiple values")}</Checkbox>
+              <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
