@@ -1,6 +1,7 @@
 import { Viewer } from "cesium";
 import { ComponentProps } from "react";
-import { Viewer as ResiumViewer } from "resium";
+
+import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 
 import CzmlComponent from "./CzmlComponent";
 import GeoJsonComponent from "./GeoJsonComponent";
@@ -14,8 +15,6 @@ type Props = {
 };
 
 const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
-  let viewer: Viewer | undefined;
-
   const renderAsset = () => {
     switch (assetFileExt) {
       case "czml":
@@ -28,12 +27,7 @@ const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewe
     }
   };
   return (
-    <ResiumViewer
-      {...viewerProps}
-      ref={e => {
-        viewer = e?.cesiumElement;
-        onGetViewer(viewer);
-      }}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
       {renderAsset()}
     </ResiumViewer>
   );
