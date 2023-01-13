@@ -300,7 +300,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			}{
 				pid: pid,
 				filter: interfaces.RequestFilter{
-					State: lo.ToPtr(request.StateDraft),
+					State: []request.State{request.StateDraft},
 				},
 				operator: op,
 			},
