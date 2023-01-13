@@ -3,7 +3,7 @@ import { Key } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 
 export type Props = {
   commentsPanel?: JSX.Element;
@@ -19,7 +19,13 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
   onRequestDelete: (requestIds: string[]) => Promise<void>;
-  onPageChange: (page: number, pageSize: number) => void;
+  onRequestTableChange: (
+    page: number,
+    pageSize: number,
+    requestState?: RequestState | null,
+    createdByMe?: boolean,
+    reviewedByMe?: boolean,
+  ) => void;
   totalCount: number;
   page: number;
   pageSize: number;
@@ -37,7 +43,7 @@ const RequestListMolecule: React.FC<Props> = ({
   setSelection,
   onRequestsReload,
   onRequestDelete,
-  onPageChange,
+  onRequestTableChange,
   totalCount,
   page,
   pageSize,
@@ -57,7 +63,7 @@ const RequestListMolecule: React.FC<Props> = ({
             setSelection={setSelection}
             onRequestSelect={onRequestSelect}
             selectedRequest={selectedRequest}
-            onPageChange={onPageChange}
+            onRequestTableChange={onRequestTableChange}
             totalCount={totalCount}
             page={page}
             pageSize={pageSize}

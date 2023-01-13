@@ -23,7 +23,7 @@ const RequestList: React.FC = () => {
     totalCount,
     page,
     pageSize,
-    handlePageChange,
+    handleRequestTableChange,
   } = useHooks();
 
   return (
@@ -53,7 +53,7 @@ const RequestList: React.FC = () => {
       onEdit={handleNavigateToRequest}
       totalCount={totalCount}
       page={page}
-      onPageChange={handlePageChange}
+      onRequestTableChange={handleRequestTableChange}
       pageSize={pageSize}
     />
   );

@@ -3,8 +3,22 @@ import { gql } from "@apollo/client";
 import { requestFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_REQUESTS = gql`
-  query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination) {
-    requests(projectId: $projectId, key: $key, state: $state, pagination: $pagination) {
+  query GetRequests(
+    $projectId: ID!
+    $key: String
+    $state: RequestState
+    $pagination: Pagination
+    $createdBy: ID
+    $reviewer: ID
+  ) {
+    requests(
+      projectId: $projectId
+      key: $key
+      state: $state
+      pagination: $pagination
+      createdBy: $createdBy
+      reviewer: $reviewer
+    ) {
       edges {
         cursor
         node {

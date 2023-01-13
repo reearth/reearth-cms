@@ -1705,6 +1705,8 @@ export type GetRequestsQueryVariables = Exact<{
   key?: InputMaybe<Scalars['String']>;
   state?: InputMaybe<RequestState>;
   pagination?: InputMaybe<Pagination>;
+  createdBy?: InputMaybe<Scalars['ID']>;
+  reviewer?: InputMaybe<Scalars['ID']>;
 }>;
 
 
@@ -3397,12 +3399,14 @@ export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProject
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
 export const GetRequestsDocument = gql`
-    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination) {
+    query GetRequests($projectId: ID!, $key: String, $state: RequestState, $pagination: Pagination, $createdBy: ID, $reviewer: ID) {
   requests(
     projectId: $projectId
     key: $key
     state: $state
     pagination: $pagination
+    createdBy: $createdBy
+    reviewer: $reviewer
   ) {
     edges {
       cursor
@@ -3434,6 +3438,8 @@ export const GetRequestsDocument = gql`
  *      key: // value for 'key'
  *      state: // value for 'state'
  *      pagination: // value for 'pagination'
+ *      createdBy: // value for 'createdBy'
+ *      reviewer: // value for 'reviewer'
  *   },
  * });
  */

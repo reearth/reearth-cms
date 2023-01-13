@@ -8,9 +8,13 @@ import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
   Request as GQLRequest,
+  RequestState as GQLRequestState,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
+
+export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
 export default () => {
   const t = useT();
@@ -26,14 +30,22 @@ export default () => {
   const [selectedRequestId, setselectedRequestId] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [requestState, setRequestState] = useState<RequestState | null>("WAITING");
+  const [createdByMe, setCreatedByMe] = useState<boolean>(false);
+  const [reviewedByMe, setReviewedByMe] = useState<boolean>(false);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
+
+  const { data: userData } = useGetMeQuery();
 
   const { data, refetch, loading } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       key: searchTerm,
+      state: requestState as GQLRequestState,
+      reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
+      createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
     skip: !projectId,
   });
@@ -95,10 +107,22 @@ export default () => {
     setSearchTerm(term);
   }, []);
 
-  const handlePageChange = useCallback((page: number, pageSize: number) => {
-    setPage(page);
-    setPageSize(pageSize);
-  }, []);
+  const handleRequestTableChange = useCallback(
+    (
+      page: number,
+      pageSize: number,
+      requestState?: RequestState | null,
+      createdByMe?: boolean,
+      reviewedByMe?: boolean,
+    ) => {
+      setPage(page);
+      setPageSize(pageSize);
+      setRequestState(requestState ?? null);
+      setCreatedByMe(createdByMe ?? false);
+      setReviewedByMe(reviewedByMe ?? false);
+    },
+    [],
+  );
 
   return {
     requests,
@@ -117,6 +141,6 @@ export default () => {
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,
-    handlePageChange,
+    handleRequestTableChange,
   };
 };
