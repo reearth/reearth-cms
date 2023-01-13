@@ -17,7 +17,6 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { dateSortCallback } from "@reearth-cms/utils/sort";
 
 export type Props = {
   requests: Request[];
