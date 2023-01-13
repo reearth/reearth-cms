@@ -111,10 +111,10 @@ const RequestListTable: React.FC<Props> = ({
         return <Badge color={color} text={request.state} />;
       },
       filters: [
-        { text: "WAITING", value: "WAITING" },
-        { text: "APPROVED", value: "APPROVED" },
-        { text: "CLOSED", value: "CLOSED" },
-        { text: "DRAFT", value: "DRAFT" },
+        { text: t("WAITING"), value: "WAITING" },
+        { text: t("APPROVED"), value: "APPROVED" },
+        { text: t("CLOSED"), value: "CLOSED" },
+        { text: t("DRAFT"), value: "DRAFT" },
       ],
     },
     {
@@ -222,8 +222,6 @@ const RequestListTable: React.FC<Props> = ({
       tableStyle={{ overflowX: "scroll" }}
       loading={loading}
       onChange={(pagination, filters) => {
-        console.log(filters);
-
         onRequestTableChange(
           pagination.current ?? 1,
           pagination.pageSize ?? 10,
