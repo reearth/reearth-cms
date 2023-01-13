@@ -34,7 +34,7 @@ type UpdateRequestParam struct {
 
 type RequestFilter struct {
 	Keyword   *string
-	State     *request.State
+	State     []request.State
 	Reviewer  *id.UserID
 	CreatedBy *id.UserID
 }

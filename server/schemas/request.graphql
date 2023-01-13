@@ -92,7 +92,7 @@ extend type Query {
   requests(
     projectId: ID!
     key: String
-    state: RequestState
+    state: [RequestState!]
     createdBy: ID
     reviewer: ID
     pagination: Pagination

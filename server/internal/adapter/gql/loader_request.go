@@ -37,7 +37,7 @@ func (c *RequestLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmod
 	}), nil
 }
 
-func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, state *gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error) {
+func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error) {
 	pid, err := gqlmodel.ToID[id.Project](projectId)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,9 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 		Keyword: keyword,
 	}
 	if state != nil {
-		f.State = lo.ToPtr(request.StateFrom(state.String()))
+		f.State = lo.Map(state, func(s gqlmodel.RequestState, _ int) request.State {
+			return request.StateFrom(s.String())
+		})
 	}
 	f.Reviewer = gqlmodel.ToIDRef[id.User](reviewer)
 

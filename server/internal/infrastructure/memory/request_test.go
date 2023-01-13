@@ -238,7 +238,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				id: pid,
 				filter: repo.RequestFilter{
-					State: &request.StateDraft,
+					State: []request.State{request.StateDraft},
 				},
 			},
 			want: 1,
