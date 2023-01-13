@@ -24,9 +24,11 @@ import { compressedFileFormats } from "../../Common/Asset";
 
 export type AssetListTableProps = {
   assetList: Asset[];
-  assetsPerPage: number | undefined;
   loading: boolean;
   selectedAsset: Asset | undefined;
+  totalCount: number;
+  page: number;
+  pageSize: number;
   onAssetSelect: (assetId: string) => void;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
@@ -36,20 +38,24 @@ export type AssetListTableProps = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
+  onAssetTableChange: (page: number, pageSize: number) => void;
 };
 
 const AssetListTable: React.FC<AssetListTableProps> = ({
   assetList,
-  assetsPerPage,
   selection,
   loading,
   selectedAsset,
+  totalCount,
+  page,
+  pageSize,
   onAssetSelect,
   onEdit,
   onSearchTerm,
   setSelection,
   onAssetsReload,
   onAssetDelete,
+  onAssetTableChange,
 }) => {
   const t = useT();
 
@@ -131,9 +137,10 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   };
 
   const pagination: TablePaginationConfig = {
-    pageSize: assetsPerPage,
-    onChange: _page => console.log("implement me"),
-    showSizeChanger: false,
+    showSizeChanger: true,
+    current: page,
+    total: totalCount,
+    pageSize: pageSize,
   };
 
   const rowSelection: TableRowSelection = {
@@ -185,6 +192,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       rowSelection={rowSelection}
       tableStyle={{ overflowX: "scroll" }}
       loading={loading}
+      onChange={pagination => {
+        onAssetTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+      }}
     />
   );
 };
