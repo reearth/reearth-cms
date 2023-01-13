@@ -13,6 +13,10 @@ import {
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import {
+  ItemSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -29,7 +33,11 @@ export type Props = {
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
-  onContentTableChange: (page: number, pageSize: number) => void;
+  onContentTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: ItemSortType; direction?: SortDirection },
+  ) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -89,7 +97,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created At"),
         dataIndex: "createdAt",
         key: "date",
-        render: (_, item) => dateTimeFormat(item.fields.createdAt),
+        render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         width: 148,
         minWidth: 148,
@@ -157,8 +165,14 @@ const ContentTable: React.FC<Props> = ({
       tableAlertOptionRender={AlertOptions}
       rowSelection={rowSelection}
       columns={[...actionsColumn, ...contentTableColumns]}
-      onChange={(pagination, _, sorter) => {
-        onContentTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+      onChange={(pagination, _, sorter: any) => {
+        onContentTableChange(
+          pagination.current ?? 1,
+          pagination.pageSize ?? 10,
+          sorter?.order
+            ? { type: "DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+            : undefined,
+        );
       }}
     />
   ) : null;

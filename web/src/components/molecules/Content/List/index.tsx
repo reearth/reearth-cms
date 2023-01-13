@@ -10,6 +10,10 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  ItemSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -28,7 +32,11 @@ export type Props = {
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
-  onContentTableChange: (page: number, pageSize: number) => void;
+  onContentTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: ItemSortType; direction?: SortDirection },
+  ) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onCollapse?: (collapse: boolean) => void;

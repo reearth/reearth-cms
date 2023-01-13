@@ -9,12 +9,17 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
+  SortDirection as GQLSortDirection,
+  ItemSortType as GQLItemSortType,
   useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertComment, convertItem } from "../convertItem";
+
+export type ItemSortType = "DATE";
+export type SortDirection = "ASC" | "DESC";
 
 export default () => {
   const t = useT();
@@ -26,6 +31,7 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection }>();
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -36,6 +42,9 @@ export default () => {
         q: searchTerm,
       },
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: sort
+        ? { sortBy: sort.type as GQLItemSortType, direction: sort.direction as GQLSortDirection }
+        : undefined,
     },
     skip: !currentModel?.schema.id,
   });
@@ -163,10 +172,18 @@ export default () => {
     [data?.searchItem.nodes, selectedItemId],
   );
 
-  const handleContentTableChange = useCallback((page: number, pageSize: number) => {
-    setPage(page);
-    setPageSize(pageSize);
-  }, []);
+  const handleContentTableChange = useCallback(
+    (
+      page: number,
+      pageSize: number,
+      sorter?: { type?: ItemSortType; direction?: SortDirection },
+    ) => {
+      setPage(page);
+      setPageSize(pageSize);
+      setSort(sorter);
+    },
+    [],
+  );
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
