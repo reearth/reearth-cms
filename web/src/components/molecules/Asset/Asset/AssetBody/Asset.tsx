@@ -78,7 +78,7 @@ const AssetMolecule: React.FC<Props> = ({
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d":
+      case viewerType === "model_3d": // TODO: add viewer
       case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
