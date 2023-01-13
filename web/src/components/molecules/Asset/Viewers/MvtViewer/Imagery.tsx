@@ -1,3 +1,5 @@
+import { VectorTileFeature } from "@mapbox/vector-tile";
+import { ImageryLayer, ImageryLayerCollection, Viewer } from "cesium";
 import { MVTImageryProvider, ImageryProviderOption } from "cesium-mvt-imagery-provider";
 import { useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -6,17 +8,29 @@ type Props = {
   url: string;
 };
 
-export const Imagery: React.FC<Props> = () => {
-  const { viewer } = useCesium();
+type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+
+export const Imagery: React.FC<Props> = ({ url }) => {
+  const { viewer }: { viewer: Viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
+
+  const getURLTemplate = (url: string): URLTemplate => {
+    const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+    if (url.match(regex)) {
+      return url.replace(regex, "{z}/{x}/{y}.mvt") as URLTemplate;
+    }
+    return url as URLTemplate;
+  };
+
+  const getLayerName = () => {
+    return "lsld";
+  };
 
   useEffect(() => {
     const imageryOption: ImageryProviderOption = {
-      // TODO: url template and layer name are hard codded, should be replaced.
-      urlTemplate:
-        "https://d2jfi34fqvxlsc.cloudfront.net/main/data/mvt/tran/13100_tokyo/{z}/{x}/{y}.mvt",
-      layerName: "road",
-      style: (_feature: any, _tileCoords: any) => {
+      urlTemplate: getURLTemplate(url),
+      layerName: getLayerName(),
+      style: (_feature: VectorTileFeature, _tileCoords: any) => {
         if (isFeatureSelected) {
           return {
             strokeStyle: "orange",
@@ -30,22 +44,21 @@ export const Imagery: React.FC<Props> = () => {
           lineWidth: 1,
         };
       },
-      onSelectFeature: (_feature: any) => {
+      onSelectFeature: (_feature: VectorTileFeature) => {
         setIsFeatureSelected(v => !v);
       },
     };
 
     const imageryProvider = new MVTImageryProvider(imageryOption);
     if (viewer) {
-      const layers = viewer.scene.imageryLayers;
-      const currentLayer = layers.addImageryProvider(imageryProvider);
+      const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
+      const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
-
       return () => {
         layers.remove(currentLayer);
       };
     }
-  }, [viewer, isFeatureSelected]);
+  }, [viewer, isFeatureSelected, url]);
 
   return <div />;
 };
