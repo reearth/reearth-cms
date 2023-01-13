@@ -31,7 +31,7 @@ export default ({ threadId }: Params) => {
   }, [userData]);
 
   const [createComment] = useAddCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "GetItems", "GetRequests"],
+    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests"],
   });
 
   const handleCommentCreate = useCallback(
@@ -53,7 +53,7 @@ export default ({ threadId }: Params) => {
   );
 
   const [updateComment] = useUpdateCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "GetItems", "GetRequests"],
+    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests"],
   });
 
   const handleCommentUpdate = useCallback(
@@ -76,7 +76,7 @@ export default ({ threadId }: Params) => {
   );
 
   const [deleteComment] = useDeleteCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "GetItems", "GetRequests"],
+    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests"],
   });
 
   const handleCommentDelete = useCallback(

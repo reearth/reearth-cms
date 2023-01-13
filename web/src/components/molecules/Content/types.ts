@@ -20,6 +20,7 @@ export type ContentTableField = {
   modelId?: string;
   fields: { [key: string]: any };
   comments: Comment[];
+  createdAt: Date;
 };
 
 export type Comment = {

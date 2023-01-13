@@ -24,6 +24,11 @@ export type Props = {
   selection: {
     selectedRowKeys: Key[];
   };
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onSearchTerm: (term?: string) => void;
+  onContentTableChange: (page: number, pageSize: number) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onCollapse?: (collapse: boolean) => void;
@@ -43,6 +48,11 @@ const ContentListMolecule: React.FC<Props> = ({
   itemsDataLoading,
   selectedItem,
   selection,
+  totalCount,
+  page,
+  pageSize,
+  onSearchTerm,
+  onContentTableChange,
   setSelection,
   onItemSelect,
   onCollapse,
@@ -81,9 +91,14 @@ const ContentListMolecule: React.FC<Props> = ({
             }
           />
           <ContentTable
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
             loading={itemsDataLoading}
             selectedItem={selectedItem}
             selection={selection}
+            onSearchTerm={onSearchTerm}
+            onContentTableChange={onContentTableChange}
             setSelection={setSelection}
             onItemSelect={onItemSelect}
             onItemsReload={onItemsReload}

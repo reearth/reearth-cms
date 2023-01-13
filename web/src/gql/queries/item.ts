@@ -8,6 +8,7 @@ export const GET_ITEMS = gql`
       nodes {
         id
         schemaId
+        createdAt
         fields {
           schemaFieldId
           type
@@ -29,6 +30,7 @@ export const SEARCH_ITEM = gql`
       nodes {
         id
         schemaId
+        createdAt
         fields {
           schemaFieldId
           type
