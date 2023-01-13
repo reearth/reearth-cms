@@ -127,7 +127,7 @@ const RequestListTable: React.FC<Props> = ({
       valueEnum: {
         all: { text: "All", status: "Default" },
         reviewedByMe: {
-          text: "Current user",
+          text: t("Current user"),
         },
       },
       filters: true,
@@ -140,7 +140,7 @@ const RequestListTable: React.FC<Props> = ({
       valueEnum: {
         all: { text: "All", status: "Default" },
         createdByMe: {
-          text: "Current user",
+          text: t("Current user"),
         },
       },
       filters: true,
