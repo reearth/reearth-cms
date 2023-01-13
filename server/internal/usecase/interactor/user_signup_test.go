@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUser_SignUp(t *testing.T) {
+func TestUser_Signup(t *testing.T) {
 	user.DefaultPasswordEncoder = &user.NoopPasswordEncoder{}
 	uid := id.NewUserID()
 	tid := id.NewWorkspaceID()
@@ -34,7 +34,7 @@ func TestUser_SignUp(t *testing.T) {
 		signupSecret     string
 		authSrvUIDomain  string
 		createUserBefore *user.User
-		args             interfaces.SignUpParam
+		args             interfaces.SignupParam
 		wantUser         func(u *user.User) *user.User
 		wantWorkspace    *user.Workspace
 		wantMailTo       []gateway.Contact
@@ -46,7 +46,7 @@ func TestUser_SignUp(t *testing.T) {
 			name:            "without secret",
 			signupSecret:    "",
 			authSrvUIDomain: "https://reearth.io",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:       "aaa@bbb.com",
 				Name:        "NAME",
 				Password:    "PAss00!!",
@@ -85,7 +85,7 @@ func TestUser_SignUp(t *testing.T) {
 				Name("NAME").
 				Email("aaa@bbb.com").
 				MustBuild(),
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:       "aaa@bbb.com",
 				Name:        "NAME",
 				Password:    "PAss00!!",
@@ -107,7 +107,7 @@ func TestUser_SignUp(t *testing.T) {
 				Name("NAME").
 				Verification(user.VerificationFrom(mockcode, mocktime, true)).
 				MustBuild(),
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:       "aaa@bbb.com",
 				Name:        "NAME",
 				Password:    "PAss00!!",
@@ -122,7 +122,7 @@ func TestUser_SignUp(t *testing.T) {
 			name:            "without secret 2",
 			signupSecret:    "",
 			authSrvUIDomain: "",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:       "aaa@bbb.com",
 				Name:        "NAME",
 				Password:    "PAss00!!",
@@ -156,7 +156,7 @@ func TestUser_SignUp(t *testing.T) {
 			name:            "with secret",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:       "aaa@bbb.com",
 				Name:        "NAME",
 				Password:    "PAss00!!",
@@ -194,7 +194,7 @@ func TestUser_SignUp(t *testing.T) {
 			name:            "invalid secret",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
 				Password: "PAss00!!",
@@ -206,7 +206,7 @@ func TestUser_SignUp(t *testing.T) {
 			name:            "invalid secret 2",
 			signupSecret:    "SECRET",
 			authSrvUIDomain: "",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
 				Password: "PAss00!!",
@@ -215,7 +215,7 @@ func TestUser_SignUp(t *testing.T) {
 		},
 		{
 			name: "invalid email",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:    "aaa",
 				Name:     "NAME",
 				Password: "PAss00!!",
@@ -224,7 +224,7 @@ func TestUser_SignUp(t *testing.T) {
 		},
 		{
 			name: "invalid password",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:    "aaa@bbb.com",
 				Name:     "NAME",
 				Password: "PAss00",
@@ -233,7 +233,7 @@ func TestUser_SignUp(t *testing.T) {
 		},
 		{
 			name: "invalid name",
-			args: interfaces.SignUpParam{
+			args: interfaces.SignupParam{
 				Email:    "aaa@bbb.com",
 				Name:     "",
 				Password: "Ass00!!",
@@ -259,7 +259,7 @@ func TestUser_SignUp(t *testing.T) {
 			m := mailer.NewMock()
 			g := &gateway.Container{Mailer: m}
 			uc := NewUser(r, g, tt.signupSecret, tt.authSrvUIDomain)
-			u, err := uc.SignUp(ctx, tt.args)
+			u, err := uc.Signup(ctx, tt.args)
 
 			if tt.wantUser != nil {
 				assert.Equal(t, tt.wantUser(u), u)
