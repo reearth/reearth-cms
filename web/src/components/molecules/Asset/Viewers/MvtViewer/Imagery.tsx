@@ -13,26 +13,26 @@ type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer }: { viewer: Viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
-
-  const getURLTemplate = (url: string): URLTemplate => {
-    const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-    if (url.match(regex)) {
-      const urlTemplate = url.replace(regex, "/{z}/{x}/{y}.mvt") as URLTemplate;
-      console.log(url);
-      console.log(urlTemplate);
-      return urlTemplate;
-    }
-    return url as URLTemplate;
-  };
-
-  const getLayerName = () => {
-    return "lsld";
-  };
+  const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
+  const [layerName, setLayerName] = useState<string>("");
 
   useEffect(() => {
+    const initOptions = async (url: string) => {
+      const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+      if (url.match(regex)) {
+        const base = url.replace(regex, "");
+        setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+        const data = await (await fetch(`${base}/metadata.json`)).json();
+        setLayerName(data.name);
+      }
+    };
+    initOptions(url);
+    console.log(urlTemplate);
+    console.log(layerName);
+
     const imageryOption: ImageryProviderOption = {
-      urlTemplate: getURLTemplate(url),
-      layerName: getLayerName(),
+      urlTemplate: urlTemplate,
+      layerName: layerName,
       style: (_feature: VectorTileFeature, _tileCoords: any) => {
         if (isFeatureSelected) {
           return {
@@ -61,7 +61,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
         layers.remove(currentLayer);
       };
     }
-  }, [viewer, isFeatureSelected, url]);
+  }, [viewer, isFeatureSelected, url, urlTemplate, layerName]);
 
   return <div />;
 };
