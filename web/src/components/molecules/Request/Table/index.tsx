@@ -14,10 +14,9 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { dateSortCallback } from "@reearth-cms/utils/sort";
 
 export type Props = {
   requests: Request[];
@@ -32,6 +31,16 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
   onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onRequestTableChange: (
+    page: number,
+    pageSize: number,
+    requestState?: RequestState[] | null,
+    createdByMe?: boolean,
+    reviewedByMe?: boolean,
+  ) => void;
+  totalCount: number;
+  page: number;
+  pageSize: number;
 };
 
 const RequestListTable: React.FC<Props> = ({
@@ -45,6 +54,10 @@ const RequestListTable: React.FC<Props> = ({
   setSelection,
   onRequestsReload,
   onRequestDelete,
+  onRequestTableChange,
+  totalCount,
+  page,
+  pageSize,
 }) => {
   const t = useT();
 
@@ -97,6 +110,12 @@ const RequestListTable: React.FC<Props> = ({
         }
         return <Badge color={color} text={request.state} />;
       },
+      filters: [
+        { text: t("WAITING"), value: "WAITING" },
+        { text: t("APPROVED"), value: "APPROVED" },
+        { text: t("CLOSED"), value: "CLOSED" },
+        { text: t("DRAFT"), value: "DRAFT" },
+      ],
     },
     {
       title: t("Created By"),
@@ -105,25 +124,37 @@ const RequestListTable: React.FC<Props> = ({
       render: (_, request) => {
         return request.createdBy?.name;
       },
+      valueEnum: {
+        all: { text: "All", status: "Default" },
+        reviewedByMe: {
+          text: t("Current user"),
+        },
+      },
+      filters: true,
     },
     {
       title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
       render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+      valueEnum: {
+        all: { text: "All", status: "Default" },
+        createdByMe: {
+          text: t("Current user"),
+        },
+      },
+      filters: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
       title: t("Updated At"),
       dataIndex: "updatedAt",
       key: "updatedAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
   ];
@@ -134,7 +165,11 @@ const RequestListTable: React.FC<Props> = ({
   };
 
   const pagination: TablePaginationConfig = {
-    showSizeChanger: false,
+    showSizeChanger: true,
+    current: page,
+    total: totalCount,
+    pageSize: pageSize,
+    onChange: onRequestTableChange,
   };
 
   const rowSelection: TableRowSelection = {
@@ -186,6 +221,15 @@ const RequestListTable: React.FC<Props> = ({
       rowSelection={rowSelection}
       tableStyle={{ overflowX: "scroll" }}
       loading={loading}
+      onChange={(pagination, filters) => {
+        onRequestTableChange(
+          pagination.current ?? 1,
+          pagination.pageSize ?? 10,
+          filters?.requestState as RequestState[] | null,
+          !!filters.createdBy?.[0],
+          !!filters?.reviewers?.[0],
+        );
+      }}
     />
   );
 };

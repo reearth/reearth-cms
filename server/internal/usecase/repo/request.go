@@ -9,7 +9,7 @@ import (
 )
 
 type RequestFilter struct {
-	State     *request.State
+	State     []request.State
 	Keyword   *string
 	Reviewer  *id.UserID
 	CreatedBy *id.UserID

@@ -20,6 +20,10 @@ const RequestList: React.FC = () => {
     handleRequestDelete,
     handleSearchTerm,
     handleNavigateToRequest,
+    totalCount,
+    page,
+    pageSize,
+    handleRequestTableChange,
   } = useHooks();
 
   return (
@@ -47,6 +51,10 @@ const RequestList: React.FC = () => {
       selection={selection}
       setSelection={setSelection}
       onEdit={handleNavigateToRequest}
+      totalCount={totalCount}
+      page={page}
+      onRequestTableChange={handleRequestTableChange}
+      pageSize={pageSize}
     />
   );
 };

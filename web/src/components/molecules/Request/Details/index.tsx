@@ -16,6 +16,8 @@ export type Props = {
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
   onCommentCreate: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -46,6 +48,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onRequestUpdate,
   onRequestDelete,
   onCommentCreate,
+  onCommentUpdate,
+  onCommentDelete,
   onBack,
   assetList,
   fileList,
@@ -76,6 +80,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       onRequestUpdate={onRequestUpdate}
       onRequestDelete={onRequestDelete}
       onCommentCreate={onCommentCreate}
+      onCommentUpdate={onCommentUpdate}
+      onCommentDelete={onCommentDelete}
       onBack={onBack}
       assetList={assetList}
       fileList={fileList}
