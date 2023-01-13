@@ -24,8 +24,8 @@ const PreviewToolbar: React.FC<Props> = ({
   handleModalCancel,
 }) => {
   const t = useT();
-  const isSVGButtonVisible = viewerType === "svg";
-  const isFullScreenButtonVisible = viewerType !== "unsupported";
+  const isSVGButtonVisible = viewerType === "image_svg";
+  const isFullScreenButtonVisible = viewerType !== "unknown";
 
   return (
     <>

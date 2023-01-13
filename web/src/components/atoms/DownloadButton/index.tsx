@@ -5,7 +5,14 @@ import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-export type PreviewType = "GEO" | "GEO3D" | "IMAGE" | "MODEL3D" | "UNKNOWN";
+export type PreviewType =
+  | "GEO"
+  | "GEO_3D_TILES"
+  | "GEO_MVT"
+  | "IMAGE"
+  | "IMAGE_SVG"
+  | "MODEL_3D"
+  | "UNKNOWN";
 
 export type AssetFile = {
   children?: AssetFile[];
