@@ -270,7 +270,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					State: &request.StateDraft,
+					State: []request.State{request.StateDraft},
 				},
 			},
 			want: 1,
@@ -304,7 +304,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
 					Keyword: lo.ToPtr("foo"),
-					State:   &request.StateDraft,
+					State:   []request.State{request.StateDraft},
 				},
 			},
 			want: 0,

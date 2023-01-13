@@ -393,7 +393,7 @@ type ComplexityRoot struct {
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
-		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination) int
+		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination) int
 		SearchItem                func(childComplexity int, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
 		VersionsByItem            func(childComplexity int, itemID gqlmodel.ID) int
@@ -705,7 +705,7 @@ type QueryResolver interface {
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
-	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state *gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error)
+	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error)
 	Items(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
@@ -2396,7 +2396,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].(*gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].([]gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.searchItem":
 		if e.complexity.Query.SearchItem == nil {
@@ -3997,7 +3997,7 @@ extend type Query {
   requests(
     projectId: ID!
     key: String
-    state: RequestState
+    state: [RequestState!]
     createdBy: ID
     reviewer: ID
     pagination: Pagination
@@ -5439,10 +5439,10 @@ func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawAr
 		}
 	}
 	args["key"] = arg1
-	var arg2 *gqlmodel.RequestState
+	var arg2 []gqlmodel.RequestState
 	if tmp, ok := rawArgs["state"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
-		arg2, err = ec.unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, tmp)
+		arg2, err = ec.unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestStateᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -15682,7 +15682,7 @@ func (ec *executionContext) _Query_requests(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Requests(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].(*gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Requests(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].([]gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -33756,6 +33756,73 @@ func (ec *executionContext) marshalORequestPayload2ᚖgithubᚗcomᚋreearthᚋr
 		return graphql.Null
 	}
 	return ec._RequestPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestStateᚄ(ctx context.Context, v interface{}) ([]gqlmodel.RequestState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]gqlmodel.RequestState, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalORequestState2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestStateᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.RequestState) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx context.Context, v interface{}) (*gqlmodel.RequestState, error) {
