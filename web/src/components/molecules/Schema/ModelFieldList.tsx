@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
@@ -12,6 +13,7 @@ import { Field } from "./types";
 export interface Props {
   className?: string;
   fields?: Field[];
+  onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
 }
@@ -19,6 +21,7 @@ export interface Props {
 const ModelFieldList: React.FC<Props> = ({
   className,
   fields,
+  onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
 }) => {
@@ -38,48 +41,79 @@ const ModelFieldList: React.FC<Props> = ({
     [confirm, onFieldDelete, t],
   );
 
+  const [data, setData] = useState(fields);
+
+  useEffect(() => {
+    setData(fields);
+  }, [fields]);
+
+  const reorder = (list: Field[] | undefined, startIndex: number, endIndex: number) => {
+    if (!list) return;
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    onFieldReorder(result);
+    return result;
+  };
+
+  const onDragEnd = (fromIndex: number, toIndex: number) => {
+    console.log("here");
+    console.log(fromIndex, toIndex);
+    if (toIndex < 0) return;
+    return setData(reorder(data, fromIndex, toIndex));
+  };
+
   return (
-    <FieldStyledList
-      className={className}
-      itemLayout="horizontal"
-      dataSource={fields}
-      renderItem={item => (
-        <List.Item
-          actions={[
-            <Icon
-              icon="delete"
-              onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
-              key="delete"
-            />,
-            <Icon
-              icon="ellipsis"
-              onClick={() => handleFieldUpdateModalOpen(item as Field)}
-              key="edit"
-            />,
-          ]}>
-          <List.Item.Meta
-            avatar={
-              <FieldThumbnail>
-                <StyledIcon
-                  icon={fieldTypes[(item as Field).type].icon}
-                  color={fieldTypes[(item as Field).type].color}
-                />
-                <h3>{(item as Field).type}</h3>
-              </FieldThumbnail>
-            }
-            title={
-              <ItemTitle>
-                {(item as Field).title} {(item as Field).required ? " *" : ""}
-                <ItemKey>#{(item as Field).key}</ItemKey>
-                {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-              </ItemTitle>
-            }
-          />
-        </List.Item>
-      )}
-    />
+    <ReactDragListView
+      nodeSelector=".ant-list-item"
+      lineClassName="dragLine"
+      onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+      <FieldStyledList className={className} itemLayout="horizontal">
+        {data?.map((item, index) => (
+          <List.Item
+            className="draggable-item"
+            key={index}
+            actions={[
+              <Icon
+                icon="delete"
+                onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
+                key="delete"
+              />,
+              <Icon
+                icon="ellipsis"
+                onClick={() => handleFieldUpdateModalOpen(item as Field)}
+                key="edit"
+              />,
+            ]}>
+            <List.Item.Meta
+              avatar={
+                <FieldThumbnail>
+                  <DragIcon icon="menu" className="grabbable" />
+                  <StyledIcon
+                    icon={fieldTypes[(item as Field).type].icon}
+                    color={fieldTypes[(item as Field).type].color}
+                  />
+                </FieldThumbnail>
+              }
+              title={
+                <ItemTitle>
+                  {(item as Field).title} {(item as Field).required ? " *" : ""}
+                  <ItemKey>#{(item as Field).key}</ItemKey>
+                  {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                </ItemTitle>
+              }
+            />
+          </List.Item>
+        ))}
+      </FieldStyledList>
+    </ReactDragListView>
   );
 };
+
+const DragIcon = styled(Icon)`
+  margin-right: 16px;
+  cursor: grab;
+`;
 
 const StyledIcon = styled(Icon)`
   border: 1px solid #f0f0f0;
@@ -126,6 +160,10 @@ const FieldStyledList = styled(List)`
         min-width: 130px;
       }
     }
+  }
+
+  .grabbable {
+    cursor: grab;
   }
 `;
 

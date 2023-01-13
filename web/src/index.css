@@ -9,3 +9,7 @@ body {
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+.dragLine {
+    border-bottom: dashed 2px rgba(0, 0, 0, 0.85) !important;
+  }
