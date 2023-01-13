@@ -22,13 +22,16 @@ export const Imagery: React.FC<Props> = ({ url }) => {
       if (url.match(regex)) {
         const base = url.replace(regex, "");
         setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
-        const data = await (await fetch(`${base}/metadata.json`)).json();
-        setLayerName(data.name);
+        try {
+          const res = await fetch(`${base}/metadata.json`);
+          const data = await res.json();
+          setLayerName(data.name);
+        } catch (error) {
+          console.error(error);
+        }
       }
     };
     initOptions(url);
-    console.log(urlTemplate);
-    console.log(layerName);
 
     const imageryOption: ImageryProviderOption = {
       urlTemplate: urlTemplate,
