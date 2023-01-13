@@ -42,8 +42,12 @@ func (s *Schema) AddField(f *Field) {
 	if s.HasField(f.ID()) {
 		return
 	}
-
-	f.order = s.Fields().Count() + 1
+	if s.Fields().Count() == 0 {
+		f.order = s.Fields().Count() + 1
+	} else {
+		//get the biggest order
+		f.order = s.Fields().Ordered()[s.Fields().Count()-1].Order() + 1
+	}
 	s.fields = append(s.fields, f)
 }
 
