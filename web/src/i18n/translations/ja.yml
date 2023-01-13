@@ -35,10 +35,12 @@ Created By: 作成者
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/SVG: ''
-JSON/SHAPEFILE/KML/CZML: ''
-GEO3D: ''
-MODEL3D/GLB: ''
+PNG/JPEG/TIFF/GIF: ''
+SVG: ''
+GEOJSON/KML/CZML: ''
+3D Tiles: ''
+MVT: ''
+GLTF/GLB: ''
 Unknown Type: 不明
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
