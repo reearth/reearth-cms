@@ -65,9 +65,9 @@ func init() {
 	}
 }
 
-func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *user.User, err error) {
-	if i.signupSecret != "" && (param.Secret == nil || *param.Secret != i.signupSecret) {
-		return nil, interfaces.ErrSignupInvalidSecret
+func (i *User) Signup(ctx context.Context, param interfaces.SignupParam) (u *user.User, err error) {
+	if err := i.verifySignupSecret(param.Secret); err != nil {
+		return nil, err
 	}
 
 	u, workspace, err := user.Init(user.InitParams{
@@ -97,6 +97,50 @@ func (i *User) SignUp(ctx context.Context, param interfaces.SignUpParam) (u *use
 	}
 
 	if err := i.sendVerificationMail(ctx, u, vr); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+func (i *User) SignupOIDC(ctx context.Context, param interfaces.SignupOIDC) (*user.User, error) {
+	if err := i.verifySignupSecret(param.Secret); err != nil {
+		return nil, err
+	}
+	if param.Sub == "" || param.Name == "" || param.Email == "" {
+		return nil, errors.New("invalid parameters")
+	}
+
+	eu, err := i.repos.User.FindByEmail(ctx, param.Email)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	if eu != nil {
+		return nil, repo.ErrDuplicatedUser
+	}
+
+	eu, err = i.repos.User.FindBySub(ctx, param.Sub)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	if eu != nil {
+		return nil, repo.ErrDuplicatedUser
+	}
+
+	u, workspace, err := user.Init(user.InitParams{
+		Email: param.Email,
+		Name:  param.Name,
+		Sub:   user.AuthFromAuth0Sub(param.Sub).Ref(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.User.Create(ctx, u); err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.Workspace.Save(ctx, workspace); err != nil {
 		return nil, err
 	}
 
@@ -298,5 +342,12 @@ func issToURL(iss, p string) *url.URL {
 		return u
 	}
 
+	return nil
+}
+
+func (i *User) verifySignupSecret(secret *string) error {
+	if i.signupSecret != "" && (secret == nil || *secret != i.signupSecret) {
+		return interfaces.ErrSignupInvalidSecret
+	}
 	return nil
 }

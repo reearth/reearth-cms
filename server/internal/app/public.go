@@ -24,7 +24,7 @@ func Signup() echo.HandlerFunc {
 
 		uc := adapter.Usecases(c.Request().Context())
 		controller := http1.NewUserController(uc.User)
-		output, err := controller.SignUp(c.Request().Context(), inp)
+		output, err := controller.Signup(c.Request().Context(), inp)
 		if err != nil {
 			return err
 		}

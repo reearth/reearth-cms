@@ -38,6 +38,7 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   CheckCircleFilled,
+  MenuOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
 
@@ -108,5 +109,6 @@ export default {
   arrowDown: ArrowDownOutlined,
   arrowSquareOut: ArrowSquareOut,
   checkCircle: CheckCircleFilled,
+  menu: MenuOutlined,
   check: CheckOutlined,
 };

@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
-var ErrDuplicatedUser = errors.New("duplicated email")
+var ErrDuplicatedUser = errors.New("duplicated user")
 
 type User interface {
 	FindByIDs(context.Context, id.UserIDList) ([]*user.User, error)

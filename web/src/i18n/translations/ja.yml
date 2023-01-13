@@ -35,10 +35,12 @@ Created By: 作成者
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/SVG: ''
-JSON/SHAPEFILE/KML/CZML: ''
-GEO3D: ''
-MODEL3D/GLB: ''
+PNG/JPEG/TIFF/GIF: ''
+SVG: ''
+GEOJSON/KML/CZML: ''
+3D Tiles: ''
+MVT: ''
+GLTF/GLB: ''
 Unknown Type: 不明
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
@@ -173,6 +175,11 @@ Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
+WAITING: ''
+APPROVED: ''
+CLOSED: ''
+DRAFT: ''
+Current user: ''
 Updated At: 更新日時
 Add Field: フィールドを追加
 Display name: 表示名
@@ -263,6 +270,8 @@ Failed to delete field.: フィールドの削除に失敗しました。
 Successfully deleted field!: フィールドの削除に成功しました。
 Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
+Failed to update one or more field.: ''
+Successfully updated one or more fields!: ''
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。
