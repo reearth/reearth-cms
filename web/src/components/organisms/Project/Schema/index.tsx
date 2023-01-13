@@ -51,6 +51,7 @@ const ProjectSchema: React.FC = () => {
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
+    handleFieldOrder,
     handleFieldDelete,
   } = useHooks();
 
@@ -65,6 +66,7 @@ const ProjectSchema: React.FC = () => {
         onCollapse={collapse}
         onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
         onFieldCreationModalOpen={handleFieldCreationModalOpen}
+        onFieldReorder={handleFieldOrder}
         onFieldDelete={handleFieldDelete}
       />
       {selectedType && (
