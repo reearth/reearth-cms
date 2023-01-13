@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer } from "cesium";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
@@ -61,11 +61,12 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
+
   const getViewer = (viewer: Viewer | undefined) => {
     viewerRef = viewer;
   };
 
-  const renderPreview = () => {
+  const renderPreview = useCallback(() => {
     switch (true) {
       case viewerType === "geo":
         return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
@@ -82,7 +83,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  };
+  }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
   return (
     <BodyContainer>
