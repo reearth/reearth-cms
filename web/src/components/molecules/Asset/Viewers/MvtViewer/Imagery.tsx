@@ -17,7 +17,10 @@ export const Imagery: React.FC<Props> = ({ url }) => {
   const getURLTemplate = (url: string): URLTemplate => {
     const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
     if (url.match(regex)) {
-      return url.replace(regex, "{z}/{x}/{y}.mvt") as URLTemplate;
+      const urlTemplate = url.replace(regex, "/{z}/{x}/{y}.mvt") as URLTemplate;
+      console.log(url);
+      console.log(urlTemplate);
+      return urlTemplate;
     }
     return url as URLTemplate;
   };
