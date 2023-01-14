@@ -44,6 +44,7 @@ export default () => {
   const { data: userData } = useGetMeQuery();
 
   const { data, refetch, loading } = useGetRequestsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
