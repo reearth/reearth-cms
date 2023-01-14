@@ -1,8 +1,6 @@
 package gqlmodel
 
 import (
-	"strings"
-
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -142,8 +140,20 @@ func (s *AssetSort) Into() *usecasex.Sort {
 	if s == nil {
 		return nil
 	}
+	key := ""
+	switch s.SortBy {
+	case AssetSortTypeDate:
+		key = "createdat"
+	case AssetSortTypeName:
+		key = "filename"
+	case AssetSortTypeSize:
+		key = "size"
+	}
+	if key == "" {
+		return nil
+	}
 	return &usecasex.Sort{
-		Key:      strings.ToLower(s.SortBy.String()),
+		Key:      key,
 		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
 	}
 }
