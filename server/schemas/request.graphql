@@ -96,6 +96,7 @@ extend type Query {
     createdBy: ID
     reviewer: ID
     pagination: Pagination
+    sort: Sort
   ): RequestConnection!
 }
 

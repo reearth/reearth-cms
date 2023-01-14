@@ -65,7 +65,7 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -96,7 +96,8 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
-	return r.paginate(ctx, &filter, page)
+	rl, p, err := r.paginate(ctx, &filter, sort, page)
+	return rl.Ordered(), p, err
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
@@ -129,10 +130,10 @@ func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 		"id": id.String()}))
 }
 
-func (r *Request) paginate(ctx context.Context, filter any, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewRequestConsumer()
 
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
