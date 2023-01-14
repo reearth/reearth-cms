@@ -37,6 +37,12 @@ export const SEARCH_ITEM = gql`
         id
         schemaId
         createdAt
+        user {
+          name
+        }
+        integration {
+          name
+        }
         fields {
           schemaFieldId
           type
