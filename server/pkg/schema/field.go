@@ -148,6 +148,7 @@ func (f *Field) Clone() *Field {
 		name:         f.name,
 		description:  f.description,
 		key:          f.key,
+		order:        f.order,
 		unique:       f.unique,
 		multiple:     f.multiple,
 		required:     f.required,
