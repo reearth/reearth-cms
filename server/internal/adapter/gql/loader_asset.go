@@ -50,7 +50,7 @@ func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlm
 	}), nil
 }
 
-func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *asset.SortType, p *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, p *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	pid, err := gqlmodel.ToID[id.Project](projectId)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 
 	f := interfaces.AssetFilter{
 		Keyword:    keyword,
-		Sort:       sort,
+		Sort:       sort.Into(),
 		Pagination: p.Into(),
 	}
 
