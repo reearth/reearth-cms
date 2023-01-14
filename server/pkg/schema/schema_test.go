@@ -20,7 +20,7 @@ func TestSchema_AddField(t *testing.T) {
 			name: "add on empty array",
 			s:    &Schema{},
 			f:    &Field{name: "f1"},
-			want: &Schema{fields: []*Field{{name: "f1", order: 1}}},
+			want: &Schema{fields: []*Field{{name: "f1", order: 0}}},
 		},
 		{
 			name: "add on not empty array",
