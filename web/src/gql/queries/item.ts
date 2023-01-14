@@ -8,6 +8,12 @@ export const GET_ITEMS = gql`
       nodes {
         id
         schemaId
+        user {
+          name
+        }
+        integration {
+          name
+        }
         fields {
           schemaFieldId
           type
