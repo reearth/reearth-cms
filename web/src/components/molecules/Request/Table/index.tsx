@@ -169,7 +169,6 @@ const RequestListTable: React.FC<Props> = ({
     current: page,
     total: totalCount,
     pageSize: pageSize,
-    onChange: onRequestTableChange,
   };
 
   const rowSelection: TableRowSelection = {
