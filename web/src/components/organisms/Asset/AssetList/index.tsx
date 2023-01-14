@@ -8,7 +8,6 @@ const AssetList: React.FC = () => {
   const t = useT();
   const {
     assetList,
-    assetsPerPage,
     selection,
     fileList,
     uploading,
@@ -18,6 +17,9 @@ const AssetList: React.FC = () => {
     uploadType,
     selectedAsset,
     collapsed,
+    totalCount,
+    page,
+    pageSize,
     handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,
@@ -32,6 +34,7 @@ const AssetList: React.FC = () => {
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
+    handleAssetTableChange,
   } = useHooks();
 
   return (
@@ -50,7 +53,10 @@ const AssetList: React.FC = () => {
         />
       }
       assetList={assetList}
-      assetsPerPage={assetsPerPage}
+      onAssetTableChange={handleAssetTableChange}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
       fileList={fileList}
       selection={selection}
       uploading={uploading}

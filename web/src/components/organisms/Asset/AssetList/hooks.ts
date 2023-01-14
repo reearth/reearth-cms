@@ -1,4 +1,3 @@
-import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback, Key, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -9,33 +8,16 @@ import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAss
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
-  Maybe,
   useDeleteAssetMutation,
   Asset as GQLAsset,
+  SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-type AssetSortType = "date" | "name" | "size";
+export type AssetSortType = "DATE" | "NAME" | "SIZE";
+export type SortDirection = "ASC" | "DESC";
 type UploadType = "local" | "url";
-
-const assetsPerPage = 10;
-// Todo: this is temporary until implementing cursor pagination
-const assetsFetchCount = 500;
-
-function pagination(
-  sort?: { type?: Maybe<AssetSortType>; reverse?: boolean },
-  endCursor?: string | null,
-) {
-  const reverseOrder = !sort?.type || sort?.type === "date" ? !sort?.reverse : !!sort?.reverse;
-
-  return {
-    after: !reverseOrder ? endCursor : undefined,
-    before: reverseOrder ? endCursor : undefined,
-    first: !reverseOrder ? assetsFetchCount : undefined,
-    last: reverseOrder ? assetsFetchCount : undefined,
-  };
-}
 
 export default () => {
   const t = useT();
@@ -52,18 +34,22 @@ export default () => {
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const [createAssetMutation] = useCreateAssetMutation();
 
-  const [sort, setSort] = useState<{ type?: AssetSortType; reverse?: boolean }>();
+  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection }>();
   const [searchTerm, setSearchTerm] = useState<string>();
-  const gqlCache = useApolloClient().cache;
 
-  const { data, refetch, loading, fetchMore, networkStatus } = useGetAssetsQuery({
+  const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
-      pagination: pagination(sort),
-      sort: sort?.type as GQLSortType,
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: sort
+        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
+        : undefined,
       keyword: searchTerm,
       withFiles: false,
     },
@@ -71,21 +57,8 @@ export default () => {
     skip: !projectId,
   });
 
-  const hasMoreAssets =
-    data?.assets.pageInfo?.hasNextPage || data?.assets.pageInfo?.hasPreviousPage;
-
   const isRefetching = networkStatus === 3;
   const [selectedAssets, selectAsset] = useState<Asset[]>([]);
-
-  const handleGetMoreAssets = useCallback(() => {
-    if (hasMoreAssets) {
-      fetchMore({
-        variables: {
-          pagination: pagination(sort, data?.assets.pageInfo.endCursor),
-        },
-      });
-    }
-  }, [data?.assets.pageInfo, sort, fetchMore, hasMoreAssets]);
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -172,17 +145,6 @@ export default () => {
     [t, deleteAssetMutation, projectId],
   );
 
-  const handleSortChange = useCallback(
-    (type?: string, reverse?: boolean) => {
-      if (!type && reverse === undefined) return;
-      setSort({
-        type: (type as AssetSortType) ?? sort?.type,
-        reverse: !!reverse,
-      });
-    },
-    [sort],
-  );
-
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
   }, []);
@@ -194,24 +156,6 @@ export default () => {
   const handleNavigateToAsset = (asset: Asset) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
-
-  useEffect(() => {
-    if (sort || searchTerm) {
-      selectAsset([]);
-      refetch({
-        sort: sort?.type as GQLSortType,
-        keyword: searchTerm,
-      });
-    }
-  }, [sort, searchTerm, refetch]);
-
-  useEffect(() => {
-    return () => {
-      setSort(undefined);
-      setSearchTerm(undefined);
-      gqlCache.evict({ fieldName: "assets" });
-    };
-  }, [gqlCache]);
 
   useEffect(() => {
     const assets =
@@ -242,9 +186,21 @@ export default () => {
     [assetList, selectedAssetId],
   );
 
+  const handleAssetTableChange = useCallback(
+    (
+      page: number,
+      pageSize: number,
+      sorter?: { type?: AssetSortType; direction?: SortDirection },
+    ) => {
+      setPage(page);
+      setPageSize(pageSize);
+      setSort(sorter);
+    },
+    [],
+  );
+
   return {
     assetList,
-    assetsPerPage,
     selection,
     fileList,
     uploading,
@@ -256,6 +212,9 @@ export default () => {
     uploadType,
     selectedAsset,
     collapsed,
+    totalCount: data?.assets.totalCount ?? 0,
+    page,
+    pageSize,
     handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,
@@ -267,9 +226,8 @@ export default () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetTableChange,
     handleAssetDelete,
-    handleGetMoreAssets,
-    handleSortChange,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
