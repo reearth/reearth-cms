@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -18,18 +19,17 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	var sort asset.SortType
+	var sort *usecasex.Sort
 	if request.Params.Sort != nil {
-		var err error
-		sort, err = asset.SortTypeFromString(string(*request.Params.Sort))
-		if err != nil {
-			return nil, err
+		sort = &usecasex.Sort{
+			Key:      string(*request.Params.Sort),
+			Reverted: request.Params.Dir != nil && *request.Params.Dir == integrationapi.AssetFilterParamsDirDesc,
 		}
 	}
 
 	f := interfaces.AssetFilter{
 		Keyword:    nil,
-		Sort:       &sort,
+		Sort:       sort,
 		Pagination: fromPagination(request.Params.Page, request.Params.PerPage),
 	}
 
