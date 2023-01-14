@@ -8,6 +8,7 @@ export const GET_ITEMS = gql`
       nodes {
         id
         schemaId
+        createdAt
         user {
           name
         }
@@ -23,6 +24,35 @@ export const GET_ITEMS = gql`
           ...threadFragment
         }
       }
+    }
+  }
+
+  ${threadFragment}
+`;
+
+export const SEARCH_ITEM = gql`
+  query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
+    searchItem(query: $query, sort: $sort, pagination: $pagination) {
+      nodes {
+        id
+        schemaId
+        createdAt
+        user {
+          name
+        }
+        integration {
+          name
+        }
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+        thread {
+          ...threadFragment
+        }
+      }
+      totalCount
     }
   }
 

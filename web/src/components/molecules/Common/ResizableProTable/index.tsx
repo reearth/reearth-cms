@@ -20,6 +20,7 @@ const ResizableProTable: React.FC<Props> = ({
   rowSelection,
   tableAlertOptionRender,
   pagination,
+  onChange,
 }) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>([]);
 
@@ -68,6 +69,7 @@ const ResizableProTable: React.FC<Props> = ({
         rowSelection={rowSelection}
         tableStyle={{ overflowX: "scroll" }}
         pagination={pagination}
+        onChange={onChange}
       />
     </Wrapper>
   );
