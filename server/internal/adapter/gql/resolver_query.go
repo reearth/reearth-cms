@@ -204,8 +204,8 @@ func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, sort *g
 	return loaders(ctx).Item.FindBySchema(ctx, schemaID, sort, p)
 }
 
-func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
-	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
+func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, sort, pagination)
 }
 
 func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {

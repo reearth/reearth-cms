@@ -1,7 +1,10 @@
 package gqlmodel
 
 import (
+	"strings"
+
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -135,18 +138,12 @@ func ToAssetFile(a *asset.File) *AssetFile {
 	}
 }
 
-func AssetSortTypeFrom(a *AssetSortType) *asset.SortType {
-	if a == nil {
+func (s *AssetSort) Into() *usecasex.Sort {
+	if s == nil {
 		return nil
 	}
-
-	switch *a {
-	case AssetSortTypeDate:
-		return &asset.SortTypeDate
-	case AssetSortTypeName:
-		return &asset.SortTypeName
-	case AssetSortTypeSize:
-		return &asset.SortTypeSize
+	return &usecasex.Sort{
+		Key:      strings.ToLower(s.SortBy.String()),
+		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
 	}
-	return nil
 }

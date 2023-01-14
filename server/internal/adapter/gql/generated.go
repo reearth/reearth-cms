@@ -384,7 +384,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Asset                     func(childComplexity int, assetID gqlmodel.ID) int
-		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) int
+		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) int
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		Items                     func(childComplexity int, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
@@ -698,7 +698,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	Asset(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.Asset, error)
-	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
+	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
 	SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
@@ -2293,7 +2293,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Assets(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSortType), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Assets(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.checkModelKeyAvailability":
 		if e.complexity.Query.CheckModelKeyAvailability == nil {
@@ -3251,6 +3251,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
 		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputApproveRequestInput,
+		ec.unmarshalInputAssetSort,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateFieldInput,
 		ec.unmarshalInputCreateIntegrationInput,
@@ -3552,9 +3553,14 @@ enum AssetSortType {
   NAME
 }
 
+input AssetSort {
+  sortBy: AssetSortType!
+  direction: SortDirection
+}
+
 extend type Query {
   asset(assetId: ID!): Asset!
-  assets(projectId: ID!, keyword: String, sort: AssetSortType, pagination: Pagination): AssetConnection!
+  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
 }
 
 extend type Mutation {
@@ -5229,10 +5235,10 @@ func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs
 		}
 	}
 	args["keyword"] = arg1
-	var arg2 *gqlmodel.AssetSortType
+	var arg2 *gqlmodel.AssetSort
 	if tmp, ok := rawArgs["sort"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg2, err = ec.unmarshalOAssetSortType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx, tmp)
+		arg2, err = ec.unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSort(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -15242,7 +15248,7 @@ func (ec *executionContext) _Query_assets(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Assets(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.AssetSortType), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Assets(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.AssetSort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23414,6 +23420,42 @@ func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj interface{}) (gqlmodel.AssetSort, error) {
+	var it gqlmodel.AssetSort
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sortBy", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sortBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sortBy"))
+			it.SortBy, err = ec.unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "direction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			it.Direction, err = ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
 	asMap := map[string]interface{}{}
@@ -31242,6 +31284,16 @@ func (ec *executionContext) marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._AssetFile(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v interface{}) (gqlmodel.AssetSortType, error) {
+	var res gqlmodel.AssetSortType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AssetSortType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -33304,20 +33356,12 @@ func (ec *executionContext) marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋree
 	return ret
 }
 
-func (ec *executionContext) unmarshalOAssetSortType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v interface{}) (*gqlmodel.AssetSortType, error) {
+func (ec *executionContext) unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSort(ctx context.Context, v interface{}) (*gqlmodel.AssetSort, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(gqlmodel.AssetSortType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOAssetSortType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetSortType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
+	res, err := ec.unmarshalInputAssetSort(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
