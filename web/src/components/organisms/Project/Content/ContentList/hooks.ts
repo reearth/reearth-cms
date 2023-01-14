@@ -69,6 +69,7 @@ export default () => {
           ? {
               id: item.id,
               schemaId: item.schemaId,
+              author: item.user?.name ?? item.integration?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -94,15 +95,26 @@ export default () => {
   }, [assetList, data?.searchItem.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
-    return currentModel?.schema.fields.map(field => ({
-      title: field.title,
-      dataIndex: ["fields", field.id],
-      key: field.id,
-      width: 128,
-      minWidth: 128,
-      ellipsis: true,
-    }));
-  }, [currentModel?.schema.fields]);
+    if (!currentModel) return;
+    return [
+      {
+        title: t("Created By"),
+        dataIndex: "author",
+        key: "author",
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      },
+      ...currentModel.schema.fields.map(field => ({
+        title: field.title,
+        dataIndex: ["fields", field.id],
+        key: field.id,
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      })),
+    ];
+  }, [currentModel, t]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {

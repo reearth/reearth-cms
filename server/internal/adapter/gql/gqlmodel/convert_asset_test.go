@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -238,61 +239,49 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 	}
 }
 
-func TestConvertAsset_AssetSortTypeFrom(t *testing.T) {
-	st1 := AssetSortTypeName
-	var want1 asset.SortType = asset.SortTypeName
-
-	st2 := AssetSortTypeSize
-	var want2 asset.SortType = asset.SortTypeSize
-
-	st3 := AssetSortTypeDate
-	var want3 asset.SortType = asset.SortTypeDate
-
-	st4 := (*AssetSortType)(nil)
-	var want4 *asset.SortType = nil
-
-	var st5 AssetSortType = "test"
-	want5 := (*asset.SortType)(nil)
-
+func TestAssetSort_Into(t *testing.T) {
 	tests := []struct {
 		name string
-		arg  *AssetSortType
-		want *asset.SortType
+		sort *AssetSort
+		want *usecasex.Sort
 	}{
 		{
-			name: "to sort type name",
-			arg:  &st1,
-			want: &want1,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "name",
+				Direction: lo.ToPtr(SortDirectionAsc),
+			},
+			want: &usecasex.Sort{
+				Key:      "name",
+				Reverted: false,
+			},
 		},
 		{
-			name: "to sort type size",
-			arg:  &st2,
-			want: &want2,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "name",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "name",
+				Reverted: false,
+			},
 		},
 		{
-			name: "to sort type date",
-			arg:  &st3,
-			want: &want3,
-		},
-		{
-			name: "to sort type nil",
-			arg:  st4,
-			want: want4,
-		},
-		{
-			name: "to sort type other",
-			arg:  &st5,
-			want: want5,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "Name",
+				Direction: lo.ToPtr(SortDirectionDesc),
+			},
+			want: &usecasex.Sort{
+				Key:      "name",
+				Reverted: true,
+			},
 		},
 	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := AssetSortTypeFrom(tc.arg)
-			assert.Equal(t, tc.want, got)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.sort.Into())
 		})
 	}
 }
