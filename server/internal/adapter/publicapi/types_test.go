@@ -60,7 +60,7 @@ func TestNewItem(t *testing.T) {
 			},
 		}),
 	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + "/" + a.File().Name()
+		return "https://example.com/" + a.ID().String() + a.File().Path()
 	}))
 
 	// no assets
