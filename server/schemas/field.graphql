@@ -187,6 +187,14 @@ input CreateFieldInput {
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
+input FieldOrder{
+  fieldId: ID!
+  order: Int!
+}
+input UpdateFieldsOrderInput {
+  modelId: ID!
+  fieldsOrder: [FieldOrder!]!
+}
 
 input UpdateFieldInput {
   modelId: ID!
@@ -211,6 +219,10 @@ type FieldPayload {
   field: SchemaField!
 }
 
+type FieldsPayload {
+  fields: [SchemaField!]!
+}
+
 type DeleteFieldPayload {
   fieldId: ID!
 }
@@ -220,5 +232,6 @@ type DeleteFieldPayload {
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
   updateField(input: UpdateFieldInput!): FieldPayload
+  updateFieldsOrder(input: UpdateFieldsOrderInput!): FieldsPayload
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
 }

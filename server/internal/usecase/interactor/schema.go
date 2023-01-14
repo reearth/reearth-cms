@@ -159,3 +159,26 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 			return i.repos.Schema.Save(ctx, s)
 		})
 }
+
+func (i Schema) UpdateFieldsOrder(ctx context.Context, sid id.SchemaID, params []interfaces.UpdateFieldsOrderParam, operator *usecase.Operator) (schema.FieldList, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (schema.FieldList, error) {
+		s, err := i.repos.Schema.FindByID(ctx, sid)
+		if err != nil {
+			return nil, err
+		}
+		if !operator.IsMaintainingProject(s.Project()) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		for _, param := range params {
+			f := s.Field(param.FieldId)
+			f.SetOrder(param.Order)
+		}
+
+		if err := i.repos.Schema.Save(ctx, s); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	})
+}

@@ -288,8 +288,17 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type FieldOrder struct {
+	FieldID ID  `json:"fieldId"`
+	Order   int `json:"order"`
+}
+
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
+}
+
+type FieldsPayload struct {
+	Fields []*SchemaField `json:"fields"`
 }
 
 type Integration struct {
@@ -791,6 +800,11 @@ type UpdateFieldInput struct {
 	Unique       *bool                         `json:"unique"`
 	Multiple     *bool                         `json:"multiple"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+}
+
+type UpdateFieldsOrderInput struct {
+	ModelID     ID            `json:"modelId"`
+	FieldsOrder []*FieldOrder `json:"fieldsOrder"`
 }
 
 type UpdateIntegrationInput struct {

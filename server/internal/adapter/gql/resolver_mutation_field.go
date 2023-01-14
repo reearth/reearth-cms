@@ -7,7 +7,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
@@ -123,5 +126,48 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 
 	return &gqlmodel.DeleteFieldPayload{
 		FieldID: input.FieldID,
+	}, nil
+}
+
+func (r *mutationResolver) UpdateFieldsOrder(ctx context.Context, input gqlmodel.UpdateFieldsOrderInput) (*gqlmodel.FieldsPayload, error) {
+	params, err := util.TryMap(input.FieldsOrder, func(fo *gqlmodel.FieldOrder) (interfaces.UpdateFieldsOrderParam, error) {
+		fid, err := gqlmodel.ToID[id.Field](fo.FieldID)
+		if err != nil {
+			return interfaces.UpdateFieldsOrderParam{}, err
+		}
+		return interfaces.UpdateFieldsOrderParam{FieldId: fid, Order: fo.Order}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
+		if err == nil {
+			return nil, errors.New("not found")
+		}
+		return nil, err
+	}
+	m := ms[0]
+
+	s, err := usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	fl, err := usecases(ctx).Schema.UpdateFieldsOrder(ctx, s.ID(), params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.FieldsPayload{
+		Fields: lo.Map(fl, func(sf *schema.Field, _ int) *gqlmodel.SchemaField {
+			return gqlmodel.ToSchemaField(sf)
+		}),
 	}, nil
 }
