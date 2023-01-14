@@ -15,10 +15,13 @@ import ProTable, {
 import Space from "@reearth-cms/components/atoms/Space";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
-import { dateSortCallback, numberSortCallback, stringSortCallback } from "@reearth-cms/utils/sort";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
@@ -38,7 +41,11 @@ export type AssetListTableProps = {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
-  onAssetTableChange: (page: number, pageSize: number) => void;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
 };
 
 const AssetListTable: React.FC<AssetListTableProps> = ({
@@ -84,14 +91,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     {
       title: t("File"),
       dataIndex: "fileName",
-      key: "fileName",
-      sorter: (a, b) => stringSortCallback(a.fileName, b.fileName),
+      key: "NAME",
+      sorter: true,
     },
     {
       title: t("Size"),
       dataIndex: "size",
-      key: "size",
-      sorter: (a, b) => numberSortCallback(a.size, b.size),
+      key: "SIZE",
+      sorter: true,
       render: (_text, record) => bytesFormat(record.size),
     },
     {
@@ -115,8 +122,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     {
       title: t("Created At"),
       dataIndex: "createdAt",
-      key: "createdAt",
-      sorter: (a, b) => dateSortCallback(a.createdAt, b.createdAt),
+      key: "DATE",
+      sorter: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
     {
@@ -192,8 +199,14 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       rowSelection={rowSelection}
       tableStyle={{ overflowX: "scroll" }}
       loading={loading}
-      onChange={pagination => {
-        onAssetTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+      onChange={(pagination, _, sorter: any) => {
+        onAssetTableChange(
+          pagination.current ?? 1,
+          pagination.pageSize ?? 10,
+          sorter?.order
+            ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+            : undefined,
+        );
       }}
     />
   );

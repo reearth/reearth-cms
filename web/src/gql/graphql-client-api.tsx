@@ -97,6 +97,11 @@ export type AssetFile = {
   size: Scalars['FileSize'];
 };
 
+export type AssetSort = {
+  direction?: InputMaybe<SortDirection>;
+  sortBy: AssetSortType;
+};
+
 export enum AssetSortType {
   Date = 'DATE',
   Name = 'NAME',
@@ -858,7 +863,7 @@ export type QueryAssetsArgs = {
   keyword?: InputMaybe<Scalars['String']>;
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
-  sort?: InputMaybe<AssetSortType>;
+  sort?: InputMaybe<AssetSort>;
 };
 
 
@@ -1442,7 +1447,7 @@ export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, 
 export type GetAssetsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   keyword?: InputMaybe<Scalars['String']>;
-  sort?: InputMaybe<AssetSortType>;
+  sort?: InputMaybe<AssetSort>;
   pagination?: InputMaybe<Pagination>;
   withFiles: Scalars['Boolean'];
 }>;
@@ -2158,7 +2163,7 @@ export const WorkspaceFragmentFragmentDoc = gql`
 }
     ${IntegrationFragmentFragmentDoc}`;
 export const GetAssetsDocument = gql`
-    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSortType, $pagination: Pagination, $withFiles: Boolean!) {
+    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination, $withFiles: Boolean!) {
   assets(
     projectId: $projectId
     keyword: $keyword

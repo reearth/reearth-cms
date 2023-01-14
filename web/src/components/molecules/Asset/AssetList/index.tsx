@@ -8,6 +8,10 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type UploadType = "local" | "url";
 
@@ -40,7 +44,11 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
-  onAssetTableChange: (page: number, pageSize: number) => void;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
 };
 
 const AssetList: React.FC<Props> = ({

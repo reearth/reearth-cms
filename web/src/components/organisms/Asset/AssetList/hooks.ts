@@ -1,4 +1,3 @@
-import { useApolloClient } from "@apollo/client";
 import { useEffect, useState, useCallback, Key, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -11,11 +10,13 @@ import {
   useCreateAssetMutation,
   useDeleteAssetMutation,
   Asset as GQLAsset,
+  SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-type AssetSortType = "date" | "name" | "size";
+export type AssetSortType = "DATE" | "NAME" | "SIZE";
+export type SortDirection = "ASC" | "DESC";
 type UploadType = "local" | "url";
 
 export default () => {
@@ -38,15 +39,17 @@ export default () => {
 
   const [createAssetMutation] = useCreateAssetMutation();
 
-  const [sort, setSort] = useState<{ type?: AssetSortType; reverse?: boolean }>();
+  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection }>();
   const [searchTerm, setSearchTerm] = useState<string>();
-  const gqlCache = useApolloClient().cache;
 
   const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort?.type as GQLSortType,
+      sort: sort
+        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
+        : undefined,
       keyword: searchTerm,
       withFiles: false,
     },
@@ -142,17 +145,6 @@ export default () => {
     [t, deleteAssetMutation, projectId],
   );
 
-  const handleSortChange = useCallback(
-    (type?: string, reverse?: boolean) => {
-      if (!type && reverse === undefined) return;
-      setSort({
-        type: (type as AssetSortType) ?? sort?.type,
-        reverse: !!reverse,
-      });
-    },
-    [sort],
-  );
-
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
   }, []);
@@ -164,24 +156,6 @@ export default () => {
   const handleNavigateToAsset = (asset: Asset) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
   };
-
-  useEffect(() => {
-    if (sort || searchTerm) {
-      selectAsset([]);
-      refetch({
-        sort: sort?.type as GQLSortType,
-        keyword: searchTerm,
-      });
-    }
-  }, [sort, searchTerm, refetch]);
-
-  useEffect(() => {
-    return () => {
-      setSort(undefined);
-      setSearchTerm(undefined);
-      gqlCache.evict({ fieldName: "assets" });
-    };
-  }, [gqlCache]);
 
   useEffect(() => {
     const assets =
@@ -212,10 +186,18 @@ export default () => {
     [assetList, selectedAssetId],
   );
 
-  const handleAssetTableChange = useCallback((page: number, pageSize: number) => {
-    setPage(page);
-    setPageSize(pageSize);
-  }, []);
+  const handleAssetTableChange = useCallback(
+    (
+      page: number,
+      pageSize: number,
+      sorter?: { type?: AssetSortType; direction?: SortDirection },
+    ) => {
+      setPage(page);
+      setPageSize(pageSize);
+      setSort(sorter);
+    },
+    [],
+  );
 
   return {
     assetList,
@@ -246,7 +228,6 @@ export default () => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
-    handleSortChange,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
