@@ -248,35 +248,76 @@ func TestAssetSort_Into(t *testing.T) {
 		{
 			name: "success",
 			sort: &AssetSort{
-				SortBy:    "name",
+				SortBy:    "NAME",
 				Direction: lo.ToPtr(SortDirectionAsc),
 			},
 			want: &usecasex.Sort{
-				Key:      "name",
+				Key:      "filename",
 				Reverted: false,
 			},
 		},
 		{
 			name: "success",
 			sort: &AssetSort{
-				SortBy:    "name",
+				SortBy:    "NAME",
 				Direction: nil,
 			},
 			want: &usecasex.Sort{
-				Key:      "name",
+				Key:      "filename",
 				Reverted: false,
 			},
 		},
 		{
 			name: "success",
 			sort: &AssetSort{
-				SortBy:    "Name",
+				SortBy:    "NAME",
 				Direction: lo.ToPtr(SortDirectionDesc),
 			},
 			want: &usecasex.Sort{
-				Key:      "name",
+				Key:      "filename",
 				Reverted: true,
 			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "NAME",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "filename",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "SIZE",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "size",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "DATE",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "createdat",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "xxx",
+				Direction: nil,
+			},
+			want: nil,
 		},
 	}
 	for _, tt := range tests {
