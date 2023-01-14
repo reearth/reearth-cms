@@ -54,7 +54,7 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return res, nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
