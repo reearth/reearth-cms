@@ -915,6 +915,7 @@ export type QueryRequestsArgs = {
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
   reviewer?: InputMaybe<Scalars['ID']>;
+  sort?: InputMaybe<Sort>;
   state?: InputMaybe<Array<RequestState>>;
 };
 
@@ -1202,6 +1203,11 @@ export type SchemaFieldUrlInput = {
 export type SchemaMarkdownTextInput = {
   defaultValue?: InputMaybe<Scalars['Any']>;
   maxLength?: InputMaybe<Scalars['Int']>;
+};
+
+export type Sort = {
+  key: Scalars['String'];
+  reverted?: InputMaybe<Scalars['Boolean']>;
 };
 
 export enum SortDirection {
@@ -1722,6 +1728,7 @@ export type GetRequestsQueryVariables = Exact<{
   pagination?: InputMaybe<Pagination>;
   createdBy?: InputMaybe<Scalars['ID']>;
   reviewer?: InputMaybe<Scalars['ID']>;
+  sort?: InputMaybe<Sort>;
 }>;
 
 
@@ -3479,7 +3486,7 @@ export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProject
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
 export const GetRequestsDocument = gql`
-    query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID) {
+    query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
   requests(
     projectId: $projectId
     key: $key
@@ -3487,6 +3494,7 @@ export const GetRequestsDocument = gql`
     pagination: $pagination
     createdBy: $createdBy
     reviewer: $reviewer
+    sort: $sort
   ) {
     edges {
       cursor
@@ -3520,6 +3528,7 @@ export const GetRequestsDocument = gql`
  *      pagination: // value for 'pagination'
  *      createdBy: // value for 'createdBy'
  *      reviewer: // value for 'reviewer'
+ *      sort: // value for 'sort'
  *   },
  * });
  */
