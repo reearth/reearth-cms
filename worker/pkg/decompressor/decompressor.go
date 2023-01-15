@@ -2,11 +2,17 @@ package decompressor
 
 import (
 	"archive/zip"
+	"context"
 	"errors"
 	"fmt"
 	"io"
+	"path/filepath"
+	"strings"
+	"sync"
 
+	"cloud.google.com/go/storage"
 	"github.com/bodgit/sevenzip"
+	"github.com/reearth/reearthx/log"
 )
 
 var (
@@ -14,6 +20,12 @@ var (
 )
 
 const limit = 1024 * 1024 * 1024 * 30 // 30GB
+
+const (
+	GCS_BUCKET_NAME               = "asset.cms.test.reearth.dev"
+	DECOMPRESSION_NUM_WORKERS     = 100
+	DECOMPRESSION_WORKQUEUE_DEPTH = 2000
+)
 
 type decompressor struct {
 	zr  *zip.Reader
@@ -44,23 +56,23 @@ func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteC
 	return nil, ErrUnsupportedExtention
 }
 
-func (uz *decompressor) Decompress() error {
+func (uz *decompressor) Decompress(assetBasePath string) error {
+	zfs := []*zip.File{}
 	if uz.zr != nil {
 		for _, f := range uz.zr.File {
-			if f.FileInfo().IsDir() {
+			fn := f.Name
+			if strings.HasSuffix(fn, "/") {
 				continue
-			} else {
-				rc, err := f.Open()
-				if err != nil {
-					return err
-				}
-				defer rc.Close()
-				err = uz.read(f.Name, rc)
-				if err != nil {
-					return err
-				}
 			}
+			if f.NonUTF8 {
+				continue
+			}
+			if strings.HasPrefix(fn, "/") {
+				continue
+			}
+			zfs = append(zfs, f)
 		}
+		uz.readConcurrentGCSFile(zfs, assetBasePath)
 	} else if uz.sr != nil {
 		for _, f := range uz.sr.File {
 			if f.FileInfo().IsDir() {
@@ -94,6 +106,49 @@ func (uz *decompressor) read(name string, r io.Reader) error {
 		}
 	}
 	return nil
+}
+
+func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath string) {
+	var wg sync.WaitGroup
+	ctx := context.Background()
+	client, _ := storage.NewClient(ctx)
+	db := client.Bucket(GCS_BUCKET_NAME)
+	workQueue := make(chan *zip.File, DECOMPRESSION_WORKQUEUE_DEPTH)
+	for i := 0; i < DECOMPRESSION_NUM_WORKERS; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			log.Infof("worker %d says hello!", i)
+			for f := range workQueue {
+				func() {
+					fn := f.Name
+					x, err := f.Open()
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer x.Close()
+					name := filepath.Join(assetBasePath, fn)
+					w := db.Object(name).NewWriter(ctx)
+
+					if _, err := io.Copy(w, x); err != nil {
+						return
+					}
+					if err = w.Close(); err != nil {
+						log.Infof("boom %s failed with %s", f.Name, err)
+						return
+					}
+					log.Infof(" worker %d wrote %s!", i, f.Name)
+				}()
+			}
+			log.Infof("Worker %d says bye!", i)
+		}(i)
+	}
+
+	for _, f := range zfs {
+		workQueue <- f
+	}
+	close(workQueue)
+	wg.Wait()
 }
 
 type LimitError struct {
