@@ -14,6 +14,7 @@ type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
 };
 
+// TODO: One generic component for these three datatypes should be created instead.
 const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
   const renderAsset = useCallback(() => {
     switch (assetFileExt) {
