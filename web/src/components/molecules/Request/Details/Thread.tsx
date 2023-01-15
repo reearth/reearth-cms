@@ -97,10 +97,7 @@ const RequestThread: React.FC<Props> = ({
             />
           )}
         </CommentsContainer>
-        <StyledRequestStatus
-          approvedAt={currentRequest.approvedAt}
-          closedAt={currentRequest.closedAt}
-        />
+        <StyledRequestStatus requestState={currentRequest.state} />
       </ThreadWrapper>
 
       {!currentRequest.comments || currentRequest.comments.length === 0 ? (

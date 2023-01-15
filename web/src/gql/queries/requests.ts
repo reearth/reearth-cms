@@ -19,12 +19,6 @@ export const GET_REQUESTS = gql`
       createdBy: $createdBy
       reviewer: $reviewer
     ) {
-      edges {
-        cursor
-        node {
-          ...requestFragment
-        }
-      }
       nodes {
         ...requestFragment
       }
