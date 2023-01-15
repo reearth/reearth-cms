@@ -8,7 +8,13 @@ type Props = {
   url: string;
 };
 
+// TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+type TileCoordinates = {
+  x: number;
+  y: number;
+  level: number;
+};
 
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer }: { viewer: Viewer } = useCesium();
@@ -36,7 +42,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     const imageryOption: ImageryProviderOption = {
       urlTemplate: urlTemplate,
       layerName: layerName,
-      style: (_feature: VectorTileFeature, _tileCoords: any) => {
+      style: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
         if (isFeatureSelected) {
           return {
             strokeStyle: "orange",
@@ -50,7 +56,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           lineWidth: 1,
         };
       },
-      onSelectFeature: (_feature: VectorTileFeature) => {
+      onSelectFeature: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
         setIsFeatureSelected(v => !v);
       },
     };
