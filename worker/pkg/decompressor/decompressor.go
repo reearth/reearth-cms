@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/bodgit/sevenzip"
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -21,11 +24,7 @@ var (
 
 const limit = 1024 * 1024 * 1024 * 30 // 30GB
 
-const (
-	GCS_BUCKET_NAME               = "asset.cms.test.reearth.dev"
-	DECOMPRESSION_NUM_WORKERS     = 100
-	DECOMPRESSION_WORKQUEUE_DEPTH = 2000
-)
+const configPrefix = "REEARTH_CMS_WORKER"
 
 type decompressor struct {
 	zr  *zip.Reader
@@ -109,12 +108,16 @@ func (uz *decompressor) read(name string, r io.Reader) error {
 }
 
 func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath string) {
-	var wg sync.WaitGroup
+	conf, cerr := ReadDecompressorConfig()
+	if cerr != nil {
+		log.Fatal(cerr)
+	}
+	var wg sync.WaitGroup  
 	ctx := context.Background()
 	client, _ := storage.NewClient(ctx)
-	db := client.Bucket(GCS_BUCKET_NAME)
-	workQueue := make(chan *zip.File, DECOMPRESSION_WORKQUEUE_DEPTH)
-	for i := 0; i < DECOMPRESSION_NUM_WORKERS; i++ {
+	db := client.Bucket(conf.BucketName)
+	workQueue := make(chan *zip.File, conf.DecompressorWorkerQueueDepth)
+	for i := 0; i < int(conf.DecompressionWorkers); i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -149,6 +152,25 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	}
 	close(workQueue)
 	wg.Wait()
+}
+
+type DecompressorConfig struct {
+	DecompressionWorkers         int64  `envconfig:"DECOMPRESSION_NUM_WORKERS"`
+	DecompressorWorkerQueueDepth int64  `envconfig:"DECOMPRESSION_WORKQUEUE_DEPTH"`	
+	BucketName                   string `envconfig:"GCS_BUCKET_NAME"`
+}
+
+func ReadDecompressorConfig() (*DecompressorConfig, error) {
+	if err := godotenv.Load(".env"); err != nil && !os.IsNotExist(err) {
+		return nil, err
+	} else if err == nil {
+		log.Infof("config: .env loaded for decompressor")
+	}
+
+	var c DecompressorConfig
+	err := envconfig.Process(configPrefix, &c)
+
+	return &c, err
 }
 
 type LimitError struct {
