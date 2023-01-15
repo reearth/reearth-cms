@@ -24,7 +24,10 @@ var (
 
 const limit = 1024 * 1024 * 1024 * 30 // 30GB
 
-const configPrefix = "REEARTH_CMS_WORKER"
+const (
+	gcsAssetBasePath = "assets"
+	configPrefix     = "REEARTH_CMS_WORKER"
+)
 
 type decompressor struct {
 	zr  *zip.Reader
@@ -131,6 +134,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 					}
 					defer x.Close()
 					name := filepath.Join(assetBasePath, fn)
+					name = filepath.Join(gcsAssetBasePath, name)
 					w := db.Object(name).NewWriter(ctx)
 
 					if _, err := io.Copy(w, x); err != nil {
