@@ -13,7 +13,7 @@ type Props = {
 
 const Geo3dViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} infoBox={true}>
       <Cesium3dTileSetComponent url={url} />
     </ResiumViewer>
   );

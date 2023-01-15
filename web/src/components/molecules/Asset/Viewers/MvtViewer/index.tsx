@@ -13,7 +13,7 @@ type Props = {
 
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} infoBox={true}>
       <Imagery url={url} />
     </ResiumViewer>
   );

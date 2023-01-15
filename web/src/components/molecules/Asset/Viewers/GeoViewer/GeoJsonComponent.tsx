@@ -1,19 +1,21 @@
-import { GeoJsonDataSource, JulianDate } from "cesium";
+import { Entity, GeoJsonDataSource, Viewer } from "cesium";
 import { ComponentProps, useCallback, useState } from "react";
-import { JSONTree } from "react-json-tree";
 import {
   GeoJsonDataSource as ResiumGeoJsonDataSource,
   useCesium,
   CesiumMovementEvent,
 } from "resium";
 
+import InfoBox from "./InfoBox";
+
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
-const GeoJsonComponent: React.FC<Props> = () => {
-  const { viewer } = useCesium();
+const GeoJsonComponent: React.FC<Props> = ({ data }) => {
+  const { viewer }: { viewer: Viewer } = useCesium();
   const [dataSource, setDataSource] = useState<GeoJsonDataSource>();
   const [infoBoxProps, setInfoBoxProps] = useState({});
   const [infoBoxVisibility, setInfoBoxVisibility] = useState<boolean>(false);
+  const [selectedEntity, setSelectedEntity] = useState<Entity>();
 
   const handleLoad = useCallback(
     async (ds: GeoJsonDataSource) => {
@@ -31,28 +33,34 @@ const GeoJsonComponent: React.FC<Props> = () => {
     [viewer],
   );
 
-  const handleClick = (_movement: CesiumMovementEvent, target: any) => {
-    const id = target?.id.id;
-    const entity = dataSource?.entities.getById(id);
-    const now = JulianDate.now();
-    const props = entity?.properties?.getValue(now);
-    setInfoBoxProps(props);
-    setInfoBoxVisibility(true);
+  const handleClick = useCallback(
+    (_movement: CesiumMovementEvent, target: any) => {
+      const id = target?.id.id;
+      const entity = dataSource?.entities.getById(id);
+      setSelectedEntity(entity);
+      const props = entity?.properties?.getValue(viewer.clock.currentTime);
+      setInfoBoxProps(props);
+      setInfoBoxVisibility(true);
+    },
+    [dataSource?.entities, viewer?.clock.currentTime],
+  );
+
+  const handleClose = () => {
+    setInfoBoxVisibility(false);
   };
 
   return (
-    <div style={{ position: "absolute" }}>
-      <ResiumGeoJsonDataSource
-        data="http://localhost:8080/assets/29/242ad5-264a-4695-bddb-be558c68b7e6/sample.geojson"
-        onLoad={handleLoad}
-        onClick={handleClick}
-      />
+    <>
+      <ResiumGeoJsonDataSource data={data} onLoad={handleLoad} onClick={handleClick} />
       {infoBoxVisibility && (
-        <div style={{ position: "relative", top: 0, right: 0 }}>
-          <JSONTree data={infoBoxProps} />
-        </div>
+        <InfoBox
+          infoBoxProps={infoBoxProps}
+          infoBoxVisibility={infoBoxVisibility}
+          title={selectedEntity?.id}
+          onClose={handleClose}
+        />
       )}
-    </div>
+    </>
   );
 };
 

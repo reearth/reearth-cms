@@ -12,6 +12,7 @@ const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
 
   return (
     <RViewer
+      style={{ position: "relative" }}
       terrainProvider={createWorldTerrain()}
       navigationHelpButton={false}
       homeButton={false}
@@ -25,6 +26,7 @@ const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
       animation={false}
       geocoder={false}
       shouldAnimate={true}
+      infoBox={false}
       ref={e => {
         viewer = e?.cesiumElement;
         onGetViewer(viewer);
