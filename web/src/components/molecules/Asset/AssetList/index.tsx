@@ -8,13 +8,16 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type UploadType = "local" | "url";
 
 type Props = {
   commentsPanel?: JSX.Element;
   assetList: Asset[];
-  assetsPerPage: number | undefined;
   fileList: UploadFile[];
   selection: {
     selectedRowKeys: Key[];
@@ -25,6 +28,9 @@ type Props = {
   uploadUrl: string;
   uploadType: UploadType;
   selectedAsset: Asset | undefined;
+  totalCount: number;
+  page: number;
+  pageSize: number;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -38,12 +44,16 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
 };
 
 const AssetList: React.FC<Props> = ({
   commentsPanel,
   assetList,
-  assetsPerPage,
   fileList,
   selection,
   uploading,
@@ -52,6 +62,9 @@ const AssetList: React.FC<Props> = ({
   uploadUrl,
   uploadType,
   selectedAsset,
+  totalCount,
+  page,
+  pageSize,
   onAssetSelect,
   onUploadModalCancel,
   setUploadUrl,
@@ -65,6 +78,7 @@ const AssetList: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onAssetsReload,
+  onAssetTableChange,
 }) => {
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
@@ -122,16 +136,19 @@ const AssetList: React.FC<Props> = ({
           />
           <AssetListTable
             assetList={assetList}
-            assetsPerPage={assetsPerPage}
             selection={selection}
             loading={loading}
             selectedAsset={selectedAsset}
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
             setSelection={setSelection}
             onAssetsReload={onAssetsReload}
             onAssetDelete={onAssetDelete}
+            onAssetTableChange={onAssetTableChange}
           />
         </Wrapper>
       }

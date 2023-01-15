@@ -2,7 +2,6 @@ package publicapi
 
 import (
 	"encoding/json"
-	"net/url"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -129,7 +128,6 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 	u := ""
 	if urlResolver != nil {
 		u = urlResolver(a)
-		u, _ = url.JoinPath(u, f.Path())
 	}
 
 	return Asset{

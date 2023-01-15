@@ -329,7 +329,7 @@ func TestRequest_FindByProject(t *testing.T) {
 			}
 			requestUC := NewRequest(db, nil)
 
-			got, _, err := requestUC.FindByProject(ctx, tc.args.pid, tc.args.filter, nil, tc.args.operator)
+			got, _, err := requestUC.FindByProject(ctx, tc.args.pid, tc.args.filter, nil, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

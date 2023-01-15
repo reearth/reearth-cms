@@ -4,7 +4,7 @@ export const GET_ASSETS = gql`
   query GetAssets(
     $projectId: ID!
     $keyword: String
-    $sort: AssetSortType
+    $sort: AssetSort
     $pagination: Pagination
     $withFiles: Boolean!
   ) {

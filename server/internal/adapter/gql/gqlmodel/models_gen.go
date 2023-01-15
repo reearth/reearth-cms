@@ -97,6 +97,11 @@ type AssetFile struct {
 	Children    []*AssetFile `json:"children"`
 }
 
+type AssetSort struct {
+	SortBy    AssetSortType  `json:"sortBy"`
+	Direction *SortDirection `json:"direction"`
+}
+
 type Comment struct {
 	ID         ID           `json:"id"`
 	Author     Operator     `json:"author"`
@@ -742,6 +747,11 @@ type SchemaFieldURLInput struct {
 type SchemaMarkdownTextInput struct {
 	DefaultValue interface{} `json:"defaultValue"`
 	MaxLength    *int        `json:"maxLength"`
+}
+
+type Sort struct {
+	Key      string `json:"key"`
+	Reverted *bool  `json:"reverted"`
 }
 
 type Thread struct {

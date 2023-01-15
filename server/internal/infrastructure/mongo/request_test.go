@@ -323,7 +323,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, &usecasex.Sort{}, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

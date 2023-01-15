@@ -204,8 +204,8 @@ func (r *queryResolver) Items(ctx context.Context, schemaID gqlmodel.ID, sort *g
 	return loaders(ctx).Item.FindBySchema(ctx, schemaID, sort, p)
 }
 
-func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sortType *gqlmodel.AssetSortType, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
-	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, gqlmodel.AssetSortTypeFrom(sortType), pagination)
+func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, sort, pagination)
 }
 
 func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
@@ -216,6 +216,6 @@ func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery
 	return loaders(ctx).Item.Search(ctx, query, sort, p)
 }
 
-func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.RequestConnection, error) {
-	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, p)
+func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error) {
+	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, p, sort)
 }
