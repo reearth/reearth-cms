@@ -40,12 +40,13 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecas
 	return r.repos.Request.FindByIDs(ctx, list)
 }
 
-func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
+func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
-		State:    filter.State,
-		Keyword:  filter.Keyword,
-		Reviewer: filter.Reviewer,
-	}, pagination)
+		State:     filter.State,
+		Keyword:   filter.Keyword,
+		Reviewer:  filter.Reviewer,
+		CreatedBy: filter.CreatedBy,
+	}, sort, pagination)
 }
 
 func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam, operator *usecase.Operator) (*request.Request, error) {

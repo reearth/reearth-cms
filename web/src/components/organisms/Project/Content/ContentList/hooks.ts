@@ -9,17 +9,50 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
+  SortDirection as GQLSortDirection,
+  ItemSortType as GQLItemSortType,
+  useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertComment, convertItem } from "../convertItem";
-import useContentHooks from "../hooks";
+
+export type ItemSortType = "DATE";
+export type SortDirection = "ASC" | "DESC";
 
 export default () => {
   const t = useT();
   const navigate = useNavigate();
-  const { projectId, workspaceId, modelId } = useParams();
-  const { currentModel, itemsData, handleItemsReload, itemsDataLoading } = useContentHooks();
+  const { modelId } = useParams();
+  const [currentWorkspace] = useWorkspace();
+  const [currentProject] = useProject();
+  const [currentModel] = useModel();
+  const [searchTerm, setSearchTerm] = useState<string>();
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection }>();
+
+  const { data, refetch, loading } = useSearchItemQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      query: {
+        project: currentProject?.id as string,
+        schema: currentModel?.schema.id,
+        q: searchTerm,
+      },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: sort
+        ? { sortBy: sort.type as GQLItemSortType, direction: sort.direction as GQLSortDirection }
+        : undefined,
+    },
+    skip: !currentModel?.schema.id,
+  });
+
+  const handleItemsReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
@@ -30,12 +63,13 @@ export default () => {
   const { assetList } = useAssetHooks();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
-    return itemsData?.items.nodes
+    return data?.searchItem.nodes
       ?.map(item =>
         item
           ? {
               id: item.id,
               schemaId: item.schemaId,
+              author: item.user?.name ?? item.integration?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -53,47 +87,65 @@ export default () => {
                 {},
               ),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
+              createdAt: item.createdAt,
             }
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [assetList, itemsData?.items.nodes]);
+  }, [assetList, data?.searchItem.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
-    return currentModel?.schema.fields.map(field => ({
-      title: field.title,
-      dataIndex: ["fields", field.id],
-      key: field.id,
-      width: 128,
-      minWidth: 128,
-      ellipsis: true,
-    }));
-  }, [currentModel?.schema.fields]);
+    if (!currentModel) return;
+    return [
+      {
+        title: t("Created By"),
+        dataIndex: "author",
+        key: "author",
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      },
+      ...currentModel.schema.fields.map(field => ({
+        title: field.title,
+        dataIndex: ["fields", field.id],
+        key: field.id,
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      })),
+    ];
+  }, [currentModel, t]);
 
   useEffect(() => {
-    if (!modelId && currentModel) {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${currentModel.id}`);
+    if (!modelId && currentModel?.id) {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}`,
+      );
     }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [modelId, currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate]);
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
     },
-    [workspaceId, projectId, navigate],
+    [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
   const handleNavigateToItemForm = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details`);
-  }, [navigate, workspaceId, projectId, modelId]);
+    navigate(
+      `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details`,
+    );
+  }, [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string) => {
       navigate(
-        `/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details/${itemId}`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
       );
     },
-    [workspaceId, projectId, modelId, navigate],
+    [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate],
   );
 
   const [deleteItemMutation] = useDeleteItemMutation();
@@ -104,7 +156,7 @@ export default () => {
           itemIds.map(async itemId => {
             const result = await deleteItemMutation({
               variables: { itemId },
-              refetchQueries: ["GetItems"],
+              refetchQueries: ["SearchItem"],
             });
             if (result.errors) {
               Notification.error({ message: t("Failed to delete one or more items.") });
@@ -128,19 +180,40 @@ export default () => {
   );
 
   const selectedItem = useMemo(
-    () => convertItem(itemsData?.items.nodes.find(item => item?.id === selectedItemId) as GQLItem),
-    [itemsData?.items.nodes, selectedItemId],
+    () => convertItem(data?.searchItem.nodes.find(item => item?.id === selectedItemId) as GQLItem),
+    [data?.searchItem.nodes, selectedItemId],
   );
+
+  const handleContentTableChange = useCallback(
+    (
+      page: number,
+      pageSize: number,
+      sorter?: { type?: ItemSortType; direction?: SortDirection },
+    ) => {
+      setPage(page);
+      setPageSize(pageSize);
+      setSort(sorter);
+    },
+    [],
+  );
+
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term);
+  }, []);
 
   return {
     currentModel,
-    itemsDataLoading,
+    loading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
     selection,
+    totalCount: data?.searchItem.totalCount ?? 0,
+    page,
+    pageSize,
+    handleSearchTerm,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
@@ -150,5 +223,6 @@ export default () => {
     handleNavigateToItemEditForm,
     handleItemsReload,
     handleItemDelete,
+    handleContentTableChange,
   };
 };

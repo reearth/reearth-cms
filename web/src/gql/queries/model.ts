@@ -20,6 +20,7 @@ export const GET_MODELS = gql`
             required
             unique
             multiple
+            order
             typeProperty {
               ... on SchemaFieldText {
                 defaultValue

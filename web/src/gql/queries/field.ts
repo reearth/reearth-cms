@@ -38,6 +38,7 @@ export const UPDATE_FIELD = gql`
     $fieldId: ID!
     $title: String!
     $description: String
+    $order: Int
     $key: String!
     $multiple: Boolean!
     $unique: Boolean!
@@ -50,6 +51,7 @@ export const UPDATE_FIELD = gql`
         fieldId: $fieldId
         title: $title
         description: $description
+        order: $order
         key: $key
         multiple: $multiple
         unique: $unique

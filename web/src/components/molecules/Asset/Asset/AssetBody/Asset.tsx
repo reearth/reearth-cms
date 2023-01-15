@@ -21,6 +21,7 @@ import {
   Geo3dViewer,
   SvgViewer,
   ImageViewer,
+  MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -89,7 +90,7 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
-      case viewerType === "geo3d":
+      case viewerType === "geo_3d_tiles":
         return (
           <Geo3dViewer
             viewerProps={{
@@ -111,12 +112,33 @@ const AssetMolecule: React.FC<Props> = ({
             onGetViewer={getViewer}
           />
         );
+      case viewerType === "geo_mvt":
+        return (
+          <MvtViewer
+            viewerProps={{
+              terrainProvider: createWorldTerrain(),
+              navigationHelpButton: false,
+              homeButton: false,
+              projectionPicker: false,
+              sceneModePicker: false,
+              baseLayerPicker: false,
+              fullscreenButton: false,
+              vrButton: false,
+              selectionIndicator: false,
+              timeline: false,
+              animation: false,
+              geocoder: false,
+            }}
+            url={assetUrl}
+            onGetViewer={getViewer}
+          />
+        );
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
-      case viewerType === "svg":
+      case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model3d":
-      case viewerType === "unsupported":
+      case viewerType === "model_3d":
+      case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
     }

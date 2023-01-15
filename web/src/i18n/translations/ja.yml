@@ -35,12 +35,13 @@ Created By: 作成者
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/SVG: ''
-JSON/SHAPEFILE/KML/CZML: ''
-GEO3D: ''
-MODEL3D/GLB: ''
+PNG/JPEG/TIFF/GIF: ''
+SVG: ''
+GEOJSON/KML/CZML: ''
+3D Tiles: ''
+MVT: ''
+GLTF/GLB: ''
 Unknown Type: 不明
-Could not display svg: svgを表示できませんでした。
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
 Not supported: プレビュー対応していないデータフォーマットです。
@@ -67,6 +68,7 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
+Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
 Personal Account: パーソナルアカウント
@@ -173,6 +175,11 @@ Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
+WAITING: ''
+APPROVED: ''
+CLOSED: ''
+DRAFT: ''
+Current user: ''
 Updated At: 更新日時
 Add Field: フィールドを追加
 Display name: 表示名
@@ -232,6 +239,10 @@ Please click the comment bubble in the table to check comments.: コメントを
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントが作成に成功しました。
+Failed to update comment.: ''
+Successfully updated comment!: ''
+Failed to delete comment.: ''
+Successfully deleted comment!: ''
 Failed to update publication settings.: 公開設定の更新に失敗しました。
 Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to create item.: アイテムの作成に失敗しました。
@@ -259,6 +270,8 @@ Failed to delete field.: フィールドの削除に失敗しました。
 Successfully deleted field!: フィールドの削除に成功しました。
 Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
+Failed to update one or more field.: ''
+Successfully updated one or more fields!: ''
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。

@@ -42,6 +42,15 @@ func (p *Pagination) Into() *usecasex.Pagination {
 		Last:   pint2pint64(p.Last),
 	}.Wrap()
 }
+func (s *Sort) Into() *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+	return &usecasex.Sort{
+		Key:      s.Key,
+		Reverted: *s.Reverted,
+	}
+}
 
 func FromFile(f *graphql.Upload) *file.File {
 	if f == nil {

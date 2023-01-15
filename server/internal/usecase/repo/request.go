@@ -9,7 +9,7 @@ import (
 )
 
 type RequestFilter struct {
-	State     *request.State
+	State     []request.State
 	Keyword   *string
 	Reviewer  *id.UserID
 	CreatedBy *id.UserID
@@ -17,7 +17,7 @@ type RequestFilter struct {
 
 type Request interface {
 	Filtered(ProjectFilter) Request
-	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination) (request.List, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Sort, *usecasex.Pagination) (request.List, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.RequestID) (*request.Request, error)
 	FindByIDs(context.Context, id.RequestIDList) (request.List, error)
 	Save(context.Context, *request.Request) error

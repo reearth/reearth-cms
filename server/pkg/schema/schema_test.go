@@ -20,7 +20,7 @@ func TestSchema_AddField(t *testing.T) {
 			name: "add on empty array",
 			s:    &Schema{},
 			f:    &Field{name: "f1"},
-			want: &Schema{fields: []*Field{{name: "f1", order: 1}}},
+			want: &Schema{fields: []*Field{{name: "f1", order: 0}}},
 		},
 		{
 			name: "add on not empty array",
@@ -196,6 +196,25 @@ func TestSchema_Field(t *testing.T) {
 			assert.Equal(t, tc.want, tc.s.Field(tc.fid))
 		})
 	}
+}
+
+func TestSchema_FieldByIDOrKey(t *testing.T) {
+	f1 := &Field{id: NewFieldID(), name: "f1"}
+	f2 := &Field{id: NewFieldID(), name: "f2"}
+	f3 := &Field{id: NewFieldID(), name: "f3", key: key.New("KEY")}
+	f4 := &Field{id: NewFieldID(), name: "f4", key: key.New("id")}
+	s := &Schema{fields: []*Field{f1, f2, f3, f4}}
+
+	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), nil))
+	assert.Equal(t, f2, s.FieldByIDOrKey(f2.ID().Ref(), nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(f3.ID().Ref(), nil))
+	assert.Equal(t, f4, s.FieldByIDOrKey(f4.ID().Ref(), nil))
+	assert.Equal(t, f3, s.FieldByIDOrKey(nil, f3.Key().Ref()))
+	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), f3.Key().Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), nil))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("x").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("id").Ref()))
 }
 
 func TestSchema_Fields(t *testing.T) {
