@@ -1,10 +1,10 @@
 import { GeoJsonDataSource, JulianDate } from "cesium";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useCallback, useState } from "react";
 import { JSONTree } from "react-json-tree";
 import {
-  CesiumMovementEvent,
   GeoJsonDataSource as ResiumGeoJsonDataSource,
   useCesium,
+  CesiumMovementEvent,
 } from "resium";
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
@@ -15,17 +15,21 @@ const GeoJsonComponent: React.FC<Props> = () => {
   const [infoBoxProps, setInfoBoxProps] = useState({});
   const [infoBoxVisibility, setInfoBoxVisibility] = useState<boolean>(false);
 
-  const onLoad = async (ds: GeoJsonDataSource) => {
-    setDataSource(ds);
-    try {
-      await viewer?.dataSources.removeAll();
-      await viewer?.dataSources.add(ds);
-      await viewer?.zoomTo(ds);
-      ds.show = true;
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const handleLoad = useCallback(
+    async (ds: GeoJsonDataSource) => {
+      setDataSource(ds);
+
+      try {
+        await viewer?.dataSources.removeAll();
+        await viewer?.dataSources.add(ds);
+        await viewer?.zoomTo(ds);
+        ds.show = true;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [viewer],
+  );
 
   const handleClick = (_movement: CesiumMovementEvent, target: any) => {
     const id = target?.id.id;
@@ -40,7 +44,7 @@ const GeoJsonComponent: React.FC<Props> = () => {
     <div style={{ position: "absolute" }}>
       <ResiumGeoJsonDataSource
         data="http://localhost:8080/assets/29/242ad5-264a-4695-bddb-be558c68b7e6/sample.geojson"
-        onLoad={onLoad}
+        onLoad={handleLoad}
         onClick={handleClick}
       />
       {infoBoxVisibility && (

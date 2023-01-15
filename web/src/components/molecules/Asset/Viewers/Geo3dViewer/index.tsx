@@ -1,6 +1,7 @@
 import { Viewer } from "cesium";
 import { ComponentProps } from "react";
-import { Viewer as ResiumViewer } from "resium";
+
+import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 
 import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
@@ -11,15 +12,8 @@ type Props = {
 };
 
 const Geo3dViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
-  let viewer: Viewer | undefined;
-
   return (
-    <ResiumViewer
-      {...viewerProps}
-      ref={e => {
-        viewer = e?.cesiumElement;
-        onGetViewer(viewer);
-      }}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
       <Cesium3dTileSetComponent url={url} />
     </ResiumViewer>
   );
