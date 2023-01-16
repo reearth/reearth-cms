@@ -31,7 +31,10 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection }>();
+  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
+    type: "DATE",
+    direction: "DESC",
+  });
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
