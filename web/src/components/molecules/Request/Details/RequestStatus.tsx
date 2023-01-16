@@ -2,27 +2,27 @@ import styled from "@emotion/styled";
 import { Steps } from "antd";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { RequestState } from "@reearth-cms/components/organisms/Project/Request/RequestList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   className?: string;
-  approvedAt?: Date;
-  closedAt?: Date;
+  requestState: RequestState;
 };
 
-const RequestStatus: React.FC<Props> = ({ className, approvedAt, closedAt }) => {
+const RequestStatus: React.FC<Props> = ({ className, requestState }) => {
   const t = useT();
   const { Step } = Steps;
 
   return (
     <StyledSteps className={className} direction="vertical" current={1}>
-      {approvedAt && (
+      {requestState === "APPROVED" && (
         <Step
           icon={<Icon icon="checkCircle" color="#52C41A" size={32} />}
           title={<StatusTitle>{t("Approved")}</StatusTitle>}
         />
       )}
-      {closedAt && (
+      {requestState === "CLOSED" && (
         <Step
           icon={<Icon icon="closeCircle" color="#BFBFBF" size={32} />}
           title={<StatusTitle>{t("Closed")}</StatusTitle>}
