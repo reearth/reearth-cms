@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -31,6 +31,10 @@ const MultiValueSelect: React.FC<Props> = ({
     },
     [onChange, value],
   );
+
+  useEffect(() => {
+    if (!value) onChange?.([]);
+  }, [onChange, value]);
 
   const handleInputDelete = useCallback(
     (key: number) => {
