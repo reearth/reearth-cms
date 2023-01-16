@@ -26,6 +26,8 @@ const limit = 1024 * 1024 * 1024 * 30 // 30GB
 
 const configPrefix = "REEARTH_CMS_WORKER"
 
+const gcsAssetBasePath string = "assets"
+
 type decompressor struct {
 	zr  *zip.Reader
 	sr  *sevenzip.Reader
@@ -71,7 +73,8 @@ func (uz *decompressor) Decompress(assetBasePath string) error {
 			}
 			zfs = append(zfs, f)
 		}
-		uz.readConcurrentGCSFile(zfs, assetBasePath)
+		base := filepath.Join(gcsAssetBasePath, assetBasePath)
+		uz.readConcurrentGCSFile(zfs, base)
 	} else if uz.sr != nil {
 		for _, f := range uz.sr.File {
 			if f.FileInfo().IsDir() {
@@ -112,7 +115,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	if cerr != nil {
 		log.Fatal(cerr)
 	}
-	var wg sync.WaitGroup  
+	var wg sync.WaitGroup
 	ctx := context.Background()
 	client, _ := storage.NewClient(ctx)
 	db := client.Bucket(conf.BucketName)
@@ -156,7 +159,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 
 type DecompressorConfig struct {
 	DecompressionWorkers         int64  `envconfig:"DECOMPRESSION_NUM_WORKERS"`
-	DecompressorWorkerQueueDepth int64  `envconfig:"DECOMPRESSION_WORKQUEUE_DEPTH"`	
+	DecompressorWorkerQueueDepth int64  `envconfig:"DECOMPRESSION_WORKQUEUE_DEPTH"`
 	BucketName                   string `envconfig:"GCS_BUCKET_NAME"`
 }
 
