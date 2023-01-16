@@ -8,7 +8,13 @@ type Props = {
   url: string;
 };
 
+// TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+type TileCoordinates = {
+  x: number;
+  y: number;
+  level: number;
+};
 
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer }: { viewer: Viewer } = useCesium();
@@ -18,17 +24,19 @@ export const Imagery: React.FC<Props> = ({ url }) => {
 
   useEffect(() => {
     const initOptions = async (url: string) => {
-      const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      if (url.match(regex)) {
-        const base = url.replace(regex, "");
-        setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
-        try {
-          const res = await fetch(`${base}/metadata.json`);
-          const data = await res.json();
-          setLayerName(data.name);
-        } catch (error) {
-          console.error(error);
-        }
+      const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+      const nameRegex = /\.\w+$/;
+      const base = url.match(templateRegex)
+        ? url.replace(templateRegex, "")
+        : url.replace(nameRegex, "");
+
+      setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+      try {
+        const res = await fetch(`${base}/metadata.json`);
+        const data = await res.json();
+        setLayerName(data.name);
+      } catch (error) {
+        console.error(error);
       }
     };
     initOptions(url);
@@ -36,7 +44,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     const imageryOption: ImageryProviderOption = {
       urlTemplate: urlTemplate,
       layerName: layerName,
-      style: (_feature: VectorTileFeature, _tileCoords: any) => {
+      style: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
         if (isFeatureSelected) {
           return {
             strokeStyle: "orange",
@@ -50,7 +58,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           lineWidth: 1,
         };
       },
-      onSelectFeature: (_feature: VectorTileFeature) => {
+      onSelectFeature: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
         setIsFeatureSelected(v => !v);
       },
     };
