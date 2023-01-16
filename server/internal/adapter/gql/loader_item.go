@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -9,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -60,10 +62,17 @@ func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) 
 
 	itm, err := c.usecase.FindByID(ctx, iId, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
+
 	s, err := c.schemaUsecase.FindByID(ctx, itm.Value().Schema(), op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -84,6 +93,9 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 
 	s, err := c.schemaUsecase.FindByID(ctx, res[0].Value().Schema(), op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -103,6 +115,9 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sor
 
 	s, err := c.schemaUsecase.FindByID(ctx, sid, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
