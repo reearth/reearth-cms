@@ -7,7 +7,6 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import {
   AssetSortType,
   SortDirection,
@@ -97,7 +96,7 @@ const AssetList: React.FC<Props> = ({
     multiple: true,
     directory: false,
     showUploadList: true,
-    accept: acceptedFormats,
+    accept: "*",
     listType: "picture",
     onRemove: file => {
       const index = fileList.indexOf(file);
