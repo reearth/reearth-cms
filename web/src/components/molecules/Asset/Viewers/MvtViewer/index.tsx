@@ -14,7 +14,7 @@ type Props = {
 
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} infoBox={true}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
       <Entity
         id="default-location"
         name="Tokyo"
