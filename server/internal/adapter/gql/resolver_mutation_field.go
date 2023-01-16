@@ -153,14 +153,8 @@ func (r *mutationResolver) UpdateFieldsOrder(ctx context.Context, input gqlmodel
 		}
 		return nil, err
 	}
-	m := ms[0]
 
-	s, err := usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	fl, err := usecases(ctx).Schema.UpdateFieldsOrder(ctx, s.ID(), params, getOperator(ctx))
+	fl, err := usecases(ctx).Schema.UpdateFieldsOrder(ctx, ms[0].Schema(), params, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
