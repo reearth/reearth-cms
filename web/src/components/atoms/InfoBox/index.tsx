@@ -31,27 +31,27 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
 
   return (
     <>
-      infoBoxVisibility && (
-      <div
-        style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          width: 350,
-          height: 250,
-          textAlign: "left",
-          overflow: "scroll",
-          backgroundColor: infoBoxVisibility ? theme.base00 : "transparent",
-        }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <p style={{ marginBottom: 0, color: "white", marginLeft: 10, fontSize: 12 }}>{title}</p>
-          <Button type="link" size="large" onClick={onClose}>
-            &times;
-          </Button>
+      {infoBoxVisibility && (
+        <div
+          style={{
+            position: "absolute",
+            top: 20,
+            right: 20,
+            width: 350,
+            height: 250,
+            textAlign: "left",
+            overflow: "scroll",
+            backgroundColor: infoBoxVisibility ? theme.base00 : "transparent",
+          }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ marginBottom: 0, color: "white", marginLeft: 10, fontSize: 12 }}>{title}</p>
+            <Button type="link" size="large" onClick={onClose}>
+              &times;
+            </Button>
+          </div>
+          <JSONTree data={infoBoxProps ?? {}} theme={theme} />
         </div>
-        <JSONTree data={infoBoxProps ?? {}} theme={theme} />
-      </div>
-      )
+      )}
     </>
   );
 };

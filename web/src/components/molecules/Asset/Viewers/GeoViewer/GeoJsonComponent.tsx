@@ -1,26 +1,14 @@
-import { Entity, GeoJsonDataSource, Viewer } from "cesium";
-import { ComponentProps, useCallback, useState } from "react";
-import {
-  GeoJsonDataSource as ResiumGeoJsonDataSource,
-  useCesium,
-  CesiumMovementEvent,
-} from "resium";
-
-import InfoBox from "./InfoBox";
+import { GeoJsonDataSource, Viewer } from "cesium";
+import { ComponentProps, useCallback } from "react";
+import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
-const GeoJsonComponent: React.FC<Props> = ({ data }) => {
+const GeoJsonComponent: React.FC<Props> = () => {
   const { viewer }: { viewer: Viewer } = useCesium();
-  const [dataSource, setDataSource] = useState<GeoJsonDataSource>();
-  const [infoBoxProps, setInfoBoxProps] = useState({});
-  const [infoBoxVisibility, setInfoBoxVisibility] = useState<boolean>(false);
-  const [selectedEntity, setSelectedEntity] = useState<Entity>();
 
   const handleLoad = useCallback(
     async (ds: GeoJsonDataSource) => {
-      setDataSource(ds);
-
       try {
         await viewer?.dataSources.removeAll();
         await viewer?.dataSources.add(ds);
@@ -33,34 +21,11 @@ const GeoJsonComponent: React.FC<Props> = ({ data }) => {
     [viewer],
   );
 
-  const handleClick = useCallback(
-    (_movement: CesiumMovementEvent, target: any) => {
-      const id = target?.id.id;
-      const entity = dataSource?.entities.getById(id);
-      setSelectedEntity(entity);
-      const props = entity?.properties?.getValue(viewer.clock.currentTime);
-      setInfoBoxProps(props);
-      setInfoBoxVisibility(true);
-    },
-    [dataSource?.entities, viewer?.clock.currentTime],
-  );
-
-  const handleClose = () => {
-    setInfoBoxVisibility(false);
-  };
-
   return (
-    <>
-      <ResiumGeoJsonDataSource data={data} onLoad={handleLoad} onClick={handleClick} />
-      {infoBoxVisibility && (
-        <InfoBox
-          infoBoxProps={infoBoxProps}
-          infoBoxVisibility={infoBoxVisibility}
-          title={selectedEntity?.id}
-          onClose={handleClose}
-        />
-      )}
-    </>
+    <ResiumGeoJsonDataSource
+      data="http://localhost:8080/assets/29/242ad5-264a-4695-bddb-be558c68b7e6/sample.geojson"
+      onLoad={handleLoad}
+    />
   );
 };
 
