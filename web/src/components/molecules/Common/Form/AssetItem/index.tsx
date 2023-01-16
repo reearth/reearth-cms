@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -7,6 +6,10 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -20,6 +23,14 @@ type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -43,6 +54,10 @@ const AssetItem: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -58,6 +73,7 @@ const AssetItem: React.FC<Props> = ({
 }) => {
   const t = useT();
   const {
+    asset,
     visible,
     handleClick,
     handleLinkAssetModalCancel,
@@ -71,8 +87,8 @@ const AssetItem: React.FC<Props> = ({
     onAssetCreateFromUrl,
     setUploadModalVisibility,
     onChange,
+    value,
   );
-  const [assetValue, setAssetValue] = useState<Asset>();
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -92,29 +108,25 @@ const AssetItem: React.FC<Props> = ({
     fileList,
   };
 
-  useEffect(() => {
-    setAssetValue(assetList.find(asset => asset.id === value));
-  }, [value, assetList, setAssetValue]);
-
   return (
     <AssetWrapper>
-      {assetValue ? (
+      {asset ? (
         <>
           <AssetDetailsWrapper>
             <AssetButton disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
-                <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
+                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
               </div>
             </AssetButton>
-            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(assetValue)}>
-              {assetValue.fileName}
+            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
+              {asset?.fileName}
             </AssetLinkedName>
           </AssetDetailsWrapper>
           <AssetLink
             type="link"
             icon={<Icon icon="arrowSquareOut" size={20} />}
-            onClick={() => onNavigateToAsset(assetValue)}
+            onClick={() => onNavigateToAsset(asset)}
           />
         </>
       ) : (
@@ -128,7 +140,7 @@ const AssetItem: React.FC<Props> = ({
       <LinkAssetModal
         visible={visible}
         onLinkAssetModalCancel={handleLinkAssetModalCancel}
-        linkedAsset={assetValue}
+        linkedAsset={asset}
         assetList={assetList}
         fileList={fileList}
         loading={loadingAssets}
@@ -137,6 +149,10 @@ const AssetItem: React.FC<Props> = ({
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
         uploadType={uploadType}
+        totalCount={totalCount}
+        page={page}
+        pageSize={pageSize}
+        onAssetTableChange={onAssetTableChange}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
         onChange={onChange}

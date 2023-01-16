@@ -53,6 +53,10 @@ const ContentDetails: React.FC = () => {
     handleAssetsReload,
     handleSearchTerm,
     handleNavigateToAsset,
+    totalCount,
+    page,
+    pageSize,
+    handleAssetTableChange,
   } = useAssetHooks();
 
   return (
@@ -86,6 +90,10 @@ const ContentDetails: React.FC = () => {
       }
       onChange={handleAddItemToRequest}
       assetList={assetList}
+      onAssetTableChange={handleAssetTableChange}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
       fileList={fileList}
       loadingAssets={loading}
       uploading={uploading}
