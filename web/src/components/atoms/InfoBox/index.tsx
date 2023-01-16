@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { JSONTree } from "react-json-tree";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -32,28 +33,42 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
   return (
     <>
       {infoBoxVisibility && (
-        <div
-          style={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-            width: 350,
-            height: 250,
-            textAlign: "left",
-            overflow: "scroll",
-            backgroundColor: infoBoxVisibility ? theme.base00 : "transparent",
-          }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <p style={{ marginBottom: 0, color: "white", marginLeft: 10, fontSize: 12 }}>{title}</p>
+        <InfoBoxWrapper color={theme.base00}>
+          <Header>
+            <Title>{title}</Title>
             <Button type="link" size="large" onClick={onClose}>
               &times;
             </Button>
-          </div>
+          </Header>
           <JSONTree data={infoBoxProps ?? {}} theme={theme} />
-        </div>
+        </InfoBoxWrapper>
       )}
     </>
   );
 };
+
+const InfoBoxWrapper = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  height: 250px;
+  text-align: left;
+  overflow: scroll;
+  background-color: ${({ color }) => color};
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Title = styled.div`
+  margin-bottom: 0;
+  color: white;
+  margin-left: 10px;
+  font-size: 12px;
+`;
 
 export default InfoBox;
