@@ -5,10 +5,10 @@ import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Asset from "@reearth-cms/components/organisms/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
+import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
-import Public from "@reearth-cms/components/organisms/Project/Public";
 import RequestDetails from "@reearth-cms/components/organisms/Project/Request/RequestDetails";
 import RequestList from "@reearth-cms/components/organisms/Project/Request/RequestList";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
@@ -57,7 +57,10 @@ function App() {
                   path=":workspaceId/project/:projectId/schema/:modelId"
                   element={<Schema />}
                 />
-                <Route path=":workspaceId/project/:projectId/public" element={<Public />} />
+                <Route
+                  path=":workspaceId/project/:projectId/accessibility"
+                  element={<Accessibility />}
+                />
                 <Route
                   path=":workspaceId/project/:projectId/settings"
                   element={<ProjectSettings />}

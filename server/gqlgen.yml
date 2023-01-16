@@ -55,6 +55,10 @@ models:
         resolver: true
       model:
         resolver: true
+      user:
+        resolver: true
+      integration:
+        resolver: true
   Model:
     fields:
       project:

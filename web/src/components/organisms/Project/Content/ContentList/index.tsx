@@ -16,6 +16,11 @@ const ContentList: React.FC = () => {
     collapsedCommentsPanel,
     selectedItem,
     selection,
+    loading,
+    totalCount,
+    page,
+    pageSize,
+    handleSearchTerm,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
@@ -25,7 +30,7 @@ const ContentList: React.FC = () => {
     handleNavigateToItemEditForm,
     handleItemsReload,
     handleItemDelete,
-    itemsDataLoading,
+    handleContentTableChange,
   } = useHooks();
 
   return (
@@ -43,10 +48,15 @@ const ContentList: React.FC = () => {
           threadId={selectedItem?.threadId}
         />
       }
+      onContentTableChange={handleContentTableChange}
+      onSearchTerm={handleSearchTerm}
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
-      itemsDataLoading={itemsDataLoading}
+      itemsDataLoading={loading}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}

@@ -15,12 +15,14 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 	}
 
 	return &Item{
-		ID:        IDFrom(i.ID()),
-		ProjectID: IDFrom(i.Project()),
-		SchemaID:  IDFrom(i.Schema()),
-		ModelID:   IDFrom(i.Model()),
-		ThreadID:  IDFrom(i.Thread()),
-		CreatedAt: i.Timestamp(),
+		ID:            IDFrom(i.ID()),
+		ProjectID:     IDFrom(i.Project()),
+		SchemaID:      IDFrom(i.Schema()),
+		ModelID:       IDFrom(i.Model()),
+		UserID:        IDFromRef(i.User()),
+		IntegrationID: IDFromRef(i.Integration()),
+		ThreadID:      IDFrom(i.Thread()),
+		CreatedAt:     i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
@@ -61,7 +63,7 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 
 	return &interfaces.ItemFieldParam{
-		Field: fid,
+		Field: &fid,
 		Type:  FromValueType(field.Type),
 		Value: field.Value,
 	}
@@ -72,5 +74,20 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 	if err != nil {
 		return nil
 	}
-	return item.NewQuery(pid, lo.FromPtr(iq.Q), nil)
+
+	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
+}
+
+func ToItemSort(is *ItemSort) *item.Sort {
+	if is == nil {
+		return nil
+	}
+	var dir string
+	if is.Direction != nil {
+		dir = is.Direction.String()
+	}
+	return &item.Sort{
+		Direction: item.DirectionFrom(dir),
+		SortBy:    item.SortTypeFrom(is.SortBy.String()),
+	}
 }

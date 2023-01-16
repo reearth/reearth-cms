@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,14 +18,23 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
+	uid := id.NewUserID()
+	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(id.NewWorkspaceID()).Project(pid).MustBuild()
-	i := item.New().ID(iid).Schema(sid).Project(pid).Fields(
-		[]*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())},
-	).Model(mid).Thread(tid).MustBuild()
+	i := item.New().
+		ID(iid).
+		Schema(sid).
+		Project(pid).
+		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}).
+		Model(mid).
+		Thread(tid).
+		User(uid).
+		Integration(nid).
+		MustBuild()
 
 	tests := []struct {
 		name  string
@@ -35,12 +45,14 @@ func TestToItem(t *testing.T) {
 			name:  "should return a gql model item",
 			input: i,
 			want: &Item{
-				ID:        IDFrom(iid),
-				ProjectID: IDFrom(pid),
-				ModelID:   IDFrom(mid),
-				SchemaID:  IDFrom(sid),
-				ThreadID:  IDFrom(tid),
-				CreatedAt: i.Timestamp(),
+				ID:            IDFrom(iid),
+				ProjectID:     IDFrom(pid),
+				ModelID:       IDFrom(mid),
+				SchemaID:      IDFrom(sid),
+				ThreadID:      IDFrom(tid),
+				UserID:        IDFromRef(uid.Ref()),
+				IntegrationID: IDFromRef(nid.Ref()),
+				CreatedAt:     i.Timestamp(),
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sf1.ID()),
@@ -80,7 +92,7 @@ func TestToItemParam(t *testing.T) {
 				Value:         "foo",
 			},
 			want: &interfaces.ItemFieldParam{
-				Field: sfid,
+				Field: &sfid,
 				Type:  value.TypeText,
 				Value: "foo",
 			},
@@ -144,6 +156,7 @@ func TestToVersionedItem(t *testing.T) {
 
 func TestToItemQuery(t *testing.T) {
 	pid := id.NewProjectID()
+	sid := id.NewSchemaID()
 	str := "foo"
 	tests := []struct {
 		name  string
@@ -154,9 +167,10 @@ func TestToItemQuery(t *testing.T) {
 			name: "should pass",
 			input: ItemQuery{
 				Project: IDFrom(pid),
+				Schema:  IDFromRef(sid.Ref()),
 				Q:       &str,
 			},
-			want: item.NewQuery(pid, str, nil),
+			want: item.NewQuery(pid, sid.Ref(), str, nil),
 		},
 		{
 			name: "invalid project id",
@@ -172,4 +186,20 @@ func TestToItemQuery(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
+}
+
+func TestToItemSort(t *testing.T) {
+	input1 := &ItemSort{
+		SortBy:    ItemSortTypeDate,
+		Direction: lo.ToPtr(SortDirectionDesc),
+	}
+	want1 := &item.Sort{
+		Direction: item.DescDirection,
+		SortBy:    item.SortTypeDate,
+	}
+	got1 := ToItemSort(input1)
+	assert.Equal(t, want1, got1)
+	got2 := ToItemSort(nil)
+	var want2 *item.Sort
+	assert.Equal(t, want2, got2)
 }

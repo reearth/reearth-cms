@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -52,10 +53,14 @@ func FromPreviewType(p *PreviewType) *asset.PreviewType {
 	switch *p {
 	case PreviewTypeImage:
 		p2 = asset.PreviewTypeImage
+	case PreviewTypeImageSVG:
+		p2 = asset.PreviewTypeImageSvg
 	case PreviewTypeGeo:
 		p2 = asset.PreviewTypeGeo
-	case PreviewTypeGeo3d:
-		p2 = asset.PreviewTypeGeo3d
+	case PreviewTypeGeo3dTiles:
+		p2 = asset.PreviewTypeGeo3dTiles
+	case PreviewTypeGeoMvt:
+		p2 = asset.PreviewTypeGeoMvt
 	case PreviewTypeModel3d:
 		p2 = asset.PreviewTypeModel3d
 	case PreviewTypeUnknown:
@@ -76,10 +81,14 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 	switch *p {
 	case asset.PreviewTypeImage:
 		p2 = PreviewTypeImage
+	case asset.PreviewTypeImageSvg:
+		p2 = PreviewTypeImageSVG
 	case asset.PreviewTypeGeo:
 		p2 = PreviewTypeGeo
-	case asset.PreviewTypeGeo3d:
-		p2 = PreviewTypeGeo3d
+	case asset.PreviewTypeGeo3dTiles:
+		p2 = PreviewTypeGeo3dTiles
+	case asset.PreviewTypeGeoMvt:
+		p2 = PreviewTypeGeoMvt
 	case asset.PreviewTypeModel3d:
 		p2 = PreviewTypeModel3d
 	case asset.PreviewTypeUnknown:
@@ -127,18 +136,24 @@ func ToAssetFile(a *asset.File) *AssetFile {
 	}
 }
 
-func AssetSortTypeFrom(a *AssetSortType) *asset.SortType {
-	if a == nil {
+func (s *AssetSort) Into() *usecasex.Sort {
+	if s == nil {
 		return nil
 	}
-
-	switch *a {
+	key := ""
+	switch s.SortBy {
 	case AssetSortTypeDate:
-		return &asset.SortTypeDate
+		key = "createdat"
 	case AssetSortTypeName:
-		return &asset.SortTypeName
+		key = "filename"
 	case AssetSortTypeSize:
-		return &asset.SortTypeSize
+		key = "size"
 	}
-	return nil
+	if key == "" {
+		return nil
+	}
+	return &usecasex.Sort{
+		Key:      key,
+		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
+	}
 }

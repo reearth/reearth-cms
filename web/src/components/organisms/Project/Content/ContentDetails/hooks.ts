@@ -42,7 +42,7 @@ export default () => {
   const { data: requestData } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      first: 100,
+      pagination: { first: 100 },
     },
     skip: !projectId,
   });
@@ -63,7 +63,7 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["GetItems", "GetRequests"],
+    refetchQueries: ["SearchItem", "GetRequests"],
   });
 
   const handleItemCreate = useCallback(
@@ -92,7 +92,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["GetItems"],
+    refetchQueries: ["SearchItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -116,11 +116,9 @@ export default () => {
     [updateItem, t],
   );
 
-  // handleAddItemToRequest
-
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(itemsData?.items.nodes.find(item => item?.id === itemId) as GQLItem),
-    [itemId, itemsData?.items.nodes],
+    () => convertItem(itemsData?.searchItem.nodes.find(item => item?.id === itemId) as GQLItem),
+    [itemId, itemsData?.searchItem.nodes],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
@@ -193,7 +191,9 @@ export default () => {
     [updateRequest, currentItem, t],
   );
 
-  const [createRequestMutation] = useCreateRequestMutation();
+  const [createRequestMutation] = useCreateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestCreate = useCallback(
     async (data: {
@@ -224,7 +224,9 @@ export default () => {
     [createRequestMutation, projectId, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation();
+  const [updateRequestMutation] = useUpdateRequestMutation({
+    refetchQueries: ["GetRequests"],
+  });
 
   const handleRequestUpdate = useCallback(
     async (data: RequestUpdatePayload) => {

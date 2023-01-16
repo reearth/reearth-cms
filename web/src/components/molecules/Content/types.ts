@@ -16,16 +16,17 @@ export type Item = {
 
 export type ContentTableField = {
   id: string;
+  author: string;
   schemaId: string;
   modelId?: string;
   fields: { [key: string]: any };
   comments: Comment[];
+  createdAt: Date;
 };
 
 export type Comment = {
   id: string;
-  author: string;
-  authorType: "User" | "Integration" | null;
+  author: { id?: string; name: string; type: "User" | "Integration" | null };
   content: string;
   createdAt: string;
 };

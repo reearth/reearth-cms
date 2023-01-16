@@ -6,30 +6,25 @@ export const GET_REQUESTS = gql`
   query GetRequests(
     $projectId: ID!
     $key: String
-    $state: RequestState
-    $first: Int
-    $last: Int
-    $after: Cursor
-    $before: Cursor
+    $state: [RequestState!]
+    $pagination: Pagination
+    $createdBy: ID
+    $reviewer: ID
+    $sort: Sort
   ) {
     requests(
       projectId: $projectId
       key: $key
       state: $state
-      first: $first
-      last: $last
-      after: $after
-      before: $before
+      pagination: $pagination
+      createdBy: $createdBy
+      reviewer: $reviewer
+      sort: $sort
     ) {
-      edges {
-        cursor
-        node {
-          ...requestFragment
-        }
-      }
       nodes {
         ...requestFragment
       }
+      totalCount
     }
   }
 

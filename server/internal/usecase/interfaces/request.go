@@ -33,14 +33,16 @@ type UpdateRequestParam struct {
 }
 
 type RequestFilter struct {
-	Keyword *string
-	State   *request.State
+	Keyword   *string
+	State     []request.State
+	Reviewer  *id.UserID
+	CreatedBy *id.UserID
 }
 
 type Request interface {
 	FindByID(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)
 	FindByIDs(context.Context, id.RequestIDList, *usecase.Operator) (request.List, error)
-	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Pagination, *usecase.Operator) (request.List, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (request.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateRequestParam, *usecase.Operator) (*request.Request, error)
 	Update(context.Context, UpdateRequestParam, *usecase.Operator) (*request.Request, error)
 	Approve(context.Context, id.RequestID, *usecase.Operator) (*request.Request, error)

@@ -205,14 +205,16 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-
+	reviewer := id.NewUserID()
+	creator := id.NewUserID()
 	req1 := request.New().
 		NewID().
 		Workspace(id.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(creator).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
+		Reviewers(id.UserIDList{reviewer}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
@@ -268,7 +270,29 @@ func TestRequest_FindByProject(t *testing.T) {
 			args: args{
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
-					State: &request.StateDraft,
+					State: []request.State{request.StateDraft},
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Reviewer: reviewer.Ref(),
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					CreatedBy: creator.Ref(),
 				},
 			},
 			want: 1,
@@ -280,7 +304,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				projectID: pid,
 				RequestFilter: repo.RequestFilter{
 					Keyword: lo.ToPtr("foo"),
-					State:   &request.StateDraft,
+					State:   []request.State{request.StateDraft},
 				},
 			},
 			want: 0,
@@ -299,7 +323,7 @@ func TestRequest_FindByProject(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := r.FindByProject(ctx, tc.args.projectID, tc.args.RequestFilter, &usecasex.Sort{}, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

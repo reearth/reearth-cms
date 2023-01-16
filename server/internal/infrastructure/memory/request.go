@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 type Request struct {
@@ -53,7 +54,7 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return res, nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -65,7 +66,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, filter rep
 	result := r.data.FindAll(func(_ request.ID, v *request.Request) bool {
 		res := v.Project() == id
 		if filter.State != nil {
-			res = res && *filter.State == v.State()
+			res = res && slices.Contains(filter.State, v.State())
 		}
 		if filter.Keyword != nil {
 			res = res && strings.Contains(v.Title(), *filter.Keyword)

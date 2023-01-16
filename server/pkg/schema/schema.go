@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -41,7 +42,12 @@ func (s *Schema) AddField(f *Field) {
 	if s.HasField(f.ID()) {
 		return
 	}
-
+	if s.Fields().Count() == 0 {
+		f.order = 0
+	} else {
+		//get the biggest order
+		f.order = s.Fields().Ordered()[s.Fields().Count()-1].Order() + 1
+	}
 	s.fields = append(s.fields, f)
 }
 
@@ -50,8 +56,16 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return f
 }
 
+func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+	f, _ := lo.Find(s.fields, func(f *Field) bool {
+		return fId != nil && f.id == *fId || key != nil && key.IsValid() && f.key == *key
+	})
+	return f
+}
+
 func (s *Schema) Fields() FieldList {
-	return slices.Clone(s.fields)
+	var fl FieldList = slices.Clone(s.fields)
+	return fl.Ordered()
 }
 
 func (s *Schema) RemoveField(fid FieldID) {

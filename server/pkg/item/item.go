@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -128,7 +129,8 @@ func (i *Item) AssetIDs() id.AssetIDList {
 	})
 }
 
-type ItemAndSchema struct {
+type ItemModelSchema struct {
 	Item   *Item
+	Model  *model.Model
 	Schema *schema.Schema
 }

@@ -107,6 +107,70 @@ export default () => {
     [modelId, updateField, t],
   );
 
+  const getDataType = (field: Field) => {
+    if (field.type === "TextArea") {
+      return {
+        textArea: { ...field.typeProperty },
+      };
+    } else if (field.type === "MarkdownText") {
+      return {
+        markdownText: { ...field.typeProperty },
+      };
+    } else if (field.type === "Asset") {
+      return {
+        asset: { ...field.typeProperty },
+      };
+    } else if (field.type === "Select") {
+      return {
+        select: { ...field.typeProperty },
+      };
+    } else if (field.type === "Integer") {
+      return {
+        integer: {
+          ...field.typeProperty,
+        },
+      };
+    } else {
+      return {
+        text: { ...field.typeProperty },
+      };
+    }
+  };
+
+  const handleFieldOrder = useCallback(
+    async (fields: Field[]) => {
+      if (!modelId) return;
+      const results = (
+        await Promise.all(
+          fields.map(async (field, index) => {
+            const result = await updateField({
+              variables: {
+                modelId,
+                fieldId: field.id,
+                title: field.title,
+                description: field.description,
+                key: field.key,
+                multiple: field.multiple,
+                unique: field.unique,
+                required: field.required,
+                typeProperty: getDataType(field),
+                order: index,
+              },
+            });
+            if (result.errors || !result.data?.updateField) {
+              Notification.error({ message: t("Failed to update one or more field.") });
+              return;
+            }
+          }),
+        )
+      ).filter(Boolean);
+      if (results?.length > 0) {
+        Notification.success({ message: t("Successfully updated one or more fields!") });
+      }
+    },
+    [modelId, updateField, t],
+  );
+
   const handleFieldCreate = useCallback(
     async (data: {
       title: string;
@@ -183,6 +247,7 @@ export default () => {
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
+    handleFieldOrder,
     handleFieldDelete,
   };
 };

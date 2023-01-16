@@ -73,14 +73,14 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
-func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *item.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	s, err := i.repos.Schema.FindByID(ctx, schemaID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	sfIds := s.Fields().IDs()
-	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, p)
+	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
 	return res.FilterFields(sfIds), page, err
 }
 
@@ -88,8 +88,8 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usec
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, q, p)
+func (i Item) Search(ctx context.Context, q *item.Query, sort *item.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
@@ -103,6 +103,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
 		}
@@ -112,7 +117,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err := i.checkUnique(ctx, fields, s, param.ModelID, nil); err != nil {
+		if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
 			return nil, err
 		}
 
@@ -127,9 +132,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		ib := item.New().
 			NewID().
-			Schema(param.SchemaID).
+			Schema(s.ID()).
 			Project(s.Project()).
-			Model(param.ModelID).
+			Model(m.ID()).
 			Thread(th.ID()).
 			Fields(fields)
 
@@ -158,8 +163,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Workspace: s.Workspace(),
 			Type:      event.ItemCreate,
 			Object:    vi,
-			WebhookObject: item.ItemAndSchema{
+			WebhookObject: item.ItemModelSchema{
 				Item:   vi.Value(),
+				Model:  m,
 				Schema: s,
 			},
 			Operator: operator.Operator(),
@@ -190,6 +196,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
+		m, err := i.repos.Model.FindByID(ctx, itv.Model())
+		if err != nil {
+			return nil, err
+		}
+
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
 		if err != nil {
 			return nil, err
@@ -213,8 +224,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
 			Object:    itm,
-			WebhookObject: item.ItemAndSchema{
+			WebhookObject: item.ItemModelSchema{
 				Item:   itv,
+				Model:  m,
 				Schema: s,
 			},
 			Operator: operator.Operator(),
@@ -276,7 +288,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 		return err
 	}
 
-	if len(exists) > 0 {
+	if len(exists) > 0 && (itm == nil || len(exists) != 1 || exists[0].Value().ID() != itm.ID()) {
 		return interfaces.ErrDuplicatedItemValue
 	}
 
@@ -285,7 +297,7 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 
 func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
-		sf := s.Field(f.Field)
+		sf := s.FieldByIDOrKey(f.Field, f.Key)
 		if sf == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
@@ -304,10 +316,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(
-			f.Field,
-			m,
-		), nil
+		return item.NewField(sf.ID(), m), nil
 	})
 }
 

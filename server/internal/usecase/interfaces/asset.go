@@ -37,7 +37,7 @@ var (
 )
 
 type AssetFilter struct {
-	Sort       *asset.SortType
+	Sort       *usecasex.Sort
 	Keyword    *string
 	Pagination *usecasex.Pagination
 }

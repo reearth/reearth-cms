@@ -1,17 +1,21 @@
 import { useCallback } from "react";
 
-import { useGetItemsQuery } from "@reearth-cms/gql/graphql-client-api";
-import { useModel } from "@reearth-cms/state";
+import { useSearchItemQuery } from "@reearth-cms/gql/graphql-client-api";
+import { useModel, useProject } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
+  const [currentProject] = useProject();
   const {
     data: itemsData,
     refetch,
     loading: itemsDataLoading,
-  } = useGetItemsQuery({
+  } = useSearchItemQuery({
     notifyOnNetworkStatusChange: true,
-    variables: { schemaId: currentModel?.schema.id ?? "", first: 1000 },
+    variables: {
+      query: { project: currentProject?.id as string, schema: currentModel?.schema.id ?? "" },
+      pagination: { first: 1000 },
+    },
     skip: !currentModel?.schema.id,
   });
 

@@ -25,12 +25,31 @@ func (p *Pagination) Into() *usecasex.Pagination {
 	if p == nil {
 		return nil
 	}
+	if p.Offset != nil {
+		var limit int64 = 50
+		if p.First != nil {
+			limit = int64(*p.First)
+		}
+		return usecasex.OffsetPagination{
+			Offset: int64(*p.Offset),
+			Limit:  limit,
+		}.Wrap()
+	}
 	return usecasex.CursorPagination{
 		Before: p.Before,
 		After:  p.After,
 		First:  pint2pint64(p.First),
 		Last:   pint2pint64(p.Last),
 	}.Wrap()
+}
+func (s *Sort) Into() *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+	return &usecasex.Sort{
+		Key:      s.Key,
+		Reverted: *s.Reverted,
+	}
 }
 
 func FromFile(f *graphql.Upload) *file.File {

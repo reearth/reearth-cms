@@ -47,7 +47,7 @@ export default ({ modelId }: Params) => {
   }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "", first: 100 },
+    variables: { projectId: projectId ?? "", pagination: { first: 100 } },
     skip: !projectId,
   });
 

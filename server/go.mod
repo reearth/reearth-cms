@@ -22,7 +22,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639
+	github.com/reearth/reearthx v0.0.0-20230113115525-0301c23a0c47
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/spf13/afero v1.9.2
@@ -39,6 +39,7 @@ require (
 	golang.org/x/text v0.4.0
 	google.golang.org/api v0.100.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
@@ -124,7 +125,6 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

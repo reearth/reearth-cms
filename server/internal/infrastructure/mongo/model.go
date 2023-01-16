@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
@@ -85,22 +84,24 @@ func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 	})
 }
 
-func (r *Model) FindByIDOrKey(ctx context.Context, modelID *id.ModelID, key *key.Key, pids id.ProjectIDList) (*model.Model, error) {
-	filters := make([]bson.M, 0, 2)
-	if modelID != nil {
-		filters = append(filters, bson.M{"id": modelID.String()})
-	}
-	if key != nil {
-		filters = append(filters, bson.M{"key": key.String()})
-	}
-	if len(filters) == 0 {
+func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q model.IDOrKey) (*model.Model, error) {
+	mid := q.ID()
+	key := q.Key()
+	if mid == nil && (key == nil || *key == "") {
 		return nil, rerror.ErrNotFound
 	}
 
-	return r.findOne(ctx, bson.M{
-		"project": bson.M{"$in": pids.Strings()},
-		"$or":     filters,
-	})
+	filter := bson.M{
+		"project": projectID.String(),
+	}
+	if mid != nil {
+		filter["id"] = mid.String()
+	}
+	if key != nil {
+		filter["key"] = *key
+	}
+
+	return r.findOne(ctx, filter)
 }
 
 func (r *Model) CountByProject(ctx context.Context, projectID id.ProjectID) (int, error) {

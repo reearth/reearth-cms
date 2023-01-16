@@ -6,7 +6,6 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { acceptedFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { useT } from "@reearth-cms/i18n";
 
@@ -32,6 +31,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   onNavigateToAsset: (asset: Asset) => void;
+  disabled?: boolean;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -54,6 +54,7 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   onChange,
   onNavigateToAsset,
+  disabled,
 }) => {
   const t = useT();
   const {
@@ -79,7 +80,7 @@ const AssetItem: React.FC<Props> = ({
     maxCount: 1,
     directory: false,
     showUploadList: true,
-    accept: acceptedFormats,
+    accept: "*",
     listType: "picture",
     onRemove: _file => {
       setFileList([]);
@@ -100,7 +101,7 @@ const AssetItem: React.FC<Props> = ({
       {assetValue ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton onClick={handleClick}>
+            <AssetButton disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{assetValue.fileName}</div>
@@ -117,7 +118,7 @@ const AssetItem: React.FC<Props> = ({
           />
         </>
       ) : (
-        <AssetButton onClick={handleClick}>
+        <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
             <Icon icon="linkSolid" size={14} />
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
@@ -166,6 +167,10 @@ const AssetLink = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
   top: 3px;
+  &:disabled {
+    cursor: pointer;
+    pointer-events: auto;
+  }
 `;
 
 const AssetLinkedName = styled(Button)`

@@ -263,7 +263,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               <Input />
             </Form.Item>
             <Form.Item requiredMark="optional" name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={100} />
+              <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (
               <>
@@ -319,7 +319,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox disabled>{t("Support multiple values")}</Checkbox>
+              <Checkbox>{t("Support multiple values")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>

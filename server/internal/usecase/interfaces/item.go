@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -21,7 +22,8 @@ var (
 )
 
 type ItemFieldParam struct {
-	Field item.FieldID
+	Field *item.FieldID
+	Key   *key.Key
 	Type  value.Type
 	Value any
 }
@@ -41,11 +43,11 @@ type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
-	FindBySchema(context.Context, id.SchemaID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	FindBySchema(context.Context, id.SchemaID, *item.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
-	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	Search(context.Context, *item.Query, *item.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)

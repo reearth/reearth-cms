@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -64,7 +65,7 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -78,11 +79,25 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
 		}
 	}
+
 	if uFilter.State != nil {
-		filter["state"] = uFilter.State.String()
+		filter["state"] = bson.M{
+			"$in": lo.Map(uFilter.State, func(s request.State, _ int) string {
+				return s.String()
+			}),
+		}
 	}
 
-	return r.paginate(ctx, &filter, page)
+	if uFilter.CreatedBy != nil {
+		filter["createdby"] = uFilter.CreatedBy.String()
+	}
+
+	if uFilter.Reviewer != nil {
+		filter["reviewers"] = uFilter.Reviewer.String()
+	}
+
+	rl, p, err := r.paginate(ctx, &filter, sort, page)
+	return rl.Ordered(), p, err
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
@@ -115,10 +130,10 @@ func (r *Request) Remove(ctx context.Context, id id.RequestID) error {
 		"id": id.String()}))
 }
 
-func (r *Request) paginate(ctx context.Context, filter any, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
+func (r *Request) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewRequestConsumer()
 
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

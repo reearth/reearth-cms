@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -72,151 +73,95 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 func TestConvertAsset_FromPreviewType(t *testing.T) {
 	var pt1 PreviewType = PreviewTypeImage
 	want1 := asset.PreviewTypeImage
+	got1 := FromPreviewType(&pt1)
+	assert.Equal(t, &want1, got1)
 
 	var pt2 PreviewType = PreviewTypeGeo
 	want2 := asset.PreviewTypeGeo
+	got2 := FromPreviewType(&pt2)
+	assert.Equal(t, &want2, got2)
 
-	var pt3 PreviewType = PreviewTypeGeo3d
-	want3 := asset.PreviewTypeGeo3d
+	var pt3 PreviewType = PreviewTypeGeo3dTiles
+	want3 := asset.PreviewTypeGeo3dTiles
+	got3 := FromPreviewType(&pt3)
+	assert.Equal(t, &want3, got3)
 
-	var pt4 PreviewType = PreviewTypeModel3d
-	want4 := asset.PreviewTypeModel3d
+	var pt4 PreviewType = PreviewTypeGeoMvt
+	want4 := asset.PreviewTypeGeoMvt
+	got4 := FromPreviewType(&pt4)
+	assert.Equal(t, &want4, got4)
 
-	var pt5 *PreviewType = nil
-	want5 := (*asset.PreviewType)(nil)
+	var pt5 PreviewType = PreviewTypeModel3d
+	want5 := asset.PreviewTypeModel3d
+	got5 := FromPreviewType(&pt5)
+	assert.Equal(t, &want5, got5)
 
-	var pt6 PreviewType = "test"
+	var pt6 *PreviewType = nil
 	want6 := (*asset.PreviewType)(nil)
+	got6 := FromPreviewType(pt6)
+	assert.Equal(t, want6, got6)
 
-	var pt7 PreviewType = PreviewTypeUnknown
-	want7 := asset.PreviewTypeUnknown
+	var pt7 PreviewType = "test"
+	want7 := (*asset.PreviewType)(nil)
+	got7 := FromPreviewType(&pt7)
+	assert.Equal(t, want7, got7)
 
-	tests := []struct {
-		name string
-		arg  *PreviewType
-		want *asset.PreviewType
-	}{
-		{
-			name: "to asset image",
-			arg:  &pt1,
-			want: &want1,
-		},
-		{
-			name: "to asset geo",
-			arg:  &pt2,
-			want: &want2,
-		},
-		{
-			name: "to asset geo3d",
-			arg:  &pt3,
-			want: &want3,
-		},
-		{
-			name: "to asset model3d",
-			arg:  &pt4,
-			want: &want4,
-		},
-		{
-			name: "to asset nil",
-			arg:  pt5,
-			want: want5,
-		},
-		{
-			name: "to asset other",
-			arg:  &pt6,
-			want: want6,
-		},
-		{
-			name: "to asset unknown",
-			arg:  &pt7,
-			want: &want7,
-		},
-	}
+	var pt8 PreviewType = PreviewTypeUnknown
+	want8 := asset.PreviewTypeUnknown
+	got8 := FromPreviewType(&pt8)
+	assert.Equal(t, &want8, got8)
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := FromPreviewType(tc.arg)
-			assert.Equal(t, tc.want, got)
-		})
-	}
+	var pt9 PreviewType = PreviewTypeImageSVG
+	want9 := asset.PreviewTypeImageSvg
+	got9 := FromPreviewType(&pt9)
+	assert.Equal(t, &want9, got9)
 }
 
 func TestConvertAsset_ToPreviewType(t *testing.T) {
 	var pt1 asset.PreviewType = asset.PreviewTypeImage
 	want1 := PreviewTypeImage
+	got1 := ToPreviewType(&pt1)
+	assert.Equal(t, &want1, got1)
 
 	var pt2 asset.PreviewType = asset.PreviewTypeGeo
 	want2 := PreviewTypeGeo
+	got2 := ToPreviewType(&pt2)
+	assert.Equal(t, &want2, got2)
 
-	var pt3 asset.PreviewType = asset.PreviewTypeGeo3d
-	want3 := PreviewTypeGeo3d
+	var pt3 asset.PreviewType = asset.PreviewTypeGeo3dTiles
+	want3 := PreviewTypeGeo3dTiles
+	got3 := ToPreviewType(&pt3)
+	assert.Equal(t, &want3, got3)
 
 	var pt4 asset.PreviewType = asset.PreviewTypeModel3d
 	want4 := PreviewTypeModel3d
+	got4 := ToPreviewType(&pt4)
+	assert.Equal(t, &want4, got4)
 
-	var pt5 *asset.PreviewType = nil
-	want5 := (*PreviewType)(nil)
+	var pt5 asset.PreviewType = asset.PreviewTypeModel3d
+	want5 := PreviewTypeModel3d
+	got5 := ToPreviewType(&pt5)
+	assert.Equal(t, &want5, got5)
 
-	var pt6 asset.PreviewType = "test"
+	var pt6 *asset.PreviewType = nil
 	want6 := (*PreviewType)(nil)
+	got6 := ToPreviewType(pt6)
+	assert.Equal(t, want6, got6)
 
-	var pt7 asset.PreviewType = asset.PreviewTypeUnknown
-	want7 := PreviewTypeUnknown
+	var pt7 asset.PreviewType = "test"
+	want7 := (*PreviewType)(nil)
+	got7 := ToPreviewType(&pt7)
+	assert.Equal(t, want7, got7)
 
-	tests := []struct {
-		name string
-		arg  *asset.PreviewType
-		want *PreviewType
-	}{
-		{
-			name: "to asset image",
-			arg:  &pt1,
-			want: &want1,
-		},
-		{
-			name: "to asset geo",
-			arg:  &pt2,
-			want: &want2,
-		},
-		{
-			name: "to asset geo3d",
-			arg:  &pt3,
-			want: &want3,
-		},
-		{
-			name: "to asset model3d",
-			arg:  &pt4,
-			want: &want4,
-		},
-		{
-			name: "to asset nil",
-			arg:  pt5,
-			want: want5,
-		},
-		{
-			name: "to asset other",
-			arg:  &pt6,
-			want: want6,
-		},
-		{
-			name: "to asset unknown",
-			arg:  &pt7,
-			want: &want7,
-		},
-	}
+	var pt8 asset.PreviewType = asset.PreviewTypeUnknown
+	want8 := PreviewTypeUnknown
+	got8 := ToPreviewType(&pt8)
+	assert.Equal(t, &want8, got8)
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := ToPreviewType(tc.arg)
-			assert.Equal(t, tc.want, got)
-		})
-	}
+	var pt9 asset.PreviewType = asset.PreviewTypeImageSvg
+	want9 := PreviewTypeImageSVG
+	got9 := ToPreviewType(&pt9)
+	assert.Equal(t, &want9, got9)
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {
@@ -294,61 +239,90 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 	}
 }
 
-func TestConvertAsset_AssetSortTypeFrom(t *testing.T) {
-	st1 := AssetSortTypeName
-	var want1 asset.SortType = asset.SortTypeName
-
-	st2 := AssetSortTypeSize
-	var want2 asset.SortType = asset.SortTypeSize
-
-	st3 := AssetSortTypeDate
-	var want3 asset.SortType = asset.SortTypeDate
-
-	st4 := (*AssetSortType)(nil)
-	var want4 *asset.SortType = nil
-
-	var st5 AssetSortType = "test"
-	want5 := (*asset.SortType)(nil)
-
+func TestAssetSort_Into(t *testing.T) {
 	tests := []struct {
 		name string
-		arg  *AssetSortType
-		want *asset.SortType
+		sort *AssetSort
+		want *usecasex.Sort
 	}{
 		{
-			name: "to sort type name",
-			arg:  &st1,
-			want: &want1,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "NAME",
+				Direction: lo.ToPtr(SortDirectionAsc),
+			},
+			want: &usecasex.Sort{
+				Key:      "filename",
+				Reverted: false,
+			},
 		},
 		{
-			name: "to sort type size",
-			arg:  &st2,
-			want: &want2,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "NAME",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "filename",
+				Reverted: false,
+			},
 		},
 		{
-			name: "to sort type date",
-			arg:  &st3,
-			want: &want3,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "NAME",
+				Direction: lo.ToPtr(SortDirectionDesc),
+			},
+			want: &usecasex.Sort{
+				Key:      "filename",
+				Reverted: true,
+			},
 		},
 		{
-			name: "to sort type nil",
-			arg:  st4,
-			want: want4,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "NAME",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "filename",
+				Reverted: false,
+			},
 		},
 		{
-			name: "to sort type other",
-			arg:  &st5,
-			want: want5,
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "SIZE",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "size",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "DATE",
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "createdat",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &AssetSort{
+				SortBy:    "xxx",
+				Direction: nil,
+			},
+			want: nil,
 		},
 	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got := AssetSortTypeFrom(tc.arg)
-			assert.Equal(t, tc.want, got)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.sort.Into())
 		})
 	}
 }

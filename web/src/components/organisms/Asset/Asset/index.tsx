@@ -11,6 +11,7 @@ const Asset: React.FC = () => {
   const { workspaceId, projectId, assetId } = useParams();
   const {
     asset,
+    assetFileExt,
     isLoading,
     selectedPreviewType,
     isModalVisible,
@@ -27,7 +28,6 @@ const Asset: React.FC = () => {
   const handleSave = async () => {
     if (assetId) {
       await handleAssetUpdate(assetId, selectedPreviewType);
-      handleBack();
     }
   };
 
@@ -48,6 +48,7 @@ const Asset: React.FC = () => {
         />
       }
       asset={asset}
+      assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
       viewerType={viewerType}

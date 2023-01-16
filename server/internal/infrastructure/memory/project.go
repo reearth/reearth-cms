@@ -88,6 +88,27 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	return nil, rerror.ErrNotFound
 }
 
+func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	pid := q.ID()
+	alias := q.Alias()
+	if pid == nil && (alias == nil || *alias == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
+		return (pid != nil && k == *pid || alias != nil && v.Alias() == *alias) && r.f.CanRead(v.Workspace())
+	})
+
+	if p != nil {
+		return p, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err

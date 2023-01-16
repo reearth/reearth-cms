@@ -233,7 +233,7 @@ func TestItem_FindBySchema(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, tc.args.pagination, tc.args.operator)
+			got, _, err := itemUC.FindBySchema(ctx, tc.args.schema, nil, tc.args.pagination, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -339,7 +339,7 @@ func TestItem_FindByProject(t *testing.T) {
 		seedItems   item.List
 		seedProject *project.Project
 		args        args
-		want        item.List
+		want        int
 		mockItemErr bool
 		wantErr     error
 	}{
@@ -351,7 +351,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    item.List{i1, i2},
+			want:    2,
 			wantErr: nil,
 		},
 		{
@@ -362,7 +362,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: nil,
 		},
 		{
@@ -373,7 +373,7 @@ func TestItem_FindByProject(t *testing.T) {
 				id:       id.NewProjectID(),
 				operator: op,
 			},
-			want:    nil,
+			want:    0,
 			wantErr: rerror.ErrNotFound,
 		},
 	}
@@ -403,7 +403,7 @@ func TestItem_FindByProject(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got.Unwrap())
+			assert.Equal(t, tc.want, len(got.Unwrap()))
 		})
 	}
 }
@@ -452,7 +452,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "foo", nil),
+				query:    item.NewQuery(pid, nil, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -469,7 +469,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "hoge", nil),
+				query:    item.NewQuery(pid, nil, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -486,7 +486,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, "xxx", nil),
+				query:    item.NewQuery(pid, nil, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
@@ -511,7 +511,7 @@ func TestItem_Search(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, tc.args.query, nil, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -549,7 +549,7 @@ func TestItem_Create(t *testing.T) {
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx",
 			},
@@ -570,7 +570,7 @@ func TestItem_Create(t *testing.T) {
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
@@ -585,7 +585,7 @@ func TestItem_Create(t *testing.T) {
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
@@ -604,7 +604,7 @@ func TestItem_Create(t *testing.T) {
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "",
 			},
@@ -655,7 +655,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx",
 			},
@@ -670,12 +670,32 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, item.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
+	// ok with key
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Key:   sf.Key().Ref(),
+				Type:  value.TypeText,
+				Value: "yyy",
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, i.ID(), item.Value().ID())
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
+	assert.NoError(t, err)
+	assert.Equal(t, item.Value(), it.Value())
+	assert.Equal(t, value.TypeText.Value("yyy").AsMultiple(), it.Value().Field(sf.ID()).Value())
+
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
@@ -689,7 +709,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
@@ -704,7 +724,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i3.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx",
 			},
@@ -717,7 +737,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i2.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
@@ -743,7 +763,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "",
 			},
@@ -759,7 +779,7 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Field: sf.ID(),
+				Field: sf.ID().Ref(),
 				Type:  value.TypeText,
 				Value: "a",
 			},

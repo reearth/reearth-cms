@@ -18,17 +18,20 @@ const CommentsPanel: React.FC<Props> = ({
   collapsed,
   onCollapse,
 }) => {
-  const { handleCommentCreate } = useHooks({
+  const { me, handleCommentCreate, handleCommentUpdate, handleCommentDelete } = useHooks({
     threadId,
   });
 
   return (
     <CommentsPanelMolecule
+      me={me}
       emptyText={emptyText}
       comments={comments}
       collapsed={collapsed}
       onCollapse={onCollapse}
       onCommentCreate={handleCommentCreate}
+      onCommentUpdate={handleCommentUpdate}
+      onCommentDelete={handleCommentDelete}
     />
   );
 };
