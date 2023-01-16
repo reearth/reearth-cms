@@ -24,17 +24,19 @@ export const Imagery: React.FC<Props> = ({ url }) => {
 
   useEffect(() => {
     const initOptions = async (url: string) => {
-      const regex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      if (url.match(regex)) {
-        const base = url.replace(regex, "");
-        setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
-        try {
-          const res = await fetch(`${base}/metadata.json`);
-          const data = await res.json();
-          setLayerName(data.name);
-        } catch (error) {
-          console.error(error);
-        }
+      const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+      const nameRegex = /\.\w+$/;
+      const base = url.match(templateRegex)
+        ? url.replace(templateRegex, "")
+        : url.replace(nameRegex, "");
+
+      setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+      try {
+        const res = await fetch(`${base}/metadata.json`);
+        const data = await res.json();
+        setLayerName(data.name);
+      } catch (error) {
+        console.error(error);
       }
     };
     initOptions(url);

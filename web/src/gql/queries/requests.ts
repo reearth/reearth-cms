@@ -21,12 +21,6 @@ export const GET_REQUESTS = gql`
       reviewer: $reviewer
       sort: $sort
     ) {
-      edges {
-        cursor
-        node {
-          ...requestFragment
-        }
-      }
       nodes {
         ...requestFragment
       }
