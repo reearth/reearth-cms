@@ -1,8 +1,8 @@
-import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate } from "cesium";
+import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } from "cesium";
 import { ComponentProps, useCallback, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
 
-import InfoBox from "../InfoBox";
+import InfoBox from "@reearth-cms/components/atoms/InfoBox";
 
 type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
@@ -15,33 +15,30 @@ const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
   const [infoBoxVisibility, setInfoBoxVisibility] = useState<boolean>(false);
   const [title, setTitle] = useState("");
 
-  const handleClick = useCallback(
-    (_movement: CesiumMovementEvent, target: RootEventTarget) => {
-      if (!target) {
-        setProperties(undefined);
-        return;
-      }
+  const handleClick = useCallback((_movement: CesiumMovementEvent, target: RootEventTarget) => {
+    if (!target) {
+      setProperties(undefined);
+      return;
+    }
 
-      let props: any = {};
-      if (target instanceof Cesium3DTileFeature) {
-        const propertyIds = target.getPropertyIds();
-        const length = propertyIds.length;
-        for (let i = 0; i < length; ++i) {
-          const propertyId = propertyIds[i];
-          props[propertyId] = target.getProperty(propertyId);
-        }
-        setTitle(props["name"]);
-      } else {
-        const entity = viewer?.selectedEntity;
-        setTitle(entity?.id ?? "");
-        props = entity?.properties?.getValue(JulianDate.now());
+    let props: any = {};
+    if (target instanceof Cesium3DTileFeature) {
+      const propertyIds = target.getPropertyIds();
+      const length = propertyIds.length;
+      for (let i = 0; i < length; ++i) {
+        const propertyId = propertyIds[i];
+        props[propertyId] = target.getProperty(propertyId);
       }
+      setTitle(props["name"]);
+    } else if (target.id instanceof Entity) {
+      const entity = target.id;
+      setTitle(entity.id);
+      props = entity.properties?.getValue(JulianDate.now());
+    }
 
-      setInfoBoxVisibility(true);
-      setProperties(props);
-    },
-    [viewer?.selectedEntity],
-  );
+    setInfoBoxVisibility(true);
+    setProperties(props);
+  }, []);
 
   const handleClose = useCallback(() => {
     setInfoBoxVisibility(false);
