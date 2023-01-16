@@ -1,5 +1,5 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { ImageryLayer, ImageryLayerCollection, Viewer } from "cesium";
+import { ImageryLayer, ImageryLayerCollection, Viewer, Math } from "cesium";
 import { MVTImageryProvider, ImageryProviderOption } from "cesium-mvt-imagery-provider";
 import { useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -68,6 +68,17 @@ export const Imagery: React.FC<Props> = ({ url }) => {
       const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
       const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
+
+      // Move the camera to Japan as a default location
+      const entity = viewer.entities.getById("default-location");
+      if (entity) {
+        viewer.zoomTo(entity, {
+          heading: Math.toRadians(90.0),
+          pitch: Math.toRadians(-90.0),
+          range: 20000000,
+        });
+      }
+
       return () => {
         layers.remove(currentLayer);
       };
