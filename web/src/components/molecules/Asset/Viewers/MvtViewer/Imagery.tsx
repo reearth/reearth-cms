@@ -25,7 +25,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
   useEffect(() => {
     const initOptions = async (url: string) => {
       const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      const nameRegex = /\/\w+\.\w+$/;
+      const nameRegex = /\.\w+$/;
       const base = url.match(templateRegex)
         ? url.replace(templateRegex, "")
         : url.replace(nameRegex, "");
