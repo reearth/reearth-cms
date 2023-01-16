@@ -18,7 +18,7 @@ import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertComment, convertItem } from "../convertItem";
 
-export type ItemSortType = "DATE";
+export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
 
 export default () => {
@@ -32,7 +32,7 @@ export default () => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
-    type: "DATE",
+    type: "MODIFICATION_DATE",
     direction: "DESC",
   });
 
