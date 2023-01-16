@@ -4,7 +4,7 @@ import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium"
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
-const GeoJsonComponent: React.FC<Props> = () => {
+const GeoJsonComponent: React.FC<Props> = ({ data }) => {
   const { viewer } = useCesium();
 
   const handleLoad = useCallback(
@@ -19,12 +19,7 @@ const GeoJsonComponent: React.FC<Props> = () => {
     [viewer],
   );
 
-  return (
-    <ResiumGeoJsonDataSource
-      data="http://localhost:8080/assets/29/242ad5-264a-4695-bddb-be558c68b7e6/sample.geojson"
-      onLoad={handleLoad}
-    />
-  );
+  return <ResiumGeoJsonDataSource data={data} onLoad={handleLoad} />;
 };
 
 export default GeoJsonComponent;
