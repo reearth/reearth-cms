@@ -2,7 +2,7 @@ import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } f
 import { ComponentProps, useCallback, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
 
-import InfoBox from "@reearth-cms/components/atoms/InfoBox";
+import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
@@ -12,7 +12,7 @@ type Props = {
 const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
   let viewer: Viewer | undefined;
   const [properties, setProperties] = useState<any>();
-  const [infoBoxVisibility, setInfoBoxVisibility] = useState<boolean>(false);
+  const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
 
   const handleClick = useCallback((_movement: CesiumMovementEvent, target: RootEventTarget) => {
