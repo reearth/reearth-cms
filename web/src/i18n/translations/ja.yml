@@ -5,10 +5,10 @@ PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 Model: モデル
 Switch: 切り替え
-Assets: ''
+Assets: アセット
 Private: 非公開
 Public: 公開
-Accessibility: ''
+Accessibility: 公開設定
 Public Scope: 公開
 Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
 Project Alias: プロジェクトエイリアス
@@ -18,7 +18,7 @@ Danger Zone: 重要操作
 Delete Personal Account: アカウントを削除
 Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: アカウントとそれに関連するすべてのコンテンツを削除します。この操作は取り消すことができません。よろしいですか？
 Account Name: アカウント名
-This is your ID that is used between Re:Earth and Re:Earth CMS.: ''
+This is your ID that is used between Re:Earth and Re:Earth CMS.: アカウントのIDです。
 Your Email: メールアドレス
 Please enter the email address you want to use to log in with Re:Earth CMS.: ログインに利用するメールアドレスを入力してください。
 Save: 保存
@@ -175,11 +175,11 @@ Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
-WAITING: ''
-APPROVED: ''
-CLOSED: ''
-DRAFT: ''
-Current user: ''
+WAITING: レビュー待ち
+APPROVED: 承認済
+CLOSED: クローズ済
+DRAFT: ドラフト
+Current user: 現在のユーザー
 Updated At: 更新日時
 Add Field: フィールドを追加
 Display name: 表示名
@@ -204,7 +204,7 @@ Ensures that multiple entries can't have the same value for this field: この�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
-Are you sure you want to delete this field?: ''
+Are you sure you want to delete this field?: このフィールドを削除します、よろしいですか？
 Update Model: モデルを更新
 Model name: モデル名
 Please input the name of the model!: このモデル名を入力してください
@@ -238,11 +238,11 @@ No comments.: コメントはありません。
 Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create comment.: コメントの作成に失敗しました。
-Successfully created comment!: コメントが作成に成功しました。
-Failed to update comment.: ''
-Successfully updated comment!: ''
-Failed to delete comment.: ''
-Successfully deleted comment!: ''
+Successfully created comment!: コメントの作成に成功しました。
+Failed to update comment.: コメントの更新に失敗しました。
+Successfully updated comment!: コメントの更新に成功しました。
+Failed to delete comment.: コメントの削除に失敗しました。
+Successfully deleted comment!: コメントの削除に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
 Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to create item.: アイテムの作成に失敗しました。
@@ -270,8 +270,8 @@ Failed to delete field.: フィールドの削除に失敗しました。
 Successfully deleted field!: フィールドの削除に成功しました。
 Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
-Failed to update one or more field.: ''
-Successfully updated one or more fields!: ''
+Failed to update one or more field.: フィールドの更新に失敗しました。
+Successfully updated one or more fields!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。
