@@ -47,7 +47,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 		return err
 	}
 
-	if err = de.Decompress(); err != nil {
+	if err = de.Decompress(base); err != nil {
 		return err
 	}
 
