@@ -170,7 +170,7 @@ const ContentTable: React.FC<Props> = ({
           pagination.current ?? 1,
           pagination.pageSize ?? 10,
           sorter?.order
-            ? { type: "DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+            ? { type: "CREATION_DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
             : undefined,
         );
       }}

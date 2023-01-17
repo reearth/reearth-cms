@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { createWorldTerrain, Viewer } from "cesium";
-import { useState } from "react";
+import { Viewer as CesiumViewer } from "cesium";
+import { useCallback, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
@@ -43,7 +43,7 @@ type Props = {
   onChangeToFullScreen: () => void;
 };
 
-export let viewerRef: Viewer | undefined;
+export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -61,88 +61,29 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-  const getViewer = (viewer: Viewer | undefined) => {
+
+  const getViewer = (viewer: CesiumViewer | undefined) => {
     viewerRef = viewer;
   };
 
-  const renderPreview = () => {
+  const renderPreview = useCallback(() => {
     switch (true) {
       case viewerType === "geo":
-        return (
-          <GeoViewer
-            viewerProps={{
-              terrainProvider: createWorldTerrain(),
-              navigationHelpButton: false,
-              homeButton: false,
-              projectionPicker: false,
-              sceneModePicker: false,
-              baseLayerPicker: false,
-              fullscreenButton: false,
-              vrButton: false,
-              selectionIndicator: false,
-              timeline: false,
-              animation: false,
-              geocoder: false,
-              shouldAnimate: true,
-            }}
-            url={assetUrl}
-            assetFileExt={assetFileExt}
-            onGetViewer={getViewer}
-          />
-        );
+        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
       case viewerType === "geo_3d_tiles":
-        return (
-          <Geo3dViewer
-            viewerProps={{
-              terrainProvider: createWorldTerrain(),
-              navigationHelpButton: false,
-              homeButton: false,
-              projectionPicker: false,
-              sceneModePicker: false,
-              baseLayerPicker: false,
-              fullscreenButton: false,
-              vrButton: false,
-              selectionIndicator: false,
-              timeline: false,
-              animation: false,
-              geocoder: false,
-              shouldAnimate: true,
-            }}
-            url={assetUrl}
-            onGetViewer={getViewer}
-          />
-        );
+        return <Geo3dViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "geo_mvt":
-        return (
-          <MvtViewer
-            viewerProps={{
-              terrainProvider: createWorldTerrain(),
-              navigationHelpButton: false,
-              homeButton: false,
-              projectionPicker: false,
-              sceneModePicker: false,
-              baseLayerPicker: false,
-              fullscreenButton: false,
-              vrButton: false,
-              selectionIndicator: false,
-              timeline: false,
-              animation: false,
-              geocoder: false,
-            }}
-            url={assetUrl}
-            onGetViewer={getViewer}
-          />
-        );
+        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d":
+      case viewerType === "model_3d": // TODO: add viewer
       case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  };
+  }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
   return (
     <BodyContainer>

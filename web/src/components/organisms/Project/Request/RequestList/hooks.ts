@@ -48,6 +48,7 @@ export default () => {
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: { key: "createdAt", reverted: true },
       key: searchTerm,
       state: requestState as GQLRequestState[],
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,

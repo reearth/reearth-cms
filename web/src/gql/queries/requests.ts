@@ -10,6 +10,7 @@ export const GET_REQUESTS = gql`
     $pagination: Pagination
     $createdBy: ID
     $reviewer: ID
+    $sort: Sort
   ) {
     requests(
       projectId: $projectId
@@ -18,13 +19,8 @@ export const GET_REQUESTS = gql`
       pagination: $pagination
       createdBy: $createdBy
       reviewer: $reviewer
+      sort: $sort
     ) {
-      edges {
-        cursor
-        node {
-          ...requestFragment
-        }
-      }
       nodes {
         ...requestFragment
       }

@@ -17,10 +17,6 @@ export type MenuShowType = "personal" | "notPersonal" | "both";
 
 export type WorkspaceItemType = ItemType & { show: MenuShowType };
 
-const topItems: WorkspaceItemType[] = [
-  { label: "Home", key: "home", icon: <Icon icon="home" />, show: "both" },
-];
-
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
@@ -36,6 +32,10 @@ const WorkspaceMenu: React.FC<Props> = ({
       changeSelected([defaultSelectedKey]);
     }
   }, [defaultSelectedKey]);
+
+  const topItems: WorkspaceItemType[] = [
+    { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both" },
+  ];
 
   const items: WorkspaceItemType[] = [
     {

@@ -94,7 +94,15 @@ const RequestCreationModal: React.FC<Props> = ({
               message: t("Please select a reviewer!"),
             },
           ]}>
-          <Select placeholder={t("Reviewer")} mode="multiple" options={reviewers} allowClear />
+          <Select
+            filterOption={(input, option) =>
+              (option?.label?.toString().toLowerCase() ?? "").includes(input.toLowerCase())
+            }
+            placeholder={t("Reviewer")}
+            mode="multiple"
+            options={reviewers}
+            allowClear
+          />
         </Form.Item>
       </Form>
     </Modal>

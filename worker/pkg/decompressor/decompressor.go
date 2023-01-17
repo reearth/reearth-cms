@@ -79,7 +79,9 @@ func (uz *decompressor) Decompress(assetBasePath string) error {
 			}
 			zfs = append(zfs, f)
 		}
-		uz.readConcurrentGCSFile(zfs, assetBasePath)
+    assetBasePath, _ = filepath.Split(assetBasePath)
+		base := filepath.Join(gcsAssetBasePath, assetBasePath)
+		uz.readConcurrentGCSFile(zfs, base)
 	} else if uz.sr != nil {
 		for _, f := range uz.sr.File {
 			if f.FileInfo().IsDir() {
@@ -125,7 +127,6 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	client, _ := storage.NewClient(ctx)
 	db := client.Bucket(conf.BucketName)
 	workQueue := make(chan *zip.File, workerQueueDepth)
-	assetBasePath, _ = filepath.Split(assetBasePath)
 	for i := 0; i < workersNumber; i++ {
 		wg.Add(1)
 		go func(i int) {
@@ -136,14 +137,15 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 					fn := f.Name
 					x, err := f.Open()
 					if err != nil {
+						log.Errorf("failed to open file File=%s, Err=%s", fn, err.Error())
 						log.Fatal(err)
 					}
 					defer x.Close()
 					name := filepath.Join(assetBasePath, fn)
-					name = filepath.Join(gcsAssetBasePath, name)
 					w := db.Object(name).NewWriter(ctx)
 
 					if _, err := io.Copy(w, x); err != nil {
+						log.Errorf("failed to copy file to Storage File=%s, Err=%s", fn, err.Error())
 						return
 					}
 					if err = w.Close(); err != nil {

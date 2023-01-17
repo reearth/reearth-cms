@@ -11,24 +11,45 @@ func NewAsset(a *asset.Asset, url string) (*Asset, error) {
 	}
 
 	return &Asset{
-		Id:          a.ID().Ref(),
-		ContentType: lo.ToPtr(a.File().ContentType()),
-		CreatedAt:   lo.ToPtr(a.CreatedAt()),
-		Name:        lo.ToPtr(a.File().Name()),
-		PreviewType: ToPreviewType(a.PreviewType()),
-		ProjectId:   a.Project().Ref(),
-		TotalSize:   lo.ToPtr(float32(a.Size())),
-		Url:         lo.ToPtr(url),
-		File:        lo.ToPtr(ToFile(a.File())),
+		Id:                      a.ID().Ref(),
+		ContentType:             lo.ToPtr(a.File().ContentType()),
+		CreatedAt:               lo.ToPtr(a.CreatedAt()),
+		Name:                    lo.ToPtr(a.File().Name()),
+		PreviewType:             ToPreviewType(a.PreviewType()),
+		ProjectId:               a.Project().Ref(),
+		TotalSize:               lo.ToPtr(float32(a.Size())),
+		Url:                     lo.ToPtr(url),
+		File:                    lo.ToPtr(ToAssetFile(a.File())),
+		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 	}, nil
 }
 
-func ToFile(f *asset.File) File {
+func ToAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArchiveExtractionStatus {
+	if s == nil {
+		return nil
+	}
+	ss := ""
+	switch *s {
+	case asset.ArchiveExtractionStatusDone:
+		ss = "done"
+	case asset.ArchiveExtractionStatusFailed:
+		ss = "failed"
+	case asset.ArchiveExtractionStatusInProgress:
+		ss = "in_progress"
+	case asset.ArchiveExtractionStatusPending:
+		ss = "pending"
+	default:
+		return nil
+	}
+	return lo.ToPtr(AssetArchiveExtractionStatus(ss))
+}
+
+func ToAssetFile(f *asset.File) File {
 	if f == nil {
 		return File{}
 	}
 
-	children := lo.Map(f.Children(), func(c *asset.File, _ int) File { return ToFile(c) })
+	children := lo.Map(f.Children(), func(c *asset.File, _ int) File { return ToAssetFile(c) })
 
 	return File{
 		Name:        lo.ToPtr(f.Name()),

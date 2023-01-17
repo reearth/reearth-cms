@@ -1099,16 +1099,18 @@ func (e IntegrationType) MarshalGQL(w io.Writer) {
 type ItemSortType string
 
 const (
-	ItemSortTypeDate ItemSortType = "DATE"
+	ItemSortTypeCreationDate     ItemSortType = "CREATION_DATE"
+	ItemSortTypeModificationDate ItemSortType = "MODIFICATION_DATE"
 )
 
 var AllItemSortType = []ItemSortType{
-	ItemSortTypeDate,
+	ItemSortTypeCreationDate,
+	ItemSortTypeModificationDate,
 }
 
 func (e ItemSortType) IsValid() bool {
 	switch e {
-	case ItemSortTypeDate:
+	case ItemSortTypeCreationDate, ItemSortTypeModificationDate:
 		return true
 	}
 	return false

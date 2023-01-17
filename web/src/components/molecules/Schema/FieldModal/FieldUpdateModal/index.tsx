@@ -14,11 +14,16 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { Field, FieldModalTabs, FieldType, fieldTypes } from "../../types";
+import { fieldTypes } from "../../fieldTypes";
+import { Field, FieldModalTabs, FieldType } from "../../types";
 
 export interface FormValues {
   fieldId: string;
@@ -45,6 +50,14 @@ export interface Props {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -82,6 +95,10 @@ const FieldUpdateModal: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -203,7 +220,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />{" "}
             <h3>
-              {t("Update")} {fieldTypes[selectedType].title}
+              {t("Update")} {t(fieldTypes[selectedType].title)}
             </h3>
           </FieldThumbnail>
         ) : null
@@ -349,6 +366,10 @@ const FieldUpdateModal: React.FC<Props> = ({
               uploadModalVisibility={uploadModalVisibility}
               uploadUrl={uploadUrl}
               uploadType={uploadType}
+              onAssetTableChange={onAssetTableChange}
+              totalCount={totalCount}
+              page={page}
+              pageSize={pageSize}
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}
               setUploadType={setUploadType}
