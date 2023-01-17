@@ -1,5 +1,5 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { ImageryLayer, ImageryLayerCollection, Math } from "cesium";
+import { Cartesian3, ImageryLayer, ImageryLayerCollection, Math } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -26,38 +26,42 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");
 
-  useEffect(() => {
-    // Move the camera to Japan as a default location
-    const entity = viewer.entities.getById("default-location");
-    if (entity) {
-      viewer.zoomTo(entity, {
-        heading: Math.toRadians(90.0),
-        pitch: Math.toRadians(-90.0),
-        range: 3000000,
-      });
-    }
-  }, [viewer]);
+  const setBaseUrl = (url: string) => {
+    const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+    const nameRegex = /\.\w+$/;
+    return url.match(templateRegex) ? url.replace(templateRegex, "") : url.replace(nameRegex, "");
+  };
 
   useEffect(() => {
-    // init url template and layer name
-    const initOptions = async (url: string) => {
-      const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      const nameRegex = /\.\w+$/;
-      const base = url.match(templateRegex)
-        ? url.replace(templateRegex, "")
-        : url.replace(nameRegex, "");
-
+    const initViewer = async (url: string) => {
+      const base = setBaseUrl(url);
       setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+      let position = Cartesian3.fromDegrees(139.767052, 35.681167, 100); // initial position
+      let range = 3000000; // initial range
+
       try {
         const res = await fetch(`${base}/metadata.json`);
-        const data = await res.json();
-        setLayerName(data.name);
+        const data = await res?.json();
+        if (data?.name) setLayerName(data.name);
+        if (data?.center) {
+          const [x, y, z]: number[] = data.center.split(",").map((s: string) => Number(s));
+          if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+            position = Cartesian3.fromDegrees(x, y, z);
+            range = 200000;
+          }
+        }
       } catch (error) {
         console.error(error);
       }
+
+      viewer.camera.lookAt(position, {
+        heading: Math.toRadians(90.0),
+        pitch: Math.toRadians(-90.0),
+        range: range,
+      });
     };
-    initOptions(url);
-  }, [url]);
+    initViewer(url);
+  }, [url, viewer, viewer.camera]);
 
   const style = useCallback(
     (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
