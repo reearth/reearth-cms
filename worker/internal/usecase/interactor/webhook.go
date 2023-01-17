@@ -2,14 +2,15 @@ package interactor
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/worker/pkg/webhook"
 	"github.com/reearth/reearthx/log"
 )
 
 func (u *Usecase) SendWebhook(ctx context.Context, w *webhook.Webhook) error {
-	eid := w.EventID
-	found, err := u.webhook.GetOrSet(ctx, eid)
+	eid := fmt.Sprintf("%s_%s", w.EventID, w.WebhookID)
+	found, err := u.webhook.GetAndSet(ctx, eid)
 	if err != nil {
 		log.Errorf("webhook usecase: failed to get webhook sent: %v", err)
 	}

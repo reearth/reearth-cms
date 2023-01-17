@@ -73,14 +73,14 @@ func (w *Webhook) Get(ctx context.Context, eventID string) (bool, error) {
 	return true, nil
 }
 
-func (w *Webhook) GetOrSet(ctx context.Context, eventID string) (bool, error) {
+func (w *Webhook) GetAndSet(ctx context.Context, eventID string) (bool, error) {
 	res := w.c.FindOneAndUpdate(ctx, bson.M{
 		"event": eventID,
 	}, bson.M{
 		"$set": bson.M{
 			"event": eventID,
 		},
-	}, options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
+	}, options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.Before))
 	var d bson.M
 	if err := res.Decode(&d); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) || errors.Is(err, mongo.ErrNilDocument) {

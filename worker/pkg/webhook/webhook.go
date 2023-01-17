@@ -18,6 +18,7 @@ type Webhook struct {
 	URL       string    `json:"url"`
 	Secret    string    `json:"secret"`
 	Timestamp time.Time `json:"timestamp"`
+	WebhookID string    `json:"webhookId"`
 	EventID   string    `json:"eventId"`
 	EventType string    `json:"type"`
 	EventData any       `json:"data"`
