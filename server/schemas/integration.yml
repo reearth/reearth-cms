@@ -853,6 +853,13 @@ components:
             - unknown
         totalSize:
           type: number
+        archiveExtractionStatus:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - done
+            - failed
         file:
           $ref: '#/components/schemas/file'
         createdAt:
