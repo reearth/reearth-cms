@@ -64,7 +64,7 @@ const ResiumViewer: React.FC<Props> = ({
     return sortProperties(passedProps ?? properties);
   }, [passedProps, properties]);
 
-  const terrainProvider = useMemo(createWorldTerrain, []);
+  const terrainProvider = useMemo(() => createWorldTerrain(), []);
 
   return (
     <div style={{ position: "relative" }}>
