@@ -3416,7 +3416,13 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "DATE",
+            "name": "CREATION_DATE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MODIFICATION_DATE",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
