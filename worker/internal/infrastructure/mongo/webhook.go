@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,8 @@ import (
 )
 
 const webhookCol = "webhook_sent"
+
+var _ repo.Webhook = (*Webhook)(nil)
 
 type Webhook struct {
 	c *mongo.Collection
@@ -70,8 +73,26 @@ func (w *Webhook) Get(ctx context.Context, eventID string) (bool, error) {
 	return true, nil
 }
 
-func (w *Webhook) Set(ctx context.Context, eventID string) error {
-	_, err := w.c.InsertOne(ctx, bson.M{
+func (w *Webhook) GetOrSet(ctx context.Context, eventID string) (bool, error) {
+	res := w.c.FindOneAndUpdate(ctx, bson.M{
+		"event": eventID,
+	}, bson.M{
+		"$set": bson.M{
+			"event": eventID,
+		},
+	}, options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
+	var d bson.M
+	if err := res.Decode(&d); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) || errors.Is(err, mongo.ErrNilDocument) {
+			return false, nil
+		}
+		return false, rerror.ErrInternalBy(err)
+	}
+	return true, nil
+}
+
+func (w *Webhook) Delete(ctx context.Context, eventID string) error {
+	_, err := w.c.DeleteOne(ctx, bson.M{
 		"event": eventID,
 	})
 	if err != nil {
