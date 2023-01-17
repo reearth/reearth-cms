@@ -16,6 +16,7 @@ import (
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	err := u.decompress(ctx, assetID, assetPath)
 	if err != nil {
+		log.Errorf("failed to notify to CMS, Asset=%s, Path=%s", assetID, assetPath)
 		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
 	}
 	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusDone))
@@ -27,6 +28,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 
 	compressedFile, size, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
+		log.Errorf("failed to load zip file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
 		return err
 	}
 
