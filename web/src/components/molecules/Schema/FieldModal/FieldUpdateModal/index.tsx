@@ -22,7 +22,8 @@ import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-ap
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { Field, FieldModalTabs, FieldType, fieldTypes } from "../../types";
+import { fieldTypes } from "../../fieldTypes";
+import { Field, FieldModalTabs, FieldType } from "../../types";
 
 export interface FormValues {
   fieldId: string;
@@ -219,7 +220,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />{" "}
             <h3>
-              {t("Update")} {fieldTypes[selectedType].title}
+              {t("Update")} {t(fieldTypes[selectedType].title)}
             </h3>
           </FieldThumbnail>
         ) : null
