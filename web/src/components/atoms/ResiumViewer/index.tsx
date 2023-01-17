@@ -1,17 +1,23 @@
-import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } from "cesium";
+import {
+  Cesium3DTileFeature,
+  createWorldTerrain,
+  Viewer as CesiumViewer,
+  JulianDate,
+  Entity,
+} from "cesium";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
-import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
+import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  onGetViewer: (viewer: Viewer | undefined) => void;
+  onGetViewer: (viewer: CesiumViewer | undefined) => void;
   children?: React.ReactNode;
   properties?: any;
   entitySelected?: boolean;
-} & ComponentProps<typeof RViewer>;
+} & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
   onGetViewer,
@@ -20,7 +26,7 @@ const ResiumViewer: React.FC<Props> = ({
   entitySelected,
   ...props
 }) => {
-  let viewer: Viewer | undefined;
+  let viewer: CesiumViewer | undefined;
   const [properties, setProperties] = useState<any>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
@@ -58,10 +64,12 @@ const ResiumViewer: React.FC<Props> = ({
     return sortProperties(passedProps ?? properties);
   }, [passedProps, properties]);
 
+  const terrainProvider = useMemo(() => createWorldTerrain(), []);
+
   return (
     <div style={{ position: "relative" }}>
-      <RViewer
-        terrainProvider={createWorldTerrain()}
+      <Viewer
+        terrainProvider={terrainProvider}
         navigationHelpButton={false}
         homeButton={false}
         projectionPicker={false}
@@ -82,7 +90,7 @@ const ResiumViewer: React.FC<Props> = ({
         }}
         {...props}>
         {children}
-      </RViewer>
+      </Viewer>
       <InfoBox
         infoBoxProps={sortedProperties}
         infoBoxVisibility={infoBoxVisibility || !!entitySelected}
