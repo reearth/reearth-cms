@@ -407,7 +407,8 @@ export type ItemSort = {
 };
 
 export enum ItemSortType {
-  Date = 'DATE'
+  CreationDate = 'CREATION_DATE',
+  ModificationDate = 'MODIFICATION_DATE'
 }
 
 export type KeyAvailability = {

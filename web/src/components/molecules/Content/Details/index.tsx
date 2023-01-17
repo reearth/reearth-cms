@@ -9,6 +9,10 @@ import { ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type Props = {
   requests: Request[];
@@ -29,6 +33,14 @@ export type Props = {
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
   workspaceUserMembers: Member[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onCollapse?: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -78,6 +90,9 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
+  totalCount,
+  page,
+  pageSize,
   onCollapse,
   onUploadModalCancel,
   setUploadUrl,
@@ -98,6 +113,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onModalOpen,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onAssetTableChange,
 }) => {
   return (
     <ComplexInnerContents
@@ -119,6 +135,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           model={model}
           initialFormValues={initialFormValues}
           assetList={assetList}
+          onAssetTableChange={onAssetTableChange}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
           fileList={fileList}
           loadingAssets={loadingAssets}
           uploading={uploading}
