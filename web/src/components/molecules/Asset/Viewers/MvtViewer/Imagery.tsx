@@ -1,7 +1,7 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import { ImageryLayer, ImageryLayerCollection, Viewer, Math } from "cesium";
-import { MVTImageryProvider, ImageryProviderOption } from "cesium-mvt-imagery-provider";
-import { useEffect, useState } from "react";
+import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
 
 type Props = {
@@ -27,6 +27,19 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [layerName, setLayerName] = useState<string>("");
 
   useEffect(() => {
+    // Move the camera to Japan as a default location
+    const entity = viewer.entities.getById("default-location");
+    if (entity) {
+      viewer.zoomTo(entity, {
+        heading: Math.toRadians(90.0),
+        pitch: Math.toRadians(-90.0),
+        range: 3000000,
+      });
+    }
+  }, [viewer]);
+
+  useEffect(() => {
+    // init url template and layer name
     const initOptions = async (url: string) => {
       const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
       const nameRegex = /\.\w+$/;
@@ -44,52 +57,63 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       }
     };
     initOptions(url);
+  }, [url]);
 
-    const imageryOption: ImageryProviderOption = {
-      urlTemplate: urlTemplate,
-      layerName: layerName,
-      style: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-        if (isFeatureSelected) {
-          return {
-            strokeStyle: "orange",
-            fillStyle: "orange",
-            lineWidth: 1,
-          };
-        }
+  const style = useCallback(
+    (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+      if (isFeatureSelected) {
         return {
-          strokeStyle: "red",
-          fillStyle: "red",
+          strokeStyle: "orange",
+          fillStyle: "orange",
           lineWidth: 1,
         };
-      },
-      onSelectFeature: (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-        handleProperties(feature.properties);
-        selectFeature(true);
-        setIsFeatureSelected(v => !v);
-      },
-    };
+      }
+      return {
+        strokeStyle: "red",
+        fillStyle: "red",
+        lineWidth: 1,
+      };
+    },
+    [isFeatureSelected],
+  );
 
-    const imageryProvider = new MVTImageryProvider(imageryOption);
+  const onSelectFeature = useCallback(
+    (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+      handleProperties(feature.properties);
+      selectFeature(true);
+      setIsFeatureSelected(v => !v);
+    },
+    [handleProperties, selectFeature],
+  );
+
+  useEffect(() => {
+    const imageryProvider = new MVTImageryProvider({
+      urlTemplate,
+      layerName,
+      style,
+      onSelectFeature,
+    });
+
     if (viewer) {
       const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
       const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
 
-      // Move the camera to Japan as a default location
-      const entity = viewer.entities.getById("default-location");
-      if (entity) {
-        viewer.zoomTo(entity, {
-          heading: Math.toRadians(90.0),
-          pitch: Math.toRadians(-90.0),
-          range: 3000000,
-        });
-      }
-
       return () => {
         layers.remove(currentLayer);
       };
     }
-  }, [viewer, isFeatureSelected, url, urlTemplate, layerName, handleProperties, selectFeature]);
+  }, [
+    viewer,
+    isFeatureSelected,
+    url,
+    urlTemplate,
+    layerName,
+    handleProperties,
+    selectFeature,
+    onSelectFeature,
+    style,
+  ]);
 
   return <div />;
 };
