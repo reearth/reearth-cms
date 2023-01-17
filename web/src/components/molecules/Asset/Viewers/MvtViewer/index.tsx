@@ -1,4 +1,4 @@
-import { Cartesian3 } from "cesium";
+import { Cartesian3, Viewer as CesiumViewer } from "cesium";
 import { ComponentProps, useMemo, useState } from "react";
 import { Entity } from "resium";
 
@@ -9,9 +9,10 @@ import { Imagery, Property } from "./Imagery";
 type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
+  onGetViewer: (viewer: CesiumViewer | undefined) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ viewerProps, url }) => {
+const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
   //TODO: refactor me
   const [properties, setProperties] = useState<Property>();
   const [featureSelected, selectFeature] = useState(false);
@@ -22,7 +23,11 @@ const MvtViewer: React.FC<Props> = ({ viewerProps, url }) => {
     }
   }, [properties]);
   return (
-    <ResiumViewer {...viewerProps} properties={attributes} entitySelected={featureSelected}>
+    <ResiumViewer
+      {...viewerProps}
+      onGetViewer={onGetViewer}
+      properties={attributes}
+      entitySelected={featureSelected}>
       <Entity
         id="default-location"
         name="Tokyo"

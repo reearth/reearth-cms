@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -42,6 +43,8 @@ type Props = {
   onChangeToFullScreen: () => void;
 };
 
+export let viewerRef: CesiumViewer | undefined;
+
 const AssetMolecule: React.FC<Props> = ({
   asset,
   assetFileExt,
@@ -59,14 +62,18 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
+  const getViewer = (viewer: CesiumViewer | undefined) => {
+    viewerRef = viewer;
+  };
+
   const renderPreview = useCallback(() => {
     switch (true) {
       case viewerType === "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} />;
+        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
       case viewerType === "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} />;
+        return <Geo3dViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "geo_mvt":
-        return <MvtViewer url={assetUrl} />;
+        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":

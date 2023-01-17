@@ -5,26 +5,28 @@ import {
   JulianDate,
   Entity,
 } from "cesium";
-import { ComponentProps, useCallback, useMemo, useRef, useState } from "react";
-import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
+import { ComponentProps, useCallback, useMemo, useState } from "react";
+import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
 
 type Props = {
+  onGetViewer: (viewer: CesiumViewer | undefined) => void;
   children?: React.ReactNode;
   properties?: any;
   entitySelected?: boolean;
 } & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
+  onGetViewer,
   children,
   properties: passedProps,
   entitySelected,
   ...props
 }) => {
-  const ref = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  let viewer: CesiumViewer | undefined;
   const [properties, setProperties] = useState<any>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
@@ -82,7 +84,10 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={ref}
+        ref={e => {
+          viewer = e?.cesiumElement;
+          onGetViewer(viewer);
+        }}
         {...props}>
         {children}
       </Viewer>

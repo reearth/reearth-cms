@@ -1,3 +1,4 @@
+import { Viewer as CesiumViewer } from "cesium";
 import { ComponentProps, useCallback } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -10,10 +11,11 @@ type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
   assetFileExt?: string;
+  onGetViewer: (viewer: CesiumViewer | undefined) => void;
 };
 
 // TODO: One generic component for these three datatypes should be created instead.
-const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt }) => {
+const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
   const renderAsset = useCallback(() => {
     switch (assetFileExt) {
       case "czml":
@@ -26,7 +28,11 @@ const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt }) => {
     }
   }, [assetFileExt, url]);
 
-  return <ResiumViewer {...viewerProps}>{renderAsset()}</ResiumViewer>;
+  return (
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
+      {renderAsset()}
+    </ResiumViewer>
+  );
 };
 
 export default GeoViewer;
