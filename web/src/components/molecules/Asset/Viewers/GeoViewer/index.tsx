@@ -1,4 +1,4 @@
-import { Viewer } from "cesium";
+import { Viewer as CesiumViewer } from "cesium";
 import { ComponentProps, useCallback } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -11,7 +11,7 @@ type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
   assetFileExt?: string;
-  onGetViewer: (viewer: Viewer | undefined) => void;
+  onGetViewer: (viewer: CesiumViewer | undefined) => void;
 };
 
 // TODO: One generic component for these three datatypes should be created instead.
