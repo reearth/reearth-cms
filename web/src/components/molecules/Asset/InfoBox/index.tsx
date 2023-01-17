@@ -12,7 +12,7 @@ type Props = {
 
 const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onClose }) => {
   const theme = {
-    base00: "#fff",
+    base00: "#ffffff",
     base01: "#1d1d1d",
     base02: "#1d1d1d",
     base03: "#1d1d1d",
@@ -70,7 +70,7 @@ const Header = styled.div`
 
 const Title = styled.div`
   margin-bottom: 0;
-  color: white;
+  color: #1d1d1d;
   margin-left: 10px;
   font-size: 12px;
 `;
