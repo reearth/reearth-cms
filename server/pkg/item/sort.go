@@ -11,15 +11,18 @@ type Sort struct {
 type SortType string
 
 var (
-	SortTypeDate SortType = "date"
+	SortTypeCreationDate     SortType = "id"
+	SortTypeModificationDate SortType = "timestamp"
 )
 
 func SortTypeFrom(s string) SortType {
 	ss := strings.ToLower(s)
 	switch ss {
-	case "date":
-		return SortTypeDate
+	case "creation_date":
+		return SortTypeCreationDate
+	case "modification_date":
+		return SortTypeModificationDate
 	default:
-		return ""
+		return SortTypeModificationDate
 	}
 }
