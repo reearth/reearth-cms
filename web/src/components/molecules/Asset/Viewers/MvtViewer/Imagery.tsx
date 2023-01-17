@@ -89,7 +89,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
         layers.remove(currentLayer);
       };
     }
-  }, [viewer, isFeatureSelected, url, urlTemplate, layerName]);
+  }, [viewer, isFeatureSelected, url, urlTemplate, layerName, handleProperties, selectFeature]);
 
   return <div />;
 };
