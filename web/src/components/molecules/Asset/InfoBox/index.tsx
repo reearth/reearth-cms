@@ -35,7 +35,7 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
       {infoBoxVisibility && (
         <InfoBoxWrapper color={theme.base00}>
           <Header>
-            <Title>{title}</Title>
+            <Title color={theme.base01}>{title}</Title>
             <Button type="link" size="large" onClick={onClose}>
               &times;
             </Button>
@@ -70,7 +70,7 @@ const Header = styled.div`
 
 const Title = styled.div`
   margin-bottom: 0;
-  color: #1d1d1d;
+  color: ${({ color }) => color};
   margin-left: 10px;
   font-size: 12px;
 `;
