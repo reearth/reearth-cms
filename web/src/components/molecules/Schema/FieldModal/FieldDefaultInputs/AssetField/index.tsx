@@ -4,6 +4,10 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -16,6 +20,14 @@ type Props = {
   defaultValue?: string;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -36,6 +48,10 @@ const AssetField: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -60,6 +76,10 @@ const AssetField: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onAssetTableChange={onAssetTableChange}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
@@ -80,6 +100,10 @@ const AssetField: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onAssetTableChange={onAssetTableChange}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}

@@ -14,6 +14,10 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export interface Props {
   initialFormValues: any;
@@ -25,6 +29,14 @@ export interface Props {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -46,6 +58,10 @@ const RequestItemForm: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -137,6 +153,10 @@ const RequestItemForm: React.FC<Props> = ({
                   uploadModalVisibility={uploadModalVisibility}
                   uploadUrl={uploadUrl}
                   uploadType={uploadType}
+                  totalCount={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onAssetTableChange={onAssetTableChange}
                   onUploadModalCancel={onUploadModalCancel}
                   setUploadUrl={setUploadUrl}
                   setUploadType={setUploadType}
@@ -158,6 +178,10 @@ const RequestItemForm: React.FC<Props> = ({
                   uploadModalVisibility={uploadModalVisibility}
                   uploadUrl={uploadUrl}
                   uploadType={uploadType}
+                  totalCount={totalCount}
+                  page={page}
+                  pageSize={pageSize}
+                  onAssetTableChange={onAssetTableChange}
                   onUploadModalCancel={onUploadModalCancel}
                   setUploadUrl={setUploadUrl}
                   setUploadType={setUploadType}

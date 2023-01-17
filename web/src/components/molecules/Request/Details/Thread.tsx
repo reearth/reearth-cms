@@ -9,6 +9,10 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -27,6 +31,14 @@ export type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
@@ -53,6 +65,10 @@ const RequestThread: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
@@ -77,6 +93,10 @@ const RequestThread: React.FC<Props> = ({
             uploadModalVisibility={uploadModalVisibility}
             uploadUrl={uploadUrl}
             uploadType={uploadType}
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
+            onAssetTableChange={onAssetTableChange}
             onUploadModalCancel={onUploadModalCancel}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
