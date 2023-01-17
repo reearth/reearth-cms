@@ -51,7 +51,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
 
   const setCameraPosition = useCallback(
     (position: string) => {
-      const regex = /\w+,\w+,\w+/;
+      const regex =
+        /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
       if (position?.match(regex)) {
         const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
         lookAtPosition(Cartesian3.fromDegrees(x, y, z), 200000);
