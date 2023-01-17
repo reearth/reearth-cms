@@ -17,7 +17,8 @@ import FieldValidationProps from "@reearth-cms/components/molecules/Schema/Field
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType, fieldTypes } from "../../types";
+import { fieldTypes } from "../../fieldTypes";
+import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType } from "../../types";
 
 export type FormValues = {
   title: string;
@@ -183,7 +184,7 @@ const FieldCreationModal: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />
             <h3>
-              {t("Create")} {fieldTypes[selectedType].title}
+              {t("Create")} {t(fieldTypes[selectedType].title)}
             </h3>
           </FieldThumbnail>
         ) : null

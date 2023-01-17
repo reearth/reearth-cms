@@ -15,31 +15,32 @@ export interface Props {
 
 type FieldListItem = { title: string; fields: string[] };
 
-const data: FieldListItem[] = [
-  {
-    title: "Text",
-    fields: ["Text", "TextArea", "MarkdownText"],
-  },
-  {
-    title: "Asset",
-    fields: ["Asset"],
-  },
-  {
-    title: "Select",
-    fields: ["Select"],
-  },
-  {
-    title: "Number",
-    fields: ["Integer"],
-  },
-  {
-    title: "URL",
-    fields: ["URL"],
-  },
-];
-
 const FieldList: React.FC<Props> = ({ addField }) => {
   const t = useT();
+
+  const data: FieldListItem[] = [
+    {
+      title: t("Text"),
+      fields: ["Text", "TextArea", "MarkdownText"],
+    },
+    {
+      title: t("Asset"),
+      fields: ["Asset"],
+    },
+    {
+      title: t("Select"),
+      fields: ["Select"],
+    },
+    {
+      title: t("Number"),
+      fields: ["Integer"],
+    },
+    {
+      title: t("URL"),
+      fields: ["URL"],
+    },
+  ];
+
   return (
     <>
       <h1>{t("Add Field")}</h1>
@@ -53,8 +54,8 @@ const FieldList: React.FC<Props> = ({ addField }) => {
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
-                  title={fieldTypes[field].title}
-                  description={fieldTypes[field].description}
+                  title={t(fieldTypes[field].title)}
+                  description={t(fieldTypes[field].description)}
                 />
               </List.Item>
             ))}

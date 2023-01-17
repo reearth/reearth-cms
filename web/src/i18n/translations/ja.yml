@@ -90,6 +90,7 @@ Request: リクエスト
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください。
+Home: ''
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
@@ -175,12 +176,15 @@ Reopen: ''
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
-WAITING: レビュー待ち
+DRAFT: ドラフト
 APPROVED: 承認済
 CLOSED: クローズ済
-DRAFT: ドラフト
+WAITING: レビュー待ち
 Current user: 現在のユーザー
 Updated At: 更新日時
+Text: ''
+Select: ''
+Number: ''
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
@@ -204,6 +208,17 @@ Ensures that multiple entries can't have the same value for this field: この�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Heading and titles, one-line field: ''
+TextArea: ''
+Multi line text: ''
+Markdown text: ''
+Rich text which supports md style: ''
+Asset file: ''
+Option: ''
+Multiple select: ''
+Int: ''
+Integer: ''
+http/https URL: ''
 Are you sure you want to delete this field?: このフィールドを削除します、よろしいですか？
 Update Model: モデルを更新
 Model name: モデル名
