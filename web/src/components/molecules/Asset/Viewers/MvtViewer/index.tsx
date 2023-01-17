@@ -27,11 +27,7 @@ const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
       onGetViewer={onGetViewer}
       properties={attributes}
       entitySelected={featureSelected}>
-      <Imagery
-        url="http://localhost:8080/assets/cd/4830d5-6cb2-4d2a-9b82-9f97e21c94ad/19201_kofu-shi_2022_citygml_1_lsld.zip"
-        handleProperties={setProperties}
-        selectFeature={selectFeature}
-      />
+      <Imagery url={url} handleProperties={setProperties} selectFeature={selectFeature} />
     </ResiumViewer>
   );
 };
