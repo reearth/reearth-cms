@@ -94,21 +94,25 @@ const RequestListTable: React.FC<Props> = ({
       key: "requestState",
       render: (_, request) => {
         let color = "";
+        let text = t("DRAFT");
         switch (request.state) {
           case "APPROVED":
             color = "#52C41A";
+            text = t("APPROVED");
             break;
           case "CLOSED":
             color = "#F5222D";
+            text = t("CLOSED");
             break;
           case "WAITING":
             color = "#FA8C16";
+            text = t("WAITING");
             break;
           case "DRAFT":
           default:
             break;
         }
-        return <Badge color={color} text={request.state} />;
+        return <Badge color={color} text={text} />;
       },
       filters: [
         { text: t("WAITING"), value: "WAITING" },
