@@ -7,8 +7,7 @@ import (
 )
 
 func TestSortTypeFrom(t *testing.T) {
-	input := "Date"
-	want := SortTypeDate
-	assert.Equal(t, want, SortTypeFrom(input))
-	assert.Equal(t, SortType(""), SortTypeFrom("xxx"))
+	assert.Equal(t, SortTypeCreationDate, SortTypeFrom("creation_date"))
+	assert.Equal(t, SortTypeModificationDate, SortTypeFrom("modification_date"))
+	assert.Equal(t, SortTypeModificationDate, SortTypeFrom("xxx"))
 }

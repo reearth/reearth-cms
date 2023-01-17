@@ -190,16 +190,28 @@ func TestToItemQuery(t *testing.T) {
 
 func TestToItemSort(t *testing.T) {
 	input1 := &ItemSort{
-		SortBy:    ItemSortTypeDate,
+		SortBy:    ItemSortTypeCreationDate,
 		Direction: lo.ToPtr(SortDirectionDesc),
 	}
 	want1 := &item.Sort{
 		Direction: item.DescDirection,
-		SortBy:    item.SortTypeDate,
+		SortBy:    item.SortTypeCreationDate,
 	}
 	got1 := ToItemSort(input1)
 	assert.Equal(t, want1, got1)
-	got2 := ToItemSort(nil)
-	var want2 *item.Sort
+
+	input2 := &ItemSort{
+		SortBy:    ItemSortTypeModificationDate,
+		Direction: lo.ToPtr(SortDirectionAsc),
+	}
+	want2 := &item.Sort{
+		Direction: item.AscDirection,
+		SortBy:    item.SortTypeModificationDate,
+	}
+	got2 := ToItemSort(input2)
 	assert.Equal(t, want2, got2)
+
+	got3 := ToItemSort(nil)
+	var want3 *item.Sort
+	assert.Equal(t, want3, got3)
 }
