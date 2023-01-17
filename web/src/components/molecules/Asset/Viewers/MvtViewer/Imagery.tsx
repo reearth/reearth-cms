@@ -1,5 +1,5 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { ImageryLayer, ImageryLayerCollection, Viewer, Math } from "cesium";
+import { ImageryLayer, ImageryLayerCollection, Math } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -21,7 +21,7 @@ type TileCoordinates = {
 };
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
-  const { viewer }: { viewer: Viewer } = useCesium();
+  const { viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Viewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -42,8 +41,6 @@ type Props = {
   ) => void | undefined;
   onChangeToFullScreen: () => void;
 };
-
-export let viewerRef: Viewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
