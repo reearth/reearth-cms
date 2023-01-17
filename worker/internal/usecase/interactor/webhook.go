@@ -10,7 +10,7 @@ import (
 
 func (u *Usecase) SendWebhook(ctx context.Context, w *webhook.Webhook) error {
 	eid := fmt.Sprintf("%s_%s", w.EventID, w.WebhookID)
-	found, err := u.webhook.GetOrSet(ctx, eid)
+	found, err := u.webhook.GetAndSet(ctx, eid)
 	if err != nil {
 		log.Errorf("webhook usecase: failed to get webhook sent: %v", err)
 	}

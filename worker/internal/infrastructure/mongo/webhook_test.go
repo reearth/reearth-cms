@@ -20,11 +20,18 @@ func TestWebhook(t *testing.T) {
 	assert.NoError(t, w.InitIndex(ctx))
 	assert.NoError(t, w.InitIndex(ctx)) // second
 
+	err := w.Delete(ctx, "hogehoge")
+	assert.NoError(t, err)
+
 	f, err := w.Get(ctx, "hogehoge")
 	assert.False(t, f)
 	assert.NoError(t, err)
 
-	f, err = w.GetOrSet(ctx, "hogehoge")
+	f, err = w.GetAndSet(ctx, "hogehoge")
+	assert.False(t, f)
+	assert.NoError(t, err)
+
+	f, err = w.GetAndSet(ctx, "hogehoge")
 	assert.True(t, f)
 	assert.NoError(t, err)
 
@@ -35,8 +42,8 @@ func TestWebhook(t *testing.T) {
 	assert.False(t, f)
 	assert.NoError(t, err)
 
-	f, err = w.GetOrSet(ctx, "hogehoge")
-	assert.True(t, f)
+	f, err = w.GetAndSet(ctx, "hogehoge")
+	assert.False(t, f)
 	assert.NoError(t, err)
 
 	f, err = w.Get(ctx, "hogehoge")
