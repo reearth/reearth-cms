@@ -182,9 +182,9 @@ CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
 Updated At: 更新日時
-Text: ''
-Select: ''
-Number: ''
+Text: テキスト
+Select: セレクト
+Number: 数値
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
