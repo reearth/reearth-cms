@@ -39,6 +39,21 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 
 type VersionedList []Versioned
 
+func (l VersionedList) SortByCreationDate(dir Direction) VersionedList {
+	m := slices.Clone(l)
+
+	if dir == DescDirection {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().ID().Timestamp().After(b.Value().ID().Timestamp())
+		})
+	} else {
+		slices.SortFunc(m, func(a, b Versioned) bool {
+			return a.Value().ID().Timestamp().Before(b.Value().ID().Timestamp())
+		})
+	}
+	return m
+}
+
 func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 	m := slices.Clone(l)
 
@@ -53,6 +68,7 @@ func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 	}
 	return m
 }
+
 func (l VersionedList) Sort(st *Sort) VersionedList {
 	m := slices.Clone(l)
 	if st == nil {
@@ -60,10 +76,12 @@ func (l VersionedList) Sort(st *Sort) VersionedList {
 	}
 
 	switch st.SortBy {
-	case SortTypeDate:
+	case SortTypeCreationDate:
+		return l.SortByCreationDate(st.Direction)
+	case SortTypeModificationDate:
 		return l.SortByTimestamp(st.Direction)
 	default:
-		return l.SortByTimestamp(AscDirection)
+		return l.SortByTimestamp(DescDirection)
 	}
 }
 

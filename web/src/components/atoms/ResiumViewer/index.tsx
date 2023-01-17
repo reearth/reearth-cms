@@ -1,8 +1,10 @@
 import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } from "cesium";
-import { ComponentProps, useCallback, useState } from "react";
+import { ComponentProps, useCallback, useMemo, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
+
+import { sortProperties } from "./sortProperty";
 
 type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
@@ -52,6 +54,10 @@ const ResiumViewer: React.FC<Props> = ({
     setInfoBoxVisibility(false);
   }, []);
 
+  const sortedProperties: any = useMemo(() => {
+    return sortProperties(passedProps ?? properties);
+  }, [passedProps, properties]);
+
   return (
     <div style={{ position: "relative" }}>
       <RViewer
@@ -78,7 +84,7 @@ const ResiumViewer: React.FC<Props> = ({
         {children}
       </RViewer>
       <InfoBox
-        infoBoxProps={passedProps ?? properties}
+        infoBoxProps={sortedProperties}
         infoBoxVisibility={infoBoxVisibility || !!entitySelected}
         title={title}
         onClose={handleClose}
