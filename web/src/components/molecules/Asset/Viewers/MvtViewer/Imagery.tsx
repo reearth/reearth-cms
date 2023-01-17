@@ -6,7 +6,11 @@ import { useCesium } from "resium";
 
 type Props = {
   url: string;
+  handleProperties: (prop: Property) => void;
+  selectFeature: (selected: boolean) => void;
 };
+
+export type Property = { [k: string]: string | number | boolean };
 
 // TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
@@ -16,7 +20,7 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
   const { viewer }: { viewer: Viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
@@ -58,7 +62,9 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           lineWidth: 1,
         };
       },
-      onSelectFeature: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+      onSelectFeature: (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+        handleProperties(feature.properties);
+        selectFeature(true);
         setIsFeatureSelected(v => !v);
       },
     };
@@ -75,7 +81,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
         viewer.zoomTo(entity, {
           heading: Math.toRadians(90.0),
           pitch: Math.toRadians(-90.0),
-          range: 20000000,
+          range: 3000000,
         });
       }
 

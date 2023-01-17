@@ -1,5 +1,5 @@
 import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } from "cesium";
-import { ComponentProps, useCallback, useState } from "react";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
@@ -7,9 +7,17 @@ import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 type Props = {
   onGetViewer: (viewer: Viewer | undefined) => void;
   children?: React.ReactNode;
+  properties?: any;
+  entitySelected?: boolean;
 } & ComponentProps<typeof RViewer>;
 
-const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
+const ResiumViewer: React.FC<Props> = ({
+  onGetViewer,
+  children,
+  properties: passedProps,
+  entitySelected,
+  ...props
+}) => {
   let viewer: Viewer | undefined;
   const [properties, setProperties] = useState<any>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
@@ -70,8 +78,8 @@ const ResiumViewer: React.FC<Props> = ({ onGetViewer, children, ...props }) => {
         {children}
       </RViewer>
       <InfoBox
-        infoBoxProps={properties}
-        infoBoxVisibility={infoBoxVisibility}
+        infoBoxProps={passedProps ?? properties}
+        infoBoxVisibility={infoBoxVisibility || !!entitySelected}
         title={title}
         onClose={handleClose}
       />
