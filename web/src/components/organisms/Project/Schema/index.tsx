@@ -33,6 +33,10 @@ const ProjectSchema: React.FC = () => {
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
+    totalCount,
+    page,
+    pageSize,
+    handleAssetTableChange,
   } = useAssetHooks();
 
   const {
@@ -77,6 +81,10 @@ const ProjectSchema: React.FC = () => {
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
           assetList={assetList}
+          onAssetTableChange={handleAssetTableChange}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
           fileList={fileList}
           loadingAssets={loading}
           uploading={uploading}
@@ -103,6 +111,10 @@ const ProjectSchema: React.FC = () => {
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldUpdateModalClose}
           onSubmit={handleFieldUpdate}
+          onAssetTableChange={handleAssetTableChange}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loading}
