@@ -208,17 +208,17 @@ Ensures that multiple entries can't have the same value for this field: この�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
-Heading and titles, one-line field: ''
-TextArea: ''
-Multi line text: ''
-Markdown text: ''
-Rich text which supports md style: ''
-Asset file: ''
-Option: ''
-Multiple select: ''
-Int: ''
-Integer: ''
-http/https URL: ''
+Heading and titles, one-line field: タイトルなどに利用する1行のフィールドです。
+TextArea: テキストエリア
+Multi line text: 複数行テキスト
+Markdown text: マークダウン
+Rich text which supports md style: マークダウン対応のリッチテキスト
+Asset file: アセット
+Option: 選択
+Multiple select: 複数選択
+Int: 整数値
+Integer: 整数値
+http/https URL: URL
 Are you sure you want to delete this field?: このフィールドを削除します、よろしいですか？
 Update Model: モデルを更新
 Model name: モデル名
