@@ -1,26 +1,29 @@
 import { Cesium3DTileFeature, createWorldTerrain, Viewer, JulianDate, Entity } from "cesium";
-import { ComponentProps, useCallback, useMemo, useState } from "react";
-import { CesiumMovementEvent, RootEventTarget, Viewer as RViewer } from "resium";
+import { ComponentProps, useCallback, useMemo, useRef, useState } from "react";
+import {
+  CesiumComponentRef,
+  CesiumMovementEvent,
+  RootEventTarget,
+  Viewer as RViewer,
+} from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  onGetViewer: (viewer: Viewer | undefined) => void;
   children?: React.ReactNode;
   properties?: any;
   entitySelected?: boolean;
 } & ComponentProps<typeof RViewer>;
 
 const ResiumViewer: React.FC<Props> = ({
-  onGetViewer,
   children,
   properties: passedProps,
   entitySelected,
   ...props
 }) => {
-  let viewer: Viewer | undefined;
+  const ref = useRef<CesiumComponentRef<Viewer>>(null);
   const [properties, setProperties] = useState<any>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
@@ -58,10 +61,12 @@ const ResiumViewer: React.FC<Props> = ({
     return sortProperties(passedProps ?? properties);
   }, [passedProps, properties]);
 
+  const terrainProvider = useMemo(createWorldTerrain, []);
+
   return (
     <div style={{ position: "relative" }}>
       <RViewer
-        terrainProvider={createWorldTerrain()}
+        terrainProvider={terrainProvider}
         navigationHelpButton={false}
         homeButton={false}
         projectionPicker={false}
@@ -76,10 +81,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={e => {
-          viewer = e?.cesiumElement;
-          onGetViewer(viewer);
-        }}
+        ref={ref}
         {...props}>
         {children}
       </RViewer>

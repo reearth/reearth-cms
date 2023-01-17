@@ -62,18 +62,14 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: Viewer | undefined) => {
-    viewerRef = viewer;
-  };
-
   const renderPreview = useCallback(() => {
     switch (true) {
       case viewerType === "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
+        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} />;
       case viewerType === "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} onGetViewer={getViewer} />;
+        return <Geo3dViewer url={assetUrl} />;
       case viewerType === "geo_mvt":
-        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
+        return <MvtViewer url={assetUrl} />;
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
