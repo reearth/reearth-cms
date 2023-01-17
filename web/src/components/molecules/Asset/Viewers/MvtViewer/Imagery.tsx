@@ -34,8 +34,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       : url.replace(nameRegex, "");
     setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
     const res = await fetch(`${base}/metadata.json`);
-    const data = await res?.json();
-    return data;
+    return res.ok ? await res?.json() : undefined;
   }, []);
 
   const lookAtPosition = useCallback(
@@ -51,6 +50,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
 
   const setCameraPosition = useCallback(
     (position: string) => {
+      console.log(position);
       const regex =
         /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
       if (position?.match(regex)) {
