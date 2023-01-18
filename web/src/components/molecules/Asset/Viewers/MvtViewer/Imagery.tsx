@@ -60,18 +60,23 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     [viewer.camera],
   );
 
-  useEffect(() => {
-    const initViewer = async (url: string) => {
+  const initViewer = useCallback(
+    async (url: string) => {
       try {
         const data = await fetchMvtMetaData(url);
         if (data?.name) setLayerName(data.name);
         setCameraPosition(data?.center);
       } catch (error) {
+        // TODO: handle the error
         console.error(error);
       }
-    };
+    },
+    [fetchMvtMetaData, setCameraPosition],
+  );
+
+  useEffect(() => {
     initViewer(url);
-  }, [fetchMvtMetaData, setCameraPosition, url, viewer, viewer.camera]);
+  }, [initViewer, url]);
 
   const style = useCallback(
     (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
