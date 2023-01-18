@@ -285,8 +285,6 @@ Failed to delete field.: フィールドの削除に失敗しました。
 Successfully deleted field!: フィールドの削除に成功しました。
 Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
-Failed to update one or more field.: フィールドの更新に失敗しました。
-Successfully updated one or more fields!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。

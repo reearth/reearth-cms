@@ -122,10 +122,10 @@ export default () => {
         },
       });
       if (field.errors || !field.data?.updateFieldsOrder) {
-        Notification.error({ message: t("Failed to update fields.") });
+        Notification.error({ message: t("Failed to update field.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated fields!") });
+      Notification.success({ message: t("Successfully updated field!") });
       setFieldUpdateModalShown(false);
     },
     [modelId, updateFieldsOrder, t],
