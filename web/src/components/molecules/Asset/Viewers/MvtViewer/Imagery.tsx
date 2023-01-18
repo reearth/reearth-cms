@@ -37,30 +37,27 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     return res.ok ? await res?.json() : undefined;
   }, []);
 
-  const lookAtPosition = useCallback(
-    (position = Cartesian3.fromDegrees(139.767052, 35.681167, 100), range = 3000000) => {
-      viewer.camera.lookAt(position, {
-        heading: Math.toRadians(90.0),
-        pitch: Math.toRadians(-90.0),
-        range: range,
-      });
-    },
-    [viewer.camera],
-  );
-
   const setCameraPosition = useCallback(
     (position: string) => {
-      console.log(position);
       const regex =
         /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
       if (position?.match(regex)) {
         const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
-        lookAtPosition(Cartesian3.fromDegrees(x, y, z), 200000);
+        viewer.camera.lookAt(Cartesian3.fromDegrees(x, y, z), {
+          heading: Math.toRadians(90.0),
+          pitch: Math.toRadians(-90.0),
+          range: 200000,
+        });
       } else {
-        lookAtPosition();
+        // default position
+        viewer.camera.lookAt(Cartesian3.fromDegrees(139.767052, 35.681167, 100), {
+          heading: Math.toRadians(90.0),
+          pitch: Math.toRadians(-90.0),
+          range: 3000000,
+        });
       }
     },
-    [lookAtPosition],
+    [viewer.camera],
   );
 
   useEffect(() => {
@@ -74,7 +71,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       }
     };
     initViewer(url);
-  }, [fetchMvtMetaData, lookAtPosition, setCameraPosition, url, viewer, viewer.camera]);
+  }, [fetchMvtMetaData, setCameraPosition, url, viewer, viewer.camera]);
 
   const style = useCallback(
     (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
