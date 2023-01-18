@@ -66,6 +66,16 @@ export const UPDATE_FIELD = gql`
   }
 `;
 
+export const UPDATE_FIELDS_ORDER = gql`
+  mutation UpdateFieldsOrder($modelId: ID!, $fieldsOrder: [FieldOrder!]!) {
+    updateFieldsOrder(input: { modelId: $modelId, fieldsOrder: $fieldsOrder }) {
+      fields {
+        id
+      }
+    }
+  }
+`;
+
 export const DELETE_FIELD = gql`
   mutation DeleteField($modelId: ID!, $fieldId: ID!) {
     deleteField(input: { modelId: $modelId, fieldId: $fieldId }) {

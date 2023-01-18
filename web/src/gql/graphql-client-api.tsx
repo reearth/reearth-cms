@@ -309,9 +309,19 @@ export type DeleteWorkspacePayload = {
   workspaceId: Scalars['ID'];
 };
 
+export type FieldOrder = {
+  fieldId: Scalars['ID'];
+  order: Scalars['Int'];
+};
+
 export type FieldPayload = {
   __typename?: 'FieldPayload';
   field: SchemaField;
+};
+
+export type FieldsPayload = {
+  __typename?: 'FieldsPayload';
+  fields: Array<SchemaField>;
 };
 
 export type Integration = Node & {
@@ -407,8 +417,7 @@ export type ItemSort = {
 };
 
 export enum ItemSortType {
-  CreationDate = 'CREATION_DATE',
-  ModificationDate = 'MODIFICATION_DATE'
+  Date = 'DATE'
 }
 
 export type KeyAvailability = {
@@ -504,6 +513,7 @@ export type Mutation = {
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
+  updateFieldsOrder?: Maybe<FieldsPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
   updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateItem?: Maybe<ItemPayload>;
@@ -674,6 +684,11 @@ export type MutationUpdateCommentArgs = {
 
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
+};
+
+
+export type MutationUpdateFieldsOrderArgs = {
+  input: UpdateFieldsOrderInput;
 };
 
 
@@ -1264,6 +1279,11 @@ export type UpdateFieldInput = {
   unique?: InputMaybe<Scalars['Boolean']>;
 };
 
+export type UpdateFieldsOrderInput = {
+  fieldsOrder: Array<FieldOrder>;
+  modelId: Scalars['ID'];
+};
+
 export type UpdateIntegrationInput = {
   description?: InputMaybe<Scalars['String']>;
   integrationId: Scalars['ID'];
@@ -1551,6 +1571,14 @@ export type UpdateFieldMutationVariables = Exact<{
 
 
 export type UpdateFieldMutation = { __typename?: 'Mutation', updateField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
+
+export type UpdateFieldsOrderMutationVariables = Exact<{
+  modelId: Scalars['ID'];
+  fieldsOrder: Array<FieldOrder> | FieldOrder;
+}>;
+
+
+export type UpdateFieldsOrderMutation = { __typename?: 'Mutation', updateFieldsOrder?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
 
 export type DeleteFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2612,6 +2640,42 @@ export function useUpdateFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateFieldMutationHookResult = ReturnType<typeof useUpdateFieldMutation>;
 export type UpdateFieldMutationResult = Apollo.MutationResult<UpdateFieldMutation>;
 export type UpdateFieldMutationOptions = Apollo.BaseMutationOptions<UpdateFieldMutation, UpdateFieldMutationVariables>;
+export const UpdateFieldsOrderDocument = gql`
+    mutation UpdateFieldsOrder($modelId: ID!, $fieldsOrder: [FieldOrder!]!) {
+  updateFieldsOrder(input: {modelId: $modelId, fieldsOrder: $fieldsOrder}) {
+    fields {
+      id
+    }
+  }
+}
+    `;
+export type UpdateFieldsOrderMutationFn = Apollo.MutationFunction<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>;
+
+/**
+ * __useUpdateFieldsOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateFieldsOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldsOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFieldsOrderMutation, { data, loading, error }] = useUpdateFieldsOrderMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      fieldsOrder: // value for 'fieldsOrder'
+ *   },
+ * });
+ */
+export function useUpdateFieldsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>(UpdateFieldsOrderDocument, options);
+      }
+export type UpdateFieldsOrderMutationHookResult = ReturnType<typeof useUpdateFieldsOrderMutation>;
+export type UpdateFieldsOrderMutationResult = Apollo.MutationResult<UpdateFieldsOrderMutation>;
+export type UpdateFieldsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>;
 export const DeleteFieldDocument = gql`
     mutation DeleteField($modelId: ID!, $fieldId: ID!) {
   deleteField(input: {modelId: $modelId, fieldId: $fieldId}) {
