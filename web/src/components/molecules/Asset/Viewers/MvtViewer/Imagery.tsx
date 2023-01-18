@@ -1,5 +1,13 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { Cartesian3, ImageryLayer, ImageryLayerCollection, Math } from "cesium";
+import {
+  Cartesian3,
+  ImageryLayer,
+  ImageryLayerCollection,
+  Math,
+  Entity,
+  CustomDataSource,
+  Color,
+} from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -37,27 +45,37 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     return res.ok ? await res?.json() : undefined;
   }, []);
 
+  const zoomTo = useCallback(
+    async (x: number, y: number, z: number, range: number) => {
+      const entity = new Entity({
+        position: Cartesian3.fromDegrees(x, y, z),
+        point: { pixelSize: 1, color: Color.TRANSPARENT },
+      });
+      const dataSource = new CustomDataSource();
+      dataSource.entities.add(entity);
+      viewer.dataSources.add(dataSource);
+      await viewer.zoomTo(entity, {
+        heading: Math.toRadians(90.0),
+        pitch: Math.toRadians(-90.0),
+        range: range,
+      });
+    },
+    [viewer],
+  );
+
   const setCameraPosition = useCallback(
-    (position: string) => {
+    async (position: string) => {
       const regex =
         /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
       if (position?.match(regex)) {
         const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
-        viewer.camera.lookAt(Cartesian3.fromDegrees(x, y, z), {
-          heading: Math.toRadians(90.0),
-          pitch: Math.toRadians(-90.0),
-          range: 200000,
-        });
+        await zoomTo(x, y, z, 200000);
       } else {
         // default position
-        viewer.camera.lookAt(Cartesian3.fromDegrees(139.767052, 35.681167, 100), {
-          heading: Math.toRadians(90.0),
-          pitch: Math.toRadians(-90.0),
-          range: 3000000,
-        });
+        await zoomTo(139.767052, 35.681167, 100, 3000000);
       }
     },
-    [viewer.camera],
+    [zoomTo],
   );
 
   const initViewer = useCallback(
@@ -65,7 +83,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       try {
         const data = await fetchMvtMetaData(url);
         if (data?.name) setLayerName(data.name);
-        setCameraPosition(data?.center);
+        await setCameraPosition(data?.center);
       } catch (error) {
         // TODO: handle the error
         console.error(error);
