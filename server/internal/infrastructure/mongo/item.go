@@ -169,18 +169,6 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	return r.client.SaveOne(ctx, id, doc, nil)
 }
 
-func (r *Item) SaveAll(ctx context.Context, items item.List) error {
-	if len(items) == 0 {
-		return nil
-	}
-	docsMap := mongodoc.NewItems(items)
-	docs2 := make(map[string]any, len(items))
-	for i, d := range docsMap {
-		docs2[i] = d
-	}
-	return r.client.SaveMany(ctx, docs2, nil)
-}
-
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
 	return r.client.UpdateRef(ctx, item.String(), ref, vr)
 }

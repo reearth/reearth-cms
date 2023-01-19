@@ -33,9 +33,7 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.thread.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if len(b.i.status) == 0 {
-		b.i.status = append(b.i.status, StatusDraft)
-	}
+
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
@@ -92,11 +90,6 @@ func (b *Builder) Project(pid ProjectID) *Builder {
 
 func (b *Builder) Thread(tid ThreadID) *Builder {
 	b.i.thread = tid
-	return b
-}
-
-func (b *Builder) Status(s []Status) *Builder {
-	b.i.status = s
 	return b
 }
 

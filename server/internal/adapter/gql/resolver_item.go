@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"golang.org/x/exp/slices"
 )
 
 func (r *Resolver) Item() ItemResolver {
@@ -43,6 +44,25 @@ func (i itemResolver) Integration(ctx context.Context, obj *gqlmodel.Item) (*gql
 }
 
 func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) ([]gqlmodel.ItemStatus, error) {
-	//TODO implement me
-	panic("implement me")
+	requests, err := loaders(ctx).Request.FindByItem(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	var res []gqlmodel.ItemStatus
+	for _, request := range requests {
+		switch request.State {
+		case gqlmodel.RequestStateWaiting:
+			if !slices.Contains(res, gqlmodel.ItemStatusReview) {
+				res = append(res, gqlmodel.ItemStatusReview)
+			}
+		case gqlmodel.RequestStateApproved:
+			if !slices.Contains(res, gqlmodel.ItemStatusPublic) {
+				res = append(res, gqlmodel.ItemStatusPublic)
+			}
+		}
+	}
+	if len(res) == 0 {
+		res = append(res, gqlmodel.ItemStatusDraft)
+	}
+	return res, nil
 }

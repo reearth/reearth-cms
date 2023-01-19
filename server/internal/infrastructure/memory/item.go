@@ -255,19 +255,3 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 	})
 	return res, nil
 }
-
-func (r *Item) SaveAll(ctx context.Context, list item.List) error {
-	if r.err != nil {
-		return r.err
-	}
-	for _, itm := range list {
-
-		if !r.f.CanWrite(itm.Project()) {
-			return repo.ErrOperationDenied
-		}
-
-		r.data.SaveOne(itm.ID(), itm, nil)
-	}
-
-	return nil
-}

@@ -15,7 +15,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
@@ -39,6 +38,10 @@ func (r Request) FindByID(ctx context.Context, id id.RequestID, _ *usecase.Opera
 
 func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecase.Operator) (request.List, error) {
 	return r.repos.Request.FindByIDs(ctx, list)
+}
+
+func (r Request) FindByItem(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (request.List, error) {
+	return r.repos.Request.FindByItem(ctx, itemID)
 }
 
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
@@ -121,9 +124,6 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		if err := r.updateItemsStatus(ctx, param.Items.IDs(), req.ID(), item.StatusReview); err != nil {
-			return nil, err
-		}
 		return req, nil
 	})
 }
@@ -151,20 +151,6 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		if param.State != nil {
-			var itemStatus item.Status
-			switch *param.State {
-			case request.StateApproved:
-				return nil, errors.New("can't update by approve")
-			case request.StateWaiting:
-				itemStatus = item.StatusReview
-			default:
-				itemStatus = item.StatusDraft
-			}
-
-			if err := r.updateItemsStatus(ctx, param.Items.IDs(), req.ID(), itemStatus); err != nil {
-				return nil, err
-			}
-
 			req.SetState(*param.State)
 		}
 
@@ -212,11 +198,7 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	if err != nil {
 		return err
 	}
-	for _, req := range reqs {
-		if err := r.updateItemsStatus(ctx, req.Items().IDs(), req.ID(), item.StatusDraft); err != nil {
-			return err
-		}
-	}
+
 	reqs.UpdateStatus(request.StateClosed)
 
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
@@ -256,10 +238,6 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 				return nil, err
 			}
 		}
-		// update items status
-		if err := r.updateItemsStatus(ctx, req.Items().IDs(), req.ID(), item.StatusPublic); err != nil {
-			return nil, err
-		}
 
 		return req, nil
 	})
@@ -294,64 +272,6 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		}
 	}
 	return req, nil
-}
-
-func (r Request) updateItemsStatus(ctx context.Context, list id.ItemIDList, rid id.RequestID, status item.Status) error {
-	var res item.List
-	for _, iid := range list {
-		requests, err := r.repos.Request.FindByItem(ctx, iid)
-		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-			return err
-		}
-		if len(requests) == 0 {
-			return nil
-		}
-		vi, err := r.repos.Item.FindByID(ctx, iid, nil)
-		if err != nil {
-			return err
-		}
-		itm := vi.Value()
-		var s []item.Status
-		switch status {
-		case item.StatusReview:
-			for _, r := range requests {
-				if r.State() == request.StateApproved {
-					s = []item.Status{item.StatusPublic, item.StatusReview}
-				}
-			}
-			if len(s) == 0 {
-				s = []item.Status{item.StatusReview}
-			}
-		case item.StatusPublic:
-			for _, r := range requests {
-				if r.State() == request.StateWaiting && r.ID() != rid {
-					s = []item.Status{item.StatusPublic, item.StatusReview}
-				}
-			}
-			if len(s) == 0 {
-				s = []item.Status{item.StatusPublic}
-			}
-		case item.StatusDraft:
-			for _, r := range requests {
-				if r.State() == request.StateWaiting && r.ID() != rid {
-					s = []item.Status{item.StatusReview}
-				}
-				if r.State() == request.StateApproved && r.ID() != rid {
-					s = []item.Status{item.StatusPublic}
-				}
-			}
-			if len(s) == 0 {
-				s = []item.Status{item.StatusDraft}
-			}
-		default:
-			return nil
-		}
-
-		itm.SetStatus(s)
-		res = append(res, itm)
-	}
-
-	return r.repos.Item.SaveAll(ctx, res)
 }
 
 func (r Request) event(ctx context.Context, e Event) error {

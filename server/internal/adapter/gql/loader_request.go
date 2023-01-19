@@ -77,6 +77,21 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 		TotalCount: int(pi.TotalCount),
 	}, nil
 }
+func (c *RequestLoader) FindByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.Request, error) {
+	iid, err := gqlmodel.ToID[id.Item](itemID)
+	if err != nil {
+		return nil, err
+	}
+
+	requests, err := c.usecase.FindByItem(ctx, iid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return util.Map(requests, func(req *request.Request) *gqlmodel.Request {
+		return gqlmodel.ToRequest(req)
+	}), nil
+}
 
 type RequestDataLoader interface {
 	Load(gqlmodel.ID) (*gqlmodel.Request, error)
