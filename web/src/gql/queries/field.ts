@@ -66,6 +66,16 @@ export const UPDATE_FIELD = gql`
   }
 `;
 
+export const UPDATE_FIELDS = gql`
+  mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
+    updateFields(input: $updateFieldInput) {
+      fields {
+        id
+      }
+    }
+  }
+`;
+
 export const DELETE_FIELD = gql`
   mutation DeleteField($modelId: ID!, $fieldId: ID!) {
     deleteField(input: { modelId: $modelId, fieldId: $fieldId }) {
