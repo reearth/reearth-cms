@@ -1,5 +1,8 @@
 //go:build tools
 
+//go:generate go run github.com/nicksnyder/go-i18n/v2/goi18n@latest extract -outdir ./intrnal/app/i18n -format yaml
+//go:generate go run github.com/nicksnyder/go-i18n/v2/goi18n@latest merge -outdir ./intrnal/app/i18n -format yaml ./intrnal/app/i18n/locale.en.yaml ./intrnal/app/i18n/translate.ja.yaml
+
 package tools
 
 import (

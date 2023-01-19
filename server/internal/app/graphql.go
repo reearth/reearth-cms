@@ -13,13 +13,14 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 const (
 	enableDataLoaders = true
-	maxUploadSize     = 10 * 1024 * 1024 * 1024 //10GB
-	maxMemorySize     = 100 * 1024 * 1024       //100MB
+	maxUploadSize     = 10 * 1024 * 1024 * 1024 // 10GB
+	maxMemorySize     = 100 * 1024 * 1024       // 100MB
 )
 
 func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
@@ -59,19 +60,11 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		Cache: lru.New(30),
 	})
 
-	srv.SetErrorPresenter(
-		// show more detailed error messgage in debug mode
-		func(ctx context.Context, e error) *gqlerror.Error {
-			if dev {
-				return gqlerror.ErrorPathf(graphql.GetFieldContext(ctx).Path(), e.Error())
-			}
-			return graphql.DefaultErrorPresenter(ctx, e)
-		},
-	)
-
 	return func(c echo.Context) error {
 		req := c.Request()
 		ctx := req.Context()
+
+		setErrorPresenter(c, srv, dev)
 
 		usecases := adapter.Usecases(ctx)
 		ctx = gql.AttachUsecases(ctx, usecases, enableDataLoaders)
@@ -80,4 +73,26 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		srv.ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
+}
+
+func setErrorPresenter(c echo.Context, srv *handler.Server, dev bool) {
+	srv.SetErrorPresenter(
+		func(ctx context.Context, e error) *gqlerror.Error {
+			if dev {
+				return gqlerror.ErrorPathf(graphql.GetFieldContext(ctx).Path(), e.Error())
+			}
+
+			if l := t(c); l != nil {
+				err := e
+				if gqlErr, ok := e.(*gqlerror.Error); ok {
+					err = gqlErr.Unwrap()
+				}
+				if err, ok := err.(rerror.Localizable); ok {
+					return graphql.DefaultErrorPresenter(ctx, err.LocalizeError(l))
+				}
+			}
+
+			return graphql.DefaultErrorPresenter(ctx, e)
+		},
+	)
 }

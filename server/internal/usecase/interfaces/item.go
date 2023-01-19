@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -11,13 +12,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 var (
 	ErrItemFieldRequired   = errors.New("item field required")
 	ErrInvalidField        = errors.New("invalid field")
-	ErrDuplicatedItemValue = errors.New("duplicated value")
+	ErrDuplicatedItemValue = rerror.NewE(&i18n.Message{ID: "item:duplicated value", Other: "The inserted value is duplicated"})
 	ErrFieldValueExist     = errors.New("field value exist")
 )
 
