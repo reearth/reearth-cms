@@ -96,6 +96,62 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.
 	return nil
 }
 
+func (c *Collection) SaveMany(ctx context.Context, docsMap map[string]any, vr *version.VersionOrRef) error {
+	docs := make([]any, 0, len(docsMap))
+	for id, d := range docsMap {
+		q := bson.M{
+			"id":    id,
+			metaKey: true,
+		}
+		if archived, err := c.IsArchived(ctx, q); err != nil {
+			return err
+		} else if archived {
+			return version.ErrArchived
+		}
+
+		actualVr := lo.FromPtrOr(vr, version.Latest.OrVersion())
+		meta, err := c.meta(ctx, id, actualVr.Ref())
+		if err != nil {
+			return err
+		}
+
+		var newmeta Meta
+		var refs []version.Ref
+		actualVr.Match(nil, func(r version.Ref) { refs = []version.Ref{r} })
+		if meta == nil {
+			if !actualVr.IsRef(version.Latest) {
+				return rerror.ErrNotFound // invalid dest
+			}
+			newmeta = Meta{
+				Version: version.New(),
+				Refs:    refs,
+			}
+		} else {
+			newmeta = Meta{
+				Version: version.New(),
+				Parents: []version.Version{meta.Version},
+				Refs:    refs,
+			}
+		}
+
+		if err := version.MatchVersionOrRef(actualVr, nil, func(r version.Ref) error {
+			return c.UpdateRef(ctx, id, r, nil)
+		}); err != nil {
+			return err
+		}
+		docs = append(docs, &Document[any]{
+			Data: d,
+			Meta: newmeta,
+		})
+	}
+
+	if _, err := c.client.Client().InsertMany(ctx, docs); err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	return nil
+}
+
 func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
 	current, err := c.meta(ctx, id, ref.OrVersion().Ref())
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
