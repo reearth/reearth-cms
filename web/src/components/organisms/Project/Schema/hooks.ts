@@ -9,7 +9,7 @@ import {
   SchemaFieldTypePropertyInput,
   useDeleteFieldMutation,
   useUpdateFieldMutation,
-  useUpdateFieldsOrderMutation,
+  useUpdateFieldsMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
@@ -108,20 +108,23 @@ export default () => {
     [modelId, updateField, t],
   );
 
-  const [updateFieldsOrder] = useUpdateFieldsOrderMutation({
+  const [updateFieldsOrder] = useUpdateFieldsMutation({
     refetchQueries: ["GetModels"],
   });
 
   const handleFieldOrder = useCallback(
     async (fields: Field[]) => {
       if (!modelId) return;
-      const field = await updateFieldsOrder({
+      const response = await updateFieldsOrder({
         variables: {
-          modelId,
-          fieldsOrder: fields.map((field, index) => ({ fieldId: field.id, order: index })),
+          updateFieldInput: fields.map((field, index) => ({
+            modelId,
+            fieldId: field.id,
+            order: index,
+          })),
         },
       });
-      if (field.errors || !field.data?.updateFieldsOrder) {
+      if (response.errors || !response?.data?.updateFields) {
         Notification.error({ message: t("Failed to update field.") });
         return;
       }

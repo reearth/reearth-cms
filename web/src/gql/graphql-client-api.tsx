@@ -309,11 +309,6 @@ export type DeleteWorkspacePayload = {
   workspaceId: Scalars['ID'];
 };
 
-export type FieldOrder = {
-  fieldId: Scalars['ID'];
-  order: Scalars['Int'];
-};
-
 export type FieldPayload = {
   __typename?: 'FieldPayload';
   field: SchemaField;
@@ -417,7 +412,8 @@ export type ItemSort = {
 };
 
 export enum ItemSortType {
-  Date = 'DATE'
+  CreationDate = 'CREATION_DATE',
+  ModificationDate = 'MODIFICATION_DATE'
 }
 
 export type KeyAvailability = {
@@ -513,7 +509,7 @@ export type Mutation = {
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
-  updateFieldsOrder?: Maybe<FieldsPayload>;
+  updateFields?: Maybe<FieldsPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
   updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateItem?: Maybe<ItemPayload>;
@@ -687,8 +683,8 @@ export type MutationUpdateFieldArgs = {
 };
 
 
-export type MutationUpdateFieldsOrderArgs = {
-  input: UpdateFieldsOrderInput;
+export type MutationUpdateFieldsArgs = {
+  input: Array<UpdateFieldInput>;
 };
 
 
@@ -1279,11 +1275,6 @@ export type UpdateFieldInput = {
   unique?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type UpdateFieldsOrderInput = {
-  fieldsOrder: Array<FieldOrder>;
-  modelId: Scalars['ID'];
-};
-
 export type UpdateIntegrationInput = {
   description?: InputMaybe<Scalars['String']>;
   integrationId: Scalars['ID'];
@@ -1572,13 +1563,12 @@ export type UpdateFieldMutationVariables = Exact<{
 
 export type UpdateFieldMutation = { __typename?: 'Mutation', updateField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
 
-export type UpdateFieldsOrderMutationVariables = Exact<{
-  modelId: Scalars['ID'];
-  fieldsOrder: Array<FieldOrder> | FieldOrder;
+export type UpdateFieldsMutationVariables = Exact<{
+  updateFieldInput: Array<UpdateFieldInput> | UpdateFieldInput;
 }>;
 
 
-export type UpdateFieldsOrderMutation = { __typename?: 'Mutation', updateFieldsOrder?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
+export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
 
 export type DeleteFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2640,42 +2630,41 @@ export function useUpdateFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateFieldMutationHookResult = ReturnType<typeof useUpdateFieldMutation>;
 export type UpdateFieldMutationResult = Apollo.MutationResult<UpdateFieldMutation>;
 export type UpdateFieldMutationOptions = Apollo.BaseMutationOptions<UpdateFieldMutation, UpdateFieldMutationVariables>;
-export const UpdateFieldsOrderDocument = gql`
-    mutation UpdateFieldsOrder($modelId: ID!, $fieldsOrder: [FieldOrder!]!) {
-  updateFieldsOrder(input: {modelId: $modelId, fieldsOrder: $fieldsOrder}) {
+export const UpdateFieldsDocument = gql`
+    mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
+  updateFields(input: $updateFieldInput) {
     fields {
       id
     }
   }
 }
     `;
-export type UpdateFieldsOrderMutationFn = Apollo.MutationFunction<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>;
+export type UpdateFieldsMutationFn = Apollo.MutationFunction<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 
 /**
- * __useUpdateFieldsOrderMutation__
+ * __useUpdateFieldsMutation__
  *
- * To run a mutation, you first call `useUpdateFieldsOrderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateFieldsOrderMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldsMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateFieldsOrderMutation, { data, loading, error }] = useUpdateFieldsOrderMutation({
+ * const [updateFieldsMutation, { data, loading, error }] = useUpdateFieldsMutation({
  *   variables: {
- *      modelId: // value for 'modelId'
- *      fieldsOrder: // value for 'fieldsOrder'
+ *      updateFieldInput: // value for 'updateFieldInput'
  *   },
  * });
  */
-export function useUpdateFieldsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>) {
+export function useUpdateFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>(UpdateFieldsOrderDocument, options);
+        return Apollo.useMutation<UpdateFieldsMutation, UpdateFieldsMutationVariables>(UpdateFieldsDocument, options);
       }
-export type UpdateFieldsOrderMutationHookResult = ReturnType<typeof useUpdateFieldsOrderMutation>;
-export type UpdateFieldsOrderMutationResult = Apollo.MutationResult<UpdateFieldsOrderMutation>;
-export type UpdateFieldsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsOrderMutation, UpdateFieldsOrderMutationVariables>;
+export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMutation>;
+export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
+export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const DeleteFieldDocument = gql`
     mutation DeleteField($modelId: ID!, $fieldId: ID!) {
   deleteField(input: {modelId: $modelId, fieldId: $fieldId}) {

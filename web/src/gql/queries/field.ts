@@ -66,9 +66,9 @@ export const UPDATE_FIELD = gql`
   }
 `;
 
-export const UPDATE_FIELDS_ORDER = gql`
-  mutation UpdateFieldsOrder($modelId: ID!, $fieldsOrder: [FieldOrder!]!) {
-    updateFieldsOrder(input: { modelId: $modelId, fieldsOrder: $fieldsOrder }) {
+export const UPDATE_FIELDS = gql`
+  mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
+    updateFields(input: $updateFieldInput) {
       fields {
         id
       }
