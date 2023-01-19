@@ -16,6 +16,14 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AssetArchiveExtractionStatus.
+const (
+	Done       AssetArchiveExtractionStatus = "done"
+	Failed     AssetArchiveExtractionStatus = "failed"
+	InProgress AssetArchiveExtractionStatus = "in_progress"
+	Pending    AssetArchiveExtractionStatus = "pending"
+)
+
 // Defines values for AssetPreviewType.
 const (
 	Geo        AssetPreviewType = "geo"
@@ -129,17 +137,21 @@ const (
 
 // Asset defines model for asset.
 type Asset struct {
-	ContentType *string           `json:"contentType,omitempty"`
-	CreatedAt   *time.Time        `json:"createdAt,omitempty"`
-	File        *File             `json:"file,omitempty"`
-	Id          *id.AssetID       `json:"id,omitempty"`
-	Name        *string           `json:"name,omitempty"`
-	PreviewType *AssetPreviewType `json:"previewType,omitempty"`
-	ProjectId   *id.ProjectID     `json:"projectId,omitempty"`
-	TotalSize   *float32          `json:"totalSize,omitempty"`
-	UpdatedAt   *time.Time        `json:"updatedAt,omitempty"`
-	Url         *string           `json:"url,omitempty"`
+	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
+	ContentType             *string                       `json:"contentType,omitempty"`
+	CreatedAt               *time.Time                    `json:"createdAt,omitempty"`
+	File                    *File                         `json:"file,omitempty"`
+	Id                      *id.AssetID                   `json:"id,omitempty"`
+	Name                    *string                       `json:"name,omitempty"`
+	PreviewType             *AssetPreviewType             `json:"previewType,omitempty"`
+	ProjectId               *id.ProjectID                 `json:"projectId,omitempty"`
+	TotalSize               *float32                      `json:"totalSize,omitempty"`
+	UpdatedAt               *time.Time                    `json:"updatedAt,omitempty"`
+	Url                     *string                       `json:"url,omitempty"`
 }
+
+// AssetArchiveExtractionStatus defines model for Asset.ArchiveExtractionStatus.
+type AssetArchiveExtractionStatus string
 
 // AssetPreviewType defines model for Asset.PreviewType.
 type AssetPreviewType string

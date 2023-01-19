@@ -39,7 +39,12 @@ export default () => {
 
   const [createAssetMutation] = useCreateAssetMutation();
 
-  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection }>();
+  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
+    {
+      type: "DATE",
+      direction: "DESC",
+    },
+  );
   const [searchTerm, setSearchTerm] = useState<string>();
 
   const { data, refetch, loading, networkStatus } = useGetAssetsQuery({

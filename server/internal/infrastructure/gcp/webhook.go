@@ -13,6 +13,7 @@ type webhookData struct {
 	URL       string                  `json:"url"`
 	Secret    string                  `json:"secret"`
 	Timestamp time.Time               `json:"timestamp"`
+	WebhookID string                  `json:"webhookId"`
 	EventID   string                  `json:"eventId"`
 	EventType string                  `json:"type"`
 	EventData any                     `json:"data"`
@@ -29,6 +30,7 @@ func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) (
 		URL:       w.Webhook.URL().String(),
 		Secret:    w.Webhook.Secret(),
 		Timestamp: ed.Timestamp,
+		WebhookID: w.Webhook.ID().String(),
 		EventID:   ed.ID,
 		EventType: ed.Type,
 		EventData: ed.Data,

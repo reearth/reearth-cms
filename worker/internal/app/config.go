@@ -18,6 +18,7 @@ type Config struct {
 	GCS        GCSConfig
 	PubSub     PubSubConfig
 	GCP        GCPConfig `envconfig:"GCP"`
+	DB         string
 }
 
 type GCSConfig struct {

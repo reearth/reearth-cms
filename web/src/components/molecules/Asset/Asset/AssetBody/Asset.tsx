@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Viewer } from "cesium";
+import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -43,7 +43,7 @@ type Props = {
   onChangeToFullScreen: () => void;
 };
 
-export let viewerRef: Viewer | undefined;
+export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -62,7 +62,7 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: Viewer | undefined) => {
+  const getViewer = (viewer: CesiumViewer | undefined) => {
     viewerRef = viewer;
   };
 
