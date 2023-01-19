@@ -120,6 +120,7 @@ const RequestListTable: React.FC<Props> = ({
         { text: t("CLOSED"), value: "CLOSED" },
         { text: t("DRAFT"), value: "DRAFT" },
       ],
+      defaultFilteredValue: ["WAITING"],
     },
     {
       title: t("Created By"),
