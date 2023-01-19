@@ -292,6 +292,10 @@ type FieldPayload struct {
 	Field *SchemaField `json:"field"`
 }
 
+type FieldsPayload struct {
+	Fields []*SchemaField `json:"fields"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
