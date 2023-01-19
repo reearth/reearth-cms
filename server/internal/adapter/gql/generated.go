@@ -324,7 +324,7 @@ type ComplexityRoot struct {
 		UpdateAsset                    func(childComplexity int, input gqlmodel.UpdateAssetInput) int
 		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
-		UpdateFieldsOrder              func(childComplexity int, input gqlmodel.UpdateFieldsOrderInput) int
+		UpdateFields                   func(childComplexity int, input []*gqlmodel.UpdateFieldInput) int
 		UpdateIntegration              func(childComplexity int, input gqlmodel.UpdateIntegrationInput) int
 		UpdateIntegrationOfWorkspace   func(childComplexity int, input gqlmodel.UpdateIntegrationOfWorkspaceInput) int
 		UpdateItem                     func(childComplexity int, input gqlmodel.UpdateItemInput) int
@@ -681,7 +681,7 @@ type MutationResolver interface {
 	DeleteRequest(ctx context.Context, input gqlmodel.DeleteRequestInput) (*gqlmodel.DeleteRequestPayload, error)
 	CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error)
 	UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error)
-	UpdateFieldsOrder(ctx context.Context, input gqlmodel.UpdateFieldsOrderInput) (*gqlmodel.FieldsPayload, error)
+	UpdateFields(ctx context.Context, input []*gqlmodel.UpdateFieldInput) (*gqlmodel.FieldsPayload, error)
 	DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error)
 	CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error)
 	UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error)
@@ -1982,17 +1982,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateField(childComplexity, args["input"].(gqlmodel.UpdateFieldInput)), true
 
-	case "Mutation.updateFieldsOrder":
-		if e.complexity.Mutation.UpdateFieldsOrder == nil {
+	case "Mutation.updateFields":
+		if e.complexity.Mutation.UpdateFields == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateFieldsOrder_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateFields_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateFieldsOrder(childComplexity, args["input"].(gqlmodel.UpdateFieldsOrderInput)), true
+		return e.complexity.Mutation.UpdateFields(childComplexity, args["input"].([]*gqlmodel.UpdateFieldInput)), true
 
 	case "Mutation.updateIntegration":
 		if e.complexity.Mutation.UpdateIntegration == nil {
@@ -3298,7 +3298,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteRequestInput,
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeleteWorkspaceInput,
-		ec.unmarshalInputFieldOrder,
 		ec.unmarshalInputItemFieldInput,
 		ec.unmarshalInputItemQuery,
 		ec.unmarshalInputItemSort,
@@ -3326,7 +3325,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateAssetInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdateFieldInput,
-		ec.unmarshalInputUpdateFieldsOrderInput,
 		ec.unmarshalInputUpdateIntegrationInput,
 		ec.unmarshalInputUpdateIntegrationOfWorkspaceInput,
 		ec.unmarshalInputUpdateItemInput,
@@ -4251,14 +4249,6 @@ input CreateFieldInput {
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
-input FieldOrder{
-  fieldId: ID!
-  order: Int!
-}
-input UpdateFieldsOrderInput {
-  modelId: ID!
-  fieldsOrder: [FieldOrder!]!
-}
 
 input UpdateFieldInput {
   modelId: ID!
@@ -4296,7 +4286,7 @@ type DeleteFieldPayload {
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
   updateField(input: UpdateFieldInput!): FieldPayload
-  updateFieldsOrder(input: UpdateFieldsOrderInput!): FieldsPayload
+  updateFields(input: [UpdateFieldInput!]!): FieldsPayload
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
 }
 `, BuiltIn: false},
@@ -5082,13 +5072,13 @@ func (ec *executionContext) field_Mutation_updateField_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateFieldsOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateFields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.UpdateFieldsOrderInput
+	var arg0 []*gqlmodel.UpdateFieldInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateFieldsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldsOrderInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -13173,8 +13163,8 @@ func (ec *executionContext) fieldContext_Mutation_updateField(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateFieldsOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateFieldsOrder(ctx, field)
+func (ec *executionContext) _Mutation_updateFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateFields(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13187,7 +13177,7 @@ func (ec *executionContext) _Mutation_updateFieldsOrder(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateFieldsOrder(rctx, fc.Args["input"].(gqlmodel.UpdateFieldsOrderInput))
+		return ec.resolvers.Mutation().UpdateFields(rctx, fc.Args["input"].([]*gqlmodel.UpdateFieldInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13201,7 +13191,7 @@ func (ec *executionContext) _Mutation_updateFieldsOrder(ctx context.Context, fie
 	return ec.marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateFieldsOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -13222,7 +13212,7 @@ func (ec *executionContext) fieldContext_Mutation_updateFieldsOrder(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateFieldsOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -24544,42 +24534,6 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFieldOrder(ctx context.Context, obj interface{}) (gqlmodel.FieldOrder, error) {
-	var it gqlmodel.FieldOrder
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"fieldId", "order"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "fieldId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldId"))
-			it.FieldID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "order":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
-			it.Order, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj interface{}) (gqlmodel.ItemFieldInput, error) {
 	var it gqlmodel.ItemFieldInput
 	asMap := map[string]interface{}{}
@@ -25923,42 +25877,6 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateFieldsOrderInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateFieldsOrderInput, error) {
-	var it gqlmodel.UpdateFieldsOrderInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"modelId", "fieldsOrder"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "modelId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "fieldsOrder":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldsOrder"))
-			it.FieldsOrder, err = ec.unmarshalNFieldOrder2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldOrderᚄ(ctx, v)
-			if err != nil {
-				return it, err
 			}
 		}
 	}
@@ -28792,10 +28710,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_updateField(ctx, field)
 			})
 
-		case "updateFieldsOrder":
+		case "updateFields":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateFieldsOrder(ctx, field)
+				return ec._Mutation_updateFields(ctx, field)
 			})
 
 		case "deleteField":
@@ -31843,28 +31761,6 @@ func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreeart
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNFieldOrder2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldOrderᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.FieldOrder, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*gqlmodel.FieldOrder, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFieldOrder2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldOrder(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNFieldOrder2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldOrder(ctx context.Context, v interface{}) (*gqlmodel.FieldOrder, error) {
-	res, err := ec.unmarshalInputFieldOrder(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNFileSize2int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -33033,9 +32929,26 @@ func (ec *executionContext) unmarshalNUpdateFieldInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateFieldsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldsOrderInput(ctx context.Context, v interface{}) (gqlmodel.UpdateFieldsOrderInput, error) {
-	res, err := ec.unmarshalInputUpdateFieldsOrderInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.UpdateFieldInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.UpdateFieldInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx context.Context, v interface{}) (*gqlmodel.UpdateFieldInput, error) {
+	res, err := ec.unmarshalInputUpdateFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.UpdateIntegrationInput, error) {

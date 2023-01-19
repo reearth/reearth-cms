@@ -37,11 +37,6 @@ type UpdateFieldParam struct {
 	DefaultValue *value.Multiple
 }
 
-type UpdateFieldsOrderParam struct {
-	FieldId id.FieldID
-	Order   int
-}
-
 var (
 	ErrInvalidTypeProperty = errors.New("invalid type property")
 	ErrFieldNotFound       = errors.New("field not found")
@@ -54,6 +49,6 @@ type Schema interface {
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
-	UpdateFieldsOrder(context.Context, id.SchemaID, []UpdateFieldsOrderParam, *usecase.Operator) (schema.FieldList, error)
+	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	DeleteField(context.Context, id.SchemaID, id.FieldID, *usecase.Operator) error
 }
