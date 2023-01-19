@@ -224,8 +224,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		wantError error
 	}{
 		{
-			name:      "empty value",
-			argsInp:   &SchemaFieldTypePropertyInput{},
+			name:      "nil",
 			wantError: ErrInvalidTypeProperty,
 		},
 		{

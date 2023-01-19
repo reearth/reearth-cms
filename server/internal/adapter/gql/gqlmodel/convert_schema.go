@@ -187,9 +187,6 @@ func valueString(dv *value.Multiple, multiple bool) any {
 var ErrInvalidTypeProperty = errors.New("invalid type property")
 
 func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
-	if tp == nil {
-		return nil, nil, nil
-	}
 	switch t {
 	case SchemaFieldTypeText:
 		x := tp.Text
