@@ -314,6 +314,11 @@ export type FieldPayload = {
   field: SchemaField;
 };
 
+export type FieldsPayload = {
+  __typename?: 'FieldsPayload';
+  fields: Array<SchemaField>;
+};
+
 export type Integration = Node & {
   __typename?: 'Integration';
   config?: Maybe<IntegrationConfig>;
@@ -504,6 +509,7 @@ export type Mutation = {
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
+  updateFields?: Maybe<FieldsPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
   updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateItem?: Maybe<ItemPayload>;
@@ -674,6 +680,11 @@ export type MutationUpdateCommentArgs = {
 
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
+};
+
+
+export type MutationUpdateFieldsArgs = {
+  input: Array<UpdateFieldInput>;
 };
 
 
@@ -1551,6 +1562,13 @@ export type UpdateFieldMutationVariables = Exact<{
 
 
 export type UpdateFieldMutation = { __typename?: 'Mutation', updateField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
+
+export type UpdateFieldsMutationVariables = Exact<{
+  updateFieldInput: Array<UpdateFieldInput> | UpdateFieldInput;
+}>;
+
+
+export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
 
 export type DeleteFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2612,6 +2630,41 @@ export function useUpdateFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateFieldMutationHookResult = ReturnType<typeof useUpdateFieldMutation>;
 export type UpdateFieldMutationResult = Apollo.MutationResult<UpdateFieldMutation>;
 export type UpdateFieldMutationOptions = Apollo.BaseMutationOptions<UpdateFieldMutation, UpdateFieldMutationVariables>;
+export const UpdateFieldsDocument = gql`
+    mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
+  updateFields(input: $updateFieldInput) {
+    fields {
+      id
+    }
+  }
+}
+    `;
+export type UpdateFieldsMutationFn = Apollo.MutationFunction<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
+
+/**
+ * __useUpdateFieldsMutation__
+ *
+ * To run a mutation, you first call `useUpdateFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFieldsMutation, { data, loading, error }] = useUpdateFieldsMutation({
+ *   variables: {
+ *      updateFieldInput: // value for 'updateFieldInput'
+ *   },
+ * });
+ */
+export function useUpdateFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFieldsMutation, UpdateFieldsMutationVariables>(UpdateFieldsDocument, options);
+      }
+export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMutation>;
+export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
+export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const DeleteFieldDocument = gql`
     mutation DeleteField($modelId: ID!, $fieldId: ID!) {
   deleteField(input: {modelId: $modelId, fieldId: $fieldId}) {
