@@ -33,7 +33,6 @@ func (b *Builder) Build() (*Item, error) {
 	if b.i.thread.IsNil() {
 		return nil, ErrInvalidID
 	}
-
 	if b.i.timestamp.IsZero() {
 		b.i.timestamp = util.Now()
 	}
