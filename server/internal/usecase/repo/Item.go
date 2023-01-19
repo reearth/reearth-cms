@@ -28,7 +28,7 @@ type Item interface {
 	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue, *version.Ref) (item.VersionedList, error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
 	Save(context.Context, *item.Item) error
-	//SaveAll(context.Context, item.List) error
+	SaveAll(context.Context, item.List) error
 	UpdateRef(context.Context, id.ItemID, version.Ref, *version.VersionOrRef) error
 	Remove(context.Context, id.ItemID) error
 	Archive(context.Context, id.ItemID, id.ProjectID, bool) error
