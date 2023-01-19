@@ -62,6 +62,7 @@ const InfoBoxWrapper = styled.div`
 `;
 
 const Header = styled.div`
+  height: 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -75,9 +76,13 @@ const Title = styled.div`
   color: rgba(0, 0, 0, 0.85);
   line-height: 22px;
   font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const Box = styled.div`
+  height: calc(100% - 50px);
   padding: 0 12px 0 20px;
   overflow-y: scroll;
 `;
