@@ -4375,7 +4375,8 @@ type ItemEdge {
 }
 
 enum ItemSortType {
-  DATE
+  CREATION_DATE
+  MODIFICATION_DATE
 }
 
 input ItemSort {

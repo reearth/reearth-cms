@@ -130,6 +130,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 					fn := f.Name
 					x, err := f.Open()
 					if err != nil {
+						log.Errorf("failed to open file File=%s, Err=%s", fn, err.Error())
 						log.Fatal(err)
 					}
 					defer x.Close()
@@ -137,6 +138,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 					w := db.Object(name).NewWriter(ctx)
 
 					if _, err := io.Copy(w, x); err != nil {
+						log.Errorf("failed to copy file to Storage File=%s, Err=%s", fn, err.Error())
 						return
 					}
 					if err = w.Close(); err != nil {

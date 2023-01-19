@@ -13,6 +13,10 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import {
+  AssetSortType,
+  SortDirection,
+} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -30,6 +34,14 @@ type Props = {
   uploadModalVisibility: boolean;
   uploadUrl: string;
   uploadType: UploadType;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onAssetTableChange: (
+    page: number,
+    pageSize: number,
+    sorter?: { type?: AssetSortType; direction?: SortDirection },
+  ) => void;
   setUploadUrl: (url: string) => void;
   setUploadType: (type: UploadType) => void;
   onChange?: (value: string) => void;
@@ -52,6 +64,10 @@ const LinkAssetModal: React.FC<Props> = ({
   uploadModalVisibility,
   uploadUrl,
   uploadType,
+  totalCount,
+  page,
+  pageSize,
+  onAssetTableChange,
   setUploadUrl,
   setUploadType,
   onChange,
@@ -82,8 +98,10 @@ const LinkAssetModal: React.FC<Props> = ({
   };
 
   const pagination: TablePaginationConfig = {
-    pageSize: 5,
-    showSizeChanger: false,
+    showSizeChanger: true,
+    current: page,
+    total: totalCount,
+    pageSize: pageSize,
   };
 
   const columns: ProColumns<Asset>[] = [
@@ -176,6 +194,15 @@ const LinkAssetModal: React.FC<Props> = ({
         toolbar={handleToolbarEvents}
         tableStyle={{ overflowX: "scroll" }}
         loading={loading}
+        onChange={(pagination, _, sorter: any) => {
+          onAssetTableChange(
+            pagination.current ?? 1,
+            pagination.pageSize ?? 10,
+            sorter?.order
+              ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+              : undefined,
+          );
+        }}
       />
     </Modal>
   );

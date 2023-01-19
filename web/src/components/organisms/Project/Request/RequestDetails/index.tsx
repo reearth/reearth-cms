@@ -36,6 +36,10 @@ const RequestDetails: React.FC = () => {
     handleAssetsReload,
     handleSearchTerm,
     handleNavigateToAsset,
+    totalCount,
+    page,
+    pageSize,
+    handleAssetTableChange,
   } = useAssetHooks();
 
   const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
@@ -61,6 +65,10 @@ const RequestDetails: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
+      onAssetTableChange={handleAssetTableChange}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}

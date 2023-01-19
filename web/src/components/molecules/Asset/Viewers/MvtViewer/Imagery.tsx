@@ -1,12 +1,24 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { ImageryLayer, ImageryLayerCollection, Viewer } from "cesium";
-import { MVTImageryProvider, ImageryProviderOption } from "cesium-mvt-imagery-provider";
-import { useEffect, useState } from "react";
+import {
+  Cartesian3,
+  ImageryLayer,
+  ImageryLayerCollection,
+  Math,
+  Entity,
+  CustomDataSource,
+  Color,
+} from "cesium";
+import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
 
 type Props = {
   url: string;
+  handleProperties: (prop: Property) => void;
+  selectFeature: (selected: boolean) => void;
 };
+
+export type Property = { [k: string]: string | number | boolean };
 
 // TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
@@ -16,63 +28,129 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
-  const { viewer }: { viewer: Viewer } = useCesium();
+export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
+  const { viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");
 
-  useEffect(() => {
-    const initOptions = async (url: string) => {
-      const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      const nameRegex = /\.\w+$/;
-      const base = url.match(templateRegex)
-        ? url.replace(templateRegex, "")
-        : url.replace(nameRegex, "");
+  const fetchMvtMetaData = useCallback(async (url: string) => {
+    const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+    const nameRegex = /\.\w+$/;
+    const base = url.match(templateRegex)
+      ? url.replace(templateRegex, "")
+      : url.replace(nameRegex, "");
+    setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+    const res = await fetch(`${base}/metadata.json`);
+    return res.ok ? await res?.json() : undefined;
+  }, []);
 
-      setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+  const zoomTo = useCallback(
+    async (x: number, y: number, z: number, range: number) => {
+      const entity = new Entity({
+        position: Cartesian3.fromDegrees(x, y, z),
+        point: { pixelSize: 1, color: Color.TRANSPARENT },
+      });
+      const dataSource = new CustomDataSource();
+      dataSource.entities.add(entity);
+      viewer.dataSources.add(dataSource);
+      await viewer.zoomTo(entity, {
+        heading: Math.toRadians(90.0),
+        pitch: Math.toRadians(-90.0),
+        range: range,
+      });
+    },
+    [viewer],
+  );
+
+  const setCameraPosition = useCallback(
+    async (position: string) => {
+      const regex =
+        /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
+      if (position?.match(regex)) {
+        const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
+        await zoomTo(x, y, z, 200000);
+      } else {
+        // default position
+        await zoomTo(139.767052, 35.681167, 100, 3000000);
+      }
+    },
+    [zoomTo],
+  );
+
+  const initViewer = useCallback(
+    async (url: string) => {
       try {
-        const res = await fetch(`${base}/metadata.json`);
-        const data = await res.json();
-        setLayerName(data.name);
+        const data = await fetchMvtMetaData(url);
+        if (data?.name) setLayerName(data.name);
+        await setCameraPosition(data?.center);
       } catch (error) {
+        // TODO: handle the error
         console.error(error);
       }
-    };
-    initOptions(url);
+    },
+    [fetchMvtMetaData, setCameraPosition],
+  );
 
-    const imageryOption: ImageryProviderOption = {
-      urlTemplate: urlTemplate,
-      layerName: layerName,
-      style: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-        if (isFeatureSelected) {
-          return {
-            strokeStyle: "orange",
-            fillStyle: "orange",
-            lineWidth: 1,
-          };
-        }
+  useEffect(() => {
+    initViewer(url);
+  }, [initViewer, url]);
+
+  const style = useCallback(
+    (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+      if (isFeatureSelected) {
         return {
-          strokeStyle: "red",
-          fillStyle: "red",
+          strokeStyle: "orange",
+          fillStyle: "orange",
           lineWidth: 1,
         };
-      },
-      onSelectFeature: (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-        setIsFeatureSelected(v => !v);
-      },
-    };
+      }
+      return {
+        strokeStyle: "red",
+        fillStyle: "red",
+        lineWidth: 1,
+      };
+    },
+    [isFeatureSelected],
+  );
 
-    const imageryProvider = new MVTImageryProvider(imageryOption);
+  const onSelectFeature = useCallback(
+    (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+      handleProperties(feature.properties);
+      selectFeature(true);
+      setIsFeatureSelected(v => !v);
+    },
+    [handleProperties, selectFeature],
+  );
+
+  useEffect(() => {
+    const imageryProvider = new MVTImageryProvider({
+      urlTemplate,
+      layerName,
+      style,
+      onSelectFeature,
+    });
+
     if (viewer) {
       const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
       const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
+
       return () => {
         layers.remove(currentLayer);
       };
     }
-  }, [viewer, isFeatureSelected, url, urlTemplate, layerName]);
+  }, [
+    viewer,
+    isFeatureSelected,
+    url,
+    urlTemplate,
+    layerName,
+    handleProperties,
+    selectFeature,
+    onSelectFeature,
+    style,
+  ]);
 
   return <div />;
 };
