@@ -61,6 +61,12 @@ func TestBuilder_Thread(t *testing.T) {
 	assert.Equal(t, tid, b.Thread())
 }
 
+func TestBuilder_Status(t *testing.T) {
+	s := []Status{StatusReview}
+	b := New().NewID().Model(id.NewModelID()).Project(id.NewProjectID()).Schema(id.NewSchemaID()).Thread(id.NewThreadID()).Status(s).MustBuild()
+	assert.Equal(t, s, b.Status())
+}
+
 func TestBuilder_Timestamp(t *testing.T) {
 	tt := time.Now()
 	b := New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Model(id.NewModelID()).Timestamp(tt).Schema(id.NewSchemaID()).Thread(id.NewThreadID()).MustBuild()
@@ -92,6 +98,7 @@ func TestBuilder_Build(t *testing.T) {
 					id:      iid,
 					schema:  sid,
 					project: pid,
+					status:  []Status{StatusReview},
 					model:   mid,
 					thread:  tid,
 				},
@@ -100,6 +107,7 @@ func TestBuilder_Build(t *testing.T) {
 				id:        iid,
 				schema:    sid,
 				project:   pid,
+				status:    []Status{StatusReview},
 				model:     mid,
 				thread:    tid,
 				timestamp: now,

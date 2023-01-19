@@ -21,6 +21,7 @@ type ItemDocument struct {
 	Fields      []ItemFieldDocument
 	Timestamp   time.Time
 	User        *string
+	Status      []string
 	Integration *string
 }
 
@@ -60,6 +61,9 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		ModelID: i.Model().String(),
 		Project: i.Project().String(),
 		Thread:  i.Thread().String(),
+		Status: lo.Map(i.Status(), func(s item.Status, _ int) string {
+			return s.String()
+		}),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewMultipleValue(f.Value())
 			if v == nil {
@@ -128,12 +132,17 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		return nil, err
 	}
 
+	status := lo.Map(d.Status, func(s string, _ int) item.Status {
+		return item.StatusFrom(s)
+	})
+
 	ib := item.New().
 		ID(itmId).
 		Project(pid).
 		Schema(sid).
 		Model(mid).
 		Thread(tid).
+		Status(status).
 		Fields(fields).
 		Timestamp(d.Timestamp)
 

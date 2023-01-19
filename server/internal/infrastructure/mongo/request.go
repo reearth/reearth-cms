@@ -65,6 +65,15 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
+func (r *Request) FindByItem(ctx context.Context, itemID id.ItemID) (request.List, error) {
+
+	filter := bson.M{
+		"items.item": itemID.String(),
+	}
+
+	return r.find(ctx, filter)
+}
+
 func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil

@@ -99,6 +99,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.timestamp = util.Now()
 }
 
+func (i *Item) SetStatus(s []Status) {
+	i.status = s
+}
+
 func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	if i == nil || list == nil {
 		return nil
