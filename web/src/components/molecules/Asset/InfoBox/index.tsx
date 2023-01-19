@@ -37,7 +37,7 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
         <InfoBoxWrapper color={theme.base00}>
           <Header>
             <Title color={theme.base01}>{title}</Title>
-            <Button type="link" icon={<Icon icon="close" />} onClick={onClose} />
+            <Button type="text" icon={<Icon icon="close" />} onClick={onClose} />
           </Header>
           <Box>
             <JSONTree data={infoBoxProps ?? {}} theme={theme} />
