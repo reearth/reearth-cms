@@ -151,6 +151,9 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		if param.State != nil {
+			if *param.State == request.StateApproved {
+				return nil, errors.New("can't update by approve")
+			}
 			req.SetState(*param.State)
 		}
 
@@ -200,7 +203,6 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	}
 
 	reqs.UpdateStatus(request.StateClosed)
-
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
 

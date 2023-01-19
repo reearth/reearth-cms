@@ -148,14 +148,16 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	return ib.Build()
 }
 
-func NewItems(items item.List) map[string]*ItemDocument {
-	res := make(map[string]*ItemDocument, len(items))
+func NewItems(items item.List) ([]*ItemDocument, []string) {
+	res := make([]*ItemDocument, 0, len(items))
+	ids := make([]string, 0, len(items))
 	for _, d := range items {
 		if d == nil {
 			continue
 		}
 		r, itmId := NewItem(d)
-		res[itmId] = r
+		res = append(res, r)
+		ids = append(ids, itmId)
 	}
-	return res
+	return res, ids
 }
