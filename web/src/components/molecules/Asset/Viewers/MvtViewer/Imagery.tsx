@@ -1,5 +1,13 @@
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { ImageryLayer, ImageryLayerCollection, Math } from "cesium";
+import {
+  Cartesian3,
+  ImageryLayer,
+  ImageryLayerCollection,
+  Math,
+  Entity,
+  CustomDataSource,
+  Color,
+} from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
@@ -26,38 +34,67 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");
 
-  useEffect(() => {
-    // Move the camera to Japan as a default location
-    const entity = viewer.entities.getById("default-location");
-    if (entity) {
-      viewer.zoomTo(entity, {
+  const fetchMvtMetaData = useCallback(async (url: string) => {
+    const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+    const nameRegex = /\.\w+$/;
+    const base = url.match(templateRegex)
+      ? url.replace(templateRegex, "")
+      : url.replace(nameRegex, "");
+    setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+    const res = await fetch(`${base}/metadata.json`);
+    return res.ok ? await res?.json() : undefined;
+  }, []);
+
+  const zoomTo = useCallback(
+    async (x: number, y: number, z: number, range: number) => {
+      const entity = new Entity({
+        position: Cartesian3.fromDegrees(x, y, z),
+        point: { pixelSize: 1, color: Color.TRANSPARENT },
+      });
+      const dataSource = new CustomDataSource();
+      dataSource.entities.add(entity);
+      viewer.dataSources.add(dataSource);
+      await viewer.zoomTo(entity, {
         heading: Math.toRadians(90.0),
         pitch: Math.toRadians(-90.0),
-        range: 3000000,
+        range: range,
       });
-    }
-  }, [viewer]);
+    },
+    [viewer],
+  );
 
-  useEffect(() => {
-    // init url template and layer name
-    const initOptions = async (url: string) => {
-      const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-      const nameRegex = /\.\w+$/;
-      const base = url.match(templateRegex)
-        ? url.replace(templateRegex, "")
-        : url.replace(nameRegex, "");
+  const setCameraPosition = useCallback(
+    async (position: string) => {
+      const regex =
+        /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
+      if (position?.match(regex)) {
+        const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
+        await zoomTo(x, y, z, 200000);
+      } else {
+        // default position
+        await zoomTo(139.767052, 35.681167, 100, 3000000);
+      }
+    },
+    [zoomTo],
+  );
 
-      setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
+  const initViewer = useCallback(
+    async (url: string) => {
       try {
-        const res = await fetch(`${base}/metadata.json`);
-        const data = await res.json();
-        setLayerName(data.name);
+        const data = await fetchMvtMetaData(url);
+        if (data?.name) setLayerName(data.name);
+        await setCameraPosition(data?.center);
       } catch (error) {
+        // TODO: handle the error
         console.error(error);
       }
-    };
-    initOptions(url);
-  }, [url]);
+    },
+    [fetchMvtMetaData, setCameraPosition],
+  );
+
+  useEffect(() => {
+    initViewer(url);
+  }, [initViewer, url]);
 
   const style = useCallback(
     (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
