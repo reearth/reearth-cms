@@ -11,3 +11,4 @@ package gqldataloader
 //go:generate go run github.com/vektah/dataloaden ItemLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Item
 //go:generate go run github.com/vektah/dataloaden ThreadLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Thread
 //go:generate go run github.com/vektah/dataloaden RequestLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Request
+//go:generate go run github.com/vektah/dataloaden ItemStatusLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID []github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ItemStatus
