@@ -88,8 +88,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		err = updateField(param, f)
-		if err != nil {
+		if err := updateField(param, f); err != nil {
 			return nil, err
 		}
 		if err := i.repos.Schema.Save(ctx, s); err != nil {
