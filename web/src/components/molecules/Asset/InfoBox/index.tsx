@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { JSONTree } from "react-json-tree";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 
 type Props = {
   infoBoxProps: any;
@@ -36,9 +37,7 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
         <InfoBoxWrapper color={theme.base00}>
           <Header>
             <Title color={theme.base01}>{title}</Title>
-            <Button type="link" size="large" onClick={onClose}>
-              &times;
-            </Button>
+            <Button type="link" icon={<Icon icon="close" />} onClick={onClose} />
           </Header>
           <Box>
             <JSONTree data={infoBoxProps ?? {}} theme={theme} />
@@ -58,25 +57,29 @@ const InfoBoxWrapper = styled.div`
   max-width: 500px;
   max-height: 800px;
   text-align: left;
-  overflow: scroll;
   background-color: ${({ color }) => color};
+  border-radius: 6px;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 8px 12px;
+  box-shadow: inset 0px -1px 0px #f0f0f0;
 `;
 
 const Title = styled.div`
   margin-bottom: 0;
-  color: ${({ color }) => color};
-  margin-left: 10px;
-  font-size: 12px;
+  margin-left: 8px;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 22px;
+  font-size: 16px;
 `;
 
 const Box = styled.div`
-  margin: 10px;
+  padding: 0 12px 0 20px;
+  overflow-y: scroll;
 `;
 
 export default InfoBox;
