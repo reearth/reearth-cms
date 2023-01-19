@@ -121,10 +121,8 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		for _, itm := range param.Items {
-			if err := r.updateItemStatus(ctx, itm.Item(), req.ID(), item.StatusReview); err != nil {
-				return nil, err
-			}
+		if err := r.updateItemsStatus(ctx, param.Items.IDs(), req.ID(), item.StatusReview); err != nil {
+			return nil, err
 		}
 		return req, nil
 	})
@@ -162,11 +160,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			default:
 				itemStatus = item.StatusDraft
 			}
-			for _, itm := range param.Items {
-				if err := r.updateItemStatus(ctx, itm.Item(), req.ID(), itemStatus); err != nil {
-					return nil, err
-				}
+
+			if err := r.updateItemsStatus(ctx, param.Items.IDs(), req.ID(), itemStatus); err != nil {
+				return nil, err
 			}
+
 			req.SetState(*param.State)
 		}
 
@@ -215,10 +213,8 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 		return err
 	}
 	for _, req := range reqs {
-		for _, itm := range req.Items() {
-			if err := r.updateItemStatus(ctx, itm.Item(), req.ID(), item.StatusDraft); err != nil {
-				return err
-			}
+		if err := r.updateItemsStatus(ctx, req.Items().IDs(), req.ID(), item.StatusDraft); err != nil {
+			return err
 		}
 	}
 	reqs.UpdateStatus(request.StateClosed)
@@ -259,10 +255,10 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
 			}
-			// update items status
-			if err := r.updateItemStatus(ctx, itm.Item(), req.ID(), item.StatusPublic); err != nil {
-				return nil, err
-			}
+		}
+		// update items status
+		if err := r.updateItemsStatus(ctx, req.Items().IDs(), req.ID(), item.StatusPublic); err != nil {
+			return nil, err
 		}
 
 		return req, nil
@@ -300,57 +296,62 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 	return req, nil
 }
 
-func (r Request) updateItemStatus(ctx context.Context, iid id.ItemID, rid id.RequestID, status item.Status) error {
-	requests, err := r.repos.Request.FindByItem(ctx, iid)
-	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return err
-	}
-	if len(requests) == 0 {
-		return nil
-	}
-	vi, err := r.repos.Item.FindByID(ctx, iid, nil)
-	if err != nil {
-		return err
-	}
-	itm := vi.Value()
-	var s []item.Status
-	switch status {
-	case item.StatusReview:
-		for _, r := range requests {
-			if r.State() == request.StateApproved {
-				s = []item.Status{item.StatusPublic, item.StatusReview}
+func (r Request) updateItemsStatus(ctx context.Context, list id.ItemIDList, rid id.RequestID, status item.Status) error {
+	var res item.List
+	for _, iid := range list {
+		requests, err := r.repos.Request.FindByItem(ctx, iid)
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+			return err
+		}
+		if len(requests) == 0 {
+			return nil
+		}
+		vi, err := r.repos.Item.FindByID(ctx, iid, nil)
+		if err != nil {
+			return err
+		}
+		itm := vi.Value()
+		var s []item.Status
+		switch status {
+		case item.StatusReview:
+			for _, r := range requests {
+				if r.State() == request.StateApproved {
+					s = []item.Status{item.StatusPublic, item.StatusReview}
+				}
 			}
-		}
-		if len(s) == 0 {
-			s = []item.Status{item.StatusReview}
-		}
-	case item.StatusPublic:
-		for _, r := range requests {
-			if r.State() == request.StateWaiting && r.ID() != rid {
-				s = []item.Status{item.StatusPublic, item.StatusReview}
-			}
-		}
-		if len(s) == 0 {
-			s = []item.Status{item.StatusPublic}
-		}
-	case item.StatusDraft:
-		for _, r := range requests {
-			if r.State() == request.StateWaiting && r.ID() != rid {
+			if len(s) == 0 {
 				s = []item.Status{item.StatusReview}
 			}
-			if r.State() == request.StateApproved && r.ID() != rid {
+		case item.StatusPublic:
+			for _, r := range requests {
+				if r.State() == request.StateWaiting && r.ID() != rid {
+					s = []item.Status{item.StatusPublic, item.StatusReview}
+				}
+			}
+			if len(s) == 0 {
 				s = []item.Status{item.StatusPublic}
 			}
+		case item.StatusDraft:
+			for _, r := range requests {
+				if r.State() == request.StateWaiting && r.ID() != rid {
+					s = []item.Status{item.StatusReview}
+				}
+				if r.State() == request.StateApproved && r.ID() != rid {
+					s = []item.Status{item.StatusPublic}
+				}
+			}
+			if len(s) == 0 {
+				s = []item.Status{item.StatusDraft}
+			}
+		default:
+			return nil
 		}
-		if len(s) == 0 {
-			s = []item.Status{item.StatusDraft}
-		}
-	default:
-		return nil
+
+		itm.SetStatus(s)
+		res = append(res, itm)
 	}
 
-	itm.SetStatus(s)
-	return r.repos.Item.Save(ctx, itm)
+	return r.repos.Item.SaveAll(ctx, res)
 }
 
 func (r Request) event(ctx context.Context, e Event) error {
