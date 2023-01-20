@@ -140,7 +140,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 						log.Fatal(err)
 					}
 					defer x.Close()
-					name := filepath.Join(assetBasePath, fn)
+					name := getFileDestinationPath(assetBasePath, fn)
 					w := db.Object(name).NewWriter(ctx)
 
 					if _, err := io.Copy(w, x); err != nil {
@@ -163,7 +163,19 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	}
 	close(workQueue)
 	wg.Wait()
-}	
+}
+
+func getFileDestinationPath(firstPath, secondPath string) string {
+	lastElementOfFirstPath := filepath.Base(firstPath)
+	tempArray := strings.Split(secondPath, "/")
+	firstElementOfSecondPath := tempArray[0]
+
+	if lastElementOfFirstPath == firstElementOfSecondPath {
+		return filepath.Join(filepath.Dir(firstPath), secondPath)
+	}
+
+	return filepath.Join(firstPath, secondPath)
+}
 
 type DecompressorConfig struct {
 	BucketName string `envconfig:"GCS_BUCKET_NAME"`
