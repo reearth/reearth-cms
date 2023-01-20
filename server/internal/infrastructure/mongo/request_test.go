@@ -395,7 +395,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Project(pid).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items(request.ItemList{item1}).
+		Items(request.ItemList{item1, item2}).
 		State(request.StateDraft).
 		Title("hoge").
 		MustBuild()
@@ -412,26 +412,26 @@ func TestRequest_FindByItem(t *testing.T) {
 	tests := []struct {
 		name  string
 		seeds request.List
-		input id.ItemID
+		input id.ItemIDList
 		want  int
 	}{
 		{
 			name:  "must find 2",
 			seeds: request.List{req1, req2, req3},
-			input: item1.Item(),
-			want:  2,
+			input: id.ItemIDList{item1.Item(), item2.Item()},
+			want:  3,
 		},
 		{
 			name:  "must find 0",
 			seeds: request.List{req1, req2, req3},
-			input: id.NewItemID(),
+			input: id.ItemIDList{id.NewItemID()},
 			want:  0,
 		},
 		{
 			name:  "must find 1",
 			seeds: request.List{req1, req2, req3},
-			input: item2.Item(),
-			want:  1,
+			input: id.ItemIDList{item1.Item()},
+			want:  2,
 		},
 	}
 
@@ -447,7 +447,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _ := r.FindByItem(ctx, tc.input)
+			got, _ := r.FindByItems(ctx, tc.input)
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

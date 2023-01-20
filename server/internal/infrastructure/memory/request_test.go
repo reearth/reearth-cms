@@ -315,29 +315,29 @@ func TestRequest_FindByItem(t *testing.T) {
 	_ = r.Save(ctx, req3)
 	tests := []struct {
 		name  string
-		input id.ItemID
+		input id.ItemIDList
 		want  int
 	}{
 		{
 			name:  "must find 2",
-			input: item1.Item(),
+			input: id.ItemIDList{item1.Item()},
 			want:  2,
 		},
 		{
 			name:  "must find 1",
-			input: item2.Item(),
+			input: id.ItemIDList{item2.Item()},
 			want:  1,
 		},
 		{
 			name:  "must find 0",
-			input: id.NewItemID(),
+			input: id.ItemIDList{id.NewItemID()},
 			want:  0,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got, _ := r.FindByItem(ctx, tc.input)
+			got, _ := r.FindByItems(ctx, tc.input)
 
 			assert.Equal(t, tc.want, len(got))
 		})
@@ -345,6 +345,6 @@ func TestRequest_FindByItem(t *testing.T) {
 
 	wantErr := errors.New("test")
 	SetRequestError(r, wantErr)
-	_, err := r.FindByItem(ctx, item1.Item())
+	_, err := r.FindByItems(ctx, id.ItemIDList{item1.Item()})
 	assert.Same(t, wantErr, err)
 }

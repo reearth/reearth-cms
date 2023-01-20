@@ -65,10 +65,12 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByItem(ctx context.Context, itemID id.ItemID) (request.List, error) {
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
 
 	filter := bson.M{
-		"items.item": itemID.String(),
+		"items.item": bson.M{
+			"$in": list.Strings(),
+		},
 	}
 
 	return r.find(ctx, filter)

@@ -31,15 +31,14 @@ func (c *ItemStatusLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([][]gq
 		return nil, []error{err}
 	}
 	var res [][]gqlmodel.ItemStatus
-	for _, iId := range iIds {
+	requests, err := c.requestUsecase.FindByItems(ctx, iIds, op)
+	if err != nil {
+		return nil, []error{err}
+	}
 
-		requests, err := c.requestUsecase.FindByItem(ctx, iId, op)
-		if err != nil {
-			return nil, []error{err}
-		}
-
-		var statuses []gqlmodel.ItemStatus
-		for _, req := range requests {
+	var statuses []gqlmodel.ItemStatus
+	for _, iid := range iIds {
+		for _, req := range requests[iid] {
 			switch req.State() {
 			case request.StateWaiting:
 				if !slices.Contains(statuses, gqlmodel.ItemStatusReview) {
