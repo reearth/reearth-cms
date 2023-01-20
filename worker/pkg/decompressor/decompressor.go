@@ -19,14 +19,20 @@ import (
 )
 
 var (
-	ErrUnsupportedExtention = errors.New("unsupoprted extention type")
+	ErrUnsupportedExtention = errors.New("unsupported extention type")
 )
 
 const limit = 1024 * 1024 * 1024 * 30 // 30GB
 
-const configPrefix = "REEARTH_CMS_WORKER"
+const (
+	configPrefix            = "REEARTH_CMS_WORKER"
+	gcsAssetBasePath string = "assets"
+)
 
-const gcsAssetBasePath string = "assets"
+const (
+	workersNumber    = 100
+	workerQueueDepth = 20000
+)
 
 type decompressor struct {
 	zr  *zip.Reader
@@ -119,8 +125,8 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	ctx := context.Background()
 	client, _ := storage.NewClient(ctx)
 	db := client.Bucket(conf.BucketName)
-	workQueue := make(chan *zip.File, conf.DecompressorWorkerQueueDepth)
-	for i := 0; i < int(conf.DecompressionWorkers); i++ {
+	workQueue := make(chan *zip.File, workerQueueDepth)
+	for i := 0; i < workersNumber; i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -157,12 +163,10 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	}
 	close(workQueue)
 	wg.Wait()
-}
+}	
 
 type DecompressorConfig struct {
-	DecompressionWorkers         int64  `envconfig:"DECOMPRESSION_NUM_WORKERS"`
-	DecompressorWorkerQueueDepth int64  `envconfig:"DECOMPRESSION_WORKQUEUE_DEPTH"`
-	BucketName                   string `envconfig:"GCS_BUCKET_NAME"`
+	BucketName string `envconfig:"GCS_BUCKET_NAME"`
 }
 
 func ReadDecompressorConfig() (*DecompressorConfig, error) {
