@@ -30,12 +30,7 @@ export default () => {
   const [selectedRequestId, setselectedRequestId] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [requestState, setRequestState] = useState<RequestState[]>([
-    "APPROVED",
-    "CLOSED",
-    "DRAFT",
-    "WAITING",
-  ]);
+  const [requestState, setRequestState] = useState<RequestState[]>(["WAITING"]);
   const [createdByMe, setCreatedByMe] = useState<boolean>(false);
   const [reviewedByMe, setReviewedByMe] = useState<boolean>(false);
 
