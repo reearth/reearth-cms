@@ -30,7 +30,7 @@ const (
 )
 
 const (
-	workersNumber    = 100
+	workersNumber    = 500
 	workerQueueDepth = 20000
 )
 
