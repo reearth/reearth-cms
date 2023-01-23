@@ -64,7 +64,7 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		req := c.Request()
 		ctx := req.Context()
 
-		setErrorPresenter(c, srv, dev)
+		setGQLErrorPresenter(c, srv, dev)
 
 		usecases := adapter.Usecases(ctx)
 		ctx = gql.AttachUsecases(ctx, usecases, enableDataLoaders)
@@ -75,14 +75,14 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	}
 }
 
-func setErrorPresenter(c echo.Context, srv *handler.Server, dev bool) {
+func setGQLErrorPresenter(c echo.Context, srv *handler.Server, dev bool) {
 	srv.SetErrorPresenter(
 		func(ctx context.Context, e error) *gqlerror.Error {
 			if dev {
 				return gqlerror.ErrorPathf(graphql.GetFieldContext(ctx).Path(), e.Error())
 			}
 
-			if l := t(c); l != nil {
+			if l := getI18nLocalizer(c); l != nil {
 				err := e
 				if gqlErr, ok := e.(*gqlerror.Error); ok {
 					err = gqlErr.Unwrap()

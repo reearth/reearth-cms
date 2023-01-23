@@ -15,31 +15,33 @@ var (
 	//go:embed i18n/locale.*.yaml
 	localeFS     embed.FS
 	bundle       *i18n.Bundle
-	localizerKey string = "localizer"
+	localizerKey = "localizer"
 )
 
 func init() {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
-	_, err := bundle.LoadMessageFileFS(localeFS, "i18n/locale.ja.yaml")
+	_, err := bundle.LoadMessageFileFS(localeFS, "i18n/locale.en.yaml")
 	if err != nil {
-		log.Error("i18n: failed to load locales")
+		log.Error("i18n: failed to load locales.en.yaml")
 	}
-
+	_, err = bundle.LoadMessageFileFS(localeFS, "i18n/locale.ja.yaml")
+	if err != nil {
+		log.Error("i18n: failed to load locales.ja.yaml")
+	}
 }
 
-func I18n(cfg *ServerConfig) echo.MiddlewareFunc {
+func i18nMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			var lang string
-			if op := adapter.Operator(c.Request().Context()); op != nil && op.User != nil {
-				u, err := cfg.Repos.User.FindByID(c.Request().Context(), *op.User)
-				if err == nil && u.Lang() != language.Und {
-					lang = u.Lang().String()
-				}
-			}
+			lang := c.Request().Header.Get("Accept-Language")
 			if lang == "" {
-				lang = c.Request().Header.Get("Accept-Language")
+				if op := adapter.Operator(c.Request().Context()); op != nil && op.User != nil {
+					u, err := cfg.Repos.User.FindByID(c.Request().Context(), *op.User)
+					if err == nil && u.Lang() != language.Und {
+						lang = u.Lang().String()
+					}
+				}
 			}
 			l := i18n.NewLocalizer(bundle, lang)
 			c.Set(localizerKey, l)
@@ -48,7 +50,7 @@ func I18n(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
-func t(c echo.Context) *i18n.Localizer {
+func getI18nLocalizer(c echo.Context) *i18n.Localizer {
 	lz, ok := c.Get(localizerKey).(*i18n.Localizer)
 	if ok {
 		return lz
