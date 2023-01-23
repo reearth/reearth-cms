@@ -2,13 +2,17 @@ package key
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/goombaio/namegenerator"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{1,32}$")
+
+var ngKeys = []string{"id"}
 
 type Key struct {
 	key string
@@ -18,7 +22,11 @@ func New(key string) Key {
 	if !keyRegexp.MatchString(key) {
 		return Key{}
 	}
-	return Key{key}
+	k := Key{key}
+	if !k.IsValid() {
+		return Key{}
+	}
+	return k
 }
 
 func Random() Key {
@@ -27,7 +35,7 @@ func Random() Key {
 }
 
 func (k Key) IsValid() bool {
-	return k.key != "" && k.key != "id"
+	return k.key != "" && !strings.HasPrefix(k.key, "_") && !slices.Contains(ngKeys, k.key)
 }
 
 func (k Key) Ref() *Key {
