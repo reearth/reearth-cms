@@ -1,4 +1,4 @@
-import { Key, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -14,20 +14,28 @@ import {
   useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertComment, convertItem } from "../convertItem";
+import useContentHooks from "../hooks";
 
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
 
 export default () => {
+  const {
+    currentModel,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
+  } = useContentHooks();
   const t = useT();
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
-  const [currentModel] = useModel();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -59,7 +67,7 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
+  const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
     selectedRowKeys: [],
   });
 
@@ -216,6 +224,11 @@ export default () => {
     totalCount: data?.searchItem.totalCount ?? 0,
     page,
     pageSize,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
     handleSearchTerm,
     setSelection,
     handleItemSelect,
