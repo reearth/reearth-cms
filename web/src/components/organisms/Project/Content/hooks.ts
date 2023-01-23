@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
   useSearchItemQuery,
   useUpdateRequestMutation,
@@ -11,8 +12,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
-
-import { convertRequest } from "../Request/convertRequest";
 
 export default () => {
   const [currentModel] = useModel();

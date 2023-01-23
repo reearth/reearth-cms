@@ -9,6 +9,8 @@ import {
 } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
   RequestState as GQLRequestState,
@@ -19,9 +21,6 @@ import {
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-
-import { convertItem } from "../convertItem";
-import useContentHooks from "../hooks";
 
 export default () => {
   const {

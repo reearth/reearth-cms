@@ -6,6 +6,11 @@ import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
+  convertItem,
+  convertComment,
+} from "@reearth-cms/components/organisms/Project/Content/convertItem";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
@@ -14,9 +19,6 @@ import {
   useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-
-import { convertComment, convertItem } from "../convertItem";
-import useContentHooks from "../hooks";
 
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
