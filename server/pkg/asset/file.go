@@ -70,7 +70,18 @@ func (f *File) Clone() *File {
 	}
 }
 
-// TODO:improve this perfomance later
+func (f *File) Files() (res []*File) {
+	if len(f.children) > 0 {
+		for _, c := range f.children {
+			res = append(res, c.Files()...)
+		}
+	} else {
+		res = append(res, f)
+	}
+	return
+}
+
+// TODO:improve perfomance later
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
 	slices.SortFunc(files, func(a, b *File) bool {

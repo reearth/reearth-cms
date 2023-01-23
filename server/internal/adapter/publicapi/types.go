@@ -2,10 +2,14 @@ package publicapi
 
 import (
 	"encoding/json"
+	"net/url"
+	"path"
+	"reflect"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -49,7 +53,7 @@ type Item struct {
 
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
-	m["id"] = &ItemField{Value: i.ID}
+	m["id"] = i.ID
 	return json.Marshal(m)
 }
 
@@ -60,63 +64,64 @@ func NewItem(i *item.Item, s *schema.Schema, assets asset.List, urlResolver asse
 	}
 }
 
-type ItemFields map[string]*ItemField
+type ItemFields map[string]any
 
 func (i ItemFields) DropEmptyFields() ItemFields {
 	for k, v := range i {
 		if v == nil {
 			delete(i, k)
 		}
+		rv := reflect.ValueOf(v)
+		if (rv.Kind() == reflect.Interface || rv.Kind() == reflect.Slice || rv.Kind() == reflect.Map) && rv.IsNil() {
+			delete(i, k)
+		}
 	}
 	return i
 }
 
-type ItemField struct {
-	Value any
-	Asset Asset
-}
-
 func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
-	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (string, *ItemField) {
-		k := ""
-		if sf := sfields.Find(f.FieldID()); sf != nil {
+	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
+		sf := sfields.Find(f.FieldID())
+		if sf != nil {
 			k = sf.Key().String()
 		}
 		if k == "" {
 			k = f.FieldID().String()
 		}
 
-		a := Asset{}
-		if aid, ok := f.Value().First().ValueAsset(); ok {
-			if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
-				a = NewAsset(as, urlResolver)
+		if sf.Type() == value.TypeAsset {
+			var itemAssets []ItemAsset
+			for _, v := range f.Value().Values() {
+				aid, ok := v.ValueAsset()
+				if !ok {
+					continue
+				}
+				if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
+					itemAssets = append(itemAssets, NewItemAsset(as, urlResolver))
+				}
 			}
 
-			// if the asset was not found, the field should be nil.
-			if a.Type == "" {
-				return k, nil
+			if sf.Multiple() {
+				val = itemAssets
+			} else if len(itemAssets) > 0 {
+				val = itemAssets[0]
 			}
+		} else if sf.Multiple() {
+			val = f.Value().Interface()
+		} else {
+			val = f.Value().First().Interface()
 		}
 
-		return k, &ItemField{
-			Value: f.Value().First().Interface(),
-			Asset: a,
-		}
+		return
 	})).DropEmptyFields()
 }
 
-func (i ItemField) MarshalJSON() ([]byte, error) {
-	if i.Asset.Type != "" {
-		return json.Marshal(i.Asset)
-	}
-	return json.Marshal(i.Value)
-}
-
 type Asset struct {
-	Type        string `json:"type"`
-	ID          string `json:"id,omitempty"`
-	URL         string `json:"url,omitempty"`
-	ContentType string `json:"contentType,omitempty"`
+	Type        string   `json:"type"`
+	ID          string   `json:"id,omitempty"`
+	URL         string   `json:"url,omitempty"`
+	ContentType string   `json:"contentType,omitempty"`
+	Files       []string `json:"files,omitempty"`
 }
 
 func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
@@ -126,11 +131,47 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 	}
 
 	u := ""
+	var files []string
+	if urlResolver != nil {
+		u = urlResolver(a)
+		base, _ := url.Parse(u)
+		base.Path = path.Dir(base.Path)
+
+		files = lo.Map(a.File().Files(), func(f *asset.File, _ int) string {
+			b := *base
+			b.Path = path.Join(b.Path, f.Path())
+			return b.String()
+		})
+	}
+
+	return Asset{
+		Type:        "asset",
+		ID:          a.ID().String(),
+		URL:         u,
+		ContentType: a.File().ContentType(),
+		Files:       files,
+	}
+}
+
+type ItemAsset struct {
+	Type        string `json:"type"`
+	ID          string `json:"id,omitempty"`
+	URL         string `json:"url,omitempty"`
+	ContentType string `json:"contentType,omitempty"`
+}
+
+func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
+	f := a.File()
+	if f == nil {
+		return ItemAsset{}
+	}
+
+	u := ""
 	if urlResolver != nil {
 		u = urlResolver(a)
 	}
 
-	return Asset{
+	return ItemAsset{
 		Type:        "asset",
 		ID:          a.ID().String(),
 		URL:         u,
