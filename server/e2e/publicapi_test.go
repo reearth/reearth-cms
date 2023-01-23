@@ -208,7 +208,7 @@ func TestPublicAPI(t *testing.T) {
 		Equal(map[string]any{
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
-			// publicAPIField2lKey should be removed
+			// publicAPIField2Key should be removed
 		})
 
 	// make the project private

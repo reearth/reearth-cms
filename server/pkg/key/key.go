@@ -35,7 +35,7 @@ func Random() Key {
 }
 
 func (k Key) IsValid() bool {
-	return k.key != "" && !strings.HasPrefix(k.key, "_") && !slices.Contains(ngKeys, k.key)
+	return k.key != "" && !strings.HasPrefix(k.key, "_") && !strings.HasPrefix(k.key, "-") && !slices.Contains(ngKeys, k.key)
 }
 
 func (k Key) Ref() *Key {
