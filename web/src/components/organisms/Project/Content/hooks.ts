@@ -10,12 +10,13 @@ import {
   useGetRequestsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject } from "@reearth-cms/state";
+import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertRequest } from "../Request/convertRequest";
 
 export default () => {
   const [currentModel] = useModel();
+  const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
@@ -91,14 +92,16 @@ export default () => {
   );
 
   return {
-    handleAddItemToRequest,
-    handleItemsReload,
-    handleAddItemToRequestModalClose,
-    handleAddItemToRequestModalOpen,
     itemsDataLoading,
+    currentWorkspace,
     currentModel,
+    currentProject,
     itemsData,
     requests,
     addItemToRequestModalShown,
+    handleItemsReload,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
   };
 };

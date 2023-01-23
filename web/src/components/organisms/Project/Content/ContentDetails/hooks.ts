@@ -19,7 +19,6 @@ import {
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
 
 import { convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
@@ -27,6 +26,8 @@ import useContentHooks from "../hooks";
 export default () => {
   const {
     currentModel,
+    currentWorkspace,
+    currentProject,
     itemsData,
     requests,
     addItemToRequestModalShown,
@@ -35,8 +36,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
   } = useContentHooks();
   const navigate = useNavigate();
-  const { projectId, workspaceId, itemId } = useParams();
-  const [currentWorkspace] = useWorkspace();
+  const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
@@ -44,9 +44,11 @@ export default () => {
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
     },
-    [navigate, workspaceId, projectId],
+    [navigate, currentWorkspace?.id, currentProject?.id],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
@@ -70,11 +72,11 @@ export default () => {
         return;
       }
       navigate(
-        `/workspace/${workspaceId}/project/${projectId}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
       );
       Notification.success({ message: t("Successfully created Item!") });
     },
-    [currentModel, projectId, workspaceId, createNewItem, navigate, t],
+    [currentModel, currentProject?.id, currentWorkspace?.id, createNewItem, navigate, t],
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
@@ -164,10 +166,10 @@ export default () => {
       reviewersId: string[];
       items: { itemId: string }[];
     }) => {
-      if (!projectId) return;
+      if (!currentProject?.id) return;
       const request = await createRequestMutation({
         variables: {
-          projectId,
+          projectId: currentProject.id,
           title: data.title,
           description: data.description,
           state: data.state as GQLRequestState,
@@ -182,7 +184,7 @@ export default () => {
       Notification.success({ message: t("Successfully created request!") });
       setRequestModalShown(false);
     },
-    [createRequestMutation, projectId, t],
+    [createRequestMutation, currentProject?.id, t],
   );
 
   const [updateRequestMutation] = useUpdateRequestMutation({

@@ -14,7 +14,6 @@ import {
   useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
 
 import { convertComment, convertItem } from "../convertItem";
 import useContentHooks from "../hooks";
@@ -25,6 +24,8 @@ export type SortDirection = "ASC" | "DESC";
 export default () => {
   const {
     currentModel,
+    currentWorkspace,
+    currentProject,
     requests,
     addItemToRequestModalShown,
     handleAddItemToRequest,
@@ -34,8 +35,6 @@ export default () => {
   const t = useT();
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [currentWorkspace] = useWorkspace();
-  const [currentProject] = useProject();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
