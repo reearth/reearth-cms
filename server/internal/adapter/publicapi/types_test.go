@@ -47,16 +47,13 @@ func TestNewItem(t *testing.T) {
 
 	assert.Equal(t, Item{
 		ID: it.ID().String(),
-		Fields: ItemFields(map[string]*ItemField{
-			"aaaaa": {Value: "aaaa"},
-			"bbbbb": {
-				Value: as.ID().String(),
-				Asset: Asset{
-					Type:        "asset",
-					ID:          as.ID().String(),
-					URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
-					ContentType: "application/json",
-				},
+		Fields: ItemFields(map[string]any{
+			"aaaaa": "aaaa",
+			"bbbbb": ItemAsset{
+				Type:        "asset",
+				ID:          as.ID().String(),
+				URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
+				ContentType: "application/json",
 			},
 		}),
 	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
@@ -66,8 +63,63 @@ func TestNewItem(t *testing.T) {
 	// no assets
 	assert.Equal(t, Item{
 		ID: it.ID().String(),
-		Fields: ItemFields(map[string]*ItemField{
-			"aaaaa": {Value: "aaaa"},
+		Fields: ItemFields(map[string]any{
+			"aaaaa": "aaaa",
+		}),
+	}, NewItem(it, s, nil, nil))
+}
+
+func TestNewItem_Multiple(t *testing.T) {
+	as := asset.New().
+		NewID().
+		Project(id.NewProjectID()).
+		CreatedByUser(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		File(asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()).
+		Size(1).
+		NewUUID().
+		MustBuild()
+	s := schema.New().
+		NewID().
+		Project(id.NewProjectID()).
+		Workspace(id.NewWorkspaceID()).
+		Fields([]*schema.Field{
+			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).Multiple(true).MustBuild(),
+			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).Multiple(true).MustBuild(),
+		}).
+		MustBuild()
+	it := item.New().
+		NewID().
+		Schema(id.NewSchemaID()).
+		Project(id.NewProjectID()).
+		Model(id.NewModelID()).
+		Thread(id.NewThreadID()).
+		Fields([]*item.Field{
+			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple()),
+			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple()),
+		}).
+		MustBuild()
+
+	assert.Equal(t, Item{
+		ID: it.ID().String(),
+		Fields: ItemFields(map[string]any{
+			"aaaaa": []any{"aaaa"},
+			"bbbbb": []ItemAsset{{
+				Type:        "asset",
+				ID:          as.ID().String(),
+				URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
+				ContentType: "application/json",
+			}},
+		}),
+	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
+		return "https://example.com/" + a.ID().String() + a.File().Path()
+	}))
+
+	// no assets
+	assert.Equal(t, Item{
+		ID: it.ID().String(),
+		Fields: ItemFields(map[string]any{
+			"aaaaa": []any{"aaaa"},
 		}),
 	}, NewItem(it, s, nil, nil))
 }
@@ -76,13 +128,13 @@ func TestItem_MarshalJSON(t *testing.T) {
 	j := lo.Must(json.Marshal(Item{
 		ID: "xxx",
 		Fields: ItemFields{
-			"aaa": {Value: "aa"},
-			"bbb": {Asset: Asset{
+			"aaa": "aa",
+			"bbb": ItemAsset{
 				Type:        "asset",
 				ID:          "xxx",
 				URL:         "https://example.com",
 				ContentType: "application/json",
-			}},
+			},
 		},
 	}))
 
