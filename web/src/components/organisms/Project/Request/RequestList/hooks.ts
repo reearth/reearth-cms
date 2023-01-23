@@ -1,5 +1,5 @@
-import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Key, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -18,6 +18,7 @@ export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
 export default () => {
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
@@ -33,6 +34,13 @@ export default () => {
   const [requestState, setRequestState] = useState<RequestState[]>(["WAITING"]);
   const [createdByMe, setCreatedByMe] = useState<boolean>(false);
   const [reviewedByMe, setReviewedByMe] = useState<boolean>(false);
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const pageSizeParam = searchParams.get("pageSize");
+    setPage(pageParam ? +pageParam : 1);
+    setPageSize(pageSizeParam ? +pageSizeParam : 10);
+  }, [searchParams]);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -117,13 +125,12 @@ export default () => {
       createdByMe?: boolean,
       reviewedByMe?: boolean,
     ) => {
-      setPage(page);
-      setPageSize(pageSize);
+      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
       setRequestState(requestState ?? ["APPROVED", "CLOSED", "DRAFT", "WAITING"]);
       setCreatedByMe(createdByMe ?? false);
       setReviewedByMe(reviewedByMe ?? false);
     },
-    [],
+    [setSearchParams],
   );
 
   return {
