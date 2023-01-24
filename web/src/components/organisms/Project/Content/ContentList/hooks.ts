@@ -1,5 +1,5 @@
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
@@ -23,6 +23,7 @@ export type SortDirection = "ASC" | "DESC";
 
 export default () => {
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [currentWorkspace] = useWorkspace();
@@ -35,6 +36,13 @@ export default () => {
     type: "MODIFICATION_DATE",
     direction: "DESC",
   });
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const pageSizeParam = searchParams.get("pageSize");
+    setPage(pageParam ? +pageParam : 1);
+    setPageSize(pageSizeParam ? +pageSizeParam : 10);
+  }, [searchParams]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -193,11 +201,10 @@ export default () => {
       pageSize: number,
       sorter?: { type?: ItemSortType; direction?: SortDirection },
     ) => {
-      setPage(page);
-      setPageSize(pageSize);
+      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
       setSort(sorter);
     },
-    [],
+    [setSearchParams],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
