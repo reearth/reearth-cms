@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -12,6 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import {
@@ -263,54 +263,20 @@ const FieldCreationModal: React.FC<Props> = ({
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (
-              <>
-                <div style={{ marginBottom: "8px" }}>{t("Set Options")}</div>
-                <Form.List
-                  name="values"
-                  rules={[
-                    {
-                      validator: async (_, values) => {
-                        if (!values || values.length < 1) {
-                          return Promise.reject(new Error("At least 1 option"));
-                        }
-                      },
+              <Form.Item
+                name="values"
+                label={t("Set Options")}
+                rules={[
+                  {
+                    validator: async (_, values) => {
+                      if (!values || values.length < 1) {
+                        return Promise.reject(new Error("At least 1 option"));
+                      }
                     },
-                  ]}>
-                  {(fields, { add, remove }, { errors }) => (
-                    <>
-                      {fields.map((field, _) => (
-                        <Form.Item required={false} key={field.key}>
-                          <Form.Item
-                            {...field}
-                            validateTrigger={["onChange", "onBlur"]}
-                            rules={[
-                              {
-                                required: true,
-                                whitespace: true,
-                                message: t("Please input value or delete this field."),
-                              },
-                            ]}
-                            noStyle>
-                            <Input
-                              placeholder={t("Option value")}
-                              style={{ width: "80%", marginRight: "8px" }}
-                            />
-                          </Form.Item>
-                          {fields.length > 1 ? (
-                            <Icon icon="minusCircle" onClick={() => remove(field.name)} />
-                          ) : null}
-                        </Form.Item>
-                      ))}
-                      <Form.Item>
-                        <Button type="primary" onClick={() => add()} icon={<Icon icon="plus" />}>
-                          {t("New")}
-                        </Button>
-                        <Form.ErrorList errors={errors} />
-                      </Form.Item>
-                    </>
-                  )}
-                </Form.List>
-              </>
+                  },
+                ]}>
+                <MultiValueField FieldInput={Input} />
+              </Form.Item>
             )}
             <Form.Item
               name="multiple"
