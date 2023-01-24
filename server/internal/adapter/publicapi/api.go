@@ -24,6 +24,7 @@ func GetController(ctx context.Context) *Controller {
 func Echo(e *echo.Group) {
 	e.Use(middleware.CORS())
 	e.GET("/:project/:model", PublicApiItemList())
+	e.GET("/:project/assets/:asset", PublicApiAsset())
 	e.GET("/:project/:model/:item", PublicApiItem())
 }
 
@@ -52,6 +53,20 @@ func PublicApiItemList() echo.HandlerFunc {
 		}
 
 		res, err := ctrl.GetItems(ctx, c.Param("project"), c.Param("model"), p)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func PublicApiAsset() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(c.Request().Context())
+
+		res, err := ctrl.GetAsset(ctx, c.Param("project"), c.Param("asset"))
 		if err != nil {
 			return err
 		}
