@@ -55,7 +55,7 @@ func (p *Model) Key() key.Key {
 }
 
 func (p *Model) SetKey(key key.Key) error {
-	if !key.IsValid() {
+	if !validateModelKey(key) {
 		return ErrInvalidKey
 	}
 	p.key = key
@@ -100,4 +100,9 @@ func (p *Model) Clone() *Model {
 		public:      p.public,
 		updatedAt:   p.updatedAt,
 	}
+}
+
+func validateModelKey(k key.Key) bool {
+	// assets is used as an API endpoint
+	return k.IsValid() && len(k.String()) > 4 && k.String() != "assets"
 }
