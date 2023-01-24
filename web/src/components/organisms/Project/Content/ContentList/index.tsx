@@ -20,6 +20,11 @@ const ContentList: React.FC = () => {
     totalCount,
     page,
     pageSize,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
     handleSearchTerm,
     setSelection,
     handleItemSelect,
@@ -61,6 +66,7 @@ const ContentList: React.FC = () => {
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
       selection={selection}
+      requests={requests}
       modelsMenu={
         <ModelsMenu
           title={t("Content")}
@@ -74,6 +80,10 @@ const ContentList: React.FC = () => {
       onItemEdit={handleNavigateToItemEditForm}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
+      onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
+      onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
+      onAddItemToRequest={handleAddItemToRequest}
+      addItemToRequestModalShown={addItemToRequestModalShown}
     />
   );
 };
