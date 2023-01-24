@@ -22,10 +22,10 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20230119100547-f366e6068a1f
+	github.com/reearth/reearthx v0.0.0-20230124124942-1cf6b088447d
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
-	github.com/spf13/afero v1.9.2
+	github.com/spf13/afero v1.9.3
 	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7
 	github.com/stretchr/testify v1.8.1
 	github.com/vektah/dataloaden v0.3.0

@@ -1,18 +1,19 @@
 package user
 
 import (
-	"errors"
 	"sort"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"golang.org/x/exp/maps"
 )
 
 var (
-	ErrUserAlreadyJoined             = errors.New("user already joined")
-	ErrCannotModifyPersonalWorkspace = errors.New("personal workspace cannot be modified")
-	ErrTargetUserNotInTheWorkspace   = errors.New("target user does not exist in the workspace")
-	ErrInvalidWorkspaceName          = errors.New("invalid workspace name")
+	ErrUserAlreadyJoined             = rerror.NewE(i18n.T("user already joined"))
+	ErrCannotModifyPersonalWorkspace = rerror.NewE(i18n.T("personal workspace cannot be modified"))
+	ErrTargetUserNotInTheWorkspace   = rerror.NewE(i18n.T("target user does not exist in the workspace"))
+	ErrInvalidWorkspaceName          = rerror.NewE(i18n.T("invalid workspace name"))
 )
 
 type Member struct {

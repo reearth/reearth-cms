@@ -1,12 +1,12 @@
 package schema
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrInvalidValue = errors.New("invalid value")
+var ErrInvalidValue = rerror.NewE(i18n.T("invalid value"))
 
 // TypeProperty Represent special attributes for some field
 // only one of the type properties should be not nil

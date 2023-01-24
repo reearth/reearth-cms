@@ -1,33 +1,25 @@
 package app
 
 import (
-	"embed"
-
 	"github.com/labstack/echo/v4"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	i18nFS "github.com/reearth/reearth-cms/server/i18n"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"golang.org/x/text/language"
-	"gopkg.in/yaml.v3"
 )
 
 var (
-	//go:embed i18n/locale.*.yaml
-	localeFS     embed.FS
+	localeFS     = i18nFS.LocalsFS
 	bundle       *i18n.Bundle
 	localizerKey = "localizer"
 )
 
 func init() {
 	bundle = i18n.NewBundle(language.English)
-	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
-	_, err := bundle.LoadMessageFileFS(localeFS, "i18n/locale.en.yaml")
+	err := bundle.LoadFS(localeFS, []string{"en.yml", "ja.yml"})
 	if err != nil {
-		log.Error("i18n: failed to load locales.en.yaml")
-	}
-	_, err = bundle.LoadMessageFileFS(localeFS, "i18n/locale.ja.yaml")
-	if err != nil {
-		log.Error("i18n: failed to load locales.ja.yaml")
+		log.Error("i18n: failed to load locales")
 	}
 }
 

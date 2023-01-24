@@ -3,15 +3,15 @@
 package integrationapi
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrUnsupportedEntity = errors.New("unsupported entity")
+	ErrUnsupportedEntity = rerror.NewE(i18n.T("unsupported entity"))
 )
 
 func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) {

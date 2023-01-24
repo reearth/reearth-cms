@@ -1,16 +1,17 @@
 package project
 
 import (
-	"errors"
 	"net/url"
 	"regexp"
 	"time"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
 
 var (
-	ErrInvalidAlias error = errors.New("invalid alias")
+	ErrInvalidAlias error = rerror.NewE(i18n.T("invalid alias"))
 	aliasRegexp           = regexp.MustCompile("^[a-zA-Z0-9_-]{5,32}$")
 )
 

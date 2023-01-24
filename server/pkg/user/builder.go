@@ -1,12 +1,12 @@
 package user
 
 import (
-	"errors"
-
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/text/language"
 )
 
-var ErrInvalidName = errors.New("invalid user name")
+var ErrInvalidName = rerror.NewE(i18n.T("invalid user name"))
 
 type Builder struct {
 	u            *User

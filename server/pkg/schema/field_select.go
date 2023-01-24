@@ -1,17 +1,18 @@
 package schema
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 var (
-	ErrFieldValues       = errors.New("invalid values")
-	ErrFieldDefaultValue = errors.New("invalid default values")
+	ErrFieldValues       = rerror.NewE(i18n.T("invalid values"))
+	ErrFieldDefaultValue = rerror.NewE(i18n.T("invalid default values"))
 )
 
 type FieldSelect struct {

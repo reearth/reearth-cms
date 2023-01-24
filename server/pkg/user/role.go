@@ -1,8 +1,10 @@
 package user
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
@@ -22,7 +24,7 @@ var (
 		RoleReader,
 	}
 
-	ErrInvalidRole = errors.New("invalid role")
+	ErrInvalidRole = rerror.NewE(i18n.T("invalid role"))
 )
 
 type Role string

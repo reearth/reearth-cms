@@ -1,15 +1,16 @@
 package schema
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
 
 var (
-	ErrInvalidMinMax = errors.New("max must be larger then min")
+	ErrInvalidMinMax = rerror.NewE(i18n.T("max must be larger then min"))
 )
 
 type FieldInteger struct {
