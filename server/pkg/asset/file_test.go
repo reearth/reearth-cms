@@ -1,8 +1,6 @@
 package asset
 
 import (
-	"fmt"
-	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,6 +39,34 @@ func TestFile_Children(t *testing.T) {
 		children: c,
 	}
 	assert.Equal(t, c, got.Children())
+}
+
+func TestFile_Files(t *testing.T) {
+	f := &File{
+		path: "aaa",
+		children: []*File{
+			{
+				path: "aaa/a",
+				children: []*File{
+					{
+						path: "aaa/a/a.txt",
+					},
+				},
+			},
+			{
+				path: "aaa/b.txt",
+			},
+		},
+	}
+
+	assert.Equal(t, []*File{
+		{
+			path: "aaa/a/a.txt",
+		},
+		{
+			path: "aaa/b.txt",
+		},
+	}, f.Files())
 }
 
 func Test_FoldFiles(t *testing.T) {
@@ -126,11 +152,4 @@ func Test_FoldFiles(t *testing.T) {
 			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
 		),
 	)
-
-}
-
-func Test_Example(t *testing.T) {
-	b := "/aaa/bbb/ccc.txt"
-	res := path.Base(b)
-	fmt.Printf("res ----: %v", res)
 }
