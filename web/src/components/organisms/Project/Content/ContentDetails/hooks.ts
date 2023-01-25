@@ -4,63 +4,50 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import {
-  Request,
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
   RequestState as GQLRequestState,
-  Request as GQLRequest,
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
-  useGetRequestsQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
-
-import { convertRequest } from "../../Request/convertRequest";
-import { convertItem } from "../convertItem";
-import useContentHooks from "../hooks";
 
 export default () => {
-  const { currentModel, itemsData } = useContentHooks();
+  const {
+    currentModel,
+    currentWorkspace,
+    currentProject,
+    itemsData,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
+  } = useContentHooks();
   const navigate = useNavigate();
-  const { projectId, workspaceId, itemId } = useParams();
-  const [currentWorkspace] = useWorkspace();
+  const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
-  const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
-
-  const { data: requestData } = useGetRequestsQuery({
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: 100 },
-    },
-    skip: !projectId,
-  });
-
-  const requests: Request[] = useMemo(
-    () =>
-      (requestData?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
-        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
-    [requestData?.requests.nodes],
-  );
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/content/${modelId}`);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
     },
-    [navigate, workspaceId, projectId],
+    [navigate, currentWorkspace?.id, currentProject?.id],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
@@ -84,11 +71,11 @@ export default () => {
         return;
       }
       navigate(
-        `/workspace/${workspaceId}/project/${projectId}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
       );
       Notification.success({ message: t("Successfully created Item!") });
     },
-    [currentModel, projectId, workspaceId, createNewItem, navigate, t],
+    [currentModel, currentProject?.id, currentWorkspace?.id, createNewItem, navigate, t],
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
@@ -166,31 +153,6 @@ export default () => {
     );
   }, [currentWorkspace]);
 
-  const [updateRequest] = useUpdateRequestMutation();
-
-  const handleAddItemToRequest = useCallback(
-    async (request: Request) => {
-      if (!currentItem) return;
-      const item = await updateRequest({
-        variables: {
-          requestId: request.id,
-          description: request.description,
-          items: [...request.items.map(item => ({ itemId: item.id })), { itemId: currentItem.id }],
-          reviewersId: request.reviewers.map(reviewer => reviewer.id),
-          title: request.title,
-          state: request.state as GQLRequestState,
-        },
-      });
-      if (item.errors || !item.data?.updateRequest) {
-        Notification.error({ message: t("Failed to update request.") });
-        return;
-      }
-
-      Notification.success({ message: t("Successfully updated Request!") });
-    },
-    [updateRequest, currentItem, t],
-  );
-
   const [createRequestMutation] = useCreateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
@@ -203,10 +165,10 @@ export default () => {
       reviewersId: string[];
       items: { itemId: string }[];
     }) => {
-      if (!projectId) return;
+      if (!currentProject?.id) return;
       const request = await createRequestMutation({
         variables: {
-          projectId,
+          projectId: currentProject.id,
           title: data.title,
           description: data.description,
           state: data.state as GQLRequestState,
@@ -221,7 +183,7 @@ export default () => {
       Notification.success({ message: t("Successfully created request!") });
       setRequestModalShown(false);
     },
-    [createRequestMutation, projectId, t],
+    [createRequestMutation, currentProject?.id, t],
   );
 
   const [updateRequestMutation] = useUpdateRequestMutation({
@@ -253,16 +215,6 @@ export default () => {
   const handleModalClose = useCallback(() => setRequestModalShown(false), []);
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
-
-  const handleAddItemToRequestModalClose = useCallback(
-    () => setAddItemToRequestModalShown(false),
-    [],
-  );
-
-  const handleAddItemToRequestModalOpen = useCallback(
-    () => setAddItemToRequestModalShown(true),
-    [],
-  );
 
   return {
     requests,
