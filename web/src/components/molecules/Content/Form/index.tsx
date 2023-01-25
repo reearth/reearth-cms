@@ -76,7 +76,7 @@ export interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request) => void;
+  onChange: (request: Request, itemIds: string[]) => void;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -401,6 +401,7 @@ const ContentForm: React.FC<Props> = ({
             workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
+            itemIds={[itemId]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}

@@ -12,14 +12,16 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
+  itemIds: string[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
   linkedRequest?: Request;
   requestList: Request[];
-  onChange?: (value: Request) => void;
+  onChange?: (value: Request, itemIds: string[]) => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
+  itemIds,
   visible,
   onLinkItemRequestModalCancel,
   requestList,
@@ -34,7 +36,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   };
 
   const submit = () => {
-    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request);
+    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
     setSelectedRequestId(undefined);
     onLinkItemRequestModalCancel();
   };
