@@ -63,8 +63,20 @@ func Test_propertyInteger_ToValue(t *testing.T) {
 		},
 		{
 			name:  "time",
-			args:  []any{now},
+			args:  []any{now, &now},
 			want1: now.Unix(),
+			want2: true,
+		},
+		{
+			name:  "bool true",
+			args:  []any{true, lo.ToPtr(true)},
+			want1: int64(1),
+			want2: true,
+		},
+		{
+			name:  "bool false",
+			args:  []any{false, lo.ToPtr(false)},
+			want1: int64(0),
 			want2: true,
 		},
 		{
@@ -72,6 +84,28 @@ func Test_propertyInteger_ToValue(t *testing.T) {
 			args:  []any{"foo", (*float64)(nil), (*string)(nil), (*int)(nil), (*json.Number)(nil), nil, math.NaN()},
 			want1: nil,
 			want2: false,
+		},
+		{
+			name: "types",
+			args: []any{
+				"123", lo.ToPtr("123"),
+				123, lo.ToPtr(123),
+				int(123), lo.ToPtr(int(123)),
+				int8(123), lo.ToPtr(int8(123)),
+				int16(123), lo.ToPtr(int16(123)),
+				int32(123), lo.ToPtr(int32(123)),
+				int64(123), lo.ToPtr(int64(123)),
+				uint(123), lo.ToPtr(uint(123)),
+				uint8(123), lo.ToPtr(uint8(123)),
+				uint16(123), lo.ToPtr(uint16(123)),
+				uint32(123), lo.ToPtr(uint32(123)),
+				uint64(123), lo.ToPtr(uint64(123)),
+				uintptr(123), lo.ToPtr(uintptr(123)),
+				float32(123), lo.ToPtr(float32(123)),
+				float64(123), lo.ToPtr(float64(123)),
+			},
+			want1: int64(123),
+			want2: true,
 		},
 	}
 
