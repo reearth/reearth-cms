@@ -9,6 +9,7 @@ export const GET_ITEMS = gql`
         id
         schemaId
         createdAt
+        status
         user {
           name
         }
@@ -26,7 +27,6 @@ export const GET_ITEMS = gql`
       }
     }
   }
-
   ${threadFragment}
 `;
 
@@ -37,6 +37,7 @@ export const SEARCH_ITEM = gql`
         id
         schemaId
         createdAt
+        status
         user {
           name
         }

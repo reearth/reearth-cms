@@ -1,5 +1,7 @@
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
+export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW";
+
 export type ItemField = {
   schemaFieldId: string;
   type: FieldType;
@@ -18,6 +20,7 @@ export type ContentTableField = {
   id: string;
   author: string;
   schemaId: string;
+  status: ItemStatus[];
   modelId?: string;
   fields: { [key: string]: any };
   comments: Comment[];

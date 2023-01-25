@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   convertItem,
@@ -89,6 +89,7 @@ export default () => {
           ? {
               id: item.id,
               schemaId: item.schemaId,
+              status: item.status as ItemStatus[],
               author: item.user?.name ?? item.integration?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
