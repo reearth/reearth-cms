@@ -362,6 +362,7 @@ export type Item = Node & {
   projectId: Scalars['ID'];
   schema: Schema;
   schemaId: Scalars['ID'];
+  status: Array<ItemStatus>;
   thread: Thread;
   threadId: Scalars['ID'];
   user?: Maybe<User>;
@@ -414,6 +415,12 @@ export type ItemSort = {
 export enum ItemSortType {
   CreationDate = 'CREATION_DATE',
   ModificationDate = 'MODIFICATION_DATE'
+}
+
+export enum ItemStatus {
+  Draft = 'DRAFT',
+  Public = 'PUBLIC',
+  Review = 'REVIEW'
 }
 
 export type KeyAvailability = {
@@ -1611,7 +1618,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: Array<ItemStatus>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type SearchItemQueryVariables = Exact<{
   query: ItemQuery;
@@ -1620,7 +1627,7 @@ export type SearchItemQueryVariables = Exact<{
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: Array<ItemStatus>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2827,6 +2834,7 @@ export const GetItemsDocument = gql`
       id
       schemaId
       createdAt
+      status
       user {
         name
       }
@@ -2881,6 +2889,7 @@ export const SearchItemDocument = gql`
       id
       schemaId
       createdAt
+      status
       user {
         name
       }
