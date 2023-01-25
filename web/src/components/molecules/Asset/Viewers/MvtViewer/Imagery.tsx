@@ -159,7 +159,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     setLayerName(e.target.value);
   };
 
-  return <StyledInput placeholder="Layer name" onChange={handleChange} />;
+  return <StyledInput placeholder="Layer name" defaultValue={layerName} onChange={handleChange} />;
 };
 
 const StyledInput = styled(Input)`
