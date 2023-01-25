@@ -12,7 +12,9 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSortType,
   SortDirection,
@@ -27,7 +29,7 @@ export type Props = {
   loading: boolean;
   selectedItem: Item | undefined;
   selection: {
-    selectedRowKeys: Key[];
+    selectedRowKeys: string[];
   };
   totalCount: number;
   page: number;
@@ -39,10 +41,15 @@ export type Props = {
     sorter?: { type?: ItemSortType; direction?: SortDirection },
   ) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
+  requests: Request[];
+  addItemToRequestModalShown: boolean;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequestModalClose: () => void;
+  onAddItemToRequestModalOpen: () => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -54,6 +61,11 @@ const ContentTable: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  requests,
+  addItemToRequestModalShown,
+  onAddItemToRequest,
+  onAddItemToRequestModalClose,
+  onAddItemToRequestModalOpen,
   onSearchTerm,
   onContentTableChange,
   onItemSelect,
@@ -111,7 +123,7 @@ const ContentTable: React.FC<Props> = ({
     onChange: (selectedRowKeys: Key[]) => {
       setSelection({
         ...selection,
-        selectedRowKeys: selectedRowKeys,
+        selectedRowKeys: selectedRowKeys as string[],
       });
     },
   };
@@ -119,9 +131,12 @@ const ContentTable: React.FC<Props> = ({
   const AlertOptions = (props: any) => {
     return (
       <Space size={16}>
-        <DeselectButton onClick={props.onCleanSelected}>
+        <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
+          <Icon icon="plus" /> {t("Add to Request")}
+        </PrimaryButton>
+        <PrimaryButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
-        </DeselectButton>
+        </PrimaryButton>
         <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
           <Icon icon="delete" /> {t("Delete")}
         </DeleteButton>
@@ -155,32 +170,46 @@ const ContentTable: React.FC<Props> = ({
     setting: true,
   };
 
-  return contentTableColumns ? (
-    <ResizableProTable
-      options={options}
-      loading={loading}
-      pagination={pagination}
-      toolbar={handleToolbarEvents}
-      dataSource={contentTableFields}
-      tableAlertOptionRender={AlertOptions}
-      rowSelection={rowSelection}
-      columns={[...actionsColumn, ...contentTableColumns]}
-      onChange={(pagination, _, sorter: any) => {
-        onContentTableChange(
-          pagination.current ?? 1,
-          pagination.pageSize ?? 10,
-          sorter?.order
-            ? { type: "CREATION_DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-            : undefined,
-        );
-      }}
-    />
-  ) : null;
+  return (
+    <>
+      {contentTableColumns ? (
+        <ResizableProTable
+          options={options}
+          loading={loading}
+          pagination={pagination}
+          toolbar={handleToolbarEvents}
+          dataSource={contentTableFields}
+          tableAlertOptionRender={AlertOptions}
+          rowSelection={rowSelection}
+          columns={[...actionsColumn, ...contentTableColumns]}
+          onChange={(pagination, _, sorter: any) => {
+            onContentTableChange(
+              pagination.current ?? 1,
+              pagination.pageSize ?? 10,
+              sorter?.order
+                ? { type: "CREATION_DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+                : undefined,
+            );
+          }}
+        />
+      ) : null}
+      {selection && (
+        <LinkItemRequestModal
+          itemIds={selection.selectedRowKeys}
+          onChange={onAddItemToRequest}
+          onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+          visible={addItemToRequestModalShown}
+          linkedRequest={undefined}
+          requestList={requests}
+        />
+      )}
+    </>
+  );
 };
 
 export default ContentTable;
 
-const DeselectButton = styled.a`
+const PrimaryButton = styled.a`
   display: flex;
   align-items: center;
   gap: 8px;

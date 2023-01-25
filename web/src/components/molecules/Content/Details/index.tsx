@@ -64,7 +64,7 @@ export type Props = {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request) => void;
+  onChange: (request: Request, itemIds: string[]) => void;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;

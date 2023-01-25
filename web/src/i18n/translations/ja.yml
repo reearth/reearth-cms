@@ -191,8 +191,6 @@ Please input the display name of field!: このフィールドの表示名を入
 Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
-Please input value or delete this field.: 値を入力するかこのフィールドを削除してください
-Option value: オプションの値
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
 Prevents saving an entry if this field is empty: このフィールドを必須項目とします
@@ -264,13 +262,13 @@ Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
-Failed to update request.: リクエストの更新に失敗しました。
-Successfully updated Request!: リクエストの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
+Failed to update request.: リクエストの更新に失敗しました。
 Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
+Successfully updated Request!: リクエストの更新に成功しました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。
