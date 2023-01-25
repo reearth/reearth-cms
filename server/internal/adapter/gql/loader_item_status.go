@@ -36,22 +36,24 @@ func (c *ItemStatusLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([][]gq
 		return nil, []error{err}
 	}
 
-	var statuses []gqlmodel.ItemStatus
 	for _, iid := range iIds {
+		var statuses []gqlmodel.ItemStatus
 		for _, req := range requests[iid] {
 			switch req.State() {
 			case request.StateWaiting:
 				if !slices.Contains(statuses, gqlmodel.ItemStatusReview) {
 					statuses = append(statuses, gqlmodel.ItemStatusReview)
 				}
+				break
 			case request.StateApproved:
 				if !slices.Contains(statuses, gqlmodel.ItemStatusPublic) {
 					statuses = append(statuses, gqlmodel.ItemStatusPublic)
 				}
+				break
 			}
 		}
 		if len(statuses) == 0 {
-			statuses = append(statuses, gqlmodel.ItemStatusDraft)
+			statuses = []gqlmodel.ItemStatus{gqlmodel.ItemStatusDraft}
 		}
 		res = append(res, statuses)
 	}
