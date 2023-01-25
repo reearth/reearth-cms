@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import {
   Cartesian3,
@@ -9,8 +10,10 @@ import {
   Color,
 } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useCesium } from "resium";
+
+import Input from "@reearth-cms/components/atoms/Input";
 
 type Props = {
   url: string;
@@ -152,5 +155,16 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     style,
   ]);
 
-  return <div />;
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setLayerName(e.target.value);
+  };
+
+  return <StyledInput placeholder="Layer name" onChange={handleChange} />;
 };
+
+const StyledInput = styled(Input)`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 147px;
+`;
