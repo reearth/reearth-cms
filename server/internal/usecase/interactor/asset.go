@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
@@ -110,6 +111,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
 
+			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+			if inp.SkipDecompression {
+				es = lo.ToPtr(asset.ArchiveExtractionStatusSkipped)
+			}
+
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
@@ -119,7 +125,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
 				Thread(th.ID()).
-				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusPending))
+				ArchiveExtractionStatus(es)
 
 			if op.User != nil {
 				ab.CreatedByUser(*op.User)
@@ -137,30 +143,39 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, err
 			}
 
-			taskPayload := task.DecompressAssetPayload{
-				AssetID: a.ID().String(),
-				Path:    a.RootPath(),
-			}
-			if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
-				return nil, err
-			}
-
-			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress))
-			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Workspace: prj.Workspace(),
-				Type:      event.AssetCreate,
-				Object:    a,
-				Operator:  op.Operator(),
-			}); err != nil {
-				return nil, err
+			if !inp.SkipDecompression {
+				if err := i.triggerDecompressEvent(ctx, a, prj, op); err != nil {
+					return a, err
+				}
 			}
 
 			return a, nil
 		})
+}
+
+func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, prj *project.Project, op *usecase.Operator) error {
+	taskPayload := task.DecompressAssetPayload{
+		AssetID: a.ID().String(),
+		Path:    a.RootPath(),
+	}
+	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+		return err
+	}
+
+	a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress))
+	if err := i.repos.Asset.Save(ctx, a); err != nil {
+		return err
+	}
+
+	if err := i.event(ctx, Event{
+		Workspace: prj.Workspace(),
+		Type:      event.AssetCreate,
+		Object:    a,
+		Operator:  op.Operator(),
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {

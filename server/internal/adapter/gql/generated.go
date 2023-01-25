@@ -3533,6 +3533,7 @@ enum PreviewType {
 }
 
 enum ArchiveExtractionStatus {
+  SKIPPED
   PENDING
   IN_PROGRESS
   DONE
@@ -3543,6 +3544,7 @@ input CreateAssetInput {
   projectId: ID!
   file: Upload
   url: String
+  skipDecompression: Boolean
 }
 
 input UpdateAssetInput {
@@ -23655,7 +23657,7 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "file", "url"}
+	fieldsInOrder := [...]string{"projectId", "file", "url", "skipDecompression"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -23683,6 +23685,14 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
 			it.URL, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "skipDecompression":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipDecompression"))
+			it.SkipDecompression, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
