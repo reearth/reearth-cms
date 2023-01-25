@@ -155,9 +155,9 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     style,
   ]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setLayerName(e.target.value);
-  };
+  }, []);
 
   return <StyledInput placeholder="Layer name" value={layerName} onChange={handleChange} />;
 };
