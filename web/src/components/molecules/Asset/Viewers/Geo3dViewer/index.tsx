@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, useEffect } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
@@ -11,22 +11,27 @@ type Props = {
   url: string;
   assetFileExt?: string;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
+  setAssetUrl: (url: string) => void;
 };
 
-const Geo3dViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewer }) => {
-  const [assetUrl, setAssetUrl] = useState(url);
-
+const Geo3dViewer: React.FC<Props> = ({
+  viewerProps,
+  url,
+  setAssetUrl,
+  assetFileExt,
+  onGetViewer,
+}) => {
   useEffect(() => {
     if (assetFileExt && compressedFileFormats.includes(assetFileExt)) {
       const nameRegex = /\.\w+$/;
       const base = url.replace(nameRegex, "");
       setAssetUrl(`${base}/tileset.json`);
     }
-  }, [assetFileExt, url]);
+  }, [assetFileExt, setAssetUrl, url]);
 
   return (
     <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
-      <Cesium3dTileSetComponent url={assetUrl} />
+      <Cesium3dTileSetComponent url={url} />
     </ResiumViewer>
   );
 };
