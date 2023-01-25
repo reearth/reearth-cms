@@ -59,6 +59,8 @@ models:
         resolver: true
       integration:
         resolver: true
+      status:
+        resolver: true
   Model:
     fields:
       project:

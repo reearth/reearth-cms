@@ -40,6 +40,20 @@ func (r Request) FindByIDs(ctx context.Context, list id.RequestIDList, _ *usecas
 	return r.repos.Request.FindByIDs(ctx, list)
 }
 
+func (r Request) FindByItems(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]request.List, error) {
+	requests, err := r.repos.Request.FindByItems(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	res := map[id.ItemID]request.List{}
+	for _, i := range list {
+		res[i] = util.Filter(requests, func(req *request.Request) bool {
+			return req.Items().IDs().Has(i)
+		})
+	}
+	return res, nil
+}
+
 func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.RequestFilter, sort *usecasex.Sort, pagination *usecasex.Pagination, _ *usecase.Operator) (request.List, *usecasex.PageInfo, error) {
 	return r.repos.Request.FindByProject(ctx, pid, repo.RequestFilter{
 		State:     filter.State,
@@ -197,8 +211,8 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 	if err != nil {
 		return err
 	}
-	reqs.UpdateStatus(request.StateClosed)
 
+	reqs.UpdateStatus(request.StateClosed)
 	return r.repos.Request.SaveAll(ctx, pid, reqs)
 }
 

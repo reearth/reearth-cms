@@ -268,3 +268,83 @@ func TestRequest_FindByProject(t *testing.T) {
 	_, _, err := r.FindByProject(ctx, pid, repo.RequestFilter{}, nil, nil)
 	assert.Same(t, wantErr, err)
 }
+
+func TestRequest_FindByItem(t *testing.T) {
+	ctx := context.Background()
+	pid := id.NewProjectID()
+	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item1}).
+		Title("foo").
+		MustBuild()
+
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item1}).
+		Title("xxx").
+		State(request.StateDraft).
+		MustBuild()
+
+	req3 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item2}).
+		Title("foo").
+		MustBuild()
+	pf := repo.ProjectFilter{
+		Readable: []id.ProjectID{pid},
+		Writable: []id.ProjectID{pid},
+	}
+	r := NewRequest().Filtered(pf)
+	_ = r.Save(ctx, req1)
+	_ = r.Save(ctx, req2)
+	_ = r.Save(ctx, req3)
+	tests := []struct {
+		name  string
+		input id.ItemIDList
+		want  int
+	}{
+		{
+			name:  "must find 2",
+			input: id.ItemIDList{item1.Item()},
+			want:  2,
+		},
+		{
+			name:  "must find 1",
+			input: id.ItemIDList{item2.Item()},
+			want:  1,
+		},
+		{
+			name:  "must find 0",
+			input: id.ItemIDList{id.NewItemID()},
+			want:  0,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			got, _ := r.FindByItems(ctx, tc.input)
+
+			assert.Equal(t, tc.want, len(got))
+		})
+	}
+
+	wantErr := errors.New("test")
+	SetRequestError(r, wantErr)
+	_, err := r.FindByItems(ctx, id.ItemIDList{item1.Item()})
+	assert.Same(t, wantErr, err)
+}

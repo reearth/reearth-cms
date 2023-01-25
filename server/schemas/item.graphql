@@ -10,6 +10,7 @@ type Item implements Node {
   user: User
   schema: Schema!
   model: Model!
+  status: [ItemStatus!]!
   project: Project!
   thread: Thread!
   fields: [ItemField!]!
@@ -27,6 +28,12 @@ type VersionedItem {
   parents: [String!]
   refs: [String!]!
   value: Item!
+}
+
+enum ItemStatus {
+  DRAFT
+  PUBLIC
+  REVIEW
 }
 
 # Inputs
