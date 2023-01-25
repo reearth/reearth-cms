@@ -71,7 +71,7 @@ const AssetMolecule: React.FC<Props> = ({
       case viewerType === "geo":
         return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
       case viewerType === "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} onGetViewer={getViewer} />;
+        return <Geo3dViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
       case viewerType === "geo_mvt":
         return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "image":
