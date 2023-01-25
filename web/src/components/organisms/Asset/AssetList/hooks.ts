@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, Key, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -21,6 +21,7 @@ type UploadType = "local" | "url";
 
 export default () => {
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
@@ -46,6 +47,13 @@ export default () => {
     },
   );
   const [searchTerm, setSearchTerm] = useState<string>();
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const pageSizeParam = searchParams.get("pageSize");
+    setPage(pageParam ? +pageParam : 1);
+    setPageSize(pageSizeParam ? +pageSizeParam : 10);
+  }, [searchParams]);
 
   const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
     fetchPolicy: "no-cache",
@@ -197,11 +205,10 @@ export default () => {
       pageSize: number,
       sorter?: { type?: AssetSortType; direction?: SortDirection },
     ) => {
-      setPage(page);
-      setPageSize(pageSize);
+      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
       setSort(sorter);
     },
-    [],
+    [setSearchParams],
   );
 
   return {
