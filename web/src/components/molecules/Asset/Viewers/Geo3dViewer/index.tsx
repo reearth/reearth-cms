@@ -20,7 +20,6 @@ const Geo3dViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetVie
     if (assetFileExt && compressedFileFormats.includes(assetFileExt)) {
       const nameRegex = /\.\w+$/;
       const base = url.replace(nameRegex, "");
-      console.log(`${base}/tileset.json`);
       setAssetUrl(`${base}/tileset.json`);
     }
   }, [assetFileExt, url]);
