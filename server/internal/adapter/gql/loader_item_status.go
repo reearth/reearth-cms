@@ -7,16 +7,14 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/request"
-	"golang.org/x/exp/slices"
 )
 
 type ItemStatusLoader struct {
-	requestUsecase interfaces.Request
+	itemUsecase interfaces.Item
 }
 
-func NewItemStatusLoader(requestUsecase interfaces.Request) *ItemStatusLoader {
-	return &ItemStatusLoader{requestUsecase: requestUsecase}
+func NewItemStatusLoader(itemUsecase interfaces.Item) *ItemStatusLoader {
+	return &ItemStatusLoader{itemUsecase: itemUsecase}
 }
 
 type ItemStatusDataLoader interface {
@@ -31,31 +29,12 @@ func (c *ItemStatusLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([][]gq
 		return nil, []error{err}
 	}
 	var res [][]gqlmodel.ItemStatus
-	requests, err := c.requestUsecase.FindByItems(ctx, iIds, op)
+	statusMap, err := c.itemUsecase.ItemStatus(ctx, iIds, op)
+	for _, iid := range iIds {
+		res = append(res, gqlmodel.ToItemStatusList(statusMap[iid]))
+	}
 	if err != nil {
 		return nil, []error{err}
-	}
-
-	for _, iid := range iIds {
-		var statuses []gqlmodel.ItemStatus
-		for _, req := range requests[iid] {
-			switch req.State() {
-			case request.StateWaiting:
-				if !slices.Contains(statuses, gqlmodel.ItemStatusReview) {
-					statuses = append(statuses, gqlmodel.ItemStatusReview)
-				}
-				break
-			case request.StateApproved:
-				if !slices.Contains(statuses, gqlmodel.ItemStatusPublic) {
-					statuses = append(statuses, gqlmodel.ItemStatusPublic)
-				}
-				break
-			}
-		}
-		if len(statuses) == 0 {
-			statuses = []gqlmodel.ItemStatus{gqlmodel.ItemStatusDraft}
-		}
-		res = append(res, statuses)
 	}
 
 	return res, nil

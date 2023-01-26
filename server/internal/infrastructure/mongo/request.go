@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	requestIndexes       = []string{"project"}
+	requestIndexes       = []string{"project", "items.item"}
 	requestUniqueIndexes = []string{"id"}
 )
 

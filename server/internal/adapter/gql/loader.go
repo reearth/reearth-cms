@@ -56,7 +56,7 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Schema:      NewSchemaLoader(usecases.Schema),
 		Integration: NewIntegrationLoader(usecases.Integration),
 		Item:        NewItemLoader(usecases.Item, usecases.Schema),
-		ItemStatus:  NewItemStatusLoader(usecases.Request),
+		ItemStatus:  NewItemStatusLoader(usecases.Item),
 		Thread:      NewThreadLoader(usecases.Thread),
 	}
 }

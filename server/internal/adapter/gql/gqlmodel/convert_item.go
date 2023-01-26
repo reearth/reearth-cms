@@ -91,3 +91,17 @@ func ToItemSort(is *ItemSort) *item.Sort {
 		SortBy:    item.SortTypeFrom(is.SortBy.String()),
 	}
 }
+
+func ToItemStatusList(in []item.Status) (res []ItemStatus) {
+	for _, status := range in {
+		switch status {
+		case item.StatusPublic:
+			res = append(res, ItemStatusPublic)
+		case item.StatusDraft:
+			res = append(res, ItemStatusDraft)
+		case item.StatusReview:
+			res = append(res, ItemStatusReview)
+		}
+	}
+	return
+}
