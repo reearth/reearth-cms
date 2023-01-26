@@ -339,6 +339,7 @@ type Item struct {
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
 	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
 }
 
 func (Item) IsNode()        {}
