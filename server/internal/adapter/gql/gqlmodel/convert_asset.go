@@ -107,6 +107,8 @@ func ToArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *ArchiveExtract
 
 	var s2 ArchiveExtractionStatus
 	switch *s {
+	case asset.ArchiveExtractionStatusSkipped:
+		s2 = ArchiveExtractionStatusSkipped
 	case asset.ArchiveExtractionStatusPending:
 		s2 = ArchiveExtractionStatusPending
 	case asset.ArchiveExtractionStatusInProgress:
