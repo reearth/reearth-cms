@@ -15,7 +15,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
@@ -144,16 +143,25 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			}
 
 			if !inp.SkipDecompression {
-				if err := i.triggerDecompressEvent(ctx, a, prj, op); err != nil {
+				if err := i.triggerDecompressEvent(ctx, a); err != nil {
 					return a, err
 				}
+			}
+
+			if err := i.event(ctx, Event{
+				Workspace: prj.Workspace(),
+				Type:      event.AssetCreate,
+				Object:    a,
+				Operator:  op.Operator(),
+			}); err != nil {
+				return nil, err
 			}
 
 			return a, nil
 		})
 }
 
-func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, prj *project.Project, op *usecase.Operator) error {
+func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset) error {
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),
 		Path:    a.RootPath(),
@@ -167,14 +175,6 @@ func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, prj 
 		return err
 	}
 
-	if err := i.event(ctx, Event{
-		Workspace: prj.Workspace(),
-		Type:      event.AssetCreate,
-		Object:    a,
-		Operator:  op.Operator(),
-	}); err != nil {
-		return err
-	}
 	return nil
 }
 
