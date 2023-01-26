@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type Auth0 struct {
@@ -89,7 +91,7 @@ func (a *Auth0) UpdateUser(p gateway.AuthenticatorUpdateUserParam) (data gateway
 		payload["password"] = *p.Password
 	}
 	if len(payload) == 0 {
-		err = errors.New("nothing is updated")
+		err = rerror.NewE(i18n.T("nothing is updated"))
 		return
 	}
 
@@ -99,7 +101,7 @@ func (a *Auth0) UpdateUser(p gateway.AuthenticatorUpdateUserParam) (data gateway
 		if !a.disableLogging {
 			log.Errorf("auth0: update user: %+v", err)
 		}
-		err = errors.New("failed to update user")
+		err = rerror.NewE(i18n.T("failed to update user"))
 		return
 	}
 
@@ -123,7 +125,7 @@ func (a *Auth0) updateToken() error {
 	}
 
 	if a.clientID == "" || a.clientSecret == "" || a.domain == "" {
-		return errors.New("auth0 is not set up")
+		return rerror.NewE(i18n.T("auth0 is not set up"))
 	}
 
 	a.lock.Lock()
@@ -144,7 +146,7 @@ func (a *Auth0) updateToken() error {
 		if !a.disableLogging {
 			log.Errorf("auth0: access token error: %+v", err)
 		}
-		return errors.New("failed to auth")
+		return rerror.NewE(i18n.T("failed to auth"))
 	}
 
 	if a.current == nil {
@@ -155,7 +157,7 @@ func (a *Auth0) updateToken() error {
 		if !a.disableLogging {
 			log.Errorf("auth0: no token: %+v", r)
 		}
-		return errors.New("failed to auth")
+		return rerror.NewE(i18n.T("failed to auth"))
 	}
 	a.token = r.Token
 	a.expireAt = a.current().Add(time.Duration(r.ExpiresIn * int64(time.Second)))
@@ -165,7 +167,7 @@ func (a *Auth0) updateToken() error {
 
 func (a *Auth0) exec(method, path, token string, b interface{}) (r response, err error) {
 	if a == nil || a.domain == "" {
-		err = errors.New("auth0: domain is not set")
+		err = rerror.NewE(i18n.T("auth0: domain is not set"))
 		return
 	}
 	if a.client == nil {

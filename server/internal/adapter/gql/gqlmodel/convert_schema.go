@@ -1,12 +1,13 @@
 package gqlmodel
 
 import (
-	"errors"
 	"reflect"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -184,7 +185,7 @@ func valueString(dv *value.Multiple, multiple bool) any {
 	return v
 }
 
-var ErrInvalidTypeProperty = errors.New("invalid type property")
+var ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
 
 func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	if tp == nil {

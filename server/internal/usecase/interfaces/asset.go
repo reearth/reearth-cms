@@ -2,13 +2,14 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/idx"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -33,8 +34,8 @@ type UpdateAssetParam struct {
 }
 
 var (
-	ErrCreateAssetFailed error = errors.New("failed to create asset")
-	ErrFileNotIncluded   error = errors.New("file not included")
+	ErrCreateAssetFailed error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded   error = rerror.NewE(i18n.T("file not included"))
 )
 
 type AssetFilter struct {

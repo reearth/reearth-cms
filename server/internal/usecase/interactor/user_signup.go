@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -108,7 +109,7 @@ func (i *User) SignupOIDC(ctx context.Context, param interfaces.SignupOIDC) (*us
 		return nil, err
 	}
 	if param.Sub == "" || param.Name == "" || param.Email == "" {
-		return nil, errors.New("invalid parameters")
+		return nil, rerror.NewE(i18n.T("invalid parameters"))
 	}
 
 	eu, err := i.repos.User.FindByEmail(ctx, param.Email)
@@ -224,10 +225,10 @@ func (i *User) sendVerificationMail(ctx context.Context, u *user.User, vr *user.
 
 func getUserInfoFromISS(ctx context.Context, iss, accessToken string) (UserInfo, error) {
 	if accessToken == "" {
-		return UserInfo{}, errors.New("invalid access token")
+		return UserInfo{}, rerror.NewE(i18n.T("invalid access token"))
 	}
 	if iss == "" {
-		return UserInfo{}, errors.New("invalid issuer")
+		return UserInfo{}, rerror.NewE(i18n.T("invalid issuer"))
 	}
 
 	var u string
@@ -235,7 +236,7 @@ func getUserInfoFromISS(ctx context.Context, iss, accessToken string) (UserInfo,
 	if err != nil {
 		u2 := issToURL(iss, "/userinfo")
 		if u2 == nil {
-			return UserInfo{}, errors.New("invalid iss")
+			return UserInfo{}, rerror.NewE(i18n.T("invalid iss"))
 		}
 		u = u2.String()
 	} else {
@@ -247,7 +248,7 @@ func getUserInfoFromISS(ctx context.Context, iss, accessToken string) (UserInfo,
 func getOpenIDConfiguration(ctx context.Context, iss string) (c OpenIDConfiguration, err error) {
 	WKUrl := issToURL(iss, "/.well-known/openid-configuration")
 	if WKUrl == nil {
-		err = errors.New("invalid iss")
+		err = rerror.NewE(i18n.T("invalid iss"))
 		return
 	}
 
@@ -268,7 +269,7 @@ func getOpenIDConfiguration(ctx context.Context, iss string) (c OpenIDConfigurat
 	}
 
 	if res.StatusCode != http.StatusOK {
-		err = errors.New("could not get user info")
+		err = rerror.NewE(i18n.T("could not get user info"))
 		return
 	}
 
@@ -299,7 +300,7 @@ func getUserInfo(ctx context.Context, url, accessToken string) (ui UserInfo, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		err = errors.New("could not get user info")
+		err = rerror.NewE(i18n.T("could not get user info"))
 		return
 	}
 

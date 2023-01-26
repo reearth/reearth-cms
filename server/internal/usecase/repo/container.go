@@ -1,11 +1,11 @@
 package repo
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -26,7 +26,7 @@ type Container struct {
 }
 
 var (
-	ErrOperationDenied = errors.New("operation denied")
+	ErrOperationDenied = rerror.NewE(i18n.T("operation denied"))
 )
 
 func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *Container {

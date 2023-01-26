@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -94,7 +95,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	uc := adapter.Usecases(ctx)
 
 	if request.Body.Fields == nil {
-		return ItemCreate400Response{}, errors.New("missing fields")
+		return ItemCreate400Response{}, rerror.NewE(i18n.T("missing fields"))
 	}
 
 	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
@@ -134,7 +135,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 	uc := adapter.Usecases(ctx)
 
 	if request.Body.Fields == nil {
-		return ItemCreateWithProject400Response{}, errors.New("missing fields")
+		return ItemCreateWithProject400Response{}, rerror.NewE(i18n.T("missing fields"))
 	}
 
 	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
@@ -182,7 +183,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 	uc := adapter.Usecases(ctx)
 
 	if request.Body.Fields == nil {
-		return ItemUpdate400Response{}, errors.New("missing fields")
+		return ItemUpdate400Response{}, rerror.NewE(i18n.T("missing fields"))
 	}
 
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)

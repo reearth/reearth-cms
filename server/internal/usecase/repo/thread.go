@@ -2,14 +2,15 @@ package repo
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrCommentNotFound error = errors.New("comment not found")
+	ErrCommentNotFound error = rerror.NewE(i18n.T("comment not found"))
 )
 
 type Thread interface {

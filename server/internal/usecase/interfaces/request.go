@@ -2,16 +2,17 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 var (
-	ErrAlreadyPublished = errors.New("already published")
+	ErrAlreadyPublished = rerror.NewE(i18n.T("already published"))
 )
 
 type CreateRequestParam struct {

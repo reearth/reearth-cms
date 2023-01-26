@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -15,6 +14,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
@@ -105,7 +106,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		if param.Reviewers != nil && param.Reviewers.Len() > 0 {
 			for _, rev := range param.Reviewers {
 				if !ws.Members().IsOwnerOrMaintainer(rev) {
-					return nil, errors.New("reviewer should be owner or maintainer")
+					return nil, rerror.NewE(i18n.T("reviewer should be owner or maintainer"))
 				}
 			}
 			builder.Reviewers(param.Reviewers)
@@ -148,7 +149,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 
 		if param.State != nil {
 			if *param.State == request.StateApproved {
-				return nil, errors.New("can't update by approve")
+				return nil, rerror.NewE(i18n.T("can't update by approve"))
 			}
 			req.SetState(*param.State)
 		}
@@ -160,7 +161,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		if param.Reviewers != nil && param.Reviewers.Len() > 0 {
 			for _, rev := range param.Reviewers {
 				if !ws.Members().IsOwnerOrMaintainer(rev) {
-					return nil, errors.New("reviewer should be owner or maintainer")
+					return nil, rerror.NewE(i18n.T("reviewer should be owner or maintainer"))
 				}
 			}
 			req.SetReviewers(param.Reviewers)
@@ -217,11 +218,11 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		}
 		// only reviewers can approve
 		if !req.Reviewers().Has(*operator.User) {
-			return nil, errors.New("only reviewers can approve")
+			return nil, rerror.NewE(i18n.T("only reviewers can approve"))
 		}
 
 		if req.State() != request.StateWaiting {
-			return nil, errors.New("only requests with status waiting can be approved")
+			return nil, rerror.NewE(i18n.T("only requests with status waiting can be approved"))
 		}
 		req.SetState(request.StateApproved)
 

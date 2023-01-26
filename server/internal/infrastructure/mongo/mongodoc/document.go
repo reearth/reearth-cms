@@ -1,8 +1,6 @@
 package mongodoc
 
 import (
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
@@ -13,6 +11,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -24,8 +24,8 @@ type Document struct {
 }
 
 var (
-	ErrInvalidObject = errors.New("invalid object")
-	ErrInvalidDoc    = errors.New("invalid document")
+	ErrInvalidObject = rerror.NewE(i18n.T("invalid object"))
+	ErrInvalidDoc    = rerror.NewE(i18n.T("invalid document"))
 )
 
 func NewDocument(obj any) (doc Document, id string, err error) {

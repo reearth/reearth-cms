@@ -2,15 +2,16 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
-var ErrDuplicatedKey = errors.New("duplicated key")
+var ErrDuplicatedKey = rerror.NewE(i18n.T("duplicated key"))
 
 type CreateModelParam struct {
 	ProjectId   id.ProjectID
@@ -29,7 +30,7 @@ type UpdateModelParam struct {
 }
 
 var (
-	ErrModelKey error = errors.New("model key is already used by another model")
+	ErrModelKey error = rerror.NewE(i18n.T("model key is already used by another model"))
 )
 
 type Model interface {

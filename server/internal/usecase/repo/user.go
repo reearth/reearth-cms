@@ -2,13 +2,14 @@ package repo
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrDuplicatedUser = errors.New("duplicated user")
+var ErrDuplicatedUser = rerror.NewE(i18n.T("duplicated user"))
 
 type User interface {
 	FindByIDs(context.Context, id.UserIDList) ([]*user.User, error)
