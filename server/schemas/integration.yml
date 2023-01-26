@@ -15,6 +15,8 @@ paths:
       security:
         - bearerAuth: []
       summary: Returns a list of items.
+      tags:
+        - Items
       description: Returns a list of items with filtering and ordering.
       parameters:
         - $ref: '#/components/parameters/sortParam'
@@ -51,6 +53,9 @@ paths:
           description: Not found
     post:
       operationId: ItemCreate
+      summary: create an item
+      tags:
+        - Items
       security:
         - bearerAuth: []
       requestBody:
@@ -84,6 +89,8 @@ paths:
       security:
         - bearerAuth: []
       summary: Returns a list of items.
+      tags:
+        - Project items
       description: Returns a list of items with filtering and ordering.
       parameters:
         - $ref: '#/components/parameters/sortParam'
@@ -120,6 +127,8 @@ paths:
           description: Not found
     post:
       operationId: ItemCreateWithProject
+      tags:
+        - Project items
       security:
         - bearerAuth: []
       requestBody:
@@ -152,6 +161,8 @@ paths:
       security:
         - bearerAuth: []
       summary: Returns an items.
+      tags:
+        - Items
       description: Returns an item.
       parameters:
         - $ref: '#/components/parameters/refParam'
@@ -173,6 +184,8 @@ paths:
       security:
         - bearerAuth: []
       summary: Update an item.
+      tags:
+        - Items
       description: Update an item.
       requestBody:
         required: true
@@ -200,6 +213,9 @@ paths:
           description: Not found
     delete:
       operationId: ItemDelete
+      summary: delete an item
+      tags:
+        - Items
       security:
         - bearerAuth: []
       responses:
@@ -224,6 +240,8 @@ paths:
       - $ref: '#/components/parameters/itemIdParam'
     get:
       operationId: ItemCommentList
+      tags:
+        - Comments
       security:
         - bearerAuth: []
       responses:
@@ -246,6 +264,8 @@ paths:
           description: Not found
     post:
       operationId: ItemCommentCreate
+      tags:
+        - Comments
       security:
         - bearerAuth: []
       requestBody:
@@ -276,6 +296,8 @@ paths:
       - $ref: '#/components/parameters/commentIdParam'
     patch:
       operationId: ItemCommentUpdate
+      tags:
+        - Comments
       security:
         - bearerAuth: []
       summary: Update Item Comment
@@ -304,6 +326,8 @@ paths:
           description: Not found
     delete:
       operationId: ItemCommentDelete
+      tags:
+        - Comments
       security:
         - bearerAuth: []
       responses:
@@ -355,6 +379,8 @@ paths:
       - $ref: '#/components/parameters/projectIdParam'
     get:
       operationId: AssetFilter
+      tags:
+        - Assets
       security:
         - bearerAuth: []
       summary: Returns a list of assets.
@@ -393,10 +419,12 @@ paths:
           description: Not found
     post:
       operationId: AssetCreate
+      tags:
+        - Assets
       security:
         - bearerAuth: []
-      summary: Returns a list of assets.
-      description: Returns a list of assets with filtering and ordering.
+      summary: Create an new asset.
+      description: Create a new asset and return the created asset.
       requestBody:
         content:
           multipart/form-data:
@@ -412,6 +440,10 @@ paths:
               properties:
                 url:
                   type: string
+                skipDecompression:
+                  type: boolean
+                  nullable: true
+                  default: false
       responses:
         '200':
           description: assets list
@@ -430,6 +462,8 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetGet
+      tags:
+        - Assets
       responses:
         '200':
           description: assets list
@@ -445,6 +479,8 @@ paths:
           description: Not found
     delete:
       operationId: AssetDelete
+      tags:
+        - Assets
       responses:
         '200':
           description: assets list
@@ -467,6 +503,8 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetCommentList
+      tags:
+        - Asset comments
       security:
         - bearerAuth: []
       responses:
@@ -489,6 +527,8 @@ paths:
           description: Not found
     post:
       operationId: AssetCommentCreate
+      tags:
+        - Asset comments
       security:
         - bearerAuth: []
       requestBody:
@@ -519,6 +559,8 @@ paths:
       - $ref: '#/components/parameters/commentIdParam'
     patch:
       operationId: AssetCommentUpdate
+      tags:
+        - Asset comments
       security:
         - bearerAuth: []
       summary: Update AssetComment
@@ -547,6 +589,8 @@ paths:
           description: Not found
     delete:
       operationId: AssetCommentDelete
+      tags:
+        - Asset comments
       security:
         - bearerAuth: []
       responses:
