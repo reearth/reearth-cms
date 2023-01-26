@@ -44,14 +44,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: i18n
+        run: make i18n-ci
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.49
           working-directory: server
           args: --config=../.golangci.yml
-      - name: i18n
-        run: make i18n-ci
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
         env:

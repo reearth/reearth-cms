@@ -17,7 +17,6 @@ var (
 	_ = i18n.T("internal")
 	_ = i18n.T("invalid params")
 	_ = i18n.T("not implemented")
-	_ = i18n.T("test ci should fail")
 
 	localeFS     = i18nFS.LocalsFS
 	bundle       *i18n.Bundle
