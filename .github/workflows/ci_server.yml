@@ -50,6 +50,8 @@ jobs:
           version: v1.49
           working-directory: server
           args: --config=../.golangci.yml
+      - name: i18n
+        run: make i18n-ci
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
         env:
