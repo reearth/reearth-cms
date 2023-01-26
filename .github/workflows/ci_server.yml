@@ -44,8 +44,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: i18n
-        run: make i18n-ci
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -61,3 +59,5 @@ jobs:
         with:
           flags: server
           file: coverage.txt
+      - name: check forgotten translations
+        run: make i18n-ci
