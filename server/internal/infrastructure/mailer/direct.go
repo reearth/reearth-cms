@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
 
