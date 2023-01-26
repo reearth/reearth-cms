@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"golang.org/x/exp/slices"
 )
 
 var (
 	ErrInvalidKey = errors.New("invalid key")
+	ngKeys        = []string{"assets", "schemas", "models", "items"}
 )
 
 type Model struct {
@@ -104,5 +106,5 @@ func (p *Model) Clone() *Model {
 
 func validateModelKey(k key.Key) bool {
 	// assets is used as an API endpoint
-	return k.IsValid() && len(k.String()) > 4 && k.String() != "assets"
+	return k.IsValid() && len(k.String()) > 4 && !slices.Contains(ngKeys, k.String())
 }

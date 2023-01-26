@@ -329,6 +329,18 @@ func TestModel_SetKey(t *testing.T) {
 			wantErr: ErrInvalidKey,
 		},
 		{
+			name:    "fails assets",
+			args:    args{key: key.New("assets")},
+			want:    Model{},
+			wantErr: ErrInvalidKey,
+		},
+		{
+			name:    "fails items",
+			args:    args{key: key.New("items")},
+			want:    Model{},
+			wantErr: ErrInvalidKey,
+		},
+		{
 			name:    "empty",
 			args:    args{key: key.New("")},
 			want:    Model{},
