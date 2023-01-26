@@ -17,6 +17,6 @@ gql:
 	go generate ./internal/adapter/gql
 
 i18n:
-	go run github.com/reearth/reearthx/tools i18n-extract --lang en,ja --outdir i18n ..
+	go run github.com/reearth/reearthx/tools i18n-extract --l en,ja --o i18n .
 
 .PHONY: lint test build run-app run-db gql
