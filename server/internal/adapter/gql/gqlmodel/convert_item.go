@@ -22,7 +22,8 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 		UserID:        IDFromRef(i.User()),
 		IntegrationID: IDFromRef(i.Integration()),
 		ThreadID:      IDFrom(i.Thread()),
-		CreatedAt:     i.Timestamp(),
+		CreatedAt:     i.ID().Timestamp(),
+		UpdatedAt:     i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),

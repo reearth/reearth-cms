@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -9,6 +8,7 @@ import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   ItemSortType,
@@ -26,7 +26,7 @@ export type Props = {
   modelsMenu: React.ReactNode;
   selectedItem: Item | undefined;
   selection: {
-    selectedRowKeys: Key[];
+    selectedRowKeys: string[];
   };
   totalCount: number;
   page: number;
@@ -38,12 +38,17 @@ export type Props = {
     sorter?: { type?: ItemSortType; direction?: SortDirection },
   ) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  setSelection: (input: { selectedRowKeys: string[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  requests: Request[];
+  addItemToRequestModalShown: boolean;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequestModalClose: () => void;
+  onAddItemToRequestModalOpen: () => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -59,6 +64,11 @@ const ContentListMolecule: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  requests,
+  addItemToRequestModalShown,
+  onAddItemToRequest,
+  onAddItemToRequestModalClose,
+  onAddItemToRequestModalOpen,
   onSearchTerm,
   onContentTableChange,
   setSelection,
@@ -114,6 +124,11 @@ const ContentListMolecule: React.FC<Props> = ({
             contentTableFields={contentTableFields}
             contentTableColumns={contentTableColumns}
             onItemDelete={onItemDelete}
+            requests={requests}
+            addItemToRequestModalShown={addItemToRequestModalShown}
+            onAddItemToRequest={onAddItemToRequest}
+            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
           />
         </Content>
       }

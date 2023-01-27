@@ -1,10 +1,15 @@
-import { Key, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import {
+  convertItem,
+  convertComment,
+} from "@reearth-cms/components/organisms/Project/Content/convertItem";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
   useDeleteItemMutation,
@@ -14,20 +19,25 @@ import {
   useSearchItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
-
-import { convertComment, convertItem } from "../convertItem";
 
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
 
 export default () => {
+  const {
+    currentModel,
+    currentWorkspace,
+    currentProject,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
+  } = useContentHooks();
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [currentWorkspace] = useWorkspace();
-  const [currentProject] = useProject();
-  const [currentModel] = useModel();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -35,6 +45,13 @@ export default () => {
     type: "MODIFICATION_DATE",
     direction: "DESC",
   });
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    const pageSizeParam = searchParams.get("pageSize");
+    setPage(pageParam ? +pageParam : 1);
+    setPageSize(pageSizeParam ? +pageSizeParam : 10);
+  }, [searchParams]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -59,7 +76,7 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
+  const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
     selectedRowKeys: [],
   });
 
@@ -193,11 +210,10 @@ export default () => {
       pageSize: number,
       sorter?: { type?: ItemSortType; direction?: SortDirection },
     ) => {
-      setPage(page);
-      setPageSize(pageSize);
+      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
       setSort(sorter);
     },
-    [],
+    [setSearchParams],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
@@ -216,6 +232,11 @@ export default () => {
     totalCount: data?.searchItem.totalCount ?? 0,
     page,
     pageSize,
+    requests,
+    addItemToRequestModalShown,
+    handleAddItemToRequest,
+    handleAddItemToRequestModalClose,
+    handleAddItemToRequestModalOpen,
     handleSearchTerm,
     setSelection,
     handleItemSelect,

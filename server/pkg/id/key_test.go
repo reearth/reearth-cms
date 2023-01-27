@@ -1,4 +1,4 @@
-package key
+package id
 
 import (
 	"testing"
@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	assert.Equal(t, Key{key: "aaaaaaa"}, New("aaaaaaa"))
-	assert.Equal(t, Key{key: "aaaa"}, New("aaaa"))
+func TestNewKey(t *testing.T) {
+	assert.Equal(t, Key{key: "aaaaaaa"}, NewKey("aaaaaaa"))
+	assert.Equal(t, Key{key: "aaaa"}, NewKey("aaaa"))
 }
 
-func TestRandom(t *testing.T) {
-	k := Random()
+func TestRandomKey(t *testing.T) {
+	k := RandomKey()
 	assert.NotEmpty(t, k.String())
 	assert.True(t, k.IsValid())
 }

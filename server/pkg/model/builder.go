@@ -23,7 +23,7 @@ func (b *Builder) Build() (*Model, error) {
 	if b.model.schema.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.k.IsValid() {
+	if validateModelKey(b.k) {
 		b.model.key = b.k
 	} else {
 		return nil, ErrInvalidKey
