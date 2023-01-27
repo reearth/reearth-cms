@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -77,8 +78,15 @@ func (f *Field) Key() key.Key {
 	return f.key
 }
 
-func (f *Field) SetKey(key key.Key) {
+func (f *Field) SetKey(key key.Key) error {
+	if !key.IsValid() {
+		return &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", key.String()),
+		}
+	}
 	f.key = key
+	return nil
 }
 
 func (f *Field) Unique() bool {

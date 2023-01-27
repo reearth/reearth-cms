@@ -45,7 +45,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		}
 
 		if param.Key == "" || s.HasFieldByKey(param.Key) {
-			return nil, interfaces.ErrInvalidKey
+			return nil, schema.ErrInvalidKey
 		}
 
 		f, err := schema.NewField(param.TypeProperty).
@@ -161,11 +161,9 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	}
 
 	if param.Key != nil {
-		k := key.New(*param.Key)
-		if !k.IsValid() {
-			return interfaces.ErrInvalidKey
+		if err := f.SetKey(key.New(*param.Key)); err != nil {
+			return err
 		}
-		f.SetKey(k)
 	}
 
 	if param.Name != nil {
