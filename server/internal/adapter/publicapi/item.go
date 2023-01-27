@@ -12,10 +12,14 @@ import (
 	"github.com/samber/lo"
 )
 
-func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
+func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, error) {
 	pr, err := c.checkProject(ctx, prj)
 	if err != nil {
 		return Item{}, err
+	}
+
+	if mkey == "" {
+		return Item{}, rerror.ErrNotFound
 	}
 
 	iid, err := id.ItemIDFrom(i)
@@ -35,6 +39,10 @@ func (c *Controller) GetItem(ctx context.Context, prj, i string) (Item, error) {
 	m, err := c.usecases.Model.FindByID(ctx, itv.Model(), nil)
 	if err != nil {
 		return Item{}, err
+	}
+
+	if m.Key().String() != mkey {
+		return Item{}, rerror.ErrNotFound
 	}
 
 	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
