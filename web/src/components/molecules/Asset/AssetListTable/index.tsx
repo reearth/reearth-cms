@@ -30,6 +30,8 @@ export type AssetListTableProps = {
   loading: boolean;
   selectedAsset: Asset | undefined;
   totalCount: number;
+  sort?: { type?: AssetSortType; direction?: SortDirection };
+  searchTerm: string;
   page: number;
   pageSize: number;
   onAssetSelect: (assetId: string) => void;
@@ -54,6 +56,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   loading,
   selectedAsset,
   totalCount,
+  searchTerm,
+  sort,
   page,
   pageSize,
   onAssetSelect,
@@ -93,6 +97,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       dataIndex: "fileName",
       key: "NAME",
       sorter: true,
+      defaultSortOrder:
+        sort?.type === "NAME" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Size"),
@@ -100,6 +106,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "SIZE",
       sorter: true,
       render: (_text, record) => bytesFormat(record.size),
+      defaultSortOrder:
+        sort?.type === "SIZE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Preview Type"),
@@ -125,6 +133,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "DATE",
       sorter: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      defaultSortOrder:
+        sort?.type === "DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Created By"),
@@ -162,6 +172,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
+      defaultValue: searchTerm,
       onSearch: (value: string) => {
         if (value) {
           onSearchTerm(value);

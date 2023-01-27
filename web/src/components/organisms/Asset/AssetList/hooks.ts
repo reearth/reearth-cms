@@ -22,6 +22,13 @@ type UploadType = "local" | "url";
 export default () => {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
+  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
+  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
+  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
+  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+
   const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
   const [assetList, setAssetList] = useState<Asset[]>([]);
@@ -35,25 +42,28 @@ export default () => {
   const [uploading, setUploading] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
+  const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
+  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
 
   const [createAssetMutation] = useCreateAssetMutation();
 
   const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
     {
-      type: "DATE",
-      direction: "DESC",
+      type: sortType ? (sortType as AssetSortType) : "DATE",
+      direction: direction ? (direction as SortDirection) : "DESC",
     },
   );
-  const [searchTerm, setSearchTerm] = useState<string>();
 
   useEffect(() => {
-    const pageParam = searchParams.get("page");
-    const pageSizeParam = searchParams.get("pageSize");
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-  }, [searchParams]);
+    setSort({
+      type: sortType ? (sortType as AssetSortType) : "DATE",
+      direction: direction ? (direction as SortDirection) : "DESC",
+    });
+    setSearchTerm(searchTermParam ?? "");
+  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
 
   const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
     fetchPolicy: "no-cache",
@@ -158,9 +168,13 @@ export default () => {
     [t, deleteAssetMutation, projectId],
   );
 
-  const handleSearchTerm = useCallback((term?: string) => {
-    setSearchTerm(term);
-  }, []);
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      searchParams.set("searchTerm", term ?? "");
+      setSearchParams(searchParams);
+    },
+    [setSearchParams, searchParams],
+  );
 
   const handleAssetsReload = useCallback(() => {
     refetch();
@@ -205,10 +219,13 @@ export default () => {
       pageSize: number,
       sorter?: { type?: AssetSortType; direction?: SortDirection },
     ) => {
-      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
-      setSort(sorter);
+      searchParams.set("page", page.toString());
+      searchParams.set("pageSize", pageSize.toString());
+      searchParams.set("sortType", sorter?.type ? sorter.type : "");
+      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      setSearchParams(searchParams);
     },
-    [setSearchParams],
+    [setSearchParams, searchParams],
   );
 
   return {
@@ -225,8 +242,10 @@ export default () => {
     selectedAsset,
     collapsed,
     totalCount: data?.assets.totalCount ?? 0,
+    searchTerm,
     page,
     pageSize,
+    sort,
     handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,

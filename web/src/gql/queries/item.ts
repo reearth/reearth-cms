@@ -9,7 +9,7 @@ export const GET_ITEMS = gql`
         id
         schemaId
         createdAt
-        status
+        updatedAt
         user {
           name
         }
@@ -38,7 +38,7 @@ export const SEARCH_ITEM = gql`
         id
         schemaId
         createdAt
-        status
+        updatedAt
         user {
           name
         }
