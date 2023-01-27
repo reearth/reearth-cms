@@ -25,3 +25,13 @@ func TestItemList_IDs(t *testing.T) {
 	ids := id.ItemIDList{i1.Item(), i2.Item(), i3.Item()}
 	assert.Equal(t, ids, list.IDs())
 }
+
+func TestItemList_HasDuplication(t *testing.T) {
+	i1, _ := NewItem(id.NewItemID())
+	i2, _ := NewItem(id.NewItemID())
+	i3, _ := NewItem(id.NewItemID())
+	input1 := ItemList{i1, i2, i3, i2}
+	input2 := ItemList{i1, i2, i3}
+	assert.Equal(t, true, input1.HasDuplication())
+	assert.Equal(t, false, input2.HasDuplication())
+}
