@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import {
   Cesium3DTileFeature,
   createWorldTerrain,
@@ -8,6 +9,7 @@ import {
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
+import Spin from "@reearth-cms/components/atoms/Spin";
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
@@ -17,6 +19,7 @@ type Props = {
   children?: React.ReactNode;
   properties?: any;
   entitySelected?: boolean;
+  isViewerLoading?: boolean;
 } & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
@@ -24,6 +27,7 @@ const ResiumViewer: React.FC<Props> = ({
   children,
   properties: passedProps,
   entitySelected,
+  isViewerLoading,
   ...props
 }) => {
   let viewer: CesiumViewer | undefined;
@@ -97,8 +101,14 @@ const ResiumViewer: React.FC<Props> = ({
         title={title}
         onClose={handleClose}
       />
+      {isViewerLoading && <StyledSpin />}
     </div>
   );
 };
 
 export default ResiumViewer;
+
+const StyledSpin = styled(Spin)`
+  position: absolute;
+  top: 50%;
+`;

@@ -67,19 +67,19 @@ const AssetMolecule: React.FC<Props> = ({
   };
 
   const renderPreview = useCallback(() => {
-    switch (true) {
-      case viewerType === "geo":
+    switch (viewerType) {
+      case "geo":
         return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
-      case viewerType === "geo_3d_tiles":
+      case "geo_3d_tiles":
         return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
-      case viewerType === "geo_mvt":
+      case "geo_mvt":
         return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
-      case viewerType === "image":
+      case "image":
         return <ImageViewer url={assetUrl} />;
-      case viewerType === "image_svg":
+      case "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d": // TODO: add viewer
-      case viewerType === "unknown":
+      case "model_3d": // TODO: add viewer
+      case "unknown":
       default:
         return <ViewerNotSupported />;
     }

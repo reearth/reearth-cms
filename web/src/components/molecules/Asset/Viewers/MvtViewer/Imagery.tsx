@@ -19,6 +19,7 @@ type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
   selectFeature: (selected: boolean) => void;
+  setIsViewerLoading: (loading: boolean) => void;
 };
 
 export type Property = { [k: string]: string | number | boolean };
@@ -31,11 +32,16 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
+export const Imagery: React.FC<Props> = ({
+  url,
+  handleProperties,
+  selectFeature,
+  setIsViewerLoading,
+}) => {
   const { viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
-  const [layerName, setLayerName] = useState<string>("");
+  const [layerName, setLayerName] = useState("");
 
   const getMvtBaseUrl = useCallback((url: string) => {
     const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
@@ -91,6 +97,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
 
   const initViewer = useCallback(
     async (url: string) => {
+      setIsViewerLoading(true);
       try {
         const data = await fetchMvtMetaData(url);
         if (data?.name) setLayerName(data.name);
@@ -98,9 +105,11 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       } catch (error) {
         // TODO: handle the error
         console.error(error);
+      } finally {
+        setIsViewerLoading(false);
       }
     },
-    [fetchMvtMetaData, setCameraPosition],
+    [fetchMvtMetaData, setCameraPosition, setIsViewerLoading],
   );
 
   useEffect(() => {
