@@ -38,7 +38,7 @@ func TestStatus_Wrap(t *testing.T) {
 			want: StatusPublicDraft,
 		},
 		{
-			name: "draft+draftpublic=draftpublic",
+			name: "draft+publicdraft=publicdraft",
 			s:    StatusDraft,
 			s2:   StatusPublicDraft,
 			want: StatusPublicDraft,
@@ -47,6 +47,12 @@ func TestStatus_Wrap(t *testing.T) {
 			name: "review+public=publicreview",
 			s:    StatusReview,
 			s2:   StatusPublic,
+			want: StatusPublicReview,
+		},
+		{
+			name: "review+publicdraft=publicreview",
+			s:    StatusReview,
+			s2:   StatusPublicDraft,
 			want: StatusPublicReview,
 		},
 		{
