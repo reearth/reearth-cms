@@ -39,10 +39,14 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
 
   const fetchMvtMetaData = useCallback(async (url: string) => {
     const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-    const nameRegex = /\.\w+$/;
+    const compressedExtRegex = /\.zip|\.7z$/;
+    const nameRegex = /\w+.\w+$/;
     const base = url.match(templateRegex)
       ? url.replace(templateRegex, "")
+      : url.match(compressedExtRegex)
+      ? url.replace(compressedExtRegex, "")
       : url.replace(nameRegex, "");
+    console.log(base);
     setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
     const res = await fetch(`${base}/metadata.json`);
     return res.ok ? await res?.json() : undefined;
