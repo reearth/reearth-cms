@@ -22,6 +22,7 @@ export type ContentTableField = {
   fields: { [key: string]: any };
   comments: Comment[];
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Comment = {

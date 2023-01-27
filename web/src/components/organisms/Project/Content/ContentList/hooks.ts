@@ -117,6 +117,7 @@ export default () => {
               ),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
             }
           : undefined,
       )
@@ -246,6 +247,7 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
+    sort,
     searchTerm,
     page,
     pageSize,
