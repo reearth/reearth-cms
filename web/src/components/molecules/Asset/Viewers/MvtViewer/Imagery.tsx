@@ -37,16 +37,20 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");
 
-  const fetchMvtMetaData = useCallback(async (url: string) => {
+  const getMvtBaseUrl = useCallback((url: string) => {
     const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
     const compressedExtRegex = /\.zip|\.7z$/;
     const nameRegex = /\/\w+\.\w+$/;
     const base = url.match(templateRegex)
       ? url.replace(templateRegex, "")
       : url.match(compressedExtRegex)
-        ? url.replace(compressedExtRegex, "")
-        : url.replace(nameRegex, "");
-    console.log(base);
+      ? url.replace(compressedExtRegex, "")
+      : url.replace(nameRegex, "");
+    return base;
+  }, []);
+
+  const fetchMvtMetaData = useCallback(async (url: string) => {
+    const base = getMvtBaseUrl(url);
     setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
     const res = await fetch(`${base}/metadata.json`);
     return res.ok ? await res?.json() : undefined;
