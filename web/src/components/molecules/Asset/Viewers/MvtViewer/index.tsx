@@ -8,14 +8,21 @@ import { Imagery, Property } from "./Imagery";
 type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
+  isViewerLoading: boolean;
+  setIsViewerLoading: (loading: boolean) => void;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
+const MvtViewer: React.FC<Props> = ({
+  viewerProps,
+  url,
+  isViewerLoading,
+  setIsViewerLoading,
+  onGetViewer,
+}) => {
   //TODO: refactor me
   const [properties, setProperties] = useState<Property>();
   const [featureSelected, selectFeature] = useState(false);
-  const [isViewerLoading, setIsViewerLoading] = useState(true);
 
   const attributes = useMemo(() => {
     if (properties && "attributes" in properties) {

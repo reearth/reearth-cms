@@ -61,6 +61,7 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
+  const [isViewerLoading, setIsViewerLoading] = useState(true);
 
   const getViewer = (viewer: CesiumViewer | undefined) => {
     viewerRef = viewer;
@@ -69,11 +70,34 @@ const AssetMolecule: React.FC<Props> = ({
   const renderPreview = useCallback(() => {
     switch (viewerType) {
       case "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
+        return (
+          <GeoViewer
+            url={assetUrl}
+            assetFileExt={assetFileExt}
+            isViewerLoading={isViewerLoading}
+            setIsViewerLoading={setIsViewerLoading}
+            onGetViewer={getViewer}
+          />
+        );
       case "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
+        return (
+          <Geo3dViewer
+            url={assetUrl}
+            setAssetUrl={setAssetUrl}
+            isViewerLoading={isViewerLoading}
+            setIsViewerLoading={setIsViewerLoading}
+            onGetViewer={getViewer}
+          />
+        );
       case "geo_mvt":
-        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
+        return (
+          <MvtViewer
+            url={assetUrl}
+            isViewerLoading={isViewerLoading}
+            setIsViewerLoading={setIsViewerLoading}
+            onGetViewer={getViewer}
+          />
+        );
       case "image":
         return <ImageViewer url={assetUrl} />;
       case "image_svg":
@@ -83,7 +107,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType]);
+  }, [assetFileExt, assetUrl, isViewerLoading, svgRender, viewerType]);
 
   return (
     <BodyContainer>
