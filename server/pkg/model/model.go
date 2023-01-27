@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -59,7 +60,10 @@ func (p *Model) Key() key.Key {
 
 func (p *Model) SetKey(key key.Key) error {
 	if !validateModelKey(key) {
-		return ErrInvalidKey
+		return &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", key.String()),
+		}
 	}
 	p.key = key
 	return nil

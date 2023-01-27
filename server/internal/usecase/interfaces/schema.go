@@ -41,7 +41,6 @@ type UpdateFieldParam struct {
 var (
 	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
 	ErrFieldNotFound       = rerror.NewE(i18n.T("field not found"))
-	ErrInvalidKey          = rerror.NewE(i18n.T("invalid key"))
 	ErrInvalidValue        = rerror.NewE(i18n.T("invalid value"))
 )
 
