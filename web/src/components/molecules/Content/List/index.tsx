@@ -29,6 +29,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
+  searchTerm: string;
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
@@ -62,6 +63,7 @@ const ContentListMolecule: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
+  searchTerm,
   page,
   pageSize,
   requests,
@@ -110,6 +112,7 @@ const ContentListMolecule: React.FC<Props> = ({
           />
           <ContentTable
             totalCount={totalCount}
+            searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
             loading={itemsDataLoading}

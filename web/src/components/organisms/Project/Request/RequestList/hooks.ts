@@ -19,28 +19,45 @@ export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 export default () => {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
+  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
+  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const stateParam = useMemo(() => searchParams.get("requestState"), [searchParams]);
+  const createdByMeParam = useMemo(() => searchParams.get("createdByMe"), [searchParams]);
+  const reviewedByMeParam = useMemo(() => searchParams.get("reviewedByMe"), [searchParams]);
+
   const navigate = useNavigate();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedRequests] = useState<Request[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>();
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
   const [selectedRequestId, setselectedRequestId] = useState<string>();
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [requestState, setRequestState] = useState<RequestState[]>(["WAITING"]);
-  const [createdByMe, setCreatedByMe] = useState<boolean>(false);
-  const [reviewedByMe, setReviewedByMe] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
+  const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
+  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
+
+  const [requestState, setRequestState] = useState<RequestState[]>(
+    stateParam ? JSON.parse(stateParam) : ["WAITING"],
+  );
+  const [createdByMe, setCreatedByMe] = useState<boolean>(
+    createdByMeParam ? JSON.parse(createdByMeParam) : false,
+  );
+  const [reviewedByMe, setReviewedByMe] = useState<boolean>(
+    reviewedByMeParam ? JSON.parse(reviewedByMeParam) : false,
+  );
 
   useEffect(() => {
-    const pageParam = searchParams.get("page");
-    const pageSizeParam = searchParams.get("pageSize");
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-  }, [searchParams]);
+    setRequestState(stateParam ? JSON.parse(stateParam) : ["WAITING"]);
+    setCreatedByMe(createdByMeParam ? JSON.parse(createdByMeParam) : false);
+    setReviewedByMe(reviewedByMeParam ? JSON.parse(reviewedByMeParam) : false);
+    setSearchTerm(searchTermParam ?? "");
+  }, [pageParam, pageSizeParam, stateParam, createdByMeParam, reviewedByMeParam, searchTermParam]);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -113,9 +130,13 @@ export default () => {
     [requests, selectedRequestId],
   );
 
-  const handleSearchTerm = useCallback((term?: string) => {
-    setSearchTerm(term);
-  }, []);
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      searchParams.set("searchTerm", term ?? "");
+      setSearchParams(searchParams);
+    },
+    [setSearchParams, searchParams],
+  );
 
   const handleRequestTableChange = useCallback(
     (
@@ -125,12 +146,25 @@ export default () => {
       createdByMe?: boolean,
       reviewedByMe?: boolean,
     ) => {
-      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
-      setRequestState(requestState ?? ["APPROVED", "CLOSED", "DRAFT", "WAITING"]);
-      setCreatedByMe(createdByMe ?? false);
-      setReviewedByMe(reviewedByMe ?? false);
+      searchParams.set("page", page.toString());
+      searchParams.set("pageSize", pageSize.toString());
+      searchParams.set(
+        "requestState",
+        requestState
+          ? JSON.stringify(requestState)
+          : JSON.stringify(["WAITING", "DRAFT", "CLOSED", "APPROVED"]),
+      );
+      searchParams.set(
+        "createdByMe",
+        createdByMe ? JSON.stringify(createdByMe) : JSON.stringify(false),
+      );
+      searchParams.set(
+        "reviewedByMe",
+        reviewedByMe ? JSON.stringify(reviewedByMe) : JSON.stringify(false),
+      );
+      setSearchParams(searchParams);
     },
-    [setSearchParams],
+    [searchParams, setSearchParams],
   );
 
   return {
@@ -147,6 +181,10 @@ export default () => {
     handleRequestsReload,
     handleRequestDelete,
     handleSearchTerm,
+    searchTerm,
+    reviewedByMe,
+    createdByMe,
+    requestState,
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,

@@ -18,8 +18,10 @@ const AssetList: React.FC = () => {
     selectedAsset,
     collapsed,
     totalCount,
+    searchTerm,
     page,
     pageSize,
+    sort,
     handleToggleCommentMenu,
     handleAssetSelect,
     handleUploadModalCancel,
@@ -55,6 +57,8 @@ const AssetList: React.FC = () => {
       assetList={assetList}
       onAssetTableChange={handleAssetTableChange}
       totalCount={totalCount}
+      searchTerm={searchTerm}
+      sort={sort}
       page={page}
       pageSize={pageSize}
       fileList={fileList}

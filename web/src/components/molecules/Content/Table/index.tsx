@@ -32,6 +32,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
+  searchTerm: string;
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
@@ -59,6 +60,7 @@ const ContentTable: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
+  searchTerm,
   page,
   pageSize,
   requests,
@@ -146,6 +148,7 @@ const ContentTable: React.FC<Props> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
+      defaultValue: searchTerm,
       onSearch: (value: string) => {
         if (value) {
           onSearchTerm(value);

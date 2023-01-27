@@ -18,6 +18,7 @@ const ContentList: React.FC = () => {
     selection,
     loading,
     totalCount,
+    searchTerm,
     page,
     pageSize,
     requests,
@@ -60,6 +61,7 @@ const ContentList: React.FC = () => {
       collapsed={collapsedModelMenu}
       itemsDataLoading={loading}
       totalCount={totalCount}
+      searchTerm={searchTerm}
       page={page}
       pageSize={pageSize}
       model={currentModel}
