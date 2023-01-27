@@ -1,6 +1,9 @@
 package interfaces
 
-import "errors"
+import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+)
 
 type ListOperation string
 
@@ -11,8 +14,8 @@ const (
 )
 
 var (
-	ErrOperationDenied error = errors.New("operation denied")
-	ErrInvalidOperator error = errors.New("invalid operator")
+	ErrOperationDenied error = rerror.NewE(i18n.T("operation denied"))
+	ErrInvalidOperator error = rerror.NewE(i18n.T("invalid operator"))
 )
 
 type Container struct {

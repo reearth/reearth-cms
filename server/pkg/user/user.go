@@ -1,9 +1,10 @@
 package user
 
 import (
-	"errors"
 	"net/mail"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/exp/slices"
 	"golang.org/x/text/language"
 
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	ErrInvalidEmail = errors.New("invalid email")
+	ErrInvalidEmail = rerror.NewE(i18n.T("invalid email"))
 )
 
 type User struct {

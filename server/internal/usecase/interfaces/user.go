@@ -2,8 +2,9 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -12,14 +13,14 @@ import (
 )
 
 var (
-	ErrUserInvalidPasswordConfirmation = errors.New("invalid password confirmation")
-	ErrUserInvalidPasswordReset        = errors.New("invalid password reset request")
-	ErrUserInvalidLang                 = errors.New("invalid lang")
-	ErrSignupInvalidSecret             = errors.New("invalid secret")
-	ErrInvalidUserEmail                = errors.New("invalid email")
-	ErrNotVerifiedUser                 = errors.New("not verified user")
-	ErrInvalidEmailOrPassword          = errors.New("invalid email or password")
-	ErrUserAlreadyExists               = errors.New("user already exists")
+	ErrUserInvalidPasswordConfirmation = rerror.NewE(i18n.T("invalid password confirmation"))
+	ErrUserInvalidPasswordReset        = rerror.NewE(i18n.T("invalid password reset request"))
+	ErrUserInvalidLang                 = rerror.NewE(i18n.T("invalid lang"))
+	ErrSignupInvalidSecret             = rerror.NewE(i18n.T("invalid secret"))
+	ErrInvalidUserEmail                = rerror.NewE(i18n.T("invalid email"))
+	ErrNotVerifiedUser                 = rerror.NewE(i18n.T("not verified user"))
+	ErrInvalidEmailOrPassword          = rerror.NewE(i18n.T("invalid email or password"))
+	ErrUserAlreadyExists               = rerror.NewE(i18n.T("user already exists"))
 )
 
 type SignupOIDC struct {
