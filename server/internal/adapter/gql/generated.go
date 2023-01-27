@@ -215,6 +215,7 @@ type ComplexityRoot struct {
 		ProjectID     func(childComplexity int) int
 		Schema        func(childComplexity int) int
 		SchemaID      func(childComplexity int) int
+		Status        func(childComplexity int) int
 		Thread        func(childComplexity int) int
 		ThreadID      func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
@@ -641,6 +642,7 @@ type ItemResolver interface {
 	User(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error)
 	Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Schema, error)
 	Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error)
+	Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error)
 	Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Project, error)
 	Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error)
 }
@@ -1290,6 +1292,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.SchemaID(childComplexity), true
+
+	case "Item.status":
+		if e.complexity.Item.Status == nil {
+			break
+		}
+
+		return e.complexity.Item.Status(childComplexity), true
 
 	case "Item.thread":
 		if e.complexity.Item.Thread == nil {
@@ -4312,6 +4321,7 @@ extend type Mutation {
   user: User
   schema: Schema!
   model: Model!
+  status: ItemStatus!
   project: Project!
   thread: Thread!
   fields: [ItemField!]!
@@ -4330,6 +4340,14 @@ type VersionedItem {
   parents: [String!]
   refs: [String!]!
   value: Item!
+}
+
+enum ItemStatus {
+  DRAFT
+  PUBLIC
+  REVIEW
+  PUBLIC_REVIEW
+  PUBLIC_DRAFT
 }
 
 # Inputs
@@ -9367,6 +9385,50 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Item().Status(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ItemStatus)
+	fc.Result = res
+	return ec.marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ItemStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_project(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_project(ctx, field)
 	if err != nil {
@@ -9736,6 +9798,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_schema(ctx, field)
 			case "model":
 				return ec.fieldContext_Item_model(ctx, field)
+			case "status":
+				return ec.fieldContext_Item_status(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -9953,6 +10017,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_schema(ctx, field)
 			case "model":
 				return ec.fieldContext_Item_model(ctx, field)
+			case "status":
+				return ec.fieldContext_Item_status(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -10160,6 +10226,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_schema(ctx, field)
 			case "model":
 				return ec.fieldContext_Item_model(ctx, field)
+			case "status":
+				return ec.fieldContext_Item_status(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -20380,6 +20448,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_schema(ctx, field)
 			case "model":
 				return ec.fieldContext_Item_model(ctx, field)
+			case "status":
+				return ec.fieldContext_Item_status(ctx, field)
 			case "project":
 				return ec.fieldContext_Item_project(ctx, field)
 			case "thread":
@@ -27983,6 +28053,26 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Item_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "project":
 			field := field
 
@@ -32185,6 +32275,16 @@ func (ec *executionContext) unmarshalNItemSortType2githubᚗcomᚋreearthᚋreea
 }
 
 func (ec *executionContext) marshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemSortType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, v interface{}) (gqlmodel.ItemStatus, error) {
+	var res gqlmodel.ItemStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemStatus) graphql.Marshaler {
 	return v
 }
 

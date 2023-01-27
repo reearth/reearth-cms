@@ -372,3 +372,83 @@ func TestRequest_SaveAll(t *testing.T) {
 	got, _ := r.FindByIDs(ctx, id.RequestIDList{req1.ID(), req2.ID(), req3.ID()})
 	assert.Equal(t, 3, len(got))
 }
+
+func TestRequest_FindByItem(t *testing.T) {
+	pid := id.NewProjectID()
+	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	reviewer := id.NewUserID()
+	creator := id.NewUserID()
+	req1 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(creator).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item1}).
+		Reviewers(id.UserIDList{reviewer}).
+		Title("foo").
+		MustBuild()
+	req2 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item1, item2}).
+		State(request.StateDraft).
+		Title("hoge").
+		MustBuild()
+	req3 := request.New().
+		NewID().
+		Workspace(id.NewWorkspaceID()).
+		Project(pid).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{item2}).
+		Title("xxx").
+		MustBuild()
+
+	tests := []struct {
+		name  string
+		seeds request.List
+		input id.ItemIDList
+		want  int
+	}{
+		{
+			name:  "must find 2",
+			seeds: request.List{req1, req2, req3},
+			input: id.ItemIDList{item1.Item(), item2.Item()},
+			want:  3,
+		},
+		{
+			name:  "must find 0",
+			seeds: request.List{req1, req2, req3},
+			input: id.ItemIDList{id.NewItemID()},
+			want:  0,
+		},
+		{
+			name:  "must find 1",
+			seeds: request.List{req1, req2, req3},
+			input: id.ItemIDList{item1.Item()},
+			want:  2,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(tt *testing.T) {
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewRequest(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+			got, _ := r.FindByItems(ctx, tc.input)
+			assert.Equal(t, tc.want, len(got))
+		})
+	}
+}

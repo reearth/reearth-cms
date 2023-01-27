@@ -98,3 +98,15 @@ func (l VersionedList) Unwrap() List {
 	}
 	return version.UnwrapValues(l)
 }
+
+func (l VersionedList) Item(iid id.ItemID) Versioned {
+	if l == nil {
+		return nil
+	}
+	for _, versioned := range l {
+		if versioned.Value().ID() == iid {
+			return versioned
+		}
+	}
+	return nil
+}
