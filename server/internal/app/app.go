@@ -75,6 +75,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		internalJWTMiddleware,
 		authMiddleware(cfg),
 		usecaseMiddleware,
+		i18nMiddleware(cfg),
 	)
 	api.POST(
 		"/notify", NotifyHandler(),

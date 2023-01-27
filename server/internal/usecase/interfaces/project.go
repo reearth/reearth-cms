@@ -2,11 +2,12 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -31,8 +32,8 @@ type UpdateProjectPublicationParam struct {
 }
 
 var (
-	ErrProjectAliasIsNotSet    error = errors.New("project alias is not set")
-	ErrProjectAliasAlreadyUsed error = errors.New("project alias is already used by another project")
+	ErrProjectAliasIsNotSet    error = rerror.NewE(i18n.T("project alias is not set"))
+	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
 )
 
 type Project interface {

@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
@@ -33,7 +34,7 @@ type fileRepo struct {
 
 func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
-		return nil, errors.New("bucket name is empty")
+		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
 
 	var u *url.URL
@@ -44,7 +45,7 @@ func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
 	var err error
 	u, _ = url.Parse(base)
 	if err != nil {
-		return nil, errors.New("invalid base URL")
+		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
 	return &fileRepo{

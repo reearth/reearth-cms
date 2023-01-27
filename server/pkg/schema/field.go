@@ -1,14 +1,15 @@
 package schema
 
 import (
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrValueRequired = errors.New("value is required")
+var ErrValueRequired = rerror.NewE(i18n.T("value is required"))
 
 type Field struct {
 	id           FieldID

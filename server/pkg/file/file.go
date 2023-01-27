@@ -1,12 +1,13 @@
 package file
 
 import (
-	"errors"
 	"io"
 	"io/fs"
 	"mime/multipart"
 	"strings"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
 )
 
@@ -46,7 +47,7 @@ func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, e
 		}, nil
 	}
 
-	return nil, errors.New("file not found")
+	return nil, rerror.NewE(i18n.T("file not found"))
 }
 
 type Iterator interface {

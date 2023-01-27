@@ -1,10 +1,11 @@
 package mailer
 
 import (
-	"errors"
 	"net/smtp"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type smtpMailer struct {
@@ -46,7 +47,7 @@ func (m *smtpMailer) SendMail(to []gateway.Contact, subject, plainContent, htmlC
 
 	auth := smtp.PlainAuth("", m.username, m.password, m.host)
 	if len(m.host) == 0 {
-		return errors.New("invalid smtp url")
+		return rerror.NewE(i18n.T("invalid smtp url"))
 	}
 
 	if err := smtp.SendMail(m.host+":"+m.port, auth, m.email, emails, encodedMsg); err != nil {

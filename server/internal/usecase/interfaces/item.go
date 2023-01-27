@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,14 +10,16 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 var (
-	ErrItemFieldRequired   = errors.New("item field required")
-	ErrInvalidField        = errors.New("invalid field")
-	ErrDuplicatedItemValue = errors.New("duplicated value")
-	ErrFieldValueExist     = errors.New("field value exist")
+	ErrItemFieldRequired   = rerror.NewE(i18n.T("item field required"))
+	ErrInvalidField        = rerror.NewE(i18n.T("invalid field"))
+	ErrDuplicatedItemValue = rerror.NewE(i18n.T("duplicated value"))
+	ErrFieldValueExist     = rerror.NewE(i18n.T("field value exist"))
 )
 
 type ItemFieldParam struct {

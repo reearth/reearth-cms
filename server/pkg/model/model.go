@@ -1,15 +1,16 @@
 package model
 
 import (
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/exp/slices"
 )
 
 var (
-	ErrInvalidKey = errors.New("invalid key")
+	ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
 	ngKeys        = []string{"assets", "schemas", "models", "items"}
 )
 

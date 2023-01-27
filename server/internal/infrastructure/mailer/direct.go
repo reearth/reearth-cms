@@ -1,13 +1,13 @@
 package mailer
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"net/smtp"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -75,7 +75,7 @@ func (*direct) hosts(addresses []string) ([]string, error) {
 	for _, a := range addresses {
 		s := strings.SplitAfterN(a, "@", 2)
 		if len(s) != 2 {
-			return nil, errors.New("invalid email address")
+			return nil, rerror.NewE(i18n.T("invalid email address"))
 		}
 		res = append(res, s[1])
 	}
@@ -87,10 +87,10 @@ func (*direct) lookupHosts(hosts []string) ([]string, error) {
 	for _, h := range hosts {
 		mxs, err := net.LookupMX(h)
 		if err != nil {
-			return nil, errors.New("invalid email address")
+			return nil, rerror.NewE(i18n.T("invalid email address"))
 		}
 		if len(mxs) == 0 {
-			return nil, errors.New("invalid email address")
+			return nil, rerror.NewE(i18n.T("invalid email address"))
 		}
 		res = append(res, strings.TrimSuffix(mxs[0].Host, "."))
 	}
