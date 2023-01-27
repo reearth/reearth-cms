@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrEmptyItems = rerror.NewE(i18n.T("items cannot be empty"))
-	ErrEmptyTitle = rerror.NewE(i18n.T("title cannot be empty"))
+	ErrEmptyItems     = rerror.NewE(i18n.T("items cannot be empty"))
+	ErrEmptyTitle     = rerror.NewE(i18n.T("title cannot be empty"))
 	ErrDuplicatedItem = rerror.NewE(i18n.T("duplicated item"))
 )
 

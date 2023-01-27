@@ -336,6 +336,7 @@ type Item struct {
 	User          *User        `json:"user"`
 	Schema        *Schema      `json:"schema"`
 	Model         *Model       `json:"model"`
+	Status        ItemStatus   `json:"status"`
 	Project       *Project     `json:"project"`
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
@@ -1142,6 +1143,53 @@ func (e *ItemSortType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ItemSortType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ItemStatus string
+
+const (
+	ItemStatusDraft        ItemStatus = "DRAFT"
+	ItemStatusPublic       ItemStatus = "PUBLIC"
+	ItemStatusReview       ItemStatus = "REVIEW"
+	ItemStatusPublicReview ItemStatus = "PUBLIC_REVIEW"
+	ItemStatusPublicDraft  ItemStatus = "PUBLIC_DRAFT"
+)
+
+var AllItemStatus = []ItemStatus{
+	ItemStatusDraft,
+	ItemStatusPublic,
+	ItemStatusReview,
+	ItemStatusPublicReview,
+	ItemStatusPublicDraft,
+}
+
+func (e ItemStatus) IsValid() bool {
+	switch e {
+	case ItemStatusDraft, ItemStatusPublic, ItemStatusReview, ItemStatusPublicReview, ItemStatusPublicDraft:
+		return true
+	}
+	return false
+}
+
+func (e ItemStatus) String() string {
+	return string(e)
+}
+
+func (e *ItemStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ItemStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ItemStatus", str)
+	}
+	return nil
+}
+
+func (e ItemStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

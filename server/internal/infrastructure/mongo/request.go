@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	requestIndexes       = []string{"project"}
+	requestIndexes       = []string{"project", "items.item"}
 	requestUniqueIndexes = []string{"id"}
 )
 
@@ -63,6 +63,17 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	}
 
 	return filterRequests(ids, res), nil
+}
+
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
+
+	filter := bson.M{
+		"items.item": bson.M{
+			"$in": list.Strings(),
+		},
+	}
+
+	return r.find(ctx, filter)
 }
 
 func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.RequestFilter, sort *usecasex.Sort, page *usecasex.Pagination) (request.List, *usecasex.PageInfo, error) {

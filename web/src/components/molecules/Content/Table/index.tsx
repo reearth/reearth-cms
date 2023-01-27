@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Key, useMemo } from "react";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -108,6 +109,36 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 48,
         minWidth: 48,
+      },
+      {
+        title: t("Status"),
+        dataIndex: "itemRequestState",
+        key: "itemRequestState",
+        render: (_, item) => {
+          type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+          type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
+          const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
+          const itemStatus: StateType[] = item.status.split("_") as StateType[];
+          return (
+            <>
+              {itemStatus.map((state, index) => {
+                if (index === itemStatus.length - 1) {
+                  return (
+                    <StyledBadge
+                      key={index}
+                      color={stateColors[state] as ColorType}
+                      text={t(state)}
+                    />
+                  );
+                } else {
+                  return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
+                }
+              })}
+            </>
+          );
+        },
+        width: 148,
+        minWidth: 148,
       },
       {
         title: t("Created At"),
@@ -239,4 +270,10 @@ const PrimaryButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const StyledBadge = styled(Badge)`
+  + * {
+    margin-left: 4px;
+  }
 `;

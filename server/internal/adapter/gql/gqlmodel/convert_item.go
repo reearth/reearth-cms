@@ -92,3 +92,19 @@ func ToItemSort(is *ItemSort) *item.Sort {
 		SortBy:    item.SortTypeFrom(is.SortBy.String()),
 	}
 }
+
+func ToItemStatus(in item.Status) ItemStatus {
+	switch in {
+	case item.StatusPublic:
+		return ItemStatusPublic
+	case item.StatusDraft:
+		return ItemStatusDraft
+	case item.StatusReview:
+		return ItemStatusReview
+	case item.StatusPublicDraft:
+		return ItemStatusPublicDraft
+	case item.StatusPublicReview:
+		return ItemStatusPublicReview
+	}
+	return ""
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -43,6 +44,37 @@ func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.O
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
+}
+
+func (i Item) ItemStatus(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
+	requests, err := i.repos.Request.FindByItems(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	items, err := i.FindByIDs(ctx, list, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := map[id.ItemID]item.Status{}
+	for _, itm := range list {
+		s := item.StatusDraft
+		for _, req := range requests {
+			if req.Items().IDs().Has(itm) {
+				switch req.State() {
+				case request.StateWaiting:
+					s = s.Wrap(item.StatusReview)
+				case request.StateApproved:
+					s = s.Wrap(item.StatusPublic)
+					if !items.Item(itm).Refs().Has(version.Public) {
+						s = s.Wrap(item.StatusChanged)
+					}
+				}
+			}
+		}
+
+		res[itm] = s
+	}
+	return res, nil
 }
 
 func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
