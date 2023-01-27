@@ -100,7 +100,7 @@ func TestModel_CheckKey(t *testing.T) {
 			},
 			want:    false,
 			mockErr: true,
-			wantErr: interfaces.ErrInvalidKey,
+			wantErr: model.ErrInvalidKey,
 		},
 	}
 	for _, tt := range tests {

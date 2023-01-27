@@ -1,11 +1,13 @@
 package schema
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,7 +52,10 @@ func TestNewField(t *testing.T) {
 
 	// error: invalid key
 	_, err = NewField(tp).NewID().Build()
-	assert.Equal(t, ErrInvalidKey, err)
+	assert.Equal(t, &rerror.Error{
+		Label: ErrInvalidKey,
+		Err:   fmt.Errorf("%s", ""),
+	}, err)
 
 	// error: invalid default value
 	_, err = NewField(NewText(nil).TypeProperty()).

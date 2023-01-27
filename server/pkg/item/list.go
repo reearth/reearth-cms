@@ -70,9 +70,10 @@ func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 }
 
 func (l VersionedList) Sort(st *Sort) VersionedList {
-	m := slices.Clone(l)
 	if st == nil {
-		return m
+		return l.Sort(&Sort{
+			SortBy: SortTypeCreationDate,
+		})
 	}
 
 	switch st.SortBy {

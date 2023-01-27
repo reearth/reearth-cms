@@ -23,9 +23,6 @@ func NewKey(key string) Key {
 		return Key{}
 	}
 	k := Key{key}
-	if !k.IsValid() {
-		return Key{}
-	}
 	return k
 }
 

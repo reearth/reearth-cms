@@ -90,11 +90,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Public(*param.Public)
 			}
 			if param.Key != nil {
-				k := key.New(*param.Key)
-				if !k.IsValid() {
-					return nil, interfaces.ErrInvalidKey
-				}
-				mb = mb.Key(k)
+				mb = mb.Key(key.New(*param.Key))
 			} else {
 				mb = mb.Key(key.Random())
 			}

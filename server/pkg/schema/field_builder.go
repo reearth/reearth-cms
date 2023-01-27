@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -37,7 +38,10 @@ func (b *FieldBuilder) Build() (*Field, error) {
 		return nil, ErrInvalidType
 	}
 	if !b.f.key.IsValid() {
-		return nil, ErrInvalidKey
+		return nil, &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", b.f.key.String()),
+		}
 	}
 	if err := b.f.SetDefaultValue(b.dv); err != nil {
 		return nil, err
