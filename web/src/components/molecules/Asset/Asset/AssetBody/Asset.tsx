@@ -73,7 +73,7 @@ const AssetMolecule: React.FC<Props> = ({
       case viewerType === "geo_3d_tiles":
         return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
       case viewerType === "geo_mvt":
-        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
+        return <MvtViewer assetBaseUrl={assetBaseUrl} onGetViewer={getViewer} />;
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
@@ -83,7 +83,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType]);
+  }, [assetBaseUrl, assetFileExt, assetUrl, svgRender, viewerType]);
 
   return (
     <BodyContainer>

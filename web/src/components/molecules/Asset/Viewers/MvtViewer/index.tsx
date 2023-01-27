@@ -7,11 +7,11 @@ import { Imagery, Property } from "./Imagery";
 
 type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
-  url: string;
+  assetBaseUrl: string;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
+const MvtViewer: React.FC<Props> = ({ viewerProps, assetBaseUrl, onGetViewer }) => {
   //TODO: refactor me
   const [properties, setProperties] = useState<Property>();
   const [featureSelected, selectFeature] = useState(false);
@@ -27,7 +27,11 @@ const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
       onGetViewer={onGetViewer}
       properties={attributes}
       entitySelected={featureSelected}>
-      <Imagery url={url} handleProperties={setProperties} selectFeature={selectFeature} />
+      <Imagery
+        assetBaseUrl={assetBaseUrl}
+        handleProperties={setProperties}
+        selectFeature={selectFeature}
+      />
     </ResiumViewer>
   );
 };

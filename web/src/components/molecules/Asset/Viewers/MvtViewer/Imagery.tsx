@@ -16,7 +16,7 @@ import { useCesium } from "resium";
 import Input from "@reearth-cms/components/atoms/Input";
 
 type Props = {
-  url: string;
+  assetBaseUrl: string;
   handleProperties: (prop: Property) => void;
   selectFeature: (selected: boolean) => void;
 };
@@ -31,30 +31,17 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
+export const Imagery: React.FC<Props> = ({ assetBaseUrl, handleProperties, selectFeature }) => {
   const { viewer } = useCesium();
   const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
-  const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
+  const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(assetBaseUrl as URLTemplate);
   const [layerName, setLayerName] = useState<string>("");
 
-  const getMvtBaseUrl = useCallback((url: string) => {
-    const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-    const compressedExtRegex = /\.zip|\.7z$/;
-    const nameRegex = /\/\w+\.\w+$/;
-    const base = url.match(templateRegex)
-      ? url.replace(templateRegex, "")
-      : url.match(compressedExtRegex)
-      ? url.replace(compressedExtRegex, "")
-      : url.replace(nameRegex, "");
-    return base;
-  }, []);
-
-  const fetchMvtMetaData = useCallback(async (url: string) => {
-    const base = getMvtBaseUrl(url);
-    setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
-    const res = await fetch(`${base}/metadata.json`);
+  const fetchMvtMetaData = useCallback(async () => {
+    setUrlTemplate(`${assetBaseUrl}/{z}/{x}/{y}.mvt` as URLTemplate);
+    const res = await fetch(`${assetBaseUrl}/metadata.json`);
     return res.ok ? await res?.json() : undefined;
-  }, []);
+  }, [assetBaseUrl]);
 
   const zoomTo = useCallback(
     async (x: number, y: number, z: number, range: number) => {
@@ -89,23 +76,20 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     [zoomTo],
   );
 
-  const initViewer = useCallback(
-    async (url: string) => {
-      try {
-        const data = await fetchMvtMetaData(url);
-        if (data?.name) setLayerName(data.name);
-        await setCameraPosition(data?.center);
-      } catch (error) {
-        // TODO: handle the error
-        console.error(error);
-      }
-    },
-    [fetchMvtMetaData, setCameraPosition],
-  );
+  const initViewer = useCallback(async () => {
+    try {
+      const data = await fetchMvtMetaData();
+      if (data?.name) setLayerName(data.name);
+      await setCameraPosition(data?.center);
+    } catch (error) {
+      // TODO: handle the error
+      console.error(error);
+    }
+  }, [fetchMvtMetaData, setCameraPosition]);
 
   useEffect(() => {
-    initViewer(url);
-  }, [initViewer, url]);
+    initViewer();
+  }, [initViewer]);
 
   const style = useCallback(
     (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
@@ -154,7 +138,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   }, [
     viewer,
     isFeatureSelected,
-    url,
     urlTemplate,
     layerName,
     handleProperties,
