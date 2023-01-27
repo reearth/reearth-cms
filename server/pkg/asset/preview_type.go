@@ -8,6 +8,10 @@ import (
 
 type PreviewType string
 
+func (p PreviewType) Ref() *PreviewType {
+	return &p
+}
+
 const (
 	PreviewTypeImage      PreviewType = "image"
 	PreviewTypeImageSvg   PreviewType = "image_svg"
