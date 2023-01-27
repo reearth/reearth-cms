@@ -118,11 +118,13 @@ const ContentTable: React.FC<Props> = ({
           return (
             <>
               {itemStatus.map((state, index) => {
-                console.log(state);
-
                 if (index === itemStatus.length - 1) {
                   return (
-                    <StyledBadge key={index} color={stateColors[state] as ColorType} text={state} />
+                    <StyledBadge
+                      key={index}
+                      color={stateColors[state] as ColorType}
+                      text={t(state)}
+                    />
                   );
                 } else {
                   return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
