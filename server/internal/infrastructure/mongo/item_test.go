@@ -364,7 +364,7 @@ func TestItem_Search(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
+	f2 := item.NewField(sf2, value.TypeInteger.Value(2).AsMultiple())
 	pid := id.NewProjectID()
 	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -383,10 +383,10 @@ func TestItem_Search(t *testing.T) {
 			Expected: 2,
 		},
 		{
-			Name:     "must find one item",
-			Input:    item.NewQuery(pid, nil, "hoge", nil),
+			Name:     "must find all items",
+			Input:    item.NewQuery(pid, nil, "", nil),
 			RepoData: item.List{i1, i2, i3},
-			Expected: 1,
+			Expected: 3,
 		},
 		{
 			Name:     "must find one item",
