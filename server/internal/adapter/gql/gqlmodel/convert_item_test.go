@@ -52,7 +52,8 @@ func TestToItem(t *testing.T) {
 				ThreadID:      IDFrom(tid),
 				UserID:        IDFromRef(uid.Ref()),
 				IntegrationID: IDFromRef(nid.Ref()),
-				CreatedAt:     i.Timestamp(),
+				CreatedAt:     i.ID().Timestamp(),
+				UpdatedAt:     i.Timestamp(),
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sf1.ID()),

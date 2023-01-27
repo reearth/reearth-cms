@@ -21,6 +21,9 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	if input.URL != nil {
 		params.URL = *input.URL
 	}
+	if input.SkipDecompression != nil {
+		params.SkipDecompression = *input.SkipDecompression
+	}
 
 	res, err := uc.Create(ctx, params, getOperator(ctx))
 	if err != nil {

@@ -88,5 +88,5 @@ func (m *Multiple) ValuesDateTime() (vv []DateTime, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }
