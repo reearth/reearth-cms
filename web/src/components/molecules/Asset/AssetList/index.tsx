@@ -30,6 +30,8 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: { type?: AssetSortType; direction?: SortDirection };
+  searchTerm: string;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (url: string) => void;
@@ -62,6 +64,8 @@ const AssetList: React.FC<Props> = ({
   uploadType,
   selectedAsset,
   totalCount,
+  searchTerm,
+  sort,
   page,
   pageSize,
   onAssetSelect,
@@ -139,6 +143,8 @@ const AssetList: React.FC<Props> = ({
             loading={loading}
             selectedAsset={selectedAsset}
             totalCount={totalCount}
+            searchTerm={searchTerm}
+            sort={sort}
             page={page}
             pageSize={pageSize}
             onAssetSelect={onAssetSelect}

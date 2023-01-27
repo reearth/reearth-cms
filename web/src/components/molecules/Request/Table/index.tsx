@@ -39,6 +39,10 @@ export type Props = {
     reviewedByMe?: boolean,
   ) => void;
   totalCount: number;
+  searchTerm: string;
+  reviewedByMe: boolean;
+  createdByMe: boolean;
+  requestState: RequestState[];
   page: number;
   pageSize: number;
 };
@@ -56,6 +60,10 @@ const RequestListTable: React.FC<Props> = ({
   onRequestDelete,
   onRequestTableChange,
   totalCount,
+  searchTerm,
+  reviewedByMe,
+  createdByMe,
+  requestState,
   page,
   pageSize,
 }) => {
@@ -120,7 +128,7 @@ const RequestListTable: React.FC<Props> = ({
         { text: t("CLOSED"), value: "CLOSED" },
         { text: t("DRAFT"), value: "DRAFT" },
       ],
-      defaultFilteredValue: ["WAITING"],
+      defaultFilteredValue: requestState,
     },
     {
       title: t("Created By"),
@@ -131,11 +139,12 @@ const RequestListTable: React.FC<Props> = ({
       },
       valueEnum: {
         all: { text: "All", status: "Default" },
-        reviewedByMe: {
+        createdByMe: {
           text: t("Current user"),
         },
       },
       filters: true,
+      defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
     },
     {
       title: t("Reviewers"),
@@ -144,11 +153,12 @@ const RequestListTable: React.FC<Props> = ({
       render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
       valueEnum: {
         all: { text: "All", status: "Default" },
-        createdByMe: {
+        reviewedByMe: {
           text: t("Current user"),
         },
       },
       filters: true,
+      defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
     },
     {
       title: t("Created At"),
@@ -188,6 +198,7 @@ const RequestListTable: React.FC<Props> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
+      defaultValue: searchTerm,
       onSearch: (value: string) => {
         if (value) {
           onSearchTerm(value);

@@ -27,6 +27,10 @@ export type Props = {
     reviewedByMe?: boolean,
   ) => void;
   totalCount: number;
+  searchTerm: string;
+  reviewedByMe: boolean;
+  createdByMe: boolean;
+  requestState: RequestState[];
   page: number;
   pageSize: number;
 };
@@ -45,6 +49,10 @@ const RequestListMolecule: React.FC<Props> = ({
   onRequestDelete,
   onRequestTableChange,
   totalCount,
+  searchTerm,
+  reviewedByMe,
+  createdByMe,
+  requestState,
   page,
   pageSize,
 }) => {
@@ -65,6 +73,10 @@ const RequestListMolecule: React.FC<Props> = ({
             selectedRequest={selectedRequest}
             onRequestTableChange={onRequestTableChange}
             totalCount={totalCount}
+            searchTerm={searchTerm}
+            reviewedByMe={reviewedByMe}
+            createdByMe={createdByMe}
+            requestState={requestState}
             page={page}
             pageSize={pageSize}
           />
