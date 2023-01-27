@@ -77,7 +77,8 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 	// generate operator
 	if u != nil {
-		op, err := generateUserOperator(ctx, cfg, u)
+		defaultLang := req.Header.Get("Accept-Language")
+		op, err := generateUserOperator(ctx, cfg, u, defaultLang)
 		if err != nil {
 			return nil, err
 		}
@@ -116,7 +117,8 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *Serv
 	}
 
 	if i != nil {
-		op, err := generateIntegrationOperator(ctx, cfg, i)
+		defaultLang := req.Header.Get("Accept-Language")
+		op, err := generateIntegrationOperator(ctx, cfg, i, defaultLang)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +187,7 @@ func getIntegrationToken(req *http.Request) string {
 	return ""
 }
 
-func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) (*usecase.Operator, error) {
+func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, defaultLang string) (*usecase.Operator, error) {
 	if u == nil {
 		return nil, nil
 	}
@@ -207,9 +209,16 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User) 
 		return nil, err
 	}
 
+	lang := u.Lang().String()
+	if lang == "" || lang == "und" {
+		lang = defaultLang
+	}
+
 	return &usecase.Operator{
 		User:        &uid,
 		Integration: nil,
+
+		Lang: lang,
 
 		ReadableWorkspaces:     rw,
 		WritableWorkspaces:     ww,
@@ -259,7 +268,7 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceLi
 	return rp, wp, op, mp, nil
 }
 
-func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration) (*usecase.Operator, error) {
+func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration, lang string) (*usecase.Operator, error) {
 	if i == nil {
 		return nil, nil
 	}
@@ -283,6 +292,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	return &usecase.Operator{
 		User:                   nil,
 		Integration:            &iId,
+		Lang:                   lang,
 		ReadableWorkspaces:     rw,
 		WritableWorkspaces:     ww,
 		MaintainableWorkspaces: mw,

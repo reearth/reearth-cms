@@ -12,6 +12,7 @@ type Operator struct {
 	User                   *user.ID
 	Integration            *integration.ID
 	Machine                bool
+	Lang                   string
 	ReadableWorkspaces     user.WorkspaceIDList
 	WritableWorkspaces     user.WorkspaceIDList
 	MaintainableWorkspaces user.WorkspaceIDList
