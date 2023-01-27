@@ -121,7 +121,7 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sor
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindBySchema(ctx, sid, gqlmodel.ToItemSort(sort), p.Into(), op)
+	res, pi, err := c.usecase.FindBySchema(ctx, sid, sort.Into(), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	q := gqlmodel.ToItemQuery(query)
-	res, pi, err := c.usecase.Search(ctx, q, gqlmodel.ToItemSort(sort), p.Into(), op)
+	res, pi, err := c.usecase.Search(ctx, q, sort.Into(), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}

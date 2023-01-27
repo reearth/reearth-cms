@@ -36,8 +36,8 @@ func (c *Collection) Find(ctx context.Context, filter any, q version.Query, cons
 	return c.client.Find(ctx, apply(q, filter), consumer)
 }
 
-func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.Paginate(ctx, apply(q, filter), nil, p, consumer)
+func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	return c.client.Paginate(ctx, apply(q, filter), s, p, consumer)
 }
 
 func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (int64, error) {

@@ -66,17 +66,17 @@ func (r *Item) FindByIDs(ctx context.Context, ids id.ItemIDList, ref *version.Re
 	return filterItems(ids, res), nil
 }
 
-func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"schema": schemaID.String(),
-	}, ref, pagination)
-	return res.Sort(sort), pi, err
+	}, ref, sort, pagination)
+	return res, pi, err
 }
 
 func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
-	}, ref, pagination)
+	}, ref, nil, pagination)
 	return res.Sort(nil), pi, err
 }
 
@@ -86,7 +86,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *v
 	}
 	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
-	}, ref, pagination)
+	}, ref, nil, pagination)
 	return res.Sort(nil), pi, err
 }
 
@@ -130,7 +130,7 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
-func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i *Item) Search(ctx context.Context, query *item.Query, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	filter := bson.M{
 		"project": query.Project().String(),
 	}
@@ -145,8 +145,8 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, p
 	if query.Schema() != nil {
 		filter["schema"] = query.Schema().String()
 	}
-	res, pi, err := i.paginate(ctx, filter, query.Ref(), pagination)
-	return res.Sort(sort), pi, err
+	res, pi, err := i.paginate(ctx, filter, query.Ref(), sort, pagination)
+	return res, pi, err
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {
@@ -190,9 +190,9 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 	}, b)
 }
 
-func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

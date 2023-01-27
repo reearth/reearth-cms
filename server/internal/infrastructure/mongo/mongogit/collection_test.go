@@ -247,6 +247,7 @@ func TestCollection_Paginate(t *testing.T) {
 		ctx,
 		bson.M{},
 		version.Eq(version.Latest.OrVersion()),
+		nil,
 		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
 		consumer,
 	)
