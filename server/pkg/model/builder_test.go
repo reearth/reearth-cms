@@ -1,11 +1,13 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -138,7 +140,7 @@ func TestBuilder_Build(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name: "fail 2",
+			name: "fail 3",
 			fields: fields{
 				m: &Model{
 					id:          mId,
@@ -152,8 +154,11 @@ func TestBuilder_Build(t *testing.T) {
 				},
 				// k: key.New("T123456"),
 			},
-			want:    nil,
-			wantErr: ErrInvalidKey,
+			want: nil,
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", ""),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -281,7 +286,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 			wantErr: ErrInvalidID,
 		},
 		{
-			name: "fail 2",
+			name: "fail 3",
 			fields: fields{
 				m: &Model{
 					id:          mId,
@@ -295,8 +300,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 				},
 				// k: key.New("T123456"),
 			},
-			want:    nil,
-			wantErr: ErrInvalidKey,
+			want: nil,
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", ""),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -310,7 +318,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 			}
 
 			if tt.wantErr != nil {
-				assert.PanicsWithValue(t, tt.wantErr, func() {
+				assert.PanicsWithError(t, tt.wantErr.Error(), func() {
 					b.MustBuild()
 				})
 				return
