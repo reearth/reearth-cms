@@ -23,10 +23,8 @@ func (b *Builder) Build() (*Model, error) {
 	if b.model.schema.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if validateModelKey(b.k) {
-		b.model.key = b.k
-	} else {
-		return nil, ErrInvalidKey
+	if err := b.model.SetKey(b.k); err != nil {
+		return nil, err
 	}
 	if b.model.updatedAt.IsZero() {
 		b.model.updatedAt = b.model.CreatedAt()
