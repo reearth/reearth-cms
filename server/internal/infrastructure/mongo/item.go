@@ -135,7 +135,6 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, p
 	if query.Q() != "" {
 		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
 		filter = bson.M{
-			"project": query.Project().String(),
 			"$or": []bson.M{
 				{"fields.v.v": bson.M{"$regex": regex}},
 				{"fields.value": bson.M{"$regex": regex}}, // compat
