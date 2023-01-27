@@ -4,11 +4,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_Build(t *testing.T) {
+	i1, _ := NewItem(id.NewItemID())
 	req := &Request{
 		id:        NewID(),
 		workspace: NewWorkspaceID(),
@@ -114,6 +116,20 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			wantErr: ErrEmptyItems,
+		},
+		{
+			name: "duplicated item",
+			fields: fields{
+				r: &Request{
+					id:        NewID(),
+					project:   NewProjectID(),
+					workspace: NewWorkspaceID(),
+					thread:    NewThreadID(),
+					createdBy: NewUserID(),
+					items:     ItemList{i1, i1},
+				},
+			},
+			wantErr: ErrDuplicatedItem,
 		},
 		{
 			name: "empty title",
