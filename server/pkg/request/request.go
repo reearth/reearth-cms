@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	ErrEmptyItems = errors.New("items cannot be empty")
-	ErrEmptyTitle = errors.New("title cannot be empty")
+	ErrEmptyItems     = errors.New("items cannot be empty")
+	ErrEmptyTitle     = errors.New("title cannot be empty")
+	ErrDuplicatedItem = errors.New("duplicated item")
 )
 
 type Request struct {
@@ -102,8 +103,12 @@ func (r *Request) SetReviewers(reviewers []UserID) {
 	r.reviewers = reviewers
 }
 
-func (r *Request) SetItems(items ItemList) {
+func (r *Request) SetItems(items ItemList) error {
+	if items.HasDuplication() {
+		return ErrDuplicatedItem
+	}
 	r.items = slices.Clone(items)
+	return nil
 }
 
 func (r *Request) SetState(state State) {
