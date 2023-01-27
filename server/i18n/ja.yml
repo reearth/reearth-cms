@@ -6,7 +6,7 @@ archived: アーカイブ済み
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
-can't update by approve: null
+can't update by approve: このメソッドでApproveすることはできません
 cannot change the role of the workspace owner: ワークスペースのオーナーのロールを変更することはできません。
 cannot delete workspace because at least one project is left: プロジェクトが存在するためワークスペースを削除することはできません。
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
