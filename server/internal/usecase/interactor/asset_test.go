@@ -411,10 +411,9 @@ func TestAsset_Create(t *testing.T) {
 	}
 
 	buf := bytes.NewBufferString("Hello")
-	buflen := int64(buf.Len())
-	var pti asset.PreviewType = asset.PreviewTypeImage
-	var ptg asset.PreviewType = asset.PreviewTypeUnknown
-	af := asset.NewFile().Name("aaa.txt").Size(uint64(buflen)).Path("aaa.txt").Build()
+	buf2 := bytes.NewBufferString("Hello")
+	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").Build()
+	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -436,7 +435,7 @@ func TestAsset_Create(t *testing.T) {
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
-						Size:    buflen,
+						Size:    int64(buf.Len()),
 					},
 				},
 				operator: op,
@@ -447,8 +446,8 @@ func TestAsset_Create(t *testing.T) {
 				CreatedByUser(u.ID()).
 				FileName("aaa.txt").
 				File(af).
-				Size(uint64(buflen)).
-				Type(&ptg).
+				Size(uint64(buf.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
 				Thread(id.NewThreadID()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
@@ -463,8 +462,8 @@ func TestAsset_Create(t *testing.T) {
 					ProjectID: p1.ID(),
 					File: &file.File{
 						Path:    "aaa.txt",
-						Content: io.NopCloser(buf),
-						Size:    buflen,
+						Content: io.NopCloser(buf2),
+						Size:    int64(buf2.Len()),
 					},
 					SkipDecompression: true,
 				},
@@ -475,9 +474,9 @@ func TestAsset_Create(t *testing.T) {
 				Project(p1.ID()).
 				CreatedByUser(u.ID()).
 				FileName("aaa.txt").
-				File(af).
-				Size(uint64(buflen)).
-				Type(&ptg).
+				File(af2).
+				Size(uint64(buf2.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
 				Thread(id.NewThreadID()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusSkipped)).
@@ -555,9 +554,9 @@ func TestAsset_Create(t *testing.T) {
 			assert.NoError(t, err)
 
 			if strings.HasPrefix(got.PreviewType().String(), "image/") {
-				assert.Equal(t, &pti, got.PreviewType())
+				assert.Equal(t, asset.PreviewTypeImage.Ref(), got.PreviewType())
 			} else {
-				assert.Equal(t, &ptg, got.PreviewType())
+				assert.Equal(t, asset.PreviewTypeUnknown.Ref(), got.PreviewType())
 			}
 
 			assert.Equal(t, tc.want.Project(), got.Project())
