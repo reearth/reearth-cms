@@ -140,6 +140,8 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, p
 				{"fields.value": bson.M{"$regex": regex}}, // compat
 			},
 		}
+		
+		filter["project"] = query.Project().String()
 	}
 	if query.Schema() != nil {
 		filter["schema"] = query.Schema().String()
