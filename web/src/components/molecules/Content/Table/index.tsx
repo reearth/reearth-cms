@@ -32,6 +32,8 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
+  sort?: { type?: ItemSortType; direction?: SortDirection };
+  searchTerm: string;
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
@@ -59,6 +61,8 @@ const ContentTable: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
+  sort,
+  searchTerm,
   page,
   pageSize,
   requests,
@@ -108,14 +112,31 @@ const ContentTable: React.FC<Props> = ({
       {
         title: t("Created At"),
         dataIndex: "createdAt",
-        key: "date",
+        key: "CREATION_DATE",
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
+        defaultSortOrder:
+          sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Updated At"),
+        dataIndex: "updatedAt",
+        key: "MODIFICATION_DATE",
+        render: (_, item) => dateTimeFormat(item.updatedAt),
+        sorter: true,
+        defaultSortOrder:
+          sort?.type === "MODIFICATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         width: 148,
         minWidth: 148,
       },
     ],
-    [t, onItemEdit, onItemSelect, selectedItem?.id],
+    [t, onItemEdit, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
   );
 
   const rowSelection: TableRowSelection = {
@@ -146,6 +167,7 @@ const ContentTable: React.FC<Props> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
+      defaultValue: searchTerm,
       onSearch: (value: string) => {
         if (value) {
           onSearchTerm(value);
@@ -187,7 +209,7 @@ const ContentTable: React.FC<Props> = ({
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
               sorter?.order
-                ? { type: "CREATION_DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+                ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
                 : undefined,
             );
           }}
