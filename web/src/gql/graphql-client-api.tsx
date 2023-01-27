@@ -51,7 +51,8 @@ export enum ArchiveExtractionStatus {
   Done = 'DONE',
   Failed = 'FAILED',
   InProgress = 'IN_PROGRESS',
-  Pending = 'PENDING'
+  Pending = 'PENDING',
+  Skipped = 'SKIPPED'
 }
 
 export type Asset = Node & {
@@ -127,6 +128,7 @@ export type CommentPayload = {
 export type CreateAssetInput = {
   file?: InputMaybe<Scalars['Upload']>;
   projectId: Scalars['ID'];
+  skipDecompression?: InputMaybe<Scalars['Boolean']>;
   url?: InputMaybe<Scalars['String']>;
 };
 
@@ -362,9 +364,10 @@ export type Item = Node & {
   projectId: Scalars['ID'];
   schema: Schema;
   schemaId: Scalars['ID'];
-  status: Array<ItemStatus>;
+  status: ItemStatus;
   thread: Thread;
   threadId: Scalars['ID'];
+  updatedAt: Scalars['DateTime'];
   user?: Maybe<User>;
   userId?: Maybe<Scalars['ID']>;
 };
@@ -420,6 +423,8 @@ export enum ItemSortType {
 export enum ItemStatus {
   Draft = 'DRAFT',
   Public = 'PUBLIC',
+  PublicDraft = 'PUBLIC_DRAFT',
+  PublicReview = 'PUBLIC_REVIEW',
   Review = 'REVIEW'
 }
 
@@ -1618,7 +1623,7 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: Array<ItemStatus>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type SearchItemQueryVariables = Exact<{
   query: ItemQuery;
@@ -1627,7 +1632,7 @@ export type SearchItemQueryVariables = Exact<{
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: Array<ItemStatus>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];

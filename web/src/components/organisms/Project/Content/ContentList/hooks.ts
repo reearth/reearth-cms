@@ -89,7 +89,7 @@ export default () => {
           ? {
               id: item.id,
               schemaId: item.schemaId,
-              status: item.status as ItemStatus[],
+              status: item.status as ItemStatus,
               author: item.user?.name ?? item.integration?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
