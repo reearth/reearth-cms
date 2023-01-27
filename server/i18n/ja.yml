@@ -6,7 +6,7 @@ archived: アーカイブ済み
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
-can't update by approve: 
+can't update by approve: null
 cannot change the role of the workspace owner: ワークスペースのオーナーのロールを変更することはできません。
 cannot delete workspace because at least one project is left: プロジェクトが存在するためワークスペースを削除することはできません。
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
@@ -14,6 +14,7 @@ comment does not exist in this thread: コメントはこのスレッドに存�
 comment not found: コメントが見つかりませんでした。
 could not get user info: ユーザー情報が取得できませんでした。
 createdBy is required: createdByは必須です。
+duplicated item: 重複したアイテム
 duplicated key: キーが重複しています。
 duplicated user: ユーザーが重複しています。
 duplicated value: 値が重複すています。
