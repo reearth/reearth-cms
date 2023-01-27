@@ -132,6 +132,7 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 
 func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	var filter bson.M
+	filter["project"] = query.Project().String()
 	if query.Q() != "" {
 		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
 		filter = bson.M{
@@ -140,8 +141,7 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *item.Sort, p
 				{"fields.value": bson.M{"$regex": regex}}, // compat
 			},
 		}
-		
-		filter["project"] = query.Project().String()
+
 	}
 	if query.Schema() != nil {
 		filter["schema"] = query.Schema().String()
