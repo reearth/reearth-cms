@@ -1,50 +1,50 @@
-Comment already exist in this thread: ""
-Comment does not exist in this thread: ""
-already locked: ""
-already published: ""
-archived: ""
-auth0 is not set up: ""
-"auth0: domain is not set": ""
-bucket name is empty: ""
-can't update by approve: ""
-cannot change the role of the workspace owner: ""
-cannot delete workspace because at least one project is left: ""
-comment already exist in this thread: ""
-comment does not exist in this thread: ""
-comment not found: ""
-could not get user info: ""
-createdBy is required: ""
-duplicated key: ""
-duplicated user: ""
-duplicated value: ""
-encoding password: ""
-failed to auth: ""
-failed to create asset: ""
-failed to delete file: ""
-failed to lock: ""
-failed to update user: ""
-failed to upload file: ""
-field not found: ""
-field value exist: ""
-file is required: ""
-file not found: ""
-file not included: ""
-file size cannot be zero: ""
-file too large: ""
-internal: ""
-invalid URL: ""
-invalid access token: ""
-invalid alias: ""
-invalid base URL: ""
-invalid cursor: ""
-invalid default values: ""
-invalid document: ""
-invalid email: ""
-invalid email address: ""
-invalid email or password: ""
-invalid field: ""
-invalid file: ""
-invalid iss: ""
+Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
+Comment does not exist in this thread: コメントはこのスレッドに存在しません。
+already locked: 既にロック済みです。
+already published: 既に公開済みです。
+archived: アーカイブ済み
+auth0 is not set up: Auth0が設定されていません。
+"auth0: domain is not set": Auth0のドメインが設定されていません。
+bucket name is empty: ストレージバケット名が空白です。
+can't update by approve: 
+cannot change the role of the workspace owner: ワークスペースのオーナーのロールを変更することはできません。
+cannot delete workspace because at least one project is left: プロジェクトが存在するためワークスペースを削除することはできません。
+comment already exist in this thread: コメントは既にこのスレッドに存在します。
+comment does not exist in this thread: コメントはこのスレッドに存在しません。
+comment not found: コメントが見つかりませんでした。
+could not get user info: ユーザー情報が取得できませんでした。
+createdBy is required: createdByは必須です。
+duplicated key: キーが重複しています。
+duplicated user: ユーザーが重複しています。
+duplicated value: 値が重複すています。
+encoding password: パスワードのエンコーディング
+failed to auth: 認証に失敗しました。
+failed to create asset: アセットの作成に失敗しました。
+failed to delete file: ファイルの削除に失敗しました。
+failed to lock: ロックに失敗しました。
+failed to update user: ユーザー情報の更新に失敗しました。
+failed to upload file: ファイルのアップロードに失敗しました。
+field not found: ファイルが見つかりませんでした。
+field value exist: フィールドの値はすでに存在します。
+file is required: ファイルは必須です。
+file not found: ファイルが見つかりませんでした。
+file not included: ファイルが含まれていません。
+file size cannot be zero: ファイルサイズは0以下にできません。
+file too large: ファイルサイズが大きすぎます。
+internal: 内部
+invalid URL: 無効なURLです。
+invalid access token: 向こうなアクセストークンです。
+invalid alias: 無効なエイリアスです。
+invalid base URL: 無効なベースURLです。
+invalid cursor: 無効なカーソルです。
+invalid default values: 無効なデフォルト値です。
+invalid document: 無効なドキュメントです。
+invalid email: 無効なEmailです。
+invalid email address: 無効なEmailアドレスです。
+invalid email or password: 無効なEmailもしくはパスワードです。
+invalid field: 無効なフィールドです。
+invalid file: 無効なファイルです。
+invalid iss: 無効なissです。
 invalid issuer: ""
 invalid key: ""
 invalid lang: ""
