@@ -115,14 +115,23 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "itemRequestState",
         key: "itemRequestState",
         render: (_, item) => {
+          type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+          type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
           const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
+          const itemStatus: StateType[] = item.status.split("_") as StateType[];
           return (
             <>
-              {item.status.map((state, index) => {
-                if (index === item.status.length - 1) {
-                  return <StyledBadge key={index} color={stateColors[state]} text={state} />;
+              {itemStatus.map((state, index) => {
+                if (index === itemStatus.length - 1) {
+                  return (
+                    <StyledBadge
+                      key={index}
+                      color={stateColors[state] as ColorType}
+                      text={t(state)}
+                    />
+                  );
                 } else {
-                  return <StyledBadge key={index} color={stateColors[state]} />;
+                  return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
                 }
               })}
             </>
