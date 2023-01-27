@@ -111,5 +111,5 @@ func (p *Model) Clone() *Model {
 
 func validateModelKey(k key.Key) bool {
 	// assets is used as an API endpoint
-	return k.IsValid() && len(k.String()) > 4 && !slices.Contains(ngKeys, k.String())
+	return k.IsValid() && len(k.String()) > 2 && !slices.Contains(ngKeys, k.String())
 }
