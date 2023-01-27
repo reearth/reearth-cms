@@ -2,12 +2,13 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type CreateFieldParam struct {
@@ -38,10 +39,10 @@ type UpdateFieldParam struct {
 }
 
 var (
-	ErrInvalidTypeProperty = errors.New("invalid type property")
-	ErrFieldNotFound       = errors.New("field not found")
-	ErrInvalidKey          = errors.New("invalid key")
-	ErrInvalidValue        = errors.New("invalid value")
+	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
+	ErrFieldNotFound       = rerror.NewE(i18n.T("field not found"))
+	ErrInvalidKey          = rerror.NewE(i18n.T("invalid key"))
+	ErrInvalidValue        = rerror.NewE(i18n.T("invalid value"))
 )
 
 type Schema interface {

@@ -1,18 +1,19 @@
 package request
 
 import (
-	"errors"
 	"time"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 var (
-	ErrEmptyItems     = errors.New("items cannot be empty")
-	ErrEmptyTitle     = errors.New("title cannot be empty")
-	ErrDuplicatedItem = errors.New("duplicated item")
+	ErrEmptyItems = rerror.NewE(i18n.T("items cannot be empty"))
+	ErrEmptyTitle = rerror.NewE(i18n.T("title cannot be empty"))
+	ErrDuplicatedItem = rerror.NewE(i18n.T("duplicated item"))
 )
 
 type Request struct {

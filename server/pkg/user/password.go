@@ -5,17 +5,19 @@ import (
 	"errors"
 	"unicode"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
 	DefaultPasswordEncoder PasswordEncoder = &BcryptPasswordEncoder{}
-	ErrEncodingPassword                    = errors.New("encoding password")
-	ErrInvalidPassword                     = errors.New("invalid password")
-	ErrPasswordLength                      = errors.New("password at least 8 characters")
-	ErrPasswordUpper                       = errors.New("password should have upper case letters")
-	ErrPasswordLower                       = errors.New("password should have lower case letters")
-	ErrPasswordNumber                      = errors.New("password should have numbers")
+	ErrEncodingPassword                    = rerror.NewE(i18n.T("encoding password"))
+	ErrInvalidPassword                     = rerror.NewE(i18n.T("invalid password"))
+	ErrPasswordLength                      = rerror.NewE(i18n.T("password at least 8 characters"))
+	ErrPasswordUpper                       = rerror.NewE(i18n.T("password should have upper case letters"))
+	ErrPasswordLower                       = rerror.NewE(i18n.T("password should have lower case letters"))
+	ErrPasswordNumber                      = rerror.NewE(i18n.T("password should have numbers"))
 )
 
 type PasswordEncoder interface {

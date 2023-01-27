@@ -2,13 +2,14 @@ package gqlmodel
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/url"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"golang.org/x/text/language"
 )
@@ -27,7 +28,7 @@ func UnmarshalURL(v interface{}) (url.URL, error) {
 		}
 		return url.URL{}, err
 	}
-	return url.URL{}, errors.New("invalid URL")
+	return url.URL{}, rerror.NewE(i18n.T("invalid URL"))
 }
 
 func MarshalLang(t language.Tag) graphql.Marshaler {
@@ -47,7 +48,7 @@ func UnmarshalLang(v interface{}) (language.Tag, error) {
 		}
 		return l, nil
 	}
-	return language.Tag{}, errors.New("invalid lang")
+	return language.Tag{}, rerror.NewE(i18n.T("invalid lang"))
 }
 
 func MarshalCursor(t usecasex.Cursor) graphql.Marshaler {
@@ -60,7 +61,7 @@ func UnmarshalCursor(v interface{}) (usecasex.Cursor, error) {
 	if tmpStr, ok := v.(string); ok {
 		return usecasex.Cursor(tmpStr), nil
 	}
-	return usecasex.Cursor(""), errors.New("invalid cursor")
+	return usecasex.Cursor(""), rerror.NewE(i18n.T("invalid cursor"))
 }
 
 func MarshalMap(val map[string]string) graphql.Marshaler {

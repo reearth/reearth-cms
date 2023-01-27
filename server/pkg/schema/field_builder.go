@@ -1,15 +1,16 @@
 package schema
 
 import (
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrInvalidKey = errors.New("invalid key")
-var ErrInvalidType = errors.New("invalid type")
+var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
+var ErrInvalidType = rerror.NewE(i18n.T("invalid type"))
 
 type FieldBuilder struct {
 	f   *Field
