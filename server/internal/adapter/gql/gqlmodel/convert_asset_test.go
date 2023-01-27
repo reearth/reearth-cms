@@ -165,6 +165,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {
+	s0 := asset.ArchiveExtractionStatusSkipped
+	want0 := ArchiveExtractionStatusSkipped
+	got0 := ToArchiveExtractionStatus(&s0)
+	assert.Equal(t, &want0, got0)
+
 	s1 := asset.ArchiveExtractionStatusPending
 	want1 := ArchiveExtractionStatusPending
 	got1 := ToArchiveExtractionStatus(&s1)

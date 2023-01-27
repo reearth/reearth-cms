@@ -42,3 +42,15 @@ func (l ItemList) IDs() id.ItemIDList {
 	}
 	return ids
 }
+
+func (l ItemList) HasDuplication() bool {
+	lmap := make(map[id.ItemID]struct{})
+	for _, i := range l {
+		if _, ok := lmap[i.Item()]; ok {
+			return true
+		}
+		lmap[i.Item()] = struct{}{}
+	}
+
+	return false
+}

@@ -176,8 +176,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 				if itm.Refs().Has(version.Latest) {
 					return nil, interfaces.ErrAlreadyPublished
 				}
+
 			}
-			req.SetItems(param.Items)
+			if err := req.SetItems(param.Items); err != nil {
+				return nil, err
+			}
 		}
 		req.SetUpdatedAt(util.Now())
 		if err := r.repos.Request.Save(ctx, req); err != nil {

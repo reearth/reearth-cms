@@ -117,9 +117,10 @@ type CommentPayload struct {
 }
 
 type CreateAssetInput struct {
-	ProjectID ID              `json:"projectId"`
-	File      *graphql.Upload `json:"file"`
-	URL       *string         `json:"url"`
+	ProjectID         ID              `json:"projectId"`
+	File              *graphql.Upload `json:"file"`
+	URL               *string         `json:"url"`
+	SkipDecompression *bool           `json:"skipDecompression"`
 }
 
 type CreateAssetPayload struct {
@@ -340,6 +341,7 @@ type Item struct {
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
 	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
 }
 
 func (Item) IsNode()        {}
@@ -975,6 +977,7 @@ func (WorkspaceUserMember) IsWorkspaceMember() {}
 type ArchiveExtractionStatus string
 
 const (
+	ArchiveExtractionStatusSkipped    ArchiveExtractionStatus = "SKIPPED"
 	ArchiveExtractionStatusPending    ArchiveExtractionStatus = "PENDING"
 	ArchiveExtractionStatusInProgress ArchiveExtractionStatus = "IN_PROGRESS"
 	ArchiveExtractionStatusDone       ArchiveExtractionStatus = "DONE"
@@ -982,6 +985,7 @@ const (
 )
 
 var AllArchiveExtractionStatus = []ArchiveExtractionStatus{
+	ArchiveExtractionStatusSkipped,
 	ArchiveExtractionStatusPending,
 	ArchiveExtractionStatusInProgress,
 	ArchiveExtractionStatusDone,
@@ -990,7 +994,7 @@ var AllArchiveExtractionStatus = []ArchiveExtractionStatus{
 
 func (e ArchiveExtractionStatus) IsValid() bool {
 	switch e {
-	case ArchiveExtractionStatusPending, ArchiveExtractionStatusInProgress, ArchiveExtractionStatusDone, ArchiveExtractionStatusFailed:
+	case ArchiveExtractionStatusSkipped, ArchiveExtractionStatusPending, ArchiveExtractionStatusInProgress, ArchiveExtractionStatusDone, ArchiveExtractionStatusFailed:
 		return true
 	}
 	return false

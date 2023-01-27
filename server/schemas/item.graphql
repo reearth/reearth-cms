@@ -15,6 +15,7 @@ type Item implements Node {
   thread: Thread!
   fields: [ItemField!]!
   createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type ItemField {
