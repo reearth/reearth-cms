@@ -641,7 +641,7 @@ type ItemResolver interface {
 	User(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error)
 	Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Schema, error)
 	Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error)
-	Status(ctx context.Context, obj *gqlmodel.Item) ([]gqlmodel.ItemStatus, error)
+	Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error)
 	Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Project, error)
 	Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error)
 }
@@ -4311,7 +4311,7 @@ extend type Mutation {
   user: User
   schema: Schema!
   model: Model!
-  status: [ItemStatus!]!
+  status: ItemStatus!
   project: Project!
   thread: Thread!
   fields: [ItemField!]!
@@ -4335,6 +4335,8 @@ enum ItemStatus {
   DRAFT
   PUBLIC
   REVIEW
+  PUBLIC_REVIEW
+  PUBLIC_DRAFT
 }
 
 # Inputs
@@ -9398,9 +9400,9 @@ func (ec *executionContext) _Item_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.ItemStatus)
+	res := resTmp.(gqlmodel.ItemStatus)
 	fc.Result = res
-	return ec.marshalNItemStatus2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatusᚄ(ctx, field.Selections, res)
+	return ec.marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32206,67 +32208,6 @@ func (ec *executionContext) unmarshalNItemStatus2githubᚗcomᚋreearthᚋreeart
 
 func (ec *executionContext) marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemStatus) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) unmarshalNItemStatus2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatusᚄ(ctx context.Context, v interface{}) ([]gqlmodel.ItemStatus, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]gqlmodel.ItemStatus, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNItemStatus2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.ItemStatus) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNKeyAvailability2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability(ctx context.Context, sel ast.SelectionSet, v gqlmodel.KeyAvailability) graphql.Marshaler {

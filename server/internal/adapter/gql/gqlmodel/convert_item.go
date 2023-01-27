@@ -92,16 +92,18 @@ func ToItemSort(is *ItemSort) *item.Sort {
 	}
 }
 
-func ToItemStatusList(in []item.Status) (res []ItemStatus) {
-	for _, status := range in {
-		switch status {
-		case item.StatusPublic:
-			res = append(res, ItemStatusPublic)
-		case item.StatusDraft:
-			res = append(res, ItemStatusDraft)
-		case item.StatusReview:
-			res = append(res, ItemStatusReview)
-		}
+func ToItemStatus(in item.Status) ItemStatus {
+	switch in {
+	case item.StatusPublic:
+		return ItemStatusPublic
+	case item.StatusDraft:
+		return ItemStatusDraft
+	case item.StatusReview:
+		return ItemStatusReview
+	case item.StatusPublicDraft:
+		return ItemStatusPublicDraft
+	case item.StatusPublicReview:
+		return ItemStatusPublicReview
 	}
-	return
+	return ""
 }

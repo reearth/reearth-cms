@@ -335,7 +335,7 @@ type Item struct {
 	User          *User        `json:"user"`
 	Schema        *Schema      `json:"schema"`
 	Model         *Model       `json:"model"`
-	Status        []ItemStatus `json:"status"`
+	Status        ItemStatus   `json:"status"`
 	Project       *Project     `json:"project"`
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
@@ -1145,20 +1145,24 @@ func (e ItemSortType) MarshalGQL(w io.Writer) {
 type ItemStatus string
 
 const (
-	ItemStatusDraft  ItemStatus = "DRAFT"
-	ItemStatusPublic ItemStatus = "PUBLIC"
-	ItemStatusReview ItemStatus = "REVIEW"
+	ItemStatusDraft        ItemStatus = "DRAFT"
+	ItemStatusPublic       ItemStatus = "PUBLIC"
+	ItemStatusReview       ItemStatus = "REVIEW"
+	ItemStatusPublicReview ItemStatus = "PUBLIC_REVIEW"
+	ItemStatusPublicDraft  ItemStatus = "PUBLIC_DRAFT"
 )
 
 var AllItemStatus = []ItemStatus{
 	ItemStatusDraft,
 	ItemStatusPublic,
 	ItemStatusReview,
+	ItemStatusPublicReview,
+	ItemStatusPublicDraft,
 }
 
 func (e ItemStatus) IsValid() bool {
 	switch e {
-	case ItemStatusDraft, ItemStatusPublic, ItemStatusReview:
+	case ItemStatusDraft, ItemStatusPublic, ItemStatusReview, ItemStatusPublicReview, ItemStatusPublicDraft:
 		return true
 	}
 	return false

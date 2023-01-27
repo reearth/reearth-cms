@@ -42,6 +42,6 @@ func (i itemResolver) Integration(ctx context.Context, obj *gqlmodel.Item) (*gql
 	return nil, nil
 }
 
-func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) ([]gqlmodel.ItemStatus, error) {
+func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error) {
 	return dataloaders(ctx).ItemStatus.Load(obj.ID)
 }

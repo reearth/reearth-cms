@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -47,32 +46,33 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-func (i Item) ItemStatus(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID][]item.Status, error) {
+func (i Item) ItemStatus(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
 	requests, err := i.repos.Request.FindByItems(ctx, list)
 	if err != nil {
 		return nil, err
 	}
-	res := map[id.ItemID][]item.Status{}
+	items, err := i.FindByIDs(ctx, list, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := map[id.ItemID]item.Status{}
 	for _, itm := range list {
-		var sl []item.Status
+		s := item.StatusDraft
 		for _, req := range requests {
 			if req.Items().IDs().Has(itm) {
 				switch req.State() {
 				case request.StateWaiting:
-					if !slices.Contains(sl, item.StatusReview) {
-						sl = append(sl, item.StatusReview)
-					}
+					s = s.Wrap(item.StatusReview)
 				case request.StateApproved:
-					if !slices.Contains(sl, item.StatusPublic) {
-						sl = append(sl, item.StatusPublic)
+					s = s.Wrap(item.StatusPublic)
+					if !items.Item(itm).Refs().Has(version.Public) {
+						s = s.Wrap(item.StatusChanged)
 					}
 				}
 			}
 		}
-		if len(sl) == 0 {
-			sl = []item.Status{item.StatusDraft}
-		}
-		res[itm] = sl
+
+		res[itm] = s
 	}
 	return res, nil
 }
