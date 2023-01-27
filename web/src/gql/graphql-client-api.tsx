@@ -51,7 +51,8 @@ export enum ArchiveExtractionStatus {
   Done = 'DONE',
   Failed = 'FAILED',
   InProgress = 'IN_PROGRESS',
-  Pending = 'PENDING'
+  Pending = 'PENDING',
+  Skipped = 'SKIPPED'
 }
 
 export type Asset = Node & {
@@ -127,6 +128,7 @@ export type CommentPayload = {
 export type CreateAssetInput = {
   file?: InputMaybe<Scalars['Upload']>;
   projectId: Scalars['ID'];
+  skipDecompression?: InputMaybe<Scalars['Boolean']>;
   url?: InputMaybe<Scalars['String']>;
 };
 
@@ -1485,6 +1487,7 @@ export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
   file?: InputMaybe<Scalars['Upload']>;
   url?: InputMaybe<Scalars['String']>;
+  skipDecompression?: InputMaybe<Scalars['Boolean']>;
   withFiles: Scalars['Boolean'];
 }>;
 
@@ -2293,8 +2296,10 @@ export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
 export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
 export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $withFiles: Boolean!) {
-  createAsset(input: {projectId: $projectId, file: $file, url: $url}) {
+    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $skipDecompression: Boolean, $withFiles: Boolean!) {
+  createAsset(
+    input: {projectId: $projectId, file: $file, url: $url, skipDecompression: $skipDecompression}
+  ) {
     asset {
       ...assetFragment
     }
@@ -2319,6 +2324,7 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  *      projectId: // value for 'projectId'
  *      file: // value for 'file'
  *      url: // value for 'url'
+ *      skipDecompression: // value for 'skipDecompression'
  *      withFiles: // value for 'withFiles'
  *   },
  * });
