@@ -48,6 +48,7 @@ Not supported: プレビュー対応していないデータフォーマット�
 Decompressed: 解凍完了
 Failed: 失敗
 Decompressing: 解凍中
+Skipped: ''
 File: ファイル
 Size: サイズ
 Preview Type: プレビュータイプ
@@ -57,6 +58,8 @@ ID: ''
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
+Auto Unzip: ''
+Remove file: ''
 Click or drag files to this area to upload: このエリアにファイルをクリックまたはドラッグしてアップロードします
 Single or multiple file upload is supported: 複数のファイルのアップロードが可能です。
 Asset Uploader: アセットアップローダー
@@ -109,6 +112,7 @@ Please input the title of your request!: リクエストのタイトルを入力
 Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
+Updated At: 更新日時
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -181,7 +185,6 @@ APPROVED: 承認済
 CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
-Updated At: 更新日時
 Text: テキスト
 Select: セレクト
 Number: 数値
