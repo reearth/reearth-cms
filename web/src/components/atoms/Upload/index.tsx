@@ -6,7 +6,7 @@ import {
 } from "antd/lib/upload/interface";
 
 interface UploadFile<T = any> extends ANTDFileUpload<T> {
-  autoUnzip?: boolean;
+  skipDecompression?: boolean;
 }
 
 export default Upload;

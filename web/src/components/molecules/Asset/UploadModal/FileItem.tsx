@@ -1,4 +1,5 @@
 import { Button } from "antd";
+import { useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -14,6 +15,8 @@ type Props = {
 
 const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();
+  const [checked, setChecked] = useState<boolean>(!file?.skipDecompression);
+
   return (
     <div className="ant-upload-list-item">
       <span className="ant-upload-span">
@@ -25,10 +28,11 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
         </span>
 
         <Checkbox
-          value={file?.autoUnzip}
+          checked={checked}
           onChange={() => {
-            if (!file?.autoUnzip) file.autoUnzip = true;
-            else file.autoUnzip = !file.autoUnzip;
+            setChecked(checked => !checked);
+            if (!file?.skipDecompression) file.skipDecompression = true;
+            else file.skipDecompression = !file.skipDecompression;
           }}>
           {t("Auto Unzip")}
         </Checkbox>

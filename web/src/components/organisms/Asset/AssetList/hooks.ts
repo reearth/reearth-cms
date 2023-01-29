@@ -103,7 +103,7 @@ export default () => {
                 variables: {
                   projectId,
                   file,
-                  skipDecompression: !file.autoUnzip,
+                  skipDecompression: !!file.skipDecompression,
                   withFiles: false,
                 },
               });
