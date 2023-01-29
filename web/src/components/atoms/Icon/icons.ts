@@ -40,6 +40,8 @@ import {
   CheckCircleFilled,
   MenuOutlined,
   CheckOutlined,
+  FileTwoTone,
+  PictureTwoTone,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -111,4 +113,6 @@ export default {
   checkCircle: CheckCircleFilled,
   menu: MenuOutlined,
   check: CheckOutlined,
+  fileTwoTone: FileTwoTone,
+  pictureTwoTone: PictureTwoTone,
 };
