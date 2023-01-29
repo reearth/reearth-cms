@@ -16,6 +16,7 @@ type Props = {
 const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();
   const [checked, setChecked] = useState<boolean>(!file?.skipDecompression);
+  const compressedExtRegex = /\.zip|\.7z$/;
 
   return (
     <div className="ant-upload-list-item">
@@ -27,15 +28,17 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
           {file.name}
         </span>
 
-        <Checkbox
-          checked={checked}
-          onChange={() => {
-            setChecked(checked => !checked);
-            if (!file?.skipDecompression) file.skipDecompression = true;
-            else file.skipDecompression = !file.skipDecompression;
-          }}>
-          {t("Auto Unzip")}
-        </Checkbox>
+        {file.name?.match(compressedExtRegex) && (
+          <Checkbox
+            checked={checked}
+            onChange={() => {
+              setChecked(checked => !checked);
+              if (!file?.skipDecompression) file.skipDecompression = true;
+              else file.skipDecompression = !file.skipDecompression;
+            }}>
+            {t("Auto Unzip")}
+          </Checkbox>
+        )}
         <Button
           type="text"
           title={t("Remove file")}
