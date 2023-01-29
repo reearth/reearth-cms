@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -17,6 +17,10 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();
   const [checked, setChecked] = useState<boolean>(!file?.skipDecompression);
   const compressedExtRegex = /\.zip|\.7z$/;
+  const isCompressedFile = useMemo(
+    () => file.name?.match(compressedExtRegex),
+    [file.name, compressedExtRegex],
+  );
 
   return (
     <div className="ant-upload-list-item">
@@ -28,7 +32,7 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
           {file.name}
         </span>
 
-        {file.name?.match(compressedExtRegex) && (
+        {isCompressedFile && (
           <Checkbox
             checked={checked}
             onChange={() => {
