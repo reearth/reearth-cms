@@ -1,17 +1,19 @@
 package request
 
 import (
-	"errors"
 	"time"
 
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 var (
-	ErrEmptyItems = errors.New("items cannot be empty")
-	ErrEmptyTitle = errors.New("title cannot be empty")
+	ErrEmptyItems     = rerror.NewE(i18n.T("items cannot be empty"))
+	ErrEmptyTitle     = rerror.NewE(i18n.T("title cannot be empty"))
+	ErrDuplicatedItem = rerror.NewE(i18n.T("duplicated item"))
 )
 
 type Request struct {
@@ -102,8 +104,12 @@ func (r *Request) SetReviewers(reviewers []UserID) {
 	r.reviewers = reviewers
 }
 
-func (r *Request) SetItems(items ItemList) {
+func (r *Request) SetItems(items ItemList) error {
+	if items.HasDuplication() {
+		return ErrDuplicatedItem
+	}
 	r.items = slices.Clone(items)
+	return nil
 }
 
 func (r *Request) SetState(state State) {

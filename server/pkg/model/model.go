@@ -1,14 +1,18 @@
 package model
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+	"golang.org/x/exp/slices"
 )
 
 var (
-	ErrInvalidKey = errors.New("invalid key")
+	ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
+	ngKeys        = []string{"assets", "schemas", "models", "items"}
 )
 
 type Model struct {
@@ -56,7 +60,10 @@ func (p *Model) Key() key.Key {
 
 func (p *Model) SetKey(key key.Key) error {
 	if !validateModelKey(key) {
-		return ErrInvalidKey
+		return &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", key.String()),
+		}
 	}
 	p.key = key
 	return nil
@@ -104,5 +111,5 @@ func (p *Model) Clone() *Model {
 
 func validateModelKey(k key.Key) bool {
 	// assets is used as an API endpoint
-	return k.IsValid() && len(k.String()) > 4 && k.String() != "assets"
+	return k.IsValid() && len(k.String()) > 2 && !slices.Contains(ngKeys, k.String())
 }

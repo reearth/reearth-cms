@@ -2,13 +2,14 @@ package gql
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -64,7 +65,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
 	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
 		if err == nil {
-			return nil, errors.New("not found")
+			return nil, rerror.NewE(i18n.T("not found"))
 		}
 		return nil, err
 	}
@@ -138,7 +139,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
 	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
 		if err == nil {
-			return nil, errors.New("not found")
+			return nil, rerror.NewE(i18n.T("not found"))
 		}
 		return nil, err
 	}

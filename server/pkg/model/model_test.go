@@ -1,11 +1,13 @@
 package model
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -311,28 +313,58 @@ func TestModel_SetKey(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:    "fail",
-			args:    args{key: key.New("a")},
-			want:    Model{},
-			wantErr: ErrInvalidKey,
+			name: "fail",
+			args: args{key: key.New("a")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", "a"),
+			},
 		},
 		{
-			name:    "fail 2",
-			args:    args{key: key.New("_aaaaaaaa")},
-			want:    Model{},
-			wantErr: ErrInvalidKey,
+			name: "fail 2",
+			args: args{key: key.New("_aaaaaaaa")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", "_aaaaaaaa"),
+			},
 		},
 		{
-			name:    "fail 3",
-			args:    args{key: key.New("-aaaaaaaa")},
-			want:    Model{},
-			wantErr: ErrInvalidKey,
+			name: "fail 3",
+			args: args{key: key.New("-aaaaaaaa")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", "-aaaaaaaa"),
+			},
 		},
 		{
-			name:    "empty",
-			args:    args{key: key.New("")},
-			want:    Model{},
-			wantErr: ErrInvalidKey,
+			name: "fails assets",
+			args: args{key: key.New("assets")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", "assets"),
+			},
+		},
+		{
+			name: "fails items",
+			args: args{key: key.New("items")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", "items"),
+			},
+		},
+		{
+			name: "empty",
+			args: args{key: key.New("")},
+			want: Model{},
+			wantErr: &rerror.Error{
+				Label: ErrInvalidKey,
+				Err:   fmt.Errorf("%s", ""),
+			},
 		},
 	}
 	for _, tt := range tests {

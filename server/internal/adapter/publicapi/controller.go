@@ -8,10 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrInvalidProject = errors.New("invalid project")
+var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
 
 type Controller struct {
 	project          repo.Project

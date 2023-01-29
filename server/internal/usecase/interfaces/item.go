@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,14 +10,16 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 var (
-	ErrItemFieldRequired   = errors.New("item field required")
-	ErrInvalidField        = errors.New("invalid field")
-	ErrDuplicatedItemValue = errors.New("duplicated value")
-	ErrFieldValueExist     = errors.New("field value exist")
+	ErrItemFieldRequired   = rerror.NewE(i18n.T("item field required"))
+	ErrInvalidField        = rerror.NewE(i18n.T("invalid field"))
+	ErrDuplicatedItemValue = rerror.NewE(i18n.T("duplicated value"))
+	ErrFieldValueExist     = rerror.NewE(i18n.T("field value exist"))
 )
 
 type ItemFieldParam struct {
@@ -43,6 +44,7 @@ type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
+	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
 	FindBySchema(context.Context, id.SchemaID, *item.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)

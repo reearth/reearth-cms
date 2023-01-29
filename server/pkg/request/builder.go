@@ -33,6 +33,9 @@ func (b *Builder) Build() (*Request, error) {
 	if len(b.r.items) == 0 {
 		return nil, ErrEmptyItems
 	}
+	if b.r.Items().HasDuplication() {
+		return nil, ErrDuplicatedItem
+	}
 	if b.r.title == "" {
 		return nil, ErrEmptyTitle
 	}

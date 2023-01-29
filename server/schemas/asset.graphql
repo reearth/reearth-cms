@@ -36,6 +36,7 @@ enum PreviewType {
 }
 
 enum ArchiveExtractionStatus {
+  SKIPPED
   PENDING
   IN_PROGRESS
   DONE
@@ -46,6 +47,7 @@ input CreateAssetInput {
   projectId: ID!
   file: Upload
   url: String
+  skipDecompression: Boolean
 }
 
 input UpdateAssetInput {

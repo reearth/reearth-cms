@@ -13,10 +13,6 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/samber/lo"
-	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -31,6 +27,9 @@ import (
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
+	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAsset_FindByID(t *testing.T) {
@@ -412,10 +411,9 @@ func TestAsset_Create(t *testing.T) {
 	}
 
 	buf := bytes.NewBufferString("Hello")
-	buflen := int64(buf.Len())
-	var pti asset.PreviewType = asset.PreviewTypeImage
-	var ptg asset.PreviewType = asset.PreviewTypeUnknown
-	af := asset.NewFile().Name("aaa.txt").Size(uint64(buflen)).Path("aaa.txt").Build()
+	buf2 := bytes.NewBufferString("Hello")
+	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").Build()
+	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -437,7 +435,7 @@ func TestAsset_Create(t *testing.T) {
 					File: &file.File{
 						Path:    "aaa.txt",
 						Content: io.NopCloser(buf),
-						Size:    buflen,
+						Size:    int64(buf.Len()),
 					},
 				},
 				operator: op,
@@ -448,10 +446,40 @@ func TestAsset_Create(t *testing.T) {
 				CreatedByUser(u.ID()).
 				FileName("aaa.txt").
 				File(af).
-				Size(uint64(buflen)).
-				Type(&ptg).
+				Size(uint64(buf.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
 				Thread(id.NewThreadID()).
 				NewUUID().
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
+				MustBuild(),
+			wantErr: nil,
+		},
+		{
+			name:  "Create skip decompress",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf2),
+						Size:    int64(buf2.Len()),
+					},
+					SkipDecompression: true,
+				},
+				operator: op,
+			},
+			want: asset.New().
+				NewID().
+				Project(p1.ID()).
+				CreatedByUser(u.ID()).
+				FileName("aaa.txt").
+				File(af2).
+				Size(uint64(buf2.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
+				Thread(id.NewThreadID()).
+				NewUUID().
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusSkipped)).
 				MustBuild(),
 			wantErr: nil,
 		},
@@ -526,9 +554,9 @@ func TestAsset_Create(t *testing.T) {
 			assert.NoError(t, err)
 
 			if strings.HasPrefix(got.PreviewType().String(), "image/") {
-				assert.Equal(t, &pti, got.PreviewType())
+				assert.Equal(t, asset.PreviewTypeImage.Ref(), got.PreviewType())
 			} else {
-				assert.Equal(t, &ptg, got.PreviewType())
+				assert.Equal(t, asset.PreviewTypeUnknown.Ref(), got.PreviewType())
 			}
 
 			assert.Equal(t, tc.want.Project(), got.Project())
@@ -536,6 +564,7 @@ func TestAsset_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Size(), got.Size())
 			assert.Equal(t, tc.want.File(), got.File())
 			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
+			assert.Equal(t, tc.want.ArchiveExtractionStatus(), got.ArchiveExtractionStatus())
 
 			dbGot, err := db.Asset.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
@@ -544,6 +573,7 @@ func TestAsset_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Size(), dbGot.Size())
 			assert.Equal(t, tc.want.File(), dbGot.File())
 			assert.Equal(t, tc.want.PreviewType(), dbGot.PreviewType())
+			assert.Equal(t, tc.want.ArchiveExtractionStatus(), dbGot.ArchiveExtractionStatus())
 		})
 	}
 }

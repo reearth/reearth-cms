@@ -1,14 +1,16 @@
 package schema
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrValueRequired = errors.New("value is required")
+var ErrValueRequired = rerror.NewE(i18n.T("value is required"))
 
 type Field struct {
 	id           FieldID
@@ -76,8 +78,15 @@ func (f *Field) Key() key.Key {
 	return f.key
 }
 
-func (f *Field) SetKey(key key.Key) {
+func (f *Field) SetKey(key key.Key) error {
+	if !key.IsValid() {
+		return &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", key.String()),
+		}
+	}
 	f.key = key
+	return nil
 }
 
 func (f *Field) Unique() bool {

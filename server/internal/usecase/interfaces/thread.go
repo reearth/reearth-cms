@@ -2,16 +2,17 @@ package interfaces
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrCommentAlreadyExist = errors.New("Comment already exist in this thread")
-	ErrCommentDoesNotExist = errors.New("Comment does not exist in this thread")
+	ErrCommentAlreadyExist = rerror.NewE(i18n.T("Comment already exist in this thread"))
+	ErrCommentDoesNotExist = rerror.NewE(i18n.T("Comment does not exist in this thread"))
 )
 
 type Thread interface {

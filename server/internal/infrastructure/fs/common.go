@@ -1,6 +1,9 @@
 package fs
 
-import "errors"
+import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
+)
 
 const (
 	fileSizeLimit int64 = 10 * 1024 * 1024 * 1024 // 10GB
@@ -9,5 +12,5 @@ const (
 )
 
 var (
-	ErrInvalidBaseURL = errors.New("invalid base URL")
+	ErrInvalidBaseURL = rerror.NewE(i18n.T("invalid base URL"))
 )

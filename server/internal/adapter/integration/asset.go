@@ -74,14 +74,19 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	}
 
 	var url string
+	skipDecompression := false
 	if request.JSONBody != nil {
 		url = *request.JSONBody.Url
+		if request.JSONBody.SkipDecompression != nil {
+			skipDecompression = *request.JSONBody.SkipDecompression
+		}
 	}
 
 	cp := interfaces.CreateAssetParam{
-		ProjectID: request.ProjectId,
-		File:      f,
-		URL:       url,
+		ProjectID:         request.ProjectId,
+		File:              f,
+		URL:               url,
+		SkipDecompression: skipDecompression,
 	}
 
 	a, err := uc.Asset.Create(ctx, cp, op)

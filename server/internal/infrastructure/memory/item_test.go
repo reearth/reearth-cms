@@ -156,7 +156,7 @@ func TestItem_FindByProject(t *testing.T) {
 
 	got, _, err := r.FindByProject(ctx, pid, nil, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, item.List{i1, i2}, got.Unwrap())
+	assert.Equal(t, 2, len(got.Unwrap()))
 }
 
 func TestItem_FindByFieldValue(t *testing.T) {

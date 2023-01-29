@@ -62,9 +62,8 @@ export default () => {
           requestId: request.id,
           description: request.description,
           items: [
-            ...request.items.map(item => ({ itemId: item.id })),
-            ...itemIds.map(itemId => ({ itemId })),
-          ],
+            ...new Set([...request.items.map(item => item.id), ...itemIds.map(itemId => itemId)]),
+          ].map(itemId => ({ itemId })),
           reviewersId: request.reviewers.map(reviewer => reviewer.id),
           title: request.title,
           state: request.state as GQLRequestState,

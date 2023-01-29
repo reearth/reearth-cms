@@ -2,19 +2,20 @@ package gateway
 
 import (
 	"context"
-	"errors"
 	"io"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrInvalidFile        error = errors.New("invalid file")
-	ErrFailedToUploadFile error = errors.New("failed to upload file")
-	ErrFileTooLarge       error = errors.New("file too large")
-	ErrFailedToDeleteFile error = errors.New("failed to delete file")
-	ErrFileNotFound       error = errors.New("file not found")
+	ErrInvalidFile        error = rerror.NewE(i18n.T("invalid file"))
+	ErrFailedToUploadFile error = rerror.NewE(i18n.T("failed to upload file"))
+	ErrFileTooLarge       error = rerror.NewE(i18n.T("file too large"))
+	ErrFailedToDeleteFile error = rerror.NewE(i18n.T("failed to delete file"))
+	ErrFileNotFound       error = rerror.NewE(i18n.T("file not found"))
 )
 
 type FileEntry struct {

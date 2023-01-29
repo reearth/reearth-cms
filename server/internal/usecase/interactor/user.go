@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -209,7 +210,7 @@ func (i *User) DeleteMe(ctx context.Context, userID user.ID, operator *usecase.O
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
 		if userID.IsNil() || userID != *operator.User {
-			return errors.New("invalid user id")
+			return rerror.NewE(i18n.T("invalid user id"))
 		}
 
 		u, err := i.repos.User.FindByID(ctx, userID)

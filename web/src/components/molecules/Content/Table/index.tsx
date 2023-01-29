@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Key, useMemo } from "react";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -32,6 +33,8 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
+  sort?: { type?: ItemSortType; direction?: SortDirection };
+  searchTerm: string;
   page: number;
   pageSize: number;
   onSearchTerm: (term?: string) => void;
@@ -59,6 +62,8 @@ const ContentTable: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
+  sort,
+  searchTerm,
   page,
   pageSize,
   requests,
@@ -106,16 +111,63 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 48,
       },
       {
+        title: t("Status"),
+        dataIndex: "itemRequestState",
+        key: "itemRequestState",
+        render: (_, item) => {
+          type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+          type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
+          const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
+          const itemStatus: StateType[] = item.status.split("_") as StateType[];
+          return (
+            <>
+              {itemStatus.map((state, index) => {
+                if (index === itemStatus.length - 1) {
+                  return (
+                    <StyledBadge
+                      key={index}
+                      color={stateColors[state] as ColorType}
+                      text={t(state)}
+                    />
+                  );
+                } else {
+                  return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
+                }
+              })}
+            </>
+          );
+        },
+        width: 148,
+        minWidth: 148,
+      },
+      {
         title: t("Created At"),
         dataIndex: "createdAt",
-        key: "date",
+        key: "CREATION_DATE",
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
+        defaultSortOrder:
+          sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Updated At"),
+        dataIndex: "updatedAt",
+        key: "MODIFICATION_DATE",
+        render: (_, item) => dateTimeFormat(item.updatedAt),
+        sorter: true,
+        defaultSortOrder:
+          sort?.type === "MODIFICATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         width: 148,
         minWidth: 148,
       },
     ],
-    [t, onItemEdit, onItemSelect, selectedItem?.id],
+    [t, onItemEdit, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
   );
 
   const rowSelection: TableRowSelection = {
@@ -146,6 +198,7 @@ const ContentTable: React.FC<Props> = ({
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
+      defaultValue: searchTerm,
       onSearch: (value: string) => {
         if (value) {
           onSearchTerm(value);
@@ -187,7 +240,7 @@ const ContentTable: React.FC<Props> = ({
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
               sorter?.order
-                ? { type: "CREATION_DATE", direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+                ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
                 : undefined,
             );
           }}
@@ -217,4 +270,10 @@ const PrimaryButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const StyledBadge = styled(Badge)`
+  + * {
+    margin-left: 4px;
+  }
 `;

@@ -116,6 +116,16 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 	return nil
 }
 
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+	res := r.data.FindAll(func(_ request.ID, value *request.Request) bool {
+		return value.Items().IDs().Has(list...) && r.f.CanRead(value.Project())
+	})
+	return res, nil
+}
+
 func SetRequestError(r repo.Request, err error) {
 	r.(*Request).err = err
 }

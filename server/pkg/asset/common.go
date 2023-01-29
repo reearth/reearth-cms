@@ -1,14 +1,15 @@
 package asset
 
 import (
-	"errors"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrNoProjectID = errors.New("projectID is required")
-	ErrZeroSize    = errors.New("file size cannot be zero")
-	ErrNoUser      = errors.New("createdBy is required")
-	ErrNoThread    = errors.New("thread is required")
-	ErrNoFile      = errors.New("file is required")
-	ErrNoUUID      = errors.New("uuid is required")
+	ErrNoProjectID = rerror.NewE(i18n.T("projectID is required"))
+	ErrZeroSize    = rerror.NewE(i18n.T("file size cannot be zero"))
+	ErrNoUser      = rerror.NewE(i18n.T("createdBy is required"))
+	ErrNoThread    = rerror.NewE(i18n.T("thread is required"))
+	ErrNoFile      = rerror.NewE(i18n.T("file is required"))
+	ErrNoUUID      = rerror.NewE(i18n.T("uuid is required"))
 )

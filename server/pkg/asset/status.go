@@ -7,6 +7,7 @@ import (
 type ArchiveExtractionStatus string
 
 const (
+	ArchiveExtractionStatusSkipped    ArchiveExtractionStatus = "skipped"
 	ArchiveExtractionStatusPending    ArchiveExtractionStatus = "pending"
 	ArchiveExtractionStatusInProgress ArchiveExtractionStatus = "in_progress"
 	ArchiveExtractionStatusDone       ArchiveExtractionStatus = "done"
@@ -16,6 +17,8 @@ const (
 func ArchiveExtractionStatusFrom(s string) (ArchiveExtractionStatus, bool) {
 	ss := strings.ToLower(s)
 	switch ArchiveExtractionStatus(ss) {
+	case ArchiveExtractionStatusSkipped:
+		return ArchiveExtractionStatusSkipped, true
 	case ArchiveExtractionStatusPending:
 		return ArchiveExtractionStatusPending, true
 	case ArchiveExtractionStatusInProgress:

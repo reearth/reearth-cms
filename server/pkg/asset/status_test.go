@@ -8,8 +8,13 @@ import (
 )
 
 func TestStatus_StatusFrom(t *testing.T) {
-	s := ArchiveExtractionStatusPending
-	res, ok := ArchiveExtractionStatusFrom("pending")
+	s := ArchiveExtractionStatusSkipped
+	res, ok := ArchiveExtractionStatusFrom("skipped")
+	assert.Equal(t, s, res)
+	assert.True(t, ok)
+
+	s = ArchiveExtractionStatusPending
+	res, ok = ArchiveExtractionStatusFrom("pending")
 	assert.Equal(t, s, res)
 	assert.True(t, ok)
 
@@ -40,13 +45,18 @@ func TestStatus_StatusFrom(t *testing.T) {
 }
 
 func TestStatus_StatusFromRef(t *testing.T) {
+	sk := ArchiveExtractionStatusSkipped
 	p := ArchiveExtractionStatusPending
 	ip := ArchiveExtractionStatusInProgress
 	d := ArchiveExtractionStatusDone
 	f := ArchiveExtractionStatusFailed
 
-	s := lo.ToPtr("pending")
+	s := lo.ToPtr("skipped")
 	res := ArchiveExtractionStatusFromRef(s)
+	assert.Equal(t, &sk, res)
+
+	s = lo.ToPtr("pending")
+	res = ArchiveExtractionStatusFromRef(s)
 	assert.Equal(t, &p, res)
 
 	s = lo.ToPtr("PENDING")

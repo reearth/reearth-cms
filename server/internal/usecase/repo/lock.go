@@ -2,13 +2,15 @@ package repo
 
 import (
 	"context"
-	"errors"
+
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 var (
-	ErrFailedToLock  = errors.New("failed to lock")
-	ErrAlreadyLocked = errors.New("already locked")
-	ErrNotLocked     = errors.New("not locked")
+	ErrFailedToLock  = rerror.NewE(i18n.T("failed to lock"))
+	ErrAlreadyLocked = rerror.NewE(i18n.T("already locked"))
+	ErrNotLocked     = rerror.NewE(i18n.T("not locked"))
 )
 
 type Lock interface {

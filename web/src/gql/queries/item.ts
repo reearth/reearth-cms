@@ -9,6 +9,8 @@ export const GET_ITEMS = gql`
         id
         schemaId
         createdAt
+        updatedAt
+        status
         user {
           name
         }
@@ -37,6 +39,8 @@ export const SEARCH_ITEM = gql`
         id
         schemaId
         createdAt
+        updatedAt
+        status
         user {
           name
         }

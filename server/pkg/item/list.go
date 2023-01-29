@@ -70,9 +70,10 @@ func (l VersionedList) SortByTimestamp(dir Direction) VersionedList {
 }
 
 func (l VersionedList) Sort(st *Sort) VersionedList {
-	m := slices.Clone(l)
 	if st == nil {
-		return m
+		return l.Sort(&Sort{
+			SortBy: SortTypeCreationDate,
+		})
 	}
 
 	switch st.SortBy {
@@ -96,4 +97,16 @@ func (l VersionedList) Unwrap() List {
 		return nil
 	}
 	return version.UnwrapValues(l)
+}
+
+func (l VersionedList) Item(iid id.ItemID) Versioned {
+	if l == nil {
+		return nil
+	}
+	for _, versioned := range l {
+		if versioned.Value().ID() == iid {
+			return versioned
+		}
+	}
+	return nil
 }

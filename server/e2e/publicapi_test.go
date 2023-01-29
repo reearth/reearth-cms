@@ -149,6 +149,14 @@ func TestPublicAPI(t *testing.T) {
 			},
 		})
 
+	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, "___", publicAPIItem1ID).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		Equal(map[string]any{
+			"error": "not found",
+		})
+
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem4ID).
 		Expect().
 		Status(http.StatusNotFound).
@@ -157,7 +165,7 @@ func TestPublicAPI(t *testing.T) {
 			"error": "not found",
 		})
 
-	e.GET("/api/p/{project}/assets/{assetid}", publicAPIProjectAlias, publicAPIAsset1ID.String()).
+	e.GET("/api/p/{project}/assets/{assetid}", publicAPIProjectAlias, publicAPIAsset1ID).
 		Expect().
 		Status(http.StatusOK).
 		JSON().

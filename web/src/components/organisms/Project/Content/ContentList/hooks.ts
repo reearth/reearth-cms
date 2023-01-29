@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   convertItem,
@@ -36,22 +36,31 @@ export default () => {
   } = useContentHooks();
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
+  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
+  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
+  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
+  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [searchTerm, setSearchTerm] = useState<string>();
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
+  const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
+  const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
   const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
-    type: "MODIFICATION_DATE",
-    direction: "DESC",
+    type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
+    direction: direction ? (direction as SortDirection) : "DESC",
   });
 
   useEffect(() => {
-    const pageParam = searchParams.get("page");
-    const pageSizeParam = searchParams.get("pageSize");
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-  }, [searchParams]);
+    setSort({
+      type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
+      direction: direction ? (direction as SortDirection) : "DESC",
+    });
+    setSearchTerm(searchTermParam ?? "");
+  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -89,6 +98,7 @@ export default () => {
           ? {
               id: item.id,
               schemaId: item.schemaId,
+              status: item.status as ItemStatus,
               author: item.user?.name ?? item.integration?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
@@ -108,6 +118,7 @@ export default () => {
               ),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
             }
           : undefined,
       )
@@ -210,15 +221,22 @@ export default () => {
       pageSize: number,
       sorter?: { type?: ItemSortType; direction?: SortDirection },
     ) => {
-      setSearchParams(`?page=${page}&pageSize=${pageSize}`);
-      setSort(sorter);
+      searchParams.set("page", page.toString());
+      searchParams.set("pageSize", pageSize.toString());
+      searchParams.set("sortType", sorter?.type ? sorter.type : "");
+      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      setSearchParams(searchParams);
     },
-    [setSearchParams],
+    [setSearchParams, searchParams],
   );
 
-  const handleSearchTerm = useCallback((term?: string) => {
-    setSearchTerm(term);
-  }, []);
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      searchParams.set("searchTerm", term ?? "");
+      setSearchParams(searchParams);
+    },
+    [setSearchParams, searchParams],
+  );
 
   return {
     currentModel,
@@ -230,6 +248,8 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
+    sort,
+    searchTerm,
     page,
     pageSize,
     requests,

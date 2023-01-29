@@ -22,7 +22,8 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 		UserID:        IDFromRef(i.User()),
 		IntegrationID: IDFromRef(i.Integration()),
 		ThreadID:      IDFrom(i.Thread()),
-		CreatedAt:     i.Timestamp(),
+		CreatedAt:     i.ID().Timestamp(),
+		UpdatedAt:     i.Timestamp(),
 		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
 			return &ItemField{
 				SchemaFieldID: IDFrom(f.FieldID()),
@@ -90,4 +91,20 @@ func ToItemSort(is *ItemSort) *item.Sort {
 		Direction: item.DirectionFrom(dir),
 		SortBy:    item.SortTypeFrom(is.SortBy.String()),
 	}
+}
+
+func ToItemStatus(in item.Status) ItemStatus {
+	switch in {
+	case item.StatusPublic:
+		return ItemStatusPublic
+	case item.StatusDraft:
+		return ItemStatusDraft
+	case item.StatusReview:
+		return ItemStatusReview
+	case item.StatusPublicDraft:
+		return ItemStatusPublicDraft
+	case item.StatusPublicReview:
+		return ItemStatusPublicReview
+	}
+	return ""
 }

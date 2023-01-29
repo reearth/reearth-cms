@@ -408,7 +408,8 @@ type AssetFilterParamsDir string
 
 // AssetCreateJSONBody defines parameters for AssetCreate.
 type AssetCreateJSONBody struct {
-	Url *string `json:"url,omitempty"`
+	SkipDecompression *bool   `json:"skipDecompression"`
+	Url               *string `json:"url,omitempty"`
 }
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.

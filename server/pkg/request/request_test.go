@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,12 +17,14 @@ func TestRequest_SetDescription(t *testing.T) {
 
 func TestRequest_SetItems(t *testing.T) {
 	req := &Request{}
-	items := ItemList{{
-		item:    id.NewItemID(),
-		pointer: version.New().OrRef(),
-	}}
-	req.SetItems(items)
-	assert.Equal(t, items, req.Items())
+	i1, _ := NewItem(id.NewItemID())
+	items1 := ItemList{i1}
+	items2 := ItemList{i1, i1}
+	err := req.SetItems(items1)
+	assert.NoError(t, err)
+	assert.Equal(t, items1, req.Items())
+	err = req.SetItems(items2)
+	assert.Same(t, ErrDuplicatedItem, err)
 }
 
 func TestRequest_SetReviewers(t *testing.T) {

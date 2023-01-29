@@ -1,15 +1,17 @@
 package schema
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
-var ErrInvalidKey = errors.New("invalid key")
-var ErrInvalidType = errors.New("invalid type")
+var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
+var ErrInvalidType = rerror.NewE(i18n.T("invalid type"))
 
 type FieldBuilder struct {
 	f   *Field
@@ -36,7 +38,10 @@ func (b *FieldBuilder) Build() (*Field, error) {
 		return nil, ErrInvalidType
 	}
 	if !b.f.key.IsValid() {
-		return nil, ErrInvalidKey
+		return nil, &rerror.Error{
+			Label: ErrInvalidKey,
+			Err:   fmt.Errorf("%s", b.f.key.String()),
+		}
 	}
 	if err := b.f.SetDefaultValue(b.dv); err != nil {
 		return nil, err
