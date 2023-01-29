@@ -16,11 +16,7 @@ type Props = {
 const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();
   const [checked, setChecked] = useState<boolean>(!file?.skipDecompression);
-  const compressedExtRegex = /\.zip|\.7z$/;
-  const isCompressedFile = useMemo(
-    () => file.name?.match(compressedExtRegex),
-    [file.name, compressedExtRegex],
-  );
+  const isCompressedFile = useMemo(() => file.name?.match(/\.zip|\.7z$/), [file.name]);
 
   return (
     <div className="ant-upload-list-item">
