@@ -174,6 +174,7 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
+        { state: location.search },
       );
     },
     [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate],
