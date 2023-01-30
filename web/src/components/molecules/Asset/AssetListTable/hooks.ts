@@ -12,6 +12,7 @@ export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   const DECOMPRESSED = t("Decompressed");
   const FAILED = t("Failed");
   const DECOMPRESSING = t("Decompressing");
+  const SKIPPED = t("Skipped");
 
   useEffect(() => {
     switch (archiveExtractionStatus) {
@@ -27,13 +28,17 @@ export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
         setStatusColor("#FA8C16");
         setStatus(DECOMPRESSING);
         break;
+      case "SKIPPED":
+        setStatusColor("#BFBFBF");
+        setStatus(SKIPPED);
+        break;
       case "PENDING":
       default:
         setStatusColor("");
         setStatus("");
         break;
     }
-  }, [DECOMPRESSED, DECOMPRESSING, FAILED, archiveExtractionStatus, t]);
+  }, [DECOMPRESSED, DECOMPRESSING, FAILED, SKIPPED, archiveExtractionStatus, t]);
 
   return { status, statusColor };
 };
