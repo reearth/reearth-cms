@@ -24,7 +24,7 @@ const ContentList: React.FC = () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
-    handleAddItemToRequest,
+    handleBulkAddItemToRequest: handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
