@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
@@ -35,6 +35,8 @@ export default () => {
     handleAddItemToRequestModalOpen,
   } = useContentHooks();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
@@ -44,10 +46,12 @@ export default () => {
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
       navigate(
-        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}${
+          location.state ?? ""
+        }`,
       );
     },
-    [navigate, currentWorkspace?.id, currentProject?.id],
+    [navigate, currentWorkspace?.id, currentProject?.id, location.state],
   );
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
