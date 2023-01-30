@@ -58,8 +58,8 @@ ID: ''
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
-Auto Unzip: ''
-Remove file: ''
+Auto Unzip: 自動解凍
+Remove file: ファイルを削除
 Click or drag files to this area to upload: このエリアにファイルをクリックまたはドラッグしてアップロードします
 Single or multiple file upload is supported: 複数のファイルのアップロードが可能です。
 Asset Uploader: アセットアップローダー
