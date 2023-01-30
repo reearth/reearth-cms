@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   convertItem,
@@ -174,6 +175,7 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
+        { state: location.search },
       );
     },
     [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate],
@@ -238,6 +240,15 @@ export default () => {
     [setSearchParams, searchParams],
   );
 
+  const handleBulkAddItemToRequest = useCallback(
+    async (request: Request, itemIds: string[]) => {
+      await handleAddItemToRequest(request, itemIds);
+      refetch();
+      setSelection({ selectedRowKeys: [] });
+    },
+    [handleAddItemToRequest, refetch],
+  );
+
   return {
     currentModel,
     loading,
@@ -254,7 +265,7 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
-    handleAddItemToRequest,
+    handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,

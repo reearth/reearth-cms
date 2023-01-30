@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, Key, useMemo } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { matchPath, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -21,13 +21,33 @@ type UploadType = "local" | "url";
 
 export default () => {
   const t = useT();
+  const { pathname } = useLocation();
+  const isAssetList = useMemo(
+    () => matchPath(":workspaceId/project/:projectId/asset", pathname),
+    [pathname],
+  );
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
-  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
-  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
-  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+  const pageParam = useMemo(
+    () => (isAssetList ? searchParams.get("page") : 1),
+    [searchParams, isAssetList],
+  );
+  const pageSizeParam = useMemo(
+    () => (isAssetList ? searchParams.get("pageSize") : 10),
+    [searchParams, isAssetList],
+  );
+  const sortType = useMemo(
+    () => (isAssetList ? searchParams.get("sortType") : "DATE"),
+    [searchParams, isAssetList],
+  );
+  const direction = useMemo(
+    () => (isAssetList ? searchParams.get("direction") : "DESC"),
+    [searchParams, isAssetList],
+  );
+  const searchTermParam = useMemo(
+    () => (isAssetList ? searchParams.get("searchTerm") : ""),
+    [searchParams, isAssetList],
+  );
 
   const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
@@ -40,7 +60,6 @@ export default () => {
   const [uploadUrl, setUploadUrl] = useState<string>("");
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
-  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
@@ -100,7 +119,12 @@ export default () => {
           await Promise.all(
             files.map(async file => {
               const result = await createAssetMutation({
-                variables: { projectId, file, withFiles: false },
+                variables: {
+                  projectId,
+                  file,
+                  skipDecompression: !!file.skipDecompression,
+                  withFiles: false,
+                },
               });
               if (result.errors || !result.data?.createAsset) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
@@ -170,10 +194,14 @@ export default () => {
 
   const handleSearchTerm = useCallback(
     (term?: string) => {
-      searchParams.set("searchTerm", term ?? "");
-      setSearchParams(searchParams);
+      if (isAssetList) {
+        searchParams.set("searchTerm", term ?? "");
+        setSearchParams(searchParams);
+      } else {
+        setSearchTerm(term ?? "");
+      }
     },
-    [setSearchParams, searchParams],
+    [setSearchParams, searchParams, isAssetList],
   );
 
   const handleAssetsReload = useCallback(() => {
@@ -219,13 +247,22 @@ export default () => {
       pageSize: number,
       sorter?: { type?: AssetSortType; direction?: SortDirection },
     ) => {
-      searchParams.set("page", page.toString());
-      searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortType", sorter?.type ? sorter.type : "");
-      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
-      setSearchParams(searchParams);
+      if (isAssetList) {
+        searchParams.set("page", page.toString());
+        searchParams.set("pageSize", pageSize.toString());
+        searchParams.set("sortType", sorter?.type ? sorter.type : "");
+        searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      } else {
+        setSearchParams(searchParams);
+        setPage(page);
+        setPageSize(pageSize);
+        setSort({
+          type: sorter?.type ? (sorter.type as AssetSortType) : "DATE",
+          direction: sorter?.direction ? (sorter.direction as SortDirection) : "DESC",
+        });
+      }
     },
-    [setSearchParams, searchParams],
+    [setSearchParams, searchParams, isAssetList],
   );
 
   return {
