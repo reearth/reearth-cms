@@ -119,7 +119,12 @@ export default () => {
           await Promise.all(
             files.map(async file => {
               const result = await createAssetMutation({
-                variables: { projectId, file, withFiles: false },
+                variables: {
+                  projectId,
+                  file,
+                  skipDecompression: !!file.skipDecompression,
+                  withFiles: false,
+                },
               });
               if (result.errors || !result.data?.createAsset) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
