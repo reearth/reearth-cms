@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -189,30 +190,90 @@ func TestToItemQuery(t *testing.T) {
 	}
 }
 
-func TestToItemSort(t *testing.T) {
-	input1 := &ItemSort{
-		SortBy:    ItemSortTypeCreationDate,
-		Direction: lo.ToPtr(SortDirectionDesc),
+func TestItemSort_Into(t *testing.T) {
+	tests := []struct {
+		name string
+		sort *ItemSort
+		want *usecasex.Sort
+	}{
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
+				Direction: lo.ToPtr(SortDirectionAsc),
+			},
+			want: &usecasex.Sort{
+				Key:      "id",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "id",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
+				Direction: lo.ToPtr(SortDirectionDesc),
+			},
+			want: &usecasex.Sort{
+				Key:      "id",
+				Reverted: true,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "id",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeModificationDate,
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "timestamp",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeModificationDate,
+				Direction: nil,
+			},
+			want: &usecasex.Sort{
+				Key:      "timestamp",
+				Reverted: false,
+			},
+		},
+		{
+			name: "success",
+			sort: &ItemSort{
+				SortBy:    "xxx",
+				Direction: nil,
+			},
+			want: nil,
+		},
 	}
-	want1 := &item.Sort{
-		Direction: item.DescDirection,
-		SortBy:    item.SortTypeCreationDate,
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.sort.Into())
+		})
 	}
-	got1 := ToItemSort(input1)
-	assert.Equal(t, want1, got1)
-
-	input2 := &ItemSort{
-		SortBy:    ItemSortTypeModificationDate,
-		Direction: lo.ToPtr(SortDirectionAsc),
-	}
-	want2 := &item.Sort{
-		Direction: item.AscDirection,
-		SortBy:    item.SortTypeModificationDate,
-	}
-	got2 := ToItemSort(input2)
-	assert.Equal(t, want2, got2)
-
-	got3 := ToItemSort(nil)
-	var want3 *item.Sort
-	assert.Equal(t, want3, got3)
 }

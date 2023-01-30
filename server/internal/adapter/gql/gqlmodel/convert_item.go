@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -79,17 +80,23 @@ func ToItemQuery(iq ItemQuery) *item.Query {
 	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
 }
 
-func ToItemSort(is *ItemSort) *item.Sort {
-	if is == nil {
+func (s *ItemSort) Into() *usecasex.Sort {
+	if s == nil {
 		return nil
 	}
-	var dir string
-	if is.Direction != nil {
-		dir = is.Direction.String()
+	key := ""
+	switch s.SortBy {
+	case ItemSortTypeCreationDate:
+		key = "id"
+	case ItemSortTypeModificationDate:
+		key = "timestamp"
 	}
-	return &item.Sort{
-		Direction: item.DirectionFrom(dir),
-		SortBy:    item.SortTypeFrom(is.SortBy.String()),
+	if key == "" {
+		return nil
+	}
+	return &usecasex.Sort{
+		Key:      key,
+		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
 	}
 }
 
