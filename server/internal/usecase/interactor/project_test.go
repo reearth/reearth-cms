@@ -353,7 +353,7 @@ func TestProject_Update(t *testing.T) {
 	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -410,6 +410,23 @@ func TestProject_Update(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "update duplicated alias",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:    p1.ID(),
+					Alias: lo.ToPtr("testAlias"),
+					Publication: &interfaces.UpdateProjectPublicationParam{
+						Scope:       lo.ToPtr(project.PublicationScopePublic),
+						AssetPublic: lo.ToPtr(true),
+					},
+				},
+				operator: op,
+			},
+			want:    nil,
+			wantErr: interfaces.ErrProjectAliasAlreadyUsed,
 		},
 		{
 			name:  "update publication",

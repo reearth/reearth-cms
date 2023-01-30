@@ -51,6 +51,11 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 				pb = pb.Description(*p.Description)
 			}
 			if p.Alias != nil {
+				proj2, _ := i.repos.Project.FindByPublicName(ctx, *p.Alias)
+				if proj2 != nil {
+					return nil, interfaces.ErrProjectAliasAlreadyUsed
+				}
+
 				pb = pb.Alias(*p.Alias)
 			}
 
@@ -83,6 +88,12 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 			}
 
 			if p.Alias != nil {
+				proj2, _ := i.repos.Project.FindByPublicName(ctx, *p.Alias)
+
+				if proj2 != nil && proj2.ID() != proj.ID() {
+					return nil, interfaces.ErrProjectAliasAlreadyUsed
+				}
+
 				if err := proj.UpdateAlias(*p.Alias); err != nil {
 					return nil, err
 				}
