@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -36,6 +37,9 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+
+	i.UpdateFiles(ctx, aid, lo.ToPtr(asset.ArchiveExtractionStatusDone), operator)
+
 	return i.repos.Asset.FindByID(ctx, aid)
 }
 
@@ -236,6 +240,8 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 
+			detectedPreviewType := detectPreviewType(files)
+
 			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
@@ -248,6 +254,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 			a.UpdateArchiveExtractionStatus(s)
+			a.UpdatePreviewType(detectedPreviewType)
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -269,6 +276,18 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 			return a, nil
 		},
 	)
+}
+
+func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
+	for _, entry := range files {
+		if entry.Name == "tileset.json" {
+			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
+		}
+		if strings.HasSuffix(entry.Name, ".mvt") {
+			return lo.ToPtr(asset.PreviewTypeGeoMvt)
+		}
+	}
+	return nil
 }
 
 func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
