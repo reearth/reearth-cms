@@ -124,7 +124,10 @@ const AssetItem: React.FC<Props> = ({
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
               </div>
             </AssetButton>
-            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
+            <AssetLinkedName
+              type="link"
+              title={asset?.fileName}
+              onClick={() => onNavigateToAsset(asset)}>
               {asset?.fileName}
             </AssetLinkedName>
           </AssetDetailsWrapper>
@@ -197,6 +200,13 @@ const AssetLink = styled(Button)`
 const AssetLinkedName = styled(Button)`
   color: #1890ff;
   margin-left: 12px;
+  span {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `;
 
 const AssetDetailsWrapper = styled.div`
