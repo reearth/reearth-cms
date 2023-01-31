@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -107,6 +108,10 @@ const AssetItem: React.FC<Props> = ({
     },
     fileList,
   };
+
+  useEffect(() => {
+    if (Array.isArray(value)) onChange?.("");
+  }, [onChange, value]);
 
   return (
     <AssetWrapper>
