@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -124,12 +125,11 @@ const AssetItem: React.FC<Props> = ({
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
               </div>
             </AssetButton>
-            <AssetLinkedName
-              type="link"
-              title={asset?.fileName}
-              onClick={() => onNavigateToAsset(asset)}>
-              {asset?.fileName}
-            </AssetLinkedName>
+            <Tooltip title={asset?.fileName}>
+              <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
+                {asset?.fileName}
+              </AssetLinkedName>
+            </Tooltip>
           </AssetDetailsWrapper>
           <AssetLink
             type="link"
