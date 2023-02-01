@@ -37,9 +37,6 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
-
-	i.UpdateFiles(ctx, aid, lo.ToPtr(asset.ArchiveExtractionStatusDone), operator)
-
 	return i.repos.Asset.FindByID(ctx, aid)
 }
 
