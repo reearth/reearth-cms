@@ -7,6 +7,8 @@ type Thread {
 
 type Comment {
   id: ID!
+  threadId: ID!
+  workspaceId: ID!
   author: Operator
   authorType: OperatorType!
   authorId: ID!

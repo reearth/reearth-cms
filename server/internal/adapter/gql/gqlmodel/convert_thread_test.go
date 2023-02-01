@@ -18,7 +18,7 @@ func TestConvertThread_ToThread(t *testing.T) {
 	want1 := Thread{
 		ID:          ID(id1.String()),
 		WorkspaceID: ID(wid1.String()),
-		Comments:    lo.Map(th1.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c) }),
+		Comments:    lo.Map(th1.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c, th1) }),
 	}
 	got1 := ToThread(th1)
 	assert.Equal(t, &want1, got1)
@@ -34,21 +34,24 @@ func TestConvertThread_ToComment(t *testing.T) {
 	uid1 := id.NewUserID()
 	c1 := "xxx"
 
+	th := thread.New().NewID().Workspace(thread.NewWorkspaceID()).MustBuild()
 	comment1 := thread.NewComment(cid1, operator.OperatorFromUser(uid1), c1)
 
 	want1 := Comment{
-		ID:         ID(cid1.String()),
-		AuthorID:   ID(uid1.String()),
-		AuthorType: OperatorTypeUser,
-		Content:    c1,
-		CreatedAt:  cid1.Timestamp(),
+		ID:          ID(cid1.String()),
+		ThreadID:    ID(th.ID().String()),
+		WorkspaceID: ID(th.Workspace().String()),
+		AuthorID:    ID(uid1.String()),
+		AuthorType:  OperatorTypeUser,
+		Content:     c1,
+		CreatedAt:   cid1.Timestamp(),
 	}
 
-	got1 := ToComment(comment1)
+	got1 := ToComment(comment1, th)
 	assert.Equal(t, &want1, got1)
 
 	var comment2 *thread.Comment = nil
 	want2 := (*Comment)(nil)
-	got2 := ToComment(comment2)
+	got2 := ToComment(comment2, th)
 	assert.Equal(t, want2, got2)
 }

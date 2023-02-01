@@ -34,7 +34,7 @@ func (r *mutationResolver) AddComment(ctx context.Context, input gqlmodel.AddCom
 
 	return &gqlmodel.CommentPayload{
 		Thread:  gqlmodel.ToThread(th),
-		Comment: gqlmodel.ToComment(c),
+		Comment: gqlmodel.ToComment(c, th),
 	}, nil
 }
 
@@ -57,7 +57,7 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, input gqlmodel.Upd
 
 	return &gqlmodel.CommentPayload{
 		Thread:  gqlmodel.ToThread(th),
-		Comment: gqlmodel.ToComment(c),
+		Comment: gqlmodel.ToComment(c, th),
 	}, nil
 }
 
