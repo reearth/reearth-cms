@@ -13,11 +13,11 @@ func ToThread(th *thread.Thread) *Thread {
 	return &Thread{
 		ID:          IDFrom(th.ID()),
 		WorkspaceID: IDFrom(th.Workspace()),
-		Comments:    lo.Map(th.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c) }),
+		Comments:    lo.Map(th.Comments(), func(c *thread.Comment, _ int) *Comment { return ToComment(c, th) }),
 	}
 }
 
-func ToComment(c *thread.Comment) *Comment {
+func ToComment(c *thread.Comment, th *thread.Thread) *Comment {
 	if c == nil {
 		return nil
 	}
@@ -34,10 +34,12 @@ func ToComment(c *thread.Comment) *Comment {
 	}
 
 	return &Comment{
-		ID:         IDFrom(c.ID()),
-		AuthorID:   authorID,
-		AuthorType: authorType,
-		Content:    c.Content(),
-		CreatedAt:  c.CreatedAt(),
+		ID:          IDFrom(c.ID()),
+		ThreadID:    IDFrom(th.ID()),
+		WorkspaceID: IDFrom(th.Workspace()),
+		AuthorID:    authorID,
+		AuthorType:  authorType,
+		Content:     c.Content(),
+		CreatedAt:   c.CreatedAt(),
 	}
 }
