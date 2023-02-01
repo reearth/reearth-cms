@@ -280,7 +280,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 	for _, entry := range files {
-		if entry.Name == "tileset.json" {
+		if strings.HasSuffix(entry.Name, "tileset.json") {
 			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
 		}
 		if strings.HasSuffix(entry.Name, ".mvt") {
