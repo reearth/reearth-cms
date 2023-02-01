@@ -83,7 +83,8 @@ const MultiValueAsset: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (!value) onChange?.([]);
+    if (typeof value === "string") onChange?.([value]);
+    else if (!value) onChange?.([]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(

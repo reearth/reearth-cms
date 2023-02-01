@@ -1,7 +1,9 @@
 import styled from "@emotion/styled";
+import { useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -108,6 +110,10 @@ const AssetItem: React.FC<Props> = ({
     fileList,
   };
 
+  useEffect(() => {
+    if (Array.isArray(value)) onChange?.("");
+  }, [onChange, value]);
+
   return (
     <AssetWrapper>
       {asset ? (
@@ -119,9 +125,11 @@ const AssetItem: React.FC<Props> = ({
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
               </div>
             </AssetButton>
-            <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
-              {asset?.fileName}
-            </AssetLinkedName>
+            <Tooltip title={asset?.fileName}>
+              <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
+                {asset?.fileName}
+              </AssetLinkedName>
+            </Tooltip>
           </AssetDetailsWrapper>
           <AssetLink
             type="link"
@@ -192,6 +200,13 @@ const AssetLink = styled(Button)`
 const AssetLinkedName = styled(Button)`
   color: #1890ff;
   margin-left: 12px;
+  span {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `;
 
 const AssetDetailsWrapper = styled.div`
