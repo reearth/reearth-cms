@@ -248,6 +248,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 			a.UpdateArchiveExtractionStatus(s)
+			a.UpdatePreviewType(detectPreviewType(files))
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -269,6 +270,18 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 			return a, nil
 		},
 	)
+}
+
+func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
+	for _, entry := range files {
+		if path.Base(entry.Name) == "tileset.json" {
+			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
+		}
+		if path.Ext(entry.Name) == ".mvt" {
+			return lo.ToPtr(asset.PreviewTypeGeoMvt)
+		}
+	}
+	return nil
 }
 
 func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
