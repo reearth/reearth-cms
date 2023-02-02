@@ -44,6 +44,7 @@ export default () => {
   const t = useT();
 
   const { data } = useGetItemQuery({
+    fetchPolicy: "no-cache",
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
