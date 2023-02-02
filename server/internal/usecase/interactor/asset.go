@@ -237,8 +237,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 
-			detectedPreviewType := detectPreviewType(files)
-
 			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
@@ -251,7 +249,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 			a.UpdateArchiveExtractionStatus(s)
-			a.UpdatePreviewType(detectedPreviewType)
+			a.UpdatePreviewType(detectPreviewType(files))
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
@@ -280,7 +278,7 @@ func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 		if strings.HasSuffix(entry.Name, "tileset.json") {
 			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
 		}
-		if strings.HasSuffix(entry.Name, ".mvt") {
+		if path.Ext(entry.Name) == ".mvt" {
 			return lo.ToPtr(asset.PreviewTypeGeoMvt)
 		}
 	}
