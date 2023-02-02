@@ -978,3 +978,47 @@ func NewMockRunner() gateway.TaskRunner {
 func (r *mockRunner) Run(context.Context, task.Payload) error {
 	return nil
 }
+
+func Test_detectPreviewType(t *testing.T) {
+	tests := []struct {
+		name  string
+		files []gateway.FileEntry
+		want  *asset.PreviewType
+	}{
+		{
+			name: "MVT",
+			files: []gateway.FileEntry{
+				{
+					Name: "test/0/123.mvt",
+					Size: 123,
+				},
+			},
+			want: lo.ToPtr(asset.PreviewTypeGeoMvt),
+		},
+		{
+			name: "3d tiles",
+			files: []gateway.FileEntry{
+				{
+					Name: "test/tileset.json",
+					Size: 123,
+				},
+			},
+			want: lo.ToPtr(asset.PreviewTypeGeo3dTiles),
+		},
+		{
+			name: "Unknown",
+			files: []gateway.FileEntry{
+				{
+					Name: "test.jpg",
+					Size: 123,
+				},
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, detectPreviewType(tt.files))
+		})
+	}
+}
