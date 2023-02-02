@@ -27,6 +27,12 @@ export const fieldTypes: {
     description: i18next.t("Asset file"),
     color: "#FF9C6E",
   },
+  Bool: {
+    icon: "boolean",
+    title: i18next.t("Boolean"),
+    description: i18next.t("true/false field"),
+    color: "#FFD666",
+  },
   Select: {
     icon: "listBullets",
     title: i18next.t("Option"),

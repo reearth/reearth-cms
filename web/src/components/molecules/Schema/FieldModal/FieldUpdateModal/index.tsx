@@ -188,6 +188,10 @@ const FieldUpdateModal: React.FC<Props> = ({
               max: values.max ?? null,
             },
           };
+        } else if (selectedType === "Bool") {
+          values.typeProperty = {
+            bool: { defaultValue: values.defaultValue },
+          };
         } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },

@@ -8,6 +8,7 @@ import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -16,6 +17,7 @@ import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
+import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
@@ -140,6 +142,8 @@ const ContentForm: React.FC<Props> = ({
       const values = await form.validateFields();
       const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
+        console.log(values);
+
         fields.push({
           value: (value || "") as string,
           schemaFieldId: key,
@@ -327,6 +331,13 @@ const ContentForm: React.FC<Props> = ({
                     ))}
                   </Select>
                 )}
+              </Form.Item>
+            ) : field.type === "Bool" ? (
+              <Form.Item
+                extra={field.description}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? <MultiValueSwitch /> : <Switch />}
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
