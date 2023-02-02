@@ -6,6 +6,7 @@ type Asset implements Node {
   createdBy: Operator!
   createdByType: OperatorType!
   createdById: ID!
+  items: [AssetItem!]
   fileName: String!
   size: FileSize!
   previewType: PreviewType
@@ -16,7 +17,10 @@ type Asset implements Node {
   url: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
-
+type AssetItem {
+  itemId: ID!
+  modelId: ID!
+}
 type AssetFile {
   name: String!
   size: FileSize!

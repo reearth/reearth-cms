@@ -130,6 +130,35 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
+func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	if al.Len() == 0 {
+		return nil, nil
+	}
+	filters := make([]bson.M, 0, len(al))
+	for _, assetID := range al {
+
+		filters = append(filters,
+			bson.M{
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"v.t": "asset",
+						"v.v": assetID.String(),
+					},
+				},
+			},
+			bson.M{
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"valuetype": "asset",
+						"value":     assetID.String(),
+					},
+				},
+			})
+	}
+
+	return r.find(ctx, bson.M{"$or": filters}, ref)
+}
+
 func (i *Item) Search(ctx context.Context, query *item.Query, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	filter := bson.M{
 		"project": query.Project().String(),

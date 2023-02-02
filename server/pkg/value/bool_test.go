@@ -77,9 +77,8 @@ func Test_propertyBool_Validate(t *testing.T) {
 func TestValue_ValueBool(t *testing.T) {
 	var v *Value = nil
 	res, ok := v.ValueBool()
-	assert.Equal(t,false, res)
+	assert.Equal(t, false, res)
 	assert.False(t, ok)
-
 
 	v = &Value{
 		t: TypeBool,
@@ -88,7 +87,7 @@ func TestValue_ValueBool(t *testing.T) {
 	}
 
 	res, ok = v.ValueBool()
-	assert.Equal(t,false, res)
+	assert.Equal(t, false, res)
 	assert.False(t, ok)
 
 	v = &Value{
@@ -98,7 +97,7 @@ func TestValue_ValueBool(t *testing.T) {
 	}
 
 	res, ok = v.ValueBool()
-	assert.Equal(t,true, res)
+	assert.Equal(t, true, res)
 	assert.True(t, ok)
 }
 
@@ -107,7 +106,6 @@ func TestValue_ValuesBool(t *testing.T) {
 	res, ok := v.ValuesBool()
 	assert.Nil(t, res)
 	assert.False(t, ok)
-
 
 	v = &Multiple{
 		t: TypeBool,
@@ -123,7 +121,7 @@ func TestValue_ValuesBool(t *testing.T) {
 	}
 
 	res, ok = v.ValuesBool()
-	assert.Equal(t,[]Bool{true, false}, res)
+	assert.Equal(t, []Bool{true, false}, res)
 	assert.True(t, ok)
 
 	v = &Multiple{
