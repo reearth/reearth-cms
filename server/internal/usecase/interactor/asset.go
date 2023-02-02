@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -275,7 +274,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 	for _, entry := range files {
-		if strings.HasSuffix(entry.Name, "tileset.json") {
+		if path.Base(entry.Name) == "tileset.json" {
 			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
 		}
 		if path.Ext(entry.Name) == ".mvt" {
