@@ -336,6 +336,7 @@ const ContentForm: React.FC<Props> = ({
               <Form.Item
                 extra={field.description}
                 name={field.id}
+                valuePropName="checked"
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
                 {field.multiple ? <MultiValueSwitch /> : <Switch />}
               </Form.Item>
