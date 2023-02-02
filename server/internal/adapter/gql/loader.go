@@ -18,7 +18,7 @@ type Loaders struct {
 	Workspace   *WorkspaceLoader
 	Item        *ItemLoader
 	ItemStatus  *ItemStatusLoader
-	AssetItem   *AssetItemsLoader
+	AssetItem   *AssetItemLoader
 	User        *UserLoader
 	Project     *ProjectLoader
 	Model       *ModelLoader
@@ -35,7 +35,7 @@ type DataLoaders struct {
 	Project     ProjectDataLoader
 	Item        ItemDataLoader
 	ItemStatus  ItemStatusDataLoader
-	AssetItems  AssetItemsDataLoader
+	AssetItems  AssetItemDataLoader
 	Model       ModelDataLoader
 	Request     RequestDataLoader
 	Schema      SchemaDataLoader
@@ -95,6 +95,7 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		User:        l.User.OrdinaryDataLoader(ctx),
 		Project:     l.Project.OrdinaryDataLoader(ctx),
 		Model:       l.Model.OrdinaryDataLoader(ctx),
+		AssetItems:  l.AssetItem.OrdinaryDataLoader(ctx),
 		Request:     l.Request.OrdinaryDataLoader(ctx),
 		Schema:      l.Schema.OrdinaryDataLoader(ctx),
 		Item:        l.Item.OrdinaryDataLoader(ctx),
