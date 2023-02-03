@@ -132,6 +132,7 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 	}
 	return res, nil
 }
+
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
