@@ -4,7 +4,6 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
-  useSearchItemQuery,
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
@@ -19,22 +18,6 @@ export default () => {
   const [currentProject] = useProject();
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
-  const {
-    data: itemsData,
-    refetch,
-    loading: itemsDataLoading,
-  } = useSearchItemQuery({
-    notifyOnNetworkStatusChange: true,
-    variables: {
-      query: { project: currentProject?.id as string, schema: currentModel?.schema.id ?? "" },
-      pagination: { first: 1000 },
-    },
-    skip: !currentModel?.schema.id,
-  });
-
-  const handleItemsReload = useCallback(() => {
-    refetch();
-  }, [refetch]);
 
   const { data: requestData } = useGetRequestsQuery({
     variables: {
@@ -90,14 +73,11 @@ export default () => {
   );
 
   return {
-    itemsDataLoading,
     currentWorkspace,
     currentModel,
     currentProject,
-    itemsData,
     requests,
     addItemToRequestModalShown,
-    handleItemsReload,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
