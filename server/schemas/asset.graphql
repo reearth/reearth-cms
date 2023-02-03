@@ -21,6 +21,7 @@ type AssetItem {
   itemId: ID!
   modelId: ID!
 }
+
 type AssetFile {
   name: String!
   size: FileSize!
