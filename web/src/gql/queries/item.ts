@@ -32,6 +32,34 @@ export const GET_ITEMS = gql`
   ${threadFragment}
 `;
 
+export const GET_ITEM_NODE = gql`
+  query GetItem($id: ID!) {
+    node(id: $id, type: Item) {
+      ... on Item {
+        id
+        schemaId
+        createdAt
+        updatedAt
+        status
+        user {
+          name
+        }
+        integration {
+          name
+        }
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+        thread {
+          ...threadFragment
+        }
+      }
+    }
+  }
+`;
+
 export const SEARCH_ITEM = gql`
   query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
     searchItem(query: $query, sort: $sort, pagination: $pagination) {

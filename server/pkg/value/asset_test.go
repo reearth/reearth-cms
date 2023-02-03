@@ -61,8 +61,8 @@ func Test_propertyAsset_Equal(t *testing.T) {
 	aId := id.NewAssetID()
 	assert.True(t, (&propertyAsset{}).Equal(aId, aId))
 	assert.True(t, (&propertyAsset{}).Equal(id.AssetID{}, id.AssetID{}))
-	assert.False(t, (&propertyAsset{}).Equal(id.AssetID{},id.NewAssetID()))
-	assert.False(t, (&propertyAsset{}).Equal(id.NewAssetID(),id.NewAssetID()))
+	assert.False(t, (&propertyAsset{}).Equal(id.AssetID{}, id.NewAssetID()))
+	assert.False(t, (&propertyAsset{}).Equal(id.NewAssetID(), id.NewAssetID()))
 }
 
 func Test_propertyAsset_IsEmpty(t *testing.T) {
@@ -78,9 +78,8 @@ func Test_propertyAsset_Validate(t *testing.T) {
 func TestValue_ValueAsset(t *testing.T) {
 	var v *Value = nil
 	res, ok := v.ValueAsset()
-	assert.Equal(t,Asset{}, res)
+	assert.Equal(t, Asset{}, res)
 	assert.False(t, ok)
-
 
 	v = &Value{
 		t: TypeAsset,
@@ -89,7 +88,7 @@ func TestValue_ValueAsset(t *testing.T) {
 	}
 
 	res, ok = v.ValueAsset()
-	assert.Equal(t,Asset{}, res)
+	assert.Equal(t, Asset{}, res)
 	assert.False(t, ok)
 
 	aId := id.NewAssetID()
@@ -100,7 +99,7 @@ func TestValue_ValueAsset(t *testing.T) {
 	}
 
 	res, ok = v.ValueAsset()
-	assert.Equal(t,aId, res)
+	assert.Equal(t, aId, res)
 	assert.True(t, ok)
 }
 
@@ -109,7 +108,6 @@ func TestValue_ValuesAsset(t *testing.T) {
 	res, ok := v.ValuesAsset()
 	assert.Nil(t, res)
 	assert.False(t, ok)
-
 
 	v = &Multiple{
 		t: TypeAsset,
@@ -127,7 +125,7 @@ func TestValue_ValuesAsset(t *testing.T) {
 	}
 
 	res, ok = v.ValuesAsset()
-	assert.Equal(t,[]Asset{aId1, aId2}, res)
+	assert.Equal(t, []Asset{aId1, aId2}, res)
 	assert.True(t, ok)
 
 	v = &Multiple{
