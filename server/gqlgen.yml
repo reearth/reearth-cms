@@ -99,6 +99,8 @@ models:
         resolver: true
       thread:
         resolver: true
+      items:
+        resolver: true
   Integration:
     fields:
       developer:

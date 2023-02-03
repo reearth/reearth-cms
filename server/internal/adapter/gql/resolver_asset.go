@@ -30,3 +30,7 @@ func (r *assetResolver) Project(ctx context.Context, obj *gqlmodel.Asset) (*gqlm
 func (r *assetResolver) Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error) {
 	return dataloaders(ctx).Thread.Load(obj.ThreadID)
 }
+
+func (r *assetResolver) Items(ctx context.Context, obj *gqlmodel.Asset) ([]*gqlmodel.AssetItem, error) {
+	return dataloaders(ctx).AssetItems.Load(obj.ID)
+}

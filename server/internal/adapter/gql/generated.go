@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 		File                    func(childComplexity int) int
 		FileName                func(childComplexity int) int
 		ID                      func(childComplexity int) int
+		Items                   func(childComplexity int) int
 		PreviewType             func(childComplexity int) int
 		Project                 func(childComplexity int) int
 		ProjectID               func(childComplexity int) int
@@ -104,6 +105,11 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Path        func(childComplexity int) int
 		Size        func(childComplexity int) int
+	}
+
+	AssetItem struct {
+		ItemID  func(childComplexity int) int
+		ModelID func(childComplexity int) int
 	}
 
 	Comment struct {
@@ -631,6 +637,8 @@ type AssetResolver interface {
 
 	CreatedBy(ctx context.Context, obj *gqlmodel.Asset) (gqlmodel.Operator, error)
 
+	Items(ctx context.Context, obj *gqlmodel.Asset) ([]*gqlmodel.AssetItem, error)
+
 	Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error)
 }
 type CommentResolver interface {
@@ -826,6 +834,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asset.ID(childComplexity), true
 
+	case "Asset.items":
+		if e.complexity.Asset.Items == nil {
+			break
+		}
+
+		return e.complexity.Asset.Items(childComplexity), true
+
 	case "Asset.previewType":
 		if e.complexity.Asset.PreviewType == nil {
 			break
@@ -958,6 +973,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AssetFile.Size(childComplexity), true
+
+	case "AssetItem.itemId":
+		if e.complexity.AssetItem.ItemID == nil {
+			break
+		}
+
+		return e.complexity.AssetItem.ItemID(childComplexity), true
+
+	case "AssetItem.modelId":
+		if e.complexity.AssetItem.ModelID == nil {
+			break
+		}
+
+		return e.complexity.AssetItem.ModelID(childComplexity), true
 
 	case "Comment.author":
 		if e.complexity.Comment.Author == nil {
@@ -3536,6 +3565,7 @@ schema {
   createdBy: Operator!
   createdByType: OperatorType!
   createdById: ID!
+  items: [AssetItem!]
   fileName: String!
   size: FileSize!
   previewType: PreviewType
@@ -3546,7 +3576,10 @@ schema {
   url: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
-
+type AssetItem {
+  itemId: ID!
+  modelId: ID!
+}
 type AssetFile {
   name: String!
   size: FileSize!
@@ -6076,6 +6109,53 @@ func (ec *executionContext) fieldContext_Asset_createdById(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Asset().Items(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.AssetItem)
+	fc.Result = res
+	return ec.marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "itemId":
+				return ec.fieldContext_AssetItem_itemId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_AssetItem_modelId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AssetItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Asset_fileName(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Asset_fileName(ctx, field)
 	if err != nil {
@@ -6588,6 +6668,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
 			case "fileName":
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "size":
@@ -6805,6 +6887,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
 			case "fileName":
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "size":
@@ -7051,6 +7135,94 @@ func (ec *executionContext) fieldContext_AssetFile_children(ctx context.Context,
 				return ec.fieldContext_AssetFile_children(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AssetFile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetItem_itemId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetItem_itemId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ItemID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetItem_itemId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetItem_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetItem_modelId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ModelID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetItem_modelId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7574,6 +7746,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
 			case "fileName":
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "size":
@@ -15629,6 +15803,8 @@ func (ec *executionContext) fieldContext_Query_asset(ctx context.Context, field 
 				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
 			case "fileName":
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "size":
@@ -20041,6 +20217,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(ctx context.Co
 				return ec.fieldContext_Asset_createdByType(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
 			case "fileName":
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "size":
@@ -27135,6 +27313,23 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "items":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Asset_items(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "fileName":
 
 			out.Values[i] = ec._Asset_fileName(ctx, field, obj)
@@ -27333,6 +27528,41 @@ func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet
 
 			out.Values[i] = ec._AssetFile_children(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var assetItemImplementors = []string{"AssetItem"}
+
+func (ec *executionContext) _AssetItem(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, assetItemImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssetItem")
+		case "itemId":
+
+			out.Values[i] = ec._AssetItem_itemId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "modelId":
+
+			out.Values[i] = ec._AssetItem_modelId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -31842,6 +32072,16 @@ func (ec *executionContext) marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._AssetFile(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItem(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AssetItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AssetItem(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v interface{}) (gqlmodel.AssetSortType, error) {
 	var res gqlmodel.AssetSortType
 	err := res.UnmarshalGQL(v)
@@ -33927,6 +34167,53 @@ func (ec *executionContext) marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋree
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.AssetItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
