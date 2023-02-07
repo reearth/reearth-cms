@@ -213,3 +213,12 @@ func Test_generateCode(t *testing.T) {
 	_, err := uuid.Parse(str)
 	assert.NoError(t, err)
 }
+
+func TestVerificationFrom(t *testing.T) {
+	c, e, b := "xyz", time.Now(), true
+	assert.Equal(t, &Verification{
+		verified:   b,
+		code:       c,
+		expiration: e,
+	}, VerificationFrom(c, e, b))
+}
