@@ -76,6 +76,7 @@ const AssetItem: React.FC<Props> = ({
   const t = useT();
   const {
     asset,
+    loading,
     visible,
     handleClick,
     handleLinkAssetModalCancel,
@@ -140,7 +141,7 @@ const AssetItem: React.FC<Props> = ({
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
-            <Icon icon="linkSolid" size={14} />
+            {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
