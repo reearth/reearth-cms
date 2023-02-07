@@ -67,7 +67,6 @@ const ResizableProTable: React.FC<Props> = ({
         options={options}
         tableAlertOptionRender={tableAlertOptionRender}
         rowSelection={rowSelection}
-        tableStyle={{ overflowX: "scroll" }}
         pagination={pagination}
         onChange={onChange}
       />
@@ -78,6 +77,9 @@ const ResizableProTable: React.FC<Props> = ({
 export default ResizableProTable;
 
 const Wrapper = styled.div`
+  .ant-table.ant-table-middle {
+    overflow-x: scroll;
+  }
   .ant-table-content {
     width: 1px;
     max-width: 100%;

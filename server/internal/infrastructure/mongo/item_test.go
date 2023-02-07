@@ -506,3 +506,56 @@ func TestItem_UpdateRef(t *testing.T) {
 	v2, _ := r.FindByID(ctx, i.ID(), nil)
 	assert.Equal(t, version.NewRefs(vx, version.Latest), v2.Refs())
 }
+
+func TestItem_FindByAssets(t *testing.T) {
+	init := mongotest.Connect(t)
+	sid := id.NewSchemaID()
+	aid1 := id.NewAssetID()
+	aid2 := id.NewAssetID()
+	sf1 := id.NewFieldID()
+	f1 := item.NewField(sf1, value.TypeAsset.Value(aid1.String()).AsMultiple())
+	pid := id.NewProjectID()
+	mid := id.NewModelID()
+	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+
+	tests := []struct {
+		Name     string
+		Input    id.AssetIDList
+		Seeds    item.List
+		Expected int
+		WantErr  error
+	}{
+		{
+			Name:     "must find 1 item",
+			Input:    id.AssetIDList{aid1, aid2},
+			Seeds:    item.List{i1},
+			Expected: 1,
+		},
+		{
+			Name:     "must not find any item",
+			Input:    id.AssetIDList{},
+			Seeds:    item.List{i1},
+			Expected: 0,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+
+			repo := NewItem(client)
+			ctx := context.Background()
+			for _, i := range tc.Seeds {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, err := repo.FindByAssets(ctx, tc.Input, nil)
+			assert.Equal(tt, tc.WantErr, err)
+			assert.Equal(tt, tc.Expected, len(got))
+		})
+	}
+}
