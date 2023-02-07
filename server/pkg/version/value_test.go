@@ -112,3 +112,20 @@ func TestValue_DeleteRefs(t *testing.T) {
 	v.DeleteRefs("ccc", "ddd")
 	assert.Nil(t, v.refs)
 }
+
+func TestValueFrom(t *testing.T) {
+	vx, vy := New(), New()
+	v1 := &Value[string]{
+		version: vx,
+		parents: NewVersions(vy),
+		refs:    NewRefs("a"),
+		value:   "xxx",
+	}
+	v2 := &Value[string]{
+		version: vx,
+		parents: NewVersions(vy),
+		refs:    NewRefs("a"),
+		value:   "yyy",
+	}
+	assert.Equal(t, v2, ValueFrom(v1, "yyy"))
+}

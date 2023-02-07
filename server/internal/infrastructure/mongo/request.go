@@ -108,7 +108,7 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 	}
 
 	rl, p, err := r.paginate(ctx, &filter, sort, page)
-	return rl.Ordered(), p, err
+	return rl, p, err
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {

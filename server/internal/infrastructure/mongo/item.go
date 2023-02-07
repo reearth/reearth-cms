@@ -77,7 +77,7 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
 	}, ref, nil, pagination)
-	return res.Sort(nil), pi, err
+	return res, pi, err
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -87,7 +87,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *v
 	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, ref, nil, pagination)
-	return res.Sort(nil), pi, err
+	return res, pi, err
 }
 
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
@@ -186,7 +186,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 		return nil, err
 	}
 
-	return item.VersionedList(c.Result).Sort(nil), nil
+	return c.Result, nil
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {

@@ -23,7 +23,7 @@ type Item struct {
 }
 
 func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -84,7 +84,7 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *ver
 		return true
 	})
 
-	return res.Sort(nil), nil, nil
+	return res, nil, nil
 }
 
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -102,7 +102,7 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return true
 	})
 
-	return res.Sort(nil), nil, nil
+	return res, nil, nil
 }
 
 func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
@@ -110,7 +110,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).Sort(nil), nil
+	return r.data.LoadAll(list, ref.OrLatest().OrVersion()), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
