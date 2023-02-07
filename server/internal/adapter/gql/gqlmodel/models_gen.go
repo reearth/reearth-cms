@@ -63,6 +63,7 @@ type Asset struct {
 	CreatedBy               Operator                 `json:"createdBy"`
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
+	Items                   []*AssetItem             `json:"items"`
 	FileName                string                   `json:"fileName"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType"`
@@ -95,6 +96,11 @@ type AssetFile struct {
 	ContentType *string      `json:"contentType"`
 	Path        string       `json:"path"`
 	Children    []*AssetFile `json:"children"`
+}
+
+type AssetItem struct {
+	ItemID  ID `json:"itemId"`
+	ModelID ID `json:"modelId"`
 }
 
 type AssetSort struct {

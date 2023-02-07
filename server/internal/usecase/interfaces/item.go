@@ -44,6 +44,7 @@ type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindByIDs(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
+	FindByAssets(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]item.VersionedList, error)
 	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
