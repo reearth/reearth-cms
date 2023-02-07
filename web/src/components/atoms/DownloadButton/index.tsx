@@ -61,9 +61,6 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     selected?.map(async s => {
       const res = await fetch(s.url, {
         method: "GET",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
       });
       const blob = await res.blob();
       fileDownload(blob, s.fileName);
