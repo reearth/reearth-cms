@@ -91,31 +91,6 @@ export default () => {
   });
 
   useEffect(() => {
-    console.log(
-      data?.searchItem.nodes
-        .reduce((arr: string[], item) => {
-          return [
-            ...arr,
-            ...(item?.fields.reduce(
-              (prevField: string[], field) =>
-                field.type === "Asset"
-                  ? Array.isArray(field.value)
-                    ? [
-                        ...prevField,
-                        ...field.value.reduce(
-                          (prevVal: string[], val: string) => [...prevVal, val],
-                          [],
-                        ),
-                      ]
-                    : [...prevField, field.value]
-                  : [],
-              [],
-            ) ?? []),
-          ];
-        }, [])
-        .filter(val => !!val),
-    );
-
     setAssetListIds(
       data?.searchItem.nodes
         .reduce((arr: string[], item) => {
@@ -133,9 +108,9 @@ export default () => {
                         ),
                       ]
                     : [...prevField, field.value]
-                  : [],
+                  : [...prevField],
               [],
-            ) ?? []),
+            ) ?? [...arr]),
           ];
         }, [])
         .filter(val => !!val),
