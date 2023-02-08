@@ -43,7 +43,7 @@ export default (
     if (asset) onChange?.(asset.id);
   }, [handleAssetUpload, onChange]);
 
-  const { data: rawAsset } = useGetAssetQuery({
+  const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: value ?? "",
       withFiles: true,
@@ -58,6 +58,7 @@ export default (
   return {
     visible,
     asset,
+    loading,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
