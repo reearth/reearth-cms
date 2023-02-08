@@ -37,6 +37,16 @@ export const GET_ASSET = gql`
   }
 `;
 
+export const GET_ASSETS_BY_ID = gql`
+  query GetAssetsById($id: [ID!]!, $withFiles: Boolean!) {
+    nodes(id: $id, type: ASSET) {
+      ... on Asset {
+        ...assetFragment
+      }
+    }
+  }
+`;
+
 export const CREATE_ASSET = gql`
   mutation CreateAsset(
     $projectId: ID!

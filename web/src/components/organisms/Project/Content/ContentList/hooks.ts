@@ -5,7 +5,6 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   convertItem,
   convertComment,
@@ -18,6 +17,8 @@ import {
   SortDirection as GQLSortDirection,
   ItemSortType as GQLItemSortType,
   useSearchItemQuery,
+  Asset as GQLAsset,
+  useGetAssetsByIdQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -52,6 +53,16 @@ export default () => {
     type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
     direction: direction ? (direction as SortDirection) : "DESC",
   });
+  const [assetListIds, setAssetListIds] = useState<string[] | undefined>([]);
+
+  const { data: assetList } = useGetAssetsByIdQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      id: assetListIds as string[],
+      withFiles: false,
+    },
+    skip: !assetListIds,
+  });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -79,6 +90,31 @@ export default () => {
     skip: !currentModel?.schema.id,
   });
 
+  useEffect(() => {
+    setAssetListIds(
+      data?.searchItem.nodes.reduce((arr: string[], item) => {
+        return [
+          ...arr,
+          ...(item?.fields.reduce(
+            (prevField: string[], field) =>
+              field.type === "Asset"
+                ? Array.isArray(field.value)
+                  ? [
+                      ...prevField,
+                      ...field.value.reduce(
+                        (prevVal: string[], val: string) => [...prevVal, val],
+                        [],
+                      ),
+                    ]
+                  : [...prevField, field.value]
+                : [],
+            [],
+          ) ?? []),
+        ];
+      }, []),
+    );
+  }, [data]);
+
   const handleItemsReload = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -89,8 +125,6 @@ export default () => {
   const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
     selectedRowKeys: [],
   });
-
-  const { assetList } = useAssetHooks();
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
@@ -108,9 +142,16 @@ export default () => {
                       field.type === "Asset"
                         ? Array.isArray(field.value)
                           ? field.value
-                              .map(value => assetList.find(asset => asset.id === value)?.fileName)
+                              .map(
+                                value =>
+                                  (assetList?.nodes as GQLAsset[]).find(
+                                    asset => asset?.id === value,
+                                  )?.fileName,
+                              )
                               .join(", ")
-                          : assetList.find(asset => asset.id === field.value)?.fileName
+                          : (assetList?.nodes as GQLAsset[]).find(
+                              asset => asset?.id === field.value,
+                            )?.fileName
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value,
