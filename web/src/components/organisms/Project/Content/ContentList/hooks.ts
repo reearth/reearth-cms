@@ -56,7 +56,6 @@ export default () => {
   const [assetListIds, setAssetListIds] = useState<string[] | undefined>([]);
 
   const { data: assetList, loading: loadingAssets } = useGetAssetsByIdQuery({
-    fetchPolicy: "no-cache",
     variables: {
       id: assetListIds as string[],
       withFiles: false,
