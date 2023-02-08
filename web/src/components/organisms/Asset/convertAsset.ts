@@ -31,7 +31,7 @@ export const convertComment = (GQLComment: GQLComment): Comment => {
     id: GQLComment.id,
     author: {
       id: GQLComment.author?.id,
-      name: GQLComment.author?.name ?? "",
+      name: GQLComment.author?.name ?? "Anonymous",
       type: GQLComment.author
         ? GQLComment.author.__typename === "User"
           ? "User"
