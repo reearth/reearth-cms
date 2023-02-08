@@ -80,10 +80,16 @@ const ThreadCommentMolecule: React.FC<Props> = ({
               />
             }
             offset={[0, 24]}>
-            <UserAvatar username={comment.author.name} />
+            <UserAvatar
+              username={comment.author.name}
+              anonymous={comment.author.name === "Anonymous"}
+            />
           </Badge>
         ) : (
-          <UserAvatar username={comment.author.name} />
+          <UserAvatar
+            username={comment.author.name}
+            anonymous={comment.author.name === "Anonymous"}
+          />
         )
       }
       content={
