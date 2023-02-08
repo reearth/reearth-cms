@@ -144,12 +144,12 @@ export default () => {
                           ? field.value
                               .map(
                                 value =>
-                                  (assetList?.nodes as GQLAsset[]).find(
+                                  (assetList?.nodes as GQLAsset[])?.find(
                                     asset => asset?.id === value,
                                   )?.fileName,
                               )
                               .join(", ")
-                          : (assetList?.nodes as GQLAsset[]).find(
+                          : (assetList?.nodes as GQLAsset[])?.find(
                               asset => asset?.id === field.value,
                             )?.fileName
                         : Array.isArray(field.value)
