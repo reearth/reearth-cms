@@ -55,7 +55,7 @@ export default () => {
   });
   const [assetListIds, setAssetListIds] = useState<string[] | undefined>([]);
 
-  const { data: assetList } = useGetAssetsByIdQuery({
+  const { data: assetList, loading: loadingAssets } = useGetAssetsByIdQuery({
     fetchPolicy: "no-cache",
     variables: {
       id: assetListIds as string[],
@@ -74,7 +74,11 @@ export default () => {
     setSearchTerm(searchTermParam ?? "");
   }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
 
-  const { data, refetch, loading } = useSearchItemQuery({
+  const {
+    data,
+    refetch,
+    loading: loadingItems,
+  } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
       query: {
@@ -294,7 +298,7 @@ export default () => {
 
   return {
     currentModel,
-    loading,
+    loading: loadingAssets || loadingItems,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,
