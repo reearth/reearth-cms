@@ -20,6 +20,7 @@ export type Model = {
 };
 
 export type ModelDataType = {
+  id: string;
   name: string;
   public: JSX.Element;
 };
@@ -116,11 +117,26 @@ const Accessibility: React.FC<Props> = ({
       align: "right",
       width: 72,
     },
+    {
+      title: t("End point"),
+      dataIndex: "endpoint",
+      key: "endpoint",
+      render: (_, modelData: ModelDataType) => {
+        return (
+          <a
+            style={{ textDecoration: "underline", color: "#000000D9" }}
+            href={window.REEARTH_CONFIG?.api + "/models/" + modelData.id + "/xxx/xxx"}>
+            {window.REEARTH_CONFIG?.api}/models/{modelData.id}/xxx/xxx
+          </a>
+        );
+      },
+    },
   ];
 
   const dataSource: ModelDataType[] | undefined = useMemo(() => {
     let columns = [
       {
+        id: "assets",
         name: t("Assets"),
         public: (
           <Switch
@@ -135,6 +151,7 @@ const Accessibility: React.FC<Props> = ({
       columns = [
         ...models.map(m => {
           return {
+            id: m.id,
             name: m.name ?? "",
             public: (
               <Switch
@@ -160,25 +177,26 @@ const Accessibility: React.FC<Props> = ({
   return (
     <InnerContent title={t("Accessibility")} flexChildren>
       <ContentSection title="">
-        <Form form={form} style={{ maxWidth: 304 }} layout="vertical" autoComplete="off">
-          <Form.Item
-            label={t("Public Scope")}
-            extra={t(
-              "Choose the scope of your project. This affects all the models shown below that are switched on.",
-            )}>
-            <Select value={scope} onChange={changeScope}>
-              {publicScopeList.map(type => (
-                <Select.Option key={type.id} value={type.value}>
-                  {type.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+        <Form form={form} layout="vertical" autoComplete="off">
+          <ItemsWrapper>
+            <Form.Item
+              label={t("Public Scope")}
+              extra={t(
+                "Choose the scope of your project. This affects all the models shown below that are switched on.",
+              )}>
+              <Select value={scope} onChange={changeScope}>
+                {publicScopeList.map(type => (
+                  <Select.Option key={type.id} value={type.value}>
+                    {type.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item label={t("Project Alias")}>
-            <Input value={aliasState} onChange={handlerAliasChange} />
-          </Form.Item>
-
+            <Form.Item label={t("Project Alias")}>
+              <Input value={aliasState} onChange={handlerAliasChange} />
+            </Form.Item>
+          </ItemsWrapper>
           <TableWrapper>
             <Table dataSource={dataSource} columns={columns} pagination={false} />
           </TableWrapper>
@@ -193,7 +211,10 @@ const Accessibility: React.FC<Props> = ({
 
 export default Accessibility;
 
+const ItemsWrapper = styled.div`
+  max-width: 304px;
+`;
+
 const TableWrapper = styled.div`
-  width: 304px;
   margin: 24px 0;
 `;
