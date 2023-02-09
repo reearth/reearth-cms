@@ -57,7 +57,10 @@ export default () => {
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
-  const [uploadUrl, setUploadUrl] = useState<string>("");
+  const [uploadUrl, setUploadUrl] = useState<{ url: string; autoUnzip: boolean }>({
+    url: "",
+    autoUnzip: true,
+  });
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -106,7 +109,7 @@ export default () => {
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
-    setUploadUrl("");
+    setUploadUrl({ url: "", autoUnzip: false });
     setUploadType("local");
   }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
 
@@ -146,12 +149,18 @@ export default () => {
   );
 
   const handleAssetCreateFromUrl = useCallback(
-    async (url: string) => {
+    async (url: string, autoUnzip: boolean) => {
       if (!projectId) return undefined;
       setUploading(true);
       try {
         const result = await createAssetMutation({
-          variables: { projectId, file: null, url, withFiles: false },
+          variables: {
+            projectId,
+            file: null,
+            url,
+            withFiles: false,
+            skipDecompression: !autoUnzip,
+          },
         });
         if (result.data?.createAsset) {
           Notification.success({ message: t("Successfully added asset!") });
