@@ -5,6 +5,7 @@ PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 Model: モデル
 Switch: 切り替え
+End point: ''
 Assets: アセット
 Private: 非公開
 Public: 公開
@@ -149,6 +150,8 @@ Once the integration is removed, it will disappear from all workspaces.: イン�
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
 Integration Token: インテグレーショントークン
+Code Example: ''
+your model id here: ''
 Update: アップデート
 Publish: 公開
 Unpublish: 非公開
