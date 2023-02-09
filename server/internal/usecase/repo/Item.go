@@ -23,6 +23,7 @@ type Item interface {
 	FindBySchema(context.Context, id.SchemaID, *version.Ref, *usecasex.Sort, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *version.Ref, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByModel(context.Context, id.ModelID, *version.Ref, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
+	FindByAssets(context.Context, id.AssetIDList, *version.Ref) (item.VersionedList, error)
 	Search(context.Context, *item.Query, *usecasex.Sort, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
 	FindAllVersionsByID(context.Context, id.ItemID) (item.VersionedList, error)
 	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue, *version.Ref) (item.VersionedList, error)

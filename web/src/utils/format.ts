@@ -1,7 +1,7 @@
 import moment from "moment";
 
-export const dateTimeFormat = (date?: Date | string, format = "YYYY-MM-DD hh:mm") => {
-  return `${moment(date).format(format)}`;
+export const dateTimeFormat = (date?: Date | string, format = "YYYY-MM-DD HH:mm", local = true) => {
+  return local ? `${moment.utc(date).local().format(format)}` : `${moment(date).format(format)}`;
 };
 
 export const bytesFormat = (bytes: number, decimals = 2) => {

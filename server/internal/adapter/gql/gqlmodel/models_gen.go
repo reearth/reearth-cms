@@ -63,6 +63,7 @@ type Asset struct {
 	CreatedBy               Operator                 `json:"createdBy"`
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
+	Items                   []*AssetItem             `json:"items"`
 	FileName                string                   `json:"fileName"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType"`
@@ -97,18 +98,25 @@ type AssetFile struct {
 	Children    []*AssetFile `json:"children"`
 }
 
+type AssetItem struct {
+	ItemID  ID `json:"itemId"`
+	ModelID ID `json:"modelId"`
+}
+
 type AssetSort struct {
 	SortBy    AssetSortType  `json:"sortBy"`
 	Direction *SortDirection `json:"direction"`
 }
 
 type Comment struct {
-	ID         ID           `json:"id"`
-	Author     Operator     `json:"author"`
-	AuthorType OperatorType `json:"authorType"`
-	AuthorID   ID           `json:"authorId"`
-	Content    string       `json:"content"`
-	CreatedAt  time.Time    `json:"createdAt"`
+	ID          ID           `json:"id"`
+	ThreadID    ID           `json:"threadId"`
+	WorkspaceID ID           `json:"workspaceId"`
+	Author      Operator     `json:"author"`
+	AuthorType  OperatorType `json:"authorType"`
+	AuthorID    ID           `json:"authorId"`
+	Content     string       `json:"content"`
+	CreatedAt   time.Time    `json:"createdAt"`
 }
 
 type CommentPayload struct {

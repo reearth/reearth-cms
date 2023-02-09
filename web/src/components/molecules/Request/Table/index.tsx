@@ -4,7 +4,6 @@ import { Key } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, {
   ListToolBarProps,
@@ -215,7 +214,6 @@ const RequestListTable: React.FC<Props> = ({
         <DeselectButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
         </DeselectButton>
-        <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
         <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
           <Icon icon="delete" /> {t("Close")}
         </DeleteButton>

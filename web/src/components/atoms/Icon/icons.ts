@@ -42,6 +42,7 @@ import {
   CheckOutlined,
   FileTwoTone,
   PictureTwoTone,
+  LoadingOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -115,4 +116,5 @@ export default {
   check: CheckOutlined,
   fileTwoTone: FileTwoTone,
   pictureTwoTone: PictureTwoTone,
+  loading: LoadingOutlined,
 };

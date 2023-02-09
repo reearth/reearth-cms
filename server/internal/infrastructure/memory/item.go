@@ -22,6 +22,11 @@ type Item struct {
 	err  error
 }
 
+func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewItem() repo.Item {
 	return &Item{
 		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
