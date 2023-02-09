@@ -17,6 +17,7 @@ export type Model = {
   id: string;
   name?: string;
   public: boolean;
+  key: string;
 };
 
 export type ModelDataType = {
@@ -24,6 +25,7 @@ export type ModelDataType = {
   name: string;
   public: JSX.Element;
   publicState: boolean;
+  key: string;
 };
 
 export type Props = {
@@ -129,9 +131,9 @@ const Accessibility: React.FC<Props> = ({
             <a
               target="_blank"
               style={{ textDecoration: "underline", color: "#000000D9" }}
-              href={window.REEARTH_CONFIG?.api + "/p/" + alias + "/" + modelData.id}
+              href={window.REEARTH_CONFIG?.api + "/p/" + alias + "/" + modelData.key}
               rel="noreferrer">
-              {window.REEARTH_CONFIG?.api}/p/{alias}/{modelData.id}
+              {window.REEARTH_CONFIG?.api}/p/{alias}/{modelData.key}
             </a>
           )
         );
@@ -144,6 +146,7 @@ const Accessibility: React.FC<Props> = ({
       {
         id: "assets",
         name: t("Assets"),
+        key: "assets",
         publicState: assetState ?? false,
         public: (
           <Switch
@@ -160,12 +163,13 @@ const Accessibility: React.FC<Props> = ({
           return {
             id: m.id,
             name: m.name ?? "",
+            key: m.key,
             publicState: m.public,
             public: (
               <Switch
                 checked={m.public}
                 onChange={(publicState: boolean) =>
-                  handleUpdatedModels({ id: m.id, public: publicState })
+                  handleUpdatedModels({ id: m.id, public: publicState, key: m.key })
                 }
               />
             ),
