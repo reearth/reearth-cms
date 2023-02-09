@@ -109,7 +109,7 @@ export default () => {
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
-    setUploadUrl({ url: "", autoUnzip: false });
+    setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
   }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
 
