@@ -106,11 +106,6 @@ func TestVerification_IsExpired(t *testing.T) {
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	tim2 := time.Now().Add(time.Hour * 24)
 
-	type fields struct {
-		verified   bool
-		code       string
-		expiration time.Time
-	}
 	tests := []struct {
 		name         string
 		verification *Verification
