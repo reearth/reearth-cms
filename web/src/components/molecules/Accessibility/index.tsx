@@ -23,6 +23,7 @@ export type ModelDataType = {
   id: string;
   name: string;
   public: JSX.Element;
+  publicState: boolean;
 };
 
 export type Props = {
@@ -109,6 +110,7 @@ const Accessibility: React.FC<Props> = ({
       title: t("Model"),
       dataIndex: "name",
       key: "name",
+      width: 220,
     },
     {
       title: t("Switch"),
@@ -123,11 +125,15 @@ const Accessibility: React.FC<Props> = ({
       key: "endpoint",
       render: (_, modelData: ModelDataType) => {
         return (
-          <a
-            style={{ textDecoration: "underline", color: "#000000D9" }}
-            href={window.REEARTH_CONFIG?.api + "/models/" + modelData.id + "/xxx/xxx"}>
-            {window.REEARTH_CONFIG?.api}/models/{modelData.id}/xxx/xxx
-          </a>
+          modelData.publicState && (
+            <a
+              target="_blank"
+              style={{ textDecoration: "underline", color: "#000000D9" }}
+              href={window.REEARTH_CONFIG?.api + "/p/" + alias + "/" + modelData.id}
+              rel="noreferrer">
+              {window.REEARTH_CONFIG?.api}/p/{alias}/{modelData.id}
+            </a>
+          )
         );
       },
     },
@@ -138,6 +144,7 @@ const Accessibility: React.FC<Props> = ({
       {
         id: "assets",
         name: t("Assets"),
+        publicState: assetState ?? false,
         public: (
           <Switch
             checked={assetState}
@@ -153,6 +160,7 @@ const Accessibility: React.FC<Props> = ({
           return {
             id: m.id,
             name: m.name ?? "",
+            publicState: m.public,
             public: (
               <Switch
                 checked={m.public}
