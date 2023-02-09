@@ -65,6 +65,7 @@ export type Asset = Node & {
   file: AssetFile;
   fileName: Scalars['String'];
   id: Scalars['ID'];
+  items?: Maybe<Array<AssetItem>>;
   previewType?: Maybe<PreviewType>;
   project: Project;
   projectId: Scalars['ID'];
@@ -96,6 +97,12 @@ export type AssetFile = {
   name: Scalars['String'];
   path: Scalars['String'];
   size: Scalars['FileSize'];
+};
+
+export type AssetItem = {
+  __typename?: 'AssetItem';
+  itemId: Scalars['ID'];
+  modelId: Scalars['ID'];
 };
 
 export type AssetSort = {
@@ -1495,6 +1502,14 @@ export type GetAssetQueryVariables = Exact<{
 
 export type GetAssetQuery = { __typename?: 'Query', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } };
 
+export type GetAssetsByIdQueryVariables = Exact<{
+  id: Array<Scalars['ID']> | Scalars['ID'];
+  withFiles: Scalars['Boolean'];
+}>;
+
+
+export type GetAssetsByIdQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset', id: string, projectId: string, createdAt: Date, createdByType: OperatorType, fileName: string, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, file?: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null> };
+
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
   file?: InputMaybe<Scalars['Upload']>;
@@ -2314,6 +2329,44 @@ export function useGetAssetLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
 export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
 export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
 export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
+export const GetAssetsByIdDocument = gql`
+    query GetAssetsById($id: [ID!]!, $withFiles: Boolean!) {
+  nodes(id: $id, type: ASSET) {
+    ... on Asset {
+      ...assetFragment
+    }
+  }
+}
+    ${AssetFragmentFragmentDoc}`;
+
+/**
+ * __useGetAssetsByIdQuery__
+ *
+ * To run a query within a React component, call `useGetAssetsByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetsByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetsByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      withFiles: // value for 'withFiles'
+ *   },
+ * });
+ */
+export function useGetAssetsByIdQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsByIdQuery, GetAssetsByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAssetsByIdQuery, GetAssetsByIdQueryVariables>(GetAssetsByIdDocument, options);
+      }
+export function useGetAssetsByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsByIdQuery, GetAssetsByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAssetsByIdQuery, GetAssetsByIdQueryVariables>(GetAssetsByIdDocument, options);
+        }
+export type GetAssetsByIdQueryHookResult = ReturnType<typeof useGetAssetsByIdQuery>;
+export type GetAssetsByIdLazyQueryHookResult = ReturnType<typeof useGetAssetsByIdLazyQuery>;
+export type GetAssetsByIdQueryResult = Apollo.QueryResult<GetAssetsByIdQuery, GetAssetsByIdQueryVariables>;
 export const CreateAssetDocument = gql`
     mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $skipDecompression: Boolean, $withFiles: Boolean!) {
   createAsset(
