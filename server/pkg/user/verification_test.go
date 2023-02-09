@@ -112,13 +112,13 @@ func TestVerification_IsExpired(t *testing.T) {
 		expiration time.Time
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   bool
+		name         string
+		verification *Verification
+		want         bool
 	}{
 		{
 			name: "should be expired",
-			fields: fields{
+			verification: &Verification{
 				verified:   false,
 				code:       "xxx",
 				expiration: tim,
@@ -127,24 +127,24 @@ func TestVerification_IsExpired(t *testing.T) {
 		},
 		{
 			name: "shouldn't be expired",
-			fields: fields{
+			verification: &Verification{
 				verified:   false,
 				code:       "xxx",
 				expiration: tim2,
 			},
 			want: false,
 		},
+		{
+			name:         "nil",
+			verification: nil,
+			want:         true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			v := &Verification{
-				verified:   tc.fields.verified,
-				code:       tc.fields.code,
-				expiration: tc.fields.expiration,
-			}
-			assert.Equal(tt, tc.want, v.IsExpired())
+			assert.Equal(tt, tc.want, tc.verification.IsExpired())
 		})
 	}
 }
