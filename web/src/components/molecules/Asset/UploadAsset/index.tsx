@@ -12,9 +12,9 @@ type Props = {
   fileList: UploadFile<File>[];
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   displayUploadModal: () => void;

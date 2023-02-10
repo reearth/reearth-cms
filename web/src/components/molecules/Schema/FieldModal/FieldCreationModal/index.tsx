@@ -46,7 +46,7 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -57,10 +57,10 @@ export type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;

@@ -41,7 +41,7 @@ export interface Props {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
@@ -55,13 +55,13 @@ export interface Props {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
