@@ -17,7 +17,7 @@ export type Model = {
   id: string;
   name?: string;
   public: boolean;
-  key: string;
+  key?: string;
 };
 
 export type ModelDataType = {
@@ -25,7 +25,7 @@ export type ModelDataType = {
   name: string;
   public: JSX.Element;
   publicState: boolean;
-  key: string;
+  key?: string;
 };
 
 export type Props = {
@@ -127,7 +127,8 @@ const Accessibility: React.FC<Props> = ({
       key: "endpoint",
       render: (_, modelData: ModelDataType) => {
         return (
-          modelData.publicState && (
+          modelData.publicState &&
+          modelData.key && (
             <a
               target="_blank"
               style={{ textDecoration: "underline", color: "#000000D9" }}
@@ -146,7 +147,6 @@ const Accessibility: React.FC<Props> = ({
       {
         id: "assets",
         name: t("Assets"),
-        key: "assets",
         publicState: assetState ?? false,
         public: (
           <Switch
