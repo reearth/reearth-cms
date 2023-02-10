@@ -24,7 +24,7 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   selectedAsset: Asset | undefined;
   totalCount: number;
@@ -34,10 +34,10 @@ type Props = {
   searchTerm: string;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (asset: Asset) => void;
@@ -89,7 +89,7 @@ const AssetList: React.FC<Props> = ({
 
   const handleUpload = useCallback(async () => {
     if (uploadType === "url") {
-      await onAssetCreateFromUrl(uploadUrl);
+      await onAssetCreateFromUrl(uploadUrl.url, uploadUrl.autoUnzip);
     } else {
       await onAssetsCreate(fileList);
     }
