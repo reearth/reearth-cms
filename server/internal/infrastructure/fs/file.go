@@ -102,11 +102,12 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 
 	p := getFSObjectPath(uuid, file.Path)
 
-	if err := f.upload(ctx, p, file.Content); err != nil {
+	size, err := f.upload(ctx, p, file.Content)
+	if err != nil {
 		return "", 0, err
 	}
 
-	return uuid, file.Size, nil
+	return uuid, size, nil
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
@@ -142,30 +143,31 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 	return file, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) error {
+func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
 	if filename == "" || content == nil {
-		return gateway.ErrFailedToUploadFile
+		return 0, gateway.ErrFailedToUploadFile
 	}
 
 	if fnd := path.Dir(filename); fnd != "" {
 		if err := f.fs.MkdirAll(fnd, 0755); err != nil {
-			return rerror.ErrInternalBy(err)
+			return 0, rerror.ErrInternalBy(err)
 		}
 	}
 
 	dest, err := f.fs.Create(filename)
 	if err != nil {
-		return rerror.ErrInternalBy(err)
+		return 0, rerror.ErrInternalBy(err)
 	}
 	defer func() {
 		_ = dest.Close()
 	}()
 
-	if _, err := io.Copy(dest, content); err != nil {
-		return gateway.ErrFailedToUploadFile
+	var size int64
+	if size, err = io.Copy(dest, content); err != nil {
+		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	return nil
+	return size, nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {

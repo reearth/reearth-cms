@@ -90,7 +90,7 @@ paths:
         - bearerAuth: []
       summary: Returns a list of items.
       tags:
-        - Project items
+        - Items project
       description: Returns a list of items with filtering and ordering.
       parameters:
         - $ref: '#/components/parameters/sortParam'
@@ -128,7 +128,7 @@ paths:
     post:
       operationId: ItemCreateWithProject
       tags:
-        - Project items
+        - Items project
       security:
         - bearerAuth: []
       requestBody:
@@ -241,7 +241,7 @@ paths:
     get:
       operationId: ItemCommentList
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       responses:
@@ -265,7 +265,7 @@ paths:
     post:
       operationId: ItemCommentCreate
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       requestBody:
@@ -297,7 +297,7 @@ paths:
     patch:
       operationId: ItemCommentUpdate
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       summary: Update Item Comment
@@ -327,7 +327,7 @@ paths:
     delete:
       operationId: ItemCommentDelete
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       responses:
@@ -380,7 +380,7 @@ paths:
     get:
       operationId: AssetFilter
       tags:
-        - Assets
+        - Assets project
       security:
         - bearerAuth: []
       summary: Returns a list of assets.
@@ -420,7 +420,7 @@ paths:
     post:
       operationId: AssetCreate
       tags:
-        - Assets
+        - Assets project
       security:
         - bearerAuth: []
       summary: Create an new asset.
@@ -504,7 +504,7 @@ paths:
     get:
       operationId: AssetCommentList
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       responses:
@@ -528,7 +528,7 @@ paths:
     post:
       operationId: AssetCommentCreate
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       requestBody:
@@ -560,7 +560,7 @@ paths:
     patch:
       operationId: AssetCommentUpdate
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       summary: Update AssetComment
@@ -590,7 +590,7 @@ paths:
     delete:
       operationId: AssetCommentDelete
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       responses:
