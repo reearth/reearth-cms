@@ -23,7 +23,7 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -34,10 +34,10 @@ type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -76,6 +76,7 @@ const AssetItem: React.FC<Props> = ({
   const t = useT();
   const {
     asset,
+    loading,
     visible,
     handleClick,
     handleLinkAssetModalCancel,
@@ -140,7 +141,7 @@ const AssetItem: React.FC<Props> = ({
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
-            <Icon icon="linkSolid" size={14} />
+            {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
