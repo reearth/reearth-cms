@@ -25,7 +25,7 @@ const MultiValueSwitch: React.FC<Props> = ({ className, checked = [], onChange, 
   );
 
   useEffect(() => {
-    if (typeof checked === "string") onChange?.([checked]);
+    if (typeof checked === "string" || typeof checked === "boolean") onChange?.([checked]);
     else if (!checked) onChange?.([]);
   }, [onChange, checked]);
 
@@ -62,6 +62,7 @@ const MultiValueSwitch: React.FC<Props> = ({ className, checked = [], onChange, 
               </>
             )}
             <Switch onChange={(e: boolean) => handleInput(e, key)} checked={valueItem} />
+            <FlexSpace />
             {!disabled && (
               <FieldButton
                 type="link"
@@ -90,10 +91,15 @@ export default MultiValueSwitch;
 
 const FieldWrapper = styled.div`
   display: flex;
+  align-items: center;
   margin: 8px 0;
 `;
 
 const FieldButton = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
+`;
+
+const FlexSpace = styled.div`
+  flex: 1;
 `;
