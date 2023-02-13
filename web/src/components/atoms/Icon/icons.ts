@@ -47,6 +47,7 @@ import {
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import Asset from "./Icons/asset.svg";
+import Boolean from "./Icons/boolean.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
@@ -86,6 +87,7 @@ export default {
   inbox: InboxOutlined,
   fullscreen: FullscreenOutlined,
   textT: Text,
+  boolean: Boolean,
   textAlignLeft: TextAlignLeft,
   markdown: MarkDown,
   asset: Asset,
