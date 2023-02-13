@@ -8,10 +8,10 @@ import { useGetAssetQuery, Asset as GQLAsset } from "@reearth-cms/gql/graphql-cl
 
 export default (
   fileList: UploadFile[],
-  uploadUrl: string,
+  uploadUrl: { url: string; autoUnzip: boolean },
   uploadType: UploadType,
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>,
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>,
   setUploadModalVisibility: (visible: boolean) => void,
   onChange?: (value: string) => void,
   value?: string,
@@ -31,7 +31,7 @@ export default (
 
   const handleAssetUpload = useCallback(async () => {
     if (uploadType === "url") {
-      return (await onAssetCreateFromUrl(uploadUrl)) ?? undefined;
+      return (await onAssetCreateFromUrl(uploadUrl.url, uploadUrl.autoUnzip)) ?? undefined;
     } else {
       const assets = await onAssetsCreate(fileList);
       return assets?.length > 0 ? assets[0] : undefined;

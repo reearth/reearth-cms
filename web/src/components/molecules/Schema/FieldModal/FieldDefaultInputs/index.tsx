@@ -9,6 +9,7 @@ import {
 import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
+import BooleanField from "./BooleanField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
@@ -26,7 +27,7 @@ export interface Props {
   uploading: boolean;
   defaultValue?: string;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -37,10 +38,10 @@ export interface Props {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -81,6 +82,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <MarkdownField multiple={multiple} />
     ) : selectedType === "Integer" ? (
       <IntegerField multiple={multiple} />
+    ) : selectedType === "Bool" ? (
+      <BooleanField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
         multiple={multiple}

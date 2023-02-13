@@ -46,6 +46,9 @@ export const GET_MODELS = gql`
                 min
                 max
               }
+              ... on SchemaFieldBool {
+                defaultValue
+              }
               ... on SchemaFieldURL {
                 defaultValue
               }
