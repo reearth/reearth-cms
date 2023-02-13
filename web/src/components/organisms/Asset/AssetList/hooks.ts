@@ -238,11 +238,14 @@ export default () => {
     [setCollapsed, setSelectedAssetId],
   );
 
-  const handleAssetItemSelect = useCallback((assetItem: AssetItem) => {
-    navigate(
-      `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
-    );
-  }, []);
+  const handleAssetItemSelect = useCallback(
+    (assetItem: AssetItem) => {
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
+      );
+    },
+    [navigate, projectId, workspaceId],
+  );
 
   const handleToggleCommentMenu = useCallback(
     (value: boolean) => {
