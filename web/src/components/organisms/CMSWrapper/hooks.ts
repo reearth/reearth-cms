@@ -10,7 +10,7 @@ import {
   ProjectPublicationScope,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject } from "@reearth-cms/state";
+import { useWorkspace, useProject, useUserId } from "@reearth-cms/state";
 import { splitPathname } from "@reearth-cms/utils/path";
 
 export default () => {
@@ -20,6 +20,7 @@ export default () => {
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
 
+  const [, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [currentProject, setCurrentProject] = useProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
@@ -32,6 +33,8 @@ export default () => {
   const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
 
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
+
+  setCurrentUserId(data?.me?.id);
 
   const handleCollapse = useCallback((collapse: boolean) => {
     setCollapsed(collapse);

@@ -1,4 +1,5 @@
 import { atom, useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -12,8 +13,11 @@ export type Workspace = {
   personal?: boolean;
 };
 
-const workspace = atom<Workspace | undefined>(undefined);
+const workspace = atomWithStorage<Workspace | undefined>("workspace", undefined);
 export const useWorkspace = () => useAtom(workspace);
+
+const userId = atomWithStorage<string | undefined>("userId", undefined);
+export const useUserId = () => useAtom(userId);
 
 export type Project = {
   id: string;
