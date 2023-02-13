@@ -159,6 +159,8 @@ export default () => {
                             )?.fileName
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
+                        : field.value
+                        ? "" + field.value
                         : field.value,
                   }),
                 {},

@@ -28,6 +28,10 @@ const FieldList: React.FC<Props> = ({ addField }) => {
       fields: ["Asset"],
     },
     {
+      title: t("Boolean"),
+      fields: ["Bool"],
+    },
+    {
       title: t("Select"),
       fields: ["Select"],
     },
