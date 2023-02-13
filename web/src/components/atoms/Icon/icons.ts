@@ -50,6 +50,7 @@ import Asset from "./Icons/asset.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
+import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
@@ -117,4 +118,5 @@ export default {
   fileTwoTone: FileTwoTone,
   pictureTwoTone: PictureTwoTone,
   loading: LoadingOutlined,
+  linked: Linked,
 };

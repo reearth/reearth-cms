@@ -3,7 +3,7 @@ import { matchPath, useLocation, useNavigate, useParams, useSearchParams } from 
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
@@ -238,6 +238,12 @@ export default () => {
     [setCollapsed, setSelectedAssetId],
   );
 
+  const handleAssetItemSelect = useCallback((assetItem: AssetItem) => {
+    navigate(
+      `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
+    );
+  }, []);
+
   const handleToggleCommentMenu = useCallback(
     (value: boolean) => {
       setCollapsed(value);
@@ -293,6 +299,7 @@ export default () => {
     pageSize,
     sort,
     handleToggleCommentMenu,
+    handleAssetItemSelect,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
