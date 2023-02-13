@@ -189,6 +189,7 @@ CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
 Text: テキスト
+Boolean: ''
 Select: セレクト
 Number: 数値
 Add Field: フィールドを追加
@@ -218,6 +219,7 @@ Multi line text: 複数行テキスト
 Markdown text: マークダウン
 Rich text which supports md style: マークダウン対応のリッチテキスト
 Asset file: アセット
+true/false field: ''
 Option: 選択
 Multiple select: 複数選択
 Int: 整数値
