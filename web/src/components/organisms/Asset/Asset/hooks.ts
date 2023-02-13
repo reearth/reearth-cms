@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Asset, PreviewType, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import {
+  Asset,
+  AssetItem,
+  PreviewType,
+  ViewerType,
+} from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   geoFormats,
@@ -25,6 +31,8 @@ import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
   const t = useT();
+  const navigate = useNavigate();
+  const { workspaceId, projectId } = useParams();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -120,6 +128,15 @@ export default (assetId?: string) => {
     }
   }, [viewerType]);
 
+  const handleAssetItemSelect = useCallback(
+    (assetItem: AssetItem) => {
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
+      );
+    },
+    [navigate, projectId, workspaceId],
+  );
+
   const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
   }, []);
@@ -140,6 +157,7 @@ export default (assetId?: string) => {
     collapsed,
     viewerType,
     displayUnzipFileList,
+    handleAssetItemSelect,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
