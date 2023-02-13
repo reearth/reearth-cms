@@ -57,8 +57,6 @@ const ModelFieldList: React.FC<Props> = ({
   };
 
   const onDragEnd = (fromIndex: number, toIndex: number) => {
-    console.log("here");
-    console.log(fromIndex, toIndex);
     if (toIndex < 0) return;
     return setData(reorder(data, fromIndex, toIndex));
   };

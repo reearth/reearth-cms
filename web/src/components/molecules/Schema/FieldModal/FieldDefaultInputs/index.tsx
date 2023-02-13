@@ -9,6 +9,7 @@ import {
 import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
+import BooleanField from "./BooleanField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
@@ -81,6 +82,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <MarkdownField multiple={multiple} />
     ) : selectedType === "Integer" ? (
       <IntegerField multiple={multiple} />
+    ) : selectedType === "Bool" ? (
+      <BooleanField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
         multiple={multiple}
