@@ -202,11 +202,13 @@ const AssetLinkedName = styled(Button)`
   color: #1890ff;
   margin-left: 12px;
   span {
+    text-align: start;
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-all;
   }
 `;
 
