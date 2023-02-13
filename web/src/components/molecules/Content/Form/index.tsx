@@ -142,8 +142,6 @@ const ContentForm: React.FC<Props> = ({
       const values = await form.validateFields();
       const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
-        console.log(values);
-
         fields.push({
           value: (value || "") as string,
           schemaFieldId: key,
