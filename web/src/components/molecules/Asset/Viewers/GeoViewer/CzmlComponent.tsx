@@ -9,8 +9,6 @@ const CzmlComponent: React.FC<Props> = ({ data }) => {
 
   const handleLoad = useCallback(
     async (ds: CzmlDataSource) => {
-      console.log(ds);
-
       try {
         await viewer?.zoomTo(ds);
         ds.show = true;
