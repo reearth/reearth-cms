@@ -18,6 +18,7 @@ const Asset: React.FC = () => {
     collapsed,
     viewerType,
     displayUnzipFileList,
+    handleAssetItemSelect,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
@@ -53,6 +54,7 @@ const Asset: React.FC = () => {
       isModalVisible={isModalVisible}
       viewerType={viewerType}
       displayUnzipFileList={displayUnzipFileList}
+      onAssetItemSelect={handleAssetItemSelect}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}
