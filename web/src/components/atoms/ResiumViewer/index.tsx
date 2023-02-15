@@ -50,9 +50,7 @@ const ResiumViewer: React.FC<Props> = ({
     } else if (target.id instanceof Entity) {
       const entity = target.id;
       setTitle(entity.id);
-      if (typeof entity.description === "string") {
-        setDescription(entity.description);
-      }
+      setDescription(entity.description?.getValue(JulianDate.now()));
       props = entity.properties?.getValue(JulianDate.now());
     }
 

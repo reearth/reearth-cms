@@ -19,7 +19,7 @@ export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset | undefined 
     previewType: GQLAsset.previewType as PreviewType,
     projectId: GQLAsset.projectId,
     size: GQLAsset.size,
-    url: GQLAsset.url,
+    url: "http://localhost:3000/simple.czml",
     threadId: GQLAsset.thread?.id ?? "",
     comments: GQLAsset.thread?.comments?.map(comment => convertComment(comment)) ?? [],
     archiveExtractionStatus: GQLAsset.archiveExtractionStatus as ArchiveExtractionStatus,
