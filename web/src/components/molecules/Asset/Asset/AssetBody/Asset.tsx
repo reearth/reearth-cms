@@ -2,10 +2,11 @@ import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -35,6 +36,7 @@ type Props = {
   isModalVisible: boolean;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
+  onAssetItemSelect: (item: AssetItem) => void;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -52,6 +54,7 @@ const AssetMolecule: React.FC<Props> = ({
   isModalVisible,
   viewerType,
   displayUnzipFileList,
+  onAssetItemSelect,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -130,6 +133,15 @@ const AssetMolecule: React.FC<Props> = ({
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
           <UserAvatar username={asset.createdBy} shadow />
+        </SideBarCard>
+        <SideBarCard title={t("Linked to")}>
+          {asset.items.map(item => (
+            <div key={item.itemId}>
+              <Button style={{ padding: 0 }} type="link" onClick={() => onAssetItemSelect(item)}>
+                {item.itemId}
+              </Button>
+            </div>
+          ))}
         </SideBarCard>
       </SideBarWrapper>
     </BodyContainer>
