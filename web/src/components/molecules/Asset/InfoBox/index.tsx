@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
+import parse from "html-react-parser";
 import { JSONTree } from "react-json-tree";
-import ReactMarkdown from "react-markdown";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -48,8 +48,8 @@ const InfoBox: React.FC<Props> = ({
             <Button type="text" icon={<Icon icon="close" />} onClick={onClose} />
           </Header>
           <Box>
-            <JSONTree data={infoBoxProps ?? {}} theme={theme} />
-            {description && <ReactMarkdown>{description}</ReactMarkdown>}
+            {infoBoxProps && <JSONTree data={infoBoxProps ?? {}} theme={theme} />}
+            {description && parse(description)}
           </Box>
         </InfoBoxWrapper>
       )}

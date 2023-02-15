@@ -17,6 +17,7 @@ type Props = {
   children?: React.ReactNode;
   properties?: any;
   entitySelected?: boolean;
+  showDescription?: boolean;
 } & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const ResiumViewer: React.FC<Props> = ({
   children,
   properties: passedProps,
   entitySelected,
+  showDescription,
   ...props
 }) => {
   let viewer: CesiumViewer | undefined;
@@ -50,7 +52,7 @@ const ResiumViewer: React.FC<Props> = ({
     } else if (target.id instanceof Entity) {
       const entity = target.id;
       setTitle(entity.id);
-      setDescription(entity.description?.getValue(JulianDate.now()));
+      setDescription(showDescription ? entity.description?.getValue(JulianDate.now()) : "");
       props = entity.properties?.getValue(JulianDate.now());
     }
 

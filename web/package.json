@@ -83,6 +83,7 @@
     "formik": "2.2.9",
     "graphiql": "2.2.0",
     "graphql": "16.6.0",
+    "html-react-parser": "^3.0.9",
     "i18next": "21.9.2",
     "i18next-browser-languagedetector": "6.1.5",
     "jotai": "1.11.2",
