@@ -32,6 +32,12 @@ export type Asset = {
   threadId: string;
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
+  items: AssetItem[];
+};
+
+export type AssetItem = {
+  itemId: string;
+  modelId: string;
 };
 
 export type AssetFile = {
