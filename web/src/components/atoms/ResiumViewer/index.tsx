@@ -30,6 +30,7 @@ const ResiumViewer: React.FC<Props> = ({
   const [properties, setProperties] = useState<any>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleClick = useCallback((_movement: CesiumMovementEvent, target: RootEventTarget) => {
     if (!target) {
@@ -49,6 +50,9 @@ const ResiumViewer: React.FC<Props> = ({
     } else if (target.id instanceof Entity) {
       const entity = target.id;
       setTitle(entity.id);
+      if (typeof entity.description === "string") {
+        setDescription(entity.description);
+      }
       props = entity.properties?.getValue(JulianDate.now());
     }
 
@@ -95,6 +99,7 @@ const ResiumViewer: React.FC<Props> = ({
         infoBoxProps={sortedProperties}
         infoBoxVisibility={infoBoxVisibility || !!entitySelected}
         title={title}
+        description={description}
         onClose={handleClose}
       />
     </div>

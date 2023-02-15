@@ -68,8 +68,14 @@ const AssetMolecule: React.FC<Props> = ({
 
   const renderPreview = useCallback(() => {
     switch (true) {
-      case viewerType === "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
+      case viewerType === "geo" || true:
+        return (
+          <GeoViewer
+            url={"https://github.com/CesiumGS/cesium/blob/main/Apps/SampleData/simple.czml"}
+            assetFileExt={assetFileExt}
+            onGetViewer={getViewer}
+          />
+        );
       case viewerType === "geo_3d_tiles":
         return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
       case viewerType === "geo_mvt":
