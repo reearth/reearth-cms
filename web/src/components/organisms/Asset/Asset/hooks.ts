@@ -21,6 +21,7 @@ import {
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
+  useGetAssetItemQuery,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -44,9 +45,21 @@ export default (assetId?: string) => {
     },
   });
 
+  const { data: rawAssetItem } = useGetAssetItemQuery({
+    variables: {
+      assetId: assetId ?? "",
+    },
+  });
+
   const asset: Asset | undefined = useMemo(() => {
     return convertAsset(rawAsset?.asset as GQLAsset);
   }, [rawAsset]);
+
+  useEffect(() => {
+    if (asset && rawAssetItem?.asset.items) {
+      asset.items = rawAssetItem?.asset.items;
+    }
+  }, [asset, rawAssetItem?.asset.items]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
   const handleAssetUpdate = useCallback(

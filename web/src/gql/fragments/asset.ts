@@ -7,10 +7,6 @@ export const assetFragment = gql`
     id
     projectId
     createdAt
-    items {
-      itemId
-      modelId
-    }
     createdBy {
       ... on User {
         id
