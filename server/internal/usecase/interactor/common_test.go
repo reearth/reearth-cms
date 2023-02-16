@@ -67,6 +67,7 @@ func TestCommon_createEvent(t *testing.T) {
 		Operator:  operator.Operator{},
 	})
 	assert.ErrorIs(t, err, event.ErrInvalidID)
+	assert.Nil(t, ev)
 }
 
 func TestCommon_webhook(t *testing.T) {
