@@ -61,6 +61,9 @@ export const requestFragment = gql`
                   min
                   max
                 }
+                ... on SchemaFieldBool {
+                  defaultValue
+                }
                 ... on SchemaFieldURL {
                   defaultValue
                 }

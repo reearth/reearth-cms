@@ -31,7 +31,7 @@ const GeoViewer: React.FC<Props> = ({ viewerProps, url, assetFileExt, onGetViewe
   }, [ext, url]);
 
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
+    <ResiumViewer showDescription={ext === "czml"} {...viewerProps} onGetViewer={onGetViewer}>
       {renderAsset()}
     </ResiumViewer>
   );

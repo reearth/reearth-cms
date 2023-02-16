@@ -4,7 +4,7 @@ import { Key, useCallback } from "react";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import {
@@ -32,6 +32,7 @@ type Props = {
   pageSize: number;
   sort?: { type?: AssetSortType; direction?: SortDirection };
   searchTerm: string;
+  onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -68,6 +69,7 @@ const AssetList: React.FC<Props> = ({
   sort,
   page,
   pageSize,
+  onAssetItemSelect,
   onAssetSelect,
   onUploadModalCancel,
   setUploadUrl,
@@ -147,6 +149,7 @@ const AssetList: React.FC<Props> = ({
             sort={sort}
             page={page}
             pageSize={pageSize}
+            onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
