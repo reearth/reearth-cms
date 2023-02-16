@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -125,7 +126,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.jpg").
 		Size(1000).
 		File(f).
-		UUID(u.ID().String()).
+		UUID(uuid.NewString()).
 		Thread(thId).
 		MustBuild()
 

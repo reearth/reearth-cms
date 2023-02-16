@@ -15,16 +15,9 @@ import (
 
 type AssetFilterType string
 
-const (
-	AssetFilterDate AssetFilterType = "DATE"
-	AssetFilterSize AssetFilterType = "SIZE"
-	AssetFilterName AssetFilterType = "NAME"
-)
-
 type CreateAssetParam struct {
 	ProjectID         idx.ID[id.Project]
 	File              *file.File
-	URL               string
 	SkipDecompression bool
 }
 

@@ -2,10 +2,8 @@ package interactor
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"net/url"
 	"path"
+	"path/filepath"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -13,11 +11,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
-	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -60,7 +56,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	if inp.File == nil && inp.URL == "" {
+	if inp.File == nil {
 		return nil, interfaces.ErrFileNotIncluded
 	}
 
@@ -77,30 +73,13 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			var uuid string
-			var size int64
-			var file *file.File
-			if inp.File != nil {
-				file = inp.File
-				uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
-				if err != nil {
-					return nil, err
-				}
+			uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
+			if err != nil {
+				return nil, err
 			}
-			if inp.URL != "" {
-				file, err = getExternalFile(ctx, inp.URL)
-				if err != nil {
-					return nil, err
-				}
-				uuid, size, err = i.gateways.File.UploadAsset(ctx, file)
-				if err != nil {
-					return nil, err
-				}
-			}
-			file.Size = int64(size)
+			inp.File.Size = size
 
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
-
 			if err != nil {
 				return nil, err
 			}
@@ -108,7 +87,12 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, err
 			}
 
-			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
+			f := asset.NewFile().
+				Name(inp.File.Name).
+				Path(inp.File.Name).
+				Size(uint64(inp.File.Size)).
+				GuessContentType().
+				Build()
 
 			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 			if inp.SkipDecompression {
@@ -118,10 +102,10 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				FileName(path.Base(file.Path)).
-				Size(uint64(file.Size)).
+				FileName(path.Base(inp.File.Name)).
+				Size(uint64(inp.File.Size)).
 				File(f).
-				Type(asset.PreviewTypeFromContentType(file.ContentType)).
+				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
@@ -238,7 +222,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
-					Name(path.Base(f.Name)).
+					Name(filepath.Base(f.Name)).
 					Path(f.Name).
 					GuessContentType().
 					Build()
@@ -274,10 +258,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 
 func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 	for _, entry := range files {
-		if path.Base(entry.Name) == "tileset.json" {
+		if filepath.Base(entry.Name) == "tileset.json" {
 			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
 		}
-		if path.Ext(entry.Name) == ".mvt" {
+		if filepath.Ext(entry.Name) == ".mvt" {
 			return lo.ToPtr(asset.PreviewTypeGeoMvt)
 		}
 	}
@@ -341,31 +325,4 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
-}
-
-func getExternalFile(ctx context.Context, rawURL string) (*file.File, error) {
-	URL, err := url.Parse(rawURL)
-	if err != nil {
-		return nil, err
-	}
-
-	filename := path.Join("/", path.Base(URL.Path))
-	req, err := http.NewRequestWithContext(ctx, "GET", URL.String(), nil)
-	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	client := http.DefaultClient
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	if res.StatusCode > 300 {
-		return nil, rerror.ErrInternalBy(fmt.Errorf("status code is %d", res.StatusCode))
-	}
-	ct := res.Header.Get("Content-Type")
-	file := &file.File{Content: res.Body, Path: filename, ContentType: ct}
-
-	return file, nil
 }

@@ -414,7 +414,8 @@ type AssetCreateJSONBody struct {
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
-	File *openapi_types.File `json:"file,omitempty"`
+	File              *openapi_types.File `json:"file,omitempty"`
+	SkipDecompression *bool               `json:"skipDecompression,omitempty"`
 }
 
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
