@@ -47,9 +47,11 @@ import {
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import Asset from "./Icons/asset.svg";
+import Boolean from "./Icons/boolean.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
+import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
@@ -86,6 +88,7 @@ export default {
   inbox: InboxOutlined,
   fullscreen: FullscreenOutlined,
   textT: Text,
+  boolean: Boolean,
   textAlignLeft: TextAlignLeft,
   markdown: MarkDown,
   asset: Asset,
@@ -117,4 +120,5 @@ export default {
   fileTwoTone: FileTwoTone,
   pictureTwoTone: PictureTwoTone,
   loading: LoadingOutlined,
+  linked: Linked,
 };
