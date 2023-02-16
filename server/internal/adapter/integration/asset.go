@@ -84,10 +84,11 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 			return AssetCreate400Response{}, err
 		}
 		f = &file.File{
-			Content:     fc,
-			Name:        inp.File.Filename(),
-			Size:        inp.File.FileSize(),
-			ContentType: inp.File.ContentType(),
+			Content: fc,
+			Name:    inp.File.Filename(),
+			Size:    inp.File.FileSize(),
+			// ContentType: inp.File.ContentType(),
+			ContentType: "",
 		}
 		skipDecompression = lo.FromPtrOr(inp.SkipDecompression, false)
 	}
