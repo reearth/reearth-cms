@@ -100,6 +100,6 @@
     "react-resizable": "3.0.4",
     "react-router-dom": "6.4.5",
     "react-svg": "15.1.15",
-    "resium": "1.15.1"
+    "resium": "1.16.0"
   }
 }

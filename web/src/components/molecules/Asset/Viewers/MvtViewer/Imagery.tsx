@@ -5,15 +5,19 @@ import {
   ImageryLayer,
   ImageryLayerCollection,
   Math,
-  Entity,
-  CustomDataSource,
-  Color,
+  BoundingSphere,
+  HeadingPitchRange,
+  type Viewer,
 } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
 
-import Input from "@reearth-cms/components/atoms/Input";
+import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
+
+const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
+const defaultRange = 3000000;
+const normalRange = 200000;
 
 type Props = {
   url: string;
@@ -32,75 +36,43 @@ type TileCoordinates = {
 };
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
-  const { viewer } = useCesium();
-  const [isFeatureSelected, setIsFeatureSelected] = useState<boolean>(false);
+  const { viewer } = useCesium() as { viewer: Viewer | undefined };
+  const [selectedFeature, setSelectFeature] = useState<number>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
-  const [layerName, setLayerName] = useState<string>("");
-
-  const getMvtBaseUrl = useCallback((url: string) => {
-    const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-    const compressedExtRegex = /\.zip|\.7z$/;
-    const nameRegex = /\/\w+\.\w+$/;
-    const base = url.match(templateRegex)
-      ? url.replace(templateRegex, "")
-      : url.match(compressedExtRegex)
-      ? url.replace(compressedExtRegex, "")
-      : url.replace(nameRegex, "");
-    return base;
-  }, []);
-
-  const fetchMvtMetaData = useCallback(async (url: string) => {
-    const base = getMvtBaseUrl(url);
-    setUrlTemplate(`${base}/{z}/{x}/{y}.mvt` as URLTemplate);
-    const res = await fetch(`${base}/metadata.json`);
-    return res.ok ? await res?.json() : undefined;
-  }, []);
+  const [currentLayer, setCurrentLayer] = useState("");
+  const [layers, setLayers] = useState<string[]>([]);
 
   const zoomTo = useCallback(
-    async (x: number, y: number, z: number, range: number) => {
-      const entity = new Entity({
-        position: Cartesian3.fromDegrees(x, y, z),
-        point: { pixelSize: 1, color: Color.TRANSPARENT },
-      });
-      const dataSource = new CustomDataSource();
-      dataSource.entities.add(entity);
-      viewer.dataSources.add(dataSource);
-      await viewer.zoomTo(entity, {
-        heading: Math.toRadians(90.0),
-        pitch: Math.toRadians(-90.0),
-        range: range,
-      });
+    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
+      viewer?.camera.flyToBoundingSphere(
+        new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
+        {
+          offset: new HeadingPitchRange(
+            Math.toRadians(90.0),
+            Math.toRadians(-90.0),
+            useDefaultRange ? defaultRange : normalRange,
+          ),
+        },
+      );
     },
     [viewer],
-  );
-
-  const setCameraPosition = useCallback(
-    async (position: string) => {
-      const regex =
-        /[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*,[-]?[0-9]+[,.]?[0-9]*([/][0-9]+[,.]?[0-9]*)*/;
-      if (position?.match(regex)) {
-        const [x, y, z]: number[] = position.split(",").map((s: string) => Number(s));
-        await zoomTo(x, y, z, 200000);
-      } else {
-        // default position
-        await zoomTo(139.767052, 35.681167, 100, 3000000);
-      }
-    },
-    [zoomTo],
   );
 
   const initViewer = useCallback(
     async (url: string) => {
       try {
-        const data = await fetchMvtMetaData(url);
-        if (data?.name) setLayerName(data.name);
-        await setCameraPosition(data?.center);
+        const data = await fetchLayers(url);
+        if (data) {
+          setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
+          setLayers(data.layers ?? []);
+          setCurrentLayer(data.layers?.[0] || "");
+        }
+        zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
-        // TODO: handle the error
         console.error(error);
       }
     },
-    [fetchMvtMetaData, setCameraPosition],
+    [zoomTo],
   );
 
   useEffect(() => {
@@ -108,28 +80,19 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   }, [initViewer, url]);
 
   const style = useCallback(
-    (_feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-      if (isFeatureSelected) {
-        return {
-          strokeStyle: "orange",
-          fillStyle: "orange",
-          lineWidth: 1,
-        };
-      }
-      return {
-        strokeStyle: "red",
-        fillStyle: "red",
-        lineWidth: 1,
-      };
-    },
-    [isFeatureSelected],
+    (f: VectorTileFeature) => ({
+      strokeStyle: selectedFeature === f.id ? "orange" : "red",
+      fillStyle: selectedFeature === f.id ? "orange" : "red",
+      lineWidth: 1,
+    }),
+    [selectedFeature],
   );
 
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
       handleProperties(feature.properties);
       selectFeature(true);
-      setIsFeatureSelected(v => !v);
+      setSelectFeature(feature.id);
     },
     [handleProperties, selectFeature],
   );
@@ -137,7 +100,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   useEffect(() => {
     const imageryProvider = new MVTImageryProvider({
       urlTemplate,
-      layerName,
+      layerName: currentLayer,
       style,
       onSelectFeature,
     });
@@ -153,26 +116,85 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     }
   }, [
     viewer,
-    isFeatureSelected,
+    selectedFeature,
     url,
     urlTemplate,
-    layerName,
+    currentLayer,
+    layers,
     handleProperties,
     selectFeature,
     onSelectFeature,
     style,
   ]);
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setLayerName(e.target.value);
+  const handleChange = useCallback((value: unknown) => {
+    if (typeof value !== "string") return;
+    setCurrentLayer(value);
   }, []);
 
-  return <StyledInput placeholder="Layer name" value={layerName} onChange={handleChange} />;
+  const options = useMemo(() => layers.map(l => ({ label: l })), [layers]);
+
+  return (
+    <StyledInput
+      placeholder="Layer name"
+      value={currentLayer}
+      options={options}
+      onChange={handleChange}
+    />
+  );
 };
 
-const StyledInput = styled(Input)`
+const StyledInput = styled(AutoComplete)`
   position: absolute;
   top: 10px;
   left: 10px;
   width: 147px;
 `;
+
+const getMvtBaseUrl = (url: string) => {
+  const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
+  const compressedExtRegex = /\.zip|\.7z$/;
+  const nameRegex = /\/\w+\.\w+$/;
+  const base = url.match(templateRegex)
+    ? url.replace(templateRegex, "")
+    : url.match(compressedExtRegex)
+    ? url.replace(compressedExtRegex, "")
+    : url.replace(nameRegex, "");
+  return base;
+};
+
+const fetchLayers = async (url: string) => {
+  const base = getMvtBaseUrl(url);
+  const res = await fetch(`${base}/metadata.json`);
+  if (!res.ok) return;
+  return { ...parseMetadata(await res.json()), base };
+};
+
+export function parseMetadata(
+  json: any,
+):
+  | { layers: string[]; center: [lng: number, lat: number, height: number] | undefined }
+  | undefined {
+  if (!json) return;
+
+  let layers: string[] = [];
+  if (typeof json.json === "string") {
+    try {
+      layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
+    } catch {
+      // ignore
+    }
+  }
+
+  let center: [lng: number, lat: number, height: number] | undefined = undefined;
+  try {
+    if (typeof json.center === "string") {
+      const c = (json.center as string).split(",", 3).map(s => parseFloat(s));
+      center = [c[0], c[1], c[2]];
+    }
+  } catch {
+    // ignore
+  }
+
+  return { layers, center };
+}
