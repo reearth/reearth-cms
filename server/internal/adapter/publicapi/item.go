@@ -95,6 +95,6 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 
 	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
 		return NewItem(i, s, assets, c.assetUrlResolver)
-	}), pi, p.Pagination.Cursor != nil)
+	}), pi, p.Pagination)
 	return res, nil
 }
