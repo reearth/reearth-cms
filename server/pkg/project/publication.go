@@ -20,6 +20,15 @@ func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
 	p := &Publication{}
 	p.SetScope(scope)
 	p.SetAssetPublic(assetPublic)
+	p.GenerateToken()
+	return p
+}
+
+func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token string) *Publication {
+	p := &Publication{}
+	p.SetScope(scope)
+	p.SetAssetPublic(assetPublic)
+	p.SetToken(token)
 	return p
 }
 
