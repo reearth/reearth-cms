@@ -20,7 +20,6 @@ func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
 	p := &Publication{}
 	p.SetScope(scope)
 	p.SetAssetPublic(assetPublic)
-	p.GenerateToken()
 	return p
 }
 
@@ -58,6 +57,9 @@ func (p *Publication) GenerateToken() {
 func (p *Publication) SetScope(scope PublicationScope) {
 	if scope != PublicationScopePrivate && scope != PublicationScopeLimited && scope != PublicationScopePublic {
 		scope = PublicationScopePrivate
+	}
+	if scope == PublicationScopeLimited {
+		p.GenerateToken()
 	}
 
 	p.scope = scope
