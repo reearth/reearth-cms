@@ -93,7 +93,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
-	webConfig(e, nil, cfg.Config.Auths())
+	Web(e, cfg.Config.Web, cfg.Config.AuthForWeb(), cfg.Config.Web_Disabled, nil)
 	return e
 }
 
