@@ -140,6 +140,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       value={currentLayer}
       options={options}
       onChange={handleChange}
+      onSelect={handleChange}
     />
   );
 };
