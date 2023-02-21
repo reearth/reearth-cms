@@ -54,13 +54,11 @@ jobs:
           workflow_conclusion: success
           branch: main
           name: reearth-cms-web
-          path: server/web
+          path: server
           check_artifacts: true
           search_artifacts: true
-      - name: Rename artifacts
-        run: ls
-      - name: Rename artifacts 2
-        run: ls web
+      - name: Extract reearth-cms-web
+        run: tar -xvf reearth-cms-web.tar.gz; mv reearth-cms-web web; ls
       #
 
       - name: golangci-lint
