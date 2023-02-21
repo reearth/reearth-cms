@@ -54,7 +54,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     [viewer],
   );
 
-  const initViewer = useCallback(
+  const loadData = useCallback(
     async (url: string) => {
       try {
         const data = await fetchLayers(url);
@@ -71,27 +71,30 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     [zoomTo],
   );
 
-  useEffect(() => {
-    initViewer(url);
-  }, [initViewer, url]);
-
   const style = useCallback(
-    (f: VectorTileFeature) => ({
-      strokeStyle: selectedFeature === f.id ? "orange" : "red",
-      fillStyle: selectedFeature === f.id ? "orange" : "red",
-      lineWidth: 1,
-    }),
+    (f: VectorTileFeature) => {
+      // console.log(f.id);
+      return {
+        strokeStyle: "white",
+        fillStyle: selectedFeature === f.id ? "orange" : "red",
+        lineWidth: 1,
+      };
+    },
     [selectedFeature],
   );
 
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
-      handleProperties(feature.properties);
       selectFeature(true);
       setSelectFeature(feature.id);
+      handleProperties(feature.properties);
     },
     [handleProperties, selectFeature],
   );
+
+  useEffect(() => {
+    loadData(url);
+  }, [loadData, url]);
 
   useEffect(() => {
     const imageryProvider = new MVTImageryProvider({
