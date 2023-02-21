@@ -4,6 +4,5 @@
   "go.lintFlags": [
     "--config=${workspaceFolder}/.golangci.yml"
   ],
-  "gopls": { "experimentalWorkspaceModule": true}
-
+  "go.useLanguageServer": true
 }
