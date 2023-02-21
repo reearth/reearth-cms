@@ -101,11 +101,9 @@ jobs:
           workflow_conclusion: success
           branch: main
           name: reearth-cms-web
-          path: server
+          path: server/web
           check_artifacts: true
           search_artifacts: true
-      - name: Rename artifacts
-        run: mv reearth-cms-web web; ls
       - name: Build and push docker image
         uses: docker/build-push-action@v3
         with:

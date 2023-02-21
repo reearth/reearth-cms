@@ -44,6 +44,25 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      #
+      - name: Fetch reearth-cms-web
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: ci_web.yml
+          workflow_conclusion: success
+          branch: main
+          name: reearth-cms-web
+          path: server/web
+          check_artifacts: true
+          search_artifacts: true
+      - name: Rename artifacts
+        run: ls
+      - name: Rename artifacts 2
+        run: ls web
+      #
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -61,17 +80,3 @@ jobs:
           file: coverage.txt
       - name: check forgotten translations
         run: make i18n-ci
-      #
-      - name: Fetch reearth-cms-web
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: ci_web.yml
-          workflow_conclusion: success
-          branch: main
-          name: reearth-cms-web
-          path: server
-          check_artifacts: true
-          search_artifacts: true
-      - name: Rename artifacts
-        run: mv reearth-cms-web web; ls
