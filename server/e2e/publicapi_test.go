@@ -97,6 +97,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
 		})
 
 	// offset pagination
@@ -114,6 +118,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      1,
+			"offset":     1,
+			"page":       2,
 		})
 
 	// cursor pagination
@@ -207,6 +215,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
 		})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem1ID).
