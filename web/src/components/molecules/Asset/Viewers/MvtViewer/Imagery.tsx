@@ -16,8 +16,8 @@ import { useCesium } from "resium";
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 
 const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
-const defaultRange = 3000000;
-const normalRange = 200000;
+const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
+const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
   url: string;
@@ -47,11 +47,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
-          offset: new HeadingPitchRange(
-            Math.toRadians(90.0),
-            Math.toRadians(-90.0),
-            useDefaultRange ? defaultRange : normalRange,
-          ),
+          offset: useDefaultRange ? defaultOffset : normalOffset,
         },
       );
     },
@@ -132,7 +128,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     setCurrentLayer(value);
   }, []);
 
-  const options = useMemo(() => layers.map(l => ({ label: l })), [layers]);
+  const options = useMemo(() => layers.map(l => ({ label: l, value: l })), [layers]);
 
   return (
     <StyledInput
