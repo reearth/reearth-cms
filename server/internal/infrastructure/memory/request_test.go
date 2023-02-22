@@ -256,7 +256,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
-			//tt.Parallel()
+			// tt.Parallel()
 			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil, nil)
 
 			assert.Equal(t, tc.want, len(got))
@@ -336,6 +336,7 @@ func TestRequest_FindByItem(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
+			tc := tc
 			tt.Parallel()
 			got, _ := r.FindByItems(ctx, tc.input)
 

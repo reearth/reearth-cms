@@ -183,6 +183,7 @@ func TestToItemQuery(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			tc := tc
 			t.Parallel()
 			got := ToItemQuery(tc.input)
 			assert.Equal(t, tc.want, got)
