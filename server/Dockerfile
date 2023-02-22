@@ -20,7 +20,7 @@ FROM scratch
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /app/reearth-cms /app/reearth-cms
-COPY web* /reearth/web/
+COPY web* /app/web/
 
 WORKDIR /app
 
