@@ -28,10 +28,6 @@ func TestUser_FindBySub(t *testing.T) {
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Auths([]user.Auth{{
 		Sub: "xxx",
 	}}).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
 		name     string
@@ -56,13 +52,15 @@ func TestUser_FindBySub(t *testing.T) {
 			mockErr: true,
 		},
 	}
-
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			tc := tc
 			tt.Parallel()
 
-			r := &User{}
+			r := &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			}
+			r.data.Store(u.ID(), u)
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
@@ -127,10 +125,6 @@ func TestUser_FindByName(t *testing.T) {
 		Token: "123abc",
 	}
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").PasswordReset(pr.Clone()).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
 		name    string
@@ -167,7 +161,10 @@ func TestUser_FindByName(t *testing.T) {
 			tc := tc
 			tt.Parallel()
 
-			r := &User{}
+			r := &User{
+				data: &util.SyncMap[id.UserID, *user.User]{},
+			}
+			r.data.Store(u.ID(), u)
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
@@ -230,7 +227,7 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 			seeds:   []*user.User{u},
 			token:   "123abc",
 			want:    u,
-			wantErr: rerror.ErrNotFound,
+			wantErr: nil,
 		},
 		{
 			name:    "must return ErrInvalidParams",
@@ -253,7 +250,7 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 			tc := tc
 			tt.Parallel()
 
-			r := &User{}
+			r := NewUser()
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
@@ -264,6 +261,7 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 			} else {
+				assert.Nil(tt, err)
 				assert.Equal(tt, tc.want, got)
 			}
 		})
@@ -274,10 +272,6 @@ func TestUser_FindByVerification(t *testing.T) {
 	ctx := context.Background()
 	vr := user.VerificationFrom("123abc", time.Now(), false)
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Verification(vr).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
 		name    string
@@ -314,7 +308,9 @@ func TestUser_FindByVerification(t *testing.T) {
 			tc := tc
 			tt.Parallel()
 
-			r := &User{}
+			r := NewUser()
+			_ = r.Save(ctx, u)
+
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
