@@ -118,7 +118,6 @@ export default () => {
   });
 
   const isRefetching = networkStatus === 3;
-  const [selectedAssets, selectAsset] = useState<Asset[]>([]);
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -203,7 +202,6 @@ export default () => {
           assetIds.map(async assetId => {
             const result = await deleteAssetMutation({
               variables: { assetId },
-              refetchQueries: ["GetAssets, GetAssetsItems"],
             });
             if (result.errors) {
               Notification.error({ message: t("Failed to delete one or more assets.") });
@@ -211,11 +209,13 @@ export default () => {
           }),
         );
         if (results) {
+          await refetch();
+          refetchAssetsItems();
           Notification.success({ message: t("One or more assets were successfully deleted!") });
-          selectAsset([]);
+          setSelection({ selectedRowKeys: [] });
         }
       })(),
-    [t, deleteAssetMutation, projectId],
+    [t, deleteAssetMutation, refetch, refetchAssetsItems, projectId],
   );
 
   const handleSearchTerm = useCallback(
@@ -245,20 +245,14 @@ export default () => {
         .map(asset => asset as GQLAsset)
         .map(convertAsset)
         .filter(asset => !!asset) as Asset[]) ?? [];
-    setAssetList(assets);
-  }, [data?.assets.nodes]);
-
-  useEffect(() => {
-    if (assetList.length > 0) {
-      setAssetList(
-        assetList.map(asset => ({
-          ...asset,
-          items:
-            assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
-        })),
-      );
-    }
-  }, [assetList, assetsItems?.assets.nodes, setAssetList]);
+    setAssetList(
+      assets.map(asset => ({
+        ...asset,
+        items: assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
+      })),
+    );
+    console.log(assets);
+  }, [data?.assets.nodes, assetsItems?.assets.nodes, setAssetList]);
 
   const handleAssetSelect = useCallback(
     (id: string) => {
@@ -319,7 +313,6 @@ export default () => {
     fileList,
     uploading,
     isLoading: loading ?? isRefetching,
-    selectedAssets,
     uploadModalVisibility,
     loading,
     uploadUrl,
