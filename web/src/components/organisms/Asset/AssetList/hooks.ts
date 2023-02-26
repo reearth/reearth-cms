@@ -251,7 +251,6 @@ export default () => {
         items: assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
       })),
     );
-    console.log(assets);
   }, [data?.assets.nodes, assetsItems?.assets.nodes, setAssetList]);
 
   const handleAssetSelect = useCallback(
