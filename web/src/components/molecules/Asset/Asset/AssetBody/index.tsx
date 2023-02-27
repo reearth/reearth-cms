@@ -4,7 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import { useT } from "@reearth-cms/i18n";
@@ -17,6 +17,7 @@ export type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   commentsPanel?: JSX.Element;
+  onAssetItemSelect: (item: AssetItem) => void;
   onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
@@ -35,6 +36,7 @@ const AssetWrapper: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   commentsPanel,
+  onAssetItemSelect,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -59,6 +61,7 @@ const AssetWrapper: React.FC<Props> = ({
             isModalVisible={isModalVisible}
             viewerType={viewerType}
             displayUnzipFileList={displayUnzipFileList}
+            onAssetItemSelect={onAssetItemSelect}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
