@@ -31,20 +31,20 @@ func TestListParamFromEchoContext(t *testing.T) {
 	assert.Equal(t, ListParam{
 		Pagination: &usecasex.Pagination{
 			Offset: &usecasex.OffsetPagination{
-				Limit:  int64(100),
-				Offset: int64(101),
+				Limit:  100,
+				Offset: 101,
 			},
 		},
 	}, p)
 
 	p, err = listParamFromEchoContext(e.NewContext(
-		httptest.NewRequest("GET", "/?page=3", nil), nil))
+		httptest.NewRequest("GET", "/?page=3&perPage=100", nil), nil))
 	assert.NoError(t, err)
 	assert.Equal(t, ListParam{
 		Pagination: &usecasex.Pagination{
 			Offset: &usecasex.OffsetPagination{
-				Limit:  int64(50),
-				Offset: int64(100),
+				Limit:  100,
+				Offset: 200,
 			},
 		},
 	}, p)

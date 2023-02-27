@@ -23,6 +23,7 @@ const AssetList: React.FC = () => {
     pageSize,
     sort,
     handleToggleCommentMenu,
+    handleAssetItemSelect,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,
@@ -68,6 +69,7 @@ const AssetList: React.FC = () => {
       loading={loading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onAssetItemSelect={handleAssetItemSelect}
       onAssetSelect={handleAssetSelect}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
