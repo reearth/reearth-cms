@@ -4,23 +4,23 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@reearth-cms/auth";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
-import { useUserId, useWorkspace } from "@reearth-cms/state";
+import { useUserId, useWorkspaceId } from "@reearth-cms/state";
 
 const RootPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();
   const { data } = useGetMeQuery();
 
   const [currentUserId] = useUserId();
-  const [currentWorkspace, serCurrentWorkspace] = useWorkspace();
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useWorkspaceId();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
       if (data?.me?.id) {
-        if (currentWorkspace && currentUserId === data.me.id) {
-          navigate(`workspace/${currentWorkspace.id}`);
+        if (currentWorkspaceId && currentUserId === data.me.id) {
+          navigate(`workspace/${currentWorkspaceId}`);
         } else {
-          serCurrentWorkspace(undefined);
+          setCurrentWorkspaceId(undefined);
           navigate("workspace");
         }
       }
@@ -31,12 +31,12 @@ const RootPage: React.FC = () => {
   }, [
     isAuthenticated,
     currentUserId,
-    currentWorkspace,
+    currentWorkspaceId,
     data?.me?.id,
     isLoading,
     navigate,
     login,
-    serCurrentWorkspace,
+    setCurrentWorkspaceId,
   ]);
 
   return isLoading ? <Loading spinnerSize="large" minHeight="100vh" /> : null;
