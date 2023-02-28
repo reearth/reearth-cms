@@ -32,6 +32,8 @@ type Config struct {
 	GCS          GCSConfig
 	Task         gcp.TaskConfig
 	AssetBaseURL string
+	Web          WebConfig
+	Web_Disabled bool
 	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
@@ -118,6 +120,29 @@ func (c Config) JWTProviders() (res []appx.JWTProvider) {
 	return c.Auths().JWTProviders()
 }
 
+func (c Config) AuthForWeb() *AuthConfig {
+	if ac := c.Auth0.AuthConfigForWeb(); ac != nil {
+		return ac
+	}
+	if c.Auth_ISS != "" {
+		var aud []string
+		if len(c.Auth_AUD) > 0 {
+			aud = append(aud, c.Auth_AUD)
+		}
+		return &AuthConfig{
+			ISS:      c.Auth_ISS,
+			AUD:      aud,
+			ALG:      c.Auth_ALG,
+			TTL:      c.Auth_TTL,
+			ClientID: c.Auth_ClientID,
+		}
+	}
+	// if ac := c.AuthSrv.AuthConfig(c.Dev, c.Host); ac != nil {
+	// 	return ac
+	// }
+	return nil
+}
+
 func (c Auth0Config) AuthConfig() *AuthConfig {
 	domain := c.Domain
 	if c.Domain == "" {
@@ -136,6 +161,22 @@ func (c Auth0Config) AuthConfig() *AuthConfig {
 	return &AuthConfig{
 		ISS: domain,
 		AUD: aud,
+	}
+}
+
+func (c Auth0Config) AuthConfigForWeb() *AuthConfig {
+	if c.Domain == "" || c.WebClientID == "" {
+		return nil
+	}
+	domain := prepareUrl(c.Domain)
+	var aud []string
+	if len(c.Audience) > 0 {
+		aud = []string{c.Audience}
+	}
+	return &AuthConfig{
+		ISS:      domain,
+		AUD:      aud,
+		ClientID: &c.WebClientID,
 	}
 }
 
@@ -213,4 +254,12 @@ func (c Config) Print() string {
 		s = strings.ReplaceAll(s, secret, "***")
 	}
 	return s
+}
+
+func prepareUrl(url string) string {
+	if !strings.HasPrefix(url, "https://") && !strings.HasPrefix(url, "http://") {
+		url = "https://" + url
+	}
+	url = strings.TrimSuffix(url, "/")
+	return url
 }
