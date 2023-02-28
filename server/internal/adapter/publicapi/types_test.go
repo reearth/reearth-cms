@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -151,4 +152,61 @@ func TestItem_MarshalJSON(t *testing.T) {
 			"contentType": "application/json",
 		},
 	}, v)
+}
+
+func TestNewListResult(t *testing.T) {
+	assert.Equal(t, ListResult[any]{
+		Results:    []any{},
+		TotalCount: 1010,
+		HasMore:    lo.ToPtr(true),
+		Limit:      lo.ToPtr(int64(100)),
+		Offset:     lo.ToPtr(int64(250)),
+		Page:       lo.ToPtr(int64(3)),
+	}, NewListResult[any](nil, &usecasex.PageInfo{
+		TotalCount: 1010,
+	}, usecasex.OffsetPagination{
+		Offset: 250,
+		Limit:  100,
+	}.Wrap()))
+
+	assert.Equal(t, ListResult[any]{
+		Results:    []any{},
+		TotalCount: 150,
+		HasMore:    lo.ToPtr(false),
+		Limit:      lo.ToPtr(int64(100)),
+		Offset:     lo.ToPtr(int64(100)),
+		Page:       lo.ToPtr(int64(2)),
+	}, NewListResult[any](nil, &usecasex.PageInfo{
+		TotalCount: 150,
+	}, usecasex.OffsetPagination{
+		Offset: 100,
+		Limit:  100,
+	}.Wrap()))
+
+	assert.Equal(t, ListResult[any]{
+		Results:    []any{},
+		TotalCount: 50,
+		HasMore:    lo.ToPtr(false),
+		Limit:      lo.ToPtr(int64(50)),
+		Offset:     lo.ToPtr(int64(0)),
+		Page:       lo.ToPtr(int64(1)),
+	}, NewListResult[any](nil, &usecasex.PageInfo{
+		TotalCount: 50,
+	}, usecasex.OffsetPagination{
+		Offset: 0,
+		Limit:  50,
+	}.Wrap()))
+
+	assert.Equal(t, ListResult[any]{
+		Results:    []any{},
+		TotalCount: 50,
+		HasMore:    lo.ToPtr(true),
+		NextCursor: lo.ToPtr("cur"),
+	}, NewListResult[any](nil, &usecasex.PageInfo{
+		TotalCount:  50,
+		EndCursor:   usecasex.Cursor("cur").Ref(),
+		HasNextPage: true,
+	}, usecasex.CursorPagination{
+		First: lo.ToPtr(int64(100)),
+	}.Wrap()))
 }
