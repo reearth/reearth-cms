@@ -24,7 +24,7 @@ func TestPingAPI(t *testing.T) {
 		Expect()
 
 	r.Header("Cache-Control").
-		Equal("")
+		Equal("private, no-store, no-cache, must-revalidate")
 
 	r.Header("Access-Control-Allow-Origin").
 		Equal("https://example.com")

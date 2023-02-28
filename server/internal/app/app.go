@@ -68,7 +68,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	})
 
 	// apis
-	api := e.Group("/api")
+	api := e.Group("/api", private)
 	api.GET("/ping", Ping())
 	api.POST(
 		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev),
@@ -90,6 +90,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		authMiddleware(cfg),
 		AuthRequiredMiddleware(),
 		usecaseMiddleware,
+		private,
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
@@ -151,5 +152,12 @@ func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
 		}); err != nil {
 			next(err, c)
 		}
+	}
+}
+
+func private(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderCacheControl, "private, no-store, no-cache, must-revalidate")
+		return next(c)
 	}
 }
