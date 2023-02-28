@@ -13,6 +13,9 @@ import (
 
 var contextKey = struct{}{}
 
+const defaultLimit = 50
+const maxLimit = 100
+
 func AttachController(ctx context.Context, c *Controller) context.Context {
 	return context.WithValue(ctx, contextKey, c)
 }
@@ -83,23 +86,15 @@ func PublicApiAsset() echo.HandlerFunc {
 }
 
 func listParamFromEchoContext(c echo.Context) (ListParam, error) {
-	var offset = 0
-	var limit = 0
-	var err error
-
-	if limits := c.QueryParam("limit"); limits != "" {
-		limit, err = strconv.Atoi(limits)
-	} else if pageSize := c.QueryParam("page_size"); pageSize != "" {
-		limit, err = strconv.Atoi(pageSize)
-	} else if pageSize := c.QueryParam("per_page"); pageSize != "" {
-		limit, err = strconv.Atoi(pageSize)
-	}
+	limit, _ := intParams(c, "limit", "perPage", "per_page", "page_size", "pageSize")
 	if limit <= 0 {
-		limit = 50
+		limit = defaultLimit
 	} else if limit > 100 {
-		limit = 100
+		limit = maxLimit
 	}
 
+	var offset int64 = 0
+	var err error
 	var p *usecasex.Pagination
 	if startCursor := c.QueryParam("start_cursor"); startCursor != "" {
 		p = usecasex.CursorPagination{
@@ -108,9 +103,9 @@ func listParamFromEchoContext(c echo.Context) (ListParam, error) {
 		}.Wrap()
 	} else {
 		if offsets := c.QueryParam("offset"); offsets != "" {
-			offset, err = strconv.Atoi(offsets)
+			offset, err = strconv.ParseInt(offsets, 10, 64)
 		} else if page := c.QueryParam("page"); page != "" {
-			page2, err2 := strconv.Atoi(page)
+			page2, err2 := strconv.ParseInt(page, 10, 64)
 			if page2 <= 0 {
 				page2 = 1
 			}
@@ -119,12 +114,23 @@ func listParamFromEchoContext(c echo.Context) (ListParam, error) {
 		}
 
 		p = usecasex.OffsetPagination{
-			Offset: int64(offset),
-			Limit:  int64(limit),
+			Offset: offset,
+			Limit:  limit,
 		}.Wrap()
 	}
 
 	return ListParam{
 		Pagination: p,
 	}, err
+}
+
+func intParams(c echo.Context, params ...string) (int64, bool) {
+	for _, p := range params {
+		if q := c.QueryParam(p); q != "" {
+			if p, err := strconv.ParseInt(q, 10, 64); err == nil {
+				return p, true
+			}
+		}
+	}
+	return 0, false
 }
