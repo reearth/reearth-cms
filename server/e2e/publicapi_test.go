@@ -33,6 +33,7 @@ var (
 	publicAPIAssetUUID    = uuid.NewString()
 	publicAPIProjectAlias = "test-project"
 	publicAPIModelKey     = "test-model"
+	publicAPIModelKey2    = "test-model-2"
 	publicAPIField1Key    = "test-field-1"
 	publicAPIField2Key    = "asset"
 	publicAPIField3Key    = "test-field-2"
@@ -46,6 +47,12 @@ func TestPublicAPI(t *testing.T) {
 
 	// not found
 	e.GET("/api/p/{project}/{model}", "invalid-alias", publicAPIModelKey).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		Equal(map[string]any{"error": "not found"})
+
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey2).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -97,6 +104,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
 		})
 
 	// offset pagination
@@ -114,6 +125,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      1,
+			"offset":     1,
+			"page":       2,
 		})
 
 	// cursor pagination
@@ -207,6 +222,10 @@ func TestPublicAPI(t *testing.T) {
 				},
 			},
 			"totalCount": 3,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
 		})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem1ID).
@@ -257,7 +276,9 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
 	}).MustBuild()
 
-	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey)).MustBuild()
+	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
+	// not public model
+	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
@@ -279,6 +300,11 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple()),
 	}).MustBuild()
+	// not public model
+	i5 := item.New().ID(publicAPIItem1ID).Model(m2.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+	}).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
@@ -288,6 +314,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	lo.Must0(r.Item.Save(ctx, i2))
 	lo.Must0(r.Item.Save(ctx, i3))
 	lo.Must0(r.Item.Save(ctx, i4))
+	lo.Must0(r.Item.Save(ctx, i5))
 	lo.Must0(r.Item.UpdateRef(ctx, i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
