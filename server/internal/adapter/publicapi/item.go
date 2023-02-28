@@ -41,7 +41,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 		return Item{}, err
 	}
 
-	if m.Key().String() != mkey {
+	if m.Key().String() != mkey || !m.Public() {
 		return Item{}, rerror.ErrNotFound
 	}
 
@@ -70,6 +70,9 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
 	if err != nil {
 		return ListResult[Item]{}, err
+	}
+	if !m.Public() {
+		return ListResult[Item]{}, rerror.ErrNotFound
 	}
 
 	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
