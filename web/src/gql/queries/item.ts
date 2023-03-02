@@ -41,6 +41,10 @@ export const GET_ITEM_NODE = gql`
         createdAt
         updatedAt
         status
+        assets {
+          id
+          fileName
+        }
         user {
           name
         }
@@ -69,6 +73,10 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        assets {
+          id
+          fileName
+        }
         user {
           name
         }
