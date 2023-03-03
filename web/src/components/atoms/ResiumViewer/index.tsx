@@ -5,7 +5,7 @@ import {
   JulianDate,
   Entity,
 } from "cesium";
-import { ComponentProps, useCallback, useMemo, useState } from "react";
+import { ComponentProps, useCallback, useEffect, useMemo, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
@@ -18,6 +18,7 @@ type Props = {
   properties?: any;
   entitySelected?: boolean;
   showDescription?: boolean;
+  onSelect?: (id: string | undefined) => void;
 } & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
@@ -26,6 +27,7 @@ const ResiumViewer: React.FC<Props> = ({
   properties: passedProps,
   entitySelected,
   showDescription,
+  onSelect,
   ...props
 }) => {
   let viewer: CesiumViewer | undefined;
@@ -34,31 +36,37 @@ const ResiumViewer: React.FC<Props> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleClick = useCallback((_movement: CesiumMovementEvent, target: RootEventTarget) => {
-    if (!target) {
-      setProperties(undefined);
-      return;
-    }
-
-    let props: any = {};
-    if (target instanceof Cesium3DTileFeature) {
-      const propertyIds = target.getPropertyIds();
-      const length = propertyIds.length;
-      for (let i = 0; i < length; ++i) {
-        const propertyId = propertyIds[i];
-        props[propertyId] = target.getProperty(propertyId);
+  const handleClick = useCallback(
+    (_movement: CesiumMovementEvent, target: RootEventTarget) => {
+      if (!target) {
+        setProperties(undefined);
+        onSelect?.(undefined);
+        return;
       }
-      setTitle(props["name"]);
-    } else if (target.id instanceof Entity) {
-      const entity = target.id;
-      setTitle(entity.id);
-      setDescription(showDescription ? entity.description?.getValue(JulianDate.now()) : "");
-      props = entity.properties?.getValue(JulianDate.now());
-    }
 
-    setInfoBoxVisibility(true);
-    setProperties(props);
-  }, []);
+      let props: any = {};
+      if (target instanceof Cesium3DTileFeature) {
+        const propertyIds = target.getPropertyIds();
+        const length = propertyIds.length;
+        for (let i = 0; i < length; ++i) {
+          const propertyId = propertyIds[i];
+          props[propertyId] = target.getProperty(propertyId);
+        }
+        onSelect?.(String(target.featureId));
+        setTitle(props["name"]);
+      } else if (target.id instanceof Entity) {
+        const entity = target.id;
+        setTitle(entity.id);
+        onSelect?.(entity.id);
+        setDescription(showDescription ? entity.description?.getValue(JulianDate.now()) : "");
+        props = entity.properties?.getValue(JulianDate.now());
+      }
+
+      setInfoBoxVisibility(true);
+      setProperties(props);
+    },
+    [onSelect, showDescription],
+  );
 
   const handleClose = useCallback(() => {
     setInfoBoxVisibility(false);
@@ -69,6 +77,12 @@ const ResiumViewer: React.FC<Props> = ({
   }, [passedProps, properties]);
 
   const terrainProvider = useMemo(() => createWorldTerrain(), []);
+
+  useEffect(() => {
+    if (entitySelected) {
+      setInfoBoxVisibility(true);
+    }
+  }, [entitySelected]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -97,7 +111,7 @@ const ResiumViewer: React.FC<Props> = ({
       </Viewer>
       <InfoBox
         infoBoxProps={sortedProperties}
-        infoBoxVisibility={infoBoxVisibility || !!entitySelected}
+        infoBoxVisibility={infoBoxVisibility && !!entitySelected}
         title={title}
         description={description}
         onClose={handleClose}
