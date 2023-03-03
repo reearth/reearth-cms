@@ -348,6 +348,7 @@ type Item struct {
 	Project       *Project     `json:"project"`
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
+	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
 }

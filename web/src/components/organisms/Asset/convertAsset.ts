@@ -23,6 +23,7 @@ export const convertAsset = (GQLAsset: GQLAsset | undefined): Asset | undefined 
     threadId: GQLAsset.thread?.id ?? "",
     comments: GQLAsset.thread?.comments?.map(comment => convertComment(comment)) ?? [],
     archiveExtractionStatus: GQLAsset.archiveExtractionStatus as ArchiveExtractionStatus,
+    items: [],
   };
 };
 

@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import parse from "html-react-parser";
 import { JSONTree } from "react-json-tree";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -8,10 +9,17 @@ type Props = {
   infoBoxProps: any;
   infoBoxVisibility: boolean;
   title?: string;
+  description?: string;
   onClose: () => void;
 };
 
-const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onClose }) => {
+const InfoBox: React.FC<Props> = ({
+  infoBoxProps,
+  infoBoxVisibility,
+  title,
+  description,
+  onClose,
+}) => {
   const theme = {
     base00: "#ffffff",
     base01: "#1d1d1d",
@@ -40,7 +48,8 @@ const InfoBox: React.FC<Props> = ({ infoBoxProps, infoBoxVisibility, title, onCl
             <Button type="text" icon={<Icon icon="close" />} onClick={onClose} />
           </Header>
           <Box>
-            <JSONTree data={infoBoxProps ?? {}} theme={theme} />
+            {infoBoxProps && <JSONTree data={infoBoxProps ?? {}} theme={theme} />}
+            {description && parse(description)}
           </Box>
         </InfoBoxWrapper>
       )}
