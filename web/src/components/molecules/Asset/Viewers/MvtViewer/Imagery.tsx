@@ -10,6 +10,7 @@ import {
   type Viewer,
 } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import md5 from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
 
@@ -37,7 +38,7 @@ type TileCoordinates = {
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
   const { viewer } = useCesium() as { viewer: Viewer | undefined };
-  const [selectedFeature, setSelectFeature] = useState<number>();
+  const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
@@ -72,11 +73,11 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   );
 
   const style = useCallback(
-    (f: VectorTileFeature) => {
-      // console.log(f.id);
+    (f: VectorTileFeature, tile: TileCoordinates) => {
+      const fid = idFromGeometry(f.loadGeometry(), tile);
       return {
         strokeStyle: "white",
-        fillStyle: selectedFeature === f.id ? "orange" : "red",
+        fillStyle: selectedFeature === fid ? "orange" : "red",
         lineWidth: 1,
       };
     },
@@ -84,9 +85,10 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   );
 
   const onSelectFeature = useCallback(
-    (feature: VectorTileFeature, _tileCoords: TileCoordinates) => {
+    (feature: VectorTileFeature, tileCoords: TileCoordinates) => {
+      const id = idFromGeometry(feature.loadGeometry(), tileCoords);
       selectFeature(true);
-      setSelectFeature(feature.id);
+      setSelectFeature(id);
       handleProperties(feature.properties);
     },
     [handleProperties, selectFeature],
@@ -168,6 +170,22 @@ const fetchLayers = async (url: string) => {
   const res = await fetch(`${base}/metadata.json`);
   if (!res.ok) return;
   return { ...parseMetadata(await res.json()), base };
+};
+
+type TileCoords = { x: number; y: number; level: number };
+
+const idFromGeometry = (
+  geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
+  tile: TileCoords,
+) => {
+  const id = [tile.x, tile.y, tile.level, ...geometry.flatMap(i => i.map(j => [j.x, j.y]))].join(
+    ":",
+  );
+
+  const hash = md5.create();
+  hash.update(id);
+
+  return hash.hex();
 };
 
 export function parseMetadata(
