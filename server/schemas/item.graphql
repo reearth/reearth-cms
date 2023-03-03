@@ -102,7 +102,11 @@ input ItemQuery {
 extend type Query {
   items(schemaId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(query: ItemQuery!, sort: ItemSort, pagination: Pagination): ItemConnection!
+  searchItem(
+    query: ItemQuery!
+    sort: ItemSort
+    pagination: Pagination
+  ): ItemConnection!
 }
 
 extend type Mutation {
