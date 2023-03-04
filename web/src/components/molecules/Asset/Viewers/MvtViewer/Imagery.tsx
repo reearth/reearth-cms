@@ -23,7 +23,7 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
-  selectFeature: (selected: boolean) => void;
+  selectFeature?: (selected: boolean) => void;
 };
 
 export type Property = { [k: string]: string | number | boolean };
@@ -48,6 +48,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
+          duration: 0,
           offset: useDefaultRange ? defaultOffset : normalOffset,
         },
       );
@@ -87,7 +88,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, tileCoords: TileCoordinates) => {
       const id = idFromGeometry(feature.loadGeometry(), tileCoords);
-      selectFeature(true);
+      selectFeature?.(true);
       setSelectFeature(id);
       handleProperties(feature.properties);
     },
