@@ -38,7 +38,12 @@ const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
       properties={attributes}
       entitySelected={featureSelected}
       onSelect={handleSelect}>
-      <Imagery url={url} handleProperties={setProperties} selectFeature={selectFeature} />
+      <Imagery
+        url={url}
+        entitySelected={featureSelected}
+        handleProperties={setProperties}
+        selectFeature={selectFeature}
+      />
     </ResiumViewer>
   );
 };

@@ -22,6 +22,7 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
   url: string;
+  entitySelected?: boolean;
   handleProperties: (prop: Property) => void;
   selectFeature: (selected: boolean) => void;
 };
@@ -36,7 +37,12 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
+export const Imagery: React.FC<Props> = ({
+  url,
+  entitySelected,
+  handleProperties,
+  selectFeature,
+}) => {
   const { viewer } = useCesium() as { viewer: Viewer | undefined };
   const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
@@ -97,6 +103,12 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   useEffect(() => {
     loadData(url);
   }, [loadData, url]);
+
+  useEffect(() => {
+    if (!entitySelected) {
+      setSelectFeature(undefined);
+    }
+  }, [entitySelected]);
 
   useEffect(() => {
     const imageryProvider = new MVTImageryProvider({
