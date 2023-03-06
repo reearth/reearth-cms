@@ -1,12 +1,18 @@
 package publicapi
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -62,12 +68,28 @@ func PublicApiItemList() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, "invalid offset or limit")
 		}
 
-		res, err := ctrl.GetItems(ctx, c.Param("project"), c.Param("model"), p)
+		resType := ""
+		m := c.Param("model")
+		if strings.Contains(m, ".") {
+			m, resType, _ = strings.Cut(m, ".")
+		}
+		if resType != "csv" && resType != "json" {
+			resType = "json"
+		}
+
+		res, s, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, res)
+		switch resType {
+		case "csv":
+			return toCSV(c, res, s)
+		case "json":
+			return c.JSON(http.StatusOK, res)
+		default:
+			return c.JSON(http.StatusOK, res)
+		}
 	}
 }
 
@@ -133,4 +155,33 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 		}
 	}
 	return 0, false
+}
+
+func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
+	b := &bytes.Buffer{}
+	w := csv.NewWriter(b)
+
+	keys := lo.Map(s.Fields(), func(f *schema.Field, _ int) string {
+		return f.Key().String()
+	})
+	err := w.Write(append([]string{"id"}, keys...))
+	if err != nil {
+		return err
+	}
+
+	for _, itm := range l.Results {
+		values := []string{itm.ID}
+		for _, k := range keys {
+			// values = append(values, fmt.Sprintf("%v", itm.Fields[k]))
+			values = append(values, fmt.Sprintf("%v", string(lo.Must1(json.Marshal(itm.Fields[k])))))
+		}
+		err := w.Write(values)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	w.Flush()
+
+	return c.Stream(http.StatusOK, "text/csv", b)
 }
