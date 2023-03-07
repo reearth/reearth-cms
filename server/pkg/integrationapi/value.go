@@ -1,6 +1,10 @@
 package integrationapi
 
-import "github.com/reearth/reearth-cms/server/pkg/value"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
+)
 
 func FromValueType(t *ValueType) value.Type {
 	if t == nil {
@@ -63,9 +67,23 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValue(v *value.Multiple, multiple bool) any {
+func ToValues(v *value.Multiple, multiple bool, assets asset.Map) any {
 	if !multiple {
-		return v.First().Interface()
+		return ToValue(v.First(), assets)
 	}
+	return lo.Map(v.Values(), func(v *value.Value, _ int) any {
+		return ToValue(v, assets)
+	})
+}
+
+func ToValue(v *value.Value, assets asset.Map) any {
+	if assets != nil {
+		if aid, ok := v.ValueAsset(); ok {
+			if a, ok := assets[aid]; ok {
+				return a
+			}
+		}
+	}
+
 	return v.Interface()
 }

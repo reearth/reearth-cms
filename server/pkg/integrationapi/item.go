@@ -2,6 +2,7 @@ package integrationapi
 
 import (
 	"github.com/deepmap/oapi-codegen/pkg/types"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -9,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver item.Versioned, s *schema.Schema) VersionedItem {
+func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets asset.Map) VersionedItem {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -17,7 +18,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema) VersionedItem {
 		return string(r)
 	})
 
-	ii := NewItem(ver.Value(), s)
+	ii := NewItem(ver.Value(), s, assets)
 	return VersionedItem{
 		Id:        ii.Id,
 		CreatedAt: ii.CreatedAt,
@@ -30,7 +31,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema) VersionedItem {
 	}
 }
 
-func NewItem(i *item.Item, s *schema.Schema) Item {
+func NewItem(i *item.Item, s *schema.Schema, assets asset.Map) Item {
 	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
 		if s == nil {
 			return Field{}, false
@@ -43,7 +44,7 @@ func NewItem(i *item.Item, s *schema.Schema) Item {
 		return Field{
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
-			Value: lo.ToPtr(ToValue(f.Value(), sf.Multiple())),
+			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 		}, true
 	})

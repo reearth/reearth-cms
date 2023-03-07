@@ -6,6 +6,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/i18n"
@@ -39,8 +41,15 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, err
 	}
 
+	assets, err := getAssetsFromItems(ctx, items, request.Params.Asset)
+	if err != nil {
+		return ItemFilter500Response{}, err
+	}
+
 	return ItemFilter200JSONResponse{
-		Items:      lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem { return integrationapi.NewVersionedItem(i, ss) })),
+		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
+			return integrationapi.NewVersionedItem(i, ss, assets)
+		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
@@ -82,8 +91,15 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 		return ItemFilterWithProject400Response{}, err
 	}
 
+	assets, err := getAssetsFromItems(ctx, items, request.Params.Asset)
+	if err != nil {
+		return ItemFilterWithProject500Response{}, err
+	}
+
 	return ItemFilterWithProject200JSONResponse{
-		Items:      lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem { return integrationapi.NewVersionedItem(i, ss) })),
+		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
+			return integrationapi.NewVersionedItem(i, ss, assets)
+		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
@@ -127,7 +143,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
 }
 
 func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
@@ -175,7 +191,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return ItemCreateWithProject400Response{}, err
 	}
 
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
+	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -211,7 +227,12 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
+	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Body.Asset)
+	if err != nil {
+		return ItemUpdate500Response{}, err
+	}
+
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assets)), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -247,5 +268,33 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet400Response{}, err
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss)), nil
+	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Params.Asset)
+	if err != nil {
+		return ItemGet500Response{}, err
+	}
+
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assets)), nil
+}
+
+func getAssetsFromItems(ctx context.Context, items item.VersionedList, ap *integrationapi.AssetEmbedding) (asset.Map, error) {
+	if ap == nil || *ap == "false" {
+		return nil, nil
+	}
+
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	assets := lo.Uniq(lo.FlatMap(items, func(v item.Versioned, _ int) []id.AssetID {
+		return v.Value().AssetIDs()
+	}))
+
+	res, err := uc.Asset.FindByIDs(ctx, assets, op)
+
+	for _, a := range res {
+		if *ap != "all" {
+			a.SetFile(nil) // remove file info from response
+		}
+	}
+
+	return res.Map(), err
 }
