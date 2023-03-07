@@ -19,7 +19,8 @@ import (
 )
 
 var (
-	itemIndexes = []string{"schema", "fields.schemafield"}
+	itemIndexes       = []string{"schema", "fields.schemafield"}
+	itemUniqueIndexes = []string{"id"}
 )
 
 type Item struct {
@@ -39,7 +40,7 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 }
 
 func (r *Item) Init() error {
-	return createIndexes(context.Background(), r.client.Client(), itemIndexes, nil)
+	return createIndexes(context.Background(), r.client.Client(), itemIndexes, itemUniqueIndexes)
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID, ref *version.Ref) (item.Versioned, error) {

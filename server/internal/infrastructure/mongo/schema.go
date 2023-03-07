@@ -14,7 +14,8 @@ import (
 )
 
 var (
-	schemaIndexes = []string{"id"}
+	schemaIndexes       = []string{"id"}
+	schemaUniqueIndexes = []string{"id"}
 )
 
 type Schema struct {
@@ -27,7 +28,7 @@ func NewSchema(client *mongox.Client) repo.Schema {
 }
 
 func (r *Schema) Init() error {
-	return createIndexes(context.Background(), r.client, schemaIndexes, nil)
+	return createIndexes(context.Background(), r.client, schemaIndexes, schemaUniqueIndexes)
 }
 
 func (r *Schema) Filtered(f repo.WorkspaceFilter) repo.Schema {
