@@ -17,7 +17,7 @@ var (
 )
 
 type Event struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
 func NewEvent(client *mongox.Client) repo.Event {
