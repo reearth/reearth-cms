@@ -61,8 +61,8 @@ models:
         resolver: true
       status:
         resolver: true
-      # assets:
-        # resolver: true
+      assets:
+        resolver: true
   Model:
     fields:
       project:
