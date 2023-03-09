@@ -5,6 +5,7 @@ import (
 )
 
 type ID = id.AssetID
+type IDList = id.AssetIDList
 type ProjectID = id.ProjectID
 type UserID = id.UserID
 type ThreadID = id.ThreadID
