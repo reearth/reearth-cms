@@ -188,6 +188,24 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	a.Length().Equal(1)
 	assertItem(a.First(), false)
 
+	// asset embeded
+	obj = e.GET("/api/models/{modelId}/items", mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	assertItem(a.First(), true)
+
 	// key cannot be used
 	e.GET("/api/models/{modelId}/items", ikey).
 		WithHeader("authorization", "Bearer "+secret).
@@ -623,10 +641,11 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	o := v.Object()
 	o.Value("id").Equal(itmId.String())
 	if assetEmbeded {
-		o.Value("fields").Object().Value("value").Object().
+		a := o.Value("fields").Array()
+		a.Length().Equal(1)
+		a.First().Object().Value("value").Object().
 			ValueEqual("id", aid.String()).
 			ValueEqual("contentType", "image/jpg").
-			ValueEqual("type", "asset").
 			ValueEqual("file", map[string]any{
 				"contentType": "image/jpg",
 				"name":        "aaa.jpg",
