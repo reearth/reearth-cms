@@ -17,14 +17,14 @@ import (
 )
 
 type Collection struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
-func NewCollection(client *mongox.ClientCollection) *Collection {
+func NewCollection(client *mongox.Collection) *Collection {
 	return &Collection{client: client}
 }
 
-func (c *Collection) Client() *mongox.ClientCollection {
+func (c *Collection) Client() *mongox.Collection {
 	return c.client
 }
 

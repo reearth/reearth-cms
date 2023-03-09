@@ -19,7 +19,7 @@ var (
 )
 
 type Integration struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
 func NewIntegration(client *mongox.Client) repo.Integration {
