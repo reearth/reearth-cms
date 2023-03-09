@@ -48,7 +48,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 
 	return ItemFilter200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assets)
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -98,7 +98,7 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 
 	return ItemFilterWithProject200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assets)
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -232,7 +232,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assets)), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -273,7 +273,17 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet500Response{}, err
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assets)), nil
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))), nil
+}
+
+func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
+	uc := adapter.Usecases(ctx)
+
+	return &integrationapi.AssetContext{
+		Map:     m,
+		BaseURL: uc.Asset.GetURL,
+		All:     asset != nil && *asset == integrationapi.AssetEmbedding("all"),
+	}
 }
 
 func getAssetsFromItems(ctx context.Context, items item.VersionedList, ap *integrationapi.AssetEmbedding) (asset.Map, error) {
@@ -289,12 +299,5 @@ func getAssetsFromItems(ctx context.Context, items item.VersionedList, ap *integ
 	}))
 
 	res, err := uc.Asset.FindByIDs(ctx, assets, op)
-
-	for _, a := range res {
-		if *ap != "all" {
-			a.SetFile(nil) // remove file info from response
-		}
-	}
-
 	return res.Map(), err
 }

@@ -1,7 +1,6 @@
 package integrationapi
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -15,7 +14,7 @@ type ItemModelSchema struct {
 	Schema Schema `json:"schema"`
 }
 
-func NewItemModelSchema(i item.ItemModelSchema, assets asset.Map) ItemModelSchema {
+func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
 		Item:   NewItem(i.Item, i.Schema, assets),
 		Model:  NewModel(i.Model),

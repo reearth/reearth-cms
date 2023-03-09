@@ -67,7 +67,7 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValues(v *value.Multiple, multiple bool, assets asset.Map) any {
+func ToValues(v *value.Multiple, multiple bool, assets *AssetContext) any {
 	if !multiple {
 		return ToValue(v.First(), assets)
 	}
@@ -76,14 +76,31 @@ func ToValues(v *value.Multiple, multiple bool, assets asset.Map) any {
 	})
 }
 
-func ToValue(v *value.Value, assets asset.Map) any {
+func ToValue(v *value.Value, assets *AssetContext) any {
 	if assets != nil {
 		if aid, ok := v.ValueAsset(); ok {
-			if a, ok := assets[aid]; ok {
-				return a
+			if a2 := assets.ResolveAsset(aid); a2 != nil {
+				return a2
 			}
 		}
 	}
 
 	return v.Interface()
+}
+
+type AssetContext struct {
+	Map     asset.Map
+	BaseURL func(a *asset.Asset) string
+	All     bool
+}
+
+func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
+	if a, ok := c.Map[id]; ok {
+		var aurl string
+		if c.BaseURL != nil {
+			aurl = c.BaseURL(a)
+		}
+		return NewAsset(a, aurl, c.All)
+	}
+	return nil
 }

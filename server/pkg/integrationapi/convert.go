@@ -21,7 +21,7 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 	case *event.Event[any]:
 		res, err = NewEvent(o, v, urlResolver)
 	case *asset.Asset:
-		res, err = NewAsset(o, urlResolver(o))
+		res = NewAsset(o, urlResolver(o), true)
 	case *item.Item:
 		res = NewItem(o, nil, nil)
 	case item.Versioned:
