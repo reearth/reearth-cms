@@ -22,7 +22,7 @@ var (
 )
 
 type Asset struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 	f      repo.ProjectFilter
 }
 
