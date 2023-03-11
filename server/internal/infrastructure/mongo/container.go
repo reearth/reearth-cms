@@ -31,7 +31,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 		Asset:       NewAsset(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
-		Transaction: mongox.NewTransaction(mc),
+		Transaction: client.Transaction(),
 		Lock:        lock,
 		Project:     NewProject(client),
 		Request:     NewRequest(client),
