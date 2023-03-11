@@ -146,7 +146,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
@@ -234,7 +234,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		return nil, interfaces.ErrItemFieldRequired
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		itm, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
 		if err != nil {
 			return nil, err
@@ -292,7 +292,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		return interfaces.ErrInvalidOperator
 	}
 
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
 		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 		if err != nil {
 			return err

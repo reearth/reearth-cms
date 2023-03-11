@@ -149,7 +149,7 @@ func (i *User) SignupOIDC(ctx context.Context, param interfaces.SignupOIDC) (*us
 }
 
 func (i *User) FindOrCreate(ctx context.Context, param interfaces.UserFindOrCreateParam) (u *user.User, err error) {
-	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		if param.Sub == "" {
 			return nil, rerror.ErrNotFound
 		}

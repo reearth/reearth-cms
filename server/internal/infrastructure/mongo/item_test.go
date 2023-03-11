@@ -324,7 +324,7 @@ func TestItem_Archive(t *testing.T) {
 	assert.NoError(t, err)
 
 	var d bson.M
-	err = client.Client.Collection("item").FindOne(ctx, bson.M{
+	err = client.Database().Collection("item").FindOne(ctx, bson.M{
 		"__": true,
 		"id": iid.String(),
 	}).Decode(&d)
