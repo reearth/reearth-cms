@@ -55,7 +55,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
+	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
 		p, err := r.repos.Project.FindByID(ctx, param.ProjectID)
 		if err != nil {
 			return nil, err
@@ -130,7 +130,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
+	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
 		req, err := r.repos.Request.FindByID(ctx, param.RequestID)
 		if err != nil {
 			return nil, err
@@ -211,7 +211,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	req, err := Run1(ctx, operator, r.repos, Usecase().Transaction(), func() (*request.Request, error) {
+	req, err := Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
 		req, err := r.repos.Request.FindByID(ctx, requestID)
 		if err != nil {
 			return nil, err

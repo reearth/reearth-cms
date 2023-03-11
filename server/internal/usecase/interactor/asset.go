@@ -67,7 +67,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, error) {
 			prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 			if err != nil {
 				return nil, err
@@ -186,7 +186,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
-		func() (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, inp.AssetID)
 			if err != nil {
 				return nil, err
@@ -217,7 +217,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, aId)
 			if err != nil {
 				return nil, err
@@ -292,7 +292,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
-		func() (id.AssetID, error) {
+		func(ctx context.Context) (id.AssetID, error) {
 			a, err := i.repos.Asset.FindByID(ctx, aId)
 			if err != nil {
 				return aId, err
