@@ -40,7 +40,7 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, ope
 
 func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
 	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.WorkspaceID).Transaction(),
-		func() (_ *project.Project, err error) {
+		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
 				Workspace(p.WorkspaceID)
@@ -78,7 +78,7 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 		return nil, err
 	}
 	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
-		func() (_ *project.Project, err error) {
+		func(ctx context.Context) (_ *project.Project, err error) {
 			if p.Name != nil {
 				proj.UpdateName(*p.Name)
 			}
@@ -123,7 +123,7 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 
 func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
-		func() (bool, error) {
+		func(ctx context.Context) (bool, error) {
 			if !project.CheckAliasPattern(alias) {
 				return false, project.ErrInvalidAlias
 			}
@@ -143,7 +143,7 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 		return err
 	}
 	return Run0(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			if !operator.IsOwningWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied
 			}

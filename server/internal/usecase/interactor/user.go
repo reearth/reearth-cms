@@ -31,7 +31,7 @@ func NewUser(r *repo.Container, g *gateway.Container, signupSecret, authSrcUIDom
 }
 
 func (i *User) Fetch(ctx context.Context, ids []user.ID, operator *usecase.Operator) ([]*user.User, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() ([]*user.User, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) ([]*user.User, error) {
 		res, err := i.repos.User.FindByIDs(ctx, ids)
 		if err != nil {
 			return res, err
@@ -57,7 +57,7 @@ func (i *User) Fetch(ctx context.Context, ids []user.ID, operator *usecase.Opera
 }
 
 func (i *User) GetUserByCredentials(ctx context.Context, inp interfaces.GetUserByCredentials) (u *user.User, err error) {
-	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		u, err = i.repos.User.FindByNameOrEmail(ctx, inp.Email)
 		if err != nil && !errors.Is(rerror.ErrNotFound, err) {
 			return nil, err
@@ -79,7 +79,7 @@ func (i *User) GetUserByCredentials(ctx context.Context, inp interfaces.GetUserB
 }
 
 func (i *User) GetUserBySubject(ctx context.Context, sub string) (u *user.User, err error) {
-	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, nil, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		u, err = i.repos.User.FindBySub(ctx, sub)
 		if err != nil {
 			return nil, err
@@ -92,7 +92,7 @@ func (i *User) UpdateMe(ctx context.Context, p interfaces.UpdateMeParam, operato
 	if operator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		if p.Password != nil {
 			if p.PasswordConfirmation == nil || *p.Password != *p.PasswordConfirmation {
 				return nil, interfaces.ErrUserInvalidPasswordConfirmation
@@ -177,7 +177,7 @@ func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *
 	if operator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		u, err = i.repos.User.FindByID(ctx, *operator.User)
 		if err != nil {
 			return nil, err
@@ -195,7 +195,7 @@ func (i *User) RemoveMyAuth(ctx context.Context, authProvider string, operator *
 }
 
 func (i *User) SearchUser(ctx context.Context, nameOrEmail string, operator *usecase.Operator) (u *user.User, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*user.User, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*user.User, error) {
 		u, err = i.repos.User.FindByNameOrEmail(ctx, nameOrEmail)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
@@ -208,7 +208,7 @@ func (i *User) DeleteMe(ctx context.Context, userID user.ID, operator *usecase.O
 	if operator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
 		if userID.IsNil() || userID != *operator.User {
 			return rerror.NewE(i18n.T("invalid user id"))
 		}
