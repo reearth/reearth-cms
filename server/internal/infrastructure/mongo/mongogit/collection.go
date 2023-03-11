@@ -97,12 +97,12 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 }
 
 func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
-	if _, err := c.client.Client().UpdateOne(ctx, bson.M{
+	if _, err := c.client.Client().UpdateMany(ctx, bson.M{
 		"id":    id,
 		refsKey: bson.M{"$in": []string{ref.String()}},
 	}, bson.M{
 		"$pull": bson.M{refsKey: ref},
-	}); err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+	}); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 
