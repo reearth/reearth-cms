@@ -25,11 +25,16 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 		ThreadID:      IDFrom(i.Thread()),
 		CreatedAt:     i.ID().Timestamp(),
 		UpdatedAt:     i.Timestamp(),
-		Fields: lo.Map(i.Fields(), func(f *item.Field, _ int) *ItemField {
+		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *ItemField {
+			f := i.Field(sf.ID())
+			var v any = nil
+			if f != nil {
+				v = ToValue(f.Value(), sf.Multiple())
+			}
 			return &ItemField{
-				SchemaFieldID: IDFrom(f.FieldID()),
-				Type:          ToValueType(f.Type()),
-				Value:         ToValue(f.Value(), s.Field(f.FieldID()).Multiple()),
+				SchemaFieldID: IDFrom(sf.ID()),
+				Type:          ToValueType(sf.Type()),
+				Value:         v,
 			}
 		}),
 	}
