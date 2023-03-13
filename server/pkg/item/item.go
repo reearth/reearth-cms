@@ -3,7 +3,6 @@ package item
 import (
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -94,7 +93,7 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.timestamp = util.Now()
 }
 
-func (i *Item) FilterFields(list id.FieldIDList) *Item {
+func (i *Item) FilterFields(list FieldIDList) *Item {
 	if i == nil || list == nil {
 		return nil
 	}
@@ -106,7 +105,7 @@ func (i *Item) FilterFields(list id.FieldIDList) *Item {
 	return i
 }
 
-func (i *Item) HasField(fid id.FieldID, value any) bool {
+func (i *Item) HasField(fid FieldID, value any) bool {
 	for _, field := range i.fields {
 		if field.field == fid && field.value == value {
 			return true
@@ -115,11 +114,11 @@ func (i *Item) HasField(fid id.FieldID, value any) bool {
 	return false
 }
 
-func (i *Item) AssetIDs() id.AssetIDList {
+func (i *Item) AssetIDs() AssetIDList {
 	fm := lo.FlatMap(i.fields, func(f *Field, _ int) []*value.Value {
 		return f.Value().Values()
 	})
-	return lo.FilterMap(fm, func(v *value.Value, _ int) (id.AssetID, bool) {
+	return lo.FilterMap(fm, func(v *value.Value, _ int) (AssetID, bool) {
 		return v.ValueAsset()
 	})
 }
