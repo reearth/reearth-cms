@@ -23,7 +23,7 @@ var (
 )
 
 type Request struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 	f      repo.ProjectFilter
 }
 

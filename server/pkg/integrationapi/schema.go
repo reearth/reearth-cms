@@ -14,9 +14,9 @@ type ItemModelSchema struct {
 	Schema Schema `json:"schema"`
 }
 
-func NewItemModelSchema(i item.ItemModelSchema) ItemModelSchema {
+func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
-		Item:   NewItem(i.Item, i.Schema),
+		Item:   NewItem(i.Item, i.Schema, assets),
 		Model:  NewModel(i.Model),
 		Schema: NewSchema(i.Schema),
 	}

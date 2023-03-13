@@ -13,8 +13,11 @@ export type Workspace = {
   personal?: boolean;
 };
 
-const workspace = atomWithStorage<Workspace | undefined>("workspace", undefined);
+const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);
+
+const workspaceId = atomWithStorage<string | undefined>("workspaceId", undefined);
+export const useWorkspaceId = () => useAtom(workspaceId);
 
 const userId = atomWithStorage<string | undefined>("userId", undefined);
 export const useUserId = () => useAtom(userId);

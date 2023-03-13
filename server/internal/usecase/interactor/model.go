@@ -50,7 +50,7 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (_ *model.Model, err error) {
+		func(ctx context.Context) (_ *model.Model, err error) {
 			if !operator.IsMaintainingProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
@@ -110,7 +110,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (_ *model.Model, err error) {
+		func(ctx context.Context) (_ *model.Model, err error) {
 			m, err := i.repos.Model.FindByID(ctx, param.ModelId)
 			if err != nil {
 				return nil, err
@@ -144,7 +144,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 
 func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
-		func() (bool, error) {
+		func(ctx context.Context) (bool, error) {
 			if k := key.New(s); !k.IsValid() {
 				return false, model.ErrInvalidKey
 			}
@@ -160,7 +160,7 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 
 func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
 			if err != nil {
 				return err
@@ -178,7 +178,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 
 func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator *usecase.Operator) (bool, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func() (_ bool, err error) {
+		func(ctx context.Context) (_ bool, err error) {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
 			if err != nil {
 				return false, err

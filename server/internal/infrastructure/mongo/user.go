@@ -21,7 +21,7 @@ var (
 )
 
 type User struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
 func NewUser(client *mongox.Client) repo.User {
