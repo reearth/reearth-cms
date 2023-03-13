@@ -19,7 +19,7 @@ var (
 )
 
 type Model struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 	f      repo.ProjectFilter
 }
 
