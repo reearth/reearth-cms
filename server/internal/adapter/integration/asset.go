@@ -46,10 +46,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-		if err != nil {
-			return integrationapi.Asset{}, err
-		}
+		aurl := uc.Asset.GetURL(a)
+		aa := integrationapi.NewAsset(a, aurl, true)
 		return *aa, nil
 	})
 	if err != nil {
@@ -122,11 +120,8 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		return AssetCreate400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
-		return AssetCreate400Response{}, err
-	}
-
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, aurl, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -158,10 +153,7 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 		return AssetGet400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
-		return AssetGet400Response{}, err
-	}
-
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, aurl, true)
 	return AssetGet200JSONResponse(*aa), nil
 }

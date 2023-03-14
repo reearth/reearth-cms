@@ -34,7 +34,7 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*schema.Field, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
 		if err != nil {
 			return nil, err
@@ -73,7 +73,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 }
 
 func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (*schema.Field, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
 		if err != nil {
 			return nil, err
@@ -101,7 +101,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 
 func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID id.FieldID, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			s, err := i.repos.Schema.FindByID(ctx, schemaId)
 			if err != nil {
 				return err
@@ -117,7 +117,7 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 }
 
 func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []interfaces.UpdateFieldParam, operator *usecase.Operator) (schema.FieldList, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (schema.FieldList, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (schema.FieldList, error) {
 		s, err := i.repos.Schema.FindByID(ctx, sid)
 		if err != nil {
 			return nil, err

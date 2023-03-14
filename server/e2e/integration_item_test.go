@@ -2,10 +2,12 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -20,6 +22,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
@@ -29,14 +32,17 @@ var (
 	iId    = id.NewIntegrationID()
 	mId    = id.NewModelID()
 	aid    = id.NewAssetID()
+	auuid  = uuid.NewString()
 	itmId  = id.NewItemID()
 	fId    = id.NewFieldID()
+	fId2   = id.NewFieldID()
 	thId   = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	pid    = id.NewProjectID()
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
+	sfKey2 = id.NewKey("asset")
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
@@ -81,10 +87,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	}
 
 	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
+	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
 	s := schema.New().NewID().
 		Workspace(w.ID()).
 		Project(p.ID()).
-		Fields([]*schema.Field{sf}).
+		Fields([]*schema.Field{sf, sf2}).
 		MustBuild()
 	if err := r.Schema.Save(ctx, s); err != nil {
 		return err
@@ -108,6 +115,9 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Model(m.ID()).
 		Project(p.ID()).
 		Thread(thId).
+		Fields([]*item.Field{
+			item.NewField(fId2, value.TypeAsset.Value(aid).AsMultiple()),
+		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm); err != nil {
 		return err
@@ -126,7 +136,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.jpg").
 		Size(1000).
 		File(f).
-		UUID(uuid.NewString()).
+		UUID(auuid).
 		Thread(thId).
 		MustBuild()
 
@@ -169,18 +179,32 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	a := obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
+
+	// asset embeded
+	obj = e.GET("/api/models/{modelId}/items", mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	assertItem(a.First(), true)
 
 	// key cannot be used
 	e.GET("/api/models/{modelId}/items", ikey).
@@ -231,10 +255,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 
 	a := obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
 
 	// model key can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
@@ -244,18 +265,14 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	a = obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
 
 	// project alias can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
@@ -265,18 +282,32 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	a = obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
+
+	// asset embeded
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	assertItem(a.First(), true)
 
 	// invalid key
 	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
@@ -491,6 +522,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").Equal([]interface{}{
 		map[string]string{
+			"id":    fId2.String(),
+			"key":   "asset",
+			"type":  "asset",
+			"value": aid.String(),
+		},
+		map[string]string{
 			"id":    fId.String(),
 			"type":  "text",
 			"value": "test value",
@@ -505,6 +542,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]string{
+					"id":    fId2.String(),
+					"key":   "asset",
+					"type":  "asset",
+					"value": aid.String(),
+				},
+				map[string]string{
 					"key":   sfKey.String(),
 					"value": "test value 2",
 				},
@@ -516,6 +559,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object().
 		Value("fields").
 		Equal([]any{
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid.String(),
+			},
 			map[string]string{
 				"id":    fId.String(),
 				"type":  "text",
@@ -586,4 +635,38 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
+}
+
+func assertItem(v *httpexpect.Value, assetEmbeded bool) {
+	o := v.Object()
+	o.Value("id").Equal(itmId.String())
+	if assetEmbeded {
+		a := o.Value("fields").Array()
+		a.Length().Equal(1)
+		a.First().Object().Value("value").Object().
+			ValueEqual("id", aid.String()).
+			ValueEqual("contentType", "image/jpg").
+			ValueEqual("file", map[string]any{
+				"contentType": "image/jpg",
+				"name":        "aaa.jpg",
+				"path":        "",
+				"size":        1000,
+			}).
+			ValueEqual("name", "aaa.jpg").
+			ValueEqual("previewType", "unknown").
+			ValueEqual("projectId", pid.String()).
+			ValueEqual("totalSize", 1000).
+			ValueEqual("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid[0:2], auuid[2:]))
+	} else {
+		o.Value("fields").Equal([]map[string]any{
+			{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid.String(),
+			},
+		})
+	}
+	o.Value("parents").Equal([]any{})
+	o.Value("refs").Equal([]string{"latest"})
 }

@@ -12,21 +12,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Container, error) {
+func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransaction bool) (*repo.Container, error) {
 	if databaseName == "" {
 		databaseName = "reearth_cms"
 	}
+
 	lock, err := NewLock(mc.Database(databaseName).Collection("locks"))
 	if err != nil {
 		return nil, err
 	}
 
 	client := mongox.NewClient(databaseName, mc)
+	if useTransaction {
+		client = client.WithTransaction()
+	}
+
 	c := &repo.Container{
 		Asset:       NewAsset(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
-		Transaction: mongox.NewTransaction(client),
+		Transaction: client.Transaction(),
 		Lock:        lock,
 		Project:     NewProject(client),
 		Request:     NewRequest(client),
@@ -46,8 +51,8 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string) (*repo.Cont
 	return c, nil
 }
 
-func NewWithDB(ctx context.Context, db *mongo.Database) (*repo.Container, error) {
-	return New(ctx, db.Client(), db.Name())
+func NewWithDB(ctx context.Context, db *mongo.Database, useTransaction bool) (*repo.Container, error) {
+	return New(ctx, db.Client(), db.Name(), useTransaction)
 }
 
 func Init(r *repo.Container) error {
@@ -70,7 +75,7 @@ func Init(r *repo.Container) error {
 	)
 }
 
-func createIndexes(ctx context.Context, c *mongox.ClientCollection, keys, uniqueKeys []string) error {
+func createIndexes(ctx context.Context, c *mongox.Collection, keys, uniqueKeys []string) error {
 	created, deleted, err := c.Indexes(ctx, keys, uniqueKeys)
 	if len(created) > 0 || len(deleted) > 0 {
 		log.Infof("mongo: %s: index deleted: %v, created: %v", c.Client().Name(), deleted, created)
