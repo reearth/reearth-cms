@@ -48,10 +48,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 
 	a := obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
 
 	// model key can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
@@ -61,18 +58,14 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	a = obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
 
 	// project alias can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
@@ -82,18 +75,32 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	a = obj.Value("items").Array()
 	a.Length().Equal(1)
-	a.First().Object().Value("id").Equal(itmId.String())
-	a.First().Object().Value("fields").Equal([]any{})
-	a.First().Object().Value("parents").Equal([]any{})
-	a.First().Object().Value("refs").Equal([]string{"latest"})
+	assertItem(a.First(), false)
+
+	// asset embeded
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
+
+	a = obj.Value("items").Array()
+	a.Length().Equal(1)
+	assertItem(a.First(), true)
 
 	// invalid key
 	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
