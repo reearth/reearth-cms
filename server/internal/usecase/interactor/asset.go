@@ -31,15 +31,15 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	}
 }
 
-func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
 	return i.repos.Asset.FindByID(ctx, aid)
 }
 
-func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) (asset.List, error) {
+func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.Operator) (asset.List, error) {
 	return i.repos.Asset.FindByIDs(ctx, assets)
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, operator *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
 	return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
 		Sort:       filter.Sort,
 		Keyword:    filter.Keyword,
@@ -69,11 +69,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, interfaces.ErrOperationDenied
 	}
 
-			uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
-			if err != nil {
-				return nil, err
-			}
-			inp.File.Size = size
+	uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
+	if err != nil {
+		return nil, err
+	}
+	inp.File.Size = size
 
 	return Run1(
 		ctx, op, i.repos,
