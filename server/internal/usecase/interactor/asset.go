@@ -60,18 +60,14 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, interfaces.ErrFileNotIncluded
 	}
 
-	return Run1(
-		ctx, op, i.repos,
-		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, error) {
-			prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
-			if err != nil {
-				return nil, err
-			}
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return nil, err
+	}
 
-			if !op.IsWritableWorkspace(prj.Workspace()) {
-				return nil, interfaces.ErrOperationDenied
-			}
+	if !op.IsWritableWorkspace(prj.Workspace()) {
+		return nil, interfaces.ErrOperationDenied
+	}
 
 			uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
 			if err != nil {
@@ -79,6 +75,10 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			}
 			inp.File.Size = size
 
+	return Run1(
+		ctx, op, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (*asset.Asset, error) {
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
 			if err != nil {
 				return nil, err
