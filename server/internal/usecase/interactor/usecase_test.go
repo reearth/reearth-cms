@@ -30,7 +30,7 @@ func TestUc_checkPermission(t *testing.T) {
 		{
 			name:               "nil operator 2",
 			readableWorkspaces: id.WorkspaceIDList{id.NewWorkspaceID()},
-			wantErr:            false,
+			wantErr:            true,
 		},
 		{
 			name:               "can read a workspace",
@@ -38,7 +38,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				ReadableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot read a workspace",
@@ -54,7 +54,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				WritableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot write a workspace",
