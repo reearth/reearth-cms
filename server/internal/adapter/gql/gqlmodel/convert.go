@@ -30,6 +30,9 @@ func (p *Pagination) Into() *usecasex.Pagination {
 		if p.First != nil {
 			limit = int64(*p.First)
 		}
+		if limit > 100 {
+			limit = 100
+		}
 		return usecasex.OffsetPagination{
 			Offset: int64(*p.Offset),
 			Limit:  limit,

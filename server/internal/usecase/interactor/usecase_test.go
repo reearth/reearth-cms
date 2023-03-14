@@ -104,7 +104,7 @@ func TestRun(t *testing.T) {
 	gota, gotb, gotc, goterr := Run3(
 		ctx, nil, r,
 		Usecase(),
-		func() (any, any, any, error) {
+		func(ctx context.Context) (any, any, any, error) {
 			return a, b, c, nil
 		},
 	)
@@ -120,7 +120,7 @@ func TestRun(t *testing.T) {
 	_ = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)
@@ -132,7 +132,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return err
 		},
 	)
@@ -147,7 +147,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)
@@ -162,7 +162,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)
