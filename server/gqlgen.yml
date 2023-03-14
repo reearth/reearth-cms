@@ -61,6 +61,8 @@ models:
         resolver: true
       status:
         resolver: true
+      assets:
+        resolver: true
   Model:
     fields:
       project:
@@ -111,7 +113,7 @@ models:
     fields:
       workspace:
         resolver: true
-  Comment:  
+  Comment:
     fields:
       author:
         resolver: true

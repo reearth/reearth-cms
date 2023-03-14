@@ -7,7 +7,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/usecasex"
 )
+
+const transactionRetry = 2
 
 type uc struct {
 	tx                     bool
@@ -46,57 +49,52 @@ func (u *uc) Transaction() *uc {
 	return u
 }
 
-func Run0(ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func() error) (err error) {
+func Run0(ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func(context.Context) error) (err error) {
 	_, _, _, err = Run3(
 		ctx, op, r, e,
-		func() (_, _, _ any, err error) {
-			err = f()
+		func(ctx context.Context) (_, _, _ any, err error) {
+			err = f(ctx)
 			return
 		})
 	return
 }
 
-func Run1[A any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func() (A, error)) (a A, err error) {
+func Run1[A any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func(context.Context) (A, error)) (a A, err error) {
 	a, _, _, err = Run3(
 		ctx, op, r, e,
-		func() (a A, _, _ any, err error) {
-			a, err = f()
+		func(ctx context.Context) (a A, _, _ any, err error) {
+			a, err = f(ctx)
 			return
 		})
 	return
 }
 
-func Run2[A, B any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func() (A, B, error)) (a A, b B, err error) {
+func Run2[A, B any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func(context.Context) (A, B, error)) (a A, b B, err error) {
 	a, b, _, err = Run3(
 		ctx, op, r, e,
-		func() (a A, b B, _ any, err error) {
-			a, b, err = f()
+		func(ctx context.Context) (a A, b B, _ any, err error) {
+			a, b, err = f(ctx)
 			return
 		})
 	return
 }
 
-func Run3[A, B, C any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func() (A, B, C, error)) (_ A, _ B, _ C, err error) {
+func Run3[A, B, C any](ctx context.Context, op *usecase.Operator, r *repo.Container, e *uc, f func(context.Context) (A, B, C, error)) (a A, b B, c C, err error) {
 	if err = e.checkPermission(op); err != nil {
 		return
 	}
+
+	var tr usecasex.Transaction
 	if e.tx && r.Transaction != nil {
-		tx, err2 := r.Transaction.Begin()
-		if err2 != nil {
-			err = err2
-			return
-		}
-		defer func() {
-			if err == nil {
-				tx.Commit()
-			}
-			if err2 := tx.End(ctx); err == nil && err2 != nil {
-				err = err2
-			}
-		}()
+		tr = r.Transaction
 	}
 
-	return f()
+	err = usecasex.DoTransaction(ctx, tr, transactionRetry, func(ctx context.Context) error {
+		a, b, c, err = f(ctx)
+		return err
+	})
+
+	return
 }
 
 func (u *uc) checkPermission(op *usecase.Operator) error {

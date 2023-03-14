@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/samber/lo"
 )
 
 func (r *Resolver) Item() ItemResolver {
@@ -44,4 +45,29 @@ func (i itemResolver) Integration(ctx context.Context, obj *gqlmodel.Item) (*gql
 
 func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error) {
 	return dataloaders(ctx).ItemStatus.Load(obj.ID)
+}
+
+func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error) {
+
+	aIds := lo.FlatMap(obj.Fields, func(f *gqlmodel.ItemField, _ int) []gqlmodel.ID {
+		if f.Type != gqlmodel.SchemaFieldTypeAsset || f.Value == nil {
+			return nil
+		}
+		if s, ok := f.Value.(string); ok {
+			return []gqlmodel.ID{gqlmodel.ID(s)}
+		}
+		if ss, ok := f.Value.([]any); ok {
+			return lo.FilterMap(ss, func(i any, _ int) (gqlmodel.ID, bool) {
+				str, ok := i.(string)
+				return gqlmodel.ID(str), ok
+			})
+		}
+		return nil
+	})
+
+	assets, err := dataloaders(ctx).Asset.LoadAll(aIds)
+	if len(err) > 0 && err[0] != nil {
+		return nil, err[0]
+	}
+	return assets, nil
 }
