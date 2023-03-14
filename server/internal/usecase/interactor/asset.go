@@ -64,29 +64,30 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, interfaces.ErrFileNotIncluded
 	}
 
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !op.IsWritableWorkspace(prj.Workspace()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	var uuid string
+	var size int64
+	var file *file.File
+	if inp.File != nil {
+		file = inp.File
+		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
-			if err != nil {
-				return nil, err
-			}
-
-			if !op.IsWritableWorkspace(prj.Workspace()) {
-				return nil, interfaces.ErrOperationDenied
-			}
-
-			var uuid string
-			var size int64
-			var file *file.File
-			if inp.File != nil {
-				file = inp.File
-				uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
-				if err != nil {
-					return nil, err
-				}
-			}
 			if inp.URL != "" {
 				file, err = getExternalFile(ctx, inp.URL)
 				if err != nil {
