@@ -120,7 +120,7 @@ const AssetItem: React.FC<Props> = ({
       {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton disabled={disabled} onClick={handleClick}>
+            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
@@ -135,6 +135,7 @@ const AssetItem: React.FC<Props> = ({
               </AssetLinkedName>
             </Tooltip>
           </AssetDetailsWrapper>
+          <Space />
           {asset && (
             <AssetLink
               type="link"
@@ -192,13 +193,16 @@ const AssetButton = styled(Button)<{ enabled?: boolean }>`
   height: 100px;
   border: 1px dashed;
   border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
-  color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
+  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+`;
+
+const Space = styled.div`
+  flex: 1;
 `;
 
 const AssetWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
 `;
 
