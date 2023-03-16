@@ -26,7 +26,7 @@ jobs:
         working-directory: worker
     services:
       mongo:
-        image: mongo:4.4-focal
+        image: mongo:5-focal
         ports:
           - 27017:27017
     steps:
