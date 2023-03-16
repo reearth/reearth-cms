@@ -48,6 +48,7 @@ export default (
       assetId: value ?? "",
       withFiles: true,
     },
+    fetchPolicy: "network-only",
     skip: !value,
   });
 
