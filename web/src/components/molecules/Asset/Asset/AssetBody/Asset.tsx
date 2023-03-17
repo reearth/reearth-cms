@@ -22,6 +22,7 @@ import {
   Geo3dViewer,
   SvgViewer,
   ImageViewer,
+  GltfViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { useT } from "@reearth-cms/i18n";
@@ -81,7 +82,8 @@ const AssetMolecule: React.FC<Props> = ({
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d": // TODO: add viewer
+      case viewerType === "model_3d":
+        return <GltfViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
