@@ -4,19 +4,20 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 )
 
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
-	res, err := usecases(ctx).User.UpdateMe(ctx, interfaces.UpdateMeParam{
+	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
 		Name:                 input.Name,
 		Email:                input.Email,
 		Lang:                 input.Lang,
-		Theme:                gqlmodel.ToTheme(input.Theme),
+		Theme:                user.ThemeFrom(input.Theme),
 		Password:             input.Password,
 		PasswordConfirmation: input.PasswordConfirmation,
-	}, getOperator(ctx))
+	}, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/appx"
 )
 
@@ -63,6 +64,15 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 func Operator(ctx context.Context) *usecase.Operator {
 	if v := ctx.Value(contextOperator); v != nil {
 		if v2, ok := v.(*usecase.Operator); ok {
+			return v2
+		}
+	}
+	return nil
+}
+
+func AcOperator(ctx context.Context) *accountusecase.Operator {
+	if v := ctx.Value(contextOperator); v != nil {
+		if v2, ok := v.(*accountusecase.Operator); ok {
 			return v2
 		}
 	}

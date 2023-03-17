@@ -5,16 +5,16 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/util"
 )
 
 type WorkspaceLoader struct {
-	usecase interfaces.Workspace
+	usecase accountinterfaces.Workspace
 }
 
-func NewWorkspaceLoader(usecase interfaces.Workspace) *WorkspaceLoader {
+func NewWorkspaceLoader(usecase accountinterfaces.Workspace) *WorkspaceLoader {
 	return &WorkspaceLoader{usecase: usecase}
 }
 

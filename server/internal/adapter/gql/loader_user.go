@@ -5,16 +5,16 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/util"
 )
 
 type UserLoader struct {
-	usecase interfaces.User
+	usecase accountinterfaces.User
 }
 
-func NewUserLoader(usecase interfaces.User) *UserLoader {
+func NewUserLoader(usecase accountinterfaces.User) *UserLoader {
 	return &UserLoader{usecase: usecase}
 }
 

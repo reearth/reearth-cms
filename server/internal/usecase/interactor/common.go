@@ -10,6 +10,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -18,12 +21,14 @@ type ContainerConfig struct {
 	AuthSrvUIDomain string
 }
 
-func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
+func New(r *repo.Container, g *gateway.Container,
+	ar *accountrepo.Container, ag *accountgateway.Container,
+	config ContainerConfig) interfaces.Container {
 
 	return interfaces.Container{
 		Asset:       NewAsset(r, g),
-		Workspace:   NewWorkspace(r, g),
-		User:        NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
+		Workspace:   accountinteractor.NewWorkspace(ar),
+		User:        accountinteractor.NewUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain),
 		Project:     NewProject(r, g),
 		Item:        NewItem(r, g),
 		Request:     NewRequest(r, g),
