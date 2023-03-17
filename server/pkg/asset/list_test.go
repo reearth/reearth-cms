@@ -38,3 +38,15 @@ func TestList_Clone(t *testing.T) {
 	assert.Equal(t, list, got)
 	assert.NotSame(t, list[0], got[0])
 }
+
+func TestList_Map(t *testing.T) {
+	pid := NewProjectID()
+	uid := NewUserID()
+
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
+
+	assert.Equal(t, Map{
+		a.ID(): a,
+	}, List{a}.Map())
+	assert.Equal(t, Map{}, List(nil).Map())
+}
