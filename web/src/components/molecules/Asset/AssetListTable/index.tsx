@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Key } from "react";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -64,7 +65,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   pageSize,
   onAssetItemSelect,
   onAssetSelect,
-  onEdit,
+  // onEdit,
   onSearchTerm,
   setSelection,
   onAssetsReload,
@@ -77,7 +78,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(asset)} />
+        <Link to={asset.id}>
+          <Icon icon="edit" />
+        </Link>
       ),
     },
     {
