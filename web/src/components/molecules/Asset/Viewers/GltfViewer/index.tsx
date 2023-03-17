@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 
-import { Imagery } from "./imagery";
+import { Imagery } from "./Imagery";
 
 type Props = {
   viewerProps?: ComponentProps<typeof ResiumViewer>;

@@ -1,4 +1,12 @@
-import { Cartesian3, Matrix4, Model, Viewer } from "cesium";
+import {
+  Cartesian3,
+  Model,
+  Viewer,
+  HeadingPitchRoll,
+  Transforms,
+  Ellipsoid,
+  BoundingSphere,
+} from "cesium";
 import { useCallback, useEffect, useRef } from "react";
 import { useCesium } from "resium";
 
@@ -11,34 +19,30 @@ export const Imagery: React.FC<Props> = ({ url }) => {
   const modelRef = useRef<Model | undefined>();
 
   const loadModel = useCallback(async () => {
-    if (!viewer || !url.endsWith(".gltf")) return;
+    if (!viewer) return;
+    const position = Cartesian3.ZERO;
+    const hpr = new HeadingPitchRoll(0, 0, 0);
 
-    const model = await Model.fromGltf({
-      url,
-      modelMatrix: Matrix4.fromTranslation(Cartesian3.ZERO),
-      scene: viewer.scene,
-      scale: 1000000,
-    });
+    const model = viewer.scene.primitives.add(
+      Model.fromGltf({
+        url,
+        modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
+        show: true,
+      }),
+    );
 
     modelRef.current = model;
-    viewer.scene.globe.show = false;
     viewer.scene.primitives.add(model);
+    model.readyPromise.then(function (model: { boundingSphere: BoundingSphere }) {
+      viewer.camera.flyToBoundingSphere(model.boundingSphere, {
+        duration: 0.5,
+      });
+    });
   }, [url, viewer]);
-
-  const unloadModel = useCallback(() => {
-    if (!viewer || !modelRef.current) return;
-
-    viewer.scene.primitives.remove(modelRef.current);
-    modelRef.current = undefined;
-  }, [viewer]);
 
   useEffect(() => {
     loadModel();
-
-    // return () => {
-    //   unloadModel();
-    // };
-  }, [loadModel, unloadModel]);
+  }, [loadModel]);
 
   return null;
 };
