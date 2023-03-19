@@ -10,6 +10,7 @@ const RequestDetails: React.FC = () => {
     isCloseActionEnabled,
     isApproveActionEnabled,
     currentRequest,
+    loading: loadingRequest,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
@@ -61,6 +62,7 @@ const RequestDetails: React.FC = () => {
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loading}
+      loading={loadingRequest}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
