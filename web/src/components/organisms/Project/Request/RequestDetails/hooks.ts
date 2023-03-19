@@ -48,7 +48,7 @@ export default () => {
   const { data } = useGetRequestsQuery({
     variables: {
       projectId: projectId ?? "",
-      pagination: { first: 100 },
+      pagination: { first: 1000 },
     },
     skip: !projectId,
   });
