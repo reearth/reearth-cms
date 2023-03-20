@@ -7,7 +7,7 @@ import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetRequestsQuery,
+  useGetModalRequestsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -27,7 +27,7 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, loading } = useGetRequestsQuery({
+  const { data, loading } = useGetModalRequestsQuery({
     fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
@@ -78,10 +78,11 @@ export default () => {
     [],
   );
 
-  const handleAddItemToRequestModalOpen = useCallback(
-    () => setAddItemToRequestModalShown(true),
-    [],
-  );
+  const handleAddItemToRequestModalOpen = useCallback(() => {
+    setPage(1);
+    setPageSize(10);
+    setAddItemToRequestModalShown(true);
+  }, []);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
