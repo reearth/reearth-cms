@@ -36,6 +36,10 @@ export type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -93,6 +97,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  onRequestTableChange,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onCollapse,
   onUploadModalCancel,
   setUploadUrl,
@@ -130,6 +138,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       center={
         <ContentForm
           requests={requests}
+          onRequestTableChange={onRequestTableChange}
+          requestModalTotalCount={requestModalTotalCount}
+          requestModalPage={requestModalPage}
+          requestModalPageSize={requestModalPageSize}
           loading={loading}
           itemId={itemId}
           model={model}

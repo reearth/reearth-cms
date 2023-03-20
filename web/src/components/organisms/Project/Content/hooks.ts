@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -19,21 +19,32 @@ export default () => {
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
-  const { data: requestData } = useGetRequestsQuery({
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  useEffect(() => {
+    setPage(page ? +page : 1);
+    setPageSize(pageSize ? +pageSize : 10);
+  }, [setPage, setPageSize, page, pageSize]);
+
+  const { data } = useGetRequestsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
-      pagination: { first: 300 },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: { key: "createdAt", reverted: true },
+      state: ["WAITING"] as GQLRequestState[],
     },
     skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
     () =>
-      (requestData?.requests.nodes
+      (data?.requests.nodes
         .map(request => request as GQLRequest)
         .map(convertRequest)
-        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
-    [requestData?.requests.nodes],
+        .filter(request => !!request) as Request[]) ?? [],
+    [data?.requests.nodes],
   );
 
   const [updateRequest] = useUpdateRequestMutation();
@@ -72,14 +83,23 @@ export default () => {
     [],
   );
 
+  const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
+
   return {
     currentWorkspace,
     currentModel,
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    totalCount: data?.requests.totalCount ?? 0,
+    page,
+    pageSize,
   };
 };
