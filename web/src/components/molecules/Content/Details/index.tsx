@@ -54,7 +54,6 @@ export type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -106,7 +105,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
   onRequestCreate,
   onChange,
   onModalClose,
@@ -158,7 +156,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={onNavigateToAsset}
           requestModalShown={requestModalShown}
           addItemToRequestModalShown={addItemToRequestModalShown}
           onRequestCreate={onRequestCreate}

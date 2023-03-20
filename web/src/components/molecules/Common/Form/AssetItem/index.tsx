@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -43,7 +44,6 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   disabled?: boolean;
 };
 
@@ -70,7 +70,6 @@ const AssetItem: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onChange,
-  onNavigateToAsset,
   disabled,
 }) => {
   const t = useT();
@@ -78,6 +77,8 @@ const AssetItem: React.FC<Props> = ({
     asset,
     loading,
     visible,
+    workspaceId,
+    projectId,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
@@ -127,21 +128,22 @@ const AssetItem: React.FC<Props> = ({
               </div>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
-              <AssetLinkedName
-                enabled={!!asset}
-                type="link"
-                onClick={() => (asset ? onNavigateToAsset(asset) : null)}>
-                {asset?.fileName ?? value + " (removed)"}
-              </AssetLinkedName>
+              <Link
+                to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+                target="_blank">
+                <AssetLinkedName enabled={!!asset} type="link">
+                  {asset?.fileName ?? value + " (removed)"}
+                </AssetLinkedName>
+              </Link>
             </Tooltip>
           </AssetDetailsWrapper>
           <Space />
           {asset && (
-            <AssetLink
-              type="link"
-              icon={<Icon icon="arrowSquareOut" size={20} />}
-              onClick={() => onNavigateToAsset(asset)}
-            />
+            <Link
+              to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+              target="_blank">
+              <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
+            </Link>
           )}
           {value && (
             <AssetLink

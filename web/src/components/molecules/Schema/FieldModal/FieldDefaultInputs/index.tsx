@@ -46,7 +46,6 @@ export interface Props {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
@@ -73,7 +72,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   onAssetCreateFromUrl,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   return selectedType ? (
     selectedType === "TextArea" ? (
@@ -107,7 +105,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
         onAssetsReload={onAssetsReload}
         setFileList={setFileList}
         setUploadModalVisibility={setUploadModalVisibility}
-        onNavigateToAsset={onNavigateToAsset}
       />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} multiple={multiple} />
