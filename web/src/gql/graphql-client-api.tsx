@@ -1800,6 +1800,19 @@ export type GetRequestsQueryVariables = Exact<{
 
 export type GetRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', totalCount: number, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null> } };
 
+export type GetModalRequestsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  key?: InputMaybe<Scalars['String']>;
+  state?: InputMaybe<Array<RequestState> | RequestState>;
+  pagination?: InputMaybe<Pagination>;
+  createdBy?: InputMaybe<Scalars['ID']>;
+  reviewer?: InputMaybe<Scalars['ID']>;
+  sort?: InputMaybe<Sort>;
+}>;
+
+
+export type GetModalRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', totalCount: number, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, state: RequestState, createdAt: Date, createdBy?: { __typename?: 'User', name: string } | null, items: Array<{ __typename?: 'RequestItem', itemId: string }>, reviewers: Array<{ __typename?: 'User', id: string, name: string }> } | null> } };
+
 export type GetRequestQueryVariables = Exact<{
   requestId: Scalars['ID'];
 }>;
@@ -3843,6 +3856,72 @@ export function useGetRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetRequestsQueryHookResult = ReturnType<typeof useGetRequestsQuery>;
 export type GetRequestsLazyQueryHookResult = ReturnType<typeof useGetRequestsLazyQuery>;
 export type GetRequestsQueryResult = Apollo.QueryResult<GetRequestsQuery, GetRequestsQueryVariables>;
+export const GetModalRequestsDocument = gql`
+    query GetModalRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
+  requests(
+    projectId: $projectId
+    key: $key
+    state: $state
+    pagination: $pagination
+    createdBy: $createdBy
+    reviewer: $reviewer
+    sort: $sort
+  ) {
+    nodes {
+      id
+      title
+      description
+      createdBy {
+        name
+      }
+      items {
+        itemId
+      }
+      reviewers {
+        id
+        name
+      }
+      state
+      createdAt
+    }
+    totalCount
+  }
+}
+    `;
+
+/**
+ * __useGetModalRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetModalRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetModalRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetModalRequestsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      key: // value for 'key'
+ *      state: // value for 'state'
+ *      pagination: // value for 'pagination'
+ *      createdBy: // value for 'createdBy'
+ *      reviewer: // value for 'reviewer'
+ *      sort: // value for 'sort'
+ *   },
+ * });
+ */
+export function useGetModalRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(GetModalRequestsDocument, options);
+      }
+export function useGetModalRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(GetModalRequestsDocument, options);
+        }
+export type GetModalRequestsQueryHookResult = ReturnType<typeof useGetModalRequestsQuery>;
+export type GetModalRequestsLazyQueryHookResult = ReturnType<typeof useGetModalRequestsLazyQuery>;
+export type GetModalRequestsQueryResult = Apollo.QueryResult<GetModalRequestsQuery, GetModalRequestsQueryVariables>;
 export const GetRequestDocument = gql`
     query GetRequest($requestId: ID!) {
   node(id: $requestId, type: REQUEST) {
