@@ -23,8 +23,8 @@ export default () => {
   const [pageSize, setPageSize] = useState<number>(10);
 
   useEffect(() => {
-    setPage(page ? +page : 1);
-    setPageSize(pageSize ? +pageSize : 10);
+    setPage(+page);
+    setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
   const { data, loading } = useGetRequestsQuery({
