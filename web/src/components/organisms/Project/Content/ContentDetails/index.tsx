@@ -22,6 +22,11 @@ const ContentDetails: React.FC = () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
     handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -61,6 +66,11 @@ const ContentDetails: React.FC = () => {
   return (
     <ContentDetailsMolecule
       requests={requests}
+      onRequestTableChange={handleRequestTableChange}
+      requestModalTotalCount={requestModalTotalCount}
+      requestModalPage={requestModalPage}
+      requestModalPageSize={requestModalPageSize}
+      requestModalLoading={requestModalLoading}
       collapsed={collapsedModelMenu}
       onCollapse={collapseModelMenu}
       commentsPanel={

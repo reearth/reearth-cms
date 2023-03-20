@@ -34,6 +34,11 @@ export default () => {
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading: requestModalLoading,
+    totalCount: requestModalTotalCount,
+    page: requestModalPage,
+    pageSize: requestModalPageSize,
   } = useContentHooks();
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -270,6 +275,11 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
     handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
