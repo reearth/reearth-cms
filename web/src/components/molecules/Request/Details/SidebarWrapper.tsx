@@ -38,6 +38,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       reviewers.push({
         label: member.user.name,
         value: member.userId,
+        name: member.user.name,
       });
     });
 
@@ -111,6 +112,9 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           placeholder={t("Reviewer")}
           mode="multiple"
           options={reviewers}
+          filterOption={(input, option) =>
+            option?.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }
           style={{ width: "100%", display: viewReviewers ? "initial" : "none" }}
           onChange={setSelectedReviewers}
           onBlur={handleSubmit}
