@@ -36,6 +36,11 @@ export type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -54,7 +59,6 @@ export type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -93,6 +97,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onCollapse,
   onUploadModalCancel,
   setUploadUrl,
@@ -106,7 +115,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
   onRequestCreate,
   onChange,
   onModalClose,
@@ -130,6 +138,11 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       center={
         <ContentForm
           requests={requests}
+          onRequestTableChange={onRequestTableChange}
+          requestModalLoading={requestModalLoading}
+          requestModalTotalCount={requestModalTotalCount}
+          requestModalPage={requestModalPage}
+          requestModalPageSize={requestModalPageSize}
           loading={loading}
           itemId={itemId}
           model={model}
@@ -158,7 +171,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={onNavigateToAsset}
           requestModalShown={requestModalShown}
           addItemToRequestModalShown={addItemToRequestModalShown}
           onRequestCreate={onRequestCreate}
