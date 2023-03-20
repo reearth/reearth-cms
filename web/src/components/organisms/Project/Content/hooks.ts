@@ -22,7 +22,7 @@ export default () => {
   const { data: requestData } = useGetRequestsQuery({
     variables: {
       projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
+      pagination: { first: 300 },
     },
     skip: !currentProject?.id,
   });
