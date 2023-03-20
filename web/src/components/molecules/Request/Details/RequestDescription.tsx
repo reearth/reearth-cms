@@ -45,7 +45,6 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 export const RequestDescription: React.FC<Props> = ({
@@ -70,7 +69,6 @@ export const RequestDescription: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   const fromNow = useMemo(
     () => moment(currentRequest.createdAt?.toString()).fromNow(),
@@ -117,7 +115,6 @@ export const RequestDescription: React.FC<Props> = ({
                       onAssetSearchTerm={onAssetSearchTerm}
                       setFileList={setFileList}
                       setUploadModalVisibility={setUploadModalVisibility}
-                      onNavigateToAsset={onNavigateToAsset}
                     />
                   </Panel>
                 ))}

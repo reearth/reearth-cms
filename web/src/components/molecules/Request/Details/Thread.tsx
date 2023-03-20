@@ -48,7 +48,6 @@ export type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -78,7 +77,6 @@ const RequestThread: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   return (
     <ContentWrapper>
@@ -106,7 +104,6 @@ const RequestThread: React.FC<Props> = ({
             onAssetSearchTerm={onAssetSearchTerm}
             setFileList={setFileList}
             setUploadModalVisibility={setUploadModalVisibility}
-            onNavigateToAsset={onNavigateToAsset}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList
