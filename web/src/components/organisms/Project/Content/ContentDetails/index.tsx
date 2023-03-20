@@ -57,7 +57,6 @@ const ContentDetails: React.FC = () => {
     handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
-    handleNavigateToAsset,
     totalCount,
     page,
     pageSize,
@@ -119,7 +118,6 @@ const ContentDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
-      onNavigateToAsset={handleNavigateToAsset}
       requestModalShown={requestModalShown}
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestCreate={handleRequestCreate}
