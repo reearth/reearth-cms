@@ -27,7 +27,7 @@ export default () => {
     setPageSize(pageSize ? +pageSize : 10);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data } = useGetRequestsQuery({
+  const { data, loading } = useGetRequestsQuery({
     fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
@@ -98,6 +98,7 @@ export default () => {
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    loading,
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,

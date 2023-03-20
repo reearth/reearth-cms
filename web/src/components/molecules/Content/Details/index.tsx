@@ -36,6 +36,7 @@ export type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
@@ -98,6 +99,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   page,
   pageSize,
   onRequestTableChange,
+  requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
@@ -139,6 +141,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         <ContentForm
           requests={requests}
           onRequestTableChange={onRequestTableChange}
+          requestModalLoading={requestModalLoading}
           requestModalTotalCount={requestModalTotalCount}
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}

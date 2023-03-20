@@ -15,6 +15,7 @@ type Props = {
   itemIds: string[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
+  requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
@@ -30,6 +31,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   onLinkItemRequestModalCancel,
   requestList,
   onRequestTableChange,
+  requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
@@ -137,6 +139,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         options={false}
         pagination={pagination}
         tableStyle={{ overflowX: "scroll" }}
+        loading={requestModalLoading}
         onChange={pagination => {
           onRequestTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}

@@ -51,6 +51,7 @@ export interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
@@ -109,6 +110,7 @@ const ContentForm: React.FC<Props> = ({
   page,
   pageSize,
   onRequestTableChange,
+  requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
@@ -426,6 +428,7 @@ const ContentForm: React.FC<Props> = ({
             linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
+            requestModalLoading={requestModalLoading}
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
