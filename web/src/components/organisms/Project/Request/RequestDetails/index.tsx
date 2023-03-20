@@ -35,7 +35,6 @@ const RequestDetails: React.FC = () => {
     handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
-    handleNavigateToAsset,
     totalCount,
     page,
     pageSize,
@@ -78,7 +77,6 @@ const RequestDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
-      onNavigateToAsset={handleNavigateToAsset}
     />
   );
 };
