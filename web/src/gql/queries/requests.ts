@@ -22,13 +22,48 @@ export const GET_REQUESTS = gql`
       sort: $sort
     ) {
       nodes {
-        ...requestFragment
+        id
+        title
+        description
+        createdBy {
+          id
+          name
+          email
+        }
+        workspaceId
+        projectId
+        threadId
+        reviewersId
+        reviewers {
+          id
+          name
+          email
+        }
+        state
+        createdAt
+        updatedAt
+        approvedAt
+        closedAt
+        thread {
+          ...threadFragment
+        }
       }
       totalCount
     }
   }
 
   ${requestFragment}
+`;
+
+export const GET_REQUEST = gql`
+  query GetRequest($requestId: ID!) {
+    node(id: $requestId, type: REQUEST) {
+      id
+      ... on Request {
+        ...requestFragment
+      }
+    }
+  }
 `;
 
 export const CREATE_REQUEST = gql`
