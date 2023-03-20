@@ -18,18 +18,18 @@ type AssetDocument struct {
 	FileName                string
 	Size                    uint64
 	PreviewType             string
-	File                    *File
+	File                    *FileDocument
 	UUID                    string
 	Thread                  string
 	ArchiveExtractionStatus string
 }
 
-type File struct {
+type FileDocument struct {
 	Name        string
 	Size        uint64
 	ContentType string
 	Path        string
-	Children    []*File
+	Children    []*FileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -73,7 +73,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		FileName:                a.FileName(),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
-		File:                    ToFile(file),
+		File:                    toFile(file),
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().String(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
@@ -103,7 +103,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
-		File(FromFile(d.File)).
+		File(fromFile(d.File)).
 		UUID(d.UUID).
 		Thread(thid).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
@@ -127,19 +127,19 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	return ab.Build()
 }
 
-func ToFile(f *asset.File) *File {
+func toFile(f *asset.File) *FileDocument {
 	if f == nil {
 		return nil
 	}
 
-	c := []*File{}
+	c := []*FileDocument{}
 	if f.Children() != nil && len(f.Children()) > 0 {
 		for _, v := range f.Children() {
-			c = append(c, ToFile(v))
+			c = append(c, toFile(v))
 		}
 	}
 
-	return &File{
+	return &FileDocument{
 		Name:        f.Name(),
 		Size:        f.Size(),
 		ContentType: f.ContentType(),
@@ -148,7 +148,7 @@ func ToFile(f *asset.File) *File {
 	}
 }
 
-func FromFile(f *File) *asset.File {
+func fromFile(f *FileDocument) *asset.File {
 	if f == nil {
 		return nil
 	}
@@ -156,7 +156,7 @@ func FromFile(f *File) *asset.File {
 	var c []*asset.File
 	if f.Children != nil && len(f.Children) > 0 {
 		for _, v := range f.Children {
-			c = append(c, FromFile(v))
+			c = append(c, fromFile(v))
 		}
 	}
 
