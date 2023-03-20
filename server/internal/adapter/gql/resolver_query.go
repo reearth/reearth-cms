@@ -71,6 +71,12 @@ func (r *queryResolver) Node(ctx context.Context, i gqlmodel.ID, typeArg gqlmode
 			return nil, nil
 		}
 		return result, err
+	case gqlmodel.NodeTypeRequest:
+		result, err := dataloaders.Request.Load(i)
+		if result == nil {
+			return nil, nil
+		}
+		return result, err
 	}
 	return nil, nil
 }
