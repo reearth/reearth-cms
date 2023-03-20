@@ -51,6 +51,11 @@ export interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -103,6 +108,11 @@ const ContentForm: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -413,6 +423,11 @@ const ContentForm: React.FC<Props> = ({
             visible={addItemToRequestModalShown}
             linkedRequest={undefined}
             requestList={requests}
+            onRequestTableChange={onRequestTableChange}
+            requestModalLoading={requestModalLoading}
+            requestModalTotalCount={requestModalTotalCount}
+            requestModalPage={requestModalPage}
+            requestModalPageSize={requestModalPageSize}
           />
         </>
       )}
