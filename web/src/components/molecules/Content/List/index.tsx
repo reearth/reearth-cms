@@ -33,6 +33,11 @@ export type Props = {
   searchTerm: string;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
     page: number,
@@ -70,6 +75,11 @@ const ContentListMolecule: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
@@ -135,6 +145,11 @@ const ContentListMolecule: React.FC<Props> = ({
             onAddItemToRequest={onAddItemToRequest}
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+            onRequestTableChange={onRequestTableChange}
+            requestModalLoading={requestModalLoading}
+            requestModalTotalCount={requestModalTotalCount}
+            requestModalPage={requestModalPage}
+            requestModalPageSize={requestModalPageSize}
           />
         </Content>
       }
