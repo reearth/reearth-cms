@@ -17,6 +17,9 @@ type File struct {
 }
 
 func (f *File) Name() string {
+	if f == nil {
+		return ""
+	}
 	return f.name
 }
 
@@ -25,14 +28,23 @@ func (f *File) SetName(n string) {
 }
 
 func (f *File) Size() uint64 {
+	if f == nil {
+		return 0
+	}
 	return f.size
 }
 
 func (f *File) ContentType() string {
+	if f == nil {
+		return ""
+	}
 	return f.contentType
 }
 
 func (f *File) Path() string {
+	if f == nil {
+		return ""
+	}
 	return f.path
 }
 
@@ -44,10 +56,13 @@ func (f *File) Children() []*File {
 }
 
 func (f *File) IsDir() bool {
-	return f.children != nil
+	return f != nil && f.children != nil
 }
 
 func (f *File) AppendChild(c *File) {
+	if f == nil {
+		return
+	}
 	f.children = append(f.children, c)
 }
 
@@ -71,6 +86,9 @@ func (f *File) Clone() *File {
 }
 
 func (f *File) Files() (res []*File) {
+	if f == nil {
+		return nil
+	}
 	if len(f.children) > 0 {
 		for _, c := range f.children {
 			res = append(res, c.Files()...)
@@ -82,6 +100,9 @@ func (f *File) Files() (res []*File) {
 }
 
 func (f *File) RootPath(uuid string) string {
+	if f == nil {
+		return ""
+	}
 	return path.Join(uuid[:2], uuid[2:], f.path)
 }
 

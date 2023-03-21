@@ -560,18 +560,12 @@ func TestAsset_Create(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.want.Project(), got.Project())
-			assert.Equal(t, tc.want.FileName(), got.FileName())
-			assert.Equal(t, tc.want.Size(), got.Size())
-			assert.Equal(t, tc.want.File(), got.File())
 			assert.Equal(t, tc.want.PreviewType(), got.PreviewType())
 			assert.Equal(t, tc.want.ArchiveExtractionStatus(), got.ArchiveExtractionStatus())
 
 			dbGot, err := db.Asset.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want.Project(), dbGot.Project())
-			assert.Equal(t, tc.want.FileName(), dbGot.FileName())
-			assert.Equal(t, tc.want.Size(), dbGot.Size())
-			assert.Equal(t, tc.want.File(), dbGot.File())
 			assert.Equal(t, tc.want.PreviewType(), dbGot.PreviewType())
 			assert.Equal(t, tc.want.ArchiveExtractionStatus(), dbGot.ArchiveExtractionStatus())
 		})
@@ -687,10 +681,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		CreatedByUser(uid).
 		Size(1000).
 		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
-		File(asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()).
 		Thread(thid).
 		ArchiveExtractionStatus(sp).
 		MustBuild()
+	a1f := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
 	a2 := asset.New().
 		ID(assetID2).
 		Project(proj.ID()).
@@ -699,8 +693,8 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
 		Thread(id.NewThreadID()).
 		ArchiveExtractionStatus(sp).
-		File(asset.NewFile().Build()).
 		MustBuild()
+	a2f := asset.NewFile().Build()
 
 	op := &usecase.Operator{
 		User:             &uid,
@@ -711,11 +705,13 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	tests := []struct {
 		name            string
 		seedAssets      []*asset.Asset
+		seedFiles       map[asset.ID]*asset.File
 		seedProjects    []*project.Project
 		prepareFileFunc func() afero.Fs
 		assetID         id.AssetID
 		status          *asset.ArchiveExtractionStatus
 		want            *asset.Asset
+		wantFile        *asset.File
 		wantErr         error
 	}{
 		{
@@ -730,6 +726,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		{
 			name:       "update file not found",
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
+			seedFiles: map[asset.ID]*asset.File{
+				a1.ID(): a1f,
+				a2.ID(): a2f,
+			},
 			prepareFileFunc: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
@@ -738,8 +738,12 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			wantErr: gateway.ErrFileNotFound,
 		},
 		{
-			name:         "update",
-			seedAssets:   []*asset.Asset{a1.Clone(), a2.Clone()},
+			name:       "update",
+			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
+			seedFiles: map[asset.ID]*asset.File{
+				a1.ID(): a1f,
+				a2.ID(): a2f,
+			},
 			seedProjects: []*project.Project{proj},
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
@@ -750,21 +754,19 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				ID(assetID1).
 				Project(proj.ID()).
 				CreatedByUser(uid).
-				Size(1000).
 				UUID("5130c89f-8f67-4766-b127-49ee6796d464").
-				File(
-					asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{
-						asset.NewFile().Name("xxx").Path("/xxx").Dir().Children([]*asset.File{
-							asset.NewFile().Name("yyy").Path("/xxx/yyy").Dir().Children([]*asset.File{
-								asset.NewFile().Name("hello.txt").Path("/xxx/yyy/hello.txt").GuessContentType().Build(),
-							}).Build(),
-							asset.NewFile().Name("zzz.txt").Path("/xxx/zzz.txt").GuessContentType().Build(),
-						}).Build(),
-					}).Build(),
-				).
+				Size(1000).
 				Thread(thid).
 				ArchiveExtractionStatus(sp).
 				MustBuild(),
+			wantFile: asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{
+				asset.NewFile().Name("xxx").Path("/xxx").Dir().Children([]*asset.File{
+					asset.NewFile().Name("yyy").Path("/xxx/yyy").Dir().Children([]*asset.File{
+						asset.NewFile().Name("hello.txt").Path("/xxx/yyy/hello.txt").GuessContentType().Build(),
+					}).Build(),
+					asset.NewFile().Name("zzz.txt").Path("/xxx/zzz.txt").GuessContentType().Build(),
+				}).Build(),
+			}).Build(),
 			wantErr: nil,
 		},
 	}
@@ -783,6 +785,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			assert.NoError(t, err)
 			for _, p := range tc.seedAssets {
 				err := db.Asset.Save(ctx, p.Clone())
+				assert.Nil(t, err)
+			}
+			for id, f := range tc.seedFiles {
+				err := db.AssetFile.Save(ctx, id, f.Clone())
 				assert.Nil(t, err)
 			}
 			for _, p := range tc.seedProjects {
@@ -804,6 +810,12 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
+
+			if tc.wantErr != nil {
+				gotf, err := db.AssetFile.FindByID(ctx, tc.assetID)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.wantFile, gotf)
+			}
 		})
 	}
 }

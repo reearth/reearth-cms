@@ -36,6 +36,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 	}
 	return &Container{
 		Asset:       c.Asset.Filtered(project),
+		AssetFile:   c.AssetFile,
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,

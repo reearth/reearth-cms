@@ -146,15 +146,15 @@ const (
 type Asset struct {
 	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
 	ContentType             *string                       `json:"contentType,omitempty"`
-	CreatedAt               *time.Time                    `json:"createdAt,omitempty"`
+	CreatedAt               time.Time                     `json:"createdAt"`
 	File                    *File                         `json:"file,omitempty"`
-	Id                      *id.AssetID                   `json:"id,omitempty"`
+	Id                      id.AssetID                    `json:"id"`
 	Name                    *string                       `json:"name,omitempty"`
 	PreviewType             *AssetPreviewType             `json:"previewType,omitempty"`
-	ProjectId               *id.ProjectID                 `json:"projectId,omitempty"`
+	ProjectId               id.ProjectID                  `json:"projectId"`
 	TotalSize               *float32                      `json:"totalSize,omitempty"`
-	UpdatedAt               *time.Time                    `json:"updatedAt,omitempty"`
-	Url                     *string                       `json:"url,omitempty"`
+	UpdatedAt               time.Time                     `json:"updatedAt"`
+	Url                     string                        `json:"url"`
 }
 
 // AssetArchiveExtractionStatus defines model for Asset.ArchiveExtractionStatus.

@@ -132,12 +132,7 @@ type Asset struct {
 	Files       []string `json:"files,omitempty"`
 }
 
-func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
-	f := a.File()
-	if f == nil {
-		return Asset{}
-	}
-
+func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asset {
 	u := ""
 	var files []string
 	if urlResolver != nil {
@@ -145,7 +140,7 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 		base, _ := url.Parse(u)
 		base.Path = path.Dir(base.Path)
 
-		files = lo.Map(a.File().Files(), func(f *asset.File, _ int) string {
+		files = lo.Map(f.Files(), func(f *asset.File, _ int) string {
 			b := *base
 			b.Path = path.Join(b.Path, f.Path())
 			return b.String()
@@ -156,33 +151,26 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 		Type:        "asset",
 		ID:          a.ID().String(),
 		URL:         u,
-		ContentType: a.File().ContentType(),
+		ContentType: f.ContentType(),
 		Files:       files,
 	}
 }
 
 type ItemAsset struct {
-	Type        string `json:"type"`
-	ID          string `json:"id,omitempty"`
-	URL         string `json:"url,omitempty"`
-	ContentType string `json:"contentType,omitempty"`
+	Type string `json:"type"`
+	ID   string `json:"id,omitempty"`
+	URL  string `json:"url,omitempty"`
 }
 
 func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
-	f := a.File()
-	if f == nil {
-		return ItemAsset{}
-	}
-
 	u := ""
 	if urlResolver != nil {
 		u = urlResolver(a)
 	}
 
 	return ItemAsset{
-		Type:        "asset",
-		ID:          a.ID().String(),
-		URL:         u,
-		ContentType: a.File().ContentType(),
+		Type: "asset",
+		ID:   a.ID().String(),
+		URL:  u,
 	}
 }
