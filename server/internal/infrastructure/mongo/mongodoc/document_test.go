@@ -57,8 +57,7 @@ func TestModelFrom(t *testing.T) {
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).CreatedAt(now).NewUUID().CreatedByUser(u.ID()).
-		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").
-			Size(100).Build()).Thread(id.NewThreadID()).MustBuild()
+		Thread(id.NewThreadID()).MustBuild()
 
 	// should success
 	doc, _, err := NewDocument(a)

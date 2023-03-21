@@ -22,7 +22,7 @@ require (
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20230311124842-e2cf7b51fb97
+	github.com/reearth/reearthx v0.0.0-20230321144103-4740e744b3d0
 	github.com/samber/lo v1.28.2
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/spf13/afero v1.9.3

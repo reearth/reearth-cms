@@ -148,20 +148,6 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrNoThread,
 		},
 		{
-			name: "fail: no file",
-			input: Input{
-				id:            aid,
-				project:       pid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
-			},
-			err: ErrNoFile,
-		},
-		{
 			name: "fail: no uuid",
 			input: Input{
 				id:            aid,

@@ -1,7 +1,6 @@
 package asset
 
 import (
-	"path"
 	"time"
 
 	"github.com/reearth/reearthx/util"
@@ -79,7 +78,10 @@ func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 }
 
 func (a *Asset) RootPath() string {
-	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
+	if a.file == nil {
+		return ""
+	}
+	return a.file.RootPath(a.uuid)
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {

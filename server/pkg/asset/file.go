@@ -81,6 +81,10 @@ func (f *File) Files() (res []*File) {
 	return
 }
 
+func (f *File) RootPath(uuid string) string {
+	return path.Join(uuid[:2], uuid[2:], f.path)
+}
+
 // TODO:improve perfomance later
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)

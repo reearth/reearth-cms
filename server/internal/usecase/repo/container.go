@@ -11,6 +11,7 @@ import (
 
 type Container struct {
 	Asset       Asset
+	AssetFile   AssetFile
 	Lock        Lock
 	User        User
 	Workspace   Workspace

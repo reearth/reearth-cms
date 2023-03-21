@@ -30,9 +30,6 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
 	}
-	if b.a.file == nil {
-		return nil, ErrNoFile
-	}
 	if b.a.uuid == "" {
 		return nil, ErrNoUUID
 	}
