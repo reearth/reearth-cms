@@ -11,14 +11,14 @@ export type Props = {
   loading: boolean;
   selectedRequest: Request | undefined;
   onRequestSelect: (assetId: string) => void;
-  onEdit: (request: Request) => void;
+  onEdit: (requestId: string) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
-  onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
     pageSize: number,
