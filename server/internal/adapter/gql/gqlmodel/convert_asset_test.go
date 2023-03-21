@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConvertAsset_ToAsset(t *testing.T) {
+func TestToAsset(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
 	id1 := id.NewAssetID()
@@ -31,6 +31,7 @@ func TestConvertAsset_ToAsset(t *testing.T) {
 		UUID:          uuid,
 		URL:           "xxx",
 		ThreadID:      ID(thid.String()),
+		Size:          1000,
 	}
 
 	var a2 *asset.Asset = nil

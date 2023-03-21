@@ -38,6 +38,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		URL:                     url,
 		ThreadID:                IDFrom(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
+		Size:                    int64(a.Size()),
 	}
 }
 
