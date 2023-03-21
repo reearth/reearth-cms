@@ -47,6 +47,6 @@ func TestList_Map(t *testing.T) {
 
 	assert.Equal(t, Map{
 		a.ID(): a,
-	}, List{a}.Map())
+	}, List{a, nil}.Map())
 	assert.Equal(t, Map{}, List(nil).Map())
 }
