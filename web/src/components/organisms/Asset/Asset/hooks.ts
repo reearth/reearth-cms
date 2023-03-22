@@ -88,7 +88,7 @@ export default (assetId?: string) => {
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType: previewType as GQLPreviewType, withFiles: false },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
