@@ -1530,7 +1530,6 @@ export type CreateAssetMutationVariables = Exact<{
   file?: InputMaybe<Scalars['Upload']>;
   url?: InputMaybe<Scalars['String']>;
   skipDecompression?: InputMaybe<Scalars['Boolean']>;
-  withFiles: Scalars['Boolean'];
 }>;
 
 
@@ -1539,7 +1538,6 @@ export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __t
 export type UpdateAssetMutationVariables = Exact<{
   id: Scalars['ID'];
   previewType?: InputMaybe<PreviewType>;
-  withFiles: Scalars['Boolean'];
 }>;
 
 
@@ -2500,7 +2498,7 @@ export type GetAssetItemQueryHookResult = ReturnType<typeof useGetAssetItemQuery
 export type GetAssetItemLazyQueryHookResult = ReturnType<typeof useGetAssetItemLazyQuery>;
 export type GetAssetItemQueryResult = Apollo.QueryResult<GetAssetItemQuery, GetAssetItemQueryVariables>;
 export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $skipDecompression: Boolean, $withFiles: Boolean!) {
+    mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $skipDecompression: Boolean) {
   createAsset(
     input: {projectId: $projectId, file: $file, url: $url, skipDecompression: $skipDecompression}
   ) {
@@ -2529,7 +2527,6 @@ export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation,
  *      file: // value for 'file'
  *      url: // value for 'url'
  *      skipDecompression: // value for 'skipDecompression'
- *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
@@ -2541,7 +2538,7 @@ export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMuta
 export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
 export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
 export const UpdateAssetDocument = gql`
-    mutation UpdateAsset($id: ID!, $previewType: PreviewType, $withFiles: Boolean!) {
+    mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
   updateAsset(input: {id: $id, previewType: $previewType}) {
     asset {
       ...assetFragment
@@ -2566,7 +2563,6 @@ export type UpdateAssetMutationFn = Apollo.MutationFunction<UpdateAssetMutation,
  *   variables: {
  *      id: // value for 'id'
  *      previewType: // value for 'previewType'
- *      withFiles: // value for 'withFiles'
  *   },
  * });
  */
