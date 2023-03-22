@@ -167,6 +167,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   prj,
 				Workspace: prj.Workspace(),
 				Type:      event.AssetCreate,
 				Object:    a,
@@ -288,6 +289,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   p,
 				Workspace: p.Workspace(),
 				Type:      event.AssetDecompress,
 				Object:    a,
@@ -350,6 +352,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   p,
 				Workspace: p.Workspace(),
 				Type:      event.AssetDelete,
 				Object:    a,
