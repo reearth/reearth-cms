@@ -94,19 +94,6 @@ func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
 	return nil
 }
 
-func (r *Asset) Update(ctx context.Context, a *asset.Asset) error {
-	if !r.f.CanWrite(a.Project()) {
-		return repo.ErrOperationDenied
-	}
-
-	if r.err != nil {
-		return r.err
-	}
-
-	r.data.Store(a.ID(), a)
-	return nil
-}
-
 func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	if r.err != nil {
 		return r.err

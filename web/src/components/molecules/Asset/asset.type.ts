@@ -23,7 +23,7 @@ export type Asset = {
   createdAt: string;
   createdBy: string;
   createdByType: string;
-  file: AssetFile;
+  file?: AssetFile;
   fileName: string;
   previewType?: PreviewType;
   projectId: string;

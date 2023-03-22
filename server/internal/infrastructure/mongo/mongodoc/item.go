@@ -22,6 +22,7 @@ type ItemDocument struct {
 	Timestamp   time.Time
 	User        *string
 	Integration *string
+	Assets      []string `bson:"assets,omitempty"`
 }
 
 type ItemFieldDocument struct {
@@ -74,6 +75,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Timestamp:   i.Timestamp(),
 		User:        i.User().StringRef(),
 		Integration: i.Integration().StringRef(),
+		Assets:      i.AssetIDs().Strings(),
 	}, itmId
 }
 

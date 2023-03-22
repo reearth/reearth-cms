@@ -28,27 +28,23 @@ func TestUser_FindBySub(t *testing.T) {
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Auths([]user.Auth{{
 		Sub: "xxx",
 	}}).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
-		name     string
-		auth0sub string
-		want     *user.User
-		wantErr  error
-		mockErr  bool
+		name    string
+		sub     string
+		want    *user.User
+		wantErr error
+		mockErr bool
 	}{
 		{
-			name:     "must find user by auth",
-			auth0sub: "xxx",
-			want:     u,
+			name: "must find user by auth",
+			sub:  "xxx",
+			want: u,
 		},
 		{
-			name:     "must return ErrInvalidParams",
-			auth0sub: "",
-			wantErr:  rerror.ErrInvalidParams,
+			name:    "must return ErrInvalidParams",
+			sub:     "",
+			wantErr: rerror.ErrInvalidParams,
 		},
 		{
 			name:    "must mock error",
@@ -58,18 +54,21 @@ func TestUser_FindBySub(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-			r := &User{}
+			r := NewUser()
+			_ = r.Save(ctx, u.Clone())
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
-			got, err := r.FindBySub(ctx, tc.auth0sub)
+
+			got, err := r.FindBySub(ctx, tc.sub)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 			} else {
-				assert.Equal(tt, tc.want, got)
+				assert.Equal(t, tc.want, got)
 			}
 		})
 	}
@@ -126,10 +125,6 @@ func TestUser_FindByName(t *testing.T) {
 		Token: "123abc",
 	}
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").PasswordReset(pr.Clone()).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
 		name    string
@@ -162,21 +157,23 @@ func TestUser_FindByName(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-			r := &User{}
+			r := NewUser()
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
 			for _, u := range tc.seeds {
 				_ = r.Save(ctx, u.Clone())
 			}
+
 			got, err := r.FindByName(ctx, tc.uName)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 			} else {
-				assert.Equal(tt, tc.want, got)
+				assert.Equal(t, tc.want, got)
 			}
 		})
 	}
@@ -226,42 +223,47 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 		{
 			name:    "must find user by password reset",
 			seeds:   []*user.User{u},
-			token:   "123abc",
+			token:   pr.Token,
 			want:    u,
-			wantErr: rerror.ErrNotFound,
+			wantErr: nil,
 		},
 		{
 			name:    "must return ErrInvalidParams",
+			seeds:   []*user.User{u},
 			wantErr: rerror.ErrInvalidParams,
 		},
 		{
 			name:    "must return ErrNotFound",
+			seeds:   []*user.User{u},
 			token:   "xxx",
 			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:    "must mock error",
+			seeds:   []*user.User{u},
 			wantErr: errors.New("test"),
 			mockErr: true,
 		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-			r := &User{}
+			r := NewUser()
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
 			for _, u := range tc.seeds {
 				_ = r.Save(ctx, u.Clone())
 			}
+
 			got, err := r.FindByPasswordResetRequest(ctx, tc.token)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 			} else {
-				assert.Equal(tt, tc.want, got)
+				assert.Equal(t, tc.want, got)
 			}
 		})
 	}
@@ -271,10 +273,6 @@ func TestUser_FindByVerification(t *testing.T) {
 	ctx := context.Background()
 	vr := user.VerificationFrom("123abc", time.Now(), false)
 	u := user.New().NewID().Name("hoge").Email("aa@bb.cc").Verification(vr).MustBuild()
-	r := &User{
-		data: &util.SyncMap[id.UserID, *user.User]{},
-	}
-	r.data.Store(u.ID(), u)
 
 	tests := []struct {
 		name    string
@@ -286,42 +284,48 @@ func TestUser_FindByVerification(t *testing.T) {
 	}{
 		{
 			name:    "must find user by verification",
+			seeds:   []*user.User{u},
 			code:    "123abc",
 			want:    u,
 			wantErr: nil,
 		},
 		{
 			name:    "must return ErrInvalidParams",
+			seeds:   []*user.User{u},
 			wantErr: rerror.ErrInvalidParams,
 		},
 		{
 			name:    "must return ErrNotFound",
+			seeds:   []*user.User{u},
 			code:    "xxx",
 			wantErr: rerror.ErrNotFound,
 		},
 		{
 			name:    "must mock error",
+			seeds:   []*user.User{u},
 			wantErr: errors.New("test"),
 			mockErr: true,
 		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-			r := &User{}
+			r := NewUser()
 			if tc.mockErr {
 				SetUserError(r, tc.wantErr)
 			}
 			for _, u := range tc.seeds {
 				_ = r.Save(ctx, u.Clone())
 			}
+
 			got, err := r.FindByVerification(ctx, tc.code)
 			if tc.wantErr != nil {
-				assert.Equal(tt, tc.wantErr, err)
+				assert.Equal(t, tc.wantErr, err)
 			} else {
-				assert.Equal(tt, tc.want, got)
+				assert.Equal(t, tc.want, got)
 			}
 		})
 	}
