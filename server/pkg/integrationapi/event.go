@@ -13,6 +13,7 @@ type Event struct {
 	Type      string    `json:"type"`
 	Timestamp time.Time `json:"timestamp"`
 	Data      any       `json:"data"`
+	Project   *Project  `json:"project"`
 	Operator  Operator  `json:"operator"`
 }
 
@@ -32,6 +33,11 @@ type OperatorIntegration struct {
 
 type OperatorMachine struct{}
 
+type Project struct {
+	ID    string `json:"id"`
+	Alias string `json:"alias"`
+}
+
 func NewEvent(e *event.Event[any], v string, urlResolver asset.URLResolver) (Event, error) {
 	return NewEventWith(e, nil, v, urlResolver)
 }
@@ -46,11 +52,20 @@ func NewEventWith(e *event.Event[any], override any, v string, urlResolver asset
 		return Event{}, err
 	}
 
+	var prj *Project
+	if p := e.Project(); p != nil {
+		prj = &Project{
+			ID:    p.ID,
+			Alias: p.Alias,
+		}
+	}
+
 	return Event{
 		ID:        e.ID().String(),
 		Type:      string(e.Type()),
 		Timestamp: e.Timestamp(),
 		Data:      d,
+		Project:   prj,
 		Operator:  NewOperator(e.Operator()),
 	}, nil
 }

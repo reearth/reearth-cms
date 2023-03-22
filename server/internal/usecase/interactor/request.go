@@ -211,7 +211,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	req, err := Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
+	return Run1(ctx, operator, r.repos, Usecase().Transaction(), func(ctx context.Context) (*request.Request, error) {
 		req, err := r.repos.Request.FindByID(ctx, requestID)
 		if err != nil {
 			return nil, err
@@ -222,6 +222,11 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		// only reviewers can approve
 		if !req.Reviewers().Has(*operator.User) {
 			return nil, rerror.NewE(i18n.T("only reviewers can approve"))
+		}
+
+		prj, err := r.repos.Project.FindByID(ctx, req.Project())
+		if err != nil {
+			return nil, err
 		}
 
 		if req.State() != request.StateWaiting {
@@ -241,39 +246,40 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 			}
 		}
 
-		return req, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	items, err := r.repos.Item.FindByIDs(ctx, req.Items().IDs(), nil)
-	if err != nil {
-		return nil, err
-	}
-	m, err := r.repos.Model.FindByID(ctx, items[0].Value().Model())
-	if err != nil {
-		return nil, err
-	}
-	sch, err := r.repos.Schema.FindByID(ctx, m.Schema())
-	if err != nil {
-		return nil, err
-	}
-	for _, itm := range items {
-		if err := r.event(ctx, Event{
-			Workspace: req.Workspace(),
-			Type:      event.ItemPublish,
-			Object:    itm,
-			WebhookObject: item.ItemModelSchema{
-				Item:   itm.Value(),
-				Model:  m,
-				Schema: sch,
-			},
-			Operator: operator.Operator(),
-		}); err != nil {
+		items, err := r.repos.Item.FindByIDs(ctx, req.Items().IDs(), nil)
+		if err != nil {
 			return nil, err
 		}
-	}
-	return req, nil
+
+		m, err := r.repos.Model.FindByID(ctx, items[0].Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		sch, err := r.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		for _, itm := range items {
+			if err := r.event(ctx, Event{
+				Project:   prj,
+				Workspace: req.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: sch,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return req, nil
+	})
 }
 
 func (r Request) event(ctx context.Context, e Event) error {
