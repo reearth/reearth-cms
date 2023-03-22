@@ -16,7 +16,6 @@ var (
 	u = user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a = asset.New().NewID().Project(project.NewID()).NewUUID().
 		Thread(id.NewThreadID()).Size(100).CreatedByUser(u.ID()).
-		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).
 		MustBuild()
 )
 

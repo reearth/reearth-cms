@@ -64,10 +64,8 @@ type Asset struct {
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
 	Items                   []*AssetItem             `json:"items"`
-	FileName                string                   `json:"fileName"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType"`
-	File                    *AssetFile               `json:"file"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread"`
 	ThreadID                ID                       `json:"threadId"`
