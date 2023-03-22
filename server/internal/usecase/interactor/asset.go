@@ -69,22 +69,22 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 	return i.gateways.File.GetURL(a)
 }
 
-func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, err error) {
+func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, afile *asset.File, err error) {
 	if op.User == nil && op.Integration == nil {
-		return nil, interfaces.ErrInvalidOperator
+		return nil, nil, interfaces.ErrInvalidOperator
 	}
 
 	if inp.File == nil && inp.URL == "" {
-		return nil, interfaces.ErrFileNotIncluded
+		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return nil, interfaces.ErrOperationDenied
+		return nil, nil, interfaces.ErrOperationDenied
 	}
 
 	var uuid string
@@ -94,22 +94,22 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file = inp.File
 		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
-	return Run1(
+	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
 			if inp.URL != "" {
 				file, err = getExternalFile(ctx, inp.URL)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				uuid, size, err = i.gateways.File.UploadAsset(ctx, file)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 			}
 			file.Size = int64(size)
@@ -117,10 +117,10 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
 
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
@@ -147,22 +147,22 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 			a, err := ab.Build()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if err := i.repos.AssetFile.Save(ctx, a.ID(), f); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if !inp.SkipDecompression {
-				if err := i.triggerDecompressEvent(ctx, a); err != nil {
-					return a, err
+				if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
+					return nil, nil, err
 				}
 			}
 
@@ -172,17 +172,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
-			return a, nil
+			return a, f, nil
 		})
 }
 
-func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset) error {
+func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),
-		Path:    a.RootPath(),
+		Path:    f.RootPath(a.UUID()),
 	}
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
 		return err

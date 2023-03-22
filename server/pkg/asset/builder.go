@@ -94,11 +94,6 @@ func (b *Builder) Type(t *PreviewType) *Builder {
 	return b
 }
 
-func (b *Builder) File(file *File) *Builder {
-	b.a.file = file
-	return b
-}
-
 func (b *Builder) UUID(uuid string) *Builder {
 	b.a.uuid = uuid
 	return b

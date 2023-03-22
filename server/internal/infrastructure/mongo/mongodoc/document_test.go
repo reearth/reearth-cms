@@ -19,13 +19,6 @@ func TestNewDocument(t *testing.T) {
 		Project(project.NewID()).
 		Size(100).
 		CreatedByUser(u.ID()).
-		File(
-			asset.NewFile().
-				Name("aaa.txt").
-				Path("/aaa.txt").
-				Size(100).
-				Build(),
-		).
 		NewUUID().
 		Thread(id.NewThreadID()).
 		MustBuild()
@@ -50,7 +43,6 @@ func TestNewDocument(t *testing.T) {
 	assert.Equal(t, Document{Type: "", Object: bson.Raw(nil)}, doc2)
 	assert.Equal(t, ErrInvalidObject, err)
 	assert.Zero(t, id2)
-
 }
 
 func TestModelFrom(t *testing.T) {

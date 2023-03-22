@@ -87,7 +87,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		SkipDecompression: skipDecompression,
 	}
 
-	a, err := uc.Asset.Create(ctx, cp, op)
+	a, af, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetCreate404Response{}, err
@@ -96,7 +96,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	}
 
 	aurl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, nil, aurl, true)
+	aa := integrationapi.NewAsset(a, af, aurl, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 

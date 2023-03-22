@@ -15,7 +15,6 @@ type Asset struct {
 	fileName                string
 	size                    uint64
 	previewType             *PreviewType
-	file                    *File
 	uuid                    string
 	thread                  ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
@@ -62,10 +61,6 @@ func (a *Asset) PreviewType() *PreviewType {
 	return a.previewType
 }
 
-func (a *Asset) File() *File {
-	return a.file
-}
-
 func (a *Asset) UUID() string {
 	return a.uuid
 }
@@ -75,13 +70,6 @@ func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 		return nil
 	}
 	return a.archiveExtractionStatus
-}
-
-func (a *Asset) RootPath() string {
-	if a.file == nil {
-		return ""
-	}
-	return a.file.RootPath(a.uuid)
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
@@ -106,7 +94,6 @@ func (a *Asset) Clone() *Asset {
 		fileName:                a.fileName,
 		size:                    a.size,
 		previewType:             a.previewType,
-		file:                    a.file.Clone(),
 		uuid:                    a.uuid,
 		thread:                  a.thread.Clone(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
@@ -115,8 +102,4 @@ func (a *Asset) Clone() *Asset {
 
 func (a *Asset) Thread() ThreadID {
 	return a.thread
-}
-
-func (a *Asset) SetFile(f *File) {
-	a.file = f
 }

@@ -17,9 +17,8 @@ func TestToAsset(t *testing.T) {
 	id1 := id.NewAssetID()
 	var pti asset.PreviewType = asset.PreviewTypeImage
 	uuid := uuid.New().String()
-	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).File(f).UUID(uuid).Thread(thid).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid).MustBuild()
 
 	want1 := Asset{
 		ID:            ID(id1.String()),

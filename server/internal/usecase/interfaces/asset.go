@@ -50,7 +50,7 @@ type Asset interface {
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	GetURL(*asset.Asset) string
-	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, error)
+	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
