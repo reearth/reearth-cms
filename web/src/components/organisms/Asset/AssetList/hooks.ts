@@ -139,7 +139,6 @@ export default () => {
                   projectId,
                   file,
                   skipDecompression: !!file.skipDecompression,
-                  withFiles: false,
                 },
               });
               if (result.errors || !result.data?.createAsset) {
@@ -172,7 +171,6 @@ export default () => {
             projectId,
             file: null,
             url,
-            withFiles: false,
             skipDecompression: !autoUnzip,
           },
         });
