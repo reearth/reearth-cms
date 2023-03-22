@@ -30,7 +30,6 @@ func TestAsset_Type(t *testing.T) {
 		fileName:                "hoge",
 		size:                    size,
 		previewType:             &gotPreviewType,
-		file:                    &File{name: "hoge.zip", size: size, path: "hoge.zip"},
 		uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 		thread:                  thid,
 		archiveExtractionStatus: &gotStatus,
@@ -44,9 +43,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, "hoge", got.FileName())
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
-	assert.Equal(t, &File{name: "hoge.zip", size: size, path: "hoge.zip"}, got.File())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
-	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", got.RootPath())
 	assert.Equal(t, thid, got.Thread())
 	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }
@@ -71,7 +68,6 @@ func TestAsset_PreviewType(t *testing.T) {
 		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
-		file:      &File{},
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
@@ -92,7 +88,6 @@ func TestAsset_Status(t *testing.T) {
 		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
-		file:      &File{},
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
@@ -113,7 +108,6 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
-		file:      &File{},
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
@@ -136,7 +130,6 @@ func TestAsset_UpdateStatus(t *testing.T) {
 		user:      &uid,
 		fileName:  "hoge",
 		size:      size,
-		file:      &File{},
 		uuid:      "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 	}
 
@@ -148,7 +141,7 @@ func TestAsset_UpdateStatus(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).File(NewFile().Build()).NewUUID().MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)

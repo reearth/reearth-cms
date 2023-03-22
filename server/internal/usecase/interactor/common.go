@@ -19,7 +19,6 @@ type ContainerConfig struct {
 }
 
 func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
-
 	return interfaces.Container{
 		Asset:       NewAsset(r, g),
 		Workspace:   NewWorkspace(r, g),

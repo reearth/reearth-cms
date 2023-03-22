@@ -10,6 +10,5 @@ var (
 	ErrZeroSize    = rerror.NewE(i18n.T("file size cannot be zero"))
 	ErrNoUser      = rerror.NewE(i18n.T("createdBy is required"))
 	ErrNoThread    = rerror.NewE(i18n.T("thread is required"))
-	ErrNoFile      = rerror.NewE(i18n.T("file is required"))
 	ErrNoUUID      = rerror.NewE(i18n.T("uuid is required"))
 )
