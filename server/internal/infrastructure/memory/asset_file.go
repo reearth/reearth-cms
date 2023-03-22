@@ -3,7 +3,6 @@ package memory
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
@@ -13,7 +12,6 @@ import (
 type AssetFile struct {
 	data *util.SyncMap[asset.ID, *asset.File]
 	err  error
-	f    repo.ProjectFilter
 }
 
 func NewAssetFile() *AssetFile {
