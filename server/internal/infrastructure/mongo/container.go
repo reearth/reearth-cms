@@ -29,6 +29,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 
 	c := &repo.Container{
 		Asset:       NewAsset(client),
+		AssetFile:   NewAssetFile(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: client.Transaction(),

@@ -135,12 +135,15 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		CreatedByUser(u.ID()).
 		FileName("aaa.jpg").
 		Size(1000).
-		File(f).
 		UUID(auuid).
 		Thread(thId).
 		MustBuild()
 
 	if err := r.Asset.Save(ctx, a); err != nil {
+		return err
+	}
+
+	if err := r.AssetFile.Save(ctx, a.ID(), f); err != nil {
 		return err
 	}
 
@@ -645,14 +648,9 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 		a.Length().Equal(1)
 		a.First().Object().Value("value").Object().
 			ValueEqual("id", aid.String()).
-			ValueEqual("contentType", "image/jpg").
-			ValueEqual("file", map[string]any{
-				"contentType": "image/jpg",
-				"name":        "aaa.jpg",
-				"path":        "",
-				"size":        1000,
-			}).
-			ValueEqual("name", "aaa.jpg").
+			NotContainsKey("contentType").
+			NotContainsKey("file").
+			NotContainsKey("name").
 			ValueEqual("previewType", "unknown").
 			ValueEqual("projectId", pid.String()).
 			ValueEqual("totalSize", 1000).

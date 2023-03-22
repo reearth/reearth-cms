@@ -97,7 +97,6 @@ export default () => {
         ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
         : undefined,
       keyword: searchTerm,
-      withFiles: false,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
