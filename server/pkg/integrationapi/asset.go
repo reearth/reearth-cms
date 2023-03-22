@@ -61,11 +61,14 @@ func ToAssetFile(f *asset.File, all bool) *File {
 	if all {
 		children = lo.ToPtr(lo.FilterMap(f.Children(), func(c *asset.File, _ int) (File, bool) {
 			f := ToAssetFile(c, true)
-			if f != nil {
+			if f == nil {
 				return File{}, false
 			}
 			return *f, true
 		}))
+		if *children != nil && len(*children) == 0 {
+			children = nil
+		}
 	}
 
 	return &File{
