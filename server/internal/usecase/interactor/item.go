@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 )
 
 type Item struct {
@@ -116,6 +117,22 @@ func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usec
 	return res.FilterFields(sfIds), page, err
 }
 
+func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]item.VersionedList, error) {
+	itms, err := i.repos.Item.FindByAssets(ctx, list, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := map[id.AssetID]item.VersionedList{}
+	for _, aid := range list {
+		for _, itm := range itms {
+			if itm.Value().AssetIDs().Has(aid) && !slices.Contains(res[aid], itm) {
+				res[aid] = append(res[aid], itm)
+			}
+		}
+	}
+	return res, nil
+}
+
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
@@ -129,8 +146,13 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
 		if err != nil {
 			return nil, err
 		}
@@ -192,6 +214,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		if err := i.event(ctx, Event{
+			Project:   prj,
 			Workspace: s.Workspace(),
 			Type:      event.ItemCreate,
 			Object:    vi,
@@ -217,7 +240,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		return nil, interfaces.ErrItemFieldRequired
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func() (item.Versioned, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
 		itm, err := i.repos.Item.FindByID(ctx, param.ItemID, nil)
 		if err != nil {
 			return nil, err
@@ -238,6 +261,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return nil, err
+		}
+
 		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
@@ -253,6 +281,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		if err := i.event(ctx, Event{
+			Project:   prj,
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
 			Object:    itm,
@@ -275,7 +304,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		return interfaces.ErrInvalidOperator
 	}
 
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func() error {
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
 		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 		if err != nil {
 			return err

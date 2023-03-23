@@ -9,22 +9,20 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Collection struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
-func NewCollection(client *mongox.ClientCollection) *Collection {
+func NewCollection(client *mongox.Collection) *Collection {
 	return &Collection{client: client}
 }
 
-func (c *Collection) Client() *mongox.ClientCollection {
+func (c *Collection) Client() *mongox.Collection {
 	return c.client
 }
 
@@ -44,7 +42,7 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 	return c.client.Count(ctx, apply(q, filter))
 }
 
-func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.VersionOrRef) error {
+func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *version.VersionOrRef) error {
 	q := bson.M{
 		"id":    id,
 		metaKey: true,
@@ -55,7 +53,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.
 		return version.ErrArchived
 	}
 
-	actualVr := lo.FromPtrOr(vr, version.Latest.OrVersion())
+	actualVr := lo.FromPtrOr(parent, version.Latest.OrVersion())
 	meta, err := c.meta(ctx, id, actualVr.Ref())
 	if err != nil {
 		return err
@@ -97,20 +95,13 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, vr *version.
 }
 
 func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
-	current, err := c.meta(ctx, id, ref.OrVersion().Ref())
-	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return err
-	}
-
-	if current != nil {
-		if _, err := c.client.Client().UpdateOne(ctx, bson.M{
-			"id":       id,
-			versionKey: current.Version,
-		}, bson.M{
-			"$pull": bson.M{refsKey: ref},
-		}); err != nil {
-			return rerror.ErrInternalBy(err)
-		}
+	if _, err := c.client.Client().UpdateMany(ctx, bson.M{
+		"id":    id,
+		refsKey: bson.M{"$in": []string{ref.String()}},
+	}, bson.M{
+		"$pull": bson.M{refsKey: ref},
+	}); err != nil {
+		return rerror.ErrInternalBy(err)
 	}
 
 	if dest != nil {
@@ -170,41 +161,40 @@ func (c *Collection) Empty(ctx context.Context) error {
 	return c.client.Client().Drop(ctx)
 }
 
-func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []string) error {
-	indexes := append(
-		[]mongo.IndexModel{
-			{
-				Keys:    bson.D{{Key: "id", Value: 1}, {Key: versionKey, Value: 1}},
-				Options: options.Index().SetUnique(true),
-			},
-			{
-				Keys:    bson.D{{Key: "id", Value: 1}, {Key: metaKey, Value: 1}},
-				Options: options.Index().SetUnique(true).SetPartialFilterExpression(bson.M{metaKey: true}),
-			},
-			{Keys: bson.D{{Key: refsKey, Value: 1}}},
-			{Keys: bson.D{{Key: parentsKey, Value: 1}}},
+func (c *Collection) Indexes() []mongox.Index {
+	return []mongox.Index{
+		{
+			Name:   "mongogit_id",
+			Key:    bson.D{{Key: "id", Value: 1}, {Key: versionKey, Value: 1}},
+			Unique: true,
 		},
-		append(
-			util.Map(keys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}}
-			}),
-			util.Map(uniqueKeys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}, Options: options.Index().SetUnique(true)}
-			})...,
-		)...,
-	)
-
-	if _, err := c.client.Client().Indexes().CreateMany(ctx, indexes); err != nil {
-		return rerror.ErrInternalBy(err)
+		{
+			Name:   "mongogit_id_meta",
+			Key:    bson.D{{Key: "id", Value: 1}, {Key: metaKey, Value: 1}},
+			Unique: true,
+			Filter: bson.M{metaKey: true},
+		},
+		{
+			Name: "mongogit_id_refs",
+			Key:  bson.D{{Key: "id", Value: 1}, {Key: refsKey, Value: 1}},
+		},
+		{
+			Name: "mongogit_refs",
+			Key:  bson.D{{Key: refsKey, Value: 1}},
+		},
+		{
+			Name: "mongogit_parents",
+			Key:  bson.D{{Key: parentsKey, Value: 1}},
+		},
 	}
-	return nil
 }
 
 func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Meta, error) {
 	consumer := mongox.SliceConsumer[Meta]{}
-	if err := c.client.FindOne(ctx, apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
+	q := apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
 		"id": id,
-	}), &consumer); err != nil {
+	})
+	if err := c.client.FindOne(ctx, q, &consumer); err != nil {
 		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {
 			return nil, nil
 		}

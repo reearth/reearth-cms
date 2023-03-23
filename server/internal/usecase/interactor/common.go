@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
@@ -40,6 +41,7 @@ func New(r *repo.Container, g *gateway.Container,
 }
 
 type Event struct {
+	Project       *project.Project
 	Workspace     id.WorkspaceID
 	Type          event.Type
 	Operator      operator.Operator
@@ -47,8 +49,18 @@ type Event struct {
 	WebhookObject any
 }
 
+func (e *Event) EventProject() *event.Project {
+	if e == nil || e.Project == nil {
+		return nil
+	}
+	return &event.Project{
+		ID:    e.Project.ID().String(),
+		Alias: e.Project.Alias(),
+	}
+}
+
 func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, e Event) (*event.Event[any], error) {
-	ev, err := event.New[any]().NewID().Object(e.Object).Type(e.Type).Timestamp(util.Now()).Operator(e.Operator).Build()
+	ev, err := event.New[any]().NewID().Object(e.Object).Type(e.Type).Project(e.EventProject()).Timestamp(util.Now()).Operator(e.Operator).Build()
 	if err != nil {
 		return nil, err
 	}

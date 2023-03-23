@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -60,10 +61,40 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
         <Col>
           <Divider type="vertical" style={{ height: "100%" }} />
         </Col>
-        <Col span={11} />
+        <Col span={11}>
+          <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
+          <CodeExample>
+            curl --location --request POST <br />
+            &apos;{window.REEARTH_CONFIG?.api}/models/
+            <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
+            <br />
+            --header &apos;Authorization: Bearer&nbsp;
+            <CodeImportant>“your Integration Token here”</CodeImportant>&apos;
+          </CodeExample>
+        </Col>
       </Row>
     </Form>
   );
 };
+
+const CodeExampleTitle = styled.h2`
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.85);
+`;
+
+const CodeExample = styled.div`
+  border: 1px solid #d9d9d9;
+  padding: 5px 12px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.85);
+`;
+
+const CodeImportant = styled.span`
+  color: #ff4d4f;
+`;
 
 export default MyIntegrationForm;

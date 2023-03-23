@@ -4,7 +4,6 @@ import { Key } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ProTable, {
   ListToolBarProps,
@@ -23,14 +22,14 @@ export type Props = {
   loading: boolean;
   selectedRequest: Request | undefined;
   onRequestSelect: (assetId: string) => void;
-  onEdit: (request: Request) => void;
+  onEdit: (requestId: string) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
-  onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
     pageSize: number,
@@ -73,7 +72,7 @@ const RequestListTable: React.FC<Props> = ({
     {
       title: "",
       render: (_, request) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request)} />
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
       ),
     },
     {
@@ -215,7 +214,6 @@ const RequestListTable: React.FC<Props> = ({
         <DeselectButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
         </DeselectButton>
-        <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
         <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
           <Icon icon="delete" /> {t("Close")}
         </DeleteButton>

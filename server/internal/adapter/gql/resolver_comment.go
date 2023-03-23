@@ -21,7 +21,7 @@ func (r *commentResolver) Author(ctx context.Context, obj *gqlmodel.Comment) (gq
 			return nil, err
 		}
 		ok := lo.ContainsBy(ws, func(w *gqlmodel.Workspace) bool {
-			return w.ID == obj.WorkspaceID
+			return w != nil && (w.ID == obj.WorkspaceID)
 		})
 		if !ok {
 			return nil, nil

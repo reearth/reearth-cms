@@ -26,7 +26,7 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -37,15 +37,14 @@ type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 export const RequestDescription: React.FC<Props> = ({
@@ -70,7 +69,6 @@ export const RequestDescription: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   const fromNow = useMemo(
     () => moment(currentRequest.createdAt?.toString()).fromNow(),
@@ -117,7 +115,6 @@ export const RequestDescription: React.FC<Props> = ({
                       onAssetSearchTerm={onAssetSearchTerm}
                       setFileList={setFileList}
                       setUploadModalVisibility={setUploadModalVisibility}
-                      onNavigateToAsset={onNavigateToAsset}
                     />
                   </Panel>
                 ))}

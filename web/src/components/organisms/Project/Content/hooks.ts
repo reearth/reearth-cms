@@ -1,14 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
-  useSearchItemQuery,
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetRequestsQuery,
+  useGetModalRequestsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -19,38 +18,33 @@ export default () => {
   const [currentProject] = useProject();
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
-  const {
-    data: itemsData,
-    refetch,
-    loading: itemsDataLoading,
-  } = useSearchItemQuery({
-    notifyOnNetworkStatusChange: true,
-    variables: {
-      query: { project: currentProject?.id as string, schema: currentModel?.schema.id ?? "" },
-      pagination: { first: 1000 },
-    },
-    skip: !currentModel?.schema.id,
-  });
 
-  const handleItemsReload = useCallback(() => {
-    refetch();
-  }, [refetch]);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
-  const { data: requestData } = useGetRequestsQuery({
+  useEffect(() => {
+    setPage(+page);
+    setPageSize(+pageSize);
+  }, [setPage, setPageSize, page, pageSize]);
+
+  const { data, loading } = useGetModalRequestsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: { key: "createdAt", reverted: true },
+      state: ["WAITING"] as GQLRequestState[],
     },
     skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
     () =>
-      (requestData?.requests.nodes
+      (data?.requests.nodes
         .map(request => request as GQLRequest)
         .map(convertRequest)
-        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
-    [requestData?.requests.nodes],
+        .filter(request => !!request) as Request[]) ?? [],
+    [data?.requests.nodes],
   );
 
   const [updateRequest] = useUpdateRequestMutation();
@@ -84,22 +78,30 @@ export default () => {
     [],
   );
 
-  const handleAddItemToRequestModalOpen = useCallback(
-    () => setAddItemToRequestModalShown(true),
-    [],
-  );
+  const handleAddItemToRequestModalOpen = useCallback(() => {
+    setPage(1);
+    setPageSize(10);
+    setAddItemToRequestModalShown(true);
+  }, []);
+
+  const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
 
   return {
-    itemsDataLoading,
     currentWorkspace,
     currentModel,
     currentProject,
-    itemsData,
     requests,
     addItemToRequestModalShown,
-    handleItemsReload,
+    handleRequestTableChange,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    loading,
+    totalCount: data?.requests.totalCount ?? 0,
+    page,
+    pageSize,
   };
 };

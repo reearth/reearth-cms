@@ -24,17 +24,8 @@ export type AssetFile = {
 
 export type Asset = {
   id: string;
-  createdAt: string;
-  createdBy: string;
-  createdByType: string;
-  file: AssetFile;
   fileName: string;
-  previewType?: PreviewType;
-  projectId: string;
-  size: number;
   url: string;
-  threadId: string;
-  comments: Comment[];
 };
 
 export type Comment = {
@@ -61,9 +52,6 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     selected?.map(async s => {
       const res = await fetch(s.url, {
         method: "GET",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
       });
       const blob = await res.blob();
       fileDownload(blob, s.fileName);

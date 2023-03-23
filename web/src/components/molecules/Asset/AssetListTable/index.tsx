@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
 import { Key } from "react";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Popover from "@reearth-cms/components/atoms/Popover";
 import ProTable, {
   ListToolBarProps,
   ProColumns,
@@ -13,7 +15,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   AssetSortType,
@@ -34,6 +36,7 @@ export type AssetListTableProps = {
   searchTerm: string;
   page: number;
   pageSize: number;
+  onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onEdit: (asset: Asset) => void;
   onSearchTerm: (term?: string) => void;
@@ -60,8 +63,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   sort,
   page,
   pageSize,
+  onAssetItemSelect,
   onAssetSelect,
-  onEdit,
+  // onEdit,
   onSearchTerm,
   setSelection,
   onAssetsReload,
@@ -74,7 +78,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     {
       title: "",
       render: (_, asset) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(asset)} />
+        <Link to={asset.id}>
+          <Icon icon="edit" />
+        </Link>
       ),
     },
     {
@@ -145,6 +151,39 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       title: t("ID"),
       dataIndex: "id",
       key: "id",
+    },
+    {
+      title: t("Linked to"),
+      key: "linkedTo",
+      render: (_, asset) => {
+        if (asset.items.length === 1) {
+          return (
+            <Button type="link" onClick={() => onAssetItemSelect(asset?.items[0])}>
+              {asset?.items[0].itemId}
+            </Button>
+          );
+        }
+        if (asset.items.length > 1) {
+          const content = (
+            <>
+              {asset.items.map(item => (
+                <div key={item.itemId}>
+                  <Button type="link" onClick={() => onAssetItemSelect(item)}>
+                    {item.itemId}
+                  </Button>
+                </div>
+              ))}
+            </>
+          );
+          return (
+            <Popover placement="bottom" title={t("Linked to")} content={content}>
+              <MoreItemsButton type="default">
+                <Icon icon="linked" /> x{asset.items.length}
+              </MoreItemsButton>
+            </Popover>
+          );
+        }
+      },
     },
   ];
 
@@ -233,4 +272,12 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const MoreItemsButton = styled(Button)`
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1890ff;
 `;

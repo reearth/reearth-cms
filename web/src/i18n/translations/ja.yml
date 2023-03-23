@@ -5,6 +5,7 @@ PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 Model: モデル
 Switch: 切り替え
+End point: ''
 Assets: アセット
 Private: 非公開
 Public: 公開
@@ -55,6 +56,7 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 ID: ''
+Linked to: ''
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -149,6 +151,8 @@ Once the integration is removed, it will disappear from all workspaces.: イン�
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
 Integration Token: インテグレーショントークン
+Code Example: ''
+your model id here: ''
 Update: アップデート
 Publish: 公開
 Unpublish: 非公開
@@ -186,6 +190,7 @@ CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
 Text: テキスト
+Boolean: ''
 Select: セレクト
 Number: 数値
 Add Field: フィールドを追加
@@ -215,6 +220,7 @@ Multi line text: 複数行テキスト
 Markdown text: マークダウン
 Rich text which supports md style: マークダウン対応のリッチテキスト
 Asset file: アセット
+true/false field: ''
 Option: 選択
 Multiple select: 複数選択
 Int: 整数値

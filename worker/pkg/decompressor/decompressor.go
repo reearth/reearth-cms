@@ -64,7 +64,7 @@ func New(r io.ReaderAt, size int64, ext string, wFn func(name string) (io.WriteC
 }
 
 func (uz *decompressor) Decompress(assetBasePath string) error {
-	zfs := []*zip.File{}
+	var archivedFiles []ArchivedFile
 	if uz.zr != nil {
 		for _, f := range uz.zr.File {
 			fn := f.Name
@@ -77,26 +77,23 @@ func (uz *decompressor) Decompress(assetBasePath string) error {
 			if strings.HasPrefix(fn, "/") {
 				continue
 			}
-			zfs = append(zfs, f)
+			archivedFiles = append(archivedFiles, &ZipFile{f})
 		}
 		base := filepath.Join(gcsAssetBasePath, assetBasePath)
-		uz.readConcurrentGCSFile(zfs, base)
+		uz.readConcurrentGCSFile(archivedFiles, base)
 	} else if uz.sr != nil {
 		for _, f := range uz.sr.File {
-			if f.FileInfo().IsDir() {
+			fn := f.Name
+			if strings.HasSuffix(fn, "/") {
 				continue
-			} else {
-				rc, err := f.Open()
-				if err != nil {
-					return err
-				}
-				defer rc.Close()
-				err = uz.read(f.Name, rc)
-				if err != nil {
-					return err
-				}
 			}
+			if strings.HasPrefix(fn, "/") {
+				continue
+			}
+			archivedFiles = append(archivedFiles, &SevenZipFile{f})
 		}
+		base := filepath.Join(gcsAssetBasePath, assetBasePath)
+		uz.readConcurrentGCSFile(archivedFiles, base)
 	}
 	return nil
 }
@@ -116,7 +113,7 @@ func (uz *decompressor) read(name string, r io.Reader) error {
 	return nil
 }
 
-func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath string) {
+func (uz *decompressor) readConcurrentGCSFile(zfs []ArchivedFile, assetBasePath string) {
 	conf, cerr := ReadDecompressorConfig()
 	if cerr != nil {
 		log.Fatal(cerr)
@@ -125,7 +122,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	ctx := context.Background()
 	client, _ := storage.NewClient(ctx)
 	db := client.Bucket(conf.BucketName)
-	workQueue := make(chan *zip.File, workerQueueDepth)
+	workQueue := make(chan ArchivedFile, workerQueueDepth)
 	for i := 0; i < workersNumber; i++ {
 		wg.Add(1)
 		go func(i int) {
@@ -133,7 +130,7 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 			log.Infof("worker %d says hello!", i)
 			for f := range workQueue {
 				func() {
-					fn := f.Name
+					fn := f.Name()
 					x, err := f.Open()
 					if err != nil {
 						log.Errorf("failed to open file File=%s, Err=%s", fn, err.Error())
@@ -148,10 +145,10 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 						return
 					}
 					if err = w.Close(); err != nil {
-						log.Infof("boom %s failed with %s", f.Name, err)
+						log.Infof("boom %s failed with %s", fn, err)
 						return
 					}
-					log.Infof(" worker %d wrote %s!", i, f.Name)
+					log.Infof(" worker %d wrote %s!", i, fn)
 				}()
 			}
 			log.Infof("Worker %d says bye!", i)
@@ -163,6 +160,35 @@ func (uz *decompressor) readConcurrentGCSFile(zfs []*zip.File, assetBasePath str
 	}
 	close(workQueue)
 	wg.Wait()
+}
+
+type ArchivedFile interface {
+	Name() string
+	Open() (io.ReadCloser, error)
+}
+
+type ZipFile struct {
+	*zip.File
+}
+
+func (f *ZipFile) Name() string {
+	return f.File.Name
+}
+
+func (f *ZipFile) Open() (io.ReadCloser, error) {
+	return f.File.Open()
+}
+
+type SevenZipFile struct {
+	*sevenzip.File
+}
+
+func (f *SevenZipFile) Name() string {
+	return f.File.Name
+}
+
+func (f *SevenZipFile) Open() (io.ReadCloser, error) {
+	return f.File.Open()
 }
 
 func getFileDestinationPath(firstPath, secondPath string) string {

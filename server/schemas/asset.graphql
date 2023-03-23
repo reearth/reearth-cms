@@ -6,15 +6,18 @@ type Asset implements Node {
   createdBy: Operator!
   createdByType: OperatorType!
   createdById: ID!
-  fileName: String!
+  items: [AssetItem!]
   size: FileSize!
   previewType: PreviewType
-  file: AssetFile!
   uuid: String!
   thread: Thread
   threadId: ID!
   url: String!
   archiveExtractionStatus: ArchiveExtractionStatus
+}
+type AssetItem {
+  itemId: ID!
+  modelId: ID!
 }
 
 type AssetFile {
@@ -95,7 +98,7 @@ input AssetSort {
 }
 
 extend type Query {
-  asset(assetId: ID!): Asset!
+  assetFile(assetId: ID!): AssetFile!
   assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
 }
 

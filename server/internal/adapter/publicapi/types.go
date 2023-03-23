@@ -15,31 +15,39 @@ import (
 )
 
 type ListResult[T any] struct {
-	Results    []T `json:"results"`
-	TotalCount int `json:"totalCount"`
+	Results    []T   `json:"results"`
+	TotalCount int64 `json:"totalCount"`
+	HasMore    *bool `json:"hasMore,omitempty"`
+	// offset base
+	Limit  *int64 `json:"limit,omitempty"`
+	Offset *int64 `json:"offset,omitempty"`
+	Page   *int64 `json:"page,omitempty"`
 	// cursor base
 	NextCursor *string `json:"nextCursor,omitempty"`
-	HasMore    *bool   `json:"hasMore,omitempty"`
 }
 
-func NewListResult[T any](results []T, pi *usecasex.PageInfo, cursor bool) ListResult[T] {
+func NewListResult[T any](results []T, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[T] {
 	if results == nil {
 		results = []T{}
 	}
 
-	var nextCursor *string
-	var hasMore *bool
-	if pi != nil && cursor {
-		nextCursor = pi.EndCursor.StringRef()
-		hasMore = &pi.HasNextPage
+	r := ListResult[T]{
+		Results:    results,
+		TotalCount: pi.TotalCount,
 	}
 
-	return ListResult[T]{
-		Results:    results,
-		TotalCount: int(pi.TotalCount),
-		NextCursor: nextCursor,
-		HasMore:    hasMore,
+	if p.Cursor != nil {
+		r.NextCursor = pi.EndCursor.StringRef()
+		r.HasMore = &pi.HasNextPage
+	} else if p.Offset != nil {
+		page := p.Offset.Offset/p.Offset.Limit + 1
+		r.Limit = lo.ToPtr(p.Offset.Limit)
+		r.Offset = lo.ToPtr(p.Offset.Offset)
+		r.Page = lo.ToPtr(page)
+		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
 	}
+
+	return r
 }
 
 type ListParam struct {
@@ -124,12 +132,7 @@ type Asset struct {
 	Files       []string `json:"files,omitempty"`
 }
 
-func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
-	f := a.File()
-	if f == nil {
-		return Asset{}
-	}
-
+func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asset {
 	u := ""
 	var files []string
 	if urlResolver != nil {
@@ -137,7 +140,7 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 		base, _ := url.Parse(u)
 		base.Path = path.Dir(base.Path)
 
-		files = lo.Map(a.File().Files(), func(f *asset.File, _ int) string {
+		files = lo.Map(f.Files(), func(f *asset.File, _ int) string {
 			b := *base
 			b.Path = path.Join(b.Path, f.Path())
 			return b.String()
@@ -148,33 +151,26 @@ func NewAsset(a *asset.Asset, urlResolver asset.URLResolver) Asset {
 		Type:        "asset",
 		ID:          a.ID().String(),
 		URL:         u,
-		ContentType: a.File().ContentType(),
+		ContentType: f.ContentType(),
 		Files:       files,
 	}
 }
 
 type ItemAsset struct {
-	Type        string `json:"type"`
-	ID          string `json:"id,omitempty"`
-	URL         string `json:"url,omitempty"`
-	ContentType string `json:"contentType,omitempty"`
+	Type string `json:"type"`
+	ID   string `json:"id,omitempty"`
+	URL  string `json:"url,omitempty"`
 }
 
 func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
-	f := a.File()
-	if f == nil {
-		return ItemAsset{}
-	}
-
 	u := ""
 	if urlResolver != nil {
 		u = urlResolver(a)
 	}
 
 	return ItemAsset{
-		Type:        "asset",
-		ID:          a.ID().String(),
-		URL:         u,
-		ContentType: a.File().ContentType(),
+		Type: "asset",
+		ID:   a.ID().String(),
+		URL:  u,
 	}
 }

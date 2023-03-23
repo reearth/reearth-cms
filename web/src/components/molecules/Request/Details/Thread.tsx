@@ -29,7 +29,7 @@ export type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -40,15 +40,14 @@ export type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -78,7 +77,6 @@ const RequestThread: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   return (
     <ContentWrapper>
@@ -106,7 +104,6 @@ const RequestThread: React.FC<Props> = ({
             onAssetSearchTerm={onAssetSearchTerm}
             setFileList={setFileList}
             setUploadModalVisibility={setUploadModalVisibility}
-            onNavigateToAsset={onNavigateToAsset}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList

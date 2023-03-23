@@ -17,6 +17,7 @@ import {
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
+  useGetItemQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -27,12 +28,16 @@ export default () => {
     currentModel,
     currentWorkspace,
     currentProject,
-    itemsData,
     requests,
     addItemToRequestModalShown,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading,
+    totalCount,
+    page,
+    pageSize,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,6 +47,17 @@ export default () => {
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const t = useT();
+
+  const { data } = useGetItemQuery({
+    fetchPolicy: "no-cache",
+    variables: { id: itemId ?? "" },
+    skip: !itemId,
+  });
+
+  const currentItem: Item | undefined = useMemo(
+    () => convertItem(data?.node as GQLItem),
+    [data?.node],
+  );
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -105,11 +121,6 @@ export default () => {
       Notification.success({ message: t("Successfully updated Item!") });
     },
     [updateItem, t],
-  );
-
-  const currentItem: Item | undefined = useMemo(
-    () => convertItem(itemsData?.searchItem.nodes.find(item => item?.id === itemId) as GQLItem),
-    [itemId, itemsData?.searchItem.nodes],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
@@ -233,6 +244,11 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleRequestTableChange,
+    requestModalLoading: loading,
+    requestModalTotalCount: totalCount,
+    requestModalPage: page,
+    requestModalPageSize: pageSize,
     handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,

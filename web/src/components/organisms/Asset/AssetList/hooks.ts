@@ -3,7 +3,7 @@ import { matchPath, useLocation, useNavigate, useParams, useSearchParams } from 
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
 import {
   useGetAssetsQuery,
@@ -12,6 +12,7 @@ import {
   Asset as GQLAsset,
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
+  useGetAssetsItemsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -57,7 +58,10 @@ export default () => {
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
-  const [uploadUrl, setUploadUrl] = useState<string>("");
+  const [uploadUrl, setUploadUrl] = useState<{ url: string; autoUnzip: boolean }>({
+    url: "",
+    autoUnzip: true,
+  });
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -93,20 +97,32 @@ export default () => {
         ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
         : undefined,
       keyword: searchTerm,
-      withFiles: false,
+    },
+    notifyOnNetworkStatusChange: true,
+    skip: !projectId,
+  });
+
+  const { data: assetsItems, refetch: refetchAssetsItems } = useGetAssetsItemsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      projectId: projectId ?? "",
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: sort
+        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
+        : undefined,
+      keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
   });
 
   const isRefetching = networkStatus === 3;
-  const [selectedAssets, selectAsset] = useState<Asset[]>([]);
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
     setUploading(false);
     setFileList([]);
-    setUploadUrl("");
+    setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
   }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
 
@@ -123,7 +139,6 @@ export default () => {
                   projectId,
                   file,
                   skipDecompression: !!file.skipDecompression,
-                  withFiles: false,
                 },
               });
               if (result.errors || !result.data?.createAsset) {
@@ -138,24 +153,31 @@ export default () => {
         if (results?.length > 0) {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
+          refetchAssetsItems();
         }
         handleUploadModalCancel();
         return results;
       })(),
-    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch],
+    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch, refetchAssetsItems],
   );
 
   const handleAssetCreateFromUrl = useCallback(
-    async (url: string) => {
+    async (url: string, autoUnzip: boolean) => {
       if (!projectId) return undefined;
       setUploading(true);
       try {
         const result = await createAssetMutation({
-          variables: { projectId, file: null, url, withFiles: false },
+          variables: {
+            projectId,
+            file: null,
+            url,
+            skipDecompression: !autoUnzip,
+          },
         });
         if (result.data?.createAsset) {
           Notification.success({ message: t("Successfully added asset!") });
           await refetch();
+          refetchAssetsItems();
           return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
         return undefined;
@@ -165,7 +187,7 @@ export default () => {
         handleUploadModalCancel();
       }
     },
-    [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
+    [projectId, createAssetMutation, t, refetch, refetchAssetsItems, handleUploadModalCancel],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -177,7 +199,6 @@ export default () => {
           assetIds.map(async assetId => {
             const result = await deleteAssetMutation({
               variables: { assetId },
-              refetchQueries: ["GetAssets"],
             });
             if (result.errors) {
               Notification.error({ message: t("Failed to delete one or more assets.") });
@@ -185,11 +206,13 @@ export default () => {
           }),
         );
         if (results) {
+          await refetch();
+          refetchAssetsItems();
           Notification.success({ message: t("One or more assets were successfully deleted!") });
-          selectAsset([]);
+          setSelection({ selectedRowKeys: [] });
         }
       })(),
-    [t, deleteAssetMutation, projectId],
+    [t, deleteAssetMutation, refetch, refetchAssetsItems, projectId],
   );
 
   const handleSearchTerm = useCallback(
@@ -206,7 +229,8 @@ export default () => {
 
   const handleAssetsReload = useCallback(() => {
     refetch();
-  }, [refetch]);
+    refetchAssetsItems();
+  }, [refetch, refetchAssetsItems]);
 
   const handleNavigateToAsset = (asset: Asset) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
@@ -218,8 +242,13 @@ export default () => {
         .map(asset => asset as GQLAsset)
         .map(convertAsset)
         .filter(asset => !!asset) as Asset[]) ?? [];
-    setAssetList(assets);
-  }, [data?.assets.nodes]);
+    setAssetList(
+      assets.map(asset => ({
+        ...asset,
+        items: assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
+      })),
+    );
+  }, [data?.assets.nodes, assetsItems?.assets.nodes, setAssetList]);
 
   const handleAssetSelect = useCallback(
     (id: string) => {
@@ -227,6 +256,15 @@ export default () => {
       setCollapsed(false);
     },
     [setCollapsed, setSelectedAssetId],
+  );
+
+  const handleAssetItemSelect = useCallback(
+    (assetItem: AssetItem) => {
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
+      );
+    },
+    [navigate, projectId, workspaceId],
   );
 
   const handleToggleCommentMenu = useCallback(
@@ -271,7 +309,6 @@ export default () => {
     fileList,
     uploading,
     isLoading: loading ?? isRefetching,
-    selectedAssets,
     uploadModalVisibility,
     loading,
     uploadUrl,
@@ -284,6 +321,7 @@ export default () => {
     pageSize,
     sort,
     handleToggleCommentMenu,
+    handleAssetItemSelect,
     handleAssetSelect,
     handleUploadModalCancel,
     setUploadUrl,

@@ -5,7 +5,6 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import {
   convertItem,
   convertComment,
@@ -18,8 +17,11 @@ import {
   SortDirection as GQLSortDirection,
   ItemSortType as GQLItemSortType,
   useSearchItemQuery,
+  Asset as GQLAsset,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+
+import { fileName } from "./utils";
 
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
@@ -34,6 +36,11 @@ export default () => {
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading: requestModalLoading,
+    totalCount: requestModalTotalCount,
+    page: requestModalPage,
+    pageSize: requestModalPageSize,
   } = useContentHooks();
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,8 +97,6 @@ export default () => {
     selectedRowKeys: [],
   });
 
-  const { assetList } = useAssetHooks();
-
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -108,11 +113,21 @@ export default () => {
                       field.type === "Asset"
                         ? Array.isArray(field.value)
                           ? field.value
-                              .map(value => assetList.find(asset => asset.id === value)?.fileName)
+                              .map(value =>
+                                fileName(
+                                  (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
+                                    ?.url,
+                                ),
+                              )
                               .join(", ")
-                          : assetList.find(asset => asset.id === field.value)?.fileName
+                          : fileName(
+                              (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
+                                ?.url,
+                            )
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
+                        : field.value
+                        ? "" + field.value
                         : field.value,
                   }),
                 {},
@@ -124,7 +139,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [assetList, data?.searchItem.nodes]);
+  }, [data?.searchItem.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
@@ -265,6 +280,11 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
     handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,

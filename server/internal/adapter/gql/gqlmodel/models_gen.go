@@ -63,10 +63,9 @@ type Asset struct {
 	CreatedBy               Operator                 `json:"createdBy"`
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
-	FileName                string                   `json:"fileName"`
+	Items                   []*AssetItem             `json:"items"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType"`
-	File                    *AssetFile               `json:"file"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread"`
 	ThreadID                ID                       `json:"threadId"`
@@ -95,6 +94,11 @@ type AssetFile struct {
 	ContentType *string      `json:"contentType"`
 	Path        string       `json:"path"`
 	Children    []*AssetFile `json:"children"`
+}
+
+type AssetItem struct {
+	ItemID  ID `json:"itemId"`
+	ModelID ID `json:"modelId"`
 }
 
 type AssetSort struct {
@@ -342,6 +346,7 @@ type Item struct {
 	Project       *Project     `json:"project"`
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
+	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
 }

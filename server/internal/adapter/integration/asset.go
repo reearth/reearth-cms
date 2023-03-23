@@ -42,10 +42,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-		if err != nil {
-			return integrationapi.Asset{}, err
-		}
+		aurl := uc.Asset.GetURL(a)
+		aa := integrationapi.NewAsset(a, nil, aurl, true)
 		return *aa, nil
 	})
 	if err != nil {
@@ -89,7 +87,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		SkipDecompression: skipDecompression,
 	}
 
-	a, err := uc.Asset.Create(ctx, cp, op)
+	a, af, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetCreate404Response{}, err
@@ -97,11 +95,8 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		return AssetCreate400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
-		return AssetCreate400Response{}, err
-	}
-
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, af, aurl, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -133,10 +128,12 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 		return AssetGet400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
+	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return AssetGet400Response{}, err
 	}
 
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, f, aurl, true)
 	return AssetGet200JSONResponse(*aa), nil
 }

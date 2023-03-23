@@ -1,4 +1,5 @@
 import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -26,9 +27,10 @@ export type Props = {
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
+  loading: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -39,15 +41,14 @@ export type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
@@ -66,6 +67,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   assetList,
   fileList,
   loadingAssets,
+  loading,
   uploading,
   uploadModalVisibility,
   uploadUrl,
@@ -83,44 +85,46 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   return currentRequest ? (
-    <RequestMolecule
-      me={me}
-      isCloseActionEnabled={isCloseActionEnabled}
-      isApproveActionEnabled={isApproveActionEnabled}
-      currentRequest={currentRequest}
-      workspaceUserMembers={workspaceUserMembers}
-      onRequestApprove={onRequestApprove}
-      onRequestUpdate={onRequestUpdate}
-      onRequestDelete={onRequestDelete}
-      onCommentCreate={onCommentCreate}
-      onCommentUpdate={onCommentUpdate}
-      onCommentDelete={onCommentDelete}
-      onBack={onBack}
-      assetList={assetList}
-      fileList={fileList}
-      loadingAssets={loadingAssets}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      onAssetTableChange={onAssetTableChange}
-      onUploadModalCancel={onUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={onAssetsCreate}
-      onAssetCreateFromUrl={onAssetCreateFromUrl}
-      onAssetsReload={onAssetsReload}
-      onAssetSearchTerm={onAssetSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
-      onNavigateToAsset={onNavigateToAsset}
-    />
+    loading ? (
+      <Loading spinnerSize="large" minHeight="100vh" />
+    ) : (
+      <RequestMolecule
+        me={me}
+        isCloseActionEnabled={isCloseActionEnabled}
+        isApproveActionEnabled={isApproveActionEnabled}
+        currentRequest={currentRequest}
+        workspaceUserMembers={workspaceUserMembers}
+        onRequestApprove={onRequestApprove}
+        onRequestUpdate={onRequestUpdate}
+        onRequestDelete={onRequestDelete}
+        onCommentCreate={onCommentCreate}
+        onCommentUpdate={onCommentUpdate}
+        onCommentDelete={onCommentDelete}
+        onBack={onBack}
+        assetList={assetList}
+        fileList={fileList}
+        loadingAssets={loadingAssets}
+        uploading={uploading}
+        uploadModalVisibility={uploadModalVisibility}
+        uploadUrl={uploadUrl}
+        uploadType={uploadType}
+        totalCount={totalCount}
+        page={page}
+        pageSize={pageSize}
+        onAssetTableChange={onAssetTableChange}
+        onUploadModalCancel={onUploadModalCancel}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
+        onAssetsReload={onAssetsReload}
+        onAssetSearchTerm={onAssetSearchTerm}
+        setFileList={setFileList}
+        setUploadModalVisibility={setUploadModalVisibility}
+      />
+    )
   ) : null;
 };
 export default RequestDetailsMolecule;

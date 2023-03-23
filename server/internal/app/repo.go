@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/spf13/afero"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -39,7 +40,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName)
+	repos, err := mongorepo.New(ctx, client, databaseName, mongox.IsTransactionAvailable(conf.DB))
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}

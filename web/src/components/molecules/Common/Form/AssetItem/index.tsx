@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -23,7 +24,7 @@ type Props = {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -34,16 +35,15 @@ type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   disabled?: boolean;
 };
 
@@ -70,13 +70,15 @@ const AssetItem: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onChange,
-  onNavigateToAsset,
   disabled,
 }) => {
   const t = useT();
   const {
     asset,
+    loading,
     visible,
+    workspaceId,
+    projectId,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
@@ -116,31 +118,45 @@ const AssetItem: React.FC<Props> = ({
 
   return (
     <AssetWrapper>
-      {asset ? (
+      {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton disabled={disabled} onClick={handleClick}>
+            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
-                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
+                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
               </div>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
-              <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
-                {asset?.fileName}
-              </AssetLinkedName>
+              <Link
+                to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+                target="_blank">
+                <AssetLinkedName enabled={!!asset} type="link">
+                  {asset?.fileName ?? value + " (removed)"}
+                </AssetLinkedName>
+              </Link>
             </Tooltip>
           </AssetDetailsWrapper>
-          <AssetLink
-            type="link"
-            icon={<Icon icon="arrowSquareOut" size={20} />}
-            onClick={() => onNavigateToAsset(asset)}
-          />
+          <Space />
+          {asset && (
+            <Link
+              to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+              target="_blank">
+              <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
+            </Link>
+          )}
+          {value && (
+            <AssetLink
+              type="link"
+              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              onClick={() => onChange?.("")}
+            />
+          )}
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
-            <Icon icon="linkSolid" size={14} />
+            {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
@@ -174,16 +190,21 @@ const AssetItem: React.FC<Props> = ({
   );
 };
 
-const AssetButton = styled(Button)`
+const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 100px;
   height: 100px;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed;
+  border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
+  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+`;
+
+const Space = styled.div`
+  flex: 1;
 `;
 
 const AssetWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
 `;
 
@@ -197,15 +218,18 @@ const AssetLink = styled(Button)`
   }
 `;
 
-const AssetLinkedName = styled(Button)`
+const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
   color: #1890ff;
+  color: ${({ enabled }) => (enabled ? "#1890ff" : "#00000040")};
   margin-left: 12px;
   span {
+    text-align: start;
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-all;
   }
 `;
 

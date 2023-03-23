@@ -18,7 +18,7 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   defaultValue?: string;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -29,15 +29,14 @@ type Props = {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 const AssetField: React.FC<Props> = ({
   multiple,
@@ -61,7 +60,6 @@ const AssetField: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   const t = useT();
 
@@ -89,7 +87,6 @@ const AssetField: React.FC<Props> = ({
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={onNavigateToAsset}
         />
       ) : (
         <AssetItem
@@ -113,7 +110,6 @@ const AssetField: React.FC<Props> = ({
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={onNavigateToAsset}
         />
       )}
     </Form.Item>

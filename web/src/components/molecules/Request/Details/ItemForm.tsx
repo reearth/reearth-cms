@@ -27,7 +27,7 @@ export interface Props {
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  uploadUrl: string;
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
@@ -38,15 +38,14 @@ export interface Props {
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   onUploadModalCancel: () => void;
-  setUploadUrl: (url: string) => void;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string) => Promise<Asset | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 }
 const RequestItemForm: React.FC<Props> = ({
   schema,
@@ -71,7 +70,6 @@ const RequestItemForm: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -166,7 +164,6 @@ const RequestItemForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
-                  onNavigateToAsset={onNavigateToAsset}
                 />
               ) : (
                 <AssetItem
@@ -191,7 +188,6 @@ const RequestItemForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
-                  onNavigateToAsset={onNavigateToAsset}
                 />
               )}
             </Form.Item>

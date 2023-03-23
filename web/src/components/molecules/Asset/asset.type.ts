@@ -23,7 +23,7 @@ export type Asset = {
   createdAt: string;
   createdBy: string;
   createdByType: string;
-  file: AssetFile;
+  file?: AssetFile;
   fileName: string;
   previewType?: PreviewType;
   projectId: string;
@@ -32,6 +32,12 @@ export type Asset = {
   threadId: string;
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
+  items: AssetItem[];
+};
+
+export type AssetItem = {
+  itemId: string;
+  modelId: string;
 };
 
 export type AssetFile = {

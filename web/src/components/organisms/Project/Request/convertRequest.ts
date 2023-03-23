@@ -5,22 +5,22 @@ import {
   ItemField,
 } from "@reearth-cms/gql/graphql-client-api";
 
-export const convertRequest = (GQLRequest: GQLRequest | undefined): Request | undefined => {
-  if (!GQLRequest) return;
+export const convertRequest = (request: GQLRequest | undefined): Request | undefined => {
+  if (!request) return;
   return {
-    id: GQLRequest.id,
-    threadId: GQLRequest.thread?.id ?? "",
-    title: GQLRequest.title,
-    description: GQLRequest.description ?? "",
-    comments: GQLRequest.thread?.comments?.map(comment => convertComment(comment)) ?? [],
-    createdAt: GQLRequest.createdAt,
-    reviewers: GQLRequest.reviewers,
-    state: GQLRequest.state,
-    createdBy: GQLRequest.createdBy ?? undefined,
-    updatedAt: GQLRequest.updatedAt,
-    approvedAt: GQLRequest.approvedAt ?? undefined,
-    closedAt: GQLRequest.closedAt ?? undefined,
-    items: GQLRequest.items.map(item => ({
+    id: request.id,
+    threadId: request.thread?.id ?? "",
+    title: request.title,
+    description: request.description ?? "",
+    comments: request.thread?.comments?.map(comment => convertComment(comment)) ?? [],
+    createdAt: request.createdAt,
+    reviewers: request.reviewers,
+    state: request.state,
+    createdBy: request.createdBy ?? undefined,
+    updatedAt: request.updatedAt,
+    approvedAt: request.approvedAt ?? undefined,
+    closedAt: request.closedAt ?? undefined,
+    items: request.items?.map(item => ({
       id: item.itemId,
       modelName: item?.item?.value.model.name,
       initialValues: getInitialFormValues(item.item?.value.fields),
@@ -34,7 +34,7 @@ export const convertComment = (GQLComment: GQLComment): Comment => {
     id: GQLComment.id,
     author: {
       id: GQLComment.author?.id,
-      name: GQLComment.author?.name ?? "",
+      name: GQLComment.author?.name ?? "Anonymous",
       type: GQLComment.author
         ? GQLComment.author.__typename === "User"
           ? "User"

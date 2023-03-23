@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	itemIndexes = []string{"schema", "fields.schemafield"}
+	itemIndexes = []string{"assets", "project", "schema", "fields.schemafield"}
 )
 
 type Item struct {
@@ -39,7 +39,18 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 }
 
 func (r *Item) Init() error {
-	return createIndexes(context.Background(), r.client.Client(), itemIndexes, nil)
+	res, err := r.client.Client().Indexes2(
+		context.Background(),
+		append(
+			r.client.Indexes(),
+			mongox.IndexFromKeys(itemIndexes, false)...,
+		)...,
+	)
+	if err != nil {
+		return err
+	}
+	logIndexResult(r.client.Client().Client().Name(), res)
+	return nil
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID, ref *version.Ref) (item.Versioned, error) {
@@ -127,6 +138,40 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	if len(filters) == 0 {
 		return nil, nil
 	}
+	return r.find(ctx, bson.M{"$or": filters}, ref)
+}
+
+func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	if al.Len() == 0 {
+		return nil, nil
+	}
+
+	filters := make([]bson.M, 0, len(al)+1)
+	filters = append(filters, bson.M{
+		"assets": bson.M{"$in": al.Strings()},
+	})
+
+	// compat
+	for _, assetID := range al {
+		filters = append(filters,
+			bson.M{
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"v.t": "asset",
+						"v.v": assetID.String(),
+					},
+				},
+			},
+			bson.M{
+				"fields": bson.M{
+					"$elemMatch": bson.M{
+						"valuetype": "asset",
+						"value":     assetID.String(),
+					},
+				},
+			})
+	}
+
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 

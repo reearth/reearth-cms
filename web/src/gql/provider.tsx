@@ -32,10 +32,10 @@ const Provider: React.FC<Props> = ({ children }) => {
     uri: endpoint,
   });
 
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
+  const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     if (!networkError && !graphQLErrors) return;
     const error = networkError?.message ?? graphQLErrors?.map(e => e.message).join(", ");
-    if (error) {
+    if (error && operation.operationName !== "GetAsset") {
       Notification.error({ message: error });
     }
   });

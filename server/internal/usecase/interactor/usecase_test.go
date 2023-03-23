@@ -38,7 +38,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				ReadableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot read a workspace",
@@ -54,7 +54,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				WritableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot write a workspace",
@@ -67,6 +67,7 @@ func TestUc_checkPermission(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -103,7 +104,7 @@ func TestRun(t *testing.T) {
 	gota, gotb, gotc, goterr := Run3(
 		ctx, nil, r,
 		Usecase(),
-		func() (any, any, any, error) {
+		func(ctx context.Context) (any, any, any, error) {
 			return a, b, c, nil
 		},
 	)
@@ -119,7 +120,7 @@ func TestRun(t *testing.T) {
 	_ = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)
@@ -131,7 +132,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return err
 		},
 	)
@@ -146,7 +147,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)
@@ -161,7 +162,7 @@ func TestRun(t *testing.T) {
 	goterr = Run0(
 		ctx, nil, r,
 		Usecase().Transaction(),
-		func() error {
+		func(ctx context.Context) error {
 			return nil
 		},
 	)

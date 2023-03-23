@@ -35,6 +35,13 @@ const (
 	Unknown    AssetPreviewType = "unknown"
 )
 
+// Defines values for AssetEmbedding.
+const (
+	All   AssetEmbedding = "all"
+	False AssetEmbedding = "false"
+	True  AssetEmbedding = "true"
+)
+
 // Defines values for CommentAuthorType.
 const (
 	Integrtaion CommentAuthorType = "integrtaion"
@@ -139,15 +146,15 @@ const (
 type Asset struct {
 	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
 	ContentType             *string                       `json:"contentType,omitempty"`
-	CreatedAt               *time.Time                    `json:"createdAt,omitempty"`
+	CreatedAt               time.Time                     `json:"createdAt"`
 	File                    *File                         `json:"file,omitempty"`
-	Id                      *id.AssetID                   `json:"id,omitempty"`
+	Id                      id.AssetID                    `json:"id"`
 	Name                    *string                       `json:"name,omitempty"`
 	PreviewType             *AssetPreviewType             `json:"previewType,omitempty"`
-	ProjectId               *id.ProjectID                 `json:"projectId,omitempty"`
+	ProjectId               id.ProjectID                  `json:"projectId"`
 	TotalSize               *float32                      `json:"totalSize,omitempty"`
-	UpdatedAt               *time.Time                    `json:"updatedAt,omitempty"`
-	Url                     *string                       `json:"url,omitempty"`
+	UpdatedAt               time.Time                     `json:"updatedAt"`
+	Url                     string                        `json:"url"`
 }
 
 // AssetArchiveExtractionStatus defines model for Asset.ArchiveExtractionStatus.
@@ -155,6 +162,9 @@ type AssetArchiveExtractionStatus string
 
 // AssetPreviewType defines model for Asset.PreviewType.
 type AssetPreviewType string
+
+// AssetEmbedding defines model for assetEmbedding.
+type AssetEmbedding string
 
 // Comment defines model for comment.
 type Comment struct {
@@ -254,6 +264,9 @@ type VersionedItem struct {
 // AssetIdParam defines model for assetIdParam.
 type AssetIdParam = id.AssetID
 
+// AssetParam defines model for assetParam.
+type AssetParam = AssetEmbedding
+
 // CommentIdParam defines model for commentIdParam.
 type CommentIdParam = id.CommentID
 
@@ -301,6 +314,9 @@ type AssetCommentUpdateJSONBody struct {
 type ItemGetParams struct {
 	// Ref Used to select a ref or ver
 	Ref *ItemGetParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
 }
 
 // ItemGetParamsRef defines parameters for ItemGet.
@@ -308,7 +324,8 @@ type ItemGetParamsRef string
 
 // ItemUpdateJSONBody defines parameters for ItemUpdate.
 type ItemUpdateJSONBody struct {
-	Fields *[]Field `json:"fields,omitempty"`
+	Asset  *AssetEmbedding `json:"asset,omitempty"`
+	Fields *[]Field        `json:"fields,omitempty"`
 }
 
 // ItemCommentCreateJSONBody defines parameters for ItemCommentCreate.
@@ -337,6 +354,9 @@ type ItemFilterParams struct {
 
 	// Ref Used to select a ref or ver
 	Ref *ItemFilterParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
 }
 
 // ItemFilterParamsSort defines parameters for ItemFilter.
@@ -369,6 +389,9 @@ type ItemFilterWithProjectParams struct {
 
 	// Ref Used to select a ref or ver
 	Ref *ItemFilterWithProjectParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
 }
 
 // ItemFilterWithProjectParamsSort defines parameters for ItemFilterWithProject.

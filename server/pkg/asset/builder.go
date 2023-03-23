@@ -30,9 +30,6 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
 	}
-	if b.a.file == nil {
-		return nil, ErrNoFile
-	}
 	if b.a.uuid == "" {
 		return nil, ErrNoUUID
 	}
@@ -94,11 +91,6 @@ func (b *Builder) Size(size uint64) *Builder {
 
 func (b *Builder) Type(t *PreviewType) *Builder {
 	b.a.previewType = t
-	return b
-}
-
-func (b *Builder) File(file *File) *Builder {
-	b.a.file = file
 	return b
 }
 

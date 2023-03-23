@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Asset, PreviewType, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import {
+  Asset,
+  AssetItem,
+  PreviewType,
+  ViewerType,
+  AssetFile,
+} from "@reearth-cms/components/molecules/Asset/asset.type";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   geoFormats,
@@ -15,6 +22,8 @@ import {
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
+  useGetAssetFileQuery,
+  useGetAssetItemQuery,
   useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -25,6 +34,8 @@ import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
   const t = useT();
+  const navigate = useNavigate();
+  const { workspaceId, projectId } = useParams();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -32,13 +43,44 @@ export default (assetId?: string) => {
   const { data: rawAsset, loading } = useGetAssetQuery({
     variables: {
       assetId: assetId ?? "",
-      withFiles: true,
     },
   });
 
-  const asset: Asset | undefined = useMemo(() => {
-    return convertAsset(rawAsset?.asset as GQLAsset);
+  const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
+    variables: {
+      assetId: assetId ?? "",
+    },
+  });
+
+  const { data: rawAssetItem } = useGetAssetItemQuery({
+    variables: {
+      assetId: assetId ?? "",
+    },
+  });
+
+  const convertedAsset: Asset | undefined = useMemo(() => {
+    return rawAsset?.node?.__typename === "Asset"
+      ? convertAsset(rawAsset.node as GQLAsset)
+      : undefined;
   }, [rawAsset]);
+
+  const asset = useMemo(() => {
+    return convertedAsset
+      ? {
+          ...convertedAsset,
+          ...(convertedAsset && rawAssetItem?.node?.__typename === "Asset"
+            ? {
+                items: rawAssetItem?.node.items ?? [],
+              }
+            : {}),
+          ...(convertedAsset && rawFile?.assetFile
+            ? {
+                file: rawFile?.assetFile as AssetFile,
+              }
+            : {}),
+        }
+      : undefined;
+  }, [convertedAsset, rawAssetItem?.node, rawFile?.assetFile]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
   const handleAssetUpdate = useCallback(
@@ -46,7 +88,7 @@ export default (assetId?: string) => {
       (async () => {
         if (!assetId) return;
         const result = await updateAssetMutation({
-          variables: { id: assetId, previewType: previewType as GQLPreviewType, withFiles: false },
+          variables: { id: assetId, previewType: previewType as GQLPreviewType },
           refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.updateAsset) {
@@ -60,17 +102,17 @@ export default (assetId?: string) => {
   );
 
   useEffect(() => {
-    if (asset?.previewType) {
-      setSelectedPreviewType(asset.previewType);
+    if (convertedAsset?.previewType) {
+      setSelectedPreviewType(convertedAsset.previewType);
     }
-  }, [asset?.previewType]);
+  }, [convertedAsset?.previewType]);
 
   const handleTypeChange = useCallback((value: PreviewType) => {
     setSelectedPreviewType(value);
   }, []);
 
   const [viewerType, setViewerType] = useState<ViewerType>("unknown");
-  const assetFileExt = getExtension(asset?.fileName);
+  const assetFileExt = getExtension(convertedAsset?.fileName);
 
   useEffect(() => {
     switch (true) {
@@ -100,7 +142,7 @@ export default (assetId?: string) => {
         setViewerType("unknown");
         break;
     }
-  }, [asset?.previewType, assetFileExt, selectedPreviewType]);
+  }, [convertedAsset?.previewType, assetFileExt, selectedPreviewType]);
 
   const displayUnzipFileList = useMemo(
     () => compressedFileFormats.includes(assetFileExt),
@@ -120,6 +162,15 @@ export default (assetId?: string) => {
     }
   }, [viewerType]);
 
+  const handleAssetItemSelect = useCallback(
+    (assetItem: AssetItem) => {
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/content/${assetItem.modelId}/details/${assetItem.itemId}`,
+      );
+    },
+    [navigate, projectId, workspaceId],
+  );
+
   const handleModalCancel = useCallback(() => {
     setIsModalVisible(false);
   }, []);
@@ -134,12 +185,13 @@ export default (assetId?: string) => {
   return {
     asset,
     assetFileExt,
-    isLoading: loading,
+    isLoading: loading || loading2,
     selectedPreviewType,
     isModalVisible,
     collapsed,
     viewerType,
     displayUnzipFileList,
+    handleAssetItemSelect,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
