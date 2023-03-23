@@ -13,7 +13,7 @@ func (r *Resolver) Query() QueryResolver {
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
-	u := getUser(ctx)
+	u := getAcUser(ctx)
 	if u == nil {
 		return nil, nil
 	}

@@ -3,34 +3,34 @@ package gqlmodel
 import (
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToRole(t *testing.T) {
 	tests := []struct {
 		name string
-		arg  user.Role
+		arg  workspace.Role
 		want Role
 	}{
 		{
 			name: "RoleOwner",
-			arg:  user.RoleOwner,
+			arg:  workspace.RoleOwner,
 			want: RoleOwner,
 		},
 		{
 			name: "RoleMaintainer",
-			arg:  user.RoleMaintainer,
+			arg:  workspace.RoleMaintainer,
 			want: RoleMaintainer,
 		},
 		{
 			name: "RoleWriter",
-			arg:  user.RoleWriter,
+			arg:  workspace.RoleWriter,
 			want: RoleWriter,
 		},
 		{
 			name: "RoleReader",
-			arg:  user.RoleReader,
+			arg:  workspace.RoleReader,
 			want: RoleReader,
 		},
 	}
@@ -47,27 +47,27 @@ func TestFromRole(t *testing.T) {
 	tests := []struct {
 		name string
 		arg  Role
-		want user.Role
+		want workspace.Role
 	}{
 		{
 			name: "RoleOwner",
 			arg:  RoleOwner,
-			want: user.RoleOwner,
+			want: workspace.RoleOwner,
 		},
 		{
 			name: "RoleMaintainer",
 			arg:  RoleMaintainer,
-			want: user.RoleMaintainer,
+			want: workspace.RoleMaintainer,
 		},
 		{
 			name: "RoleWriter",
 			arg:  RoleWriter,
-			want: user.RoleWriter,
+			want: workspace.RoleWriter,
 		},
 		{
 			name: "RoleReader",
 			arg:  RoleReader,
-			want: user.RoleReader,
+			want: workspace.RoleReader,
 		},
 	}
 	for _, tt := range tests {

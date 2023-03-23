@@ -14,6 +14,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	acuser "github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -49,6 +51,8 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
 	var u *user.User
+	var ac *acuser.User
+
 	if ai := adapter.GetAuthInfo(ctx); ai != nil {
 		var err error
 		userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
@@ -68,11 +72,21 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 			if err != nil {
 				return nil, err
 			}
-			u, err = cfg.Repos.User.FindByID(ctx, uId)
+			us, err := cfg.Repos.User.FindByID(ctx, uId)
+			if err == nil {
+				u = us
+			}
+
+			acUId, err := accountdomain.UserIDFrom(val)
 			if err != nil {
 				return nil, err
 			}
+			acu, err := cfg.AcRepos.User.FindByID(ctx, acUId)
+			if err == nil {
+				ac = acu
+			}
 		}
+
 	}
 
 	// generate operator
@@ -85,6 +99,8 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 		ctx = adapter.AttachUser(ctx, u)
 		ctx = adapter.AttachOperator(ctx, op)
+
+		ctx = adapter.AttachAcUser(ctx, ac)
 	}
 
 	return ctx, nil

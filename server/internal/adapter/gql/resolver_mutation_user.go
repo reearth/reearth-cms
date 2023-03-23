@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 )
 
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
+	theme := user.ThemeFrom(input.Theme.String())
 	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
 		Name:                 input.Name,
 		Email:                input.Email,
 		Lang:                 input.Lang,
-		Theme:                user.ThemeFrom(input.Theme),
+		Theme:                &theme,
 		Password:             input.Password,
 		PasswordConfirmation: input.PasswordConfirmation,
 	}, getAcOperator(ctx))
@@ -26,7 +27,7 @@ func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMe
 }
 
 func (r *mutationResolver) RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error) {
-	res, err := usecases(ctx).User.RemoveMyAuth(ctx, input.Auth, getOperator(ctx))
+	res, err := usecases(ctx).User.RemoveMyAuth(ctx, input.Auth, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -35,12 +36,12 @@ func (r *mutationResolver) RemoveMyAuth(ctx context.Context, input gqlmodel.Remo
 }
 
 func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMeInput) (*gqlmodel.DeleteMePayload, error) {
-	uid, err := gqlmodel.ToID[id.User](input.UserID)
+	uid, err := gqlmodel.ToID[accountdomain.User](input.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := usecases(ctx).User.DeleteMe(ctx, uid, getOperator(ctx)); err != nil {
+	if err := usecases(ctx).User.DeleteMe(ctx, uid, getAcOperator(ctx)); err != nil {
 		return nil, err
 	}
 
