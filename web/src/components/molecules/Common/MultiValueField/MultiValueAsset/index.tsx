@@ -43,7 +43,6 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   disabled?: boolean;
 };
 
@@ -71,7 +70,6 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
   disabled,
 }) => {
   const t = useT();
@@ -121,7 +119,6 @@ const MultiValueAsset: React.FC<Props> = ({
             )}
             <AssetItem
               disabled={disabled}
-              onNavigateToAsset={onNavigateToAsset}
               value={valueItem}
               assetList={assetList}
               fileList={fileList}

@@ -3,16 +3,17 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
-  Request as GQLRequest,
+  Comment as GQLComment,
   RequestState as GQLRequestState,
   useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
+
+import { convertComment } from "../../Content/convertItem";
 
 export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
@@ -31,7 +32,7 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests] = useState<Request[]>([]);
+  const [selectedRequests, _] = useState<string[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -63,7 +64,11 @@ export default () => {
 
   const { data: userData } = useGetMeQuery();
 
-  const { data, refetch, loading } = useGetRequestsQuery({
+  const {
+    data: rawRequests,
+    refetch,
+    loading,
+  } = useGetRequestsQuery({
     fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
@@ -81,14 +86,32 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const requests: Request[] = useMemo(
-    () =>
-      (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
-        .filter(request => !!request) as Request[]) ?? [],
-    [data?.requests.nodes],
-  );
+  const isRequest = (request: any): request is Request => !!request;
+
+  const requests: Request[] = useMemo(() => {
+    if (!rawRequests?.requests.nodes) return [];
+    const requests: Request[] = rawRequests?.requests.nodes
+      .map(r => {
+        if (!r) return;
+        const request: Request = {
+          id: r.id,
+          title: r.title,
+          description: r.description ?? "",
+          state: r.state,
+          threadId: r.threadId,
+          comments: r.thread?.comments.map(c => convertComment(c as GQLComment)) ?? [],
+          reviewers: r.reviewers,
+          createdAt: r.createdAt,
+          updatedAt: r.updatedAt,
+          approvedAt: r.approvedAt ?? undefined,
+          closedAt: r.closedAt ?? undefined,
+          items: [],
+        };
+        return request;
+      })
+      .filter(r => isRequest(r)) as Request[];
+    return requests;
+  }, [rawRequests?.requests.nodes]);
 
   const handleRequestSelect = useCallback(
     (id: string) => {
@@ -99,8 +122,9 @@ export default () => {
   );
 
   const handleNavigateToRequest = useCallback(
-    (request: Request) => {
-      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${request.id}`);
+    (requestId: string) => {
+      if (!projectId || !currentWorkspace?.id || !requestId) return;
+      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`);
     },
     [currentWorkspace?.id, navigate, projectId],
   );
@@ -129,6 +153,17 @@ export default () => {
     () => requests.find(request => request.id === selectedRequestId),
     [requests, selectedRequestId],
   );
+
+  // const selectRequest = useCallback(
+  //   (requestId: string) => {
+  //     if (selectedRequests.includes(requestId)) {
+  //       selectRequests(selectedRequests.filter(id => id !== requestId));
+  //     } else {
+  //       selectRequests([...selectedRequests, requestId]);
+  //     }
+  //   },
+  //   [selectedRequests, selectRequests],
+  // );
 
   const handleSearchTerm = useCallback(
     (term?: string) => {
@@ -169,11 +204,12 @@ export default () => {
 
   return {
     requests,
-    loading,
+    loading: loading,
     collapsedCommentsPanel,
     collapseCommentsPanel,
     selectedRequests,
     selectedRequest,
+    // selectRequest,
     selection,
     handleNavigateToRequest,
     setSelection,
@@ -185,7 +221,7 @@ export default () => {
     reviewedByMe,
     createdByMe,
     requestState,
-    totalCount: data?.requests.totalCount ?? 0,
+    totalCount: rawRequests?.requests.totalCount ?? 0,
     page,
     pageSize,
     handleRequestTableChange,

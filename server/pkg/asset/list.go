@@ -21,7 +21,9 @@ func (l List) Clone() List {
 }
 
 func (l List) Map() Map {
-	return lo.SliceToMap(l, func(a *Asset) (ID, *Asset) {
+	return lo.SliceToMap(lo.Filter(l, func(a *Asset, _ int) bool {
+		return a != nil
+	}), func(a *Asset) (ID, *Asset) {
 		return a.ID(), a
 	})
 }

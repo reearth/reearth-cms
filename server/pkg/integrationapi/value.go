@@ -90,17 +90,26 @@ func ToValue(v *value.Value, assets *AssetContext) any {
 
 type AssetContext struct {
 	Map     asset.Map
+	Files   map[asset.ID]*asset.File
 	BaseURL func(a *asset.Asset) string
 	All     bool
 }
 
 func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
-	if a, ok := c.Map[id]; ok {
-		var aurl string
-		if c.BaseURL != nil {
-			aurl = c.BaseURL(a)
+	if c.Map != nil {
+		if a, ok := c.Map[id]; ok {
+			var aurl string
+			if c.BaseURL != nil {
+				aurl = c.BaseURL(a)
+			}
+
+			var f *asset.File
+			if c.Files != nil {
+				f = c.Files[id]
+			}
+
+			return NewAsset(a, f, aurl, c.All)
 		}
-		return NewAsset(a, aurl, c.All)
 	}
 	return nil
 }
