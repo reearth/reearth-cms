@@ -28,8 +28,7 @@ func TestCommon_createEvent(t *testing.T) {
 	defer util.MockNow(now)()
 	uID := user.NewID()
 	a := asset.New().NewID().Thread(asset.NewThreadID()).
-		Project(project.NewID()).Size(100).CreatedByUser(uID).NewUUID().
-		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).MustBuild()
+		Project(project.NewID()).Size(100).CreatedByUser(uID).NewUUID().MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
 		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
@@ -75,7 +74,6 @@ func TestCommon_webhook(t *testing.T) {
 	uID := user.NewID()
 	a := asset.New().NewID().Thread(asset.NewThreadID()).NewUUID().
 		Project(project.NewID()).Size(100).CreatedByUser(uID).
-		File(asset.NewFile().Name("aaa.txt").Path("/aaa.txt").Size(100).Build()).
 		MustBuild()
 	workspace := user.NewWorkspace().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").

@@ -17,28 +17,8 @@ export const assetFragment = gql`
         ...integrationFragment
       }
     }
-    createdByType
-    fileName
     size
     previewType
-    file @include(if: $withFiles) {
-      ...assetFileFragment
-      children {
-        ...assetFileFragment
-        children {
-          ...assetFileFragment
-          children {
-            ...assetFileFragment
-            children {
-              ...assetFileFragment
-              children {
-                ...assetFileFragment
-              }
-            }
-          }
-        }
-      }
-    }
     uuid
     url
     thread {

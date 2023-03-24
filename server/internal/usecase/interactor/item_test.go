@@ -524,12 +524,14 @@ func TestItem_Search(t *testing.T) {
 }
 
 func TestItem_Create(t *testing.T) {
+	prj := project.New().NewID().MustBuild()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
 	lo.Must0(db.Schema.Save(ctx, s))
 	lo.Must0(db.Model.Save(ctx, m))
 	itemUC := NewItem(db, nil)
@@ -627,8 +629,9 @@ func TestItem_Create(t *testing.T) {
 
 func TestItem_Update(t *testing.T) {
 	uId := id.NewUserID().Ref()
+	prj := project.New().NewID().MustBuild()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(id.NewProjectID()).Fields(schema.FieldList{sf}).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
 	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
@@ -636,6 +639,7 @@ func TestItem_Update(t *testing.T) {
 
 	ctx := context.Background()
 	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
 	lo.Must0(db.Schema.Save(ctx, s))
 	lo.Must0(db.Model.Save(ctx, m))
 	lo.Must0(db.Item.Save(ctx, i))

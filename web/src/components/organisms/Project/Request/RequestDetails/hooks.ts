@@ -4,16 +4,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { getInitialFormValues } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
-  useGetRequestsQuery,
-  Request as GQLRequest,
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useAddCommentMutation,
   useGetMeQuery,
   useUpdateCommentMutation,
   useDeleteCommentMutation,
+  useGetRequestQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
@@ -26,6 +25,10 @@ export default () => {
   const { requestId } = useParams();
 
   const { data: userData } = useGetMeQuery();
+  const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
+    variables: { requestId: requestId ?? "" },
+    skip: !requestId,
+  });
 
   const me: User | undefined = useMemo(() => {
     return userData?.me
@@ -45,19 +48,41 @@ export default () => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const { data } = useGetRequestsQuery({
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: 100 },
-    },
-    skip: !projectId,
-  });
-
-  const currentRequest: Request | undefined = useMemo(
-    () =>
-      convertRequest(data?.requests.nodes.find(request => request?.id === requestId) as GQLRequest),
-    [requestId, data?.requests.nodes],
-  );
+  const currentRequest: Request | undefined = useMemo(() => {
+    if (!rawRequest) return;
+    if (rawRequest.node?.__typename !== "Request") return;
+    const r = rawRequest.node;
+    return {
+      id: r.id,
+      threadId: r.thread?.id ?? "",
+      title: r.title,
+      description: r.description ?? "",
+      comments:
+        r.thread?.comments?.map(c => ({
+          id: c.id,
+          author: {
+            id: c.author?.id,
+            name: c.author?.name ?? "Anonymous",
+            type: c.author ? (c.author.__typename === "User" ? "User" : "Integration") : null,
+          },
+          content: c.content,
+          createdAt: c.createdAt.toString(),
+        })) ?? [],
+      createdAt: r.createdAt,
+      reviewers: r.reviewers,
+      state: r.state,
+      createdBy: r.createdBy ?? undefined,
+      updatedAt: r.updatedAt,
+      approvedAt: r.approvedAt ?? undefined,
+      closedAt: r.closedAt ?? undefined,
+      items: r.items.map(item => ({
+        id: item.itemId,
+        modelName: item?.item?.value.model.name,
+        initialValues: getInitialFormValues(item.item?.value.fields),
+        schema: item.item?.value.schema ? item.item?.value.schema : undefined,
+      })),
+    };
+  }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
     () =>
@@ -201,6 +226,7 @@ export default () => {
   return {
     me,
     isCloseActionEnabled,
+    loading: requestLoading,
     isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,
