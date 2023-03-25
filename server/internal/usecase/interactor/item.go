@@ -152,6 +152,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return nil, err
+		}
+
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 		if err != nil {
 			return nil, err
@@ -209,6 +214,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		if err := i.event(ctx, Event{
+			Project:   prj,
 			Workspace: s.Workspace(),
 			Type:      event.ItemCreate,
 			Object:    vi,
@@ -255,6 +261,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return nil, err
+		}
+
 		fields, err := itemFieldsFromParams(param.Fields, s)
 		if err != nil {
 			return nil, err
@@ -270,6 +281,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		if err := i.event(ctx, Event{
+			Project:   prj,
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
 			Object:    itm,

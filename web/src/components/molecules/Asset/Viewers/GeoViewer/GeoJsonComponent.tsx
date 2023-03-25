@@ -19,7 +19,7 @@ const GeoJsonComponent: React.FC<Props> = ({ data }) => {
     [viewer],
   );
 
-  return <ResiumGeoJsonDataSource data={data} onLoad={handleLoad} />;
+  return <ResiumGeoJsonDataSource data={data} clampToGround={true} onLoad={handleLoad} />;
 };
 
 export default GeoJsonComponent;

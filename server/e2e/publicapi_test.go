@@ -265,9 +265,9 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 
-	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).File(
-		asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(),
-	).FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
+	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
+		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
+	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField1Key)).MustBuild(),
@@ -308,6 +308,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
+	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
 	lo.Must0(r.Schema.Save(ctx, s))
 	lo.Must0(r.Model.Save(ctx, m))
 	lo.Must0(r.Item.Save(ctx, i1))

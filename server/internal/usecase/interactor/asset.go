@@ -51,26 +51,40 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	})
 }
 
-func (i *Asset) GetURL(a *asset.Asset) string {
-	return i.gateways.File.GetURL(a)
-}
-
-func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, err error) {
-	if op.User == nil && op.Integration == nil {
-		return nil, interfaces.ErrInvalidOperator
-	}
-
-	if inp.File == nil && inp.URL == "" {
-		return nil, interfaces.ErrFileNotIncluded
-	}
-
-	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, op *usecase.Operator) (*asset.File, error) {
+	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, err
 	}
 
+	files, err := i.repos.AssetFile.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
+func (i *Asset) GetURL(a *asset.Asset) string {
+	return i.gateways.File.GetURL(a)
+}
+
+func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, afile *asset.File, err error) {
+	if op.User == nil && op.Integration == nil {
+		return nil, nil, interfaces.ErrInvalidOperator
+	}
+
+	if inp.File == nil && inp.URL == "" {
+		return nil, nil, interfaces.ErrFileNotIncluded
+	}
+
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return nil, interfaces.ErrOperationDenied
+		return nil, nil, interfaces.ErrOperationDenied
 	}
 
 	var uuid string
@@ -80,22 +94,22 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file = inp.File
 		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
-	return Run1(
+	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func(ctx context.Context) (*asset.Asset, error) {
+		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
 			if inp.URL != "" {
 				file, err = getExternalFile(ctx, inp.URL)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				uuid, size, err = i.gateways.File.UploadAsset(ctx, file)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 			}
 			file.Size = int64(size)
@@ -103,13 +117,11 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
 
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
-
-			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
 
 			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 			if inp.SkipDecompression {
@@ -121,7 +133,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Project(inp.ProjectID).
 				FileName(path.Base(file.Path)).
 				Size(uint64(file.Size)).
-				File(f).
 				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
 				Thread(th.ID()).
@@ -136,36 +147,43 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 			a, err := ab.Build()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
+			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
+
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, err
+				return nil, nil, err
+			}
+
+			if err := i.repos.AssetFile.Save(ctx, a.ID(), f); err != nil {
+				return nil, nil, err
 			}
 
 			if !inp.SkipDecompression {
-				if err := i.triggerDecompressEvent(ctx, a); err != nil {
-					return a, err
+				if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
+					return nil, nil, err
 				}
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   prj,
 				Workspace: prj.Workspace(),
 				Type:      event.AssetCreate,
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
-			return a, nil
+			return a, f, nil
 		})
 }
 
-func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset) error {
+func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),
-		Path:    a.RootPath(),
+		Path:    f.RootPath(a.UUID()),
 	}
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
 		return err
@@ -210,7 +228,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -219,7 +237,12 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
-			a, err := i.repos.Asset.FindByID(ctx, aId)
+			a, err := i.repos.Asset.FindByID(ctx, aid)
+			if err != nil {
+				return nil, err
+			}
+
+			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
 			if err != nil {
 				return nil, err
 			}
@@ -244,13 +267,19 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 					GuessContentType().
 					Build()
 			}), func(f *asset.File, _ int) bool {
-				return a.File().Path() != f.Path()
+				return srcfile.Path() != f.Path()
 			})
 
-			a.SetFile(asset.FoldFiles(assetFiles, a.File()))
 			a.UpdateArchiveExtractionStatus(s)
 			a.UpdatePreviewType(detectPreviewType(files))
+
+			f := asset.FoldFiles(assetFiles, srcfile)
+
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			if err := i.repos.AssetFile.Save(ctx, a.ID(), f); err != nil {
 				return nil, err
 			}
 
@@ -260,6 +289,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aId id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   p,
 				Workspace: p.Workspace(),
 				Type:      event.AssetDecompress,
 				Object:    a,
@@ -322,6 +352,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			}
 
 			if err := i.event(ctx, Event{
+				Project:   p,
 				Workspace: p.Workspace(),
 				Type:      event.AssetDelete,
 				Object:    a,

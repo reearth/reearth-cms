@@ -21,10 +21,10 @@ func TestNewItem(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedByUser(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		File(asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()).
 		Size(1).
 		NewUUID().
 		MustBuild()
+	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).Build()
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -51,14 +51,13 @@ func TestNewItem(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
 			"bbbbb": ItemAsset{
-				Type:        "asset",
-				ID:          as.ID().String(),
-				URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
-				ContentType: "application/json",
+				Type: "asset",
+				ID:   as.ID().String(),
+				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			},
 		}),
 	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + a.File().Path()
+		return "https://example.com/" + a.ID().String() + af.Path()
 	}))
 
 	// no assets
@@ -76,10 +75,10 @@ func TestNewItem_Multiple(t *testing.T) {
 		Project(id.NewProjectID()).
 		CreatedByUser(id.NewUserID()).
 		Thread(id.NewThreadID()).
-		File(asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()).
 		Size(1).
 		NewUUID().
 		MustBuild()
+	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -106,14 +105,13 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 			"bbbbb": []ItemAsset{{
-				Type:        "asset",
-				ID:          as.ID().String(),
-				URL:         "https://example.com/" + as.ID().String() + as.File().Path(),
-				ContentType: "application/json",
+				Type: "asset",
+				ID:   as.ID().String(),
+				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
 	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + a.File().Path()
+		return "https://example.com/" + a.ID().String() + af.Path()
 	}))
 
 	// no assets
@@ -131,10 +129,9 @@ func TestItem_MarshalJSON(t *testing.T) {
 		Fields: ItemFields{
 			"aaa": "aa",
 			"bbb": ItemAsset{
-				Type:        "asset",
-				ID:          "xxx",
-				URL:         "https://example.com",
-				ContentType: "application/json",
+				Type: "asset",
+				ID:   "xxx",
+				URL:  "https://example.com",
 			},
 		},
 	}))
@@ -146,10 +143,9 @@ func TestItem_MarshalJSON(t *testing.T) {
 		"id":  "xxx",
 		"aaa": "aa",
 		"bbb": map[string]any{
-			"type":        "asset",
-			"id":          "xxx",
-			"url":         "https://example.com",
-			"contentType": "application/json",
+			"type": "asset",
+			"id":   "xxx",
+			"url":  "https://example.com",
 		},
 	}, v)
 }

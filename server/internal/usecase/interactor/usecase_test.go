@@ -38,7 +38,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				ReadableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot read a workspace",
@@ -54,7 +54,7 @@ func TestUc_checkPermission(t *testing.T) {
 			op: &usecase.Operator{
 				WritableWorkspaces: id.WorkspaceIDList{tid},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:               "cannot write a workspace",
@@ -67,6 +67,7 @@ func TestUc_checkPermission(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

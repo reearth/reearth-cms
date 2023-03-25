@@ -10,6 +10,7 @@ const RequestDetails: React.FC = () => {
     isCloseActionEnabled,
     isApproveActionEnabled,
     currentRequest,
+    loading: loadingRequest,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
@@ -35,7 +36,6 @@ const RequestDetails: React.FC = () => {
     handleAssetCreateFromUrl,
     handleAssetsReload,
     handleSearchTerm,
-    handleNavigateToAsset,
     totalCount,
     page,
     pageSize,
@@ -61,6 +61,7 @@ const RequestDetails: React.FC = () => {
       assetList={assetList}
       fileList={fileList}
       loadingAssets={loading}
+      loading={loadingRequest}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
@@ -78,7 +79,6 @@ const RequestDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
-      onNavigateToAsset={handleNavigateToAsset}
     />
   );
 };
