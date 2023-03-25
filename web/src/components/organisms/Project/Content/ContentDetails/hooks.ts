@@ -33,6 +33,11 @@ export default () => {
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading,
+    totalCount,
+    page,
+    pageSize,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -239,6 +244,11 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleRequestTableChange,
+    requestModalLoading: loading,
+    requestModalTotalCount: totalCount,
+    requestModalPage: page,
+    requestModalPageSize: pageSize,
     handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,

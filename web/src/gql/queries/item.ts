@@ -43,7 +43,7 @@ export const GET_ITEM_NODE = gql`
         status
         assets {
           id
-          fileName
+          url
         }
         user {
           name
@@ -75,7 +75,7 @@ export const SEARCH_ITEM = gql`
         status
         assets {
           id
-          fileName
+          url
         }
         user {
           name

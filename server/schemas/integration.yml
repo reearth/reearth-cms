@@ -894,6 +894,12 @@ components:
         - "false"
     asset:
       type: object
+      required:
+        - id
+        - projectId
+        - url
+        - createdAt
+        - updatedAt
       properties:
         id:
           x-go-type: id.AssetID

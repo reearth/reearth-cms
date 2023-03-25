@@ -19,10 +19,7 @@ export const GET_PROJECT = gql`
 
 export const GET_PROJECTS = gql`
   query GetProjects($workspaceId: ID!, $pagination: Pagination) {
-    projects(
-      workspaceId: $workspaceId
-      pagination: $pagination
-    ) {
+    projects(workspaceId: $workspaceId, pagination: $pagination) {
       nodes {
         id
         name
