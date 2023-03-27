@@ -16,6 +16,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/account/accountdomain"
 	acuser "github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -99,8 +101,14 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 		ctx = adapter.AttachUser(ctx, u)
 		ctx = adapter.AttachOperator(ctx, op)
+	}
 
+	if ac != nil {
 		ctx = adapter.AttachAcUser(ctx, ac)
+		op, err := generateAcUserOperator(ctx, cfg, ac)
+		if err == nil {
+			ctx = adapter.AttachAcOperator(ctx, op)
+		}
 	}
 
 	return ctx, nil
@@ -245,6 +253,33 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 		WritableProjects:     wp,
 		MaintainableProjects: mp,
 		OwningProjects:       op,
+	}, nil
+}
+
+func generateAcUserOperator(ctx context.Context, cfg *ServerConfig, u *acuser.User) (*accountusecase.Operator, error) {
+	if u == nil {
+		return nil, nil
+	}
+
+	uid := u.ID()
+
+	w, err := cfg.AcRepos.Workspace.FindByUser(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	rw := w.FilterByUserRole(uid, workspace.RoleReader).IDs()
+	ww := w.FilterByUserRole(uid, workspace.RoleWriter).IDs()
+	mw := w.FilterByUserRole(uid, workspace.RoleMaintainer).IDs()
+	ow := w.FilterByUserRole(uid, workspace.RoleOwner).IDs()
+
+	return &accountusecase.Operator{
+		User: &uid,
+
+		ReadableWorkspaces:     rw,
+		WritableWorkspaces:     ww,
+		MaintainableWorkspaces: mw,
+		OwningWorkspaces:       ow,
 	}, nil
 }
 

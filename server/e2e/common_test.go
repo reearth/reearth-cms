@@ -115,7 +115,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name()))
+		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name(), false))
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false))
 	} else {
 		repos = memory.New()
@@ -145,10 +145,12 @@ func StartGQLServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Containe
 	}
 
 	srv := app.NewServer(ctx, &app.ServerConfig{
-		Config:   cfg,
-		Repos:    repos,
-		AcRepos:  accountrepos,
-		Gateways: &gateway.Container{},
+		Config:  cfg,
+		Repos:   repos,
+		AcRepos: accountrepos,
+		Gateways: &gateway.Container{
+			File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "https://example.com")),
+		},
 		AcGateways: &accountgateway.Container{
 			Mailer: mailer.New(&mailer.Config{}),
 		},

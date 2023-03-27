@@ -34,6 +34,10 @@ func AttachOperator(ctx context.Context, o *usecase.Operator) context.Context {
 	return context.WithValue(ctx, contextOperator, o)
 }
 
+func AttachAcOperator(ctx context.Context, o *accountusecase.Operator) context.Context {
+	return context.WithValue(ctx, contextOperator, o)
+}
+
 func AttachUsecases(ctx context.Context, u *interfaces.Container) context.Context {
 	ctx = context.WithValue(ctx, contextUsecases, u)
 	return ctx
