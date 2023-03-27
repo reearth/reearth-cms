@@ -6,10 +6,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/account/accountusecase"
 	acuser "github.com/reearth/reearthx/account/accountdomain/user"
-
+	"github.com/reearth/reearthx/account/accountusecase"
 )
 
 type ContextKey string
@@ -28,10 +26,6 @@ func AttachUsecases(ctx context.Context, u *interfaces.Container, enableDataLoad
 	ctx = context.WithValue(ctx, contextDataloaders, dataloaders)
 
 	return ctx
-}
-
-func getUser(ctx context.Context) *user.User {
-	return adapter.User(ctx)
 }
 
 func getAcUser(ctx context.Context) *acuser.User {
