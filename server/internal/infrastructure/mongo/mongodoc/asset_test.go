@@ -99,3 +99,58 @@ func TestNewAssetConsumer(t *testing.T) {
 	c := NewAssetConsumer()
 	assert.NotNil(t, c)
 }
+
+func TestAssetFileDocument_Model(t *testing.T) {
+	tests := []struct {
+		name  string
+		afDoc *AssetFileDocument
+		want  *asset.File
+	}{
+		{
+			name: "model",
+			afDoc: &AssetFileDocument{
+				Name:        "abc",
+				Size:        123,
+				ContentType: "text",
+				Path:        "/",
+				Children:    []*AssetFileDocument{},
+			},
+			want: asset.NewFile().Name("abc").ContentType("text").Size(123).Path("/").Build(),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := tt.afDoc.Model()
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestNewFile(t *testing.T) {
+	tests := []struct {
+		name string
+		f    *asset.File
+		want *AssetFileDocument
+	}{
+		{
+			name: "new",
+			f:    asset.NewFile().Name("abc").ContentType("text").Size(123).Path("/").Build(),
+			want: &AssetFileDocument{
+				Name:        "abc",
+				Size:        123,
+				ContentType: "text",
+				Path:        "/",
+				Children:    []*AssetFileDocument{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewFile(tt.f)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
