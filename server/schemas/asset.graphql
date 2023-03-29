@@ -7,10 +7,8 @@ type Asset implements Node {
   createdByType: OperatorType!
   createdById: ID!
   items: [AssetItem!]
-  fileName: String!
   size: FileSize!
   previewType: PreviewType
-  file: AssetFile!
   uuid: String!
   thread: Thread
   threadId: ID!
@@ -100,7 +98,7 @@ input AssetSort {
 }
 
 extend type Query {
-  asset(assetId: ID!): Asset!
+  assetFile(assetId: ID!): AssetFile!
   assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
 }
 

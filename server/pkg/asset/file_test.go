@@ -25,7 +25,6 @@ func TestFile_FileType(t *testing.T) {
 
 	dir := NewFile().Name("dir").Path("/aaa").Children([]*File{c}).Build()
 	assert.True(t, dir.IsDir())
-
 }
 
 func TestFile_Children(t *testing.T) {
@@ -152,4 +151,8 @@ func Test_FoldFiles(t *testing.T) {
 			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
 		),
 	)
+}
+
+func Test_File_RootPath(t *testing.T) {
+	assert.Equal(t, "xx/xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/hoge.zip", (&File{path: "hoge.zip"}).RootPath("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"))
 }

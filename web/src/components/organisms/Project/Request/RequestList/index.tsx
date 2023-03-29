@@ -12,6 +12,8 @@ const RequestList: React.FC = () => {
     loading,
     collapsedCommentsPanel,
     selectedRequest,
+    // selectRequest,
+    // selectedRequests,
     selection,
     setSelection,
     collapseCommentsPanel,

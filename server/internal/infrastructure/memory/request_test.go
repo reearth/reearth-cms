@@ -337,6 +337,7 @@ func TestRequest_FindByItem(t *testing.T) {
 			wantErr: errors.New("test"),
 		},
 	}
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
 			tc := tc

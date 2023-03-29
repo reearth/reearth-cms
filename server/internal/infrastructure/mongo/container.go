@@ -29,6 +29,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 
 	c := &repo.Container{
 		Asset:       NewAsset(client),
+		AssetFile:   NewAssetFile(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: client.Transaction(),
@@ -81,6 +82,16 @@ func createIndexes(ctx context.Context, c *mongox.Collection, keys, uniqueKeys [
 		log.Infof("mongo: %s: index deleted: %v, created: %v", c.Client().Name(), deleted, created)
 	}
 	return err
+}
+
+func logIndexResult(name string, r mongox.IndexResult) {
+	d := r.DeletedNames()
+	u := r.UpdatedNames()
+	a := r.AddedNames()
+	if len(d) == 0 && len(u) == 0 && len(a) == 0 {
+		return
+	}
+	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
 }
 
 func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{} {
