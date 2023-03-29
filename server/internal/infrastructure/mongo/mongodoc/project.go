@@ -95,5 +95,5 @@ func (d *ProjectPublicationDocument) Model() *project.Publication {
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]
 
 func NewProjectConsumer() *ProjectConsumer {
-	return NewComsumer[*ProjectDocument, *project.Project]()
+	return NewConsumer[*ProjectDocument, *project.Project]()
 }

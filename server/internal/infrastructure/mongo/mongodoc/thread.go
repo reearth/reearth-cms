@@ -24,7 +24,7 @@ type CommentDocument struct {
 type ThreadConsumer = mongox.SliceFuncConsumer[*ThreadDocument, *thread.Thread]
 
 func NewThreadConsumer() *ThreadConsumer {
-	return NewComsumer[*ThreadDocument, *thread.Thread]()
+	return NewConsumer[*ThreadDocument, *thread.Thread]()
 }
 
 func NewThread(a *thread.Thread) (*ThreadDocument, string) {

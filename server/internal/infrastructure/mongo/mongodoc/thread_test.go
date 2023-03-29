@@ -38,6 +38,7 @@ func TestComment_Model(t *testing.T) {
 }
 
 func TestThreadDocument_Model(t *testing.T) {
+	tId, wId := thread.NewID(), user.NewWorkspaceID()
 	tests := []struct {
 		name    string
 		tDoc    *ThreadDocument
@@ -45,9 +46,13 @@ func TestThreadDocument_Model(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "modal should pass",
-			tDoc:    nil,
-			want:    nil,
+			name: "model should pass",
+			tDoc: &ThreadDocument{
+				ID:        tId.String(),
+				Workspace: wId.String(),
+				Comments:  nil,
+			},
+			want:    thread.New().ID(tId).Workspace(wId).MustBuild(),
 			wantErr: false,
 		},
 	}
@@ -67,40 +72,60 @@ func TestThreadDocument_Model(t *testing.T) {
 }
 
 func TestNewComment(t *testing.T) {
-	type args struct {
-		c *thread.Comment
-	}
+	cId, uId := thread.NewCommentID(), user.NewID()
+
+	op := operator.OperatorFromUser(uId)
 	tests := []struct {
-		name string
-		args args
-		want *CommentDocument
+		name    string
+		comment *thread.Comment
+		want    *CommentDocument
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "new comment",
+			comment: thread.NewComment(cId, op, "abc"),
+			want: &CommentDocument{
+				ID:          cId.String(),
+				User:        uId.StringRef(),
+				Integration: nil,
+				Content:     "abc",
+			},
+		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewComment(tt.args.c), "NewComment(%v)", tt.args.c)
+			t.Parallel()
+			assert.Equal(t, tt.want, NewComment(tt.comment))
 		})
 	}
 }
 
 func TestNewThread(t *testing.T) {
-	type args struct {
-		a *thread.Thread
-	}
+	tId, wId := thread.NewID(), user.NewWorkspaceID()
 	tests := []struct {
-		name  string
-		args  args
-		want  *ThreadDocument
-		want1 string
+		name    string
+		th      *thread.Thread
+		want    *ThreadDocument
+		thDocId string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "new",
+			th:   thread.New().ID(tId).Workspace(wId).MustBuild(),
+			want: &ThreadDocument{
+				ID:        tId.String(),
+				Workspace: wId.String(),
+				Comments:  nil,
+			},
+			thDocId: tId.String(),
+		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := NewThread(tt.args.a)
-			assert.Equalf(t, tt.want, got, "NewThread(%v)", tt.args.a)
-			assert.Equalf(t, tt.want1, got1, "NewThread(%v)", tt.args.a)
+			t.Parallel()
+			got, got1 := NewThread(tt.th)
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.thDocId, got1)
 		})
 	}
 }
