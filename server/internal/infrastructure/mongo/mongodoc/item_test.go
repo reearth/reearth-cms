@@ -76,6 +76,7 @@ func TestNewItem(t *testing.T) {
 				Timestamp:   now,
 				User:        uId.StringRef(),
 				Integration: nil,
+				Assets:      []string{},
 			},
 			iDocId: iId.String(),
 		},
@@ -121,6 +122,7 @@ func TestNewItems(t *testing.T) {
 					Timestamp:   now,
 					User:        uId.StringRef(),
 					Integration: nil,
+					Assets:      []string{},
 				},
 			},
 			iDocsIds: []string{
