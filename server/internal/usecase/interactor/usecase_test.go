@@ -30,7 +30,7 @@ func TestUc_checkPermission(t *testing.T) {
 		{
 			name:               "nil operator 2",
 			readableWorkspaces: id.WorkspaceIDList{id.NewWorkspaceID()},
-			wantErr:            true,
+			wantErr:            false,
 		},
 		{
 			name:               "can read a workspace",

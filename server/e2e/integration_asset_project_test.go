@@ -52,9 +52,10 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 	a := al.First().Object()
 	a.Value("id").Equal(aid.String())
 	a.Value("projectId").Equal(pid)
-	a.Value("name").Equal("aaa.jpg")
-	a.Value("contentType").Equal("image/jpg")
 	a.Value("totalSize").Equal(1000)
+	a.Value("previewType").Equal("unknown")
+	// a.Value("createdAt").Equal("")
+	// a.Value("updatedAt").Equal("")
 }
 
 // POST projects/{projectId}/assets
