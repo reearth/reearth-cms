@@ -29,7 +29,7 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 		params.SkipDecompression = *input.SkipDecompression
 	}
 
-	res, err := uc.Create(ctx, params, getOperator(ctx))
+	res, _, err := uc.Create(ctx, params, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

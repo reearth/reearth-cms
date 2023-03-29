@@ -334,9 +334,11 @@ func TestRequest_FindByItem(t *testing.T) {
 			want:  0,
 		},
 	}
+
 	for _, tc := range tests {
-		t.Run(tc.name, func(tt *testing.T) {
-			tt.Parallel()
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// t.Parallel()
 			got, _ := r.FindByItems(ctx, tc.input)
 
 			assert.Equal(t, tc.want, len(got))

@@ -28,7 +28,6 @@ failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
 field not found: ファイルが見つかりませんでした。
 field value exist: フィールドの値はすでに存在します。
-file is required: ファイルは必須です。
 file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。

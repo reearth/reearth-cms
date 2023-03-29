@@ -31,7 +31,7 @@ func TestList_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
 	list := List{a}
 	got := list.Clone()
@@ -43,10 +43,10 @@ func TestList_Map(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
 	assert.Equal(t, Map{
 		a.ID(): a,
-	}, List{a}.Map())
+	}, List{a, nil}.Map())
 	assert.Equal(t, Map{}, List(nil).Map())
 }

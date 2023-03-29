@@ -108,7 +108,7 @@ const AssetMolecule: React.FC<Props> = ({
           }>
           {renderPreview()}
         </Card>
-        {displayUnzipFileList && (
+        {displayUnzipFileList && asset.file && (
           <Card
             title={asset.fileName}
             toolbar={

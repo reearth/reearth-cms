@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Key, useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -37,6 +38,11 @@ export type Props = {
   searchTerm: string;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
     page: number,
@@ -68,6 +74,11 @@ const ContentTable: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
@@ -75,7 +86,7 @@ const ContentTable: React.FC<Props> = ({
   onContentTableChange,
   onItemSelect,
   setSelection,
-  onItemEdit,
+  // onItemEdit,
   onItemDelete,
   onItemsReload,
 }) => {
@@ -84,11 +95,9 @@ const ContentTable: React.FC<Props> = ({
     () => [
       {
         render: (_, contentField) => (
-          <Button
-            type="link"
-            icon={<Icon icon="edit" />}
-            onClick={() => onItemEdit(contentField.id)}
-          />
+          <Link to={`details/${contentField.id}`}>
+            <Icon icon="edit" />
+          </Link>
         ),
         width: 48,
         minWidth: 48,
@@ -167,7 +176,7 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 148,
       },
     ],
-    [t, onItemEdit, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
+    [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
   );
 
   const rowSelection: TableRowSelection = {
@@ -254,6 +263,11 @@ const ContentTable: React.FC<Props> = ({
           visible={addItemToRequestModalShown}
           linkedRequest={undefined}
           requestList={requests}
+          onRequestTableChange={onRequestTableChange}
+          requestModalLoading={requestModalLoading}
+          requestModalTotalCount={requestModalTotalCount}
+          requestModalPage={requestModalPage}
+          requestModalPageSize={requestModalPageSize}
         />
       )}
     </>

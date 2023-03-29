@@ -21,6 +21,8 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
+import { fileName } from "./utils";
+
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
 
@@ -34,6 +36,11 @@ export default () => {
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading: requestModalLoading,
+    totalCount: requestModalTotalCount,
+    page: requestModalPage,
+    pageSize: requestModalPageSize,
   } = useContentHooks();
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -106,14 +113,17 @@ export default () => {
                       field.type === "Asset"
                         ? Array.isArray(field.value)
                           ? field.value
-                              .map(
-                                value =>
+                              .map(value =>
+                                fileName(
                                   (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
-                                    ?.fileName,
+                                    ?.url,
+                                ),
                               )
                               .join(", ")
-                          : (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
-                              ?.fileName
+                          : fileName(
+                              (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
+                                ?.url,
+                            )
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -270,6 +280,11 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
     handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
