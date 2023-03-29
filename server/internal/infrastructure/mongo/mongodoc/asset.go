@@ -18,21 +18,26 @@ type AssetDocument struct {
 	FileName                string
 	Size                    uint64
 	PreviewType             string
-	File                    *FileDocument
 	UUID                    string
 	Thread                  string
 	ArchiveExtractionStatus string
 }
 
-type FileDocument struct {
+type AssetAndFileDocument struct {
+	ID   string
+	File *AssetFileDocument
+}
+
+type AssetFileDocument struct {
 	Name        string
 	Size        uint64
 	ContentType string
 	Path        string
-	Children    []*FileDocument
+	Children    []*AssetFileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
+type AssetAndFileConsumer = mongox.SliceConsumer[*AssetAndFileDocument]
 
 func NewAssetConsumer() *AssetConsumer {
 	return NewConsumer[*AssetDocument, *asset.Asset]()
@@ -49,11 +54,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 	archiveExtractionStatus := ""
 	if s := a.ArchiveExtractionStatus(); s != nil {
 		archiveExtractionStatus = s.String()
-	}
-
-	var file *asset.File
-	if f := a.File(); f != nil {
-		file = f
 	}
 
 	var uid, iid *string
@@ -73,7 +73,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		FileName:                a.FileName(),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
-		File:                    toFile(file),
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().String(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
@@ -103,7 +102,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
-		File(fromFile(d.File)).
 		UUID(d.UUID).
 		Thread(thid).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
@@ -127,19 +125,19 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	return ab.Build()
 }
 
-func toFile(f *asset.File) *FileDocument {
+func NewFile(f *asset.File) *AssetFileDocument {
 	if f == nil {
 		return nil
 	}
 
-	c := []*FileDocument{}
+	c := []*AssetFileDocument{}
 	if f.Children() != nil && len(f.Children()) > 0 {
 		for _, v := range f.Children() {
-			c = append(c, toFile(v))
+			c = append(c, NewFile(v))
 		}
 	}
 
-	return &FileDocument{
+	return &AssetFileDocument{
 		Name:        f.Name(),
 		Size:        f.Size(),
 		ContentType: f.ContentType(),
@@ -148,7 +146,7 @@ func toFile(f *asset.File) *FileDocument {
 	}
 }
 
-func fromFile(f *FileDocument) *asset.File {
+func (f *AssetFileDocument) Model() *asset.File {
 	if f == nil {
 		return nil
 	}
@@ -156,7 +154,8 @@ func fromFile(f *FileDocument) *asset.File {
 	var c []*asset.File
 	if f.Children != nil && len(f.Children) > 0 {
 		for _, v := range f.Children {
-			c = append(c, fromFile(v))
+			f := v.Model()
+			c = append(c, f)
 		}
 	}
 

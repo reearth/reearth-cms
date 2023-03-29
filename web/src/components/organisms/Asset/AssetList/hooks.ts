@@ -97,7 +97,6 @@ export default () => {
         ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
         : undefined,
       keyword: searchTerm,
-      withFiles: false,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -140,7 +139,6 @@ export default () => {
                   projectId,
                   file,
                   skipDecompression: !!file.skipDecompression,
-                  withFiles: false,
                 },
               });
               if (result.errors || !result.data?.createAsset) {
@@ -173,7 +171,6 @@ export default () => {
             projectId,
             file: null,
             url,
-            withFiles: false,
             skipDecompression: !autoUnzip,
           },
         });

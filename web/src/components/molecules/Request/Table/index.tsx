@@ -22,14 +22,14 @@ export type Props = {
   loading: boolean;
   selectedRequest: Request | undefined;
   onRequestSelect: (assetId: string) => void;
-  onEdit: (request: Request) => void;
+  onEdit: (requestId: string) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
-  onRequestDelete: (requestIds: string[]) => Promise<void>;
+  onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
     pageSize: number,
@@ -72,7 +72,7 @@ const RequestListTable: React.FC<Props> = ({
     {
       title: "",
       render: (_, request) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request)} />
+        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
       ),
     },
     {

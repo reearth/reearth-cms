@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -190,8 +191,16 @@ func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*g
 	return loaders(ctx).Project.CheckAlias(ctx, alias)
 }
 
-func (r *queryResolver) Asset(ctx context.Context, assetId gqlmodel.ID) (*gqlmodel.Asset, error) {
-	return loaders(ctx).Asset.FindByID(ctx, assetId)
+func (r *queryResolver) AssetFile(ctx context.Context, assetId gqlmodel.ID) (*gqlmodel.AssetFile, error) {
+	id, err := id.AssetIDFrom(string(assetId))
+	if err != nil {
+		return nil, err
+	}
+	f, err := usecases(ctx).Asset.FindFileByID(ctx, id, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return gqlmodel.ToAssetFile(f), nil
 }
 
 func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {

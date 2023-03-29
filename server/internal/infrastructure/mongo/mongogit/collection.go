@@ -9,10 +9,8 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -163,34 +161,32 @@ func (c *Collection) Empty(ctx context.Context) error {
 	return c.client.Client().Drop(ctx)
 }
 
-func (c *Collection) CreateIndexes(ctx context.Context, keys, uniqueKeys []string) error {
-	indexes := append(
-		[]mongo.IndexModel{
-			{
-				Keys:    bson.D{{Key: "id", Value: 1}, {Key: versionKey, Value: 1}},
-				Options: options.Index().SetUnique(true),
-			},
-			{
-				Keys:    bson.D{{Key: "id", Value: 1}, {Key: metaKey, Value: 1}},
-				Options: options.Index().SetUnique(true).SetPartialFilterExpression(bson.M{metaKey: true}),
-			},
-			{Keys: bson.D{{Key: refsKey, Value: 1}}},
-			{Keys: bson.D{{Key: parentsKey, Value: 1}}},
+func (c *Collection) Indexes() []mongox.Index {
+	return []mongox.Index{
+		{
+			Name:   "mongogit_id",
+			Key:    bson.D{{Key: "id", Value: 1}, {Key: versionKey, Value: 1}},
+			Unique: true,
 		},
-		append(
-			util.Map(keys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}}
-			}),
-			util.Map(uniqueKeys, func(k string) mongo.IndexModel {
-				return mongo.IndexModel{Keys: bson.D{{Key: k, Value: 1}}, Options: options.Index().SetUnique(true)}
-			})...,
-		)...,
-	)
-
-	if _, err := c.client.Client().Indexes().CreateMany(ctx, indexes); err != nil {
-		return rerror.ErrInternalBy(err)
+		{
+			Name:   "mongogit_id_meta",
+			Key:    bson.D{{Key: "id", Value: 1}, {Key: metaKey, Value: 1}},
+			Unique: true,
+			Filter: bson.M{metaKey: true},
+		},
+		{
+			Name: "mongogit_id_refs",
+			Key:  bson.D{{Key: "id", Value: 1}, {Key: refsKey, Value: 1}},
+		},
+		{
+			Name: "mongogit_refs",
+			Key:  bson.D{{Key: refsKey, Value: 1}},
+		},
+		{
+			Name: "mongogit_parents",
+			Key:  bson.D{{Key: parentsKey, Value: 1}},
+		},
 	}
-	return nil
 }
 
 func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Meta, error) {
