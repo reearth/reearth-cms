@@ -54,4 +54,5 @@ type Asset interface {
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
+	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 }
