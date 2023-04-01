@@ -12,21 +12,23 @@ type Props = {
 };
 
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
-  //TODO: refactor me
   const [properties, setProperties] = useState<Property>();
-  const attributes = useMemo(() => {
+  const properties2 = useMemo(() => {
     if (properties && "attributes" in properties) {
+      const attributes = properties.attributes;
+      if (typeof attributes !== "string") {
+        return properties;
+      }
       try {
-        const attributes = JSON.parse(properties.attributes as any);
-        return attributes;
+        return { ...properties, attributes: JSON.parse(attributes) };
       } catch {
-        return {};
+        return properties;
       }
     }
   }, [properties]);
 
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} properties={attributes}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} properties={properties2}>
       <Imagery url={url} handleProperties={setProperties} />
     </ResiumViewer>
   );
