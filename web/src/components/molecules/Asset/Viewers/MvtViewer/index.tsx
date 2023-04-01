@@ -14,16 +14,15 @@ type Props = {
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer }) => {
   const [properties, setProperties] = useState<Property>();
   const properties2 = useMemo(() => {
-    if (properties && "attributes" in properties) {
-      const attributes = properties.attributes;
-      if (typeof attributes !== "string") {
-        return properties;
-      }
-      try {
-        return { ...properties, attributes: JSON.parse(attributes) };
-      } catch {
-        return properties;
-      }
+    if (typeof properties !== "object" || !properties) return properties;
+    const attributes = properties.attributes;
+    if (typeof attributes !== "string") {
+      return properties;
+    }
+    try {
+      return { ...properties, attributes: JSON.parse(attributes) };
+    } catch {
+      return properties;
     }
   }, [properties]);
 
