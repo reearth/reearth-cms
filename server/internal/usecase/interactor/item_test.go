@@ -245,6 +245,9 @@ func TestItem_FindBySchema(t *testing.T) {
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
@@ -267,7 +270,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// second version
@@ -277,8 +280,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, nil, i1),
-		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, nil, now, i1),
+		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// not found

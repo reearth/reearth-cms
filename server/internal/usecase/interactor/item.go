@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -230,6 +231,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		return vi, nil
 	})
+}
+
+func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
+	return i.repos.Item.LastModifiedByModel(ctx, model)
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
