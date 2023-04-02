@@ -90,6 +90,10 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
+		if sf == nil {
+			return k, nil
+		}
+
 		if sf != nil {
 			k = sf.Key().String()
 		}
