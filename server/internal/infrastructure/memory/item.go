@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -123,6 +124,23 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
 	}), nil
+}
+
+func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+	if r.err != nil {
+		return time.Time{}, r.err
+	}
+
+	res := r.data.Find(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(version.Latest.OrVersion())
+		it := itv.Value()
+		return it.Model() == modelID
+	})
+
+	if res == nil {
+		return time.Time{}, rerror.ErrNotFound
+	}
+	return res.Latest().Time(), nil
 }
 
 func (r *Item) Save(_ context.Context, t *item.Item) error {
