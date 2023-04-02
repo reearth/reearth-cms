@@ -40,6 +40,7 @@ var (
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	pid    = id.NewProjectID()
+	sid    = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 	sfKey2 = id.NewKey("asset")
@@ -88,7 +89,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
-	s := schema.New().NewID().
+	s := schema.New().ID(sid).
 		Workspace(w.ID()).
 		Project(p.ID()).
 		Fields([]*schema.Field{sf, sf2}).
