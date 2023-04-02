@@ -136,17 +136,17 @@ func TestVersionedList_SortByTimestamp(t *testing.T) {
 	v1 := version.New()
 	v2 := version.New()
 	list := VersionedList{
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
 	}
 	res := list.SortByTimestamp(AscDirection)
 	assert.Equal(t, VersionedList{
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
 	}, res)
 	res2 := list.SortByTimestamp(DescDirection)
 	assert.Equal(t, VersionedList{
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), &Item{id: id2, timestamp: now2}),
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), &Item{id: id1, timestamp: now1}),
+		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
+		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
 	}, res2)
 }

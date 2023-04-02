@@ -2,6 +2,7 @@ package version
 
 import (
 	"testing"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -13,10 +14,11 @@ func TestNewValue(t *testing.T) {
 		version: vx,
 		parents: NewVersions(vy),
 		refs:    NewRefs("a"),
+		time:    time.Time{},
 		value:   "xxx",
-	}, NewValue(vx, NewVersions(vy), NewRefs("a"), "xxx"))
-	assert.Nil(t, NewValue(vx, NewVersions(vx), nil, ""))
-	assert.Nil(t, NewValue(Version{}, nil, nil, ""))
+	}, NewValue(vx, NewVersions(vy), NewRefs("a"), time.Time{}, "xxx"))
+	assert.Nil(t, NewValue(vx, NewVersions(vx), nil, time.Time{}, ""))
+	assert.Nil(t, NewValue(Version{}, nil, nil, time.Time{}, ""))
 }
 
 func TestMustBeValue(t *testing.T) {
@@ -25,10 +27,11 @@ func TestMustBeValue(t *testing.T) {
 		version: vx,
 		parents: NewVersions(vy),
 		refs:    NewRefs("a"),
+		time:    time.Time{},
 		value:   "xxx",
-	}, MustBeValue(vx, NewVersions(vy), NewRefs("a"), "xxx"))
-	assert.Panics(t, func() { MustBeValue(vx, NewVersions(vx), nil, "") })
-	assert.Panics(t, func() { MustBeValue(Version{}, nil, nil, "") })
+	}, MustBeValue(vx, NewVersions(vy), NewRefs("a"), time.Time{}, "xxx"))
+	assert.Panics(t, func() { MustBeValue(vx, NewVersions(vx), nil, time.Time{}, "") })
+	assert.Panics(t, func() { MustBeValue(Version{}, nil, nil, time.Time{}, "") })
 }
 
 func TestValue_Version(t *testing.T) {
