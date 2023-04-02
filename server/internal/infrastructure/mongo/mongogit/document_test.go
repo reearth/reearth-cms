@@ -16,19 +16,22 @@ func TestDocument_MarshalBSON(t *testing.T) {
 		return
 	}
 
+	objid := primitive.NewObjectID()
 	v1, v2 := version.New(), version.New()
 
 	assert.Equal(t, bson.M{
 		"a":        "b",
+		"_id":      objid,
 		versionKey: primitive.Binary{Subtype: 0, Data: v1[:]},
 		parentsKey: bson.A{primitive.Binary{Subtype: 0, Data: v2[:]}},
 		refsKey:    bson.A{"latest"},
 	}, reunmarshal(&Document[any]{
 		Data: bson.M{"a": "b"},
 		Meta: Meta{
-			Version: v1,
-			Parents: []version.Version{v2},
-			Refs:    []version.Ref{version.Latest},
+			ObjectID: objid,
+			Version:  v1,
+			Parents:  []version.Version{v2},
+			Refs:     []version.Ref{version.Latest},
 		},
 	}))
 }
@@ -43,17 +46,20 @@ func TestDocument_UnmarshalBSON(t *testing.T) {
 		return
 	}
 
+	objid := primitive.NewObjectID()
 	v1, v2 := version.New(), version.New()
 
 	assert.Equal(t, Document[d]{
 		Data: d{A: "b"},
 		Meta: Meta{
-			Version: v1,
-			Parents: []version.Version{v2},
-			Refs:    []version.Ref{version.Latest},
+			ObjectID: objid,
+			Version:  v1,
+			Parents:  []version.Version{v2},
+			Refs:     []version.Ref{version.Latest},
 		},
 	}, reunmarshal(bson.M{
 		"a":        "b",
+		"_id":      objid,
 		versionKey: primitive.Binary{Subtype: 0, Data: v1[:]},
 		parentsKey: bson.A{primitive.Binary{Subtype: 0, Data: v2[:]}},
 		refsKey:    bson.A{"latest"},
@@ -80,16 +86,19 @@ func TestMeta_Apply(t *testing.T) {
 	type A struct {
 		A string
 	}
+	objid := primitive.NewObjectID()
 	got, err = Meta{
-		Version: v1,
-		Parents: []version.Version{v2},
-		Refs:    []version.Ref{version.Latest},
+		ObjectID: objid,
+		Version:  v1,
+		Parents:  []version.Version{v2},
+		Refs:     []version.Ref{version.Latest},
 	}.apply(A{
 		A: "hoge",
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, bson.D{
 		{Key: "a", Value: "hoge"},
+		{Key: "_id", Value: objid},
 		{Key: versionKey, Value: v1},
 		{Key: parentsKey, Value: []version.Version{v2}},
 		{Key: refsKey, Value: []version.Ref{version.Latest}},
