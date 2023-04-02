@@ -20,7 +20,18 @@ import (
 )
 
 var (
-	itemIndexes = []string{"assets", "modelid", "project", "schema", "fields.schemafield"}
+	itemIndexes = []string{
+		"assets",
+		"modelid",
+		"project",
+		"schema",
+		"fields.schemafield",
+		"project,schema,!timestamp,!id,__r",
+		"modelid,id,__r",
+		// "__r,assets,project,__", // cannot index parallel arrays
+		"__r,project,__",
+		"schema,id,__r,project",
+	}
 )
 
 type Item struct {
